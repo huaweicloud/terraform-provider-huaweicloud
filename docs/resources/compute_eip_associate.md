@@ -128,7 +128,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-This resource can be imported by specifying all three arguments, separated by a forward slash:
+This resource can be imported using the related `eip address` or `bandwidth_id`, `instance_id` and `fixed_ip`,
+separated by slashes, e.g.
 
 ```shell
 $ terraform import huaweicloud_compute_eip_associate.bind <eip address or bandwidth_id>/<instance_id>/<fixed_ip>

@@ -136,9 +136,9 @@ func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	// get port id
-	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, cfg, instanceID, fixedIP)
+	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, instanceID, fixedIP)
 	if err != nil {
-		return diag.Errorf("error getting port id of compute instance: %s", err)
+		return diag.Errorf("error getting port ID of compute instance: %s", err)
 	}
 
 	if v, ok := d.GetOk("public_ip"); ok {
@@ -217,9 +217,9 @@ func resourceComputeEIPAssociateRead(_ context.Context, d *schema.ResourceData, 
 	fixedIP := d.Get("fixed_ip").(string)
 
 	// get port id of compute instance
-	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, cfg, instanceID, fixedIP)
+	portID, privateIP, err := getComputeInstancePortIDbyFixedIP(ecsClient, instanceID, fixedIP)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "eip associate")
+		return common.CheckDeletedDiag(d, err, "EIP associate")
 	}
 
 	if v, ok := d.GetOk("public_ip"); ok {
@@ -228,12 +228,7 @@ func resourceComputeEIPAssociateRead(_ context.Context, d *schema.ResourceData, 
 		epsID := "all_granted_eps"
 		eipInfo, err := getFloatingIPbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
-			if eipInfo != nil {
-				log.Printf("[WARN] can not find the EIP by %s", eipAddr)
-				d.SetId("")
-				return nil
-			}
-			return diag.FromErr(err)
+			return common.CheckDeletedDiag(d, err, "EIP associate")
 		}
 
 		if eipInfo.PortID == portID {
@@ -258,6 +253,13 @@ func resourceComputeEIPAssociateRead(_ context.Context, d *schema.ResourceData, 
 	if !associated {
 		log.Printf("[WARN] the resource is not associated with the specified EIP or bandwidth")
 		d.SetId("")
+		return diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Resource not associated",
+				Detail:   "the resource is not associated with the specified EIP or bandwidth and will be removed in Terraform state.",
+			},
+		}
 	}
 
 	id := fmt.Sprintf("%s/%s/%s", publicID, instanceID, privateIP)
@@ -285,7 +287,7 @@ func resourceComputeEIPAssociateDelete(_ context.Context, d *schema.ResourceData
 	fixedIP := d.Get("fixed_ip").(string)
 
 	// get port id of compute instance
-	portID, _, err := getComputeInstancePortIDbyFixedIP(ecsClient, cfg, instanceID, fixedIP)
+	portID, _, err := getComputeInstancePortIDbyFixedIP(ecsClient, instanceID, fixedIP)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "eip associate")
 	}
@@ -316,20 +318,21 @@ func resourceComputeEIPAssociateDelete(_ context.Context, d *schema.ResourceData
 		bwID := d.Get("bandwidth_id").(string)
 		err = removePortFromBandwidth(bwClient, bwID, portID)
 		if err != nil {
-			return diag.Errorf("error associating IPv6 port %s to bandwidth: %s", portID, err)
+			return diag.Errorf("error disassociating IPv6 port %s from bandwidth: %s", portID, err)
 		}
 	}
 
 	return nil
 }
 
-func getComputeInstancePortIDbyFixedIP(client *golangsdk.ServiceClient, _ *config.Config, instanceId,
-	fixedIP string) (portId, privateIp string, err error) {
+func getComputeInstancePortIDbyFixedIP(client *golangsdk.ServiceClient, instanceId, fixedIP string) (portId, privateIp string, err error) {
 	var instance *cloudservers.CloudServer
 	instance, err = cloudservers.Get(client, instanceId).Extract()
 	if err != nil {
 		return
-	} else if instance.Status == "DELETED" || instance.Status == "SOFT_DELETED" {
+	}
+
+	if instance.Status == "DELETED" || instance.Status == "SOFT_DELETED" {
 		err = golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 				Body: []byte("the ECS instance has been deleted"),
@@ -350,7 +353,11 @@ func getComputeInstancePortIDbyFixedIP(client *golangsdk.ServiceClient, _ *confi
 		}
 	}
 
-	err = fmt.Errorf("the port ID does not exist")
+	err = golangsdk.ErrDefault404{
+		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+			Body: []byte("the port ID does not exist"),
+		},
+	}
 	return
 }
 
@@ -367,11 +374,15 @@ func getFloatingIPbyAddress(client *golangsdk.ServiceClient, floatingIP, epsID s
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return nil, fmt.Errorf("unable to retrieve eips: %s ", err)
+		return nil, fmt.Errorf("unable to retrieve EIP: %s ", err)
 	}
 
 	if len(allEips) != 1 {
-		return &eips.PublicIp{}, fmt.Errorf("can not find the EIP by %s", floatingIP)
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("can not find the EIP by %s", floatingIP)),
+			},
+		}
 	}
 
 	return &allEips[0], nil
@@ -441,6 +452,7 @@ func actionOnPort(client *golangsdk.ServiceClient, eipID, portID string) error {
 
 func parseComputeFloatingIPAssociateID(id string) (publicID, instanceID, fixedIP string, err error) {
 	idParts := strings.Split(id, "/")
+	// fixed_ip is optional, but we want users to give this value in import scenario
 	if len(idParts) != 3 && len(idParts) != 2 {
 		err = fmt.Errorf("unable to parse the resource ID, must be <eip address or bandwidth_id>/<instance_id>/<fixed_ip> format")
 		return
