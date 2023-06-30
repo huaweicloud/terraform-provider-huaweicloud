@@ -94,7 +94,23 @@ func eipAssociateRefreshFunc(client *golangsdk.ServiceClient, serverId, publicIP
 				}
 			}
 		}
-		return resp, "STARTING", nil
+		return resp, "PENDING", nil
+	}
+}
+
+func bandwidthAssociateRefreshFunc(client *golangsdk.ServiceClient, bwID, ipv6PortID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := bandwidthsv1.Get(client, bwID).Extract()
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		for _, item := range resp.PublicipInfo {
+			if item.PublicipId == ipv6PortID {
+				return resp, "COMPLETED", nil
+			}
+		}
+		return resp, "PENDING", nil
 	}
 }
 
@@ -106,7 +122,9 @@ func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating compute client: %s", err)
 	}
 
-	var publicID string
+	var associateID string
+	var refreshFunc resource.StateRefreshFunc
+
 	instanceID := d.Get("instance_id").(string)
 	fixedIP := d.Get("fixed_ip").(string)
 
@@ -122,6 +140,7 @@ func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.Errorf("error getting port id of compute instance: %s", err)
 	}
+
 	if v, ok := d.GetOk("public_ip"); ok {
 		vpcClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
@@ -130,7 +149,6 @@ func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceDa
 
 		// get EIP id
 		eipAddr := v.(string)
-		publicID = eipAddr
 		epsID := "all_granted_eps"
 		eipID, err := common.GetEipIDbyAddress(vpcClient, eipAddr, epsID)
 		if err != nil {
@@ -141,6 +159,9 @@ func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceDa
 		if err != nil {
 			return diag.Errorf("error associating port %s to EIP: %s", portID, err)
 		}
+
+		associateID = fmt.Sprintf("%s/%s/%s", eipAddr, instanceID, privateIP)
+		refreshFunc = eipAssociateRefreshFunc(ecsClient, instanceID, eipAddr)
 	} else {
 		bwClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
@@ -148,23 +169,24 @@ func resourceComputeEIPAssociateCreate(ctx context.Context, d *schema.ResourceDa
 		}
 
 		bwID := d.Get("bandwidth_id").(string)
-		publicID = bwID
 		err = insertPortToBandwidth(bwClient, bwID, portID)
 		if err != nil {
 			return diag.Errorf("error associating IPv6 port %s to bandwidth: %s", portID, err)
 		}
+
+		associateID = fmt.Sprintf("%s/%s/%s", bwID, instanceID, privateIP)
+		refreshFunc = bandwidthAssociateRefreshFunc(bwClient, bwID, portID)
 	}
 
-	id := fmt.Sprintf("%s/%s/%s", publicID, instanceID, privateIP)
-	d.SetId(id)
+	d.SetId(associateID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"STARTING"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      eipAssociateRefreshFunc(ecsClient, instanceID, publicID),
+		Refresh:      refreshFunc,
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
-		PollInterval: 10 * time.Second,
+		PollInterval: 5 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)

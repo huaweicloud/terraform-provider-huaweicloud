@@ -2,7 +2,6 @@ package ecs
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -23,7 +22,6 @@ func TestAccComputeEIPAssociate_basic(t *testing.T) {
 
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_eip_associate.test"
-	partten := `^((25[0-5]|2[0-4]\d|(1\d{2}|[1-9]?\d))\.){3}(25[0-5]|2[0-4]\d|(1\d{2}|[1-9]?\d))$`
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -35,9 +33,10 @@ func TestAccComputeEIPAssociate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
-					testAccCheckComputeEIPAssociateAssociated(&eip, &instance, 1),
+					testAccCheckComputeEIPAssociateAssociated(&eip, &instance),
 					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
-					resource.TestMatchOutput("public_ip_address", regexp.MustCompile(partten)),
+					resource.TestCheckResourceAttrPair("data.huaweicloud_compute_instance.test", "public_ip",
+						"huaweicloud_vpc_eip.test", "address"),
 				),
 			},
 			{
@@ -66,7 +65,7 @@ func TestAccComputeEIPAssociate_fixedIP(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
-					testAccCheckComputeEIPAssociateAssociated(&eip, &instance, 1),
+					testAccCheckComputeEIPAssociateAssociated(&eip, &instance),
 					resource.TestCheckResourceAttrSet(resourceName, "port_id"),
 				),
 			},
@@ -116,8 +115,7 @@ func testAccCheckComputeEIPAssociateDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckComputeEIPAssociateAssociated(
-	eip *eips.PublicIp, instance *cloudservers.CloudServer, n int) resource.TestCheckFunc {
+func testAccCheckComputeEIPAssociateAssociated(eip *eips.PublicIp, instance *cloudservers.CloudServer) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
@@ -131,12 +129,7 @@ func testAccCheckComputeEIPAssociateAssociated(
 		}
 
 		// Walk through the instance's addresses and find the match
-		i := 0
 		for _, networkAddresses := range newInstance.Addresses {
-			i++
-			if i != n {
-				continue
-			}
 			for _, address := range networkAddresses {
 				if address.Type == "floating" && address.Addr == eip.PublicAddress {
 					return nil
@@ -174,7 +167,6 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 		}
 
 		*eip = found
-
 		return nil
 	}
 }
@@ -217,14 +209,10 @@ resource "huaweicloud_compute_eip_associate" "test" {
   instance_id = huaweicloud_compute_instance.test.id
 }
 
-data "huaweicloud_compute_instance" "default" {
+data "huaweicloud_compute_instance" "test" {
   depends_on = [huaweicloud_compute_eip_associate.test]
 
   name = huaweicloud_compute_instance.test.name
-}
-
-output "public_ip_address" {
-  value = data.huaweicloud_compute_instance.default.public_ip
 }
 `, testAccComputeEIPAssociate_Base(rName))
 }
