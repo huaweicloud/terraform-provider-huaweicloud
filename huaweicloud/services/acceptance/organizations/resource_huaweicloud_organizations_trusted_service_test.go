@@ -15,13 +15,12 @@ import (
 )
 
 func getTrustedServiceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
 	// getTrustedService: Query Organizations trusted service
 	var (
 		getTrustedServiceHttpUrl = "v1/organizations/trusted-services"
 		getTrustedServiceProduct = "organizations"
 	)
-	getTrustedServiceClient, err := cfg.NewServiceClient(getTrustedServiceProduct, region)
+	getTrustedServiceClient, err := cfg.NewServiceClient(getTrustedServiceProduct, "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
 	}
