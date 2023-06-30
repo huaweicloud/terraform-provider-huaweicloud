@@ -1172,6 +1172,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_organizations_organizational_unit": organizations.ResourceOrganizationalUnit(),
 			"huaweicloud_organizations_organization":        organizations.ResourceOrganization(),
+			"huaweicloud_organizations_account_invite":      organizations.ResourceAccountInvite(),
 			"huaweicloud_organizations_trusted_service":     organizations.ResourceTrustedService(),
 
 			"huaweicloud_dli_queue_v1":                dli.ResourceDliQueue(),

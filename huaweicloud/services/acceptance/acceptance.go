@@ -108,7 +108,8 @@ var (
 
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 
-	HW_ORGANIZATIONS_ENVIRONMENT = os.Getenv("HW_ORGANIZATIONS_ENVIRONMENT")
+	HW_ORGANIZATIONS_ENVIRONMENT       = os.Getenv("HW_ORGANIZATIONS_ENVIRONMENT")
+	HW_ORGANIZATIONS_INVITE_ACCOUNT_ID = os.Getenv("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID")
 
 	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
@@ -193,6 +194,13 @@ func preCheckRequiredEnvVars(t *testing.T) {
 func TestAccPreCheckOrganizations(t *testing.T) {
 	if HW_ORGANIZATIONS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support Organizations tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOrganizationsInviteAccountId(t *testing.T) {
+	if HW_ORGANIZATIONS_INVITE_ACCOUNT_ID == "" {
+		t.Skip("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID must be set for acceptance tests")
 	}
 }
 
