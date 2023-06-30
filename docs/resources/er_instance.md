@@ -63,6 +63,8 @@ attachment.
 
 * `default_association_route_table_id` - (Optional, String) The ID of the default association route table.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
