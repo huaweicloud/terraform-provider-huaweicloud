@@ -37,7 +37,8 @@ var (
 	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
 
-	HW_CNAD_ENABLE_FLAG = os.Getenv("HW_CNAD_ENABLE_FLAG")
+	HW_CNAD_ENABLE_FLAG       = os.Getenv("HW_CNAD_ENABLE_FLAG")
+	HW_CNAD_PROJECT_OBJECT_ID = os.Getenv("HW_CNAD_PROJECT_OBJECT_ID")
 
 	HW_OBS_BUCKET_NAME        = os.Getenv("HW_OBS_BUCKET_NAME")
 	HW_OBS_DESTINATION_BUCKET = os.Getenv("HW_OBS_DESTINATION_BUCKET")
@@ -348,6 +349,13 @@ func TestAccPrecheckWafInstance(t *testing.T) {
 func TestAccPreCheckCNADInstance(t *testing.T) {
 	if HW_CNAD_ENABLE_FLAG == "" {
 		t.Skip("Jump the CNAD acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCNADProtectedObject(t *testing.T) {
+	if HW_CNAD_PROJECT_OBJECT_ID == "" {
+		t.Skip("Skipping test because HW_CNAD_PROJECT_OBJECT_ID is required for this acceptance test.")
 	}
 }
 
