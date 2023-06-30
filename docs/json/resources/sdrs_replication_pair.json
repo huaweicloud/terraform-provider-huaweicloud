@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sdrs_replication_pair": {
+          "block": {
+            "attributes": {
+              "delete_target_volume": {
+                "type": "bool",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "fault_level": {
+                "type": "string",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replication_model": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "target_volume_id": {
+                "type": "string",
+                "computed": true
+              },
+              "volume_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

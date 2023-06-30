@@ -189,6 +189,7 @@
               },
               "security_group_id": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "service_network_cidr": {

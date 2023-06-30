@@ -29,6 +29,16 @@
                 "optional": true,
                 "forcenew": true
               },
+              "dedicated_flavor": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "dedicated_storage_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "enhanced": {
                 "type": "bool",
                 "optional": true,

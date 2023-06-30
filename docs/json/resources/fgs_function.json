@@ -85,6 +85,11 @@
                 "optional": true,
                 "computed": true
               },
+              "max_instance_num": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "memory_size": {
                 "type": "number",
                 "required": true
@@ -116,6 +121,13 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               },
               "timeout": {
                 "type": "number",

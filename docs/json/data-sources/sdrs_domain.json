@@ -2,38 +2,34 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_dms_maintainwindow": {
+        "huaweicloud_sdrs_domain": {
           "block": {
             "attributes": {
-              "begin": {
+              "description": {
                 "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "default": {
-                "type": "bool",
-                "optional": true,
-                "computed": true
-              },
-              "end": {
-                "type": "string",
-                "optional": true,
                 "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
-              },
-              "seq": {
-                "type": "number",
-                "optional": true,
-                "computed": true
               }
             }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
           }
         }
       }

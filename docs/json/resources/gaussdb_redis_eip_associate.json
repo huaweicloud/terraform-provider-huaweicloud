@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_redis_eip_associate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of a GaussDB Redis instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of a GaussDB Redis node.",
+                "required": true,
+                "forcenew": true
+              },
+              "public_ip": {
+                "type": "string",
+                "description": "Indicates the EIP address to associate.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GaussDB NoSQL",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB NoSQL",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

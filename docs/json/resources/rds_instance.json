@@ -158,6 +158,11 @@
                   "attributes": {
                     "keep_days": {
                       "type": "number",
+                      "description": "schema: Required",
+                      "required": true
+                    },
+                    "period": {
+                      "type": "string",
                       "optional": true,
                       "computed": true
                     },

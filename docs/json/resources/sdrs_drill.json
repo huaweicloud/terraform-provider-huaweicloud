@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sdrs_drill": {
+          "block": {
+            "attributes": {
+              "drill_vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

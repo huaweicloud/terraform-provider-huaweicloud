@@ -69,6 +69,7 @@
                       "id": "string",
                       "name": "string",
                       "private_ip": "string",
+                      "public_ip": "string",
                       "status": "string",
                       "support_reduce": "bool"
                     }
@@ -91,7 +92,9 @@
               },
               "port": {
                 "type": "number",
-                "computed": true
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "private_ips": {
                 "type": [
@@ -106,6 +109,10 @@
               },
               "security_group_id": {
                 "type": "string",
+                "optional": true
+              },
+              "ssl": {
+                "type": "bool",
                 "optional": true
               },
               "status": {

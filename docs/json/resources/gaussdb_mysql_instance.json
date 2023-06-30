@@ -135,6 +135,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "sql_filter_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "computed": true

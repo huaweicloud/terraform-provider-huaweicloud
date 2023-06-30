@@ -44,6 +44,15 @@
                 "computed": true,
                 "forcenew": true
               },
+              "dedicated_storage_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "dedicated_storage_name": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true

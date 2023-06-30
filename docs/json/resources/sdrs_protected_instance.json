@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sdrs_protected_instance": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "delete_target_eip": {
+                "type": "bool",
+                "optional": true
+              },
+              "delete_target_server": {
+                "type": "bool",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "primary_ip_address": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "primary_subnet_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "target_server": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

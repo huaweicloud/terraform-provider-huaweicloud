@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_organizations_account_invite_accepter": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "description": "Indicates the ID of the target account.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the date and time when an invitation (handshake) request was made.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "invitation_id": {
+                "type": "string",
+                "description": "Specifies the unique ID of an invitation (handshake).",
+                "required": true,
+                "forcenew": true
+              },
+              "leave_organization_on_destroy": {
+                "type": "bool",
+                "description": "Specifies whether to leave the organization when delete the invitation (handshake).",
+                "optional": true
+              },
+              "master_account_id": {
+                "type": "string",
+                "description": "Indicates the unique ID of the organization's management account.",
+                "computed": true
+              },
+              "master_account_name": {
+                "type": "string",
+                "description": "Indicates the name of the organization's management account.",
+                "computed": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Indicates the ID of the organization.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the current state of the invitation (handshake).",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the date and time when an invitation (handshake) request was accepted,\ncancelled, declined, or expired.",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the invitation",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

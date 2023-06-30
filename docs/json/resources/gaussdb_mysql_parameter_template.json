@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_mysql_parameter_template": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time in the \"yyyy-MM-ddTHH:mm:ssZ\" format.",
+                "computed": true
+              },
+              "datastore_engine": {
+                "type": "string",
+                "description": "Specifies the DB engine.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "datastore_version": {
+                "type": "string",
+                "description": "Specifies the DB version.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the parameter template description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the parameter template name.",
+                "required": true
+              },
+              "parameter_values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the mapping between parameter names and parameter values.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the update time in the \"yyyy-MM-ddTHH:mm:ssZ\" format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

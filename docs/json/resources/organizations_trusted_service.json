@@ -1,0 +1,29 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_organizations_trusted_service": {
+          "block": {
+            "attributes": {
+              "enabled_at": {
+                "type": "string",
+                "description": "Indicates the date when the trusted service was integrated with Organizations.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "service": {
+                "type": "string",
+                "description": "Specifies the name of the trusted service principal.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

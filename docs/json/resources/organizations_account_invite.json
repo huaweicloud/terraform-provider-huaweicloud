@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_organizations_account_invite": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "description": "Specifies the ID of the target account.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the date and time when an invitation (handshake) request was made.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "master_account_id": {
+                "type": "string",
+                "description": "Indicates the unique ID of the organization's management account.",
+                "computed": true
+              },
+              "master_account_name": {
+                "type": "string",
+                "description": "Indicates the name of the organization's management account.",
+                "computed": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Indicates the ID of the organization.",
+                "computed": true
+              },
+              "remove_account_on_destroy": {
+                "type": "bool",
+                "description": "Specifies whether to remove the invited account when delete the invitation (handshake).",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the current state of the invitation (handshake).",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the date and time when an invitation (handshake) request was accepted,\ncanceled, declined, or expired.",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the invitation",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

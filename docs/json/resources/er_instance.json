@@ -85,6 +85,13 @@
                 "description": "Current status of the router.",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "updated_at": {
                 "type": "string",
                 "description": "The latest update time.",

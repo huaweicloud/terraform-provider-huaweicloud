@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sdrs_protection_group": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of a protection group.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "Specifies the ID of an active-active domain.",
+                "required": true,
+                "forcenew": true
+              },
+              "dr_type": {
+                "type": "string",
+                "description": "Specifies the deployment model. The default value is **migration**, indicating migration\nwithin a VPC.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "enable": {
+                "type": "bool",
+                "description": "Specifies whether enable the protection group start protecting",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of a protection group.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_availability_zone": {
+                "type": "string",
+                "description": "Specifies the production site AZ of a protection group.",
+                "required": true,
+                "forcenew": true
+              },
+              "source_vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC for the production site.",
+                "required": true,
+                "forcenew": true
+              },
+              "target_availability_zone": {
+                "type": "string",
+                "description": "Specifies the disaster recovery site AZ of a protection group.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

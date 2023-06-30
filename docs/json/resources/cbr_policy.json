@@ -7,18 +7,28 @@
             "attributes": {
               "backup_quantity": {
                 "type": "number",
+                "description": "The maximum number of retained backups.",
                 "optional": true
               },
               "destination_project_id": {
                 "type": "string",
+                "description": "The ID of the replication destination project.",
                 "optional": true
               },
               "destination_region": {
                 "type": "string",
+                "description": "The name of the replication destination region.",
                 "optional": true
+              },
+              "enable_acceleration": {
+                "type": "bool",
+                "description": "Whether to enable the acceleration function to shorten the replication time for cross-region",
+                "optional": true,
+                "forcenew": true
               },
               "enabled": {
                 "type": "bool",
+                "description": "Whether to enable the CBR policy.",
                 "optional": true,
                 "default": true
               },
@@ -28,23 +38,28 @@
               },
               "name": {
                 "type": "string",
+                "description": "The policy name.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the policy is located.",
                 "computed": true
               },
               "time_period": {
                 "type": "number",
+                "description": "The duration (in days) for retained backups.",
                 "optional": true
               },
               "time_zone": {
                 "type": "string",
+                "description": "The UTC time zone.",
                 "optional": true,
                 "computed": true
               },
               "type": {
                 "type": "string",
+                "description": "The protection type of the CBR policy.",
                 "required": true,
                 "forcenew": true
               }
@@ -55,6 +70,7 @@
                   "attributes": {
                     "days": {
                       "type": "string",
+                      "description": "The weekly backup time.",
                       "optional": true
                     },
                     "execution_times": {
@@ -62,13 +78,16 @@
                         "list",
                         "string"
                       ],
+                      "description": "The execution time of the policy.",
                       "required": true
                     },
                     "interval": {
                       "type": "number",
+                      "description": "The number of days between each backup.",
                       "optional": true
                     }
-                  }
+                  },
+                  "description": "The scheduling rule for the CBR policy backup execution."
                 },
                 "nesting_mode": "list",
                 "min_items": 1,
@@ -79,21 +98,31 @@
                   "attributes": {
                     "daily": {
                       "type": "number",
+                      "description": "The latest backup of each day is saved in the long term.",
+                      "optional": true
+                    },
+                    "full_backup_interval": {
+                      "type": "number",
+                      "description": "How often (after how many incremental backups) a full backup is performed.",
                       "optional": true
                     },
                     "monthly": {
                       "type": "number",
+                      "description": "The latest backup of each month is saved in the long term.",
                       "optional": true
                     },
                     "weekly": {
                       "type": "number",
+                      "description": "The latest backup of each week is saved in the long term.",
                       "optional": true
                     },
                     "yearly": {
                       "type": "number",
+                      "description": "The latest backup of each year is saved in the long term.",
                       "optional": true
                     }
-                  }
+                  },
+                  "description": "The long-term retention rules."
                 },
                 "nesting_mode": "list",
                 "max_items": 1

@@ -7,14 +7,17 @@
             "attributes": {
               "auto_expand_enabled": {
                 "type": "bool",
+                "description": "Whether to enable automatic expansion of the backup protection type vault.",
                 "optional": true
               },
               "consistent_level": {
                 "type": "string",
+                "description": "The consistent level (specification) of the vault.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The ID of the enterprise project to which the vault belongs.",
                 "optional": true
               },
               "id": {
@@ -23,29 +26,36 @@
               },
               "name": {
                 "type": "string",
+                "description": "The vault name.",
                 "optional": true
               },
               "policy_id": {
                 "type": "string",
+                "description": "The ID of the policy associated with the vault.",
                 "optional": true
               },
               "protection_type": {
                 "type": "string",
+                "description": "The protection type of the vault.",
                 "optional": true
               },
               "region": {
-                "type": "string"
+                "type": "string",
+                "description": "The region in which to query the vaults."
               },
               "size": {
                 "type": "number",
+                "description": "The vault sapacity, in GB.",
                 "optional": true
               },
               "status": {
                 "type": "string",
+                "description": "The vault status.",
                 "optional": true
               },
               "type": {
                 "type": "string",
+                "description": "The object type of the vault.",
                 "optional": true
               },
               "vaults": {

@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_mysql_account_privilege": {
+          "block": {
+            "attributes": {
+              "account_name": {
+                "type": "string",
+                "description": "Specifies the database username.",
+                "required": true,
+                "forcenew": true
+              },
+              "host": {
+                "type": "string",
+                "description": "Specifies the host IP address which allow database users to connect to the database\non the current host",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "databases": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the database name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "readonly": {
+                      "type": "bool",
+                      "description": "Specifies whether the database permission is read-only.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the list of the databases."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,15 +7,18 @@
             "attributes": {
               "allocated": {
                 "type": "number",
+                "description": "The allocated capacity, in GB.",
                 "computed": true
               },
               "auto_bind": {
                 "type": "bool",
+                "description": "Whether automatic association is supported.",
                 "optional": true,
                 "computed": true
               },
               "auto_expand": {
                 "type": "bool",
+                "description": "Whether to enable auto capacity expansion for the vault.",
                 "optional": true,
                 "computed": true
               },
@@ -23,11 +26,19 @@
                 "type": "string",
                 "optional": true
               },
+              "backup_name_prefix": {
+                "type": "string",
+                "description": "The backup name prefix.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "bind_rules": {
                 "type": [
                   "map",
                   "string"
                 ],
+                "description": "The rules for automatic association.",
                 "optional": true
               },
               "charging_mode": {
@@ -38,12 +49,14 @@
               },
               "consistent_level": {
                 "type": "string",
+                "description": "The consistent level (specification) of the vault.",
                 "optional": true,
                 "forcenew": true,
                 "default": "crash_consistent"
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID to which the vault belongs.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -54,6 +67,7 @@
               },
               "name": {
                 "type": "string",
+                "description": "The vault name.",
                 "required": true
               },
               "period": {
@@ -68,27 +82,33 @@
               },
               "protection_type": {
                 "type": "string",
+                "description": "The protection type.",
                 "required": true,
                 "forcenew": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the vault is located.",
                 "computed": true
               },
               "size": {
                 "type": "number",
+                "description": "The capacity of the vault, in GB.",
                 "required": true
               },
               "spec_code": {
                 "type": "string",
+                "description": "The specification code.",
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The vault status.",
                 "computed": true
               },
               "storage": {
                 "type": "string",
+                "description": "The name of the bucket for the vault.",
                 "computed": true
               },
               "tags": {
@@ -100,11 +120,13 @@
               },
               "type": {
                 "type": "string",
+                "description": "The vault type.",
                 "required": true,
                 "forcenew": true
               },
               "used": {
                 "type": "number",
+                "description": "The used capacity, in GB.",
                 "computed": true
               }
             },
@@ -114,13 +136,16 @@
                   "attributes": {
                     "destination_vault_id": {
                       "type": "string",
+                      "description": "The ID of destination vault to which the replication policy will associated.",
                       "optional": true
                     },
                     "id": {
                       "type": "string",
+                      "description": "The policy ID.",
                       "required": true
                     }
-                  }
+                  },
+                  "description": "The policy details to associate with the CBR vault."
                 },
                 "nesting_mode": "set"
               },
@@ -132,6 +157,7 @@
                         "set",
                         "string"
                       ],
+                      "description": "The array of disk IDs which will be excluded in the backup.",
                       "optional": true,
                       "computed": true
                     },
@@ -140,14 +166,17 @@
                         "set",
                         "string"
                       ],
+                      "description": "The array of disk or SFS file systems which will be included in the backup.",
                       "optional": true,
                       "computed": true
                     },
                     "server_id": {
                       "type": "string",
+                      "description": "The ID of the ECS instance to be backed up.",
                       "optional": true
                     }
-                  }
+                  },
+                  "description": "The array of one or more resources to attach to the CBR vault."
                 },
                 "nesting_mode": "set"
               }

@@ -26,8 +26,7 @@
               "broker_num": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "charging_mode": {
                 "type": "string",
@@ -145,8 +144,7 @@
               "storage_space": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "storage_spec_code": {
                 "type": "string",

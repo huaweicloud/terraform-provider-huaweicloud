@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_mysql_sql_control_rule": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "max_concurrency": {
+                "type": "number",
+                "description": "Specifies the maximum number of concurrent SQL statements.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies ID of the GaussDB MySQL node.",
+                "required": true,
+                "forcenew": true
+              },
+              "pattern": {
+                "type": "string",
+                "description": "Specifies the concurrency control rule of SQL statements.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sql_type": {
+                "type": "string",
+                "description": "Specifies SQL statement type.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

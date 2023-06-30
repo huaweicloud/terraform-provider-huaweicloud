@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ges_backup": {
+          "block": {
+            "attributes": {
+              "backup_method": {
+                "type": "string",
+                "description": "Backup method. The value can be **auto** or **manual**. ",
+                "computed": true
+              },
+              "duration": {
+                "type": "number",
+                "description": "Backup duration (seconds).",
+                "computed": true
+              },
+              "encrypted": {
+                "type": "bool",
+                "description": "Whether the data is encrypted.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "End time of a backup job.",
+                "computed": true
+              },
+              "graph_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The backup name.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Backup file size (MB).",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Start time of a backup job.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Backup status.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GES",
+            "name": "Graph Engine Service",
+            "catalog": "AI",
+            "name_cn": "图引擎服务",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

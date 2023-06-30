@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_organizations_account": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "joined_at": {
+                "type": "string",
+                "description": "Indicates the time when the account was created.",
+                "computed": true
+              },
+              "joined_method": {
+                "type": "string",
+                "description": "Indicates how an account joined an organization.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the account.",
+                "required": true,
+                "forcenew": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the ID of the root or organization unit in which you want to create a new account.",
+                "optional": true,
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value to attach to the account.",
+                "optional": true,
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the account.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

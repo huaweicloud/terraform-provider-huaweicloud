@@ -60,8 +60,7 @@
               },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "node_admin_pass": {
                 "type": "string",
