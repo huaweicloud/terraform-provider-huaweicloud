@@ -111,6 +111,7 @@ var (
 	HW_ORGANIZATIONS_ENVIRONMENT            = os.Getenv("HW_ORGANIZATIONS_ENVIRONMENT")
 	HW_ORGANIZATIONS_INVITE_ACCOUNT_ID      = os.Getenv("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID")
 	HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID = os.Getenv("HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID")
+	HW_ORGANIZATIONS_INVITATION_ID          = os.Getenv("HW_ORGANIZATIONS_INVITATION_ID")
 
 	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
@@ -202,6 +203,13 @@ func TestAccPreCheckOrganizations(t *testing.T) {
 func TestAccPreCheckOrganizationsInviteAccountId(t *testing.T) {
 	if HW_ORGANIZATIONS_INVITE_ACCOUNT_ID == "" {
 		t.Skip("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOrganizationsInvitationId(t *testing.T) {
+	if HW_ORGANIZATIONS_INVITATION_ID == "" {
+		t.Skip("HW_ORGANIZATIONS_INVITATION_ID must be set for acceptance tests")
 	}
 }
 
