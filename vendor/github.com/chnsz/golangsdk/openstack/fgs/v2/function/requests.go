@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
@@ -370,4 +371,31 @@ func UpdateMaxInstanceNumber(c *golangsdk.ServiceClient, functionUrn string, num
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
+}
+
+// TagsActionOpts is an structure that used to manage function tags.
+type TagsActionOpts struct {
+	// The action name.
+	Action string `json:"action,omitempty"`
+	// Tag list.
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// System tag list.
+	SysTags []tags.ResourceTag `json:"sys_tags,omitempty"`
+}
+
+// CreateResourceTags is the method that used to add tags to function using given parameters.
+func CreateResourceTags(c *golangsdk.ServiceClient, functionUrn string, opts TagsActionOpts) error {
+	_, err := c.Post(tagsActionURL(c, functionUrn, "create"), opts, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+		OkCodes:     []int{204},
+	})
+	return err
+}
+
+// DeleteResourceTags is the method that used to delete tags from function using given parameters.
+func DeleteResourceTags(c *golangsdk.ServiceClient, functionUrn string, opts TagsActionOpts) error {
+	_, err := c.DeleteWithBody(tagsActionURL(c, functionUrn, "delete"), opts, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
 }

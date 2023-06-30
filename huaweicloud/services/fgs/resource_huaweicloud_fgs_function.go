@@ -1,6 +1,7 @@
 package fgs
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -235,6 +236,7 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\-?\d+$`),
 					`invalid value of maximum instance number, want an integer number or integer string.`),
 			},
+			"tags": common.TagsSchema(),
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -351,6 +353,15 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	if tagList, ok := d.GetOk("tags"); ok {
+		opts := function.TagsActionOpts{
+			Tags: utils.ExpandResourceTags(tagList.(map[string]interface{})),
+		}
+		if err := function.CreateResourceTags(fgsClient, d.Id(), opts); err != nil {
+			return fmt.Errorf("failed to add tags to FunctionGraph function (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourceFgsFunctionV2Read(d, meta)
 }
 
@@ -463,6 +474,34 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func updateFunctionTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		oRaw, nRaw  = d.GetChange("tags")
+		oMap        = oRaw.(map[string]interface{})
+		nMap        = nRaw.(map[string]interface{})
+		functionUrn = d.Id()
+	)
+
+	if len(oMap) > 0 {
+		opts := function.TagsActionOpts{
+			Tags: utils.ExpandResourceTags(oMap),
+		}
+		if err := function.DeleteResourceTags(client, functionUrn, opts); err != nil {
+			return fmt.Errorf("failed to delete tags from FunctionGraph function (%s): %s", functionUrn, err)
+		}
+	}
+
+	if len(nMap) > 0 {
+		opts := function.TagsActionOpts{
+			Tags: utils.ExpandResourceTags(nMap),
+		}
+		if err := function.CreateResourceTags(client, functionUrn, opts); err != nil {
+			return fmt.Errorf("failed to add tags to FunctionGraph function (%s): %s", functionUrn, err)
+		}
+	}
+	return nil
+}
+
 func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
@@ -494,6 +533,12 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 		_, err = function.UpdateMaxInstanceNumber(fgsClient, urn, maxInstanceNum)
 		if err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("tags") {
+		if err = updateFunctionTags(fgsClient, d); err != nil {
+			return fmt.Errorf("failed to update function tags: %s", err)
 		}
 	}
 

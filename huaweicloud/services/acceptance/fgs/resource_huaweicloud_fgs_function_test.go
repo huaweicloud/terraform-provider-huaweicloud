@@ -43,6 +43,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
@@ -52,6 +54,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
@@ -68,6 +72,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 					"func_code",
 					"xrole",
 					"agency",
+					"tags",
 				},
 			},
 		},
@@ -252,6 +257,11 @@ resource "huaweicloud_fgs_function" "test" {
   runtime     = "Python2.7"
   code_type   = "inline"
   func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, rName)
 }
@@ -273,6 +283,11 @@ resource "huaweicloud_fgs_function" "test" {
   agency      = "function_vpc_trust"
   vpc_id      = huaweicloud_vpc.test.id
   network_id  = huaweicloud_vpc_subnet.test.id
+
+  tags = {
+    foo    = "baar"
+    newkey = "value"
+  }
 }
 `, common.TestBaseNetwork(rName), rName)
 }
