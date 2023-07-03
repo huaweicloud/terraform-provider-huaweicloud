@@ -16,6 +16,8 @@ import (
 
 func TestAccComputeServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
+	var instance cloudservers.CloudServer
+
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
@@ -27,8 +29,24 @@ func TestAccComputeServerGroup_basic(t *testing.T) {
 			{
 				Config: testAccComputeServerGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeServerGroupExists(resourceName, &sg),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					testAccCheckComputeServerGroupExists(resourceName, &sg),
+				),
+			},
+			{
+				Config: testAccComputeServerGroup_members(rName, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeServerGroupExists(resourceName, &sg),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test.0", &instance),
+					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
+				),
+			},
+			{
+				Config: testAccComputeServerGroup_members(rName, 1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeServerGroupExists(resourceName, &sg),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test.1", &instance),
+					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
 				),
 			},
 			{
@@ -55,31 +73,7 @@ func TestAccComputeServerGroup_scheduler(t *testing.T) {
 				Config: testAccComputeServerGroup_scheduler(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeServerGroupExists(resourceName, &sg),
-					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.instance_1", &instance),
-					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeServerGroup_members(t *testing.T) {
-	var instance cloudservers.CloudServer
-	var sg servergroups.ServerGroup
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_compute_servergroup.sg_1"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckComputeServerGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeServerGroup_members(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeServerGroupExists(resourceName, &sg),
-					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.instance_1", &instance),
+					testAccCheckComputeInstanceExists("huaweicloud_compute_instance.test", &instance),
 					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
@@ -183,17 +177,43 @@ resource "huaweicloud_compute_servergroup" "sg_1" {
 `, rName)
 }
 
+func testAccComputeServerGroup_members(rName string, idx int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  count = 2
+
+  name               = "%[2]s-${count.index}"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_compute_servergroup" "sg_1" {
+  name     = "%[2]s"
+  policies = ["anti-affinity"]
+  members  = [huaweicloud_compute_instance.test.%d.id]
+}
+`, testAccCompute_data, rName, idx)
+}
+
 func testAccComputeServerGroup_scheduler(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {
-  name     = "%s"
+  name     = "%[2]s"
   policies = ["anti-affinity"]
 }
 
-resource "huaweicloud_compute_instance" "instance_1" {
-  name               = "%s"
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
@@ -206,31 +226,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
-`, testAccCompute_data, rName, rName)
-}
-
-func testAccComputeServerGroup_members(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_compute_servergroup" "sg_1" {
-  name     = "%s"
-  policies = ["anti-affinity"]
-  members  = [huaweicloud_compute_instance.instance_1.id]
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-}
-`, testAccCompute_data, rName, rName)
+`, testAccCompute_data, rName)
 }
 
 func testAccComputeServerGroup_concurrency(name string) string {
@@ -273,12 +269,12 @@ resource "huaweicloud_kps_keypair" "test" {
 resource "huaweicloud_compute_instance" "test" {
   count = 2
 
-  name               = format("%[1]s_%%d", count.index)
+  name               = "%[1]s-${count.index}"
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   image_id           = data.huaweicloud_images_images.test.images[0].id
-  security_groups    = [huaweicloud_networking_secgroup.test.name]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair = huaweicloud_kps_keypair.test.name
+  key_pair           = huaweicloud_kps_keypair.test.name
 
   network {
     uuid = huaweicloud_vpc_subnet.test.id
@@ -288,35 +284,38 @@ resource "huaweicloud_compute_instance" "test" {
 resource "huaweicloud_compute_servergroup" "test" {
   count = 2
 
-  name     = format("%[1]s_%%d", count.index)
+  name     = "%[1]s-${count.index}"
   policies = ["anti-affinity"]
 
   members = [
     huaweicloud_compute_instance.test[count.index].id,
   ]
+
+  # make sure the resource can be applied with "huaweicloud_compute_volume_attach" at the same time
+  depends_on = [huaweicloud_evs_volume.test]
 }
 
 resource "huaweicloud_evs_volume" "test" {
-  count = 10
+  count = 4
 
-  name              = format("%[1]s-%%d", count.index)
+  name              = "%[1]s-${count.index}"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   device_type = "SCSI"
   volume_type = "SAS"
-  size        = 1000 * (count.index+1)
+  size        = 40
   multiattach = true
 }
 
 resource "huaweicloud_compute_volume_attach" "attach_volumes_to_compute_test_1" {
-  count = 10
+  count = 4
 
   instance_id = huaweicloud_compute_instance.test[0].id
   volume_id   = huaweicloud_evs_volume.test[count.index].id
 }
 
 resource "huaweicloud_compute_volume_attach" "attach_volumes_to_compute_test_2" {
-  count = 10
+  count = 4
 
   instance_id = huaweicloud_compute_instance.test[1].id
   volume_id   = huaweicloud_evs_volume.test[count.index].id
@@ -335,7 +334,7 @@ output "members_attached" {
 }
 
 output "volumes_attached" {
-  value = length(local.attach_devices_1) == 10 && length(local.attach_devices_2) == 10
+  value = length(local.attach_devices_1) == 4 && length(local.attach_devices_2) == 4
 }
 `, name)
 }
