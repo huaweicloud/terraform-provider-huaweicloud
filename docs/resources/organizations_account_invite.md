@@ -50,7 +50,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The organizations account invite can be imported using the `id`, e.g.
+The Organizations account invite can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_organizations_account_invite.test <id>
