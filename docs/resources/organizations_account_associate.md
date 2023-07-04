@@ -41,3 +41,11 @@ In addition to all arguments above, the following attributes are exported:
 * `joined_at` - Indicates the time when the account was created.
 
 * `joined_method` - Indicates how an account joined an organization.
+
+## Import
+
+The Organizations account associate can be imported using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_organizations_account_associate.test <id>
+```

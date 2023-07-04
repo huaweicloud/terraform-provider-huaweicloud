@@ -26,6 +26,9 @@ func ResourceAccountAssociate() *schema.Resource {
 		UpdateContext: resourceAccountAssociateUpdate,
 		ReadContext:   resourceAccountAssociateRead,
 		DeleteContext: resourceAccountAssociateDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"account_id": {
@@ -82,7 +85,7 @@ func resourceAccountAssociateCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	nParentID := d.Get("parent_id").(string)
 	if oParentID != nParentID {
-		err = moveAccount(createAccountAssociateClient, d.Id(), oParentID, nParentID)
+		err = moveAccount(createAccountAssociateClient, accountID, oParentID, nParentID)
 		if err != nil {
 			return diag.Errorf("error updating Account: %s", err)
 		}
