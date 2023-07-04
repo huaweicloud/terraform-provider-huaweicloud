@@ -42,9 +42,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `joined_method` - Indicates how an account joined an organization.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+
 ## Import
 
-The organizations account can be imported using the `id`, e.g.
+The Organizations account can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_organizations_account.test <id>
