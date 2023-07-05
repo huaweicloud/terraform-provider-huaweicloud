@@ -76,7 +76,8 @@ func TestAccAccount_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "parent_id", name),
+					resource.TestCheckResourceAttr(rName, "parent_id",
+						acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID),
 					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
 					resource.TestCheckResourceAttr(rName, "tags.key4", "value4"),
 				),

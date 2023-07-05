@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
@@ -108,24 +107,21 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	state, err := jmespath.Search("create_account_status.state", createAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Account: state is not found in API response")
-	}
-	if state == "failed" {
-		return diag.Errorf("error creating Account: state is failed in API response")
-	}
-
 	id, err := jmespath.Search("create_account_status.account_id", createAccountRespBody)
 	if err != nil {
 		return diag.Errorf("error creating Account: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 
+	stateId, err := jmespath.Search("create_account_status.id", createAccountRespBody)
+	if err != nil {
+		return diag.Errorf("error creating Account: state is not found in API response")
+	}
+
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"creating"},
-		Target:       []string{"completed"},
-		Refresh:      accountStateRefreshFunc(createAccountClient, id.(string)),
+		Pending:      []string{"in_progress"},
+		Target:       []string{"succeeded"},
+		Refresh:      accountStateRefreshFunc(createAccountClient, stateId.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -150,6 +146,34 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceAccountRead(ctx, d, meta)
 }
 
+func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getAccountStatusHttpUrl := "v1/organizations/create-account-status/{create_account_status_id}"
+		getAccountStatusPath := client.Endpoint + getAccountStatusHttpUrl
+		getAccountStatusPath = strings.ReplaceAll(getAccountStatusPath, "{create_account_status_id}", accountStatusId)
+
+		getAccountStatusOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getAccountStatusResp, err := client.Request("GET", getAccountStatusPath, &getAccountStatusOpt)
+		if err != nil {
+			return nil, "", err
+		}
+
+		getAccountStatusRespBody, err := utils.FlattenResponse(getAccountStatusResp)
+		if err != nil {
+			return nil, "", err
+		}
+
+		state, err := jmespath.Search("create_account_status.state", getAccountStatusRespBody)
+		if err != nil {
+			return nil, "", err
+		}
+
+		return getAccountStatusRespBody, state.(string), nil
+	}
+}
+
 func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name": utils.ValueIngoreEmpty(d.Get("name")),
@@ -172,7 +196,14 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
 
-	getAccountResp, err := getAccount(getAccountClient, d.Id())
+	getAccountHttpUrl := "v1/organizations/accounts/{account_id}"
+	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
+	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", d.Id())
+
+	getAccountOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getAccountResp, err := getAccountClient.Request("GET", getAccountPath, &getAccountOpt)
 
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Account")
@@ -269,30 +300,6 @@ func resourceAccountDelete(_ context.Context, _ *schema.ResourceData, _ interfac
 			Summary:  errorMsg,
 		},
 	}
-}
-
-func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		v, err := getAccount(client, accountID)
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return v, "creating", nil
-			}
-			return nil, "", err
-		}
-		return v, "completed", nil
-	}
-}
-
-func getAccount(client *golangsdk.ServiceClient, accountID string) (*http.Response, error) {
-	getAccountHttpUrl := "v1/organizations/accounts/{account_id}"
-	getAccountPath := client.Endpoint + getAccountHttpUrl
-	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", accountID)
-
-	getAccountOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	return client.Request("GET", getAccountPath, &getAccountOpt)
 }
 
 func getParentIdByAccountId(client *golangsdk.ServiceClient, accountID string) (string, error) {
