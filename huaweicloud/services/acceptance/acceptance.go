@@ -37,6 +37,8 @@ var (
 	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
 
+	HW_CNAD_ENABLE_FLAG = os.Getenv("HW_CNAD_ENABLE_FLAG")
+
 	HW_OBS_BUCKET_NAME        = os.Getenv("HW_OBS_BUCKET_NAME")
 	HW_OBS_DESTINATION_BUCKET = os.Getenv("HW_OBS_DESTINATION_BUCKET")
 
@@ -339,6 +341,13 @@ func RandomPassword() string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Jump the WAF acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCNADInstance(t *testing.T) {
+	if HW_CNAD_ENABLE_FLAG == "" {
+		t.Skip("Jump the CNAD acceptance tests.")
 	}
 }
 
