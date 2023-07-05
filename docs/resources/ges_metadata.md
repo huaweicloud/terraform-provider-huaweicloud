@@ -1,5 +1,5 @@
 ---
-subcategory: "Metadata Engine Service (GES)"
+subcategory: "Graph Engine Service (GES)"
 ---
 
 # huaweicloud_ges_metadata
