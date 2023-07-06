@@ -55,6 +55,7 @@ func ListAllItems(client *golangsdk.ServiceClient, qType string, initialURL stri
 		return nil, err
 	}
 
+	queryPage.Headers = map[string]string{"Content-Type": "application/json;charset=utf8"}
 	pages, err := queryPage.AllPages()
 	if err != nil {
 		return nil, err
