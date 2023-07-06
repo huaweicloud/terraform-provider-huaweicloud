@@ -480,7 +480,7 @@ func parseVaultResourcesForServer(resources []vaults.ResourceResp) []map[string]
 			for i, v := range res.ExtraInfo.IncludeVolumes {
 				includeVolumes[i] = v.ID
 			}
-			result["includes"] = res.ExtraInfo.ExcludeVolumes
+			result["includes"] = includeVolumes
 		}
 		if len(res.ExtraInfo.ExcludeVolumes) > 0 {
 			result["excludes"] = res.ExtraInfo.ExcludeVolumes
