@@ -36,7 +36,7 @@ func Create(client *golangsdk.ServiceClient, routeTableId string, opts CreateOpt
 // Get is a method to obtain the route details using given parameters.
 func Get(client *golangsdk.ServiceClient, routeTableId, routeId string) (*Route, error) {
 	var r getResp
-	_, err := client.Get(resourceURL(client, routeId, routeTableId), &r, &golangsdk.RequestOpts{
+	_, err := client.Get(resourceURL(client, routeTableId, routeId), &r, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r.Route, err
@@ -99,7 +99,7 @@ type UpdateOpts struct {
 
 // Update is a method to update route configuration using update option.
 func Update(client *golangsdk.ServiceClient, routeTableId, routeId string, opts UpdateOpts) (*Route, error) {
-	b, err := golangsdk.BuildRequestBody(opts, "route_table")
+	b, err := golangsdk.BuildRequestBody(opts, "route")
 	if err != nil {
 		return nil, err
 	}
