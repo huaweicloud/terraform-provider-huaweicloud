@@ -184,7 +184,7 @@ The `datastore` block supports:
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance.
   If `version` is set to `3.2`, `3.4`, or `4.0`, the value is **wiredTiger**.
-  If `period_unit` is set to `4.2`, or `4.4`, the value is **rocksDB**.
+  If `version` is set to `4.2`, or `4.4`, the value is **rocksDB**.
 
 The `configuration` block supports:
 
