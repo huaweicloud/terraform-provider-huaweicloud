@@ -41,26 +41,36 @@ func ResourceL7PolicyV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
-
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
 			"listener_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "REDIRECT_TO_POOL",
+				ForceNew: true,
+			},
+			"redirect_listener_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"redirect_listener_id", "redirect_pool_id"},
+				Computed:     true,
+			},
 			"redirect_pool_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -73,12 +83,17 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
+	action := d.Get("action").(string)
 	createOpts := l7policies.CreateOpts{
-		Name:           d.Get("name").(string),
-		Description:    d.Get("description").(string),
-		Action:         "REDIRECT_TO_POOL",
-		ListenerID:     d.Get("listener_id").(string),
-		RedirectPoolID: d.Get("redirect_pool_id").(string),
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Action:      l7policies.Action(action),
+		ListenerID:  d.Get("listener_id").(string),
+	}
+	if action == "REDIRECT_TO_POOL" {
+		createOpts.RedirectPoolID = d.Get("redirect_pool_id").(string)
+	} else {
+		createOpts.RedirectListenerID = d.Get("redirect_listener_id").(string)
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -116,8 +131,10 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 	mErr := multierror.Append(nil,
 		d.Set("description", l7Policy.Description),
 		d.Set("name", l7Policy.Name),
+		d.Set("action", l7Policy.Action),
 		d.Set("listener_id", l7Policy.ListenerID),
 		d.Set("redirect_pool_id", l7Policy.RedirectPoolID),
+		d.Set("redirect_listener_id", l7Policy.RedirectListenerID),
 		d.Set("region", cfg.GetRegion(d)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -147,6 +164,10 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChange("redirect_pool_id") {
 		redirectPoolID := d.Get("redirect_pool_id").(string)
 		updateOpts.RedirectPoolID = &redirectPoolID
+	}
+	if d.HasChange("redirect_listener_id") {
+		redirectListenerID := d.Get("redirect_listener_id").(string)
+		updateOpts.RedirectListenerID = &redirectListenerID
 	}
 
 	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
