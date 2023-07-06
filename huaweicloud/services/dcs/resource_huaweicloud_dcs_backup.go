@@ -7,7 +7,6 @@ package dcs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -25,11 +24,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
-
-type dcsError struct {
-	ErrorCode string `json:"error_code"`
-	ErrorMsg  string `json:"error_msg"`
-}
 
 func ResourceDcsBackup() *schema.Resource {
 	return &schema.Resource{
@@ -140,7 +134,7 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 	var createBackupResp *http.Response
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		createBackupResp, err = createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
-		isRetry, err := handleOperationError(err, "creating")
+		isRetry, err := handleOperationError(err)
 		if isRetry {
 			return resource.RetryableError(err)
 		}
@@ -150,7 +144,7 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return nil
 	})
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating DCS backup: %s", err)
 	}
 
 	createBackupRespBody, err := utils.FlattenResponse(createBackupResp)
@@ -309,7 +303,7 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		_, err = deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
-		isRetry, err := handleOperationError(err, "deleting")
+		isRetry, err := handleOperationError(err)
 		if isRetry {
 			return resource.RetryableError(err)
 		}
@@ -319,7 +313,7 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return nil
 	})
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error deleting DCS backup: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -337,22 +331,6 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	return nil
-}
-
-func handleOperationError(err error, operateType string) (bool, error) {
-	if err == nil {
-		return false, nil
-	}
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError dcsError
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return false, fmt.Errorf("error %s DCS backup: error format error: %s", operateType, jsonErr)
-		}
-		if apiError.ErrorCode == "DCS.4096" {
-			return true, err
-		}
-	}
-	return false, fmt.Errorf("error %s DCS backup: %s", operateType, err)
 }
 
 func dcsBackupStatusRefreshFunc(instanceId, backupId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {

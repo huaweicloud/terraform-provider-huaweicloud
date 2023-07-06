@@ -275,8 +275,9 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dcs_flavors" "test" {
-  cache_mode = "ha"
-  capacity   = 0.125
+  cache_mode     = "ha"
+  capacity       = 0.125
+  engine_version = "5.0"
 }
 
 resource "huaweicloud_dcs_instance" "instance_1" {
@@ -323,14 +324,15 @@ func testAccDcsV1Instance_updated(instanceName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dcs_flavors" "test" {
-  cache_mode = "ha"
-  capacity   = 1
+  cache_mode     = "ha"
+  capacity       = 1
+  engine_version = "5.0"
 }
 
 resource "huaweicloud_dcs_instance" "instance_1" {
   name               = "%s"
   engine_version     = "5.0"
-  password           = "Huawei_test"
+  password           = "Huawei_test_update"
   engine             = "Redis"
   port               = 6389
   capacity           = 1
@@ -350,11 +352,11 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   }
 
   rename_commands = {
-    command  = "command001"
-    keys     = "keys001"
-    flushall = "flushall001"
-    flushdb  = "flushdb001"
-    hgetall  = "hgetall001"
+    command  = "command_update"
+    keys     = "keys_update"
+    flushall = "flushall_update"
+    flushdb  = "flushdb_update"
+    hgetall  = "hgetall_update"
   }
 
   tags = {

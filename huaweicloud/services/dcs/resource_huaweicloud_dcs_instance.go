@@ -2,6 +2,7 @@ package dcs
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -15,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -43,6 +45,19 @@ var (
 		"4.0": true,
 		"5.0": true,
 		"6.0": true,
+	}
+
+	operateErrorCode = map[string]bool{
+		// backup
+		"DCS.4096": true,
+		// resize
+		"DCS.4113": true,
+		// change config
+		"DCS.4114": true,
+		// change password
+		"DCS.4115": true,
+		// creating
+		"DCS.4118": true,
 	}
 )
 
@@ -144,7 +159,6 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Optional:  true,
-				ForceNew:  true,
 			},
 			"whitelist_enable": {
 				Type:     schema.TypeBool,
@@ -231,8 +245,12 @@ func ResourceDcsInstance() *schema.Resource {
 			"rename_commands": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"template_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -548,6 +566,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		MaintainEnd:         d.Get("maintain_end").(string),
 		NoPasswordAccess:    &noPasswordAccess,
 		AccessUser:          d.Get("access_user").(string),
+		TemplateId:          d.Get("template_id").(string),
 		BssParam:            buildBssParamParams(d),
 		Tags:                buildDcsTagsParams(d.Get("tags").(map[string]interface{})),
 	}
@@ -804,9 +823,10 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	// update basic params
 	if d.HasChanges("port", "name", "description", "security_group_id", "backup_policy",
-		"maintain_begin", "maintain_end") {
+		"maintain_begin", "maintain_end", "rename_commands") {
 		desc := d.Get("description").(string)
 		securityGroupID := d.Get("security_group_id").(string)
+		renameCommandsOpt := createRenameCommandsOpt(d.Get("rename_commands").(map[string]interface{}))
 		opts := instances.ModifyInstanceOpt{
 			Name:            d.Get("name").(string),
 			Port:            d.Get("port").(int),
@@ -815,6 +835,7 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 			MaintainEnd:     d.Get("maintain_end").(string),
 			SecurityGroupId: &securityGroupID,
 			BackupPolicy:    buildBackupPolicyParams(d),
+			RenameCommands:  &renameCommandsOpt,
 		}
 		log.Printf("[DEBUG] Update DCS instance options : %#v", opts)
 
@@ -828,6 +849,28 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("password") {
+		oldVal, newVal := d.GetChange("password")
+		opts := instances.UpdatePasswordOpts{
+			OldPassword: oldVal.(string),
+			NewPassword: newVal.(string),
+		}
+		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+			_, err = instances.UpdatePassword(client, d.Id(), opts)
+			isRetry, err := handleOperationError(err)
+			if isRetry {
+				return resource.RetryableError(err)
+			}
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -946,9 +989,20 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 		log.Printf("[DEBUG] Resize DCS instance options : %#v", opts)
 
-		r, err := instances.ResizeInstance(client, d.Id(), opts)
+		var res *instances.ResizeResponse
+		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+			res, err = instances.ResizeInstance(client, d.Id(), opts)
+			isRetry, err := handleOperationError(err)
+			if isRetry {
+				return resource.RetryableError(err)
+			}
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
+			return nil
+		})
 		if err != nil {
-			return err
+			return fmt.Errorf("error resize DCS instance: %s", err)
 		}
 
 		if d.Get("charging_mode").(string) == chargeModePrePaid {
@@ -957,7 +1011,7 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 			if err != nil {
 				return fmt.Errorf("error creating BSS v2 client: %s", err)
 			}
-			err = common.WaitOrderComplete(ctx, bssClient, r.OrderId, d.Timeout(schema.TimeoutUpdate))
+			err = common.WaitOrderComplete(ctx, bssClient, res.OrderId, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return err
 			}
@@ -981,6 +1035,26 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 	return nil
+}
+
+func handleOperationError(err error) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, jsonErr
+		}
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+		if operateErrorCode[errorCode.(string)] {
+			return true, err
+		}
+	}
+	return false, err
 }
 
 func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
