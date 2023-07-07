@@ -715,7 +715,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
-			"huaweicloud_cnad_advanced_policy": cnad.ResourceCNADAdvancedPolicy(),
+			"huaweicloud_cnad_advanced_policy":           cnad.ResourceCNADAdvancedPolicy(),
+			"huaweicloud_cnad_advanced_black_white_list": cnad.ResourceBlackWhiteList(),
 
 			"huaweicloud_codehub_repository": codehub.ResourceRepository(),
 
