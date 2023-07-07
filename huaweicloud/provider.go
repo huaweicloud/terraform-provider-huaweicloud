@@ -447,6 +447,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
+			"huaweicloud_er_instances":    er.DataSourceInstances(),
 			"huaweicloud_er_route_tables": er.DataSourceRouteTables(),
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
