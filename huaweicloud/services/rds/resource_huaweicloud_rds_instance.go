@@ -541,11 +541,6 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	instanceID := d.Id()
-	backupStrategy, err := backups.Get(client, instanceID).Extract()
-	if err != nil {
-		return diag.Errorf("error getting RDS backup strategy: %s", err)
-	}
-
 	instance, err := GetRdsInstanceByID(client, instanceID)
 	if err != nil {
 		return diag.Errorf("error getting RDS instance: %s", err)
@@ -617,6 +612,11 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	dbList[0] = database
 	if err := d.Set("db", dbList); err != nil {
 		return diag.Errorf("error saving data base to RDS instance (%s): %s", instanceID, err)
+	}
+
+	backupStrategy, err := backups.Get(client, instanceID).Extract()
+	if err != nil {
+		return diag.Errorf("error getting RDS backup strategy: %s", err)
 	}
 
 	backup := make([]map[string]interface{}, 1)
