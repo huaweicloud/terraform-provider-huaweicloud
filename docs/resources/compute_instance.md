@@ -359,7 +359,8 @@ The `data_disks` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768.
   Changing this creates a new instance.
 
-* `snapshot_id` - (Optional, String, ForceNew) Specifies the snapshot id. Changing this creates a new instance.
+* `snapshot_id` - (Optional, String, ForceNew) Specifies the EVS snapshot ID or ID of the original data disk contained in
+  the full-ECS image. Changing this creates a new instance.
 
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the disk.
   Changing this creates a new instance.
