@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateOndemandClusterToPeriodRequest Request Object
 type UpdateOndemandClusterToPeriodRequest struct {
 
 	// 指定待转包周期的集群ID。

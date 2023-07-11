@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ShowCredential
 type ShowCredential struct {
 
 	// IAM用户ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 容灾实例信息。
+// SlaveInstance 容灾实例信息。
 type SlaveInstance struct {
 
 	// 实例ID。

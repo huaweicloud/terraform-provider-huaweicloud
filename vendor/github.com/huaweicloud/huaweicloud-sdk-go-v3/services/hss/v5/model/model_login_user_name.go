@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 登录用户名
+// LoginUserName 登录用户名
 type LoginUserName struct {
 }
 

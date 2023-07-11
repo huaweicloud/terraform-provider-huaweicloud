@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowCheckRuleDetailResponse Response Object
 type ShowCheckRuleDetailResponse struct {
 
 	// 描述

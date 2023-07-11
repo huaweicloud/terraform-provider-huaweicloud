@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListSinkTasksResponse Response Object
 type ListSinkTasksResponse struct {
 
 	// 转储任务列表。

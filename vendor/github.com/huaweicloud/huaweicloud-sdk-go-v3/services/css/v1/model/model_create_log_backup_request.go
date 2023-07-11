@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateLogBackupRequest Request Object
 type CreateLogBackupRequest struct {
 
 	// 指定待备份日志的集群ID。

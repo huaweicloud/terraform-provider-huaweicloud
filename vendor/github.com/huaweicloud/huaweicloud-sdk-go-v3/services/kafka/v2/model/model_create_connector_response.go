@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateConnectorResponse Response Object
 type CreateConnectorResponse struct {
 
 	// 任务ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateOpenIdConnectConfigRequestBody
 type UpdateOpenIdConnectConfigRequestBody struct {
 	OpenidConnectConfig *UpdateOpenIdConnectConfig `json:"openid_connect_config"`
 }

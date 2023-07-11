@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteTranscodingsTemplateRequest Request Object
 type DeleteTranscodingsTemplateRequest struct {
 
 	// 推流域名

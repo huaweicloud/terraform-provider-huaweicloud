@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowPermanentAccessKeyResponse Response Object
 type ShowPermanentAccessKeyResponse struct {
 	Credential     *ShowCredential `json:"credential,omitempty"`
 	HttpStatusCode int             `json:"-"`

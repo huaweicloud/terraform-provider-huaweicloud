@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartPipelineRequest Request Object
 type StartPipelineRequest struct {
 
 	// 指定开启pipeline的集群ID。

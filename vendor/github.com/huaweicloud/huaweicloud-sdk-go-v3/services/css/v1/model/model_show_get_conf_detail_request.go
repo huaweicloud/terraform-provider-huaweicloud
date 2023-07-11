@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowGetConfDetailRequest Request Object
 type ShowGetConfDetailRequest struct {
 
 	// 指定查询集群ID。

@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowInstanceExtendProductInfoRequest Request Object
 type ShowInstanceExtendProductInfoRequest struct {
 
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
-	// 产品的类型。 [- advanced: 专享版 - platinum: 铂金版 - dec: 专属云版 - exp: 体验版](tag:hc,hk,hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[- platinum: 铂金版](tag:otc)
+	// [产品的类型。 - advanced: 专享版 - platinum: 铂金版 - dec: 专属云版 - exp: 体验版](tag:hc,hk,hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)
 	Type ShowInstanceExtendProductInfoRequestType `json:"type"`
 
 	// 消息引擎的类型。当前支持的类型为kafka。
@@ -69,13 +69,18 @@ func (c ShowInstanceExtendProductInfoRequestType) MarshalJSON() ([]byte, error) 
 
 func (c *ShowInstanceExtendProductInfoRequestType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -107,13 +112,18 @@ func (c ShowInstanceExtendProductInfoRequestEngine) MarshalJSON() ([]byte, error
 
 func (c *ShowInstanceExtendProductInfoRequestEngine) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

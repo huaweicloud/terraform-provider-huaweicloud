@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 云日志服务配置
+// Lts 云日志服务配置
 type Lts struct {
 
 	// 是否启用日志服务检索功能。

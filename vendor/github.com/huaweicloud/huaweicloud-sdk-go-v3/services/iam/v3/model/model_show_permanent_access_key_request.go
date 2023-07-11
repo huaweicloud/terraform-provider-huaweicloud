@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowPermanentAccessKeyRequest Request Object
 type ShowPermanentAccessKeyRequest struct {
 
 	// 待查询的指定AK。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartAutoCreateSnapshotsRequest Request Object
 type StartAutoCreateSnapshotsRequest struct {
 
 	// 快照所属的集群的ID。

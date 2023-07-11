@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// CreateVariableRequestBody
+// CreateVariableRequestBody CreateVariableRequestBody
 type CreateVariableRequestBody struct {
 
 	// id

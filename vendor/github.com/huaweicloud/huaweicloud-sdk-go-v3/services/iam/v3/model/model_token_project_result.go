@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenProjectResult
 type TokenProjectResult struct {
 
 	// 项目名。

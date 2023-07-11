@@ -17,8 +17,8 @@ type SetWtpProtectionStatusRequestInfo struct {
 	// 资源ID
 	ResourceId *string `json:"resource_id,omitempty"`
 
-	// 随机选择配额还是指定资源
-	PaymentMode *int32 `json:"payment_mode,omitempty"`
+	// 计费模式   - packet_cycle: 包周期
+	ChargingMode *string `json:"charging_mode,omitempty"`
 }
 
 func (o SetWtpProtectionStatusRequestInfo) String() string {

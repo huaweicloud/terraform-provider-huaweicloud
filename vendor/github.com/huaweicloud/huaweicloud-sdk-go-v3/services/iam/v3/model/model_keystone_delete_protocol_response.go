@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneDeleteProtocolResponse Response Object
 type KeystoneDeleteProtocolResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopLogsRequest Request Object
 type StopLogsRequest struct {
 
 	// 指定关闭日志的集群ID。

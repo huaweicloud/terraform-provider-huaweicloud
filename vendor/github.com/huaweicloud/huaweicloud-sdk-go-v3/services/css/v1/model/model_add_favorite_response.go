@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddFavoriteResponse Response Object
 type AddFavoriteResponse struct {
 	HttpStatusCode int `json:"-"`
 }

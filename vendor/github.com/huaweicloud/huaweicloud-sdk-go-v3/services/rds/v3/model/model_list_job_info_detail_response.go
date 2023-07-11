@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListJobInfoDetailResponse Response Object
 type ListJobInfoDetailResponse struct {
 	Jobs *GetTaskDetailListRspJobs `json:"jobs,omitempty"`
 

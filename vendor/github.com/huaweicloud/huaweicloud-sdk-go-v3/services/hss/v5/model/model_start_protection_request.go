@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartProtectionRequest Request Object
 type StartProtectionRequest struct {
 
 	// region id

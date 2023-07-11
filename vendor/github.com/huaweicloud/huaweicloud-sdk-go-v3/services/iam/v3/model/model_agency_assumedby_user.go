@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyAssumedbyUser
 type AgencyAssumedbyUser struct {
 
 	// 被委托方B中IAM用户的用户名。

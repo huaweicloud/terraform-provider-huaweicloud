@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AddIndependentNodeRequest Request Object
 type AddIndependentNodeRequest struct {
 
 	// 指定需要独立master或client的集群ID。
@@ -15,7 +15,7 @@ type AddIndependentNodeRequest struct {
 	// 指定待新增独立节点类型。 - ess-master：Master节点。 - ess-client：Client节点。
 	Type string `json:"type"`
 
-	Body *IndependentRequestBody `json:"body,omitempty"`
+	Body *IndependentReq `json:"body,omitempty"`
 }
 
 func (o AddIndependentNodeRequest) String() string {

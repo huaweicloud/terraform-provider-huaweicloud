@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 发生时间，毫秒
+// OccurTime 发生时间，毫秒
 type OccurTime struct {
 }
 

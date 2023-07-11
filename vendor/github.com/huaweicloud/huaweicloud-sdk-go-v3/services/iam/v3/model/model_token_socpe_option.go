@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenSocpeOption
 type TokenSocpeOption struct {
 	Domain *ScopeDomainOption `json:"domain,omitempty"`
 

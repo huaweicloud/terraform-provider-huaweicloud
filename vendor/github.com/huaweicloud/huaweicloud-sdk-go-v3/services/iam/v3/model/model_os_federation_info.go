@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// user详细信息。
+// OsFederationInfo user详细信息。
 type OsFederationInfo struct {
 	IdentityProvider *IdpIdInfo `json:"identity_provider"`
 

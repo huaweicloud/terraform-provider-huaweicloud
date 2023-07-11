@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListUserChangeHistoriesRequest Request Object
 type ListUserChangeHistoriesRequest struct {
 
 	// 账号名

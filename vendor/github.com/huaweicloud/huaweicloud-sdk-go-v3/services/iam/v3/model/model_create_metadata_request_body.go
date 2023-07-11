@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateMetadataRequestBody
 type CreateMetadataRequestBody struct {
 
 	// 用户所属账号ID。

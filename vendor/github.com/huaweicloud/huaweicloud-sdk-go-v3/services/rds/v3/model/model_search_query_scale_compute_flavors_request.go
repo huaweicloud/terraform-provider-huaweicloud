@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SearchQueryScaleComputeFlavorsRequest Request Object
 type SearchQueryScaleComputeFlavorsRequest struct {
 
 	// 语言

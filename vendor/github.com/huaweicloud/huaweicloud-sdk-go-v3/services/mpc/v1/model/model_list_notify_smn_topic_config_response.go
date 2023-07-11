@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListNotifySmnTopicConfigResponse Response Object
 type ListNotifySmnTopicConfigResponse struct {
 
 	// 事件通知模板信息

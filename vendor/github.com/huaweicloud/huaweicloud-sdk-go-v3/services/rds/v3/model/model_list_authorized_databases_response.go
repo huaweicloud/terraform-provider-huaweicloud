@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAuthorizedDatabasesResponse Response Object
 type ListAuthorizedDatabasesResponse struct {
 
 	// 数据库及相关权限。

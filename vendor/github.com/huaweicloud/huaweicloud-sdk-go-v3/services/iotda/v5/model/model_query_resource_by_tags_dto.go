@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 按标签查询资源请求结构体。
+// QueryResourceByTagsDto 按标签查询资源请求结构体。
 type QueryResourceByTagsDto struct {
 
 	// **参数说明**：要查询的资源类型，当前支持设备（device）。

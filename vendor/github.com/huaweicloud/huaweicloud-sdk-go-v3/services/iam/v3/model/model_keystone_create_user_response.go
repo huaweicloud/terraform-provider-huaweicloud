@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneCreateUserResponse Response Object
 type KeystoneCreateUserResponse struct {
 	User           *KeystoneCreateUserResult `json:"user,omitempty"`
 	HttpStatusCode int                       `json:"-"`

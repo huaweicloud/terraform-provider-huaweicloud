@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowTopUrlResponse Response Object
 type ShowTopUrlResponse struct {
 
 	// 服务区域。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeletePermanentAccessKeyRequest Request Object
 type DeletePermanentAccessKeyRequest struct {
 
 	// 待删除的指定AK。

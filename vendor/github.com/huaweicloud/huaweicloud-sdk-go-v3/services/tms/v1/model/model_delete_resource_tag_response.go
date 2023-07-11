@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteResourceTagResponse Response Object
 type DeleteResourceTagResponse struct {
 
 	// 查询标签下的资源

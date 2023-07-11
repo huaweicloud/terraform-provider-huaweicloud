@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 域信息，加域实例单转主备时必填，非加域实例不需要填写
+// AdDomainInfo 域信息，加域实例单转主备时必填，非加域实例不需要填写
 type AdDomainInfo struct {
 
 	// 域管理员账号名

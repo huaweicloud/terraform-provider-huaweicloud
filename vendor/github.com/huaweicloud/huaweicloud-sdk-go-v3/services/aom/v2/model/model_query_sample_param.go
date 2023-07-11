@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 时序数据查询参数。
+// QuerySampleParam 时序数据查询参数。
 type QuerySampleParam struct {
 
 	// 时序数据对象列表。  取值范围：JSON数组大小不超过20。

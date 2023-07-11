@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用户自定义属性
+// UserPropDto 用户自定义属性
 type UserPropDto struct {
 
 	// **参数说明**：用户自定义属性键。 **取值范围**：长度不超过128，只允许字母、数字、下划线（_）、连接符（-）的组合。

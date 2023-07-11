@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 服务配置信息
+// ObsForwarding 服务配置信息
 type ObsForwarding struct {
 
 	// **参数说明**：OBS服务对应的region区域

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyTokenScope
 type AgencyTokenScope struct {
 	Domain *AgencyTokenScopeDomain `json:"domain,omitempty"`
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdatePermanentAccessKeyResponse Response Object
 type UpdatePermanentAccessKeyResponse struct {
 	Credential     *UpdateCredentialResult `json:"credential,omitempty"`
 	HttpStatusCode int                     `json:"-"`

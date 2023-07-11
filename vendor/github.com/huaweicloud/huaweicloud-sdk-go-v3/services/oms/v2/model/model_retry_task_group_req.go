@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 重试迁移任务组请求参数
+// RetryTaskGroupReq 重试迁移任务组请求参数
 type RetryTaskGroupReq struct {
 
 	// 源端ak（最大长度100个字符）

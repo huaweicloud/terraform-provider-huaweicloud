@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 配额
+// TagQuota 配额
 type TagQuota struct {
 
 	// 配额键

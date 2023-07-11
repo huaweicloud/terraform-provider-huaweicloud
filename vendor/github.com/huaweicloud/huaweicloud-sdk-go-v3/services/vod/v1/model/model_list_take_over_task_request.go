@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTakeOverTaskRequest Request Object
 type ListTakeOverTaskRequest struct {
 
 	// 任务状态。

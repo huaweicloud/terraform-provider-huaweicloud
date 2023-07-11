@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateSinkTaskRequest Request Object
 type CreateSinkTaskRequest struct {
 
 	// 实例转储ID。 请参考[实例生命周期][查询实例]接口返回的数据。

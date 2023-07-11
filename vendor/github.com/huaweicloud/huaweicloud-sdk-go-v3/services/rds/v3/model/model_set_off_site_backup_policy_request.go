@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetOffSiteBackupPolicyRequest Request Object
 type SetOffSiteBackupPolicyRequest struct {
 
 	// 语言

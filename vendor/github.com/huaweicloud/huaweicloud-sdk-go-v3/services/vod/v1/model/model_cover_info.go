@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 封面信息。
+// CoverInfo 封面信息。
 type CoverInfo struct {
 
 	// 封面文件的下载地址。

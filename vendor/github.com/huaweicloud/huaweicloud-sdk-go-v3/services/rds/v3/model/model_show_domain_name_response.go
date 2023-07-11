@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainNameResponse Response Object
 type ShowDomainNameResponse struct {
 
 	// 实例ID。

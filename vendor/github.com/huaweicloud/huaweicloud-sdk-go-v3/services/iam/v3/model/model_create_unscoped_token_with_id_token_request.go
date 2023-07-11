@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateUnscopedTokenWithIdTokenRequest Request Object
 type CreateUnscopedTokenWithIdTokenRequest struct {
 
 	// 身份提供商id。

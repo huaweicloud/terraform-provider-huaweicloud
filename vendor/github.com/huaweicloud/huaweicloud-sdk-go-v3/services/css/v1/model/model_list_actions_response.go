@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListActionsResponse Response Object
 type ListActionsResponse struct {
 
 	// 操作记录列表。

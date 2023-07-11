@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规格信息。
+// Flavor 规格信息。
 type Flavor struct {
 
 	// 规格id

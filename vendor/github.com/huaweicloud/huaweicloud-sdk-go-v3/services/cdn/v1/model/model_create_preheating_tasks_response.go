@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreatePreheatingTasksResponse Response Object
 type CreatePreheatingTasksResponse struct {
 
 	// 任务ID

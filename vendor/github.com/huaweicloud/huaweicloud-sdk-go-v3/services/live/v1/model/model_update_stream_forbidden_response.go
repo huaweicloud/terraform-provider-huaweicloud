@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateStreamForbiddenResponse Response Object
 type UpdateStreamForbiddenResponse struct {
 	HttpStatusCode int `json:"-"`
 }

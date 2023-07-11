@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartAutoSettingRequest Request Object
 type StartAutoSettingRequest struct {
 
 	// 指定要备份的集群ID。

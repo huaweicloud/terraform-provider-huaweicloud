@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateAgencyCustomPolicyResponse Response Object
 type UpdateAgencyCustomPolicyResponse struct {
 	Role           *AgencyPolicyRoleResult `json:"role,omitempty"`
 	HttpStatusCode int                     `json:"-"`

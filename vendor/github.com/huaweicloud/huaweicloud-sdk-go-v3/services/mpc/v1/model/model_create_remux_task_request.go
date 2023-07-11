@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateRemuxTaskRequest Request Object
 type CreateRemuxTaskRequest struct {
 	Body *CreateRemuxTaskReq `json:"body,omitempty"`
 }

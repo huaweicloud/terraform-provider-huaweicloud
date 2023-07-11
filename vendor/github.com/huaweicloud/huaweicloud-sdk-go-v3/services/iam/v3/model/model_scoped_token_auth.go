@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopedTokenAuth
 type ScopedTokenAuth struct {
 	Identity *ScopedTokenIdentity `json:"identity"`
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTemplateGroupRequest Request Object
 type ListTemplateGroupRequest struct {
 
 	// 模板组id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListKeypairDetailResponse Response Object
 type ListKeypairDetailResponse struct {
 	Keypair        *KeypairDetail `json:"keypair,omitempty"`
 	HttpStatusCode int            `json:"-"`

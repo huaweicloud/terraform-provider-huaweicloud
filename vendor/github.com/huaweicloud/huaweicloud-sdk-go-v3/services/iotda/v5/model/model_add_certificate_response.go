@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddCertificateResponse Response Object
 type AddCertificateResponse struct {
 
 	// CA证书ID，在上传CA证书时由平台分配的唯一标识。

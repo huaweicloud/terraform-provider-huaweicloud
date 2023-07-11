@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群日志记录实体对象。
+// ClusterLogRecord 集群日志记录实体对象。
 type ClusterLogRecord struct {
 
 	// 日志任务ID，通过系统UUID生成。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RunRecordResponse Response Object
 type RunRecordResponse struct {
 	XRequestId     *string `json:"X-Request-Id,omitempty"`
 	HttpStatusCode int     `json:"-"`

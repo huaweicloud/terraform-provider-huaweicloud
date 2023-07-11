@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 连接信息。
+// Connections 连接信息。
 type Connections struct {
 
 	// 终端节点ID。

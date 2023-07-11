@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 弹性IP白名单。
+// CreateClusterElbWhiteList 弹性IP白名单。
 type CreateClusterElbWhiteList struct {
 
 	// 是否开启公网访问控制。

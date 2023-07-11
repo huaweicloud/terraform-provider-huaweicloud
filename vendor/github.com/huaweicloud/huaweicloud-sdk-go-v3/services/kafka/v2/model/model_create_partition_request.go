@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePartitionRequest Request Object
 type CreatePartitionRequest struct {
 
 	// 实例ID。

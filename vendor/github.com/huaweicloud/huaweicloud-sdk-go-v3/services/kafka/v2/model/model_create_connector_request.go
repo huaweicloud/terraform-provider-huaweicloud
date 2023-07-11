@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateConnectorRequest Request Object
 type CreateConnectorRequest struct {
 
 	// 实例ID。

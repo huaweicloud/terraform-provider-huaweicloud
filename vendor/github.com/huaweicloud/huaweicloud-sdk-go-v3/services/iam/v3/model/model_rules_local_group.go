@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 联邦用户在本系统中所属用户组
+// RulesLocalGroup 联邦用户在本系统中所属用户组
 type RulesLocalGroup struct {
 
 	// 联邦用户在本系统中所属用户组

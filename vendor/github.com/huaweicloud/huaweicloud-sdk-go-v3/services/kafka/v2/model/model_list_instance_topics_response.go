@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListInstanceTopicsResponse Response Object
 type ListInstanceTopicsResponse struct {
 
 	// topic总数。

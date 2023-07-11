@@ -13,7 +13,7 @@ type TaskInfo struct {
 	BenchConcurrent *int32 `json:"bench_concurrent,omitempty"`
 
 	// case_list
-	CaseList *[]CaseInfo `json:"case_list,omitempty"`
+	CaseList *[]CaseInfoDetail `json:"case_list,omitempty"`
 
 	// 创建时间
 	CreateTime *sdktime.SdkTime `json:"create_time,omitempty"`

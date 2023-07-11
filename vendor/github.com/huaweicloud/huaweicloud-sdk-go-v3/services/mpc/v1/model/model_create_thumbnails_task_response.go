@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateThumbnailsTaskResponse Response Object
 type CreateThumbnailsTaskResponse struct {
 
 	// 任务ID。

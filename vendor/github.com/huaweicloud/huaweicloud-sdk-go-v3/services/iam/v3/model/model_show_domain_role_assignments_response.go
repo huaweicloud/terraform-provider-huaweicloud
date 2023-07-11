@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainRoleAssignmentsResponse Response Object
 type ShowDomainRoleAssignmentsResponse struct {
 
 	// 返回授权记录的总条数。

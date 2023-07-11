@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateResetTracksTaskResponse Response Object
 type CreateResetTracksTaskResponse struct {
 
 	// 任务ID。 如果返回值为200 OK，为接受任务后产生的任务ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateInstanceCrossVpcIpResponse Response Object
 type UpdateInstanceCrossVpcIpResponse struct {
 
 	// 修改跨VPC访问结果。

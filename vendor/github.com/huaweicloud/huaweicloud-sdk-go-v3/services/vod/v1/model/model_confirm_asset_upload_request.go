@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ConfirmAssetUploadRequest Request Object
 type ConfirmAssetUploadRequest struct {
 	Body *ConfirmAssetUploadReq `json:"body,omitempty"`
 }

@@ -40,6 +40,9 @@ type ProtectionPolicyInfo struct {
 
 	// 操作系统类型
 	OperatingSystem *string `json:"operating_system,omitempty"`
+
+	// 进程白名单
+	ProcessWhitelist *[]TrustProcessInfo `json:"process_whitelist,omitempty"`
 }
 
 func (o ProtectionPolicyInfo) String() string {

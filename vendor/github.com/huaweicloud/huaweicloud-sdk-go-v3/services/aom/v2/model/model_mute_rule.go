@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 静默规则
+// MuteRule 静默规则
 type MuteRule struct {
 
 	// 创建时间

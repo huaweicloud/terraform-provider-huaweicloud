@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdatePostgresqlInstanceAliasResponse Response Object
 type UpdatePostgresqlInstanceAliasResponse struct {
 
 	// 操作结果。

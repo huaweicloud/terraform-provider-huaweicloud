@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 是否是父进程
+// IsParent 是否是父进程
 type IsParent struct {
 }
 

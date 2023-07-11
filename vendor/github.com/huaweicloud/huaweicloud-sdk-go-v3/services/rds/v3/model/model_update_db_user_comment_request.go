@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateDbUserCommentRequest Request Object
 type UpdateDbUserCommentRequest struct {
 
 	// 实例ID。

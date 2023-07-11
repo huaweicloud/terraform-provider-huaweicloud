@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowTakeOverAssetDetailsRequest Request Object
 type ShowTakeOverAssetDetailsRequest struct {
 
 	// 媒资原始输入存放的桶。

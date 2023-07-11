@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// IdentityToken
 type IdentityToken struct {
 
 	// token的ID。与请求头中的X-Auth-Token含义相同，待废弃。

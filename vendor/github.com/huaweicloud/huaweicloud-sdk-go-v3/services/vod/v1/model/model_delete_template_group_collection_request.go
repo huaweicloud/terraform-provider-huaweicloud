@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteTemplateGroupCollectionRequest Request Object
 type DeleteTemplateGroupCollectionRequest struct {
 
 	// 模板组集合id

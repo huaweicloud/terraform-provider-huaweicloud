@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 跨区域备份实例信息。
+// OffsiteBackupInstance 跨区域备份实例信息。
 type OffsiteBackupInstance struct {
 
 	// 实例ID。

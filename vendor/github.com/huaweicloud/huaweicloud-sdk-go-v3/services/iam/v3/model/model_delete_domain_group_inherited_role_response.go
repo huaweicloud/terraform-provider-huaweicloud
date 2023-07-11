@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteDomainGroupInheritedRoleResponse Response Object
 type DeleteDomainGroupInheritedRoleResponse struct {
 	HttpStatusCode int `json:"-"`
 }

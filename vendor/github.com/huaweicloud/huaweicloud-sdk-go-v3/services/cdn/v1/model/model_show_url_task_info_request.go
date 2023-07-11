@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowUrlTaskInfoRequest Request Object
 type ShowUrlTaskInfoRequest struct {
 
 	// 起始时间戳（毫秒），默认当天00:00

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ConfirmAssetUploadResponse Response Object
 type ConfirmAssetUploadResponse struct {
 
 	// 媒资ID

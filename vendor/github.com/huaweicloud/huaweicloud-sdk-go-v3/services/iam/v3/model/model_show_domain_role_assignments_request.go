@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowDomainRoleAssignmentsRequest Request Object
 type ShowDomainRoleAssignmentsRequest struct {
 
 	// 待查询账号ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateSqlserverDatabaseRequest Request Object
 type CreateSqlserverDatabaseRequest struct {
 
 	// 语言

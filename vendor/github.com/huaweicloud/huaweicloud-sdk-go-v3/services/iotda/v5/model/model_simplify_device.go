@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设备信息结构体，批量查询返回。
+// SimplifyDevice 设备信息结构体，批量查询返回。
 type SimplifyDevice struct {
 
 	// 设备ID，用于唯一标识一个设备。在注册设备时直接指定，或者由物联网平台分配获得。由物联网平台分配时，生成规则为\"product_id\" + \"_\" + \"node_id\"拼接而成。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateInstanceResponse Response Object
 type CreateInstanceResponse struct {
 	Instance *CreateInstanceRespItem `json:"instance,omitempty"`
 

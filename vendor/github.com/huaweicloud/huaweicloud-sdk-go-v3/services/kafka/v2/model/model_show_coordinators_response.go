@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowCoordinatorsResponse Response Object
 type ShowCoordinatorsResponse struct {
 
 	// 所有消费组对应的协调器列表。

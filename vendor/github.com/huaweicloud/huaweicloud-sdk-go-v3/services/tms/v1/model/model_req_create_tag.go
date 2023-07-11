@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建标签请求
+// ReqCreateTag 创建标签请求
 type ReqCreateTag struct {
 
 	// 项目ID，resource_type为region级别服务时为必选项。

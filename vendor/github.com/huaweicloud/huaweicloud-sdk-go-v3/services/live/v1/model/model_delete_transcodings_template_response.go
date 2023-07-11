@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteTranscodingsTemplateResponse Response Object
 type DeleteTranscodingsTemplateResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 身份提供商信息。
+// IdpIdInfo 身份提供商信息。
 type IdpIdInfo struct {
 
 	// 身份提供商id。

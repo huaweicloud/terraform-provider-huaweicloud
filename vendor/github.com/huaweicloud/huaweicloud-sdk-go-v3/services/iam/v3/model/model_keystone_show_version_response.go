@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneShowVersionResponse Response Object
 type KeystoneShowVersionResponse struct {
 	Version        *Version `json:"version,omitempty"`
 	HttpStatusCode int      `json:"-"`

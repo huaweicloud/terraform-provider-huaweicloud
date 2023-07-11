@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPostgresqlExtensionResponse Response Object
 type ListPostgresqlExtensionResponse struct {
 	Extensions *[]ExtensionsResponse `json:"extensions,omitempty"`
 

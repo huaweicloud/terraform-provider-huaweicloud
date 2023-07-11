@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// TaskRunInfo
+// TaskRunInfo TaskRunInfo
 type TaskRunInfo struct {
 
 	// id

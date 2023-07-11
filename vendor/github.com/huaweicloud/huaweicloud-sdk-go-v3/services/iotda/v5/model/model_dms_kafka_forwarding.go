@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 转发kafka消息结构
+// DmsKafkaForwarding 转发kafka消息结构
 type DmsKafkaForwarding struct {
 
 	// **参数说明**：Kafka服务对应的region区域

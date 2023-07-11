@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateTranscodeTemplateRequest Request Object
 type CreateTranscodeTemplateRequest struct {
 	Body *CreateTranscodeTemplate `json:"body,omitempty"`
 }

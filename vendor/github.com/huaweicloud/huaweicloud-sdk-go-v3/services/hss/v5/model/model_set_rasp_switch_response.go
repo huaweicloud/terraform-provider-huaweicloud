@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetRaspSwitchResponse Response Object
 type SetRaspSwitchResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateAddressGroupOption
 type CreateAddressGroupOption struct {
 
 	// 功能说明：地址组名称 取值范围：1-64个字符，支持数字、字母、中文、_(下划线)、-（中划线）、.（点）
@@ -20,6 +20,12 @@ type CreateAddressGroupOption struct {
 
 	// 功能说明：地址组可包含地址集 取值范围：可以是单个ip地址，ip地址范围，ip地址cidr 约束：当前一个地址组ip_set数量限制默认值为20，即配置的ip地址、ip地址范围或ip地址cidr的总数默认限制20
 	IpSet *[]string `json:"ip_set,omitempty"`
+
+	// 功能说明：地址组最大条目数，限制地址组可以包含的地址数量 取值范围：0-20 默认值：20
+	MaxCapacity *int32 `json:"max_capacity,omitempty"`
+
+	// 功能说明：企业项目ID。创建IP地址组时，给IP地址组绑定企业项目ID。 取值范围：最大长度36字节，带“-”连字符的UUID格式，或者是字符串“0”。“0”表示默认企业项目。
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 
 func (o CreateAddressGroupOption) String() string {

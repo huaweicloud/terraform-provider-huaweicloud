@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetWtpProtectionStatusInfoResponse Response Object
 type SetWtpProtectionStatusInfoResponse struct {
 	HttpStatusCode int `json:"-"`
 }

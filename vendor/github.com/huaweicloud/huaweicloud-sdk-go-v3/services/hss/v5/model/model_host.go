@@ -38,7 +38,7 @@ type Host struct {
 	// 安装结果，包含如下12种。   - install_succeed ：安装成功。   - network_access_timeout ：网络不通，访问超时。   - invalid_port ：无效端口。   - auth_failed ：认证错误，口令不正确。   - permission_denied ：权限错误，被拒绝。   - no_available_vpc ：没有相同VPC的agent在线虚拟机。   - install_exception ：安装异常。   - invalid_param ：参数错误。   - install_failed ：安装失败。   - package_unavailable ：安装包失效。   - os_type_not_support ：系统类型错误。   - os_arch_not_support ：架构类型错误。
 	InstallResultCode *string `json:"install_result_code,omitempty"`
 
-	// 主机开通的版本，包含如下6种输入。   - hss.version.null ：无。   - hss.version.basic ：基础版。   - hss.version.enterprise ：企业版。   - hss.version.premium ：旗舰版。   - hss.version.wtp ：网页防篡改版。   - hss.version.container.enterprise ：容器版。
+	// 主机开通的版本，包含如下7种输入。   - hss.version.null ：无。   - hss.version.basic ：基础版。   - hss.version.advanced ：专业版。   - hss.version.enterprise ：企业版。   - hss.version.premium ：旗舰版。   - hss.version.wtp ：网页防篡改版。   - hss.version.container.enterprise ：容器版。
 	Version *string `json:"version,omitempty"`
 
 	// 防护状态，包含如下2种。 - closed ：未防护。 - opened ：防护中。
@@ -112,6 +112,9 @@ type Host struct {
 
 	// 该服务器agent是否可升级
 	Upgradable *bool `json:"upgradable,omitempty"`
+
+	// 开启防护时间，采用时间戳，默认毫秒，
+	OpenTime *int64 `json:"open_time,omitempty"`
 }
 
 func (o Host) String() string {

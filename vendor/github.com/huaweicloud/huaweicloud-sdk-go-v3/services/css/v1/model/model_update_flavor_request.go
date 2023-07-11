@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateFlavorRequest Request Object
 type UpdateFlavorRequest struct {
 
 	// 指定待更改规格的集群ID。

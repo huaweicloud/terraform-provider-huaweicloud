@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// project信息
+// ProjectInfo project信息
 type ProjectInfo struct {
 	Domain *DomainInfo `json:"domain,omitempty"`
 

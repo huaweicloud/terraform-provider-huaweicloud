@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddIndependentNodeResponse Response Object
 type AddIndependentNodeResponse struct {
 
 	// 集群ID。

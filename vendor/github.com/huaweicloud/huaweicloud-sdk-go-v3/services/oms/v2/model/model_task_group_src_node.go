@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 迁移任务组的源端节点
+// TaskGroupSrcNode 迁移任务组的源端节点
 type TaskGroupSrcNode struct {
 
 	// 源端桶的AK（最大长度100个字符），task_type为非url_list时，本参数为必选。

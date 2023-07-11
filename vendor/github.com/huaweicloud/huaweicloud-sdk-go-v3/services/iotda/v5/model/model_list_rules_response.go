@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRulesResponse Response Object
 type ListRulesResponse struct {
 
 	// 本次分页查询结果中最后一条记录的ID，可在下一次分页查询时使用。

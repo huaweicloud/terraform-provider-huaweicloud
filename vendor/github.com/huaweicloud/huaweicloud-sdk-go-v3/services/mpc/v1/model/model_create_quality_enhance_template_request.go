@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateQualityEnhanceTemplateRequest Request Object
 type CreateQualityEnhanceTemplateRequest struct {
 	Body *QualityEnhanceTemplate `json:"body,omitempty"`
 }

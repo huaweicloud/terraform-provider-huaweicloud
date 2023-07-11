@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopPipelineRequest Request Object
 type StopPipelineRequest struct {
 
 	// 指定停止pipeline的集群ID。

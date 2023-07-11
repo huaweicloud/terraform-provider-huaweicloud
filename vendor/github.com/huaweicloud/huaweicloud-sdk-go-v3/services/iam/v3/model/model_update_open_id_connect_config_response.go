@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateOpenIdConnectConfigResponse Response Object
 type UpdateOpenIdConnectConfigResponse struct {
 	OpenidConnectConfig *OpenIdConnectConfig `json:"openid_connect_config,omitempty"`
 	HttpStatusCode      int                  `json:"-"`

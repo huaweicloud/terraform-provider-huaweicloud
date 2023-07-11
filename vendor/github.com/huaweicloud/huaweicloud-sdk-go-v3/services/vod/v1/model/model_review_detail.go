@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 审核结果
+// ReviewDetail 审核结果
 type ReviewDetail struct {
 
 	// 置信度。  取值范围：[0,1]。

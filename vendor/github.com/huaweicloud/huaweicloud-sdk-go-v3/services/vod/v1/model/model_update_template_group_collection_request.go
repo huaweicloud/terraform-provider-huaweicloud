@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateTemplateGroupCollectionRequest Request Object
 type UpdateTemplateGroupCollectionRequest struct {
 	Body *ModifyTemplateGroupCollection `json:"body,omitempty"`
 }

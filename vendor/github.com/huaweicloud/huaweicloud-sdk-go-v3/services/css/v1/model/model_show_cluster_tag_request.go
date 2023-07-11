@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowClusterTagRequest Request Object
 type ShowClusterTagRequest struct {
 
 	// 指定待查询的集群ID。

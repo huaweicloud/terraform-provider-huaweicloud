@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddDeviceResponse Response Object
 type AddDeviceResponse struct {
 
 	// 资源空间ID。
@@ -55,6 +55,12 @@ type AddDeviceResponse struct {
 
 	// 在物联网平台注册设备的时间。格式：yyyyMMdd'T'HHmmss'Z'，如20151212T121212Z。
 	CreateTime *string `json:"create_time,omitempty"`
+
+	// 设备最近一次连接状态(ONLINE:在线，OFFLINE：离线，ABNORMAL：异常)变化时间。格式：yyyy-MM-dd'T'HH:mm:ss.SSS'Z' ，如2015-12-12T12:12:122Z。
+	ConnectionStatusUpdateTime *string `json:"connection_status_update_time,omitempty"`
+
+	// 设备激活时间。格式：yyyy-MM-dd'T'HH:mm:ss.SSS'Z' ，如2015-12-12T12:12:122Z。
+	ActiveTime *string `json:"active_time,omitempty"`
 
 	// 设备的标签列表。
 	Tags *[]TagV5Dto `json:"tags,omitempty"`

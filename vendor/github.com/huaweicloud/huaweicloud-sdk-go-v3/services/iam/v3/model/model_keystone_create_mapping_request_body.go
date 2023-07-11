@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateMappingRequestBody
 type KeystoneCreateMappingRequestBody struct {
 	Mapping *MappingOption `json:"mapping"`
 }

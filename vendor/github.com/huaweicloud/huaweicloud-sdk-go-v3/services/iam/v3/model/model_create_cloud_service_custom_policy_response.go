@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateCloudServiceCustomPolicyResponse Response Object
 type CreateCloudServiceCustomPolicyResponse struct {
 	Role           *ServicePolicyRoleResult `json:"role,omitempty"`
 	HttpStatusCode int                      `json:"-"`

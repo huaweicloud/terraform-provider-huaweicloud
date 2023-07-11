@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListUserMfaDevicesResponse Response Object
 type ListUserMfaDevicesResponse struct {
 
 	// 虚拟MFA设备信息列表。

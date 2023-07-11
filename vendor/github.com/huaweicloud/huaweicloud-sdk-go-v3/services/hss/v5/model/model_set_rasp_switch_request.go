@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetRaspSwitchRequest Request Object
 type SetRaspSwitchRequest struct {
 
 	// Region Id

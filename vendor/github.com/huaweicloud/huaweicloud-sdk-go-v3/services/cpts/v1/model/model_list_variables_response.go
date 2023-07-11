@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListVariablesResponse Response Object
 type ListVariablesResponse struct {
 
 	// code

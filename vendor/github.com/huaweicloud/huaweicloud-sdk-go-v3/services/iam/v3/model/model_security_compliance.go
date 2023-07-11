@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// SecurityCompliance
 type SecurityCompliance struct {
 
 	// 密码强度策略的正则表达式。

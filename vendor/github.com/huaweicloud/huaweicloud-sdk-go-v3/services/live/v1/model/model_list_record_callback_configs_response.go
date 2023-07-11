@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRecordCallbackConfigsResponse Response Object
 type ListRecordCallbackConfigsResponse struct {
 
 	// 查询结果的总元素数量

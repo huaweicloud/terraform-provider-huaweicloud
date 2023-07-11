@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreatePostgresqlDatabaseResponse Response Object
 type CreatePostgresqlDatabaseResponse struct {
 
 	// 操作结果。

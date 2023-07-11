@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListActionRuleRequest Request Object
 type ListActionRuleRequest struct {
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PolicyRoleResult
 type PolicyRoleResult struct {
 
 	// 自定义策略所属账号ID。

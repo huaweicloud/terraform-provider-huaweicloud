@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListWtpProtectHostResponse Response Object
 type ListWtpProtectHostResponse struct {
 
 	// data list

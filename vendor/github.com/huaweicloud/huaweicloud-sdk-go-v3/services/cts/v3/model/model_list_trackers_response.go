@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTrackersResponse Response Object
 type ListTrackersResponse struct {
 
 	// 本次查询追踪器列表返回的追踪器数组。

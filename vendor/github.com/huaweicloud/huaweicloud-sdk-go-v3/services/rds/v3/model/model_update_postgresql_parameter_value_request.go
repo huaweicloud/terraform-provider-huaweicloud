@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdatePostgresqlParameterValueRequest Request Object
 type UpdatePostgresqlParameterValueRequest struct {
 
 	// 语言

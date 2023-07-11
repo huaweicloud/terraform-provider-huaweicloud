@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// RoleResult
 type RoleResult struct {
 
 	// 权限所属账号ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenProjectDomainResult
 type TokenProjectDomainResult struct {
 
 	// 账号名。

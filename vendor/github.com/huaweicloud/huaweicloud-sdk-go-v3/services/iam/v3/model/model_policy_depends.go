@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PolicyDepends
 type PolicyDepends struct {
 
 	// 权限所在目录。

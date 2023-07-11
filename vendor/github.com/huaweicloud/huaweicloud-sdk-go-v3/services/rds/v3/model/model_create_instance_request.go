@@ -9,11 +9,14 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateInstanceRequest Request Object
 type CreateInstanceRequest struct {
 
 	// 语言
 	XLanguage *CreateInstanceRequestXLanguage `json:"X-Language,omitempty"`
+
+	// 保证客户端请求幂等性的标识。 该标识为32位UUID格式，由客户端生成，且需确保72小时内不同请求之间该标识具有唯一性。
+	XClientToken *string `json:"X-Client-Token,omitempty"`
 
 	Body *InstanceRequest `json:"body,omitempty"`
 }
@@ -57,13 +60,18 @@ func (c CreateInstanceRequestXLanguage) MarshalJSON() ([]byte, error) {
 
 func (c *CreateInstanceRequestXLanguage) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

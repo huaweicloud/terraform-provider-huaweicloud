@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListLiveSampleLogsResponse Response Object
 type ListLiveSampleLogsResponse struct {
 
 	// 符合查询条件的总条目数

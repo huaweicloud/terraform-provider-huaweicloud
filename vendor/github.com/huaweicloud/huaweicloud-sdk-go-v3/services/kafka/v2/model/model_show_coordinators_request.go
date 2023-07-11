@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowCoordinatorsRequest Request Object
 type ShowCoordinatorsRequest struct {
 
 	// 实例ID。

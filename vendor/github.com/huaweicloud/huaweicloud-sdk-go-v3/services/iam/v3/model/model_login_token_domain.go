@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// LoginTokenDomain
 type LoginTokenDomain struct {
 
 	// 被委托方用户所属账号名称。

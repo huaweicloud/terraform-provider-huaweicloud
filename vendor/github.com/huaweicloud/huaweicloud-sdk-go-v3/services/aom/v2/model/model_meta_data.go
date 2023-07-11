@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 查询结果元数据信息，包括分页信息等。
+// MetaData 查询结果元数据信息，包括分页信息等。
 type MetaData struct {
 
 	// 当前返回结果条数。

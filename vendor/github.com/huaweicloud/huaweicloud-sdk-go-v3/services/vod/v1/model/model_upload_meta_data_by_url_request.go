@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UploadMetaDataByUrlRequest Request Object
 type UploadMetaDataByUrlRequest struct {
 	Body *UploadMetaDataByUrlReq `json:"body,omitempty"`
 }

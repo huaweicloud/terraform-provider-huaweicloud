@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListMuteRuleResponse Response Object
 type ListMuteRuleResponse struct {
 	Body           *[]MuteRule `json:"body,omitempty"`
 	HttpStatusCode int         `json:"-"`

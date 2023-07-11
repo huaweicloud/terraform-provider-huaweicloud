@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateLoginProjectReq
 type UpdateLoginProjectReq struct {
 	LoginProtect *UpdateLoginProject `json:"login_protect"`
 }

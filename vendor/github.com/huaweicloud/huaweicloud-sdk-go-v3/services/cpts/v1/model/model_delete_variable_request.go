@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteVariableRequest Request Object
 type DeleteVariableRequest struct {
 
 	// 全局变量id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListHostRaspProtectHistoryInfoResponse Response Object
 type ListHostRaspProtectHistoryInfoResponse struct {
 
 	// total number

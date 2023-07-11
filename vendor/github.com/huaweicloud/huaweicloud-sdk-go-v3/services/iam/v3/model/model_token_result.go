@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenResult
 type TokenResult struct {
 
 	// 服务目录信息。

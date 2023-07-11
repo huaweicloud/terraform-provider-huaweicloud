@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 事件告警上报实体。
+// EventList 事件告警上报实体。
 type EventList struct {
 
 	// 事件或者告警详情。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteTempResponse Response Object
 type DeleteTempResponse struct {
 
 	// code

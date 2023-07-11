@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListInstancesRequest Request Object
 type ListInstancesRequest struct {
 
 	// 消息引擎：kafka。
@@ -32,6 +32,12 @@ type ListInstancesRequest struct {
 
 	// 企业项目ID。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
+
+	// 偏移量，表示从此偏移量开始查询， offset大于等于0。
+	Offset *string `json:"offset,omitempty"`
+
+	// 当次查询返回的最大实例个数，默认值为10，取值范围为1~50。
+	Limit *string `json:"limit,omitempty"`
 }
 
 func (o ListInstancesRequest) String() string {
@@ -93,13 +99,18 @@ func (c ListInstancesRequestStatus) MarshalJSON() ([]byte, error) {
 
 func (c *ListInstancesRequestStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -135,13 +146,18 @@ func (c ListInstancesRequestIncludeFailure) MarshalJSON() ([]byte, error) {
 
 func (c *ListInstancesRequestIncludeFailure) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -177,13 +193,18 @@ func (c ListInstancesRequestExactMatchName) MarshalJSON() ([]byte, error) {
 
 func (c *ListInstancesRequestExactMatchName) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

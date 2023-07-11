@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRecordRulesResponse Response Object
 type ListRecordRulesResponse struct {
 
 	// 查询结果的总元素数量

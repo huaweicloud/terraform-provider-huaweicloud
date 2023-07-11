@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 时间序列查询参数详情。
+// SeriesApiQueryItemParam 时间序列查询参数详情。
 type SeriesApiQueryItemParam struct {
 
 	// 通过该数组传递的参数信息进行时间序列查询。

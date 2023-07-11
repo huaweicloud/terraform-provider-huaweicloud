@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListFailedTaskRequest Request Object
 type ListFailedTaskRequest struct {
 
 	// 每页返回的个数。 默认值：50。

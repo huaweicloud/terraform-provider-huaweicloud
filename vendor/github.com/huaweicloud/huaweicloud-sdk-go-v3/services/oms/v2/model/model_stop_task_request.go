@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopTaskRequest Request Object
 type StopTaskRequest struct {
 
 	// 迁移任务ID。

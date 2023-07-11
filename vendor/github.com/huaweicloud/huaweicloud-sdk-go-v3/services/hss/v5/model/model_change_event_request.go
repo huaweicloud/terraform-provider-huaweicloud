@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ChangeEventRequest Request Object
 type ChangeEventRequest struct {
 
 	// region id
@@ -14,6 +14,12 @@ type ChangeEventRequest struct {
 
 	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
+
+	// 容器实例名称
+	ContainerName *string `json:"container_name,omitempty"`
+
+	// 容器Id
+	ContainerId *string `json:"container_id,omitempty"`
 
 	Body *ChangeEventRequestInfo `json:"body,omitempty"`
 }

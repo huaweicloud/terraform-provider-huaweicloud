@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartInstanceEnlargeVolumeActionResponse Response Object
 type StartInstanceEnlargeVolumeActionResponse struct {
 
 	// 任务ID。

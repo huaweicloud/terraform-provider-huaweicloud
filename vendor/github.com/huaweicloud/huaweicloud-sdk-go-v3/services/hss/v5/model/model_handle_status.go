@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 处理状态，包含如下:   - unhandled ：未处理   - handled : 已处理
+// HandleStatus 处理状态，包含如下:   - unhandled ：未处理   - handled : 已处理
 type HandleStatus struct {
 }
 

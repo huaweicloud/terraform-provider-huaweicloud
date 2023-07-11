@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneListServicesResponse Response Object
 type KeystoneListServicesResponse struct {
 
 	// 服务信息列表。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建项目的请求体。
+// KeystoneCreateProjectRequestBody 创建项目的请求体。
 type KeystoneCreateProjectRequestBody struct {
 	Project *KeystoneCreateProjectOption `json:"project"`
 }

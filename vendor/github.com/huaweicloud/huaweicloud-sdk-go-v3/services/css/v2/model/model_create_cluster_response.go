@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateClusterResponse Response Object
 type CreateClusterResponse struct {
 	Cluster *CreateClusterResp `json:"cluster,omitempty"`
 

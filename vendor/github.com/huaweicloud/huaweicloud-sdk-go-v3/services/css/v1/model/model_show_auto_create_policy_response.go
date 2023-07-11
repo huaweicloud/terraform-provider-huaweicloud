@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAutoCreatePolicyResponse Response Object
 type ShowAutoCreatePolicyResponse struct {
 
 	// 快照保留的天数。

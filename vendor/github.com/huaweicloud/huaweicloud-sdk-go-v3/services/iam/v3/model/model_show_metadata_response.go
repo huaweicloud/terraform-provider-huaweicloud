@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowMetadataResponse Response Object
 type ShowMetadataResponse struct {
 
 	// Metadata的ID。

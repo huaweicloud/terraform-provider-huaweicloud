@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteProjectRequest Request Object
 type DeleteProjectRequest struct {
 
 	// 测试工程id

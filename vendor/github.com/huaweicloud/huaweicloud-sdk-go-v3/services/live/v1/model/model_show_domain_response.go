@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainResponse Response Object
 type ShowDomainResponse struct {
 
 	// 查询结果的总数量

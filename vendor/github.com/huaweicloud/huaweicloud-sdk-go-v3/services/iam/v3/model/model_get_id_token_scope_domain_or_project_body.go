@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// scope详细信息
+// GetIdTokenScopeDomainOrProjectBody scope详细信息
 type GetIdTokenScopeDomainOrProjectBody struct {
 
 	// domain id 或者 project id，与name字段至少存在一个。

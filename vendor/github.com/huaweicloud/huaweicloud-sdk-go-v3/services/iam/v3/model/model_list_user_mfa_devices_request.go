@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListUserMfaDevicesRequest Request Object
 type ListUserMfaDevicesRequest struct {
 }
 

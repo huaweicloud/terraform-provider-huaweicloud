@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// BatchCreateOrDeleteKafkaTagRequest Request Object
 type BatchCreateOrDeleteKafkaTagRequest struct {
 
 	// 实例ID。

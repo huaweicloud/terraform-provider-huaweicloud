@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CloudResource
 type CloudResource struct {
 
 	// 功能描述：资源类型

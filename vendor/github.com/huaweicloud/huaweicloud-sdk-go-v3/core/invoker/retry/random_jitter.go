@@ -25,9 +25,14 @@ import (
 
 // RandomJitter 全抖动指数退避 delay = random(0, Exponential)
 type RandomJitter struct {
+	*strategyBase
 }
 
-func (r *RandomJitter) ComputeDelayBeforeNextRetry() int32 {
-	delay := utils.Min32(MaxDelay, BaseDelay*(utils.Pow32(3, 2)))
-	return utils.RandInt32(0, delay)
+func NewRandomJitter() *RandomJitter {
+	return &RandomJitter{strategyBase: newStrategyBase()}
+}
+
+func (r *RandomJitter) ComputeDelayBeforeNextRetry(retryTimes int32) int32 {
+	expoDelay := getExponentialDelay(r.GetBaseDelay(), retryTimes)
+	return utils.RandInt32(1, expoDelay)
 }

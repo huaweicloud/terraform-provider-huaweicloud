@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListRunningTaskRequest Request Object
 type ListRunningTaskRequest struct {
 
 	// 每页显示的条目数量。默认值1000。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddMetricDataResponse Response Object
 type AddMetricDataResponse struct {
 
 	// 响应码。

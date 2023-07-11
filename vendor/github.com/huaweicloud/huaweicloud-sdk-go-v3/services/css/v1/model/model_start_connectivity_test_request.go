@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartConnectivityTestRequest Request Object
 type StartConnectivityTestRequest struct {
 
 	// 指定待测试的集群ID。

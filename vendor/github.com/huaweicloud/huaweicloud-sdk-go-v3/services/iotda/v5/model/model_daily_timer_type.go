@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 条件中每日定时类型的信息，自定义结构。
+// DailyTimerType 条件中每日定时类型的信息，自定义结构。
 type DailyTimerType struct {
 
 	// **参数说明**：规则触发的时间，格式：HH:MM。

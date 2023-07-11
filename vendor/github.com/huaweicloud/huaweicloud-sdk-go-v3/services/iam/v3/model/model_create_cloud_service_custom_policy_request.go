@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateCloudServiceCustomPolicyRequest Request Object
 type CreateCloudServiceCustomPolicyRequest struct {
 	Body *CreateCloudServiceCustomPolicyRequestBody `json:"body,omitempty"`
 }

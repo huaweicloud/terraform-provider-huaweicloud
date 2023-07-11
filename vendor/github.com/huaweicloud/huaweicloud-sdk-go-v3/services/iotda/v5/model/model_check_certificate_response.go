@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CheckCertificateResponse Response Object
 type CheckCertificateResponse struct {
 	Body           *string `json:"body,omitempty"`
 	HttpStatusCode int     `json:"-"`

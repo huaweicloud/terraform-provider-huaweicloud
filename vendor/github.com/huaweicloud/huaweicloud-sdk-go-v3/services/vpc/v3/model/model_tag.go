@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Tag
 type Tag struct {
 
 	// 1.功能说明：标签键 2.取值范围：最大长度36个unicode字符。 key不能为空。不能包含非打印字符ASCII(0-31)，*,<,>,\\,=

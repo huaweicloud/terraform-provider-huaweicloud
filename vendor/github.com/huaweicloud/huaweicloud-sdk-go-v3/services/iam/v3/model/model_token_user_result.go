@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenUserResult
 type TokenUserResult struct {
 
 	// IAM用户名。

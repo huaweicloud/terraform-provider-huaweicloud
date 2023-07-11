@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 容灾实例信息。
+// InstanceDrRelation 容灾实例信息。
 type InstanceDrRelation struct {
 
 	// 当前区域实例ID。

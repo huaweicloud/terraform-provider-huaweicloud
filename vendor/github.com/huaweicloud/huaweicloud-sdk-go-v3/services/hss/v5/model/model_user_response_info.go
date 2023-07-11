@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 账号信息
+// UserResponseInfo 账号信息
 type UserResponseInfo struct {
 
 	// agent_id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据搜索引擎类型。
+// ListSnapshotBackupsDatastoreResp 数据搜索引擎类型。
 type ListSnapshotBackupsDatastoreResp struct {
 
 	// 引擎类型，目前只支持elasticsearch。

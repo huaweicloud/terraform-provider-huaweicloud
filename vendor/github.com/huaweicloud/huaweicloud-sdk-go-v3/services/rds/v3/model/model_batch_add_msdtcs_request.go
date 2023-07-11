@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// BatchAddMsdtcsRequest Request Object
 type BatchAddMsdtcsRequest struct {
 
 	// 实例ID

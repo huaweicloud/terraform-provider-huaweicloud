@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RollingRestartResponse Response Object
 type RollingRestartResponse struct {
 	HttpStatusCode int `json:"-"`
 }

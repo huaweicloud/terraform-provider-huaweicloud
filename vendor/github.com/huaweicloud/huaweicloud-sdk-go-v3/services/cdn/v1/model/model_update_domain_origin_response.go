@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateDomainOriginResponse Response Object
 type UpdateDomainOriginResponse struct {
 	Origin         *ResourceBody `json:"origin,omitempty"`
 	HttpStatusCode int           `json:"-"`

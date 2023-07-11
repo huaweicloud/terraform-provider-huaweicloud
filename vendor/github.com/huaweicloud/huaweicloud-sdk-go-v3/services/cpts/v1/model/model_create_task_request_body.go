@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// CreateTaskRequestBody
+// CreateTaskRequestBody CreateTaskRequestBody
 type CreateTaskRequestBody struct {
 
 	// name

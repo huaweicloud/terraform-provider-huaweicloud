@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListEnterpriseProjectsForUserRequest Request Object
 type ListEnterpriseProjectsForUserRequest struct {
 
 	// 待查询用户ID。

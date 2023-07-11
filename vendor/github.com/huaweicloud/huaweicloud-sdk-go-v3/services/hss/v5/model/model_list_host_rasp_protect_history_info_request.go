@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListHostRaspProtectHistoryInfoRequest Request Object
 type ListHostRaspProtectHistoryInfoRequest struct {
 
 	// Region Id

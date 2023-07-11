@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PwdAuth
 type PwdAuth struct {
 	Identity *PwdIdentity `json:"identity"`
 

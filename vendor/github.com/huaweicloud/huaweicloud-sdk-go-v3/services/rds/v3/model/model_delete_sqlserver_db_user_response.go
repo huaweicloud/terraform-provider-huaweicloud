@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteSqlserverDbUserResponse Response Object
 type DeleteSqlserverDbUserResponse struct {
 
 	// 操作结果。

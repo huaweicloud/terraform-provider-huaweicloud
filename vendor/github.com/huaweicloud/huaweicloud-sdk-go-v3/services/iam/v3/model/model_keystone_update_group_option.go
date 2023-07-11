@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateGroupOption
 type KeystoneUpdateGroupOption struct {
 
 	// 用户组描述信息，长度小于等于255字节。name与description至少填写一个。

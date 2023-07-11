@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAssetMetaResponse Response Object
 type ShowAssetMetaResponse struct {
 
 	// 媒资信息列表。

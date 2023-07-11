@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RemoveDomainPermissionFromAgencyResponse Response Object
 type RemoveDomainPermissionFromAgencyResponse struct {
 	HttpStatusCode int `json:"-"`
 }

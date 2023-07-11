@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPolicyGroupResponse Response Object
 type ListPolicyGroupResponse struct {
 
 	// 总数

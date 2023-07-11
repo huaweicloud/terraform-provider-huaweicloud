@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ChangeProxyScaleResponse Response Object
 type ChangeProxyScaleResponse struct {
 
 	// 任务ID。

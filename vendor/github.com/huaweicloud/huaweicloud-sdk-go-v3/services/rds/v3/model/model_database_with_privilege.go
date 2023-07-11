@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据库及其权限。
+// DatabaseWithPrivilege 数据库及其权限。
 type DatabaseWithPrivilege struct {
 
 	// 数据库名称。

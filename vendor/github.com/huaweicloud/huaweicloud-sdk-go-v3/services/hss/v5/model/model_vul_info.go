@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 漏洞列表
+// VulInfo 漏洞列表
 type VulInfo struct {
 
 	// 漏洞名称
@@ -42,11 +42,31 @@ type VulInfo struct {
 	// 漏洞描述
 	Description *string `json:"description,omitempty"`
 
-	// 漏洞类型，包含如下：   -linux_vul : linux漏洞   -windows_vul : windows漏洞   -web_cms : Web-CMS漏洞
+	// 漏洞类型，包含如下：   -linux_vul : linux漏洞   -windows_vul : windows漏洞   -web_cms : Web-CMS漏洞   -app_vul : 应用漏洞
 	Type *string `json:"type,omitempty"`
 
 	// 主机列表
 	HostIdList *[]string `json:"host_id_list,omitempty"`
+
+	// CVE列表
+	CveList *[]VulInfoCveList `json:"cve_list,omitempty"`
+
+	// 补丁地址
+	PatchUrl *string `json:"patch_url,omitempty"`
+
+	// 修复优先级 Critical 紧急 High 高 Medium 中 Low 低
+	RepairPriority *string `json:"repair_priority,omitempty"`
+
+	HostsNum *VulnerabilityHostNumberInfo `json:"hosts_num,omitempty"`
+
+	// 修复成功次数
+	RepairSuccessNum *int32 `json:"repair_success_num,omitempty"`
+
+	// 修复数量
+	FixedNum *int64 `json:"fixed_num,omitempty"`
+
+	// 忽略数量
+	IgnoredNum *int64 `json:"ignored_num,omitempty"`
 }
 
 func (o VulInfo) String() string {

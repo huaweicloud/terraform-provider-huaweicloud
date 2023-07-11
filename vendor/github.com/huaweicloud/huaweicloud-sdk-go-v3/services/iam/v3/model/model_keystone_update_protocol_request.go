@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneUpdateProtocolRequest Request Object
 type KeystoneUpdateProtocolRequest struct {
 
 	// 身份提供商ID。

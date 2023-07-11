@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 自启动项统计信息
+// AutoLaunchStatisticsResponseInfo 自启动项统计信息
 type AutoLaunchStatisticsResponseInfo struct {
 
 	// 自启动项名称

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设置HTTP头参数。取值：\"Content-Disposition\", \"Content-Language\", \"Access-Control-Allow-Origin\",\"Access-Control-Allow-Methods\", \"Access-Control-Max-Age\", \"Access-Control-Expose-Headers\"。
+// HeaderMap 设置HTTP头参数。取值：\"Content-Disposition\", \"Content-Language\", \"Access-Control-Allow-Origin\",\"Access-Control-Allow-Methods\", \"Access-Control-Max-Age\", \"Access-Control-Expose-Headers\"。
 type HeaderMap struct {
 
 	// 指示回复的内容该以何种形式展示

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateUserOption
 type KeystoneUpdateUserOption struct {
 
 	// IAM用户所属账号ID。

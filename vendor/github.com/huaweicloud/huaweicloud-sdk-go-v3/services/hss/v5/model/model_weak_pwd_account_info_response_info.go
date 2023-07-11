@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 弱口令的账号信息
+// WeakPwdAccountInfoResponseInfo 弱口令的账号信息
 type WeakPwdAccountInfoResponseInfo struct {
 
 	// 弱口令账号名称

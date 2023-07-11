@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneShowIdentityProviderResponse Response Object
 type KeystoneShowIdentityProviderResponse struct {
 	IdentityProvider *IdentityprovidersResult `json:"identity_provider,omitempty"`
 	HttpStatusCode   int                      `json:"-"`

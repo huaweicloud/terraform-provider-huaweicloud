@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 配置检测结果信息
+// SecurityCheckInfoResponseInfo 配置检测结果信息
 type SecurityCheckInfoResponseInfo struct {
 
 	// 风险等级，包含如下:   - Low : 低危   - Medium : 中危   - High : 高危

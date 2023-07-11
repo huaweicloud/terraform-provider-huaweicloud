@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 协调器信息。
+// ShowCoordinatorsRespCoordinators 协调器信息。
 type ShowCoordinatorsRespCoordinators struct {
 
 	// 消费组ID。

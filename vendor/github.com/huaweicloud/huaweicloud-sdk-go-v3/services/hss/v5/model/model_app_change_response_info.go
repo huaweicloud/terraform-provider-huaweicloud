@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 软件变动历史信息
+// AppChangeResponseInfo 软件变动历史信息
 type AppChangeResponseInfo struct {
 
 	// agent_id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群扩容请求详细描述。
+// ExtendClusterGrowReq 集群扩容请求详细描述。
 type ExtendClusterGrowReq struct {
 
 	// 扩容实例个数。  集群已有实例个数和扩容实例个数总和不能超过32。

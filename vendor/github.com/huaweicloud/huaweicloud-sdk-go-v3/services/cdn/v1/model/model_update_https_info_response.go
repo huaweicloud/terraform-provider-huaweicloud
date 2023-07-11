@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateHttpsInfoResponse Response Object
 type UpdateHttpsInfoResponse struct {
 	Https          *HttpInfoResponseBody `json:"https,omitempty"`
 	HttpStatusCode int                   `json:"-"`

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规格。
+// EsflavorsVersionsFlavorsResp 规格。
 type EsflavorsVersionsFlavorsResp struct {
 
 	// 实例的CPU核数。

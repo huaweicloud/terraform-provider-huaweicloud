@@ -14,7 +14,7 @@ type OriginRangeBody struct {
 	// range状态（\"off\"/\"on\"）
 	RangeStatus *OriginRangeBodyRangeStatus `json:"range_status,omitempty"`
 
-	// 加速域名id。获取方法请参见查询加速域名。
+	// 加速域名id。
 	DomainId *string `json:"domain_id,omitempty"`
 }
 
@@ -57,13 +57,18 @@ func (c OriginRangeBodyRangeStatus) MarshalJSON() ([]byte, error) {
 
 func (c *OriginRangeBodyRangeStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

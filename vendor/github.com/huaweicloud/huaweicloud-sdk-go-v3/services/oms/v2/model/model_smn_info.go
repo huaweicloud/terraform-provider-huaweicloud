@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// smn 消息通知结果
+// SmnInfo smn 消息通知结果
 type SmnInfo struct {
 
 	// 记录迁移任务执行完毕后SMN消息是否发送成功。

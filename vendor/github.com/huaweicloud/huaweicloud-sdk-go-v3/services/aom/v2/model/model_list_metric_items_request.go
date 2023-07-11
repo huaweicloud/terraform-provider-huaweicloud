@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListMetricItemsRequest Request Object
 type ListMetricItemsRequest struct {
 
 	// 指标查询方式。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListFailedTaskResponse Response Object
 type ListFailedTaskResponse struct {
 
 	// 失败任务总数。

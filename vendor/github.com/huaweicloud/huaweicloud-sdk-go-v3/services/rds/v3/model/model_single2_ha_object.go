@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 单机转主备时必填。
+// Single2HaObject 单机转主备时必填。
 type Single2HaObject struct {
 
 	// 实例节点可用区码（AZ）。

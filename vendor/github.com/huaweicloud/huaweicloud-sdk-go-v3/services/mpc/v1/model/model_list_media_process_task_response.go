@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListMediaProcessTaskResponse Response Object
 type ListMediaProcessTaskResponse struct {
 
 	// 任务列表

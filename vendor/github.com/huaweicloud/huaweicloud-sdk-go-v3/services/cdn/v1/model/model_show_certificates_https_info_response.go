@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowCertificatesHttpsInfoResponse Response Object
 type ShowCertificatesHttpsInfoResponse struct {
 
-	// 查询结果总数
+	// 查询结果总数。
 	Total *int32 `json:"total,omitempty"`
 
-	// https对象。
+	// https配置。
 	Https          *[]HttpsDetail `json:"https,omitempty"`
 	HttpStatusCode int            `json:"-"`
 }

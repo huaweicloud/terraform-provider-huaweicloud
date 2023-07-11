@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowInstanceUsersResponse Response Object
 type ShowInstanceUsersResponse struct {
 
 	// 用户列表。

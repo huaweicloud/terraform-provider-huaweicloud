@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// API的URL地址。
+// Link API的URL地址。
 type Link struct {
 
 	// API的URL地址。

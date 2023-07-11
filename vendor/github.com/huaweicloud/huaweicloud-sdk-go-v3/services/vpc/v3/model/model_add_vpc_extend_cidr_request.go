@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AddVpcExtendCidrRequest Request Object
 type AddVpcExtendCidrRequest struct {
 
 	// VPC资源ID

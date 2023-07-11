@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListProtectionPolicyRequest Request Object
 type ListProtectionPolicyRequest struct {
 
 	// region id
@@ -23,6 +23,9 @@ type ListProtectionPolicyRequest struct {
 
 	// 防护策略名称
 	PolicyName *string `json:"policy_name,omitempty"`
+
+	// 防护策略id
+	ProtectPolicyId *string `json:"protect_policy_id,omitempty"`
 
 	// 策略支持的操作系统
 	OperatingSystem *string `json:"operating_system,omitempty"`

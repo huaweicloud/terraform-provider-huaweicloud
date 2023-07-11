@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListFlavorsResponse Response Object
 type ListFlavorsResponse struct {
 
 	// 引擎版本列表。

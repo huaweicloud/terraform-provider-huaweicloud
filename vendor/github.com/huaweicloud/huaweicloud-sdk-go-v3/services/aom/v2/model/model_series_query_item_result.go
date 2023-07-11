@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 维度信息。
+// SeriesQueryItemResult 维度信息。
 type SeriesQueryItemResult struct {
 
 	// 命名空间。

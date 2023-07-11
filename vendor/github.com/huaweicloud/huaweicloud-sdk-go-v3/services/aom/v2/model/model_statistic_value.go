@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 统计结果
+// StatisticValue 统计结果
 type StatisticValue struct {
 
 	// 统计方式。

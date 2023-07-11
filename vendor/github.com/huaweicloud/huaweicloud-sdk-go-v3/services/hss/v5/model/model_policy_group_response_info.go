@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 策略组详情
+// PolicyGroupResponseInfo 策略组详情
 type PolicyGroupResponseInfo struct {
 
 	// 策略组名
@@ -30,7 +30,7 @@ type PolicyGroupResponseInfo struct {
 	// 支持的操作系统，包含如下:   - Linux ：支持Linux系统   - Windows : 支持Windows系统
 	SupportOs *string `json:"support_os,omitempty"`
 
-	// 支持的版本，包含如下:   - hss.version.basic ：基础版策略组   - hss.version.enterprise : 企业版策略组   - hss.version.premium : 旗舰版策略组   - hss.version.wtp : 网页防篡改版策略组   - hss.version.container.enterprise : 容器版策略组
+	// 支持的版本，包含如下:   - hss.version.basic ：基础版策略组   - hss.version.advanced : 专业版策略组   - hss.version.enterprise : 企业版策略组   - hss.version.premium : 旗舰版策略组   - hss.version.wtp : 网页防篡改版策略组   - hss.version.container.enterprise : 容器版策略组
 	SupportVersion *string `json:"support_version,omitempty"`
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateYmlsRequest Request Object
 type UpdateYmlsRequest struct {
 
 	// 指定修改参数配置的集群ID。

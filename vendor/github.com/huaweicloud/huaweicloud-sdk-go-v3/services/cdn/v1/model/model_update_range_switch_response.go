@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateRangeSwitchResponse Response Object
 type UpdateRangeSwitchResponse struct {
 	OriginRange    *OriginRangeBody `json:"origin_range,omitempty"`
 	HttpStatusCode int              `json:"-"`

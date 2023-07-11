@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateDomainRequest Request Object
 type UpdateDomainRequest struct {
 	Body *LiveDomainModifyReq `json:"body,omitempty"`
 }

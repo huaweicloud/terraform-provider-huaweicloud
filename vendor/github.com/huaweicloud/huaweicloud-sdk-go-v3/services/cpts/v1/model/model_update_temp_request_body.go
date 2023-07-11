@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// UpdateTempRequestBody
+// UpdateTempRequestBody UpdateTempRequestBody
 type UpdateTempRequestBody struct {
 
 	// id

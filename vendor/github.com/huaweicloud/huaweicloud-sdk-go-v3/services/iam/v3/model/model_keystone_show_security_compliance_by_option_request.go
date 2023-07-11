@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneShowSecurityComplianceByOptionRequest Request Object
 type KeystoneShowSecurityComplianceByOptionRequest struct {
 
 	// 待查询的账号ID，获取方式请参见：[获取账号、IAM用户、项目、用户组、委托的名称和ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。
@@ -58,13 +58,18 @@ func (c KeystoneShowSecurityComplianceByOptionRequestOption) MarshalJSON() ([]by
 
 func (c *KeystoneShowSecurityComplianceByOptionRequestOption) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

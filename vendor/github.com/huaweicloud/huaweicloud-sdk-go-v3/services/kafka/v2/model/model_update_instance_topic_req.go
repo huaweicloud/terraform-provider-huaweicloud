@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改的topic列表。
+// UpdateInstanceTopicReq 修改的topic列表。
 type UpdateInstanceTopicReq struct {
 
 	// 修改的topic列表。

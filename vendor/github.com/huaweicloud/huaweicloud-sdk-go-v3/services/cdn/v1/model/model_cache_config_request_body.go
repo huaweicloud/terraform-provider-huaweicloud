@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// This is a auto create Body Object
+// CacheConfigRequestBody This is a auto create Body Object
 type CacheConfigRequestBody struct {
 	CacheConfig *CacheConfigRequest `json:"cache_config"`
 }

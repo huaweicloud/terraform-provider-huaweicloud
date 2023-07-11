@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopSnapshotRequest Request Object
 type StopSnapshotRequest struct {
 
 	// 停用快照所属的集群的ID。

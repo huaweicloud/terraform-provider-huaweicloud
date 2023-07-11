@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 账号变动历史信息
+// UserChangeHistoryResponseInfo 账号变动历史信息
 type UserChangeHistoryResponseInfo struct {
 
 	// Agent ID

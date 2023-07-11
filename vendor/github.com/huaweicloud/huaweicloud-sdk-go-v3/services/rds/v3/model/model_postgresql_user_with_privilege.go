@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用户及其权限。
+// PostgresqlUserWithPrivilege 用户及其权限。
 type PostgresqlUserWithPrivilege struct {
 
 	// 数据库帐号名称。  数据库帐号名称在1到63个字符之间，由字母、数字、或下划线组成，不能包含其他特殊字符，不能以“pg”和数字开头，不能和系统用户名称相同且帐号名称必须存在。  系统用户包括“rdsAdmin”,“ rdsMetric”, “rdsBackup”, “rdsRepl”,“ rdsProxy”, “rdsDdm”。

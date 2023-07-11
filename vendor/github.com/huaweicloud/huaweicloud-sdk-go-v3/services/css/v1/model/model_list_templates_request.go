@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTemplatesRequest Request Object
 type ListTemplatesRequest struct {
 
 	// 模板类型。custom为自定义模板，system为系统模板。不指定查询模板类型默认查找自定义模板和系统模板。

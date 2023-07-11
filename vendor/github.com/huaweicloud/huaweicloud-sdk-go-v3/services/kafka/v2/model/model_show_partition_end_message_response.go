@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowPartitionEndMessageResponse Response Object
 type ShowPartitionEndMessageResponse struct {
 
 	// Topic名称。

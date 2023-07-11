@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTemplateGroupCollectionResponse Response Object
 type ListTemplateGroupCollectionResponse struct {
 
 	// 模板组集合信息<br/>

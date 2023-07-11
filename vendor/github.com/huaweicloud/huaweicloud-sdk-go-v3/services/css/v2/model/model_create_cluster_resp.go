@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群对象。若创建的是按需集群，则只返回cluster参数。
+// CreateClusterResp 集群对象。若创建的是按需集群，则只返回cluster参数。
 type CreateClusterResp struct {
 
 	// 集群ID。

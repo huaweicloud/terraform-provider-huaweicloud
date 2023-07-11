@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyAssumedby
 type AgencyAssumedby struct {
 	User *AgencyAssumedbyUser `json:"user"`
 }

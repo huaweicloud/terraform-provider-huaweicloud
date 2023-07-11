@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UnbindMfaDevice
 type UnbindMfaDevice struct {
 
 	// 待解绑MFA设备的IAM用户ID。

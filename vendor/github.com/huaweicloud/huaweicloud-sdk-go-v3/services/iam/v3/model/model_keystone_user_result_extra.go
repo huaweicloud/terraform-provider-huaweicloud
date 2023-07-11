@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUserResultExtra
 type KeystoneUserResultExtra struct {
 
 	// IAM用户描述信息。

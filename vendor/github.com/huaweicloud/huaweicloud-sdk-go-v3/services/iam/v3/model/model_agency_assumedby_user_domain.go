@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyAssumedbyUserDomain
 type AgencyAssumedbyUserDomain struct {
 
 	// 被委托方B的账号名称。

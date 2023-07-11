@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RevokeRoleFromGroupOnEnterpriseProjectResponse Response Object
 type RevokeRoleFromGroupOnEnterpriseProjectResponse struct {
 	HttpStatusCode int `json:"-"`
 }

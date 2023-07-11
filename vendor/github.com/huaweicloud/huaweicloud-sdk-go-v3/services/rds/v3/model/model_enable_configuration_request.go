@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// EnableConfigurationRequest Request Object
 type EnableConfigurationRequest struct {
 
 	// 语言

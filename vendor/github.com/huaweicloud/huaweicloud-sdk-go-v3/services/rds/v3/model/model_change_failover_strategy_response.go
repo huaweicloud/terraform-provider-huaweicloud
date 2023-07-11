@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ChangeFailoverStrategyResponse Response Object
 type ChangeFailoverStrategyResponse struct {
 	HttpStatusCode int `json:"-"`
 }

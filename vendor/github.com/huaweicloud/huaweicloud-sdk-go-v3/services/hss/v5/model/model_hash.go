@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// SHA256
+// Hash SHA256
 type Hash struct {
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// auth信息
+// GetIdTokenAuthParams auth信息
 type GetIdTokenAuthParams struct {
 	IdToken *GetIdTokenIdTokenBody `json:"id_token"`
 

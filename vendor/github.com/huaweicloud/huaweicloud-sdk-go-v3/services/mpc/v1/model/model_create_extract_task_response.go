@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateExtractTaskResponse Response Object
 type CreateExtractTaskResponse struct {
 
 	// 任务ID

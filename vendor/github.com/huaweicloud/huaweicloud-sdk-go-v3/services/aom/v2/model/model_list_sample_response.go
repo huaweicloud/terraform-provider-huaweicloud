@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListSampleResponse Response Object
 type ListSampleResponse struct {
 
 	// 时间序列对象列表。

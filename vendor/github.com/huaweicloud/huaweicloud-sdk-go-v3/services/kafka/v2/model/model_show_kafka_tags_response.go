@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowKafkaTagsResponse Response Object
 type ShowKafkaTagsResponse struct {
 
 	// 标签列表

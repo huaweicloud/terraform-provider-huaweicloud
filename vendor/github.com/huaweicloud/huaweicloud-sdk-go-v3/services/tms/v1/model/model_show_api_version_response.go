@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowApiVersionResponse Response Object
 type ShowApiVersionResponse struct {
 	Version        *VersionDetail `json:"version,omitempty"`
 	HttpStatusCode int            `json:"-"`

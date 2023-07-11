@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainLocationStatsResponse Response Object
 type ShowDomainLocationStatsResponse struct {
 
 	// 数据分组方式

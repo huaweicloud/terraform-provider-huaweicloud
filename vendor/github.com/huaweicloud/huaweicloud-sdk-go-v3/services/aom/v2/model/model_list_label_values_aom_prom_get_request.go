@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListLabelValuesAomPromGetRequest Request Object
 type ListLabelValuesAomPromGetRequest struct {
 
 	// 查询所用标签。

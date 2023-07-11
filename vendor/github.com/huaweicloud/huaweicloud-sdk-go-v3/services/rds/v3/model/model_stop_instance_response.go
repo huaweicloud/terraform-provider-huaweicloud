@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StopInstanceResponse Response Object
 type StopInstanceResponse struct {
 
 	// 任务ID。

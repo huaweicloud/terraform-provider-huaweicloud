@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RestartClusterRequest Request Object
 type RestartClusterRequest struct {
 
 	// 指定重启集群ID。

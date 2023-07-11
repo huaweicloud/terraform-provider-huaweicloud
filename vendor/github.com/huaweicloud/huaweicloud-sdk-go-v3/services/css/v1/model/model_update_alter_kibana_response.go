@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateAlterKibanaResponse Response Object
 type UpdateAlterKibanaResponse struct {
 	HttpStatusCode int `json:"-"`
 }

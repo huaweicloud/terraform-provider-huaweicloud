@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// DebugCaseRequestBody
+// DebugCaseRequestBody DebugCaseRequestBody
 type DebugCaseRequestBody struct {
 
 	// status

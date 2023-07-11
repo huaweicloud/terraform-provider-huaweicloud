@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateTaskStatusRequest Request Object
 type UpdateTaskStatusRequest struct {
 
 	// 测试工程id

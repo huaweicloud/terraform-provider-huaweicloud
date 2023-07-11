@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ResizeInstanceRequest Request Object
 type ResizeInstanceRequest struct {
 
 	// 实例ID。

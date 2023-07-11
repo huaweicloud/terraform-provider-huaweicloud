@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAutoEnlargePolicyResponse Response Object
 type ShowAutoEnlargePolicyResponse struct {
 
 	// 是否已开启自动扩容，true为开启

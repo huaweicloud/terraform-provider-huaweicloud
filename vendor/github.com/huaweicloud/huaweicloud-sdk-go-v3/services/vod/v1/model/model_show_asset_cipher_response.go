@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAssetCipherResponse Response Object
 type ShowAssetCipherResponse struct {
 
 	// 媒资ID。

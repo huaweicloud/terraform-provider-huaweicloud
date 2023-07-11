@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListLogItemsResponse Response Object
 type ListLogItemsResponse struct {
 
 	// 响应码,SVCSTG_AMS_2000000代表正常返回。

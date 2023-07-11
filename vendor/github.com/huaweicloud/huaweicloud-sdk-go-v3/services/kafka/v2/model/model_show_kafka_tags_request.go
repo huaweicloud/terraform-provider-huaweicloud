@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowKafkaTagsRequest Request Object
 type ShowKafkaTagsRequest struct {
 
 	// 实例ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则请求结构体
+// Rule 规则请求结构体
 type Rule struct {
 
 	// **参数说明**：规则名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 域名对象
+// CreateDomainRequestBody 域名对象
 type CreateDomainRequestBody struct {
 	Domain *DomainBody `json:"domain"`
 }

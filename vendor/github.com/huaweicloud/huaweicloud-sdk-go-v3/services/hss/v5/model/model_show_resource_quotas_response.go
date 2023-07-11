@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowResourceQuotasResponse Response Object
 type ShowResourceQuotasResponse struct {
 
 	// 配额统计列表

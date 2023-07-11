@@ -20,18 +20,23 @@
 package region
 
 type Region struct {
-	Id       string
-	Endpoint string
+	Id        string
+	Endpoints []string
 }
 
-func NewRegion(id string, endpoint string) *Region {
+func NewRegion(id string, endpoints ...string) *Region {
 	return &Region{
-		Id:       id,
-		Endpoint: endpoint,
+		Id:        id,
+		Endpoints: endpoints,
 	}
 }
 
+// Deprecated: As of 0.1.27, because of the support of the multi-endpoint feature, use WithEndpointsOverride instead
 func (r *Region) WithEndpointOverride(endpoint string) *Region {
-	r.Endpoint = endpoint
+	return r.WithEndpointsOverride([]string{endpoint})
+}
+
+func (r *Region) WithEndpointsOverride(endpoints []string) *Region {
+	r.Endpoints = endpoints
 	return r
 }

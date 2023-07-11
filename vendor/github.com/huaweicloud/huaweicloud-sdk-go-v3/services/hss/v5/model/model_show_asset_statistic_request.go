@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowAssetStatisticRequest Request Object
 type ShowAssetStatisticRequest struct {
 
 	// 企业项目

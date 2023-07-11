@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ResetUserPasswrodRequest Request Object
 type ResetUserPasswrodRequest struct {
 
 	// 实例ID。

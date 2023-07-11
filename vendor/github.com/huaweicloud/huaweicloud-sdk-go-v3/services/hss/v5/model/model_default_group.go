@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 是否是默认策略组
+// DefaultGroup 是否是默认策略组
 type DefaultGroup struct {
 }
 

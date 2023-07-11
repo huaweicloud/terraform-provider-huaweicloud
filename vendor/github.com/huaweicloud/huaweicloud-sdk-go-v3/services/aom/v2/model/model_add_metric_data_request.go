@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AddMetricDataRequest Request Object
 type AddMetricDataRequest struct {
 	Body *[]MetricDataItem `json:"body,omitempty"`
 }

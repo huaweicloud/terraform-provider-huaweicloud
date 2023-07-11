@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则有效时间段
+// TimeRange 规则有效时间段
 type TimeRange struct {
 
 	// **参数说明**：规则条件触发的开始时间，格式：HH:mm。

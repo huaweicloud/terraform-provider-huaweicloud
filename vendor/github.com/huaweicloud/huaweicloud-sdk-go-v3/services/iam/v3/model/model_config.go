@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Config
 type Config struct {
 	SecurityCompliance *SecurityCompliance `json:"security_compliance"`
 }

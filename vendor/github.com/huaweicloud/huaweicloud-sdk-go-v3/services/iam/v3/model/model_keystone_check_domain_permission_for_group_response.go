@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneCheckDomainPermissionForGroupResponse Response Object
 type KeystoneCheckDomainPermissionForGroupResponse struct {
 	HttpStatusCode int `json:"-"`
 }

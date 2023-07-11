@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则详情。
+// AppRulesSpec 规则详情。
 type AppRulesSpec struct {
 
 	// 服务类型,用于标记服务的分类,仅用于规则分类和界面展示。可以填写任意字段,如按技术栈分类可填写Java,Python。按作用分类可填写collector(采集),database(数据库)等。

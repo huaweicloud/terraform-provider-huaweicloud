@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteQualityEnhanceTemplateRequest Request Object
 type DeleteQualityEnhanceTemplateRequest struct {
 
 	// 模板ID

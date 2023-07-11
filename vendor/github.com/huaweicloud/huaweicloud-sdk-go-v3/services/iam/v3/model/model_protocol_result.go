@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ProtocolResult
 type ProtocolResult struct {
 
 	// 协议ID。

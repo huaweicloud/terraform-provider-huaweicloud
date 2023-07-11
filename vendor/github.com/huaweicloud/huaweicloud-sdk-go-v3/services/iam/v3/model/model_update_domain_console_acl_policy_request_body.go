@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateDomainConsoleAclPolicyRequestBody
 type UpdateDomainConsoleAclPolicyRequestBody struct {
 	ConsoleAclPolicy *AclPolicyOption `json:"console_acl_policy"`
 }

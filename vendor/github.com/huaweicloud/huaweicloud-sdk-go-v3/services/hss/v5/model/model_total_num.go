@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 总数
+// TotalNum 总数
 type TotalNum struct {
 }
 

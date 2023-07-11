@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例专属存储信息。
+// DssPoolInfo 实例专属存储信息。
 type DssPoolInfo struct {
 
 	// 专属存储池所在az

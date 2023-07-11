@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateEncryptTaskRequest Request Object
 type CreateEncryptTaskRequest struct {
 	Body *CreateEncryptReq `json:"body,omitempty"`
 }

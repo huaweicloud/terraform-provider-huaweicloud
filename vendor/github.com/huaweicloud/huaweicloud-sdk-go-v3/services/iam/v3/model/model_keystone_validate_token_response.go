@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneValidateTokenResponse Response Object
 type KeystoneValidateTokenResponse struct {
 	Token *TokenResult `json:"token,omitempty"`
 

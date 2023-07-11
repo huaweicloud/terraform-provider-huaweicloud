@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UnfreezeDeviceResponse Response Object
 type UnfreezeDeviceResponse struct {
 	Body           *string `json:"body,omitempty"`
 	HttpStatusCode int     `json:"-"`

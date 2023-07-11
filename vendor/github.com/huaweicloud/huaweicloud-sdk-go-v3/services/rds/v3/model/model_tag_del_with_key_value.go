@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 键值对标签。
+// TagDelWithKeyValue 键值对标签。
 type TagDelWithKeyValue struct {
 
 	// 标签键。最大长度127个unicode字符。 key不能为空，不能为空字符串。

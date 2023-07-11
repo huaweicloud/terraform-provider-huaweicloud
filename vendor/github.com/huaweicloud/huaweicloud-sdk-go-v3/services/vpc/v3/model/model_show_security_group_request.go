@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowSecurityGroupRequest Request Object
 type ShowSecurityGroupRequest struct {
 
 	// 安全组资源ID

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneCreateProjectResponse Response Object
 type KeystoneCreateProjectResponse struct {
 	Project        *AuthProjectResult `json:"project,omitempty"`
 	HttpStatusCode int                `json:"-"`

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AssetInfo
 type AssetInfo struct {
 
 	// 媒资ID。

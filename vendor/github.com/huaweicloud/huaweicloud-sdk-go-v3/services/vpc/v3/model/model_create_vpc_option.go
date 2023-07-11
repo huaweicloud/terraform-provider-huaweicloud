@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建VPC的请求体
+// CreateVpcOption 创建VPC的请求体
 type CreateVpcOption struct {
 
 	// 功能描述：VPC的名称信息 取值范围：1-64个字符，支持数字、字母、中文、_(下划线)、-（中划线）、.（点）

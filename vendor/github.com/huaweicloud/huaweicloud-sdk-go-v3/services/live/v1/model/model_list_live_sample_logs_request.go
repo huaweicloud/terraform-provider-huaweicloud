@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListLiveSampleLogsRequest Request Object
 type ListLiveSampleLogsRequest struct {
 
 	// 播放域名。

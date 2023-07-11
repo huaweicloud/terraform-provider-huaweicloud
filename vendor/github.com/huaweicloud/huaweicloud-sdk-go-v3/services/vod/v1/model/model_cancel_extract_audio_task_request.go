@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CancelExtractAudioTaskRequest Request Object
 type CancelExtractAudioTaskRequest struct {
 
 	// 媒资ID。

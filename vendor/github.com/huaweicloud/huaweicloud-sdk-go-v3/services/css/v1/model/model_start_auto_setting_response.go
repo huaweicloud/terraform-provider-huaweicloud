@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartAutoSettingResponse Response Object
 type StartAutoSettingResponse struct {
 	HttpStatusCode int `json:"-"`
 }

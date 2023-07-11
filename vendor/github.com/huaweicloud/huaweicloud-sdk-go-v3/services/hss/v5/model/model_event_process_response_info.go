@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 进程信息
+// EventProcessResponseInfo 进程信息
 type EventProcessResponseInfo struct {
 
 	// 进程名称

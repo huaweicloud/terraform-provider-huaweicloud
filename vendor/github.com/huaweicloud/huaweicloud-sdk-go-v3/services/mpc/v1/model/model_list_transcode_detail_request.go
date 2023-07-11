@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTranscodeDetailRequest Request Object
 type ListTranscodeDetailRequest struct {
 
 	// 转码服务接受任务后产生的任务ID。一次最多10个

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateUserTokenByPasswordAndMfaRequestBody
 type KeystoneCreateUserTokenByPasswordAndMfaRequestBody struct {
 	Auth *MfaAuth `json:"auth"`
 }

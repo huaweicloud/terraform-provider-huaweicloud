@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ResetMessageOffsetRequest Request Object
 type ResetMessageOffsetRequest struct {
 
 	// 实例ID。

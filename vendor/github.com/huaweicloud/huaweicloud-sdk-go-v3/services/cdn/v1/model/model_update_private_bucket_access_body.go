@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改私有桶开启关闭状态
+// UpdatePrivateBucketAccessBody 修改私有桶开启关闭状态
 type UpdatePrivateBucketAccessBody struct {
 
 	// 桶开启关闭状态（true：开启；false：关闭）

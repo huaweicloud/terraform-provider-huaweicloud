@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowGetLogSettingResponse Response Object
 type ShowGetLogSettingResponse struct {
 	LogConfiguration *LogConfiguration `json:"logConfiguration,omitempty"`
 	HttpStatusCode   int               `json:"-"`

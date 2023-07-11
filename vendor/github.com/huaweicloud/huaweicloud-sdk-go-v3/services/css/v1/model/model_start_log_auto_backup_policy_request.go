@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartLogAutoBackupPolicyRequest Request Object
 type StartLogAutoBackupPolicyRequest struct {
 
 	// 指定开启日志备份的集群ID。

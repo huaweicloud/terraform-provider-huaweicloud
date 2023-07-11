@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateUserInformationOption
 type UpdateUserInformationOption struct {
 
 	// IAM用户的新邮箱，符合邮箱格式，长度小于等于255字符。

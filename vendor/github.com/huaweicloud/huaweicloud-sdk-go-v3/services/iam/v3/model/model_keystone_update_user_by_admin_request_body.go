@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateUserByAdminRequestBody
 type KeystoneUpdateUserByAdminRequestBody struct {
 	User *KeystoneUpdateUserOption `json:"user"`
 }

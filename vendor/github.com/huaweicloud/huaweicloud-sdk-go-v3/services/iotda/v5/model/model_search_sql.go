@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设备搜索请求结构体。
+// SearchSql 设备搜索请求结构体。
 type SearchSql struct {
 
 	// 搜索sql语句，具体使用方法见类SQL语法使用说明章节

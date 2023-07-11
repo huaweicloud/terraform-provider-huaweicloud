@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateExtendInstanceStorageResponse Response Object
 type UpdateExtendInstanceStorageResponse struct {
 
 	// 集群ID。

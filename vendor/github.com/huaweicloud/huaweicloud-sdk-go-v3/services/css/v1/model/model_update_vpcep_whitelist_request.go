@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateVpcepWhitelistRequest Request Object
 type UpdateVpcepWhitelistRequest struct {
 
 	// 指定待更改的集群ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneShowCatalogRequest Request Object
 type KeystoneShowCatalogRequest struct {
 }
 

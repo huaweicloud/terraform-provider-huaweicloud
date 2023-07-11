@@ -233,6 +233,42 @@ func (i *ListHostStatusInvoker) Invoke() (*model.ListHostStatusResponse, error) 
 	}
 }
 
+type ListHostVulsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListHostVulsInvoker) Invoke() (*model.ListHostVulsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListHostVulsResponse), nil
+	}
+}
+
+type ListJarPackageHostInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListJarPackageHostInfoInvoker) Invoke() (*model.ListJarPackageHostInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListJarPackageHostInfoResponse), nil
+	}
+}
+
+type ListJarPackageStatisticsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListJarPackageStatisticsInvoker) Invoke() (*model.ListJarPackageStatisticsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListJarPackageStatisticsResponse), nil
+	}
+}
+
 type ListPasswordComplexityInvoker struct {
 	*invoker.BaseInvoker
 }

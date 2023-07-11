@@ -80,10 +80,13 @@ type ReportoutlineInfo struct {
 	// 服务id
 	ServiceId *string `json:"serviceId,omitempty"`
 
+	// 内部版本字段，已弃用，待删除
 	ProgressState *string `json:"progressState,omitempty"`
 
+	// 报告执行人
 	CreateBy *string `json:"createBy,omitempty"`
 
+	// 内部版本字段，已弃用，待删除
 	StatusValue *string `json:"statusValue,omitempty"`
 }
 

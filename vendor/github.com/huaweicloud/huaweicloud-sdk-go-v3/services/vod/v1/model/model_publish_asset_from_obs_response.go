@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// PublishAssetFromObsResponse Response Object
 type PublishAssetFromObsResponse struct {
 
 	// 媒资ID

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 指标详细信息。
+// MetricItemInfo 指标详细信息。
 type MetricItemInfo struct {
 
 	// 指标维度列表。 维度最多允许50个，单个维度为json对象，结构说明如下 dimension.name：长度最短为1，最大为32。 dimension.value：长度最短为1，最大为64。

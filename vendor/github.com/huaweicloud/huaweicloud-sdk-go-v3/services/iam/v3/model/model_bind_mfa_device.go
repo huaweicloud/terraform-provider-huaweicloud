@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// BindMfaDevice
 type BindMfaDevice struct {
 
 	// 待绑定MFA设备的IAM用户ID。

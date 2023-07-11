@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteCertificateRequest Request Object
 type DeleteCertificateRequest struct {
 
 	// Sp用户Token。通过调用IoBPS服务获取SP用户Token

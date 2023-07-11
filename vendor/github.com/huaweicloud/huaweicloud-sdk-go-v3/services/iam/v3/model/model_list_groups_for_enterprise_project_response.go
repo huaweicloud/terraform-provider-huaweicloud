@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListGroupsForEnterpriseProjectResponse Response Object
 type ListGroupsForEnterpriseProjectResponse struct {
 
 	// 用户组信息。

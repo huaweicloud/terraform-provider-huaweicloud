@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 策略组ID
+// PolicyGroupId 策略组ID
 type PolicyGroupId struct {
 }
 

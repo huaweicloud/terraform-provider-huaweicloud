@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTranscodeDetailResponse Response Object
 type ListTranscodeDetailResponse struct {
 
 	// 转码详情任务组

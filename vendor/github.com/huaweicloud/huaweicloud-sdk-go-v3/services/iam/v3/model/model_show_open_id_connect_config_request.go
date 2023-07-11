@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowOpenIdConnectConfigRequest Request Object
 type ShowOpenIdConnectConfigRequest struct {
 
 	// 身份提供商ID

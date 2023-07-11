@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则状态
+// RuleStatus 规则状态
 type RuleStatus struct {
 
 	// **参数说明**：规则的激活状态。 **取值范围**： - active：激活。 - inactive：未激活。

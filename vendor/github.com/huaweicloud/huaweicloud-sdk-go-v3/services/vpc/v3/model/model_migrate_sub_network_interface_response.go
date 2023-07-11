@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// MigrateSubNetworkInterfaceResponse Response Object
 type MigrateSubNetworkInterfaceResponse struct {
 
 	// 请求ID

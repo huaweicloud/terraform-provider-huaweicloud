@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListLiveStreamsOnlineResponse Response Object
 type ListLiveStreamsOnlineResponse struct {
 
 	// 总条页数

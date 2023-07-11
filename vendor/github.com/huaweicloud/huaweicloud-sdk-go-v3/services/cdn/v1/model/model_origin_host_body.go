@@ -11,7 +11,7 @@ import (
 
 type OriginHostBody struct {
 
-	// accelerate：选择加速域名作为回源地址；  customize：使用自定义的域名作为回源host域名；
+	// accelerate：选择加速域名作为回源host域名； customize：使用自定义的域名作为回源host域名；
 	OriginHostType OriginHostBodyOriginHostType `json:"origin_host_type"`
 
 	// 自定义回源域名，origin_host_type为 customize时传入该参数。
@@ -57,13 +57,18 @@ func (c OriginHostBodyOriginHostType) MarshalJSON() ([]byte, error) {
 
 func (c *OriginHostBodyOriginHostType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

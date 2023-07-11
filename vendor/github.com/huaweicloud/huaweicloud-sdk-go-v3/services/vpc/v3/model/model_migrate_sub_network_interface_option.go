@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// MigrateSubNetworkInterfaceOption
 type MigrateSubNetworkInterfaceOption struct {
 
 	// 目的宿主网卡ID

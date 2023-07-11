@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 日志列表。
+// LogList 日志列表。
 type LogList struct {
 
 	// 日志内容。

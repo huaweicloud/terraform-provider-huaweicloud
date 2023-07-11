@@ -26,7 +26,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	jsoniter "github.com/json-iterator/go"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -82,7 +82,7 @@ func KeystoneListProjects(client *impl.DefaultHttpClient, req *request.DefaultHt
 	}
 
 	keystoneListProjectResponse := new(KeystoneListProjectsResponse)
-	err = jsoniter.Unmarshal(data, keystoneListProjectResponse)
+	err = utils.Unmarshal(data, keystoneListProjectResponse)
 	if err != nil {
 		return "", err
 	}
@@ -126,7 +126,7 @@ func KeystoneListAuthDomains(client *impl.DefaultHttpClient, req *request.Defaul
 	}
 
 	keystoneListAuthDomainsResponse := new(KeystoneListAuthDomainsResponse)
-	err = jsoniter.Unmarshal(data, keystoneListAuthDomainsResponse)
+	err = utils.Unmarshal(data, keystoneListAuthDomainsResponse)
 	if err != nil {
 		return "", err
 	}
@@ -318,7 +318,7 @@ func CreateTokenWithIdToken(client *impl.DefaultHttpClient, req *request.Default
 	}
 
 	createTokenWithIdTokenResponse := new(CreateTokenWithIdTokenResponse)
-	err = jsoniter.Unmarshal(data, createTokenWithIdTokenResponse)
+	err = utils.Unmarshal(data, createTokenWithIdTokenResponse)
 	if err != nil {
 		return nil, err
 	}

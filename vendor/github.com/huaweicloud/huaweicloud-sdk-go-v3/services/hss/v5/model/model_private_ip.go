@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 服务器私有IP
+// PrivateIp 服务器私有IP
 type PrivateIp struct {
 }
 

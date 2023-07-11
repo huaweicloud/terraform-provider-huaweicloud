@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 操作保护策略。
+// ShowDomainProtectPolicyResponseBodyProtectPolicy 操作保护策略。
 type ShowDomainProtectPolicyResponseBodyProtectPolicy struct {
 	AllowUser *AllowUserBody `json:"allow_user"`
 

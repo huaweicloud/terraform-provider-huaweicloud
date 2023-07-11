@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopeProjectOption
 type ScopeProjectOption struct {
 
 	// 项目ID，id与name二选一即可。

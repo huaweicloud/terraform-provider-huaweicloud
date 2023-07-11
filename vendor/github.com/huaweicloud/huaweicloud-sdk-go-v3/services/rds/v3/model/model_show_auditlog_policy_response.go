@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAuditlogPolicyResponse Response Object
 type ShowAuditlogPolicyResponse struct {
 
 	// 审计日志保存天数，取值范围0~732。0表示关闭审计日志策略。

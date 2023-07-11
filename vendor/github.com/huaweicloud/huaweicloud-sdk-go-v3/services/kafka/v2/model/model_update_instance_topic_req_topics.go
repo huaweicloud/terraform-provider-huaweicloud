@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改的topic。
+// UpdateInstanceTopicReqTopics 修改的topic。
 type UpdateInstanceTopicReqTopics struct {
 
 	// topic名称，不支持修改。

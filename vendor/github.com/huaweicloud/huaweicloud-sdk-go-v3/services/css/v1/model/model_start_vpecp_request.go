@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartVpecpRequest Request Object
 type StartVpecpRequest struct {
 
 	// 指定开启终端节点的集群ID。

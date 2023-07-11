@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteMfaDeviceRequest Request Object
 type DeleteMfaDeviceRequest struct {
 
 	// 绑定MFA设备的IAM 用户ID。

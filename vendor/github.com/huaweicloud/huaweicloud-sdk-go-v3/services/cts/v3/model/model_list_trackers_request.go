@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTrackersRequest Request Object
 type ListTrackersRequest struct {
 
 	// 标示追踪器名称。 在不传入该字段的情况下，将查询租户所有的追踪器。
@@ -58,13 +58,18 @@ func (c ListTrackersRequestTrackerType) MarshalJSON() ([]byte, error) {
 
 func (c *ListTrackersRequestTrackerType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

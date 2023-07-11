@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// DstNodeReq
 type DstNodeReq struct {
 
 	// 目的端桶的AK（最大长度100个字符）。

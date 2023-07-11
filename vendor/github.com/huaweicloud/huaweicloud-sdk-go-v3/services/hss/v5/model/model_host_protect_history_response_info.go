@@ -14,13 +14,22 @@ type HostProtectHistoryResponseInfo struct {
 	// 被篡改文件路径
 	FilePath *string `json:"file_path,omitempty"`
 
-	// 进程ID，操作系统是Windows时返回
+	// 文件操作类型   - add: 新增   - delete: 删除   - modify: 修改内容   - attribute: 修改属性   - unknown: 未知
+	FileOperation *string `json:"file_operation,omitempty"`
+
+	// 服务器名称
+	HostName *string `json:"host_name,omitempty"`
+
+	// 服务器ip
+	HostIp *string `json:"host_ip,omitempty"`
+
+	// 进程ID
 	ProcessId *string `json:"process_id,omitempty"`
 
-	// 进程名称，操作系统是Windows时返回
+	// 进程名称
 	ProcessName *string `json:"process_name,omitempty"`
 
-	// 进程命令行，操作系统是Windows时返回
+	// 进程命令行
 	ProcessCmd *string `json:"process_cmd,omitempty"`
 }
 

@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-// 配置项。
+// ConfigsGetBody 配置项。
 type ConfigsGetBody struct {
 
-	// 回源请求头配置
+	// 回源请求头配置。
 	OriginRequestHeader *[]OriginRequestHeader `json:"origin_request_header,omitempty"`
 
 	// http header配置
@@ -22,7 +22,17 @@ type ConfigsGetBody struct {
 	// 源站配置。
 	Sources *[]SourcesConfig `json:"sources,omitempty"`
 
-	// 回源协议（follow：协议跟随回源，http：HTTP回源(默认)，https：https回源）。
+	// 回源跟随，on：开启，off：关闭。
+	OriginFollow302Status *string `json:"origin_follow302_status,omitempty"`
+
+	// 缓存规则。
+	CacheRules *[]CacheRules `json:"cache_rules,omitempty"`
+
+	IpFilter *IpFilter `json:"ip_filter,omitempty"`
+
+	Referer *RefererConfig `json:"referer,omitempty"`
+
+	// 回源协议。
 	OriginProtocol *string `json:"origin_protocol,omitempty"`
 
 	ForceRedirect *ForceRedirectConfig `json:"force_redirect,omitempty"`
@@ -31,21 +41,21 @@ type ConfigsGetBody struct {
 
 	CacheUrlParameterFilter *CacheUrlParameterFilter `json:"cache_url_parameter_filter,omitempty"`
 
-	// ipv6设置（1：打开；0：关闭）
+	// ipv6设置，1：打开；0：关闭。
 	Ipv6Accelerate *int32 `json:"ipv6_accelerate,omitempty"`
 
-	// 状态码缓存时间
+	// 状态码缓存时间。
 	ErrorCodeCache *[]ErrorCodeCache `json:"error_code_cache,omitempty"`
 
-	// Range回源，即分片回源 开启Range回源的前提是您的源站支持Range请求，即HTTP请求头中包含Range字段，否则可能导致回源失败。 开启: on 关闭: off
+	// Range回源。
 	OriginRangeStatus *string `json:"origin_range_status,omitempty"`
 
 	UserAgentFilter *UserAgentFilter `json:"user_agent_filter,omitempty"`
 
-	// 改写回源URL，最多配置20条。
+	// 改写回源URL。
 	OriginRequestUrlRewrite *[]OriginRequestUrlRewrite `json:"origin_request_url_rewrite,omitempty"`
 
-	// 自定义错误页面
+	// 自定义错误页面。
 	ErrorCodeRedirectRules *[]ErrorCodeRedirectRules `json:"error_code_redirect_rules,omitempty"`
 }
 

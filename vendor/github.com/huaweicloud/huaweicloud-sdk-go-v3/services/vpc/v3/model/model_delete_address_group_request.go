@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteAddressGroupRequest Request Object
 type DeleteAddressGroupRequest struct {
 
 	// 地址组的唯一标识

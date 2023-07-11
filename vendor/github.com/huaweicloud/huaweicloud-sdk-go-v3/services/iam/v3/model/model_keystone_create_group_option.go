@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateGroupOption
 type KeystoneCreateGroupOption struct {
 
 	// 用户组描述信息，长度小于等于255字节。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 批量添加标签的请求体
+// BatchCreateTagsRequestInfo 批量添加标签的请求体
 type BatchCreateTagsRequestInfo struct {
 
 	// 标签对象列表

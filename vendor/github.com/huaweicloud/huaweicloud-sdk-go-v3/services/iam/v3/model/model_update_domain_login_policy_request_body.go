@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateDomainLoginPolicyRequestBody
 type UpdateDomainLoginPolicyRequestBody struct {
 	LoginPolicy *LoginPolicyOption `json:"login_policy"`
 }

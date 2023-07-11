@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainFullConfigResponse Response Object
 type ShowDomainFullConfigResponse struct {
 	Configs        *ConfigsGetBody `json:"configs,omitempty"`
 	HttpStatusCode int             `json:"-"`

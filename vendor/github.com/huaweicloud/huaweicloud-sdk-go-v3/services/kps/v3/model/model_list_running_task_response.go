@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRunningTaskResponse Response Object
 type ListRunningTaskResponse struct {
 
 	// 正在处理的任务总数。

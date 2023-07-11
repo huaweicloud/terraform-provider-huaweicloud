@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAlarmRuleRequest Request Object
 type ListAlarmRuleRequest struct {
 
 	// 分页信息。

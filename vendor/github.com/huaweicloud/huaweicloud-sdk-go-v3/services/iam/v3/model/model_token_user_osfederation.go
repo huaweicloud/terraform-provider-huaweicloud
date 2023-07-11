@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenUserOsfederation
 type TokenUserOsfederation struct {
 
 	// 用户组信息列表。

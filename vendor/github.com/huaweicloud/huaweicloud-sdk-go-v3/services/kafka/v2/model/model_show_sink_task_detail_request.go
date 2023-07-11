@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowSinkTaskDetailRequest Request Object
 type ShowSinkTaskDetailRequest struct {
 
 	// 实例转储ID。 请参考[实例生命周期][查询实例]接口返回的数据。
@@ -61,13 +61,18 @@ func (c ShowSinkTaskDetailRequestTopicInfo) MarshalJSON() ([]byte, error) {
 
 func (c *ShowSinkTaskDetailRequestTopicInfo) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

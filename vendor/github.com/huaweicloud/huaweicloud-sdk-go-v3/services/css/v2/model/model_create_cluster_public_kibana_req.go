@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Kibana公网访问信息。只有在authorityEnable设置为true时该参数配置生效。
+// CreateClusterPublicKibanaReq Kibana公网访问信息。只有在authorityEnable设置为true时该参数配置生效。
 type CreateClusterPublicKibanaReq struct {
 
 	// 带宽大小。

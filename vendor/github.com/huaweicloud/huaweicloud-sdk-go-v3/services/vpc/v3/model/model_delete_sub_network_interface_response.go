@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteSubNetworkInterfaceResponse Response Object
 type DeleteSubNetworkInterfaceResponse struct {
 	HttpStatusCode int `json:"-"`
 }

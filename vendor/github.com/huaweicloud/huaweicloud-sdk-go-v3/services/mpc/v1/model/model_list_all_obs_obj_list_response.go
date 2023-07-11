@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAllObsObjListResponse Response Object
 type ListAllObsObjListResponse struct {
 
 	// 返回OBS对象组

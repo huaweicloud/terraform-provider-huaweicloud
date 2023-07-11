@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetPostgresqlDbUserPwdResponse Response Object
 type SetPostgresqlDbUserPwdResponse struct {
 
 	// 操作结果。

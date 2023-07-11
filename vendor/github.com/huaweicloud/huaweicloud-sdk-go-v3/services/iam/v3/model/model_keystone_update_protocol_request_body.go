@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateProtocolRequestBody
 type KeystoneUpdateProtocolRequestBody struct {
 	Protocol *ProtocolOption `json:"protocol"`
 }

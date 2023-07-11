@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Region
 type Region struct {
 
 	// 区域描述信息。

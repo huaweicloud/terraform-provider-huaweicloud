@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DisableDomainResponse Response Object
 type DisableDomainResponse struct {
 	Domain         *DomainsWithPort `json:"domain,omitempty"`
 	HttpStatusCode int              `json:"-"`

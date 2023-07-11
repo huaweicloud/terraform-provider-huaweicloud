@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// OsfederationProtocol
 type OsfederationProtocol struct {
 
 	// 协议ID。

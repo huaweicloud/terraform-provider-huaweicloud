@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// MigrateFollowerResponse Response Object
 type MigrateFollowerResponse struct {
 
 	// 任务ID

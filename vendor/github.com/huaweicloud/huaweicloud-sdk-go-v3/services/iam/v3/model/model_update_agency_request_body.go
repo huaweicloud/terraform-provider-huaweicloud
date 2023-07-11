@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateAgencyRequestBody
 type UpdateAgencyRequestBody struct {
 	Agency *UpdateAgencyOption `json:"agency"`
 }

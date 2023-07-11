@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListBackgroundTasksResponse Response Object
 type ListBackgroundTasksResponse struct {
 
 	// 任务数量。

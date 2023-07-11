@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 网络地址信息。
+// NetAddress 网络地址信息。
 type NetAddress struct {
 
 	// **参数说明**：服务的对应IP

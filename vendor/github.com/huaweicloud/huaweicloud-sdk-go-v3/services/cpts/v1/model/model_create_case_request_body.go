@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// CreateCaseRequestBody
+// CreateCaseRequestBody CreateCaseRequestBody
 type CreateCaseRequestBody struct {
 
 	// name
 	Name string `json:"name"`
 
-	// type (0-常规用例,1-视频流用例,2-预制用例)
+	// type（0-常规用例，1-视频流用例，2-预制用例）
 	Type int32 `json:"type"`
 
 	// task_id

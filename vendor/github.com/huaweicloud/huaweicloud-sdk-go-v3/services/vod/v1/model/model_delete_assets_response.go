@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteAssetsResponse Response Object
 type DeleteAssetsResponse struct {
 
 	// 删除媒资任务的处理结果。

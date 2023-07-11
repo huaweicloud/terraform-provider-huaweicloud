@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SwitchHostsProtectStatusRequest Request Object
 type SwitchHostsProtectStatusRequest struct {
 
 	// region id

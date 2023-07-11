@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowCesHierarchyRequest Request Object
 type ShowCesHierarchyRequest struct {
 
 	// 实例ID。

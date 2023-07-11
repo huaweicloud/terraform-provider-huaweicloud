@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopeTokenResult
 type ScopeTokenResult struct {
 
 	// 获取token的方式。

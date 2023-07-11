@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用户信息。
+// UserInfo 用户信息。
 type UserInfo struct {
 
 	// 账号ID，参见《云审计服务API参考》“获取账号ID和项目ID”章节。

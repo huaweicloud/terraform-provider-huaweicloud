@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAppChangeHistoriesResponse Response Object
 type ListAppChangeHistoriesResponse struct {
 
 	// 总数,

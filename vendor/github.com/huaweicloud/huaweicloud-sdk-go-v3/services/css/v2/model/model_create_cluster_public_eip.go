@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 公网带宽信息。
+// CreateClusterPublicEip 公网带宽信息。
 type CreateClusterPublicEip struct {
 	BandWidth *CreateClusterPublicEipSize `json:"bandWidth"`
 }

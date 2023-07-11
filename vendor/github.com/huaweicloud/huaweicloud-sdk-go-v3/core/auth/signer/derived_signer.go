@@ -22,6 +22,7 @@ package signer
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"golang.org/x/crypto/hkdf"
@@ -62,8 +63,17 @@ func StringToSignDerived(canonicalRequest string, info string, t time.Time) (str
 
 // SignDerived SignRequest set Authorization header
 func SignDerived(r *request.DefaultHttpRequest, ak string, sk string, derivedAuthServiceName string, regionId string) (map[string]string, error) {
-	if derivedAuthServiceName == "" || regionId == "" {
-		panic("DerivedAuthServiceName and RegionId in credential is required when using derived auth")
+	if ak == "" {
+		return nil, errors.New("AK is required in credentials")
+	}
+	if sk == "" {
+		return nil, errors.New("SK is required in credentials")
+	}
+	if derivedAuthServiceName == "" {
+		return nil, errors.New("DerivedAuthServiceName is required in credentials when using derived auth")
+	}
+	if regionId == "" {
+		return nil, errors.New("RegionId is required in credentials when using derived auth")
 	}
 
 	var err error

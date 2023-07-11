@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListSlowlogStatisticsResponse Response Object
 type ListSlowlogStatisticsResponse struct {
 
 	// 当前页码

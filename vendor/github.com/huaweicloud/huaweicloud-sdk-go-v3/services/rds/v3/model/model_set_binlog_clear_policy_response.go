@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetBinlogClearPolicyResponse Response Object
 type SetBinlogClearPolicyResponse struct {
 
 	// 操作结果。

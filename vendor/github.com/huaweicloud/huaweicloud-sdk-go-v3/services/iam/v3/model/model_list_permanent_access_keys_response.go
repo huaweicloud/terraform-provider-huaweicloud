@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPermanentAccessKeysResponse Response Object
 type ListPermanentAccessKeysResponse struct {
 
 	// 认证结果信息列表。

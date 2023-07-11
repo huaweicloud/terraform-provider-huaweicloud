@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SwitchHostsProtectStatusResponse Response Object
 type SwitchHostsProtectStatusResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ApplyConfigurationAsyncResponse Response Object
 type ApplyConfigurationAsyncResponse struct {
 
 	// 参数组ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateSinkTaskResponse Response Object
 type CreateSinkTaskResponse struct {
 
 	// 任务ID。

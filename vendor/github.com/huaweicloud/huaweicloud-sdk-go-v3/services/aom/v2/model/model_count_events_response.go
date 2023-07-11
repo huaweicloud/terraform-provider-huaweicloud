@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CountEventsResponse Response Object
 type CountEventsResponse struct {
 
 	// 统计步长。毫秒数，例如一分钟则填写为60000。

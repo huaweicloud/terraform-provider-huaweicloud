@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListMetadataAomPromGetRequest Request Object
 type ListMetadataAomPromGetRequest struct {
 }
 

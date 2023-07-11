@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateYmlsResponse Response Object
 type UpdateYmlsResponse struct {
 
 	// 修改是否成功。 - true: 修改成功。 - false: 修改失败。

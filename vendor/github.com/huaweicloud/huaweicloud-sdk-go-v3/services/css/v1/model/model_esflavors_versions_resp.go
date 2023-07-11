@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 引擎列表。
+// EsflavorsVersionsResp 引擎列表。
 type EsflavorsVersionsResp struct {
 
 	// Esasticsearch引擎版本号。详细请参考CSS[支持的集群版本](css_03_0056.xml)。

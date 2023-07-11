@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPortStatisticsResponse Response Object
 type ListPortStatisticsResponse struct {
 
 	// 开放端口总数

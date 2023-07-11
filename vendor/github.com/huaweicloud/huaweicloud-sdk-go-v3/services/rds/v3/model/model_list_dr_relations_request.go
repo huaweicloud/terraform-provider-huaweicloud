@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListDrRelationsRequest Request Object
 type ListDrRelationsRequest struct {
 
 	// 语言

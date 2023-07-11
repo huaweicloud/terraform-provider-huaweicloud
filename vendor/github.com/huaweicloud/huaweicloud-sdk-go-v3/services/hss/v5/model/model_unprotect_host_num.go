@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 未防护服务器数
+// UnprotectHostNum 未防护服务器数
 type UnprotectHostNum struct {
 }
 

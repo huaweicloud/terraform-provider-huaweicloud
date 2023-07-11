@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// UpdateTaskRequestBody
+// UpdateTaskRequestBody UpdateTaskRequestBody
 type UpdateTaskRequestBody struct {
 
 	// id
@@ -30,7 +30,7 @@ type UpdateTaskRequestBody struct {
 	TaskRunInfo *TaskRunInfo `json:"task_run_info,omitempty"`
 
 	// case_list
-	CaseList *[]CaseInfo `json:"case_list,omitempty"`
+	CaseList *[]CaseInfoDetail `json:"case_list,omitempty"`
 
 	// operate_mode
 	OperateMode *int32 `json:"operate_mode,omitempty"`

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetAuditlogPolicyRequest Request Object
 type SetAuditlogPolicyRequest struct {
 
 	// 语言

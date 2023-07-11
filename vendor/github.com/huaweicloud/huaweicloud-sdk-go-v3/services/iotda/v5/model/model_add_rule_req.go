@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则触发条件请求结构体
+// AddRuleReq 规则触发条件请求结构体
 type AddRuleReq struct {
 
 	// **参数说明**：规则名称。 **取值范围**：长度不超过256，只允许中文、字母、数字、以及_?'#().,&%@!-等字符的组合
@@ -23,10 +23,10 @@ type AddRuleReq struct {
 	// **参数说明**：资源空间ID。。 **取值范围**：长度不超过36，只允许字母、数字、下划线（_）、连接符（-）的组合。
 	AppId *string `json:"app_id,omitempty"`
 
-	// **参数说明**：用户自定义sql select语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// **参数说明**：用户自定义sql select语句，最大长度2500，该参数仅供标准版和企业版用户使用。可填参数可参考帮助文档数据下各接口的请求参数，如notify_data.body。
 	Select *string `json:"select,omitempty"`
 
-	// **参数说明**：用户自定义sql where语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// **参数说明**：用户自定义sql where语句，最大长度2500，该参数仅供标准版和企业版用户使用可填参数可参考帮助文档数据下各接口的请求参数，如notify_data.body。
 	Where *string `json:"where,omitempty"`
 }
 

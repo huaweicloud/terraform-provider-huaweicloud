@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopedTokenIdentity
 type ScopedTokenIdentity struct {
 
 	// 认证方法，该字段内容为“token”。

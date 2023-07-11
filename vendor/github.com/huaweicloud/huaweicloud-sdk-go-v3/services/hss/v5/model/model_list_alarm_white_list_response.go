@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAlarmWhiteListResponse Response Object
 type ListAlarmWhiteListResponse struct {
 
 	// 总数

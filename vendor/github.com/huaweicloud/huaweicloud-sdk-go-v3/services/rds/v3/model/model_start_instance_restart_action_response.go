@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartInstanceRestartActionResponse Response Object
 type StartInstanceRestartActionResponse struct {
 
 	// 任务ID。

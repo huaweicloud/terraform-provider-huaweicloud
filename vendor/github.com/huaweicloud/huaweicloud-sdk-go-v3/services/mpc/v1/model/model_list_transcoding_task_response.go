@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTranscodingTaskResponse Response Object
 type ListTranscodingTaskResponse struct {
 
 	// 返回任务组

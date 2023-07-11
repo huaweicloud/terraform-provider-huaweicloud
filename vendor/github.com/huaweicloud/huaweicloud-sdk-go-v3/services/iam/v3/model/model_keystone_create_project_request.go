@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneCreateProjectRequest Request Object
 type KeystoneCreateProjectRequest struct {
 	Body *KeystoneCreateProjectRequestBody `json:"body,omitempty"`
 }

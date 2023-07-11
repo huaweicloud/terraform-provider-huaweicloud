@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListStreamForbiddenResponse Response Object
 type ListStreamForbiddenResponse struct {
 
 	// 查询结果的总元素数量

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePredefineTagsRequest Request Object
 type CreatePredefineTagsRequest struct {
 	Body *ReqCreatePredefineTag `json:"body,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRuleActionsResponse Response Object
 type ListRuleActionsResponse struct {
 
 	// 规则动作信息列表。

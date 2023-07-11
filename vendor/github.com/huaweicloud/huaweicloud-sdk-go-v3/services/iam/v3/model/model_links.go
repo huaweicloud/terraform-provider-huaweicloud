@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Links
 type Links struct {
 
 	// 资源链接地址。

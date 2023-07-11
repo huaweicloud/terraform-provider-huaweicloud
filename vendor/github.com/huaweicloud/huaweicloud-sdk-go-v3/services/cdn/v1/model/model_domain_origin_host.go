@@ -8,10 +8,10 @@ import (
 
 type DomainOriginHost struct {
 
-	// 域名ID。获取方法请参见查询加速域名。
+	// 域名ID。
 	DomainId *string `json:"domain_id,omitempty"`
 
-	// 回源host的类型。
+	// 回源host的类型,accelerate：选择加速域名作为回源host域名,customize：使用自定义的域名作为回源host域名。
 	OriginHostType string `json:"origin_host_type"`
 
 	// 自定义回源host域名。

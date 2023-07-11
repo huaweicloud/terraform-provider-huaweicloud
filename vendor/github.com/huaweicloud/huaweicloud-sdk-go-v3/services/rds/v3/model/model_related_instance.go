@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 所关联的数据库实例列表。
+// RelatedInstance 所关联的数据库实例列表。
 type RelatedInstance struct {
 
 	// 关联实例id。

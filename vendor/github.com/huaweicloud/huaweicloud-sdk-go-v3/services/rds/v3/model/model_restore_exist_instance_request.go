@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RestoreExistInstanceRequest Request Object
 type RestoreExistInstanceRequest struct {
 
 	// 语言

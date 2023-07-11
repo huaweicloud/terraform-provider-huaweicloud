@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateRoutingRuleResponse Response Object
 type CreateRoutingRuleResponse struct {
 
 	// 规则触发条件ID，用于唯一标识一个规则触发条件，在创建规则条件时由物联网平台分配获得。
@@ -26,10 +26,10 @@ type CreateRoutingRuleResponse struct {
 	// 资源空间ID
 	AppId *string `json:"app_id,omitempty"`
 
-	// 用户自定义sql select语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// 用户自定义sql select语句，最大长度2500，该参数仅供标准版和企业版用户使用。
 	Select *string `json:"select,omitempty"`
 
-	// 用户自定义sql where语句，最大长度500，该参数仅供标准版和企业版用户使用。
+	// 用户自定义sql where语句，最大长度2500，该参数仅供标准版和企业版用户使用。
 	Where *string `json:"where,omitempty"`
 
 	// 规则条件的状态是否为激活。

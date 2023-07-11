@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ServiceCapability结构体。
+// ServiceCapability ServiceCapability结构体。
 type ServiceCapability struct {
 
 	// **参数说明**：设备的服务ID。注：产品内不允许重复。 **取值范围**：长度不超过64，只允许中文、字母、数字、以及_?'#().,&%@!-$等字符的组合。
@@ -21,7 +21,7 @@ type ServiceCapability struct {
 	// **参数说明**：设备服务支持的命令列表。 **取值范围**：数组长度大小不超过500。
 	Commands *[]ServiceCommand `json:"commands,omitempty"`
 
-	// **参数说明**：设备服务支持的事件列表。 **取值范围**：数组长度大小不超过500。
+	// **参数说明**：设备服务支持的事件列表。目前暂未支持自定义事件，创建/修改产品时无需定义该字段。 **取值范围**：数组长度大小不超过500。
 	Events *[]ServiceEvent `json:"events,omitempty"`
 
 	// **参数说明**：设备服务的描述信息。 **取值范围**：长度不超过128，只允许中文、字母、数字、空白字符、以及_?'#().,;&%@!- ，、：；。/等字符的组合。

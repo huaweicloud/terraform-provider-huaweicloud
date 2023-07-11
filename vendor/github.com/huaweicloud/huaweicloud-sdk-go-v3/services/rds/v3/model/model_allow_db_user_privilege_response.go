@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AllowDbUserPrivilegeResponse Response Object
 type AllowDbUserPrivilegeResponse struct {
 
 	// 操作结果。

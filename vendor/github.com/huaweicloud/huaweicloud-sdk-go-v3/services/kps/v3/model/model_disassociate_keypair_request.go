@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DisassociateKeypairRequest Request Object
 type DisassociateKeypairRequest struct {
 	Body *DisassociateKeypairRequestBody `json:"body,omitempty"`
 }

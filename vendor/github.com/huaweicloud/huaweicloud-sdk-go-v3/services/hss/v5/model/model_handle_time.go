@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 处理时间，毫秒
+// HandleTime 处理时间，毫秒
 type HandleTime struct {
 }
 

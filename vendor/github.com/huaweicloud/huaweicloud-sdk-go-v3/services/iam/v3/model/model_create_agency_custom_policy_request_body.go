@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateAgencyCustomPolicyRequestBody
 type CreateAgencyCustomPolicyRequestBody struct {
 	Role *AgencyPolicyRoleOption `json:"role"`
 }

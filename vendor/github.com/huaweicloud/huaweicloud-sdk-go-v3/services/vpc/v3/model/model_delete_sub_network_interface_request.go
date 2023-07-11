@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteSubNetworkInterfaceRequest Request Object
 type DeleteSubNetworkInterfaceRequest struct {
 
 	// 弹性辅助网卡唯一标识

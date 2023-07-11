@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartKibanaPublicRequest Request Object
 type StartKibanaPublicRequest struct {
 
 	// 指定待开启kibana公网访问的集群ID。

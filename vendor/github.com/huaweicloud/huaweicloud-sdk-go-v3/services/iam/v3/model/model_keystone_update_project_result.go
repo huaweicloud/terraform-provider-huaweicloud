@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateProjectResult
 type KeystoneUpdateProjectResult struct {
 
 	// false.

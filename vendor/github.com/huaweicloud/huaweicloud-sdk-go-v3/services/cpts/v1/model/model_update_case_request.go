@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateCaseRequest Request Object
 type UpdateCaseRequest struct {
 
 	// 用例id
@@ -15,7 +15,7 @@ type UpdateCaseRequest struct {
 	// 类型
 	Target string `json:"target"`
 
-	Body *CaseInfo `json:"body,omitempty"`
+	Body *CaseInfoDetail `json:"body,omitempty"`
 }
 
 func (o UpdateCaseRequest) String() string {

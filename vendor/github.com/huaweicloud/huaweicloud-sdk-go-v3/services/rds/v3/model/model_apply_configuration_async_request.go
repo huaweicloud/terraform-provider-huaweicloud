@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ApplyConfigurationAsyncRequest Request Object
 type ApplyConfigurationAsyncRequest struct {
 
 	// 语言

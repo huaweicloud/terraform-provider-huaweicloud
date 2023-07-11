@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// LoginTokenUser
 type LoginTokenUser struct {
 	Domain *LoginTokenDomain `json:"domain,omitempty"`
 

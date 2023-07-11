@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 条件中简单定时类型的信息，自定义结构。
+// SimpleTimerType 条件中简单定时类型的信息，自定义结构。
 type SimpleTimerType struct {
 
 	// **参数说明**：规则触发的开始时间，使用UTC时区，格式：yyyyMMdd'T'HHmmss'Z'。

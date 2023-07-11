@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopeDomainOption
 type ScopeDomainOption struct {
 
 	// 账号ID，id与name二选一即可。

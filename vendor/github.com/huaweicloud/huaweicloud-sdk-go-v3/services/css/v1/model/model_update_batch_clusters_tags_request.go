@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateBatchClustersTagsRequest Request Object
 type UpdateBatchClustersTagsRequest struct {
 
 	// 指定批量添加标签的集群ID。

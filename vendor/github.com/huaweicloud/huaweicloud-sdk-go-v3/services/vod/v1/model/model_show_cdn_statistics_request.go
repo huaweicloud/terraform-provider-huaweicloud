@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowCdnStatisticsRequest Request Object
 type ShowCdnStatisticsRequest struct {
 
 	// 起始时间，格式为yyyymmddhhmmss。

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// oidc详细信息
+// UpdateOpenIdConnectConfig oidc详细信息
 type UpdateOpenIdConnectConfig struct {
 
 	// 访问方式: program_console: 支持编程访问和管理控制台访问方式; program: 支持编程访问方式
@@ -72,13 +72,18 @@ func (c UpdateOpenIdConnectConfigResponseType) MarshalJSON() ([]byte, error) {
 
 func (c *UpdateOpenIdConnectConfigResponseType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -114,13 +119,18 @@ func (c UpdateOpenIdConnectConfigResponseMode) MarshalJSON() ([]byte, error) {
 
 func (c *UpdateOpenIdConnectConfigResponseMode) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

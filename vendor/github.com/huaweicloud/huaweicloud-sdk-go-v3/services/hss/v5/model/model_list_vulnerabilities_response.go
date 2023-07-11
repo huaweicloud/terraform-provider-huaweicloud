@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListVulnerabilitiesResponse Response Object
 type ListVulnerabilitiesResponse struct {
 
 	// 总数

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// BatchTagDelActionRequest Request Object
 type BatchTagDelActionRequest struct {
 
 	// 语言

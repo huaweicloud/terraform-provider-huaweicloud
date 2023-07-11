@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateProjectRequestBody
 type KeystoneUpdateProjectRequestBody struct {
 	Project *KeystoneUpdateProjectOption `json:"project"`
 }

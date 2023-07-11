@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateBindingDeviceResponse Response Object
 type CreateBindingDeviceResponse struct {
 	HttpStatusCode int `json:"-"`
 }

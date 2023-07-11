@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// json
+// UploadProcessJson json
 type UploadProcessJson struct {
 
 	// details

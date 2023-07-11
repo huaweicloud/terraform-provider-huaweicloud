@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateClustersTagsRequest Request Object
 type CreateClustersTagsRequest struct {
 
 	// 指定待添加标签的集群ID。

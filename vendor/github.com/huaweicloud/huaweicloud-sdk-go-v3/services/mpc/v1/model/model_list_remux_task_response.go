@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRemuxTaskResponse Response Object
 type ListRemuxTaskResponse struct {
 
 	// 任务总数

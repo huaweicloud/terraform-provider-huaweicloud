@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteResourceInstanceTagRequest Request Object
 type DeleteResourceInstanceTagRequest struct {
 
 	// 资源类别，hss

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateSqlserverDbUserResponse Response Object
 type CreateSqlserverDbUserResponse struct {
 
 	// 操作结果。

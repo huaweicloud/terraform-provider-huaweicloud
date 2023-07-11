@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 备份策略对象，包括备份类型、备份保留天数、目标区域ID和目标project ID。
+// GetOffSiteBackupPolicy 备份策略对象，包括备份类型、备份保留天数、目标区域ID和目标project ID。
 type GetOffSiteBackupPolicy struct {
 
 	// 指定备份的类型。取值如下：  - auto：自动全量备份。 - incremental：自动增量备份。 - manual：手动备份，仅SQL Server返回该备份类型 。

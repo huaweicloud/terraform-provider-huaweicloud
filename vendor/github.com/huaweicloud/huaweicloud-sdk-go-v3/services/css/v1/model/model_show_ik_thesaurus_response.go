@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowIkThesaurusResponse Response Object
 type ShowIkThesaurusResponse struct {
 
 	// 加载状态。  - Loaded表示加载成功。 - Loading表示正在加载中。 - Failed表示加载失败。

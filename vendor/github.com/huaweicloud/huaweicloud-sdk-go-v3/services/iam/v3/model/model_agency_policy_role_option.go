@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyPolicyRoleOption
 type AgencyPolicyRoleOption struct {
 
 	// 自定义策略展示名。

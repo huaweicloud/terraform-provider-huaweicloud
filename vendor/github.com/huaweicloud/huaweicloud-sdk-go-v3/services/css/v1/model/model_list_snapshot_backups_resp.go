@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 快照对象。
+// ListSnapshotBackupsResp 快照对象。
 type ListSnapshotBackupsResp struct {
 
 	// 快照创建时间。

@@ -17,7 +17,7 @@ type LogConfiguration struct {
 	// 用于存储日志的OBS桶的桶名。
 	ObsBucket *string `json:"obsBucket,omitempty"`
 
-	// IAM 委托。
+	// 委托名称，委托给CSS，允许CSS调用您的其他云服务。
 	Agency *string `json:"agency,omitempty"`
 
 	// 更新时间。格式为：Unix时间戳格式。

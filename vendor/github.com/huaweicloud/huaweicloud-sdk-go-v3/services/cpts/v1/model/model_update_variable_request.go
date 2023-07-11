@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateVariableRequest Request Object
 type UpdateVariableRequest struct {
 
 	// 测试工程id

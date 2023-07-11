@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListKeypairTaskRequest Request Object
 type ListKeypairTaskRequest struct {
 
 	// 任务ID

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRiskConfigsResponse Response Object
 type ListRiskConfigsResponse struct {
 
 	// 记录总数

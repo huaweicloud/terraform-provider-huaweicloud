@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建或修改规则条件时，指定资源及其范围
+// RoutingRuleSubject 创建或修改规则条件时，指定资源及其范围
 type RoutingRuleSubject struct {
 
 	// **参数说明**：资源名称。 **取值范围**： - device：设备。 - device.property：设备属性。 - device.message：设备消息。 - device.message.status：设备消息状态。 - device.status：设备状态。 - batchtask：批量任务。 - product：产品。 - device.command.status：设备异步命令状态。

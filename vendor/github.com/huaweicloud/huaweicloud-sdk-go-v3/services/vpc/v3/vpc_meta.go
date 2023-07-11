@@ -158,6 +158,10 @@ func GenReqDefForListSecurityGroupRules() *def.HttpRequestDef {
 		WithName("Action").
 		WithJsonTag("action").
 		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("RemoteIpPrefix").
+		WithJsonTag("remote_ip_prefix").
+		WithLocationType(def.Query))
 
 	requestDef := reqDefBuilder.Build()
 	return requestDef
@@ -438,6 +442,10 @@ func GenReqDefForListAddressGroup() *def.HttpRequestDef {
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("Description").
 		WithJsonTag("description").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("EnterpriseProjectId").
+		WithJsonTag("enterprise_project_id").
 		WithLocationType(def.Query))
 
 	requestDef := reqDefBuilder.Build()

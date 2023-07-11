@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListWatermarkTemplateResponse Response Object
 type ListWatermarkTemplateResponse struct {
 
 	// 水印模板信息。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdatePublicKibanaWhitelistRequest Request Object
 type UpdatePublicKibanaWhitelistRequest struct {
 
 	// 指定修改kibana的访问权限的集群ID。

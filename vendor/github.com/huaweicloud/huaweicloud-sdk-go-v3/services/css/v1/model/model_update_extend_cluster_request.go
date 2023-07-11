@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateExtendClusterRequest Request Object
 type UpdateExtendClusterRequest struct {
 
 	// 指定待扩容的集群ID。

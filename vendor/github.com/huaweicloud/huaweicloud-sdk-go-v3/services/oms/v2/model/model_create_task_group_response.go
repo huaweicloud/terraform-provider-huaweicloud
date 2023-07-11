@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTaskGroupResponse Response Object
 type CreateTaskGroupResponse struct {
 
 	// 创建的迁移任务组id

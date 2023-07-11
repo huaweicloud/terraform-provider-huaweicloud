@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateRecordIndexRequest Request Object
 type CreateRecordIndexRequest struct {
 	Body *RecordIndexRequestBody `json:"body,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ConfirmImageUploadResponse Response Object
 type ConfirmImageUploadResponse struct {
 
 	// 水印配置模板id<br/>

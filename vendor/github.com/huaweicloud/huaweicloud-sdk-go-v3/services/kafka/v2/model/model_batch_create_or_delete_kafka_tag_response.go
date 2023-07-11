@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// BatchCreateOrDeleteKafkaTagResponse Response Object
 type BatchCreateOrDeleteKafkaTagResponse struct {
 	HttpStatusCode int `json:"-"`
 }

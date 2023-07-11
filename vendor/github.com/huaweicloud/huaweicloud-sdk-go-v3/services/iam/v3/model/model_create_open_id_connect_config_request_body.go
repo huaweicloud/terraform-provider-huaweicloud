@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 请求体
+// CreateOpenIdConnectConfigRequestBody 请求体
 type CreateOpenIdConnectConfigRequestBody struct {
 	OpenidConnectConfig *CreateOpenIdConnectConfig `json:"openid_connect_config"`
 }

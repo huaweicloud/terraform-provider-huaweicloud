@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyTokenAssumerole
 type AgencyTokenAssumerole struct {
 
 	// 委托方A的账号ID。“domain_id”与“domain_name”至少填写一个。

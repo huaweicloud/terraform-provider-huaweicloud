@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 截图结果
+// ThumbnailRsp 截图结果
 type ThumbnailRsp struct {
 
 	// 截图在视频中的时间偏移，单位为秒。

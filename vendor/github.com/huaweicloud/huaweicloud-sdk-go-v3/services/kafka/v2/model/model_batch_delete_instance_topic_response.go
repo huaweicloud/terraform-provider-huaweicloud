@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// BatchDeleteInstanceTopicResponse Response Object
 type BatchDeleteInstanceTopicResponse struct {
 
 	// Topic列表。

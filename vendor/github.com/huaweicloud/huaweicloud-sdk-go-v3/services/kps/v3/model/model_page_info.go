@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 分页信息
+// PageInfo 分页信息
 type PageInfo struct {
 
 	// 返回下一页的查询地址

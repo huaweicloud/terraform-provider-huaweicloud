@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 该参数用来指定需要查询的数据维度，数据周期等。
+// QueryMetricDataParam 该参数用来指定需要查询的数据维度，数据周期等。
 type QueryMetricDataParam struct {
 
 	// 指标对象列表。 取值范围 JSON数组大小不超过20

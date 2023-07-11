@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据库信息。
+// SqlserverDatabaseForDetail 数据库信息。
 type SqlserverDatabaseForDetail struct {
 
 	// 数据库名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateCoverByThumbnailRequest Request Object
 type UpdateCoverByThumbnailRequest struct {
 	Body *UpdateCoverByThumbnailReq `json:"body,omitempty"`
 }

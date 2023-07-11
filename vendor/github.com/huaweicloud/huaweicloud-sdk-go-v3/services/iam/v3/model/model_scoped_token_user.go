@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopedTokenUser
 type ScopedTokenUser struct {
 	Domain *TokenDomainResult `json:"domain"`
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AllowIpRangesOption
 type AllowIpRangesOption struct {
 
 	// 描述信息。

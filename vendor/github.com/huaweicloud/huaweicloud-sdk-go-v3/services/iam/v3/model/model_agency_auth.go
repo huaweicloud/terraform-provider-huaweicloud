@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyAuth
 type AgencyAuth struct {
 	Identity *AgencyAuthIdentity `json:"identity"`
 }

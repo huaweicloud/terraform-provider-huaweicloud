@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTranscodingsTemplateResponse Response Object
 type CreateTranscodingsTemplateResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowTaskResponse Response Object
 type ShowTaskResponse struct {
 
 	// code

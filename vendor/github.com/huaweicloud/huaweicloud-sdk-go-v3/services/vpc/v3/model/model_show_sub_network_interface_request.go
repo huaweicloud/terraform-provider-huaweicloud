@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowSubNetworkInterfaceRequest Request Object
 type ShowSubNetworkInterfaceRequest struct {
 
 	// 辅助弹性网卡的唯一标识

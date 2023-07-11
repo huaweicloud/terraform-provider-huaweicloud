@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateDomainMappingResponse Response Object
 type CreateDomainMappingResponse struct {
 
 	// 直播播放域名

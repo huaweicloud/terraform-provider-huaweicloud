@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AddFavoriteRequest Request Object
 type AddFavoriteRequest struct {
 
 	// 指定添加自定义模板的集群ID。

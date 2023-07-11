@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DebugCaseResponse Response Object
 type DebugCaseResponse struct {
 
 	// code

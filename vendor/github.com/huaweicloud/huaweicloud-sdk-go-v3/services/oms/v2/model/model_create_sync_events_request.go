@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateSyncEventsRequest Request Object
 type CreateSyncEventsRequest struct {
 
 	// 同步任务ID

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 指标维度。
+// Dimension 指标维度。
 type Dimension struct {
 
 	// 维度名称。

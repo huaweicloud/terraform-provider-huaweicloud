@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListYmlsJobResponse Response Object
 type ListYmlsJobResponse struct {
 
 	// 历史修改配置列表。

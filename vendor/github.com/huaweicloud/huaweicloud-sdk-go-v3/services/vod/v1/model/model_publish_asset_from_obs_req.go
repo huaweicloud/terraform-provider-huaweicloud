@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//
+// PublishAssetFromObsReq
 type PublishAssetFromObsReq struct {
 
 	// 转存的音视频文件类型。  取值如下： - 视频文件：MP4、TS、MOV、MXF、MPG、FLV、WMV、AVI、M4V、F4V、MPEG、3GP、ASF、MKV、HLS - 音频文件：MP3、OGG、WAV、WMA、APE、FLAC、AAC、AC3、MMF、AMR、M4A、M4R、WV、MP2  若上传格式为音频文件，则不支持转码、添加水印和字幕。  > 当**video_type**选择HLS时，**storage_mode**（存储模式）需选择存储在租户桶，且输出路径设置为和输入路径在同一个目录。
@@ -101,6 +101,8 @@ type PublishAssetFromObsReqVideoTypeEnum struct {
 	M4_R   PublishAssetFromObsReqVideoType
 	WV     PublishAssetFromObsReqVideoType
 	MP2    PublishAssetFromObsReqVideoType
+	RMVB   PublishAssetFromObsReqVideoType
+	WEBM   PublishAssetFromObsReqVideoType
 }
 
 func GetPublishAssetFromObsReqVideoTypeEnum() PublishAssetFromObsReqVideoTypeEnum {
@@ -192,6 +194,12 @@ func GetPublishAssetFromObsReqVideoTypeEnum() PublishAssetFromObsReqVideoTypeEnu
 		MP2: PublishAssetFromObsReqVideoType{
 			value: "MP2",
 		},
+		RMVB: PublishAssetFromObsReqVideoType{
+			value: "RMVB",
+		},
+		WEBM: PublishAssetFromObsReqVideoType{
+			value: "WEBM",
+		},
 	}
 }
 
@@ -205,13 +213,18 @@ func (c PublishAssetFromObsReqVideoType) MarshalJSON() ([]byte, error) {
 
 func (c *PublishAssetFromObsReqVideoType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

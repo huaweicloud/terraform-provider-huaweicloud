@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListCustomPoliciesRequest Request Object
 type ListCustomPoliciesRequest struct {
 
 	// 分页查询时数据的页数，查询值最小为1。需要与per_page同时存在。

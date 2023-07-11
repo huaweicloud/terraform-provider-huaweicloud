@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 备份策略对象，包括备份类型、备份保留天数、目标区域ID和目标project ID。
+// OffSiteBackupPolicy 备份策略对象，包括备份类型、备份保留天数、目标区域ID和目标project ID。
 type OffSiteBackupPolicy struct {
 
 	// 指定备份的类型。  SQL Server仅支持设置为“all”。  取值如下：  - auto：自动全量备份。 - incremental：自动增量备份。 - all：同时设置所有备份类型。   - MySQL：同时设置自动全量和自动增量备份。   - SQL Server：同时设置自动全量、自动增量备份和手动备份。

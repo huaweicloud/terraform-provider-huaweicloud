@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateAccessCodeResponse Response Object
 type CreateAccessCodeResponse struct {
 
 	// 接入名，随机生成8位字符串

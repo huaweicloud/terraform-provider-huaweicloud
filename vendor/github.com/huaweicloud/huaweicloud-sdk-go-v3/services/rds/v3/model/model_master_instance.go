@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 主实例信息。
+// MasterInstance 主实例信息。
 type MasterInstance struct {
 
 	// 实例ID。

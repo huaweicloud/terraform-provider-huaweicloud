@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateCnfRequest Request Object
 type UpdateCnfRequest struct {
 
 	// 指定更新配置文件的集群ID。

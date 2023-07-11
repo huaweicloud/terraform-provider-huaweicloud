@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListBackgroundTasksRequest Request Object
 type ListBackgroundTasksRequest struct {
 
 	// 实例ID。

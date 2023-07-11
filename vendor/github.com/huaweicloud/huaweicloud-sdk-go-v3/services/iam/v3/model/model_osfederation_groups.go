@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// OsfederationGroups
 type OsfederationGroups struct {
 
 	// 用户组ID。

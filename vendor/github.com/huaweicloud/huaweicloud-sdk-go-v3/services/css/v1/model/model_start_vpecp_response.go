@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartVpecpResponse Response Object
 type StartVpecpResponse struct {
 
 	// 操作行为。固定为：createVpcepservice，表示已开启终端节点。

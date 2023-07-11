@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowAutoEnlargePolicyRequest Request Object
 type ShowAutoEnlargePolicyRequest struct {
 
 	// 实例ID。

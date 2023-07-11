@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreatePredefineTagsResponse Response Object
 type CreatePredefineTagsResponse struct {
 	HttpStatusCode int `json:"-"`
 }

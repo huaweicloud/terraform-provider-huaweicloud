@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 服务器的口令复杂度策略
+// PwdPolicyInfoResponseInfo 服务器的口令复杂度策略
 type PwdPolicyInfoResponseInfo struct {
 
 	// 服务器id(鼠标在“服务器名称”放置后上浮显示)

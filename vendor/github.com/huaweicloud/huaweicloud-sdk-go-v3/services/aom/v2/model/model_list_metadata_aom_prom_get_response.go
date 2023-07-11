@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListMetadataAomPromGetResponse Response Object
 type ListMetadataAomPromGetResponse struct {
 
 	// 响应状态。

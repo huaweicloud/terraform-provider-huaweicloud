@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListDomainLogsRequest Request Object
 type ListDomainLogsRequest struct {
 
 	// 加速域名，参考格式：www.test1.com。

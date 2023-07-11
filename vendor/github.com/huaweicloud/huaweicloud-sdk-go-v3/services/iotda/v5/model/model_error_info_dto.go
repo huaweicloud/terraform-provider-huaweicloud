@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 异常信息
+// ErrorInfoDto 异常信息
 type ErrorInfoDto struct {
 
 	// **参数说明**：异常信息错误码，包含IOTDA.014016和IOTDA.014112。IOTDA.014016表示设备不在线；IOTDA.014112表示设备没有订阅topic。

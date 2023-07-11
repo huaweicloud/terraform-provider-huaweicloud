@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListProjectTagsResponse Response Object
 type ListProjectTagsResponse struct {
 
 	// 标签列表，没有标签默认为空数组。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTagValuesRequest Request Object
 type ListTagValuesRequest struct {
 
 	// 区域ID

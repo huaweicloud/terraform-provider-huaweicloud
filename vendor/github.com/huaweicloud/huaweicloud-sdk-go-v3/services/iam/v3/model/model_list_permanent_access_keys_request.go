@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListPermanentAccessKeysRequest Request Object
 type ListPermanentAccessKeysRequest struct {
 
 	// 待查询的IAM用户ID。

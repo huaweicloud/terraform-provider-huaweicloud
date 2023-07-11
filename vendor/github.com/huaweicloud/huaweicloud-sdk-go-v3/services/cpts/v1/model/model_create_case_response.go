@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateCaseResponse Response Object
 type CreateCaseResponse struct {
 
 	// code

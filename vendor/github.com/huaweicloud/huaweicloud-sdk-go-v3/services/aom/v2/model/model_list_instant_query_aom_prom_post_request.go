@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListInstantQueryAomPromPostRequest Request Object
 type ListInstantQueryAomPromPostRequest struct {
 
 	// PromQL表达式(参考https://prometheus.io/docs/prometheus/latest/querying/basics/)。

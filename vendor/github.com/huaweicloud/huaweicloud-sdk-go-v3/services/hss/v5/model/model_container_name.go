@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 容器实例名称
+// ContainerName 容器实例名称
 type ContainerName struct {
 }
 

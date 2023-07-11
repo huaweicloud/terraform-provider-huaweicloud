@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowCesHierarchyResponse Response Object
 type ShowCesHierarchyResponse struct {
 
 	// 监控维度。

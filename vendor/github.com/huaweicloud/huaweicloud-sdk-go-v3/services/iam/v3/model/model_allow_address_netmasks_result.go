@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AllowAddressNetmasksResult
 type AllowAddressNetmasksResult struct {
 
 	// IP地址或网段，例如：192.168.0.1/24。

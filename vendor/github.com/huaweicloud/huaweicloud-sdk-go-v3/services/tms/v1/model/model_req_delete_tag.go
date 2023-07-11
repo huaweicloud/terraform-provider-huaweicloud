@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 删除标签请求
+// ReqDeleteTag 删除标签请求
 type ReqDeleteTag struct {
 
 	// 项目ID，resource_type为region级别服务时为必选项。

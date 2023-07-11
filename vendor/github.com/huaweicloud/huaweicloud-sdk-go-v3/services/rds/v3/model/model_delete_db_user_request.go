@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteDbUserRequest Request Object
 type DeleteDbUserRequest struct {
 
 	// 语言

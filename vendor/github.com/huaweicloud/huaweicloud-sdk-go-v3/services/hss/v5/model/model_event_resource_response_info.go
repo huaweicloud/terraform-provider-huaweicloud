@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 资源信息
+// EventResourceResponseInfo 资源信息
 type EventResourceResponseInfo struct {
 
 	// 租户账号ID

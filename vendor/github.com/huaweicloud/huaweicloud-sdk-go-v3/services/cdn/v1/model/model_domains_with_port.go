@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 域名信息
+// DomainsWithPort 域名信息。
 type DomainsWithPort struct {
 
 	// 加速域名ID。
@@ -30,7 +30,7 @@ type DomainsWithPort struct {
 	// 加速域名对应的CNAME。
 	Cname *string `json:"cname,omitempty"`
 
-	// 源站域名或源站IP，源站为IP类型时，仅支持IPv4，如需传入多个源站IP，以多个源站对象传入，除IP其他参数请保持一致，主源站最多支持15个源站IP对象，备源站最多支持15个源站IP对象；源站为域名类型时仅支持1个源站对象。不支持IP源站和域名源站混用。
+	// 源站配置。
 	Sources *[]SourceWithPort `json:"sources,omitempty"`
 
 	DomainOriginHost *DomainOriginHost `json:"domain_origin_host,omitempty"`
@@ -50,7 +50,7 @@ type DomainsWithPort struct {
 	// 锁定状态（0代表未锁定；1代表锁定）。
 	Locked *int32 `json:"locked,omitempty"`
 
-	// 自动刷新预热（0代表关闭；1代表打开）
+	// 自动刷新预热（0代表关闭；1代表打开）。
 	AutoRefreshPreheat *int32 `json:"auto_refresh_preheat,omitempty"`
 
 	// 华为云CDN提供的加速服务范围，包含：mainland_china中国大陆、outside_mainland_china中国大陆境外、global全球。
@@ -118,13 +118,18 @@ func (c DomainsWithPortServiceArea) MarshalJSON() ([]byte, error) {
 
 func (c *DomainsWithPortServiceArea) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

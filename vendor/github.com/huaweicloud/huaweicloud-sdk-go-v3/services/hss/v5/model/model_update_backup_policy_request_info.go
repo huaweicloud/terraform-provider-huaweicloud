@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-// 备份策略
+// UpdateBackupPolicyRequestInfo 备份策略
 type UpdateBackupPolicyRequestInfo struct {
 
-	// 策略是否启用
+	// 策略是否启用，缺省值：true
 	Enabled *bool `json:"enabled,omitempty"`
 
 	// 策略ID
-	PolicyId *string `json:"policy_id,omitempty"`
+	PolicyId string `json:"policy_id"`
 
 	OperationDefinition *OperationDefinitionRequestInfo `json:"operation_definition,omitempty"`
 

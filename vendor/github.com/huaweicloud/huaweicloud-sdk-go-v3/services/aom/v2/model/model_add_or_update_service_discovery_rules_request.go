@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AddOrUpdateServiceDiscoveryRulesRequest Request Object
 type AddOrUpdateServiceDiscoveryRulesRequest struct {
 	Body *AppRulesBody `json:"body,omitempty"`
 }

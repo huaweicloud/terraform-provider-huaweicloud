@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 权限实体。
+// AccessPolicyTopicEntity 权限实体。
 type AccessPolicyTopicEntity struct {
 
 	// topic名称。

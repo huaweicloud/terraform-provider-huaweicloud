@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteMediaProcessTaskResponse Response Object
 type DeleteMediaProcessTaskResponse struct {
 	HttpStatusCode int `json:"-"`
 }

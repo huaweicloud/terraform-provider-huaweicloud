@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowGetLogSettingRequest Request Object
 type ShowGetLogSettingRequest struct {
 
 	// 指定查询集群ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Version
 type Version struct {
 
 	// 版本状态。

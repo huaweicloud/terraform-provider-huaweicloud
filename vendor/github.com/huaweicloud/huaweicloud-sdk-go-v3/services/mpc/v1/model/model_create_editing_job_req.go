@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建剪辑任务
+// CreateEditingJobReq 创建剪辑任务
 type CreateEditingJobReq struct {
 
 	// 剪辑任务类型。取值如下：\"CLIP\",\"CONCAT\",\"CONCATS\",\"MIX\"。

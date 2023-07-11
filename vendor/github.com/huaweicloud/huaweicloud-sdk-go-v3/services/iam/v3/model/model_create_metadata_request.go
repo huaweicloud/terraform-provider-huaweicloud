@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateMetadataRequest Request Object
 type CreateMetadataRequest struct {
 
 	// 身份提供商ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePostPaidInstanceRequest Request Object
 type CreatePostPaidInstanceRequest struct {
 	Body *CreatePostPaidInstanceReq `json:"body,omitempty"`
 }

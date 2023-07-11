@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneListServicesRequest Request Object
 type KeystoneListServicesRequest struct {
 
 	// 服务类型。

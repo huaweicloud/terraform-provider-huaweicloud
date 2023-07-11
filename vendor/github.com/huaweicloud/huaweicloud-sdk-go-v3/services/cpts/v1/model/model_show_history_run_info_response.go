@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowHistoryRunInfoResponse Response Object
 type ShowHistoryRunInfoResponse struct {
 
 	// code

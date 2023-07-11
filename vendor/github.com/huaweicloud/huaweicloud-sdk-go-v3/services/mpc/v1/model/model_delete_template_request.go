@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteTemplateRequest Request Object
 type DeleteTemplateRequest struct {
 
 	// 自定义转码模板ID

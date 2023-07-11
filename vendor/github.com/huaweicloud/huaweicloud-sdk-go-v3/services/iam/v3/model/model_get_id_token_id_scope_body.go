@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// scope信息
+// GetIdTokenIdScopeBody scope信息
 type GetIdTokenIdScopeBody struct {
 	Domain *GetIdTokenScopeDomainOrProjectBody `json:"domain,omitempty"`
 

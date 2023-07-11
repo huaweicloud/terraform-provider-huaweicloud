@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 计费类型信息，支持包年包月和按需，默认为按需。
+// ChargeInfoResponse 计费类型信息，支持包年包月和按需，默认为按需。
 type ChargeInfoResponse struct {
 
 	// 计费模式。  取值范围：  - prePaid：预付费，即包年/包月。 - postPaid：后付费，即按需付费。
@@ -55,13 +55,18 @@ func (c ChargeInfoResponseChargeMode) MarshalJSON() ([]byte, error) {
 
 func (c *ChargeInfoResponseChargeMode) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

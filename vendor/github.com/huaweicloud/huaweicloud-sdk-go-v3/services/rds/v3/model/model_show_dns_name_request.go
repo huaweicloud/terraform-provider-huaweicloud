@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowDnsNameRequest Request Object
 type ShowDnsNameRequest struct {
 
 	// 实例ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneCreateUserTokenByPasswordResponse Response Object
 type KeystoneCreateUserTokenByPasswordResponse struct {
 	Token *TokenResult `json:"token,omitempty"`
 

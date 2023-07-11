@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteActionRuleRequest Request Object
 type DeleteActionRuleRequest struct {
 	Body *[]string `json:"body,omitempty"`
 }

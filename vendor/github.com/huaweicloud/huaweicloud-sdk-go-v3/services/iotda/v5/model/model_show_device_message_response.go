@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDeviceMessageResponse Response Object
 type ShowDeviceMessageResponse struct {
 
 	// 设备消息ID，用于唯一标识一条消息，在下发设备消息时由物联网平台分配获得。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 标识为扩展字段，包括count（当前响应中事件记录的个数）和marker（本次查询返回事件列表最后一个事件ID）。
+// MetaData 标识为扩展字段，包括count（当前响应中事件记录的个数）和marker（本次查询返回事件列表最后一个事件ID）。
 type MetaData struct {
 
 	// 标识本次查询事件列表返回的事件记录的总条数。

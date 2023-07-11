@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ProjectResult
 type ProjectResult struct {
 
 	// false.

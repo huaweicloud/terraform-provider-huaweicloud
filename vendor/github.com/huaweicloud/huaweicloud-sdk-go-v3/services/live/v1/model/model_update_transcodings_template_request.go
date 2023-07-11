@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateTranscodingsTemplateRequest Request Object
 type UpdateTranscodingsTemplateRequest struct {
 	Body *StreamTranscodingTemplate `json:"body,omitempty"`
 }

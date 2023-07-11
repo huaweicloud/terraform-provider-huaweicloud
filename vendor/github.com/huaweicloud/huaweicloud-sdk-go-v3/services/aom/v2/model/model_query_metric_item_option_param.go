@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 参数项。
+// QueryMetricItemOptionParam 参数项。
 type QueryMetricItemOptionParam struct {
 
 	// 指标维度列表。
@@ -73,13 +73,18 @@ func (c QueryMetricItemOptionParamNamespace) MarshalJSON() ([]byte, error) {
 
 func (c *QueryMetricItemOptionParamNamespace) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

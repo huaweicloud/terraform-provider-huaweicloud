@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListSqlserverDatabasesResponse Response Object
 type ListSqlserverDatabasesResponse struct {
 
 	// 数据库信息。

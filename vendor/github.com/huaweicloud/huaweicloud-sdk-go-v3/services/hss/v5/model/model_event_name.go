@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 事件名称
+// EventName 事件名称
 type EventName struct {
 }
 

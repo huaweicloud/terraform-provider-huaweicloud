@@ -11,7 +11,7 @@ type UpdateSnapshotSettingReq struct {
 	// 备份使用的OBS桶的桶名。
 	Bucket string `json:"bucket"`
 
-	// 访问OBS使用的IAM委托名称。
+	// 委托名称，委托给CSS，允许CSS调用您的其他云服务。
 	Agency string `json:"agency"`
 
 	// 快照在OBS桶中的存放路径。

@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// 公网访问信息。只有在httpsEnable设置为true时该参数配置生效。
+// CreateClusterPublicIpReq 公网访问信息。只有在httpsEnable设置为true时该参数配置生效。
 type CreateClusterPublicIpReq struct {
 	Eip *CreateClusterPublicEip `json:"eip"`
 
 	ElbWhiteListReq *CreateClusterElbWhiteList `json:"elbWhiteListReq"`
 
-	// 是否自动绑定弹性公网IP。auto_assign为自动分配，bind_existing为绑定已有IP，需要填写eipId字段。
+	// 是否自动绑定弹性公网IP。当前仅支持auto_assign为自动分配参数。
 	PublicBindType string `json:"publicBindType"`
 
 	// 弹性公网IP的ID。

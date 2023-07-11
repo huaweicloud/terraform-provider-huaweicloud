@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListMergeChannelsTaskResponse Response Object
 type ListMergeChannelsTaskResponse struct {
 
 	// 任务列表

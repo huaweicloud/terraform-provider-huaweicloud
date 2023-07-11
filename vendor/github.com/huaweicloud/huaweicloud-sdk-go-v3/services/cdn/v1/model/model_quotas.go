@@ -8,13 +8,13 @@ import (
 
 type Quotas struct {
 
-	// 配额上限
+	// 配额上限。
 	QuotaLimit *int32 `json:"quota_limit,omitempty"`
 
-	// 配额类型
+	// 配额类型。
 	Type *string `json:"type,omitempty"`
 
-	// 已使用配额数
+	// 已使用配额数。
 	Used *int32 `json:"used,omitempty"`
 
 	// 域名所属用户的domain_id。

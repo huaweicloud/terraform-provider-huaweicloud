@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RemoveVpcExtendCidrRequest Request Object
 type RemoveVpcExtendCidrRequest struct {
 
 	// VPC资源ID

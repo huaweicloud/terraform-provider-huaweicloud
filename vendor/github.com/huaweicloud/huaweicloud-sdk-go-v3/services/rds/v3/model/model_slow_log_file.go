@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 慢日志信息。
+// SlowLogFile 慢日志信息。
 type SlowLogFile struct {
 
 	// 文件名。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateTemporaryAccessKeyByTokenRequestBody
 type CreateTemporaryAccessKeyByTokenRequestBody struct {
 	Auth *TokenAuth `json:"auth"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteConfRequest Request Object
 type DeleteConfRequest struct {
 
 	// 指定删除配置文件的集群ID。

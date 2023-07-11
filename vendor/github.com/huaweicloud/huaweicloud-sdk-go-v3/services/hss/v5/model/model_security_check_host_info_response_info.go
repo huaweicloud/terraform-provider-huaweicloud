@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 受配置检测影响的服务器信息
+// SecurityCheckHostInfoResponseInfo 受配置检测影响的服务器信息
 type SecurityCheckHostInfoResponseInfo struct {
 
 	// 服务器ID

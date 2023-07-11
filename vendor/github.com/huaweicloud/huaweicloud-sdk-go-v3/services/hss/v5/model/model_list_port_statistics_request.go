@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListPortStatisticsRequest Request Object
 type ListPortStatisticsRequest struct {
 
 	// 端口号

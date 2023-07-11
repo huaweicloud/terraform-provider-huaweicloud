@@ -6,9 +6,10 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateConfigurationResponse Response Object
 type UpdateConfigurationResponse struct {
-	HttpStatusCode int `json:"-"`
+	Configuration  *UpdateConfigurationRspConfiguration `json:"configuration,omitempty"`
+	HttpStatusCode int                                  `json:"-"`
 }
 
 func (o UpdateConfigurationResponse) String() string {

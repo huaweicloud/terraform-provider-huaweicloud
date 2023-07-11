@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 队列信息结构体，返回基本信息。
+// QueryQueueBase 队列信息结构体，返回基本信息。
 type QueryQueueBase struct {
 
 	// 队列ID，用于唯一标识一个队列。

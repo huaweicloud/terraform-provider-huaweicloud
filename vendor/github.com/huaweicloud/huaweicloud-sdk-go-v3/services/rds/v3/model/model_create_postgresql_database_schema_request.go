@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePostgresqlDatabaseSchemaRequest Request Object
 type CreatePostgresqlDatabaseSchemaRequest struct {
 
 	// 语言

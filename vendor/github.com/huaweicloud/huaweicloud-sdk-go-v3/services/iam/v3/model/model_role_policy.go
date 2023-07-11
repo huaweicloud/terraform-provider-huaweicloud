@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// RolePolicy
 type RolePolicy struct {
 
 	// 该权限所依赖的权限。

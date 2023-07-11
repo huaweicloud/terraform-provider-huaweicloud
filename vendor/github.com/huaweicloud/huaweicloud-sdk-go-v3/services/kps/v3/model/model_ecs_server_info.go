@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 需要绑定密钥对的虚拟机信息。
+// EcsServerInfo 需要绑定密钥对的虚拟机信息。
 type EcsServerInfo struct {
 
 	// 需要绑定(替换或重置)SSH密钥对的虚拟机id

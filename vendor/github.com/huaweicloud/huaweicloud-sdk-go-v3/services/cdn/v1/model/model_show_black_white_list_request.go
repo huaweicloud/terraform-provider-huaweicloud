@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowBlackWhiteListRequest Request Object
 type ShowBlackWhiteListRequest struct {
 
 	// 需要查询IP黑白名单的域名id。获取方法请参见查询加速域名。

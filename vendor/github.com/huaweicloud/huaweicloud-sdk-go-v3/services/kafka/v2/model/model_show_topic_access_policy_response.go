@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowTopicAccessPolicyResponse Response Object
 type ShowTopicAccessPolicyResponse struct {
 
 	// topic名称。

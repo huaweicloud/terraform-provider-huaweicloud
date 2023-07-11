@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ProtocolLinks
 type ProtocolLinks struct {
 
 	// 身份提供商的资源链接地址。

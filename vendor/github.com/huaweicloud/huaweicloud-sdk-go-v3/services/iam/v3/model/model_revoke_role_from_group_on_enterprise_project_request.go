@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RevokeRoleFromGroupOnEnterpriseProjectRequest Request Object
 type RevokeRoleFromGroupOnEnterpriseProjectRequest struct {
 
 	// 企业项目ID。

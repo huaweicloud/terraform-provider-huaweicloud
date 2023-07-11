@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowHistoryTaskDetailsResponse Response Object
 type ShowHistoryTaskDetailsResponse struct {
 
 	// 任务id。

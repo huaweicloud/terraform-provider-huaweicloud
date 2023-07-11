@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowRiskConfigDetailResponse Response Object
 type ShowRiskConfigDetailResponse struct {
 
 	// 风险等级，包含如下:   - Low : 低危   - Medium : 中危   - High : 高危

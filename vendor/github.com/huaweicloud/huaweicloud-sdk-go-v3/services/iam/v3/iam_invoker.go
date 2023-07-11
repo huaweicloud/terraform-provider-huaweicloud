@@ -41,6 +41,18 @@ func (i *AssociateAgencyWithProjectPermissionInvoker) Invoke() (*model.Associate
 	}
 }
 
+type AssociateRoleToAgencyOnEnterpriseProjectInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AssociateRoleToAgencyOnEnterpriseProjectInvoker) Invoke() (*model.AssociateRoleToAgencyOnEnterpriseProjectResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AssociateRoleToAgencyOnEnterpriseProjectResponse), nil
+	}
+}
+
 type AssociateRoleToGroupOnEnterpriseProjectInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1070,6 +1082,18 @@ func (i *RemoveProjectPermissionFromAgencyInvoker) Invoke() (*model.RemoveProjec
 		return nil, err
 	} else {
 		return result.(*model.RemoveProjectPermissionFromAgencyResponse), nil
+	}
+}
+
+type RevokeRoleFromAgencyOnEnterpriseProjectInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RevokeRoleFromAgencyOnEnterpriseProjectInvoker) Invoke() (*model.RevokeRoleFromAgencyOnEnterpriseProjectResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RevokeRoleFromAgencyOnEnterpriseProjectResponse), nil
 	}
 }
 

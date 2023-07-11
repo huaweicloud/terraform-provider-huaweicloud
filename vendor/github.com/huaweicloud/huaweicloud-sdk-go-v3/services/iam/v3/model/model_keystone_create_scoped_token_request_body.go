@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateScopedTokenRequestBody
 type KeystoneCreateScopedTokenRequestBody struct {
 	Auth *ScopedTokenAuth `json:"auth"`
 }

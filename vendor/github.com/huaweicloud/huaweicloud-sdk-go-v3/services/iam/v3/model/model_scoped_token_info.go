@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// token详细信息。
+// ScopedTokenInfo token详细信息。
 type ScopedTokenInfo struct {
 
 	// 过期时间。

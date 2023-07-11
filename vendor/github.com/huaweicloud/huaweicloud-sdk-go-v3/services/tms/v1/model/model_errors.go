@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 错误列表
+// Errors 错误列表
 type Errors struct {
 
 	// 错误码

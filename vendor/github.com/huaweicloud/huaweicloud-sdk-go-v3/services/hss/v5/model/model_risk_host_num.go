@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 有风险服务器数
+// RiskHostNum 有风险服务器数
 type RiskHostNum struct {
 }
 

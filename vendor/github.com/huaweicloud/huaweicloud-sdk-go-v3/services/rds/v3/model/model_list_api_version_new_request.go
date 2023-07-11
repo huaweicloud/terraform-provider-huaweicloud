@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListApiVersionNewRequest Request Object
 type ListApiVersionNewRequest struct {
 }
 

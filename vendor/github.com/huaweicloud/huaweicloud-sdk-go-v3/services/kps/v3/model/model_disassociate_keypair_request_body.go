@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 解绑密钥对描述消息体
+// DisassociateKeypairRequestBody 解绑密钥对描述消息体
 type DisassociateKeypairRequestBody struct {
 	Server *DisassociateEcsServerInfo `json:"server"`
 }

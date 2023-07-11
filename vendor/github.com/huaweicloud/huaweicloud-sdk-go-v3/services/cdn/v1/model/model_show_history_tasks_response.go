@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowHistoryTasksResponse Response Object
 type ShowHistoryTasksResponse struct {
 
 	// 总共的任务个数。

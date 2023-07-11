@@ -20,12 +20,13 @@
 package invoker
 
 import (
+	"time"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/exchange"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker/retry"
-	"time"
 )
 
 type RetryChecker func(interface{}, error) bool
@@ -91,7 +92,7 @@ func (b *BaseInvoker) Invoke() (interface{}, error) {
 			execTimes += 1
 
 			if b.retryChecker(resp, err) {
-				time.Sleep(time.Duration(b.backoffStrategy.ComputeDelayBeforeNextRetry()))
+				time.Sleep(time.Duration(b.backoffStrategy.ComputeDelayBeforeNextRetry(int32(execTimes))) * time.Millisecond)
 			} else {
 				break
 			}

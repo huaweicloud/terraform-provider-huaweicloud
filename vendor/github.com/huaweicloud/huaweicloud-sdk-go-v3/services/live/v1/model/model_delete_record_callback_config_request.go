@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteRecordCallbackConfigRequest Request Object
 type DeleteRecordCallbackConfigRequest struct {
 
 	// 配置ID

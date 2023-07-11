@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例支持的功能特性。
+// ListEngineSupportFeaturesEntity 实例支持的功能特性。
 type ListEngineSupportFeaturesEntity struct {
 
 	// 功能名称。

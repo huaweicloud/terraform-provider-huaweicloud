@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowCheckRuleDetailRequest Request Object
 type ShowCheckRuleDetailRequest struct {
 
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
@@ -14,6 +14,9 @@ type ShowCheckRuleDetailRequest struct {
 
 	// 基线名称
 	CheckName string `json:"check_name"`
+
+	// 基线类型
+	CheckType string `json:"check_type"`
 
 	// 检查项ID
 	CheckRuleId string `json:"check_rule_id"`

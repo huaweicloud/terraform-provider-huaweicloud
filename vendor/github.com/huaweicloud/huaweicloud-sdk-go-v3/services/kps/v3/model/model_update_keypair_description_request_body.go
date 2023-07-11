@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 更新SSH密钥对描述
+// UpdateKeypairDescriptionRequestBody 更新SSH密钥对描述
 type UpdateKeypairDescriptionRequestBody struct {
 	Keypair *UpdateKeypairDescriptionReq `json:"keypair"`
 }

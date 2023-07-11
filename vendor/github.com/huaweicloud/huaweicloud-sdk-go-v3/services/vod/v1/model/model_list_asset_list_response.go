@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAssetListResponse Response Object
 type ListAssetListResponse struct {
 
 	// 媒资总数  > 暂只能统计2万个媒资，若您需要查询具体的媒资总数，请提交工单申请。

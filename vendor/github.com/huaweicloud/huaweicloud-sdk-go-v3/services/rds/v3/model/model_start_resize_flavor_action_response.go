@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartResizeFlavorActionResponse Response Object
 type StartResizeFlavorActionResponse struct {
 
 	// 任务ID。

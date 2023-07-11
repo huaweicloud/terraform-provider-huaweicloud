@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListEvent2alarmRuleRequest Request Object
 type ListEvent2alarmRuleRequest struct {
 }
 

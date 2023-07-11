@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RestartManagerResponse Response Object
 type RestartManagerResponse struct {
 
 	// 执行结果。

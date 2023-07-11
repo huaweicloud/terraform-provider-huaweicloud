@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListInstancesResponse Response Object
 type ListInstancesResponse struct {
 	Instances *[]InstanceResponse `json:"instances,omitempty"`
 

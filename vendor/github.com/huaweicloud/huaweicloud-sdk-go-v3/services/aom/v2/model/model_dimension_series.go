@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 时间序列维度列表。
+// DimensionSeries 时间序列维度列表。
 type DimensionSeries struct {
 
 	// 维度名称。

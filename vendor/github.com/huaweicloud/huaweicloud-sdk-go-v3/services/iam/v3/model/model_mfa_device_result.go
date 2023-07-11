@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// MfaDeviceResult
 type MfaDeviceResult struct {
 
 	// 虚拟MFA的设备序列号。

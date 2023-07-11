@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopPublicWhitelistRequest Request Object
 type StopPublicWhitelistRequest struct {
 
 	// 指定关闭公网访问控制白名单集群ID。

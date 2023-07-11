@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// domain信息。
+// DomainInfo domain信息。
 type DomainInfo struct {
 
 	// 租户id。

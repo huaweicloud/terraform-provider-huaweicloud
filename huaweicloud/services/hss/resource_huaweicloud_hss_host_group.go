@@ -7,15 +7,17 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
+
 	hssv5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5"
 	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -127,7 +129,7 @@ func checkAllHostsAvailable(ctx context.Context, client *hssv5.HssClient, hostId
 
 func hostStatusRefreshFunc(client *hssv5.HssClient, hostId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var unprotectedHostId string = ""
+		var unprotectedHostId string
 		request := hssv5model.ListHostStatusRequest{
 			Refresh: utils.Bool(true),
 			HostId:  utils.String(hostId),
@@ -165,8 +167,8 @@ func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta i
 			Region:              region,
 			EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
 			Body: &hssv5model.AddHostsGroupRequestInfo{
-				GroupName:  utils.StringIgnoreEmpty(groupName),
-				HostIdList: &hostIds,
+				GroupName:  groupName,
+				HostIdList: hostIds,
 			},
 		}
 	)
@@ -199,8 +201,8 @@ func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func queryHostGroups(client *hssv5.HssClient, region, epsId, name string) ([]hssv5model.HostGroupItem, error) {
 	var (
-		offset        int32                      = 0
-		limit         int32                      = 0
+		offset        int32
+		limit         int32
 		allHostGroups []hssv5model.HostGroupItem = make([]hssv5model.HostGroupItem, 0)
 	)
 	for {
@@ -221,9 +223,9 @@ func queryHostGroups(client *hssv5.HssClient, region, epsId, name string) ([]hss
 
 		if response == nil || offset >= *response.TotalNum || len(*response.DataList) == 0 {
 			break
-		} else {
-			offset += *response.TotalNum
 		}
+
+		offset += *response.TotalNum
 	}
 
 	return allHostGroups, nil
@@ -239,7 +241,7 @@ func QueryHostGroupById(client *hssv5.HssClient, region, epsId, groupId string) 
 	}
 	result, err := utils.FilterSliceWithField(allHostGroups, filter)
 	if err != nil {
-		return nil, fmt.Errorf("Erroring filting security groups list: %s", err)
+		return nil, fmt.Errorf("erroring filting security groups list: %s", err)
 	}
 
 	if len(result) < 1 {
@@ -252,7 +254,7 @@ func QueryHostGroupById(client *hssv5.HssClient, region, epsId, groupId string) 
 	if item, ok := result[0].(hssv5model.HostGroupItem); ok {
 		return &item, nil
 	}
-	return nil, fmt.Errorf("invalid host group list, want 'hssv5model.HostGroupItem', but '%T'.", result[0])
+	return nil, fmt.Errorf("invalid host group list, want 'hssv5model.HostGroupItem', but '%T'", result[0])
 }
 
 func resourceHostGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -307,7 +309,7 @@ func resourceHostGroupUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			Region:              region,
 			EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
 			Body: &hssv5model.ChangeHostsGroupRequestInfo{
-				GroupId:    utils.String(groupId),
+				GroupId:    groupId,
 				GroupName:  utils.StringIgnoreEmpty(groupName),
 				HostIdList: &hostIds,
 			},
@@ -344,7 +346,7 @@ func resourceHostGroupDelete(_ context.Context, d *schema.ResourceData, meta int
 		request = hssv5model.DeleteHostsGroupRequest{
 			Region:              cfg.GetRegion(d),
 			EnterpriseProjectId: utils.StringIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-			GroupId:             utils.StringIgnoreEmpty(groupId),
+			GroupId:             groupId,
 		}
 	)
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateIdentityProviderRequestBody
 type KeystoneUpdateIdentityProviderRequestBody struct {
 	IdentityProvider *UpdateIdentityproviderOption `json:"identity_provider"`
 }

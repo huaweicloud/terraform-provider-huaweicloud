@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateAssetProcessTaskRequest Request Object
 type CreateAssetProcessTaskRequest struct {
 	Body *AssetProcessReq `json:"body,omitempty"`
 }

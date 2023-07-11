@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteNotificationRequest Request Object
 type DeleteNotificationRequest struct {
 
 	// 标识关键操作通知id。 批量删除请使用逗号隔开，notification_id=\"xxx1,cccc2\"

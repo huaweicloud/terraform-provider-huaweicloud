@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneShowRegionResponse Response Object
 type KeystoneShowRegionResponse struct {
 	Region         *Region `json:"region,omitempty"`
 	HttpStatusCode int     `json:"-"`

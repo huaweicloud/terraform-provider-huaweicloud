@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTemplateRequest Request Object
 type ListTemplateRequest struct {
 
 	// 自定义转码模板ID，最多10个

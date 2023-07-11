@@ -8,6 +8,12 @@ import (
 
 type HostRaspProtectHistoryResponseInfo struct {
 
+	// 服务器ip
+	HostIp *string `json:"host_ip,omitempty"`
+
+	// 服务器名称
+	HostName *string `json:"host_name,omitempty"`
+
 	// 告警时间
 	AlarmTime *int64 `json:"alarm_time,omitempty"`
 

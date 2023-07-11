@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowResponseHeaderResponse Response Object
 type ShowResponseHeaderResponse struct {
 	Headers        *HeaderMap `json:"headers,omitempty"`
 	HttpStatusCode int        `json:"-"`

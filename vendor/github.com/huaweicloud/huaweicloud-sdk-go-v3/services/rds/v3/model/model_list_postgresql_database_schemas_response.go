@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPostgresqlDatabaseSchemasResponse Response Object
 type ListPostgresqlDatabaseSchemasResponse struct {
 
 	// 列表中每个元素表示一个数据库schema。

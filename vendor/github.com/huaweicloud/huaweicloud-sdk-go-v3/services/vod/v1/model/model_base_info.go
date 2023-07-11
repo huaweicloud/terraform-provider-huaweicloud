@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 媒资基本信息。
+// BaseInfo 媒资基本信息。
 type BaseInfo struct {
 
 	// 媒资标题。  长度不超过128个字节，UTF8编码。

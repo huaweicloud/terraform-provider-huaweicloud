@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListDomainLogsResponse Response Object
 type ListDomainLogsResponse struct {
 
 	// 日志总数。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例节点信息。
+// NodeResponse 实例节点信息。
 type NodeResponse struct {
 
 	// 节点ID。

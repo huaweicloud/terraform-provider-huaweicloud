@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateDomainMappingRequest Request Object
 type CreateDomainMappingRequest struct {
 	Body *DomainMapping `json:"body,omitempty"`
 }

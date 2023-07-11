@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRoutingRulesResponse Response Object
 type ListRoutingRulesResponse struct {
 
 	// 规则条件信息列表。

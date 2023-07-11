@@ -8,12 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+
 	v3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
 	rds "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
 
@@ -173,7 +175,7 @@ func resourceRdsDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta
 		InstanceId: instanceId,
 		Body: &rds.UpdateDatabaseReq{
 			Name:    d.Get("name").(string),
-			Comment: d.Get("description").(string),
+			Comment: utils.String(d.Get("description").(string)),
 		},
 	}
 
@@ -249,7 +251,7 @@ func QueryDatabases(client *v3.RdsClient, instanceId, dbName string) (*rds.Datab
 		}
 
 		databases := *response.Databases
-		request.Page += 1
+		request.Page++
 		for _, db := range databases {
 			if db.Name == dbName {
 				return &db, nil

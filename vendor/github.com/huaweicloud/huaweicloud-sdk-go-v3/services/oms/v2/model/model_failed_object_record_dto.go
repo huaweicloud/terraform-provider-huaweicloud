@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// FailedObjectRecordDto
 type FailedObjectRecordDto struct {
 
 	// 是否支持失败对象重传。

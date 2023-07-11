@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群基本信息。
+// ShowClusterRespCluster 集群基本信息。
 type ShowClusterRespCluster struct {
 
 	// 控制器ID。

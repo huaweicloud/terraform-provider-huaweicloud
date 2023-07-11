@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTracesResponse Response Object
 type ListTracesResponse struct {
 
 	// 本次查询事件列表返回事件数组。

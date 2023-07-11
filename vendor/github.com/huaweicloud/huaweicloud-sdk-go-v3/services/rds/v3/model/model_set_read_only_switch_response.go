@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetReadOnlySwitchResponse Response Object
 type SetReadOnlySwitchResponse struct {
 
 	// 任务ID。

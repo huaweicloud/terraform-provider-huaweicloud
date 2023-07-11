@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAnimatedGraphicsTaskResponse Response Object
 type ListAnimatedGraphicsTaskResponse struct {
 
 	// 任务总数

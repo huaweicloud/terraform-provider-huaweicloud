@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowKafkaProjectTagsRequest Request Object
 type ShowKafkaProjectTagsRequest struct {
 }
 

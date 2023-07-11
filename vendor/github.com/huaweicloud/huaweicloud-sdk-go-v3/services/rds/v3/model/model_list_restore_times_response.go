@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRestoreTimesResponse Response Object
 type ListRestoreTimesResponse struct {
 
 	// 可恢复时间段列表。

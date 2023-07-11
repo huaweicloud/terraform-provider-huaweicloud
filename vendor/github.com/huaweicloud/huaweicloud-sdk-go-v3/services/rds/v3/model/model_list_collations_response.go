@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListCollationsResponse Response Object
 type ListCollationsResponse struct {
 
 	// 字符集信息列表

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListCustomPoliciesResponse Response Object
 type ListCustomPoliciesResponse struct {
 	Links *Links `json:"links,omitempty"`
 

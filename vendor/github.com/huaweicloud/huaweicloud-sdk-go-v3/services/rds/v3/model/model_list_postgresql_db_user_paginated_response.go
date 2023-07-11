@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPostgresqlDbUserPaginatedResponse Response Object
 type ListPostgresqlDbUserPaginatedResponse struct {
 
 	// 列表中每个元素表示一个数据库用户。

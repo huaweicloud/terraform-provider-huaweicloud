@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenRole
 type TokenRole struct {
 
 	// 权限名称。

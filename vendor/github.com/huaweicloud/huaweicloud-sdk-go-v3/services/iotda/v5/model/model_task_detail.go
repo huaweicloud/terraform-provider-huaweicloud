@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 单个子任务详情结构体
+// TaskDetail 单个子任务详情结构体
 type TaskDetail struct {
 
 	// 执行批量任务的目标。

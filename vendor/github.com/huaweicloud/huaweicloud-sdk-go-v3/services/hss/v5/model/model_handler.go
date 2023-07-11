@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 手动处理的备注
+// Handler 备注信息
 type Handler struct {
 }
 

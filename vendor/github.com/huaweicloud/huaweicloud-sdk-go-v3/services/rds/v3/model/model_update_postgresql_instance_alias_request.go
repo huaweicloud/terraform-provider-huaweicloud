@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdatePostgresqlInstanceAliasRequest Request Object
 type UpdatePostgresqlInstanceAliasRequest struct {
 
 	// 语言

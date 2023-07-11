@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateAssetReviewTaskResponse Response Object
 type CreateAssetReviewTaskResponse struct {
 
 	// 媒资ID

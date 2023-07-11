@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAssetStatisticResponse Response Object
 type ShowAssetStatisticResponse struct {
 
 	// 账号数量

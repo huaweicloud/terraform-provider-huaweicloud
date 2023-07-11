@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DisassociateKeypairResponse Response Object
 type DisassociateKeypairResponse struct {
 
 	// 任务下发成功返回的ID

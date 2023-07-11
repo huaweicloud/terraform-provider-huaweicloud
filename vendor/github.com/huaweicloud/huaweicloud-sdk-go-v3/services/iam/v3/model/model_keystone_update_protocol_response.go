@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneUpdateProtocolResponse Response Object
 type KeystoneUpdateProtocolResponse struct {
 	Protocol       *ProtocolResult `json:"protocol,omitempty"`
 	HttpStatusCode int             `json:"-"`

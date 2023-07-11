@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateManualBackupRequest Request Object
 type CreateManualBackupRequest struct {
 
 	// 语言

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateTemporaryAccessKeyByAgencyRequest Request Object
 type CreateTemporaryAccessKeyByAgencyRequest struct {
 	Body *CreateTemporaryAccessKeyByAgencyRequestBody `json:"body,omitempty"`
 }

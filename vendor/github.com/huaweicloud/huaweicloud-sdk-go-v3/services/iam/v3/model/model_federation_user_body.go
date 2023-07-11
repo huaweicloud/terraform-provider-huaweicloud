@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 联邦用户信息。
+// FederationUserBody 联邦用户信息。
 type FederationUserBody struct {
 	OsFederation *OsFederationInfo `json:"OS-FEDERATION"`
 
