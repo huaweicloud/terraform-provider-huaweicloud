@@ -3,7 +3,7 @@
 // @Product ProjectMan
 // ---------------------------------------------------------------
 
-package projectman
+package codearts
 
 import (
 	"context"

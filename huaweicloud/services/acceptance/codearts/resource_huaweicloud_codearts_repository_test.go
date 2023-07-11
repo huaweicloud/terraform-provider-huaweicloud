@@ -1,4 +1,4 @@
-package codehub
+package codearts
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ func TestAccRepository_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_codehub_repository.test"
+	rName := "huaweicloud_codearts_repository.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -63,7 +63,7 @@ func TestAccRepository_basic(t *testing.T) {
 				Config: testRepository_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "project_id", "huaweicloud_projectman_project.test",
+					resource.TestCheckResourceAttrPair(rName, "project_id", "huaweicloud_codearts_project.test",
 						"id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "Created by terraform acc test"),
@@ -95,7 +95,7 @@ func TestAccRepository_default(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_codehub_repository.test"
+	rName := "huaweicloud_codearts_repository.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -112,7 +112,7 @@ func TestAccRepository_default(t *testing.T) {
 				Config: testRepository_default(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "project_id", "huaweicloud_projectman_project.test",
+					resource.TestCheckResourceAttrPair(rName, "project_id", "huaweicloud_codearts_project.test",
 						"id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "enable_readme", "1"),
@@ -140,13 +140,13 @@ func TestAccRepository_default(t *testing.T) {
 
 func testRepository_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_projectman_project" "test" {
+resource "huaweicloud_codearts_project" "test" {
   name = "%[1]s"
   type = "scrum"
 }
 
-resource "huaweicloud_codehub_repository" "test" {
-  project_id = huaweicloud_projectman_project.test.id
+resource "huaweicloud_codearts_repository" "test" {
+  project_id = huaweicloud_codearts_project.test.id
 
   name             = "%[1]s"
   description      = "Created by terraform acc test"
@@ -161,13 +161,13 @@ resource "huaweicloud_codehub_repository" "test" {
 
 func testRepository_default(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_projectman_project" "test" {
+resource "huaweicloud_codearts_project" "test" {
   name = "%[1]s"
   type = "scrum"
 }
 
-resource "huaweicloud_codehub_repository" "test" {
-  project_id = huaweicloud_projectman_project.test.id
+resource "huaweicloud_codearts_repository" "test" {
+  project_id = huaweicloud_codearts_project.test.id
 
   name = "%[1]s"
 }

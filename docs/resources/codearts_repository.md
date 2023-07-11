@@ -1,10 +1,10 @@
 ---
-subcategory: "CodeHub"
+subcategory: "CodeArts"
 ---
 
-# huaweicloud_codehub_repository
+# huaweicloud_codearts_repository
 
-Manages a CodeHub repository resource within HuaweiCloud.
+Manages a CodeArts repository resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -13,8 +13,8 @@ variable "project_id" {}
 variable "repository_name" {}
 variable "repository_description" {}
 
-resource "huaweicloud_codehub_repository" "test" {
-  project_id = var.project_id // You can use project resource of ProjectMan to generate it
+resource "huaweicloud_codearts_repository" "test" {
+  project_id = var.project_id // You can use project resource to generate it
 
   name               = var.repository_name
   description        = var.repository_description
@@ -36,7 +36,7 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) The repository name.
   Changing this parameter will create a new resource.
 
-* `project_id` - (Required, String, ForceNew) The project ID for CodeHub service.
+* `project_id` - (Required, String, ForceNew) The project ID for CodeArts service.
   Changing this parameter will create a new resource.
 
 * `visibility_level` - (Optional, Int, ForceNew) The visibility level.  
@@ -116,7 +116,7 @@ In addition to all arguments above, the following attributes are exported:
 The repository can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_codehub_repository.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_codearts_repository.test 0ce123456a00f2591fabc00385ff1234
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -126,7 +126,7 @@ You can then decide if changes should be applied to the repository, or the resou
 align with the repository. Also you can ignore changes as below.
 
 ```
-resource "huaweicloud_codehub_repository" "test" {
+resource "huaweicloud_codearts_repository" "test" {
   ...
 
   lifecycle {

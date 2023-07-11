@@ -30,7 +30,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cnad"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codehub"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codearts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cph"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
@@ -76,7 +76,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/oms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/projectman"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ram"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
@@ -720,8 +719,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_cnad_advanced_black_white_list": cnad.ResourceBlackWhiteList(),
 			"huaweicloud_cnad_advanced_protected_object": cnad.ResourceProtectedObject(),
 
-			"huaweicloud_codehub_repository": codehub.ResourceRepository(),
-
 			"huaweicloud_compute_instance":         ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach": ecs.ResourceComputeInterfaceAttach(),
 			"huaweicloud_compute_keypair":          ResourceComputeKeypairV2(),
@@ -1078,8 +1075,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),
 
-			// devCloud
-			"huaweicloud_projectman_project": projectman.ResourceProject(),
+			// CodeArts
+			"huaweicloud_codearts_project":    codearts.ResourceProject(),
+			"huaweicloud_codearts_repository": codearts.ResourceRepository(),
 
 			"huaweicloud_dsc_instance":  dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs": dsc.ResourceAssetObs(),
@@ -1101,6 +1099,9 @@ func Provider() *schema.Provider {
 
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
+
+			"huaweicloud_projectman_project": codearts.ResourceProject(),
+			"huaweicloud_codehub_repository": codearts.ResourceRepository(),
 
 			"huaweicloud_compute_instance_v2":             ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach_v2":     ecs.ResourceComputeInterfaceAttach(),

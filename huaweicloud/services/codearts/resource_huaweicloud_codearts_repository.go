@@ -3,7 +3,7 @@
 // @Product CodeHub
 // ---------------------------------------------------------------
 
-package codehub
+package codearts
 
 import (
 	"context"
