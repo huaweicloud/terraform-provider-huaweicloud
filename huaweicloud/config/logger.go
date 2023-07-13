@@ -236,7 +236,9 @@ func isSecurityFields(field string) bool {
 	// 'signature' are used for encryption.
 	// 'user_passwd' is apply to the dms/kafka user request JSON body
 	// 'auth' is apply to kms keypairs associate or disassociate request JSON body
+	// 'cert_content', 'private_key' and 'trusted_root_ca' are both sensitive parameters of the SSL certificate for APIG
+	// request JSON body
 	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "sip_number",
-		"signature", "user_passwd", "auth"}
+		"signature", "user_passwd", "auth", "cert_content", "private_key", "trusted_root_ca"}
 	return utils.StrSliceContains(securityFields, checkField)
 }

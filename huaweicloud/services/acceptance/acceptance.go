@@ -159,6 +159,13 @@ var (
 	HW_POOL_NAME      = os.Getenv("HW_POOL_NAME")
 
 	HW_IMAGE_SHARE_SOURCE_IMAGE_ID = os.Getenv("HW_IMAGE_SHARE_SOURCE_IMAGE_ID")
+
+	HW_CERTIFICATE_CONTENT         = os.Getenv("HW_CERTIFICATE_CONTENT")
+	HW_CERTIFICATE_PRIVATE_KEY     = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY")
+	HW_CERTIFICATE_ROOT_CA         = os.Getenv("HW_CERTIFICATE_ROOT_CA")
+	HW_NEW_CERTIFICATE_CONTENT     = os.Getenv("HW_NEW_CERTIFICATE_CONTENT")
+	HW_NEW_CERTIFICATE_PRIVATE_KEY = os.Getenv("HW_NEW_CERTIFICATE_PRIVATE_KEY")
+	HW_NEW_CERTIFICATE_ROOT_CA     = os.Getenv("HW_NEW_CERTIFICATE_ROOT_CA")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -717,5 +724,22 @@ func TestAccPreCheckCcePartitionAz(t *testing.T) {
 func TestAccPreCheckCnEast3(t *testing.T) {
 	if HW_REGION_NAME != "cn-east-3" {
 		t.Skip("HW_REGION_NAME must be cn-east-3 for this test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCertificateWithoutRootCA(t *testing.T) {
+	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_PRIVATE_KEY == "" ||
+		HW_NEW_CERTIFICATE_CONTENT == "" || HW_NEW_CERTIFICATE_PRIVATE_KEY == "" {
+		t.Skip("HW_CERTIFICATE_CONTENT, HW_CERTIFICATE_PRIVATE_KEY, HW_NEW_CERTIFICATE_CONTENT and " +
+			"HW_NEW_CERTIFICATE_PRIVATE_KEY must be set for simple acceptance tests of SSL certificate resource")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCertificateFull(t *testing.T) {
+	TestAccPreCheckCertificateWithoutRootCA(t)
+	if HW_CERTIFICATE_ROOT_CA == "" || HW_NEW_CERTIFICATE_ROOT_CA == "" {
+		t.Skip("HW_CERTIFICATE_ROOT_CA and HW_NEW_CERTIFICATE_ROOT_CA must be set for root CA validation")
 	}
 }
