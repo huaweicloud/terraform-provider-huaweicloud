@@ -4,15 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jmespath/go-jmespath"
+
 	"github.com/chnsz/golangsdk"
 )
-
-type requestErr struct {
-	// The error code.
-	ErrCode string `json:"error_code"`
-	// The error message.
-	ErrMsg string `json:"error_message"`
-}
 
 // The RDS instance is limited to only one operation at a time.
 // In addition to locking and waiting between multiple operations, a retry method is required to ensure that the
@@ -23,7 +18,7 @@ func handleMultiOperationsError(err error) (bool, error) {
 		return false, nil
 	}
 	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
-		var apiError requestErr
+		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
@@ -40,7 +35,12 @@ func handleMultiOperationsError(err error) (bool, error) {
 			"DBS.280816": struct{}{},
 		}
 
-		if _, ok := retryErrCodes[apiError.ErrCode]; ok {
+		errorCode, errorCodeErr := jmespath.Search("errCode||error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		if _, ok = retryErrCodes[errorCode.(string)]; ok {
 			// The operation failed to execute and needs to be executed again, because other operations are
 			// currently in progress.
 			return true, err
