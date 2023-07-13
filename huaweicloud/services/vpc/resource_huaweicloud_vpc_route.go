@@ -8,15 +8,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/routetables"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/routes"
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -88,8 +89,8 @@ func ResourceVPCRouteTableRoute() *schema.Resource {
 }
 
 func resourceVpcRTBRouteCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -128,14 +129,14 @@ func resourceVpcRTBRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	routeID := fmt.Sprintf("%s/%s", routeTableID, destination)
 	d.SetId(routeID)
-	return resourceVpcRTBRouteRead(ctx, d, meta)
 
+	return resourceVpcRTBRouteRead(ctx, d, meta)
 }
 
 func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcClient, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -148,7 +149,7 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 		oldID := d.Id()
 		log.Printf("[WARN] The resource ID %s is in the old format, try to upgrade it to the new format", oldID)
 
-		newID, subDiags := convertRouteIDtoNewFormat(d, config, oldID)
+		newID, subDiags := convertRouteIDtoNewFormat(d, cfg, oldID)
 		if subDiags.HasError() {
 			return subDiags
 		}
@@ -198,8 +199,8 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -228,8 +229,8 @@ func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceVpcRTBRouteDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	vpcClient, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -284,18 +285,17 @@ func getDefaultRouteTable(client *golangsdk.ServiceClient, vpcID string) (string
 	return defaultID, nil
 }
 
-func parseResourceID(id string) (string, string) {
+func parseResourceID(id string) (tableID, destination string) {
 	parts := strings.SplitN(id, "/", 2)
 	if len(parts) != 2 {
-		return "", ""
+		return
 	}
 
-	return parts[0], parts[1]
+	tableID, destination = parts[0], parts[1]
+	return
 }
 
-func resourceVpcRTBRouteImportState(_ context.Context, d *schema.ResourceData,
-	meta interface{}) ([]*schema.ResourceData, error) {
-
+func resourceVpcRTBRouteImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	routeID, _ := parseResourceID(d.Id())
 	if routeID == "" {
 		return nil, fmt.Errorf("invalid format specified for import id, must be <route_table_id>/<destination>")
