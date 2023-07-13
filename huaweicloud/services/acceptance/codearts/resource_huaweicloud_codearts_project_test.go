@@ -1,4 +1,4 @@
-package projectman
+package codearts
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ func TestAccProject_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_projectman_project.test"
+	rName := "huaweicloud_codearts_project.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -90,7 +90,7 @@ func TestAccProject_basic(t *testing.T) {
 
 func testProject_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_projectman_project" "test" {
+resource "huaweicloud_codearts_project" "test" {
   name = "%s"
   type = "scrum"
 }
@@ -99,7 +99,7 @@ resource "huaweicloud_projectman_project" "test" {
 
 func testProject_basic_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_projectman_project" "test" {
+resource "huaweicloud_codearts_project" "test" {
   name = "%s"
   type = "scrum"
   description = "demo_description"
