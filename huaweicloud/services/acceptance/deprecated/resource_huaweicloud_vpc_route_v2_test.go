@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getRouteResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getRouteV2ResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating HuaweiCloud Network client: %s", err)
@@ -20,18 +20,16 @@ func getRouteResourceFunc(conf *config.Config, state *terraform.ResourceState) (
 	return routes.Get(c, state.Primary.ID).Extract()
 }
 
-// TestAccVpcRoute_basic: This function is *deprecated* as the resource ID format
-// has changed, please run TestAccVpcRTBRoute_basic
-func TestAccVpcRoute_basic(t *testing.T) {
+func TestAccVpcRouteV2_basic(t *testing.T) {
 	var route routes.Route
 
 	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_route.test"
+	resourceName := "huaweicloud_vpc_route_v2.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&route,
-		getRouteResourceFunc,
+		getRouteV2ResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,7 +38,7 @@ func TestAccVpcRoute_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRoute_basic(randName),
+				Config: testAccRouteV2_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "peering"),
@@ -61,7 +59,7 @@ func TestAccVpcRoute_basic(t *testing.T) {
 	})
 }
 
-func testAccRoute_basic(rName string) string {
+func testAccRouteV2_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
   name = "%s_1"
@@ -79,7 +77,7 @@ resource "huaweicloud_vpc_peering_connection" "test" {
   peer_vpc_id = huaweicloud_vpc.test2.id
 }
 
-resource "huaweicloud_vpc_route" "test" {
+resource "huaweicloud_vpc_route_v2" "test" {
   type        = "peering"
   nexthop     = huaweicloud_vpc_peering_connection.test.id
   destination = huaweicloud_vpc.test2.cidr

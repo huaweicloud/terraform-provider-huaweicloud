@@ -1160,7 +1160,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_eip_v1":                         eip.ResourceVpcEIPV1(),
 			"huaweicloud_vpc_peering_connection_v2":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter_v2": vpc.ResourceVpcPeeringConnectionAccepterV2(),
-			"huaweicloud_vpc_route_v2":                       vpc.ResourceVPCRouteV2(),
 			"huaweicloud_vpc_v1":                             vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_subnet_v1":                      vpc.ResourceVpcSubnetV1(),
 
@@ -1211,6 +1210,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_router_route_v2":     deprecated.ResourceNetworkingRouterRouteV2(),
 			"huaweicloud_networking_port":                deprecated.ResourceNetworkingPortV2(),
 			"huaweicloud_networking_port_v2":             deprecated.ResourceNetworkingPortV2(),
+			"huaweicloud_vpc_route_v2":                   deprecated.ResourceVPCRouteV2(),
 			"huaweicloud_ecs_instance_v1":                deprecated.ResourceEcsInstanceV1(),
 			"huaweicloud_compute_secgroup_v2":            deprecated.ResourceComputeSecGroupV2(),
 			"huaweicloud_compute_floatingip_v2":          deprecated.ResourceComputeFloatingIPV2(),
