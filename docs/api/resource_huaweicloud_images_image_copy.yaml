@@ -6,7 +6,7 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: IMAGES
+  - name: IMS
 paths:
   /v1/cloudimages/{imageId}/copy:
     post:
@@ -18,20 +18,20 @@ paths:
       operationId: CrossRegionCopy
   /{project_id}/cloudimages/{imageID}:
     patch:
-      tag: IMAGES
+      tag: IMS
       operationId: Update
   /{project_id}/image/{id}/tags:
     get:
-      tag: IMAGES
+      tag: IMS
       operationId: Get
   /{project_id}/images/{id}/tags/action:
     post:
-      tag: IMAGES
+      tag: IMS
       operationId: Create
   /{project_id}/images/{imageID}:
     delete:
-      tag: IMAGES
+      tag: IMS
       operationId: Delete
     patch:
-      tag: IMAGES
+      tag: IMS
       operationId: Update

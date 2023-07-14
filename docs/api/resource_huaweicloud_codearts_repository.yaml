@@ -3,27 +3,27 @@ info:
     description: Manages a CodeArts repository resource within HuaweiCloud.
 host: myhuaweicloud.com
 tags:
-    - name: CodeArts
+    - name: CodeHub
 servers:
     - url: https://codehub-ext.cn-north-4.myhuaweicloud.com
 paths:
     /v1/repositories:
         POST:
-            tag: CodeArts
+            tag: codeHub
             operationId: CreateRepository
             x-ref-api: POST /v1/repositories
     /v1/repositories/{id}/status:
         GET:
-            tag: CodeArts
+            tag: codeHub
             operationId: QueryRepositoryStatus
             x-ref-api: GET /v1/repositories/{id}/status
     /v1/repositories/{repository_uuid}:
         DELETE:
-            tag: CodeArts
+            tag: codeHub
             operationId: DeleteRepository
             x-ref-api: DELETE /v1/repositories/{repository_uuid}
     /v2/repositories/{repository_uuid}:
         GET:
-            tag: CodeArts
+            tag: codeHub
             operationId: GetRepository
             x-ref-api: GET /v2/repositories/{repository_uuid}

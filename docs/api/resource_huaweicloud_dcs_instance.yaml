@@ -27,6 +27,10 @@ paths:
     put:
       tag: DCS
       operationId: Put
+  /v2/{project_id}/instances/{id}/password:
+    put:
+      tag: DCS
+      operationId: UpdatePassword
   /v2/{project_id}/instances/{id}/resize:
     post:
       tag: DCS

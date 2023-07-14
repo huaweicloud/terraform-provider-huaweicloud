@@ -1,6 +1,6 @@
 info:
   version: 
-  title: resource_huaweicloud_rds_configuration
+  title: resource_huaweicloud_rds_parametergroup
   description: 
 schemes:
   - https

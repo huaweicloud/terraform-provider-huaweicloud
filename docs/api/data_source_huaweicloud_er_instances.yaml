@@ -1,14 +1,14 @@
 info:
   version: 
-  title: data_source_huaweicloud_dms_rabbitmq_flavors
+  title: data_source_huaweicloud_er_instances
   description: 
 schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: RabbitMQ
+  - name: ER
 paths:
-  /v2/{engine}/products:
+  /v3/{project_id}/enterprise-router/instances:
     get:
-      tag: RabbitMQ
+      tag: ER
       operationId: List

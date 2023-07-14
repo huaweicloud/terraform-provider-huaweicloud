@@ -9,13 +9,17 @@ tags:
   - name: VPC
 paths:
   /v2.0/vpc/routes/{id}:
-    delete:
-      tag: VPC
-      operationId: Delete
     get:
       tag: VPC
       operationId: Get
-  /v2.0/vpc/routes:
-    post:
+  /v1/{project_id}/routetables/{id}:
+    get:
       tag: VPC
-      operationId: Create
+      operationId: Get
+    put:
+      tag: VPC
+      operationId: Update
+  /v1/{project_id}/routetables:
+    get:
+      tag: VPC
+      operationId: List

@@ -1,0 +1,24 @@
+info:
+    title: resource_huaweicloud_cnad_advanced_policy_associate
+    description: Manages a CNAD advanced policy associate resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: CNAD
+servers:
+    - url: https://aad.myhuaweicloud.com
+paths:
+    /v1/cnad/policies/{policy_id}/bind:
+        POST:
+            tag: CNAD
+            operationId: CreatePolicyAssociate
+            x-ref-api: POST /v1/cnad/policies/{policy_id}/bind
+    /v1/cnad/policies/{policy_id}/unbind:
+        POST:
+            tag: CNAD
+            operationId: DeletePolicyProtectedObject
+            x-ref-api: POST /v1/cnad/policies/{policy_id}/unbind
+    /v1/cnad/protected-ips:
+        GET:
+            tag: CNAD
+            operationId: GetPolicyAssociate
+            x-ref-api: GET /v1/cnad/protected-ips
