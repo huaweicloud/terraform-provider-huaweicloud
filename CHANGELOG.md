@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## 1.52.0 (July 14, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_cnad_advanced_protected_object` [GH-3094]
+  + `huaweicloud_cnad_advanced_policy` [GH-3158]
+  + `huaweicloud_cnad_advanced_black_white_list` [GH-3160]
+  + `huaweicloud_cnad_advanced_policy_associate` [GH-3164]
+  + `huaweicloud_modelarts_service` [GH-3151]
+  + `huaweicloud_modelarts_model` [GH-3171]
+  + `huaweicloud_er_static_route` [GH-3159]
+
+* **New Data Source:**
+  + `huaweicloud_cnad_advanced_instances` [GH-3095]
+  + `huaweicloud_cnad_advanced_available_objects` [GH-3096]
+  + `huaweicloud_cnad_advanced_protected_objects` [GH-3173]
+  + `huaweicloud_er_instances` [GH-3152]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_elb_l7policy: Support redirect the traffic to HTTP listener [GH-3173]
+* resource/huaweicloud_dcs_instance: Add `template_id` and support update `password` and `rename_commands` [GH-3176]
+
+BUG FIXES:
+
+* resource/huaweicloud_rds_instance: Add retry mechanism to enable SSL [GH-3190]
+
 ## 1.51.0 (June 30, 2023)
 
 * **New Resurce:**
