@@ -327,7 +327,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	instanceID := d.Id()
-	if err = updateRdsInstanceFlavor(d, config, client, instanceID, false); err != nil {
+	if err = updateRdsInstanceFlavor(ctx, d, config, client, instanceID, false); err != nil {
 		return diag.FromErr(err)
 	}
 

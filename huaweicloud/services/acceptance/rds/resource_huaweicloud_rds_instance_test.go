@@ -157,6 +157,7 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "400"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
 				),
@@ -167,11 +168,12 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
-						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
+						"data.huaweicloud_rds_flavors.test", "flavors.1.name"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "500"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "20"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
 				),
@@ -357,6 +359,7 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
   fixed_ip          = "192.168.0.58"
+  ssl_enable        = true
 
   db {
     password = "%s"
@@ -396,6 +399,7 @@ resource "huaweicloud_rds_instance" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
+  ssl_enable        = false
 
   db {
     password = "%s"
@@ -502,6 +506,11 @@ func testAccRdsInstance_mysql_step1(name, pwd string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name                 = "%[2]s"
+  delete_default_rules = true
+}
+
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
   db_version    = "8.0"
@@ -510,19 +519,26 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%[2]s"
-  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
-  fixed_ip            = "192.168.0.58"
-  availability_zone   = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  fixed_ip          = "192.168.0.58"
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable        = true  
 
   db {
     password = "%[3]s"
     type     = "MySQL"
     version  = "8.0"
     port     = 3306
+  }
+
+  backup_strategy {
+    start_time = "08:15-09:15"
+    keep_days  = 3
+    period     = 1
   }
 
   volume {
@@ -541,6 +557,11 @@ func testAccRdsInstance_mysql_step2(name, pwd string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name                 = "%[2]s"
+  delete_default_rules = true
+}
+
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
   db_version    = "8.0"
@@ -549,19 +570,26 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%[2]s"
-  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
-  fixed_ip            = "192.168.0.58"
-  availability_zone   = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  fixed_ip          = "192.168.0.58"
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable        = false
 
   db {
     password = "%[3]s"
     type     = "MySQL"
     version  = "8.0"
     port     = 3308
+  }
+
+  backup_strategy {
+    start_time = "18:15-19:15"
+    keep_days  = 5
+    period     = 3
   }
 
   volume {
@@ -580,6 +608,11 @@ func testAccRdsInstance_mysql_step3(name, pwd string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name                 = "%[2]s"
+  delete_default_rules = true
+}
+
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
   db_version    = "8.0"
@@ -588,13 +621,14 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%[2]s"
-  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
-  fixed_ip            = "192.168.0.58"
-  availability_zone   = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  fixed_ip          = "192.168.0.58"
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable        = false
 
   db {
     password = "%[3]s"
