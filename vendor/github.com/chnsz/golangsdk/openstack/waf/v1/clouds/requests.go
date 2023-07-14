@@ -1,6 +1,7 @@
 package clouds
 
 import (
+	"fmt"
 	"github.com/chnsz/golangsdk"
 )
 
@@ -68,11 +69,23 @@ func Create(client *golangsdk.ServiceClient, opts CreateOpts) (*string, error) {
 
 // Get is a method used to obtain the cloud WAF details.
 func Get(client *golangsdk.ServiceClient) (*Instance, error) {
+	return GetWithEpsID(client, "")
+}
+
+// GetWithEpsID is a method used to obtain the cloud WAF details with eps ID.
+func GetWithEpsID(client *golangsdk.ServiceClient, epsID string) (*Instance, error) {
 	var r Instance
-	_, err := client.Get(getURL(client), &r, &golangsdk.RequestOpts{
+	_, err := client.Get(getURL(client)+generateEpsIdQuery(epsID), &r, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
+}
+
+func generateEpsIdQuery(epsID string) string {
+	if len(epsID) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("?enterprise_project_id=%s", epsID)
 }
 
 // UpdateOpts is the structure required by the 'Update' method to update the cloud WAF configuration.
@@ -117,4 +130,60 @@ func Update(client *golangsdk.ServiceClient, opts UpdateOpts) (*string, error) {
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r.OrderId, err
+}
+
+// CreatePostPaidOpts is the structure required by the 'Create' method to create a post paid cloud WAF.
+type CreatePostPaidOpts struct {
+	// The region where the cloud WAF is located. This field will be set to header
+	Region string `json:"-" required:"true"`
+	// The website to which the account belongs.
+	ConsoleArea string `json:"console_area" required:"true"`
+	// The ID of the enterprise project to which the cloud WAF belongs.
+	EnterpriseProjectId string `q:"enterprise_project_id" json:"-"`
+}
+
+// CreatePostPaid is a method used to create a new post paid cloud WAF using given parameters.
+func CreatePostPaid(client *golangsdk.ServiceClient, opts CreatePostPaidOpts) (*Instance, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	url := createOrDeletePostPaidURL(client)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+	var r Instance
+
+	moreHeaders := requestOpts.MoreHeaders
+	moreHeaders["region"] = opts.Region
+	_, err = client.Post(url, b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: moreHeaders,
+	})
+	return &r, err
+}
+
+// DeletePostPaidOpts is the structure required by the 'Delete' method to delete a post paid cloud WAF.
+type DeletePostPaidOpts struct {
+	// The region where the cloud WAF is located. This field will be set to header
+	Region string `json:"-" required:"true"`
+	// The ID of the enterprise project to which the cloud WAF belongs.
+	EnterpriseProjectId string `q:"enterprise_project_id" json:"-"`
+}
+
+// DeletePostPaid is a method used to delete a post paid cloud WAF using given parameters.
+func DeletePostPaid(client *golangsdk.ServiceClient, opts DeletePostPaidOpts) error {
+	url := createOrDeletePostPaidURL(client)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return err
+	}
+	url += query.String()
+	moreHeaders := requestOpts.MoreHeaders
+	moreHeaders["region"] = opts.Region
+	_, err = client.Delete(url, &golangsdk.RequestOpts{
+		MoreHeaders: moreHeaders,
+	})
+	return err
 }
