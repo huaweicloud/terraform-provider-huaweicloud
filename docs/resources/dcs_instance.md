@@ -133,11 +133,13 @@ The following arguments are supported:
   If omitted, the system will automatically allocate an available IP address to the Redis instance.
   Changing this creates a new instance resource.
 
+* `template_id` - (Optional, String, ForceNew) The Parameter Template ID.
+  Changing this creates a new instance resource.
+
 * `port` - (Optional, Int) Port customization, which is supported only by Redis 4.0 and Redis 5.0 instances.
   Redis instance defaults to 6379. Memcached instance does not use this argument.
 
-* `password` - (Optional, String, ForceNew) Specifies the password of a DCS instance.
-  Changing this creates a new instance.
+* `password` - (Optional, String) Specifies the password of a DCS instance.
   The password of a DCS instance must meet the following complexity requirements:
   + Must be a string of 8 to 32 bits in length.
   + Must contain three combinations of the following four characters: Lower case letters, uppercase letter, digital,
@@ -173,9 +175,9 @@ The following arguments are supported:
 * `backup_policy` - (Optional, List) Specifies the backup configuration to be used with the instance.
   The structure is described below.
 
-* `rename_commands` - (Optional, Map, ForceNew) Critical command renaming, which is supported only by Redis 4.0 and
+* `rename_commands` - (Optional, Map) Critical command renaming, which is supported only by Redis 4.0 and
   Redis 5.0 instances but not by Redis 3.0 instance.
-  The valid commands that can be renamed are: *command*, *keys*, *flushdb*, *flushall* and *hgetall*.
+  The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall** and **hgetall**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the dcs instance.
   Changing this creates a new instance.

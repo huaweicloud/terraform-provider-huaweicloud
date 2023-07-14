@@ -38,6 +38,7 @@ type CreateOpts struct {
 	EnablePublicIp   *bool                     `json:"enable_publicip,omitempty"`
 	Port             int                       `json:"port,omitempty"`
 	RenameCommands   RedisCommand              `json:"rename_commands,omitempty"`
+	TemplateId       string                    `json:"template_id,omitempty"`
 }
 
 type RedisCommand struct {
@@ -97,6 +98,7 @@ type ModifyInstanceOpt struct {
 	MaintainEnd     string                    `json:"maintain_end,omitempty"`
 	SecurityGroupId *string                   `json:"security_group_id,omitempty"`
 	BackupPolicy    *InstanceBackupPolicyOpts `json:"instance_backup_policy,omitempty"`
+	RenameCommands  *RedisCommand             `json:"rename_commands,omitempty"`
 }
 
 func Update(c *golangsdk.ServiceClient, id string, opts ModifyInstanceOpt) (*golangsdk.Result, error) {
