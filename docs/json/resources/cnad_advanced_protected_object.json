@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cnad_advanced_protected_object": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID in which to bind protected objects.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "protected_objects": {
+                "block": {
+                  "attributes": {
+                    "block_threshold": {
+                      "type": "string",
+                      "description": "The blocking threshold of the protected object.",
+                      "computed": true
+                    },
+                    "clean_threshold": {
+                      "type": "number",
+                      "description": "The cleaning threshold of the protected object.",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the protected object ID.",
+                      "required": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "description": "The instance ID which the protected object belongs to.",
+                      "computed": true
+                    },
+                    "instance_name": {
+                      "type": "string",
+                      "description": "The instance name which the protected object belongs to.",
+                      "computed": true
+                    },
+                    "instance_version": {
+                      "type": "string",
+                      "description": "The instance version which the protected object belongs to.",
+                      "computed": true
+                    },
+                    "ip_address": {
+                      "type": "string",
+                      "description": "Specifies the protected object IP.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the protected object.",
+                      "computed": true
+                    },
+                    "policy_name": {
+                      "type": "string",
+                      "description": "The policy name which the protected object binding.",
+                      "computed": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "description": "The region which the protected object belongs to.",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "number",
+                      "description": "The status of the protected object.",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the protected object type. Valid values are **VPN**, **NAT**, **VIP**, **CCI**,\n**EIP**, **ELB**, **REROUTING_IP**, **SubEni** and **NetInterFace**.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the advanced protected objects."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

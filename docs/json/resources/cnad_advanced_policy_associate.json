@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cnad_advanced_policy_associate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID. This field must be the instance ID where the policy is\nlocated.",
+                "required": true,
+                "forcenew": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the CNAD advanced policy ID in which to associate protected objects.",
+                "required": true,
+                "forcenew": true
+              },
+              "protected_object_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the protected object IDs to associate.",
+                "required": true
+              },
+              "protected_objects": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "block_threshold": "string",
+                      "clean_threshold": "number",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_version": "string",
+                      "ip_address": "string",
+                      "name": "string",
+                      "policy_name": "string",
+                      "region": "string",
+                      "status": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The advanced protected objects.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

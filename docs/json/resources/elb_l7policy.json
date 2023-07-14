@@ -5,6 +5,12 @@
         "huaweicloud_elb_l7policy": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "REDIRECT_TO_POOL"
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -20,11 +26,18 @@
               },
               "name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
+              },
+              "redirect_listener_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "redirect_pool_id": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",

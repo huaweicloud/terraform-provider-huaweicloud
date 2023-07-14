@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cnad_advanced_protected_objects": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the CNAD advanced instance ID.",
+                "optional": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the CNAD advanced protected object IP.",
+                "optional": true
+              },
+              "is_unbound": {
+                "type": "bool",
+                "description": "Specifies whether query protected objects which policies unbound.",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the CNAD advanced policy ID.",
+                "optional": true
+              },
+              "protected_object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "optional": true
+              },
+              "protected_objects": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "block_threshold": "string",
+                      "clean_threshold": "number",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_version": "string",
+                      "ip_address": "string",
+                      "name": "string",
+                      "policy_name": "string",
+                      "region": "string",
+                      "status": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the advanced protected objects.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the protected object. Valid values are **VPN**, **NAT**, **VIP**,\n**CCI**, **EIP**, **ELB**, **REROUTING_IP**, **SubEni** and **NetInterFace**",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

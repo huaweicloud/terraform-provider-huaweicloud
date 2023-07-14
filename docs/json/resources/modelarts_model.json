@@ -1,0 +1,298 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_model": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Model description that consists of 1 to 100 characters.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "execution_code": {
+                "type": "string",
+                "description": "OBS path for storing the execution code.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_address": {
+                "type": "string",
+                "description": "Image path generated after model packaging.",
+                "computed": true
+              },
+              "initial_config": {
+                "type": "string",
+                "description": "The model configuration file.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "install_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Deployment type. Only lowercase letters are supported.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "market_flag": {
+                "type": "bool",
+                "description": "Whether a model is subscribed from AI Gallery.",
+                "computed": true
+              },
+              "metrics": {
+                "type": "string",
+                "description": "Model precision.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "model_algorithm": {
+                "type": "string",
+                "description": "Model algorithm.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "model_size": {
+                "type": "number",
+                "description": "Model size, in bytes.",
+                "computed": true
+              },
+              "model_source": {
+                "type": "string",
+                "description": "Model source.",
+                "computed": true
+              },
+              "model_type": {
+                "type": "string",
+                "description": "Model type.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Model name, which consists of 1 to 64 characters.",
+                "required": true,
+                "forcenew": true
+              },
+              "publishable_flag": {
+                "type": "bool",
+                "description": "Whether a model is subscribed from AI Gallery.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "description": "Model runtime environment.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "schema_doc": {
+                "type": "string",
+                "description": "Download address of the model schema file.",
+                "computed": true
+              },
+              "source_copy": {
+                "type": "string",
+                "description": "Whether to enable image replication.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "source_job_id": {
+                "type": "string",
+                "description": "ID of the source training job.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "source_job_version": {
+                "type": "string",
+                "description": "Version of the source training job.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "source_location": {
+                "type": "string",
+                "description": "OBS path where the model is located or the SWR image location.",
+                "required": true,
+                "forcenew": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "Model source type",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Model status.",
+                "computed": true
+              },
+              "tunable": {
+                "type": "bool",
+                "description": "Whether a model can be tuned.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Model version in the format of Digit.Digit.Digit.",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Workspace ID, which defaults to 0.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "dependencies": {
+                "block": {
+                  "attributes": {
+                    "installer": {
+                      "type": "string",
+                      "description": "Installation mode. Only **pip** is supported.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "packages": {
+                      "block": {
+                        "attributes": {
+                          "package_name": {
+                            "type": "string",
+                            "description": "Name of a dependency package.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "package_version": {
+                            "type": "string",
+                            "description": "Version of a dependency package.",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "restraint": {
+                            "type": "string",
+                            "description": "Version restriction, which can be **EXACT**, **ATLEAST**, or **ATMOST**.",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          }
+                        },
+                        "description": "Collection of dependency packages."
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Package required for inference code and model."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "model_docs": {
+                "block": {
+                  "attributes": {
+                    "doc_name": {
+                      "type": "string",
+                      "description": "Document name, which must start with a letter. Enter 1 to 48 characters.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "doc_url": {
+                      "type": "string",
+                      "description": "HTTP(S) link of the document.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "List of model description documents. A maximum of three documents are supported."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "template": {
+                "block": {
+                  "attributes": {
+                    "infer_format": {
+                      "type": "string",
+                      "description": "ID of the input and output mode.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "template_id": {
+                      "type": "string",
+                      "description": "ID of the used template.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "template_inputs": {
+                      "block": {
+                        "attributes": {
+                          "input": {
+                            "type": "string",
+                            "description": "Template input path, which can be a path to an OBS file or directory.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "input_id": {
+                            "type": "string",
+                            "description": "Input item ID, which is obtained from template details.",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        },
+                        "description": "Template input configuration, specifying the source path for configuring a model."
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cnad_advanced_black_white_list": {
+          "block": {
+            "attributes": {
+              "black_ip_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the black IP list.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the policy ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "white_ip_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the white IP list.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

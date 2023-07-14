@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cnad_advanced_policy": {
+          "block": {
+            "attributes": {
+              "block_location": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The location block list.",
+                "computed": true
+              },
+              "block_protocol": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The protocol block list.",
+                "computed": true
+              },
+              "connection_protection": {
+                "type": "bool",
+                "description": "Whether enable connection protection.",
+                "computed": true
+              },
+              "connection_protection_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The connection protection list.",
+                "computed": true
+              },
+              "fingerprint_count": {
+                "type": "number",
+                "description": "The fingerprint count.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the CNAD advanced instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the policy name, the maximum length is 255 characters.",
+                "required": true
+              },
+              "port_block_count": {
+                "type": "number",
+                "description": "The number of port blockages.",
+                "computed": true
+              },
+              "threshold": {
+                "type": "number",
+                "description": "Specifies the cleaning threshold, the value ranges from 100 to 1000.",
+                "optional": true,
+                "computed": true
+              },
+              "udp": {
+                "type": "string",
+                "description": "Specifies whether to block the UDP protocol. Valid values are **block** and **unblock**.",
+                "optional": true
+              },
+              "watermark_count": {
+                "type": "number",
+                "description": "The number of watermarks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

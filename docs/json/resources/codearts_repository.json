@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_codehub_repository": {
+        "huaweicloud_codearts_repository": {
           "block": {
             "attributes": {
               "capacity": {

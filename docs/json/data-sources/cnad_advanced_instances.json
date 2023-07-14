@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cnad_advanced_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance id.",
+                "optional": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "Specifies the instance name.",
+                "optional": true
+              },
+              "instance_type": {
+                "type": "string",
+                "description": "Specifies the instance type. Valid values are **cnad_pro**, **cnad_ip**,\n**cnad_ep**, **cnad_full_high**, **cnad_vic** and **cnad_intl_ep**.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_type": "string",
+                      "ip_num": "number",
+                      "ip_num_now": "number",
+                      "protection_num": "number",
+                      "protection_num_now": "number",
+                      "protection_type": "number",
+                      "region": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the Advanced instances",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source."
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

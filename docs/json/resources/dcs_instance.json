@@ -93,7 +93,6 @@
               "password": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
                 "sensitive": true
               },
               "period": {
@@ -126,8 +125,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "security_group_id": {
                 "type": "string",
@@ -156,6 +154,11 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "template_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "used_memory": {
                 "type": "number",

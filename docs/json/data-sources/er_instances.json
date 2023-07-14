@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_instances": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID of the instances to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID used to query specified instance.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asn": "number",
+                      "auto_accept_shared_attachments": "bool",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "default_association_route_table_id": "string",
+                      "default_propagation_route_table_id": "string",
+                      "description": "string",
+                      "enable_default_association": "bool",
+                      "enable_default_propagation": "bool",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All instances that match the filter parameters.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name used to filter the instances.",
+                "optional": true
+              },
+              "owned_by_self": {
+                "type": "bool",
+                "description": "Whether resources belong to the current renant.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ER instances are located."
+              },
+              "status": {
+                "type": "string",
+                "description": "The status used to filter the instances.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs used to filter the instances.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

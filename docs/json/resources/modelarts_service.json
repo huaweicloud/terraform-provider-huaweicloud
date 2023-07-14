@@ -1,0 +1,337 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_service": {
+          "block": {
+            "attributes": {
+              "access_address": {
+                "type": "string",
+                "description": "Access address of an inference request.",
+                "computed": true
+              },
+              "bind_access_address": {
+                "type": "string",
+                "description": "Request address of a custom domain name.",
+                "computed": true
+              },
+              "change_status_to": {
+                "type": "string",
+                "description": "Which status you want to change the service to, the valid value can be **running** or **stopped**.",
+                "optional": true,
+                "computed": true
+              },
+              "debug_url": {
+                "type": "string",
+                "description": "Online debugging address of a real-time service.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the service.",
+                "optional": true,
+                "computed": true
+              },
+              "failed_times": {
+                "type": "number",
+                "description": "Number of failed service calls.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "infer_type": {
+                "type": "string",
+                "description": "Inference mode.",
+                "required": true,
+                "forcenew": true
+              },
+              "invocation_times": {
+                "type": "number",
+                "description": "Total number of service calls.",
+                "computed": true
+              },
+              "is_free": {
+                "type": "bool",
+                "description": "Whether a free-of-charge flavor is used.",
+                "computed": true
+              },
+              "is_shared": {
+                "type": "bool",
+                "description": "Whether a service is subscribed.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Service name, which consists of 1 to 64 characters.",
+                "required": true,
+                "forcenew": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "User to which a service belongs",
+                "computed": true
+              },
+              "pool_name": {
+                "type": "string",
+                "description": "Specifies the ID of the new dedicated resource pool.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "The security group ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "shared_count": {
+                "type": "number",
+                "description": "Number of subscribed services.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Service status.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which a real-time service instance is deployed.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "ID of the workspace to which a service belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "additional_properties": {
+                "block": {
+                  "block_types": {
+                    "log_report_channels": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "description": "The type of log report channel. The valid value is **LTS**.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "smn_notification": {
+                      "block": {
+                        "attributes": {
+                          "events": {
+                            "type": [
+                              "list",
+                              "number"
+                            ],
+                            "description": "Event ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "topic_urn": {
+                            "type": "string",
+                            "description": "URN of an SMN topic.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "config": {
+                "block": {
+                  "attributes": {
+                    "dest_path": {
+                      "type": "string",
+                      "description": "OBS path to the output data of a batch job. Mandatory for batch services.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "envs": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Environment variable key-value pair required for running a model.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "instance_count": {
+                      "type": "number",
+                      "description": "Number of instances deployed for a model.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "mapping_rule": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Mapping between input parameters and CSV data. Optional for batch services.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "mapping_type": {
+                      "type": "string",
+                      "description": "Mapping type of the input data. Mandatory for batch services.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "model_id": {
+                      "type": "string",
+                      "description": "Model ID, which can be obtained by calling the API for obtaining a model list.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "nodes": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Edge node ID array. Mandatory for edge services.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pool_name": {
+                      "type": "string",
+                      "description": "ID of a dedicated resource pool. Optional for real-time services.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "req_uri": {
+                      "type": "string",
+                      "description": "Inference API called in a batch task, which is the RESTful API exposed in the model image.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "specification": {
+                      "type": "string",
+                      "description": "Resource flavors.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "src_path": {
+                      "type": "string",
+                      "description": "OBS path to the input data of a batch job.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "src_type": {
+                      "type": "string",
+                      "description": "Data source type, which can be ManifestFile. Mandatory for batch services.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "Weight of traffic allocated to a model.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "custom_spec": {
+                      "block": {
+                        "attributes": {
+                          "ascend_a310": {
+                            "type": "number",
+                            "description": "Number of Ascend chips. Either this parameter or **gpu_p4** is configured.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "cpu": {
+                            "type": "number",
+                            "description": "Number of CPU cores, which can be a decimal. The value cannot be smaller than 0.01.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "gpu_p4": {
+                            "type": "number",
+                            "description": "Number of GPU cores, which can be a decimal.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "memory": {
+                            "type": "number",
+                            "description": "Memory in MB, which must be an integer.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "schedule": {
+                "block": {
+                  "attributes": {
+                    "duration": {
+                      "type": "number",
+                      "description": "Value mapping a time unit.",
+                      "required": true
+                    },
+                    "time_unit": {
+                      "type": "string",
+                      "description": "Scheduling time unit. Possible values are DAYS, HOURS, and MINUTES.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Scheduling type. Only the value **stop** is supported.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

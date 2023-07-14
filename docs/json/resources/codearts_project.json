@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_projectman_project": {
+        "huaweicloud_codearts_project": {
           "block": {
             "attributes": {
               "archive": {

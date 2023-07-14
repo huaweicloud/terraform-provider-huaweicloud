@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_er_static_route": {
+          "block": {
+            "attributes": {
+              "attachment_id": {
+                "type": "string",
+                "description": "The ID of the corresponding attachment.",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the static route.",
+                "computed": true
+              },
+              "destination": {
+                "type": "string",
+                "description": "The destination of the static route.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_blackhole": {
+                "type": "bool",
+                "description": "Whether route is the black hole route.",
+                "optional": true,
+                "default": false
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the static route and related route table are located.",
+                "computed": true
+              },
+              "route_table_id": {
+                "type": "string",
+                "description": "The ID of the route table to which the static route belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the static route.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the static route.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the static route.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
