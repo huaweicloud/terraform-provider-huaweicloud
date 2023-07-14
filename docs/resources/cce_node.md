@@ -9,26 +9,28 @@ Add a node to a CCE cluster.
 ## Basic Usage
 
 ```hcl
+variable "cluster_id" {}
+variable "node_name" {}
+variable "keypair_name" {}
+
 data "huaweicloud_availability_zones" "myaz" {}
 
+data "huaweicloud_compute_flavors" "myflavors" {
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
 resource "huaweicloud_kps_keypair" "mykp" {
-  name       = "mykp"
+  name       = var.keypair_name
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
-resource "huaweicloud_cce_cluster" "mycluster" {
-  name                   = "mycluster"
-  cluster_type           = "VirtualMachine"
-  flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc.myvpc.id
-  subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
-  container_network_type = "overlay_l2"
-}
-
 resource "huaweicloud_cce_node" "node" {
-  cluster_id        = huaweicloud_cce_cluster.mycluster.id
-  name              = "node"
-  flavor_id         = "s3.large.2"
+  cluster_id        = var.cluster_id
+  name              = var.node_name
+  flavor_id         = data.huaweicloud_compute_flavors.myflavors.ids[0]
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   key_pair          = huaweicloud_kps_keypair.mykp.name
 
@@ -46,10 +48,28 @@ resource "huaweicloud_cce_node" "node" {
 ## Node with Eip
 
 ```hcl
+variable "cluster_id" {}
+variable "node_name" {}
+variable "keypair_name" {}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_kps_keypair" "mykp" {
+  name       = var.keypair_name
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+}
+
 resource "huaweicloud_cce_node" "mynode" {
-  cluster_id        = huaweicloud_cce_cluster.mycluster.id
-  name              = "mynode"
-  flavor_id         = "s3.large.2"
+  cluster_id        = var.cluster_id
+  name              = var.node_name
+  flavor_id         = data.huaweicloud_compute_flavors.myflavors.ids[0]
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   key_pair          = huaweicloud_kps_keypair.mykp.name
 
@@ -73,6 +93,24 @@ resource "huaweicloud_cce_node" "mynode" {
 ## Node with Existing Eip
 
 ```hcl
+variable "cluster_id" {}
+variable "node_name" {}
+variable "keypair_name" {}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_kps_keypair" "mykp" {
+  name       = var.keypair_name
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+}
+
 resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
@@ -86,9 +124,9 @@ resource "huaweicloud_vpc_eip" "myeip" {
 }
 
 resource "huaweicloud_cce_node" "mynode" {
-  cluster_id        = huaweicloud_cce_cluster.mycluster.id
-  name              = "mynode"
-  flavor_id         = "s3.large.2"
+  cluster_id        = var.cluster_id
+  name              = var.node_name
+  flavor_id         = data.huaweicloud_compute_flavors.myflavors.ids[0]
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   key_pair          = huaweicloud_kps_keypair.mykp.name
 
@@ -109,10 +147,34 @@ resource "huaweicloud_cce_node" "mynode" {
 ## Node with storage configuration
 
 ```hcl
+variable "cluster_id" {}
+variable "node_name" {}
+variable "keypair_name" {}
+variable "kms_key_name" {}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_kps_keypair" "mykp" {
+  name       = var.keypair_name
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+}
+
+resource "huaweicloud_kms_key" "mykey" {
+  key_alias    = var.kms_key_name
+  pending_days = "7"
+}
+
 resource "huaweicloud_cce_node" "mynode" {
-  cluster_id        = huaweicloud_cce_cluster.mycluster.id
-  name              = "mynode"
-  flavor_id         = "s3.large.2"
+  cluster_id        = var.cluster_id
+  name              = var.node_name
+  flavor_id         = data.huaweicloud_compute_flavors.myflavors.ids[0]
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   key_pair          = huaweicloud_kps_keypair.mykp.name
 
@@ -190,7 +252,7 @@ The following arguments are supported:
 * `cluster_id` - (Required, String, ForceNew) Specifies the ID of the cluster.
   Changing this parameter will create a new resource.
 
-* `name` - (Optional, String) Specifies the the node name.
+* `name` - (Optional, String) Specifies the node name.
 
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID. Changing this parameter will create a new
   resource.
@@ -351,7 +413,7 @@ The `selectors` block supports:
 * `match_label_metadata_encrypted` - (Optional, String, ForceNew) Specifies the disk encryption identifier.
   Values can be: **0** indicates that the disk is not encrypted and **1** indicates that the disk is encrypted.
   If omitted, whether the disk is encrypted is not limited. Changing this parameter will create a new resource.
-* `match_label_metadata_cmkid` - (Optional, String, ForceNew) Specifies the cstomer master key ID of an encrypted
+* `match_label_metadata_cmkid` - (Optional, String, ForceNew) Specifies the customer master key ID of an encrypted
   disk. Changing this parameter will create a new resource.
 * `match_label_count` - (Optional, String, ForceNew) Specifies the number of disks to be selected. If omitted,
   all disks of this type are selected. Changing this parameter will create a new resource.
@@ -396,14 +458,14 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 20 minute.
-* `delete` - Default is 20 minute.
+* `create` - Default is 20 minutes.
+* `delete` - Default is 20 minutes.
 
 ## Import
 
 CCE node can be imported using the cluster ID and node ID separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_cce_node.my_node 5c20fdad-7288-11eb-b817-0255ac10158b/e9287dff-7288-11eb-b817-0255ac10158b
 ```
 
@@ -414,7 +476,7 @@ API response, security or some other reason. The missing attributes include:
 running `terraform plan` after importing a node. You can then decide if changes should be applied to the node, or the
 resource definition should be updated to align with the node. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cce_node" "my_node" {
     ...
 

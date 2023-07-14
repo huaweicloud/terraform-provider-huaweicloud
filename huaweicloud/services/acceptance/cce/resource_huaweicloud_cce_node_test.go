@@ -5,21 +5,20 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccNode_basic(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	updateName := rName + "update"
 	resourceName := "huaweicloud_cce_node.test"
 	// clusterName here is used to provide the cluster id to fetch cce node.
@@ -37,6 +36,8 @@ func TestAccNode_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key", "test_val"),
 				),
 			},
 			{
@@ -44,22 +45,27 @@ func TestAccNode_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCENodeImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"taints",
+				},
 			},
 			{
 				Config: testAccNode_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key", "test_val"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccNode_auto_assign_eip(t *testing.T) {
+func TestAccNode_eip(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cce_node.test"
 	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
@@ -78,23 +84,6 @@ func TestAccNode_auto_assign_eip(t *testing.T) {
 						regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`)),
 				),
 			},
-		},
-	})
-}
-
-func TestAccNode_existing_eip(t *testing.T) {
-	var node nodes.Nodes
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node.test"
-	// clusterName here is used to provide the cluster id to fetch cce node.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckNodeDestroy,
-		Steps: []resource.TestStep{
 			{
 				Config: testAccNode_existing_eip(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -108,36 +97,10 @@ func TestAccNode_existing_eip(t *testing.T) {
 	})
 }
 
-func TestAccNode_volume_extendParams(t *testing.T) {
-	var node nodes.Nodes
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node.test"
-	// clusterName here is used to provide the cluster id to fetch cce node.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckNodeDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNode_volume_extendParams(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNodeExists(resourceName, clusterName, &node),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
-					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key", "test_val"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccNode_volume_encryption(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cce_node.test"
 	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
@@ -155,7 +118,6 @@ func TestAccNode_volume_encryption(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.kms_key_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.kms_key_id"),
 				),
 			},
@@ -166,7 +128,7 @@ func TestAccNode_volume_encryption(t *testing.T) {
 func TestAccNode_prePaid(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cce_node.test"
 	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
@@ -204,7 +166,7 @@ func TestAccNode_prePaid(t *testing.T) {
 func TestAccNode_password(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cce_node.test"
 	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
@@ -217,6 +179,15 @@ func TestAccNode_password(t *testing.T) {
 			{
 				Config: testAccNode_password(rName),
 				Check: resource.ComposeTestCheckFunc(
+					// use provisioner to check whether the node can login successfully
+					testAccCheckNodeExists(resourceName, clusterName, &node),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+			{
+				Config: testAccNode_password_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					// use provisioner to check whether the node can login successfully
 					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
@@ -228,7 +199,7 @@ func TestAccNode_password(t *testing.T) {
 func TestAccNode_storage(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cce_node.test"
 	// clusterName here is used to provide the cluster id to fetch cce node.
 	clusterName := "huaweicloud_cce_cluster.test"
@@ -338,6 +309,13 @@ func testAccNode_Base(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
 resource "huaweicloud_compute_keypair" "test" {
   name = "%[2]s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
@@ -361,21 +339,35 @@ func testAccNode_basic(rName string) string {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
   root_volume {
     size       = 40
     volumetype = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
   }
+
   data_volumes {
     size       = 100
     volumetype = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
   }
+
   tags = {
     foo = "bar"
     key = "value"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value"
+    effect = "NoSchedule"
   }
 }
 `, testAccNode_Base(rName), rName)
@@ -388,21 +380,41 @@ func testAccNode_update(rName, updateName string) string {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
   root_volume {
     size       = 40
     volumetype = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
   }
+
   data_volumes {
     size       = 100
     volumetype = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
   }
+
   tags = {
     foo = "bar"
     key = "value_update"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value"
+    effect = "NoSchedule"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      taints,
+    ]
   }
 }
 `, testAccNode_Base(rName), updateName)
@@ -415,7 +427,7 @@ func testAccNode_auto_assign_eip(rName string) string {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
@@ -456,7 +468,7 @@ resource "huaweicloud_vpc_eip" "test" {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
@@ -475,39 +487,6 @@ resource "huaweicloud_cce_node" "test" {
 `, testAccNode_Base(rName), rName)
 }
 
-func testAccNode_volume_extendParams(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cce_node" "test" {
-  cluster_id        = huaweicloud_cce_cluster.test.id
-  name              = "%s"
-  flavor_id         = "s6.large.2"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  key_pair          = huaweicloud_compute_keypair.test.name
-
-  root_volume {
-    size         = 40
-	volumetype   = "SSD"
-	extend_params = {
-	  test_key = "test_val"
-	}
-  }
-  data_volumes {
-    size         = 100
-	volumetype   = "SSD"
-	extend_params = {
-	  test_key = "test_val"
-	}
-  }
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, testAccNode_Base(rName), rName)
-}
-
 func testAccNode_volume_encryption(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -520,14 +499,13 @@ resource "huaweicloud_kms_key" "test" {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
   root_volume {
     size       = 40
     volumetype = "SSD"
-    kms_key_id = huaweicloud_kms_key.test.id
   }
   data_volumes {
     size       = 100
@@ -549,7 +527,7 @@ func testAccNode_prePaid(rName string, isAutoRenew bool) string {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%[2]s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), null)
   key_pair          = huaweicloud_compute_keypair.test.name
 
@@ -567,6 +545,12 @@ resource "huaweicloud_cce_node" "test" {
     size       = 100
     volumetype = "SSD"
   }
+
+  // Assign EIP
+  iptype                = "5_bgp"
+  bandwidth_charge_mode = "bandwidth"
+  sharetype             = "PER"
+  bandwidth_size        = 100
 }
 `, testAccNode_Base(rName), rName, isAutoRenew)
 }
@@ -590,7 +574,7 @@ resource "huaweicloud_vpc_eip" "test" {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   password          = "Test@123"
   eip_id            = huaweicloud_vpc_eip.test.id
@@ -621,6 +605,56 @@ resource "huaweicloud_cce_node" "test" {
 `, testAccNode_Base(rName), rName)
 }
 
+func testAccNode_password_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_node" "test" {
+  cluster_id        = huaweicloud_cce_cluster.test.id
+  name              = "%s"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  password          = "Test@12345"
+  eip_id            = huaweicloud_vpc_eip.test.id
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      user     = "root"
+      password = "Test@12345"
+      host     = huaweicloud_vpc_eip.test.address
+      port     = "22"
+      timeout  = "60s"
+    }
+
+    inline = [
+      "date"
+    ]
+  }
+}
+`, testAccNode_Base(rName), rName)
+}
+
 func testAccNode_storage(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -633,7 +667,7 @@ resource "huaweicloud_kms_key" "test" {
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
-  flavor_id         = "s6.large.2"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair.test.name
 
@@ -683,8 +717,9 @@ resource "huaweicloud_cce_node" "test" {
       }
 
       virtual_spaces {
-        name        = "runtime"
-        size        = "90%%"
+        name            = "runtime"
+        size            = "90%%"
+        runtime_lv_type = "linear"
       }
     }
 
