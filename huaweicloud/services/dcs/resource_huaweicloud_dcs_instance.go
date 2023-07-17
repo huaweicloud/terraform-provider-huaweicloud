@@ -50,14 +50,24 @@ var (
 	operateErrorCode = map[string]bool{
 		// backup
 		"DCS.4096": true,
+		// restore
+		"DCS.4097": true,
+		// restart
+		"DCS.4111": true,
 		// resize
 		"DCS.4113": true,
 		// change config
 		"DCS.4114": true,
 		// change password
 		"DCS.4115": true,
-		// creating
+		// upgrade
+		"DCS.4116": true,
+		// rollback
+		"DCS.4117": true,
+		// create
 		"DCS.4118": true,
+		// freeze
+		"DCS.4120": true,
 	}
 )
 
