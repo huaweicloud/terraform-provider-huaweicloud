@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// VersionMediatypes
 type VersionMediatypes struct {
 
 	// 媒体类型。

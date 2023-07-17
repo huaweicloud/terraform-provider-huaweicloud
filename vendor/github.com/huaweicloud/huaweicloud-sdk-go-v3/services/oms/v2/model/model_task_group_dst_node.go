@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 迁移任务组目的端节点信息
+// TaskGroupDstNode 迁移任务组目的端节点信息
 type TaskGroupDstNode struct {
 
 	// 目的端桶的AK（最大长度100个字符）。

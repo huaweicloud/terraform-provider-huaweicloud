@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 当前规格实例的属性。
+// ListEnginePropertiesEntity 当前规格实例的属性。
 type ListEnginePropertiesEntity struct {
 
 	// 每个Broker的最大分区数。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowActionRuleRequest Request Object
 type ShowActionRuleRequest struct {
 
 	// 告警规则名称

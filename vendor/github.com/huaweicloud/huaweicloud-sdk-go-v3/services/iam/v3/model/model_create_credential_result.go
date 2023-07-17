@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateCredentialResult
 type CreateCredentialResult struct {
 
 	// 创建访问密钥时间。

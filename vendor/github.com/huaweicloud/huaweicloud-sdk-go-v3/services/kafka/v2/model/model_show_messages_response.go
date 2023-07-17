@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowMessagesResponse Response Object
 type ShowMessagesResponse struct {
 
 	// 消息列表。

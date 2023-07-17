@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建CA证书结构体。
+// CreateCertificateDto 创建CA证书结构体。
 type CreateCertificateDto struct {
 
 	// 证书内容信息。

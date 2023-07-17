@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneListAuthDomainsResponse Response Object
 type KeystoneListAuthDomainsResponse struct {
 
 	// 账号信息列表。

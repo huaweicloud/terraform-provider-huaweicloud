@@ -12,13 +12,13 @@ type LoadCustomThesaurusReq struct {
 	BucketName string `json:"bucketName"`
 
 	// 主词库文件对象，必须为UTF-8无BOM编码的文本文件，一行一个分词，文件大小最大支持100M。 mainObject, stopObject, synonymObject三个参数至少要填写一个。  >一次只能加载一个主词库，不支持同时加载多个主词库。
-	MainObject string `json:"mainObject"`
+	MainObject *string `json:"mainObject,omitempty"`
 
 	// 停词词库文件对象，必须为UTF-8无BOM编码的文本文件，一行一个分词，文件大小最大支持20M。  mainObject, stopObject, synonymObject三个参数至少要填写一个。
-	StopObject string `json:"stopObject"`
+	StopObject *string `json:"stopObject,omitempty"`
 
 	// 同义词词库文件，必须为UTF-8无BOM编码的文本文件，一行一组分词，文件大小最大支持20M。  mainObject, stopObject, synonymObject三个参数至少要填写一个。
-	SynonymObject string `json:"synonymObject"`
+	SynonymObject *string `json:"synonymObject,omitempty"`
 }
 
 func (o LoadCustomThesaurusReq) String() string {

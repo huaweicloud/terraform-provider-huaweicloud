@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Endpoint
 type Endpoint struct {
 
 	// 终端节点所属服务的ID。

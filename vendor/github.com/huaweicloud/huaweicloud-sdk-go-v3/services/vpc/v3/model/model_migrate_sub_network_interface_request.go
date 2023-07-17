@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// MigrateSubNetworkInterfaceRequest Request Object
 type MigrateSubNetworkInterfaceRequest struct {
 	Body *MigrateSubNetworkInterfaceRequestBody `json:"body,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 文件属性
+// FileAttr 文件属性
 type FileAttr struct {
 }
 

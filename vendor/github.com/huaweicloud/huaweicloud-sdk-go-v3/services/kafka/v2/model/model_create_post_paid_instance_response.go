@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreatePostPaidInstanceResponse Response Object
 type CreatePostPaidInstanceResponse struct {
 
 	// 实例ID

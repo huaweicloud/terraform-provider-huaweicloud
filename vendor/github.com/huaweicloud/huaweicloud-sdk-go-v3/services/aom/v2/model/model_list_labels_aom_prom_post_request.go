@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListLabelsAomPromPostRequest Request Object
 type ListLabelsAomPromPostRequest struct {
 }
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowApiInfoResponse Response Object
 type ShowApiInfoResponse struct {
 
 	// 版本号，例如v1。
@@ -69,13 +69,18 @@ func (c ShowApiInfoResponseStatus) MarshalJSON() ([]byte, error) {
 
 func (c *ShowApiInfoResponseStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

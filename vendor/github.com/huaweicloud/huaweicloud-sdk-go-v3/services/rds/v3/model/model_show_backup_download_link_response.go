@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowBackupDownloadLinkResponse Response Object
 type ShowBackupDownloadLinkResponse struct {
 
 	// 备份文件信息。

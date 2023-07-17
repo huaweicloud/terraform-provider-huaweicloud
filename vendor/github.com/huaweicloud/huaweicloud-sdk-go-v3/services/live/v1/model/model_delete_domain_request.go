@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteDomainRequest Request Object
 type DeleteDomainRequest struct {
 
 	// 直播域名

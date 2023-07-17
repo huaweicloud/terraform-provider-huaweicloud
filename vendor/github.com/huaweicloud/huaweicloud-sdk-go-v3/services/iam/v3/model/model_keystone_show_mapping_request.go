@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneShowMappingRequest Request Object
 type KeystoneShowMappingRequest struct {
 
 	// 待查询的映射ID。

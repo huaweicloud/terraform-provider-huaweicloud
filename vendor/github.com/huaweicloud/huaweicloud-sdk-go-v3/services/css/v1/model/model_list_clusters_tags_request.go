@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListClustersTagsRequest Request Object
 type ListClustersTagsRequest struct {
 
 	// 资源类型，当前固定值为“css-cluster”，表示是集群类型。

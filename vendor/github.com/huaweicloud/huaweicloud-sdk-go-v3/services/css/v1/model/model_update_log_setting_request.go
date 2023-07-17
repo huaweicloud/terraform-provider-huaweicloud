@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateLogSettingRequest Request Object
 type UpdateLogSettingRequest struct {
 
 	// 指定更改日志基础配置的集群ID。

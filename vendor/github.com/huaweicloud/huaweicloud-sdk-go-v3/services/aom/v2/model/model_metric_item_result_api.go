@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 维度信息。
+// MetricItemResultApi 维度信息。
 type MetricItemResultApi struct {
 
 	// 指标维度列表。

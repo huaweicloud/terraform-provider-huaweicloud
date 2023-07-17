@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// This is a auto create Body Object
+// StartTaskGroupReq This is a auto create Body Object
 type StartTaskGroupReq struct {
 
 	// 源端节点AK（最大长度100个字符）。URL列表迁移任务不需要填写此参数。

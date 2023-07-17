@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTemplateGroupRequest Request Object
 type ListTemplateGroupRequest struct {
 
 	// 转码模板组ID，最多10个

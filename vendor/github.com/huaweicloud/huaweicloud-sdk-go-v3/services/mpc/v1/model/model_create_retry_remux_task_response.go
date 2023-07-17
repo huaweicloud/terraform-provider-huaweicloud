@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateRetryRemuxTaskResponse Response Object
 type CreateRetryRemuxTaskResponse struct {
 	HttpStatusCode int `json:"-"`
 }

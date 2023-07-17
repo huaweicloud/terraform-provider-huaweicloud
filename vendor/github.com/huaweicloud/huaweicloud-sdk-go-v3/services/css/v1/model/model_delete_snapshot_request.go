@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteSnapshotRequest Request Object
 type DeleteSnapshotRequest struct {
 
 	// 删除快照所属的集群的ID。

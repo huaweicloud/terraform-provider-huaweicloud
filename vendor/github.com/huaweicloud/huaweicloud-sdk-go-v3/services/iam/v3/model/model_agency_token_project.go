@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyTokenProject
 type AgencyTokenProject struct {
 
 	// 委托方A的项目名称。

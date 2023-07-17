@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 操作系统类型，包含如下2种。   - Linux ：Linux。   - Windows ：Windows。
+// OsType 操作系统类型，包含如下2种。   - Linux ：Linux。   - Windows ：Windows。
 type OsType struct {
 }
 

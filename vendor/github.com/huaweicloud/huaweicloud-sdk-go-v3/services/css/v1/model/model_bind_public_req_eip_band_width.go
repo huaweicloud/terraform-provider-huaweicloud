@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 公网带宽信息。
+// BindPublicReqEipBandWidth 公网带宽信息。
 type BindPublicReqEipBandWidth struct {
 
 	// 带宽大小。单位：Mbit/s

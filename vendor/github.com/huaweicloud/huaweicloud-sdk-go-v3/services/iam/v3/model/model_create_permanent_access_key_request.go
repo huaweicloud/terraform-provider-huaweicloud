@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePermanentAccessKeyRequest Request Object
 type CreatePermanentAccessKeyRequest struct {
 	Body *CreatePermanentAccessKeyRequestBody `json:"body,omitempty"`
 }

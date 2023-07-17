@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteBackgroundTaskRequest Request Object
 type DeleteBackgroundTaskRequest struct {
 
 	// 实例ID。

@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// CreateTagsRequestBody
+// CreateTagsRequestBody CreateTagsRequestBody
 type CreateTagsRequestBody struct {
 
-	// 资源id
+	// 资源id。  > 域名ID
 	ResourceId string `json:"resource_id"`
 
-	// 标签列表
+	// 标签列表。
 	Tags []Map `json:"tags"`
 }
 

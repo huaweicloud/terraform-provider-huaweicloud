@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowClusterDetailResponse Response Object
 type ShowClusterDetailResponse struct {
 	Datastore *ClusterDetailDatastore `json:"datastore,omitempty"`
 

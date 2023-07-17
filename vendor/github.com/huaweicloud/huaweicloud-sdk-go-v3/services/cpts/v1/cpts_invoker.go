@@ -5,6 +5,18 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
 )
 
+type BatchUpdateTaskStatusInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchUpdateTaskStatusInvoker) Invoke() (*model.BatchUpdateTaskStatusResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchUpdateTaskStatusResponse), nil
+	}
+}
+
 type CreateCaseInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -14,6 +26,42 @@ func (i *CreateCaseInvoker) Invoke() (*model.CreateCaseResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.CreateCaseResponse), nil
+	}
+}
+
+type CreateDirectoryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateDirectoryInvoker) Invoke() (*model.CreateDirectoryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateDirectoryResponse), nil
+	}
+}
+
+type CreateNewCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateNewCaseInvoker) Invoke() (*model.CreateNewCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateNewCaseResponse), nil
+	}
+}
+
+type CreateNewTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateNewTaskInvoker) Invoke() (*model.CreateNewTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateNewTaskResponse), nil
 	}
 }
 
@@ -77,6 +125,42 @@ func (i *DeleteCaseInvoker) Invoke() (*model.DeleteCaseResponse, error) {
 	}
 }
 
+type DeleteDirectoryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteDirectoryInvoker) Invoke() (*model.DeleteDirectoryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteDirectoryResponse), nil
+	}
+}
+
+type DeleteNewCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteNewCaseInvoker) Invoke() (*model.DeleteNewCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteNewCaseResponse), nil
+	}
+}
+
+type DeleteNewTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteNewTaskInvoker) Invoke() (*model.DeleteNewTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteNewTaskResponse), nil
+	}
+}
+
 type DeleteTaskInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -113,6 +197,30 @@ func (i *DeleteVariableInvoker) Invoke() (*model.DeleteVariableResponse, error) 
 	}
 }
 
+type ListProjectTestCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListProjectTestCaseInvoker) Invoke() (*model.ListProjectTestCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListProjectTestCaseResponse), nil
+	}
+}
+
+type ListTaskCasesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTaskCasesInvoker) Invoke() (*model.ListTaskCasesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTaskCasesResponse), nil
+	}
+}
+
 type ListVariablesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -125,6 +233,30 @@ func (i *ListVariablesInvoker) Invoke() (*model.ListVariablesResponse, error) {
 	}
 }
 
+type ShowAgentConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAgentConfigInvoker) Invoke() (*model.ShowAgentConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAgentConfigResponse), nil
+	}
+}
+
+type ShowCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowCaseInvoker) Invoke() (*model.ShowCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowCaseResponse), nil
+	}
+}
+
 type ShowHistoryRunInfoInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -134,6 +266,42 @@ func (i *ShowHistoryRunInfoInvoker) Invoke() (*model.ShowHistoryRunInfoResponse,
 		return nil, err
 	} else {
 		return result.(*model.ShowHistoryRunInfoResponse), nil
+	}
+}
+
+type ShowMergeCaseDetailInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowMergeCaseDetailInvoker) Invoke() (*model.ShowMergeCaseDetailResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowMergeCaseDetailResponse), nil
+	}
+}
+
+type ShowMergeReportLogsOutlineInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowMergeReportLogsOutlineInvoker) Invoke() (*model.ShowMergeReportLogsOutlineResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowMergeReportLogsOutlineResponse), nil
+	}
+}
+
+type ShowMergeTaskCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowMergeTaskCaseInvoker) Invoke() (*model.ShowMergeTaskCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowMergeTaskCaseResponse), nil
 	}
 }
 
@@ -158,6 +326,18 @@ func (i *ShowTaskInvoker) Invoke() (*model.ShowTaskResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ShowTaskResponse), nil
+	}
+}
+
+type ShowTaskCaseAwChartInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTaskCaseAwChartInvoker) Invoke() (*model.ShowTaskCaseAwChartResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTaskCaseAwChartResponse), nil
 	}
 }
 
@@ -197,6 +377,18 @@ func (i *ShowTempSetInvoker) Invoke() (*model.ShowTempSetResponse, error) {
 	}
 }
 
+type UpdateAgentHealthStatusInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAgentHealthStatusInvoker) Invoke() (*model.UpdateAgentHealthStatusResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAgentHealthStatusResponse), nil
+	}
+}
+
 type UpdateCaseInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -206,6 +398,30 @@ func (i *UpdateCaseInvoker) Invoke() (*model.UpdateCaseResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.UpdateCaseResponse), nil
+	}
+}
+
+type UpdateDirectoryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDirectoryInvoker) Invoke() (*model.UpdateDirectoryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDirectoryResponse), nil
+	}
+}
+
+type UpdateNewCaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateNewCaseInvoker) Invoke() (*model.UpdateNewCaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateNewCaseResponse), nil
 	}
 }
 
@@ -302,18 +518,6 @@ func (i *ListProjectSetsInvoker) Invoke() (*model.ListProjectSetsResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ListProjectSetsResponse), nil
-	}
-}
-
-type ListProjectTestCaseInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *ListProjectTestCaseInvoker) Invoke() (*model.ListProjectTestCaseResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.ListProjectTestCaseResponse), nil
 	}
 }
 

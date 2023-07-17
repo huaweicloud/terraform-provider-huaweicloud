@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowRecordRuleRequest Request Object
 type ShowRecordRuleRequest struct {
 
 	// 规则ID

@@ -23,10 +23,15 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils"
 )
 
-// DecorRelatedJitter 去相关抖动退避 delay = min(最大等待时间, random(基础等待时间, 基础等待时间* 3);
+// DecorRelatedJitter 去相关抖动退避 delay = min(最大等待时间, random(基础等待时间, 基础等待时间 * 3);
 type DecorRelatedJitter struct {
+	*strategyBase
 }
 
-func (d *DecorRelatedJitter) ComputeDelayBeforeNextRetry() int32 {
-	return utils.Min32(MaxDelay, utils.RandInt32(BaseDelay, 3*BaseDelay))
+func NewDecorRelatedJitter() *DecorRelatedJitter {
+	return &DecorRelatedJitter{strategyBase: newStrategyBase()}
+}
+
+func (d *DecorRelatedJitter) ComputeDelayBeforeNextRetry(int32) int32 {
+	return utils.Min32(MaxDelay, utils.RandInt32(d.GetBaseDelay(), d.GetBaseDelay()*3))
 }

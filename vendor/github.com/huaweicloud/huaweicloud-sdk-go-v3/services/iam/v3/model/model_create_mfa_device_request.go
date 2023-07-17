@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateMfaDeviceRequest Request Object
 type CreateMfaDeviceRequest struct {
 	Body *CreateMfaDeviceReq `json:"body,omitempty"`
 }

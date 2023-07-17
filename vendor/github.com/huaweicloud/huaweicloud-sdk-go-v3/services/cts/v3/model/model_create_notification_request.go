@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateNotificationRequest Request Object
 type CreateNotificationRequest struct {
 	Body *CreateNotificationRequestBody `json:"body,omitempty"`
 }

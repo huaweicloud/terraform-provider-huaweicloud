@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateBindingDeviceRequest Request Object
 type CreateBindingDeviceRequest struct {
 	Body *BindMfaDevice `json:"body,omitempty"`
 }

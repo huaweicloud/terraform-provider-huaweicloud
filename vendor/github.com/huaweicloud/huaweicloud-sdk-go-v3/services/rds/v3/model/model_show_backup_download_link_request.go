@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowBackupDownloadLinkRequest Request Object
 type ShowBackupDownloadLinkRequest struct {
 
 	// 语言

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改broker跨VPC访问的结果。
+// UpdateInstanceCrossVpcIpRespResults 修改broker跨VPC访问的结果。
 type UpdateInstanceCrossVpcIpRespResults struct {
 
 	// advertised.listeners IP/域名。

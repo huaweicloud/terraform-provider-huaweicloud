@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 带宽限速策略。
+// BandwidthPolicyDto 带宽限速策略。
 type BandwidthPolicyDto struct {
 
 	// 流量控制结束时间（包含），格式为“hh:mm”。例如“12:03”表示12时03分。

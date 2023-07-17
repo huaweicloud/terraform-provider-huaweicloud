@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowAssetTempAuthorityRequest Request Object
 type ShowAssetTempAuthorityRequest struct {
 
 	// 分段上传时调用OBS接口的HTTP方法，具体操作需要的HTTP方法请参考OBS的接口文档。  - 初始化上传任务：POST - 上传段：PUT - 合并段：POST - 取消段：DELETE - 列举已上传段：GET

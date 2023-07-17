@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateAgencyRequestBody
 type CreateAgencyRequestBody struct {
 	Agency *CreateAgencyOption `json:"agency"`
 }

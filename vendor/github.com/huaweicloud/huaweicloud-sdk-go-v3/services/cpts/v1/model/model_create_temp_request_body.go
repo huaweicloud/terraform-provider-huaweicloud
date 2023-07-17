@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// CreateTempRequestBody
+// CreateTempRequestBody CreateTempRequestBody
 type CreateTempRequestBody struct {
 
 	// project_id

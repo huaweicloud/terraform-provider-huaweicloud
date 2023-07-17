@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 备份:策略时间调度规则
+// BackupTriggerInfo 备份:策略时间调度规则
 type BackupTriggerInfo struct {
 
 	// 调度器id

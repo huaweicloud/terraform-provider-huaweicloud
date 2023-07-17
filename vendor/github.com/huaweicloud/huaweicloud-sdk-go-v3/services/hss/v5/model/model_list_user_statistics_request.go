@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListUserStatisticsRequest Request Object
 type ListUserStatisticsRequest struct {
 
 	// 账号名称，参考windows文件命名规则，支持字母、数字、下划线、中文，特殊字符!@.-等，不包括中文标点符号

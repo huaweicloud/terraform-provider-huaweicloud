@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyAllProjectRole
 type AgencyAllProjectRole struct {
 
 	// 权限ID。

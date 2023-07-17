@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群标签。
+// ClusterListTags 集群标签。
 type ClusterListTags struct {
 
 	// 集群标签的key值。

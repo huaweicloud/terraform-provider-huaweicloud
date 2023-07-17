@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAllBucketsResponse Response Object
 type ListAllBucketsResponse struct {
 
 	// 桶列表

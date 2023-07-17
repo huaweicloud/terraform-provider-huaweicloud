@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneShowServiceRequest Request Object
 type KeystoneShowServiceRequest struct {
 
 	// 待查询的服务ID。

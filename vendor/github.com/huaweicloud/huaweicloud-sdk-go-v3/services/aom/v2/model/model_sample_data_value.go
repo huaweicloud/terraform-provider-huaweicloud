@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 查询结果详细。
+// SampleDataValue 查询结果详细。
 type SampleDataValue struct {
 	Sample *QuerySample `json:"sample,omitempty"`
 

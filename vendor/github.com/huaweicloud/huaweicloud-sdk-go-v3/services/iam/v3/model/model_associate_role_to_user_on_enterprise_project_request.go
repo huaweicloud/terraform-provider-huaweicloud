@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AssociateRoleToUserOnEnterpriseProjectRequest Request Object
 type AssociateRoleToUserOnEnterpriseProjectRequest struct {
 
 	// 企业项目ID。

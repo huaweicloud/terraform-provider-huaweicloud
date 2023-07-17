@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowQueueResponse Response Object
 type ShowQueueResponse struct {
 
 	// 队列ID，用于唯一标识一个队列。

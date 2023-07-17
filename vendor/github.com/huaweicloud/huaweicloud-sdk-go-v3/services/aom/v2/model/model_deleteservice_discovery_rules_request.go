@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteserviceDiscoveryRulesRequest Request Object
 type DeleteserviceDiscoveryRulesRequest struct {
 
 	// 发现规则ID,传多个时以逗号分隔。

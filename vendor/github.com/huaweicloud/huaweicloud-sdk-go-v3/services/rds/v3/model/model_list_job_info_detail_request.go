@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListJobInfoDetailRequest Request Object
 type ListJobInfoDetailRequest struct {
 
 	// 语言

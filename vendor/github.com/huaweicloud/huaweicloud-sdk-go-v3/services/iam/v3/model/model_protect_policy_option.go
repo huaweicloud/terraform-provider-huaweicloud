@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 操作保护策略
+// ProtectPolicyOption 操作保护策略
 type ProtectPolicyOption struct {
 
 	// 是否开启操作保护，开启为\"true\"，未开启为\"false\"。

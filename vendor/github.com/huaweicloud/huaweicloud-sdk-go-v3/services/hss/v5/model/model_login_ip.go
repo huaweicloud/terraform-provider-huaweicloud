@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 登录源IP
+// LoginIp 登录源IP
 type LoginIp struct {
 }
 

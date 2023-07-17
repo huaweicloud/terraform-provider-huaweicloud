@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateBucketAuthorizedReq
 type UpdateBucketAuthorizedReq struct {
 
 	// OBS桶名称。

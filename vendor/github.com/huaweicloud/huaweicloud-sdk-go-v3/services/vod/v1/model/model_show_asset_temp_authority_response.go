@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAssetTempAuthorityResponse Response Object
 type ShowAssetTempAuthorityResponse struct {
 
 	// 带授权签名字符串的URL。具体调用示例请参见[示例2：媒资分段上传（20M以上）](https://support.huaweicloud.com/api-vod/vod_04_0216.html)。  示例：https://{obs_domain}/{bucket}?AWSAccessKeyId={AccessKeyID}&Expires={ExpiresValue}&Signature={Signature}

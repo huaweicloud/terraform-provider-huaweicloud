@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UploadMetaDataByUrlResponse Response Object
 type UploadMetaDataByUrlResponse struct {
 
 	// 待拉取创建的媒资元数据

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopPublicKibanaWhitelistRequest Request Object
 type StopPublicKibanaWhitelistRequest struct {
 
 	// 指定关闭Kibana公网访问控制的集群ID。

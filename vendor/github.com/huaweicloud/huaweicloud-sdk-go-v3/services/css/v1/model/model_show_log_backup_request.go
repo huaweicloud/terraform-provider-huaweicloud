@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowLogBackupRequest Request Object
 type ShowLogBackupRequest struct {
 
 	// 指定查询集群ID。

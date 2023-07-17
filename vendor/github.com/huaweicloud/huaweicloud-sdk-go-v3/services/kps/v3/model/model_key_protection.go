@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// SSH密钥对私钥托管与保护。
+// KeyProtection SSH密钥对私钥托管与保护。
 type KeyProtection struct {
 
 	// 导入SSH密钥对的私钥。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 消费组信息。
+// ShowGroupsRespGroup 消费组信息。
 type ShowGroupsRespGroup struct {
 
 	// 消费组名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AllowIpRangesResult
 type AllowIpRangesResult struct {
 
 	// 描述信息。

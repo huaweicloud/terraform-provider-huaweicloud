@@ -13,6 +13,9 @@ type PostgresqlUserForCreation struct {
 
 	// 数据库用户密码。  取值范围：非空，密码长度在8到32个字符之间，至少包含大写字母、小写字母、数字、特殊字符~!@#%^*-_=+?,三种字符的组合，不能和数据库帐号“name”或“name”的逆序相同。  建议您输入高强度密码，以提高安全性，防止出现密码被暴力破解等安全风险。
 	Password string `json:"password"`
+
+	// 数据库用户备注。 取值范围：长度1~512个字符。
+	Comment *string `json:"comment,omitempty"`
 }
 
 func (o PostgresqlUserForCreation) String() string {

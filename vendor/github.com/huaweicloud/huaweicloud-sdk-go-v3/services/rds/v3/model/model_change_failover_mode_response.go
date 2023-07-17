@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ChangeFailoverModeResponse Response Object
 type ChangeFailoverModeResponse struct {
 
 	// 实例Id

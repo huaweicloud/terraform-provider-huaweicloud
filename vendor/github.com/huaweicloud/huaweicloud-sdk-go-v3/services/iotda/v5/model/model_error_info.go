@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 错误码消息
+// ErrorInfo 错误码消息
 type ErrorInfo struct {
 
 	// 错误码

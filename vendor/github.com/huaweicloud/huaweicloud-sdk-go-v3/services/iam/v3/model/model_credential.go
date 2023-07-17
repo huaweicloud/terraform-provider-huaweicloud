@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Credential
 type Credential struct {
 
 	// AK/SK和securitytoken的过期时间。

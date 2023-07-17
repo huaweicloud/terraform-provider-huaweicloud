@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTopStatisticsRequest Request Object
 type ListTopStatisticsRequest struct {
 
 	// 查询域名，暂只支持查询单个或者全部域名。  取值如下： - 单个加速域名，格式：example.test1.com。 - ALL：表示查询名下全部域名。

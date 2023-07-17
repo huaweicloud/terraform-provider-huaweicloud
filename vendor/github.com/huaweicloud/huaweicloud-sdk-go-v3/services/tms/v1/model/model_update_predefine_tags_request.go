@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdatePredefineTagsRequest Request Object
 type UpdatePredefineTagsRequest struct {
 	Body *ModifyPrefineTag `json:"body,omitempty"`
 }

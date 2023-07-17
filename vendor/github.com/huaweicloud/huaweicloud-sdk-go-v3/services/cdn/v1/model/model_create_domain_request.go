@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateDomainRequest Request Object
 type CreateDomainRequest struct {
 	Body *CreateDomainRequestBody `json:"body,omitempty"`
 }

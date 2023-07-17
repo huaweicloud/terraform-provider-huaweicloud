@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteClustersTagsRequest Request Object
 type DeleteClustersTagsRequest struct {
 
 	// 指定删除标签的集群ID。

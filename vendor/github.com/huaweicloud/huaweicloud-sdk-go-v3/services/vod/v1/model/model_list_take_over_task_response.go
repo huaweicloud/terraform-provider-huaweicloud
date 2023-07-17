@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTakeOverTaskResponse Response Object
 type ListTakeOverTaskResponse struct {
 
 	// 托管任务信息。

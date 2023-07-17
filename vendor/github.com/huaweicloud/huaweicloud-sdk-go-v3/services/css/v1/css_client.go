@@ -61,6 +61,27 @@ func (c *CssClient) ChangeModeInvoker(request *model.ChangeModeRequest) *ChangeM
 	return &ChangeModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ChangeSecurityGroup 切换安全组
+//
+// 该接口可以在集群创建成功后，修改安全组。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CssClient) ChangeSecurityGroup(request *model.ChangeSecurityGroupRequest) (*model.ChangeSecurityGroupResponse, error) {
+	requestDef := GenReqDefForChangeSecurityGroup()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ChangeSecurityGroupResponse), nil
+	}
+}
+
+// ChangeSecurityGroupInvoker 切换安全组
+func (c *CssClient) ChangeSecurityGroupInvoker(request *model.ChangeSecurityGroupRequest) *ChangeSecurityGroupInvoker {
+	requestDef := GenReqDefForChangeSecurityGroup()
+	return &ChangeSecurityGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateAutoCreatePolicy 设置自动创建快照策略
 //
 // 该接口用于设置自动创建快照，默认一天创建一个快照。
@@ -674,13 +695,16 @@ func (c *CssClient) ShowVpcepConnectionInvoker(request *model.ShowVpcepConnectio
 
 // StartAutoSetting 自动设置集群快照的基础配置（不推荐使用）
 //
-// &gt;自动设置集群快照接口将会自动创建快照OBS桶和委托。如果有多个集群，每个集群使用这个接口都会创建一个不一样的OBS桶，可能会导致OBS的配额不够，较多的OBS桶也难以维护。建议可以直接使用[修改集群快照的基础配置](UpdateSnapshotSetting.xml)。
-//
 // 该接口用于自动设置集群快照的基础配置，包括配置OBS桶和IAM委托。
 //
+//
 // - “OBS桶”：快照存储的OBS桶位置。
+//
 // - “备份路径”：快照在OBS桶中的存放路径。
+//
 // - “IAM委托”：由于需要将快照保存在OBS中，所以需要在IAM中设置对应的委托获取对OBS服务的授权。
+//
+// &gt;自动设置集群快照接口将会自动创建快照OBS桶和委托。如果有多个集群，每个集群使用这个接口都会创建一个不一样的OBS桶，可能会导致OBS的配额不够，较多的OBS桶也难以维护。建议可以直接使用[修改集群快照的基础配置](UpdateSnapshotSetting.xml)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) StartAutoSetting(request *model.StartAutoSettingRequest) (*model.StartAutoSettingResponse, error) {
@@ -1106,7 +1130,7 @@ func (c *CssClient) UpdatePublicBandWidthInvoker(request *model.UpdatePublicBand
 
 // UpdateShrinkCluster 指定节点类型缩容
 //
-// 该接口用于集群对不同类型实例的个数以及存储容量进行缩容。包周期集群不支持API操作。
+// 该接口用于集群对不同类型实例的个数以及存储容量进行缩容。包周期类型的集群不支持通过api进行指定节点类型缩容操作。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateShrinkCluster(request *model.UpdateShrinkClusterRequest) (*model.UpdateShrinkClusterResponse, error) {
@@ -1127,7 +1151,7 @@ func (c *CssClient) UpdateShrinkClusterInvoker(request *model.UpdateShrinkCluste
 
 // UpdateShrinkNodes 指定节点缩容
 //
-// 该接口可以对集群现有节点中指定节点进行缩容。包周期集群不支持API操作。
+// 该接口可以对集群现有节点中指定节点进行缩容。包周期类型的集群不支持通过api进行指定节点缩容操作。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateShrinkNodes(request *model.UpdateShrinkNodesRequest) (*model.UpdateShrinkNodesResponse, error) {
@@ -1171,7 +1195,7 @@ func (c *CssClient) UpdateSnapshotSettingInvoker(request *model.UpdateSnapshotSe
 
 // UpdateUnbindPublic 关闭公网访问
 //
-// 该接口用于关闭公网访问。
+// 该接口用于关闭公网访问。包周期类型的集群不支持通过api进行关闭公网访问。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateUnbindPublic(request *model.UpdateUnbindPublicRequest) (*model.UpdateUnbindPublicResponse, error) {
@@ -1318,7 +1342,7 @@ func (c *CssClient) UpdateAlterKibanaInvoker(request *model.UpdateAlterKibanaReq
 
 // UpdateCloseKibana 关闭Kibana公网访问
 //
-// 该接口用于关闭Kibana公网访问。
+// 该接口用于关闭Kibana公网访问。包周期类型集群不支持通过api进行关闭Kibana公网访问。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CssClient) UpdateCloseKibana(request *model.UpdateCloseKibanaRequest) (*model.UpdateCloseKibanaResponse, error) {

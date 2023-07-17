@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateDomainGroupInheritRoleResponse Response Object
 type UpdateDomainGroupInheritRoleResponse struct {
 	HttpStatusCode int `json:"-"`
 }

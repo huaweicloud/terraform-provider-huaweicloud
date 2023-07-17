@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateIdentityproviderOption
 type UpdateIdentityproviderOption struct {
 
 	// 身份提供商描述信息。

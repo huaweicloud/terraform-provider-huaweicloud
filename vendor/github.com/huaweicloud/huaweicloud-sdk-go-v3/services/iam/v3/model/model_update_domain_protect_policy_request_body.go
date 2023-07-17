@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateDomainProtectPolicyRequestBody
 type UpdateDomainProtectPolicyRequestBody struct {
 	ProtectPolicy *ProtectPolicyOption `json:"protect_policy"`
 }

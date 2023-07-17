@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListDomainsRequest Request Object
 type ListDomainsRequest struct {
 
 	// 加速域名，采用模糊匹配的方式。（长度限制为1-255字符）。
@@ -24,11 +24,17 @@ type ListDomainsRequest struct {
 	// 华为云CDN提供的加速服务范围，包含： - mainland_china 中国大陆 - outside_mainland_china 中国大陆境外 - global 全球。
 	ServiceArea *ListDomainsRequestServiceArea `json:"service_area,omitempty"`
 
-	// 每页的数量，取值范围1-10000，不设值时默认值为30。
+	// 每页加速域名的数量，取值范围1-10000，不设值时默认值为30。
 	PageSize *int32 `json:"page_size,omitempty"`
 
-	// 查询的页码。取值范围1-65535，不设值时默认值为1。
+	// 查询的页码，即：从哪一页开始查询。取值范围1-65535，不设值时默认值为1。
 	PageNumber *int32 `json:"page_number,omitempty"`
+
+	// 展示标签标识 true：不展示 false：展示。
+	ShowTags *bool `json:"show_tags,omitempty"`
+
+	// 精准匹配 on：开启 off：关闭。
+	ExactMatch *bool `json:"exact_match,omitempty"`
 
 	// 当用户开启企业项目功能时，该参数生效，表示查询资源所属项目，\"all\"表示所有项目。注意：当使用子帐号调用接口时，该参数必传。  您可以通过调用企业项目管理服务（EPS）的查询企业项目列表接口（ListEnterpriseProject）查询企业项目id。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
@@ -81,13 +87,18 @@ func (c ListDomainsRequestBusinessType) MarshalJSON() ([]byte, error) {
 
 func (c *ListDomainsRequestBusinessType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -143,13 +154,18 @@ func (c ListDomainsRequestDomainStatus) MarshalJSON() ([]byte, error) {
 
 func (c *ListDomainsRequestDomainStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -189,13 +205,18 @@ func (c ListDomainsRequestServiceArea) MarshalJSON() ([]byte, error) {
 
 func (c *ListDomainsRequestServiceArea) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateSnapshotResponse Response Object
 type CreateSnapshotResponse struct {
 	Backup         *BackupRsp `json:"backup,omitempty"`
 	HttpStatusCode int        `json:"-"`

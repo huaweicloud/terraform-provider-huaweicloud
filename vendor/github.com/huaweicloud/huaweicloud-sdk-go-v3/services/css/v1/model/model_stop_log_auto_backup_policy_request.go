@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopLogAutoBackupPolicyRequest Request Object
 type StopLogAutoBackupPolicyRequest struct {
 
 	// 指定关闭日志自动备份的集群ID。

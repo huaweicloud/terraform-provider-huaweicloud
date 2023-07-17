@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Agent ID
+// AgentId Agent ID
 type AgentId struct {
 }
 

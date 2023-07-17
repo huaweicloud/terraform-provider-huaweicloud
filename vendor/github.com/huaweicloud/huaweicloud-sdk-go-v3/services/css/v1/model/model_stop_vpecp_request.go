@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StopVpecpRequest Request Object
 type StopVpecpRequest struct {
 
 	// 指定待关闭终端节点的集群ID。

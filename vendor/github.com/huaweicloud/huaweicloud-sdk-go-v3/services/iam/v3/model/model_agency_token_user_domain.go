@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyTokenUserDomain
 type AgencyTokenUserDomain struct {
 
 	// 委托方A的账号ID。

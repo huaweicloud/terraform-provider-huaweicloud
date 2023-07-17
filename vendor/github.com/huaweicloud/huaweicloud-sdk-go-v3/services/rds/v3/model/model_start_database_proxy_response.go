@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartDatabaseProxyResponse Response Object
 type StartDatabaseProxyResponse struct {
 
 	// 工作流ID

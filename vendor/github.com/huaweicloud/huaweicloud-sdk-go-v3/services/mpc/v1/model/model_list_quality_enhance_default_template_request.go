@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListQualityEnhanceDefaultTemplateRequest Request Object
 type ListQualityEnhanceDefaultTemplateRequest struct {
 }
 

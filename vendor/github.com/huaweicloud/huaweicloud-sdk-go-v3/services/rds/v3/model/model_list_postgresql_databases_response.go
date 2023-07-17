@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPostgresqlDatabasesResponse Response Object
 type ListPostgresqlDatabasesResponse struct {
 
 	// 列表中每个元素表示一个数据库。

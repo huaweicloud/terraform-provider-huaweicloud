@@ -19,9 +19,10 @@
 
 package retry
 
-type None struct {
-}
+type None struct{}
 
-func (n *None) ComputeDelayBeforeNextRetry() int32 {
+func (n None) SetBaseDelay(int32) {}
+
+func (n None) ComputeDelayBeforeNextRetry(int32) int32 {
 	return 0
 }

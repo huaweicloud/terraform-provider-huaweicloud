@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyPolicyRoleResult
 type AgencyPolicyRoleResult struct {
 
 	// 自定义策略所在目录。

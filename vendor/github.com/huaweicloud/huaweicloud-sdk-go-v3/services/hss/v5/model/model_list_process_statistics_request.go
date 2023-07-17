@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListProcessStatisticsRequest Request Object
 type ListProcessStatisticsRequest struct {
 
 	// 路径

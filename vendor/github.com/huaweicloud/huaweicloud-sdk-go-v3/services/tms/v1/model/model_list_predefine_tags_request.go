@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListPredefineTagsRequest Request Object
 type ListPredefineTagsRequest struct {
 
 	// 键，支持模糊查询，不区分大小写，如果包含“non-URL-safe”的字符，需要进行“urlencoded”。
@@ -70,13 +70,18 @@ func (c ListPredefineTagsRequestOrderMethod) MarshalJSON() ([]byte, error) {
 
 func (c *ListPredefineTagsRequestOrderMethod) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

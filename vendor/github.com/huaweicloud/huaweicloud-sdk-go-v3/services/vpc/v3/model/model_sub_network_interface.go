@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//
+// SubNetworkInterface
 type SubNetworkInterface struct {
 
 	// 功能说明：辅助弹性网卡的唯一标识 取值范围：带(-)的标准UUID

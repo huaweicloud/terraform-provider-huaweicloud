@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// BatchCreateSubNetworkInterfaceResponse Response Object
 type BatchCreateSubNetworkInterfaceResponse struct {
 
 	// 请求ID

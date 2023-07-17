@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// CDN状态码缓存时间
+// ErrorCodeCache CDN状态码缓存时间
 type ErrorCodeCache struct {
 
 	// 允许配置的错误码: 400, 403, 404, 405, 414, 500, 501, 502, 503, 504

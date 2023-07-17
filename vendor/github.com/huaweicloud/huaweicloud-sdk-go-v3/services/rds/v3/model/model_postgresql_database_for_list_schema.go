@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据库schema信息。
+// PostgresqlDatabaseForListSchema 数据库schema信息。
 type PostgresqlDatabaseForListSchema struct {
 
 	// schema名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// PublishAssetsResponse Response Object
 type PublishAssetsResponse struct {
 
 	// 发布的媒资信息。

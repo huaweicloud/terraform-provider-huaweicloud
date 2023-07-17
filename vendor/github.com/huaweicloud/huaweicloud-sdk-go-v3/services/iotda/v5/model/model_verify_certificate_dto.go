@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 验证CA证书结构体。
+// VerifyCertificateDto 验证CA证书结构体。
 type VerifyCertificateDto struct {
 
 	// 验证证书的内容信息。

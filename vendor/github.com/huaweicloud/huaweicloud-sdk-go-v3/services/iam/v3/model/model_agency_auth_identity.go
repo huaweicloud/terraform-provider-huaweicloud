@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyAuthIdentity
 type AgencyAuthIdentity struct {
 
 	// 认证方法，该字段内容为[\"assume_role\"]。
@@ -55,13 +55,18 @@ func (c AgencyAuthIdentityMethods) MarshalJSON() ([]byte, error) {
 
 func (c *AgencyAuthIdentityMethods) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

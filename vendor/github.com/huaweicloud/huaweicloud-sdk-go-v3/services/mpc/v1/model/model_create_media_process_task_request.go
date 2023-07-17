@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateMediaProcessTaskRequest Request Object
 type CreateMediaProcessTaskRequest struct {
 	Body *CreateMediaProcessReq `json:"body,omitempty"`
 }

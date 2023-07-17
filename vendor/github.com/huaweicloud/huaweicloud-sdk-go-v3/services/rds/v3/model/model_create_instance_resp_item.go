@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例信息。
+// CreateInstanceRespItem 实例信息。
 type CreateInstanceRespItem struct {
 
 	// 实例id

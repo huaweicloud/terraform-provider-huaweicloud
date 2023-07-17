@@ -40,11 +40,10 @@ type EnvCache struct {
 }
 
 func getEnvCache() *EnvCache {
-	if envCache == nil {
-		envOnce.Do(func() {
-			envCache = &EnvCache{value: make(map[string]*Region)}
-		})
-	}
+	envOnce.Do(func() {
+		envCache = &EnvCache{value: make(map[string]*Region)}
+	})
+
 	return envCache
 }
 

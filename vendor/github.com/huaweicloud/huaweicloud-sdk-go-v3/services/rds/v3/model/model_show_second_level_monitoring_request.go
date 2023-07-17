@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowSecondLevelMonitoringRequest Request Object
 type ShowSecondLevelMonitoringRequest struct {
 
 	// 实例ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 通知用户列表。
+// NotificationUsers 通知用户列表。
 type NotificationUsers struct {
 
 	// IAM用户组。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListNotifySmnTopicConfigRequest Request Object
 type ListNotifySmnTopicConfigRequest struct {
 }
 

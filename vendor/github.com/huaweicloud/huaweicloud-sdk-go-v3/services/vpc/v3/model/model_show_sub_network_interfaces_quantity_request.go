@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowSubNetworkInterfacesQuantityRequest Request Object
 type ShowSubNetworkInterfacesQuantityRequest struct {
 }
 

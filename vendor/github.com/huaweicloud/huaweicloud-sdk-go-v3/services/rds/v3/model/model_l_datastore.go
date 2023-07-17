@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据库版本信息。
+// LDatastore 数据库版本信息。
 type LDatastore struct {
 
 	// 数据库版本ID。

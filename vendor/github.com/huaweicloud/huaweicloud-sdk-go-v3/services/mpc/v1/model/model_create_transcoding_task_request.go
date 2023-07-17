@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateTranscodingTaskRequest Request Object
 type CreateTranscodingTaskRequest struct {
 	Body *CreateTranscodingReq `json:"body,omitempty"`
 }

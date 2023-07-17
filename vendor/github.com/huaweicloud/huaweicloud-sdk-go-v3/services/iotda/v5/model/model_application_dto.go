@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 资源空间详情结构体。
+// ApplicationDto 资源空间详情结构体。
 type ApplicationDto struct {
 
 	// 资源空间ID，唯一标识一个资源空间，由物联网平台在创建资源空间时分配。资源空间对应的是物联网平台原有的应用，在物联网平台的含义与应用一致，只是变更了名称。

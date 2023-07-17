@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CheckMd5DuplicationRequest Request Object
 type CheckMd5DuplicationRequest struct {
 
 	// 文件大小

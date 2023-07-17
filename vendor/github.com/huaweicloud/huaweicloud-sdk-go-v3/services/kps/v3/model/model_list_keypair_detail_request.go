@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListKeypairDetailRequest Request Object
 type ListKeypairDetailRequest struct {
 
 	// 密钥对名称

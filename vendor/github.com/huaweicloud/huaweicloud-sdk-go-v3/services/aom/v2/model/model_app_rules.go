@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 服务参数。
+// AppRules 服务参数。
 type AppRules struct {
 
 	// 规则创建时间(创建时不传,修改时传查询返回的createTime)。

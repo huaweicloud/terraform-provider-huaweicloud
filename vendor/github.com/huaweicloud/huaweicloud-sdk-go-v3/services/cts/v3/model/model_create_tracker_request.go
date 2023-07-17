@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateTrackerRequest Request Object
 type CreateTrackerRequest struct {
 	Body *CreateTrackerRequestBody `json:"body,omitempty"`
 }

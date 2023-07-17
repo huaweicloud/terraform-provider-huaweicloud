@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAppChangeHistoriesRequest Request Object
 type ListAppChangeHistoriesRequest struct {
 
 	// 主机id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateUserRequestBody
 type CreateUserRequestBody struct {
 	User *CreateUserOption `json:"user"`
 }

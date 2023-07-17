@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 弹性公网IP地址
+// PublicIp 弹性公网IP地址
 type PublicIp struct {
 }
 

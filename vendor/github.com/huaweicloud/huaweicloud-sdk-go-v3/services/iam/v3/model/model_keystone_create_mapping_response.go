@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneCreateMappingResponse Response Object
 type KeystoneCreateMappingResponse struct {
 	Mapping        *MappingResult `json:"mapping,omitempty"`
 	HttpStatusCode int            `json:"-"`

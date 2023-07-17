@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListConfsRequest Request Object
 type ListConfsRequest struct {
 
 	// 指定查询集群ID。

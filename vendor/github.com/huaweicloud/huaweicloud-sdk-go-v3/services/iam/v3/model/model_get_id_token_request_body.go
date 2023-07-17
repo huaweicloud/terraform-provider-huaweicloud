@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 请求体
+// GetIdTokenRequestBody 请求体
 type GetIdTokenRequestBody struct {
 	Auth *GetIdTokenAuthParams `json:"auth"`
 }

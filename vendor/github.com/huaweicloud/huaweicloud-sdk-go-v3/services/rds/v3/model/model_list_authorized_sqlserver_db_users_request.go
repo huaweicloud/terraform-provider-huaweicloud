@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAuthorizedSqlserverDbUsersRequest Request Object
 type ListAuthorizedSqlserverDbUsersRequest struct {
 
 	// 语言

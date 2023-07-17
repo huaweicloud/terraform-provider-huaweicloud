@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAppStatisticsRequest Request Object
 type ListAppStatisticsRequest struct {
 
 	// 软件名称

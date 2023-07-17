@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListOffSiteInstancesResponse Response Object
 type ListOffSiteInstancesResponse struct {
 
 	// 跨区域备份实例信息。

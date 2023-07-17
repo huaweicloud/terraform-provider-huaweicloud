@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用户信息
+// EventUserResponseInfo 用户信息
 type EventUserResponseInfo struct {
 
 	// 用户uid

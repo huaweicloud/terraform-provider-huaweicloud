@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SearchQueryScaleFlavorsResponse Response Object
 type SearchQueryScaleFlavorsResponse struct {
 
 	// 计算规格列表对象。

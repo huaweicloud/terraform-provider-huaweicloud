@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 节点。
+// ShowClusterRespClusterBrokers 节点。
 type ShowClusterRespClusterBrokers struct {
 
 	// 节点IP。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 自动备份策略。
+// BackupStrategy 自动备份策略。
 type BackupStrategy struct {
 
 	// 备份时间段。自动备份将在该时间段内触发。  取值范围：非空，格式必须为hh:mm-HH:MM且有效，当前时间指UTC时间。  HH取值必须比hh大1。 mm和MM取值必须相同，且取值必须为00、15、30或45。

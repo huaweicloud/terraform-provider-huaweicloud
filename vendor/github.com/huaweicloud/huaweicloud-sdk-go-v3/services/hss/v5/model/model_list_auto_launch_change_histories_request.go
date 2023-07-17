@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAutoLaunchChangeHistoriesRequest Request Object
 type ListAutoLaunchChangeHistoriesRequest struct {
 
 	// 主机id

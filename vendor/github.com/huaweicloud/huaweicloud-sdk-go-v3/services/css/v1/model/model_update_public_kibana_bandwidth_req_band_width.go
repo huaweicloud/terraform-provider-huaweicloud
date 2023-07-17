@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 带宽。
+// UpdatePublicKibanaBandwidthReqBandWidth 带宽。
 type UpdatePublicKibanaBandwidthReqBandWidth struct {
 
 	// 修改后的带宽大小。

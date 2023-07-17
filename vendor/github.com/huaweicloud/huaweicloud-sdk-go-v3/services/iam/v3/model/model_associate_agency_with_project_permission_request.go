@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AssociateAgencyWithProjectPermissionRequest Request Object
 type AssociateAgencyWithProjectPermissionRequest struct {
 
 	// 委托方的项目ID，获取方式请参见：[获取项目名称、项目ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。

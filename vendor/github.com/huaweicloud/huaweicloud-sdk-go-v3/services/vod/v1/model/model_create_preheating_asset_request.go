@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePreheatingAssetRequest Request Object
 type CreatePreheatingAssetRequest struct {
 	Body *CreatePreheatingAssetReq `json:"body,omitempty"`
 }

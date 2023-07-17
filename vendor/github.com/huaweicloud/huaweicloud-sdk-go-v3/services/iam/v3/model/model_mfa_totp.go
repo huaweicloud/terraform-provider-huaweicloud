@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// MfaTotp
 type MfaTotp struct {
 	User *MfaTotpUser `json:"user"`
 }

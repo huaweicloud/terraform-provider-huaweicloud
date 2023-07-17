@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListErrorLogsResponse Response Object
 type ListErrorLogsResponse struct {
 	ErrorLogList *[]ErrorLog `json:"error_log_list,omitempty"`
 

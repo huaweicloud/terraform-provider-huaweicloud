@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListProjectSetsRequest Request Object
 type ListProjectSetsRequest struct {
 
 	// 查询偏移

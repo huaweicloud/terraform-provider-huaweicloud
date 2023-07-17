@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListProjectPermissionsForAgencyResponse Response Object
 type ListProjectPermissionsForAgencyResponse struct {
 
 	// 权限信息列表。

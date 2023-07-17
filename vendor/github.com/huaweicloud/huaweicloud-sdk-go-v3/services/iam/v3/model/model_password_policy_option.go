@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PasswordPolicyOption
 type PasswordPolicyOption struct {
 
 	// 同一字符连续出现的最大次数，取值范围[0,32]。

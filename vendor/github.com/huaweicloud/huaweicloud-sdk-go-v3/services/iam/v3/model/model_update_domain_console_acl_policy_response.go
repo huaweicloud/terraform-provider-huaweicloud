@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateDomainConsoleAclPolicyResponse Response Object
 type UpdateDomainConsoleAclPolicyResponse struct {
 	ConsoleAclPolicy *AclPolicyResult `json:"console_acl_policy,omitempty"`
 	HttpStatusCode   int              `json:"-"`

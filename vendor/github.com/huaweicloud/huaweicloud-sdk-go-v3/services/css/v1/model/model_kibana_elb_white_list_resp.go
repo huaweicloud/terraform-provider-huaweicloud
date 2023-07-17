@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Kibana公网访问信息。
+// KibanaElbWhiteListResp Kibana公网访问信息。
 type KibanaElbWhiteListResp struct {
 
 	// 是否开启kibana访问控制。 - true: 开启访问控制。 - false: 关闭访问控制

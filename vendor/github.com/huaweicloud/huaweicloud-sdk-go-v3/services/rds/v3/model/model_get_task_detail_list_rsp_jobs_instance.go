@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 执行任务的实例信息。
+// GetTaskDetailListRspJobsInstance 执行任务的实例信息。
 type GetTaskDetailListRspJobsInstance struct {
 
 	// 实例ID。

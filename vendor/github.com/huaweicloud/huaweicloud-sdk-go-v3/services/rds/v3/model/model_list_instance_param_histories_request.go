@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListInstanceParamHistoriesRequest Request Object
 type ListInstanceParamHistoriesRequest struct {
 
 	// 实例ID

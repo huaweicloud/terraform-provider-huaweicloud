@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用例列表详情
+// ProjectDirectory 用例列表详情
 type ProjectDirectory struct {
 
 	// id
@@ -15,7 +15,7 @@ type ProjectDirectory struct {
 	// 名称
 	Name string `json:"name"`
 
-	// 状态(0:已删除,1:启用,2:停用)
+	// 状态（0：已删除，1：启用，2：停用）
 	Status int32 `json:"status"`
 
 	// 创建时间
@@ -27,7 +27,7 @@ type ProjectDirectory struct {
 	// 父id
 	ParentId int32 `json:"parent_id"`
 
-	// 类型(1:目录, 2:用例)
+	// 类型（1：目录，2：用例）
 	Type int32 `json:"type"`
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowTranscodingsTemplateRequest Request Object
 type ShowTranscodingsTemplateRequest struct {
 
 	// 推流域名

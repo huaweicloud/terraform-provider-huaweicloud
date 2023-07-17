@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 阈值规则查询参数。
+// QueryAlarmResult 阈值规则查询参数。
 type QueryAlarmResult struct {
 
 	// 是否启用通知。

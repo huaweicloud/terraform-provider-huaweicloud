@@ -6,13 +6,14 @@ import (
 	"strings"
 )
 
-// 联邦用户映射到IAM中的身份信息
+// RulesLocal 联邦用户映射到IAM中的身份信息
 type RulesLocal struct {
 	User *RulesLocalUser `json:"user,omitempty"`
 
 	Group *RulesLocalGroup `json:"group,omitempty"`
 
-	Groups *RulesLocalGroups `json:"groups,omitempty"`
+	// 联邦用户在本系统中所属用户组列表
+	Groups *string `json:"groups,omitempty"`
 }
 
 func (o RulesLocal) String() string {

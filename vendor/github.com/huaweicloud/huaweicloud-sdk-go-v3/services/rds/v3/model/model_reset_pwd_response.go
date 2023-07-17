@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ResetPwdResponse Response Object
 type ResetPwdResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateCredentialOption
 type UpdateCredentialOption struct {
 
 	// 访问密钥状态。取值为：“active”（启用）或者 “inactive”（停用）。status与description至少填写一个。
@@ -58,13 +58,18 @@ func (c UpdateCredentialOptionStatus) MarshalJSON() ([]byte, error) {
 
 func (c *UpdateCredentialOptionStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

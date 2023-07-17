@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateMfaDeviceResponse Response Object
 type CreateMfaDeviceResponse struct {
 	VirtualMfaDevice *CreateMfaDeviceRespon `json:"virtual_mfa_device,omitempty"`
 	HttpStatusCode   int                    `json:"-"`

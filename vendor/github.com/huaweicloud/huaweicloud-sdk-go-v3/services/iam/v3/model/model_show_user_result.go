@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ShowUserResult
 type ShowUserResult struct {
 
 	// IAM用户是否启用。true表示启用，false表示停用，默认为true。

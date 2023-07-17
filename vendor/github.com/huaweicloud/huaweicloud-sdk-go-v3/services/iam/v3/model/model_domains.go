@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Domains
 type Domains struct {
 
 	// 是否启用账号，true为启用，false为停用，默认为true。

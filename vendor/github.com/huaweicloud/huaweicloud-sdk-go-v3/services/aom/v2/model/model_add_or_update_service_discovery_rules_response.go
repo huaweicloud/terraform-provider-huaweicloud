@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddOrUpdateServiceDiscoveryRulesResponse Response Object
 type AddOrUpdateServiceDiscoveryRulesResponse struct {
 
 	// 响应码。

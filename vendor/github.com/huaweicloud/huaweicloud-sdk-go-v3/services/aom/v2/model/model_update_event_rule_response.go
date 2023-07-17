@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateEventRuleResponse Response Object
 type UpdateEventRuleResponse struct {
 	Body           *string `json:"body,omitempty"`
 	HttpStatusCode int     `json:"-"`

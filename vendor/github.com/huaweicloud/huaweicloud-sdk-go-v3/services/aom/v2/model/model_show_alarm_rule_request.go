@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowAlarmRuleRequest Request Object
 type ShowAlarmRuleRequest struct {
 
 	// 阈值规则ID。

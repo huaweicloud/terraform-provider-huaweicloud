@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 迁移任务组目的端节点信息
+// TaskGroupDstNodeResp 迁移任务组目的端节点信息
 type TaskGroupDstNodeResp struct {
 
 	// 目的端桶的名称。

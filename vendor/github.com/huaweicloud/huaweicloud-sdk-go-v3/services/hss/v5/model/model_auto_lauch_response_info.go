@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 中间件信息
+// AutoLauchResponseInfo 中间件信息
 type AutoLauchResponseInfo struct {
 
 	// agent_id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdatePermanentAccessKeyRequest Request Object
 type UpdatePermanentAccessKeyRequest struct {
 
 	// 待修改的指定AK。

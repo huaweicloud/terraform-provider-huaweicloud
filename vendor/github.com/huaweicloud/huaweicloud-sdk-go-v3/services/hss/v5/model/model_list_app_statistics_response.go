@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAppStatisticsResponse Response Object
 type ListAppStatisticsResponse struct {
 
 	// 进程统计信息总数,

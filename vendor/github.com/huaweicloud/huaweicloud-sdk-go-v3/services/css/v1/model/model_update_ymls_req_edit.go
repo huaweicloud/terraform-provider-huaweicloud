@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 配置文件信息。
+// UpdateYmlsReqEdit 配置文件信息。
 type UpdateYmlsReqEdit struct {
 	Modify *UpdateYmlsReqEditModify `json:"modify"`
 }

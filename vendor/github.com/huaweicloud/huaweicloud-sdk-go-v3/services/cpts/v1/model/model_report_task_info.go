@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 报告任务信息
+// ReportTaskInfo 报告任务信息
 type ReportTaskInfo struct {
 
 	// 分钟*并发数

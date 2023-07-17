@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneListAuthDomainsRequest Request Object
 type KeystoneListAuthDomainsRequest struct {
 }
 

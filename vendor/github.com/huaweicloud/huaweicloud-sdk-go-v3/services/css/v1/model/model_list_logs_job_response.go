@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListLogsJobResponse Response Object
 type ListLogsJobResponse struct {
 	ClusterLogRecord *[]ClusterLogRecord `json:"clusterLogRecord,omitempty"`
 	HttpStatusCode   int                 `json:"-"`

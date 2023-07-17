@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 描述信息
+// Description 描述信息
 type Description struct {
 }
 

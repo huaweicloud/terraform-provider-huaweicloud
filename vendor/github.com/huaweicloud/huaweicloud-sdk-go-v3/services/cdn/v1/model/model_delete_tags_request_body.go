@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-// DeleteTagsRequestBody
+// DeleteTagsRequestBody DeleteTagsRequestBody
 type DeleteTagsRequestBody struct {
 
-	// 资源id
+	// 资源id。  > 域名ID
 	ResourceId string `json:"resource_id"`
 
 	// 键列表

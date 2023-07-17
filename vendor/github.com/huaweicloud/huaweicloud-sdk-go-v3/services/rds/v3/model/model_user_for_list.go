@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据库用户信息。
+// UserForList 数据库用户信息。
 type UserForList struct {
 
 	// 数据库用户名称。

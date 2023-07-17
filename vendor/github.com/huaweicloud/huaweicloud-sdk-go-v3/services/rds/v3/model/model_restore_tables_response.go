@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RestoreTablesResponse Response Object
 type RestoreTablesResponse struct {
 
 	// 任务ID。

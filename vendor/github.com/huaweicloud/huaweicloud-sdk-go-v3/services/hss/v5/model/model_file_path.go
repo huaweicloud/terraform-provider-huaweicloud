@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 文件路径
+// FilePath 文件路径
 type FilePath struct {
 }
 

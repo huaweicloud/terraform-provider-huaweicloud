@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CopyConfigurationRequest Request Object
 type CopyConfigurationRequest struct {
 
 	// 参数模板ID

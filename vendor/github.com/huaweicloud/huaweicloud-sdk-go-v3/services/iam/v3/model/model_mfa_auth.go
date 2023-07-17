@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// MfaAuth
 type MfaAuth struct {
 	Identity *MfaIdentity `json:"identity"`
 

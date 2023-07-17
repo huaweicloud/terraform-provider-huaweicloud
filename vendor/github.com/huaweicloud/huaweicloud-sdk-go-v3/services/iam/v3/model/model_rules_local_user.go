@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 联邦用户在本系统中的用户名称
+// RulesLocalUser 联邦用户在本系统中的用户名称
 type RulesLocalUser struct {
 
 	// 联邦用户在本系统中的用户名称

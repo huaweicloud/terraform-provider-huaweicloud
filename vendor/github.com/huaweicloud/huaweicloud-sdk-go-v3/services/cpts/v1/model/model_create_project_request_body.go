@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// CreateProjectRequestBody
+// CreateProjectRequestBody CreateProjectRequestBody
 type CreateProjectRequestBody struct {
 
 	// name

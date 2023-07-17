@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//  标签详情。
+// CreateTagRequest  标签详情。
 type CreateTagRequest struct {
 
 	//   键。 最大长度36个字符。 字符集：A-Z，a-z ， 0-9，‘-’，‘_’，UNICODE字符（\\u4E00-\\u9FFF）。

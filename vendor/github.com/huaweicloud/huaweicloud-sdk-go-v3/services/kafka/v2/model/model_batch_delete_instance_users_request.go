@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// BatchDeleteInstanceUsersRequest Request Object
 type BatchDeleteInstanceUsersRequest struct {
 
 	// 实例ID。

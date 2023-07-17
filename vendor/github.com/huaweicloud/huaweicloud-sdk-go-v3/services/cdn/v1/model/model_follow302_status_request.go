@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-// This is a auto create Body Object
+// Follow302StatusRequest This is a auto create Body Object
 type Follow302StatusRequest struct {
 
-	// follow302状态（\"off\"/\"on\"）
+	// follow302状态，off：关闭，on：开启。
 	Follow302Status Follow302StatusRequestFollow302Status `json:"follow302_status"`
 }
 
@@ -55,13 +55,18 @@ func (c Follow302StatusRequestFollow302Status) MarshalJSON() ([]byte, error) {
 
 func (c *Follow302StatusRequestFollow302Status) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

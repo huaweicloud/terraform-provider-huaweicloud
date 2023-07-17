@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowLogBackupResponse Response Object
 type ShowLogBackupResponse struct {
 	LogList        *[]LogList `json:"logList,omitempty"`
 	HttpStatusCode int        `json:"-"`

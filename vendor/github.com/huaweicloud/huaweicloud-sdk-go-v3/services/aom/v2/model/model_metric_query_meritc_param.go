@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 查询参数集
+// MetricQueryMeritcParam 查询参数集
 type MetricQueryMeritcParam struct {
 
 	// 指标维度列表。 取值范围： 数组不能为空，同时数组中任何一个dimension对象name和value属性的值也不能为空。

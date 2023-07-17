@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListMetricItemsResponse Response Object
 type ListMetricItemsResponse struct {
 	MetaData *MetaData `json:"metaData,omitempty"`
 

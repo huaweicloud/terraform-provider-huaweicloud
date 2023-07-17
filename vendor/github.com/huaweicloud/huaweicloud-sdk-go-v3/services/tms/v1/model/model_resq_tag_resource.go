@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 获取标签下资源请求
+// ResqTagResource 获取标签下资源请求
 type ResqTagResource struct {
 
 	// 项目ID，resource_type为region级别服务时为必选项。

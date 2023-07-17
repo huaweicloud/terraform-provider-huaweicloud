@@ -6,14 +6,17 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowLogsRequest Request Object
 type ShowLogsRequest struct {
 
 	// 只支持单个域名，如：www.test1.com。
 	DomainName string `json:"domain_name"`
 
-	// 查询开始时间，查询开始时间到开始时间+1天内的日志数据，取值范围是距离当前30天内。
-	QueryDate int64 `json:"query_date"`
+	// 查询开始时间，时间格式为整点毫秒时间戳，此参数传空值时默认为当天0点。
+	StartTime *int64 `json:"start_time,omitempty"`
+
+	// 查询结束时间（不包含结束时间），时间格式为整点毫秒时间戳，与开始时间的最大跨度为30天，此参数传空值时默认为开始时间加1天。
+	EndTime *int64 `json:"end_time,omitempty"`
 
 	// 单页最大数量，取值范围为1-10000。
 	PageSize *int32 `json:"page_size,omitempty"`

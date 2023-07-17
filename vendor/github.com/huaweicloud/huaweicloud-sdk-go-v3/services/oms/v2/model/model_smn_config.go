@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// SMN消息通知配置。
+// SmnConfig SMN消息通知配置。
 type SmnConfig struct {
 
 	// 当前用户所使用的管理控制台的语言。  可以选择zh-cn或者en-us。
@@ -61,13 +61,18 @@ func (c SmnConfigLanguage) MarshalJSON() ([]byte, error) {
 
 func (c *SmnConfigLanguage) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

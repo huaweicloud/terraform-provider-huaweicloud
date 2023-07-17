@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CancelRemuxTaskRequest Request Object
 type CancelRemuxTaskRequest struct {
 
 	// 任务ID

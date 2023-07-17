@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 协议信息。
+// ProtocolIdInfo 协议信息。
 type ProtocolIdInfo struct {
 
 	// 协议id。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PwdPasswordUser
 type PwdPasswordUser struct {
 	Domain *PwdPasswordUserDomain `json:"domain"`
 

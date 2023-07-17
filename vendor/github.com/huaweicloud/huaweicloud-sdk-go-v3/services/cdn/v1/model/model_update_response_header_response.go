@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateResponseHeaderResponse Response Object
 type UpdateResponseHeaderResponse struct {
 	Headers        *HeaderMap `json:"headers,omitempty"`
 	HttpStatusCode int        `json:"-"`

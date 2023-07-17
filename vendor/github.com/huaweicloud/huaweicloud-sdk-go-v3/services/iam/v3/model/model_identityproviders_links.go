@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// IdentityprovidersLinks
 type IdentityprovidersLinks struct {
 
 	// 身份提供商的资源链接地址。

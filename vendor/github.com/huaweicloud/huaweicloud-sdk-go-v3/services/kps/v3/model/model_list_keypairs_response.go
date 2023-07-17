@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListKeypairsResponse Response Object
 type ListKeypairsResponse struct {
 
 	// SSH密钥对信息详情

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateSubNetworkInterfaceOption
 type CreateSubNetworkInterfaceOption struct {
 
 	// 功能说明：虚拟子网ID 取值范围：标准UUID

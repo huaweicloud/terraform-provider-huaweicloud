@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenCatalogEndpoint
 type TokenCatalogEndpoint struct {
 
 	// 终端节点的URL。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddAlarmRuleResponse Response Object
 type AddAlarmRuleResponse struct {
 
 	// 阈值规则id。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListQualityEnhanceDefaultTemplateResponse Response Object
 type ListQualityEnhanceDefaultTemplateResponse struct {
 
 	// 任务列表

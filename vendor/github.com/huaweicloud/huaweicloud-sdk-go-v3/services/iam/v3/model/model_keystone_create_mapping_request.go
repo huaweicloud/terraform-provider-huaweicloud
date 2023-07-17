@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneCreateMappingRequest Request Object
 type KeystoneCreateMappingRequest struct {
 
 	// 待注册的映射ID。

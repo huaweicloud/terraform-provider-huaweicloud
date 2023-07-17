@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateProjectStatusRequestBody
 type UpdateProjectStatusRequestBody struct {
 	Project *UpdateProjectOption `json:"project"`
 }

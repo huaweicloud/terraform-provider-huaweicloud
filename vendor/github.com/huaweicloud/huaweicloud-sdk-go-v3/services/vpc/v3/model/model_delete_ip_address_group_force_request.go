@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteIpAddressGroupForceRequest Request Object
 type DeleteIpAddressGroupForceRequest struct {
 
 	// IP地址组的唯一标识，要删除的IP地址组ID

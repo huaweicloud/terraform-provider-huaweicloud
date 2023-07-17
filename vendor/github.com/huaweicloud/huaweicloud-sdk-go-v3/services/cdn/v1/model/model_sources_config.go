@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// 源站配置。
+// SourcesConfig 源站配置。
 type SourcesConfig struct {
 
 	// 源站IP或者域名。
 	OriginAddr string `json:"origin_addr"`
 
-	// 源站类型（\"ipaddr\"：\"IP源站\"，\"domain\"：\"域名源站\"，\"obs_bucket\"：\"OBS Bucket源站\"）。
+	// 源站类型， ipaddr：源站IP，domain：源站域名，obs_bucket：OBS桶域名。
 	OriginType string `json:"origin_type"`
 
 	// 源站优先级（70：主，30：备）。

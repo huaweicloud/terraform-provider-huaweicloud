@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateLoadIkThesaurusRequest Request Object
 type CreateLoadIkThesaurusRequest struct {
 
 	// 指定配置自定义词库的集群ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 命令参数响应对象。
+// ServiceCommandResponse 命令参数响应对象。
 type ServiceCommandResponse struct {
 
 	// **参数说明**：设备命令响应名称。 **取值范围**：长度不超过128，只允许中文、字母、数字、以及_?'#().,&%@!-等字符的组合。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartPipelineResponse Response Object
 type StartPipelineResponse struct {
 	HttpStatusCode int `json:"-"`
 }

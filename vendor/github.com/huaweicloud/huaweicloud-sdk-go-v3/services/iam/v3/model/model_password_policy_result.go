@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PasswordPolicyResult
 type PasswordPolicyResult struct {
 
 	// 同一字符连续出现的最大次数。

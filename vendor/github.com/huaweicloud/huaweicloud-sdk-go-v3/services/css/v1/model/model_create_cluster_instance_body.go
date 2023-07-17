@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例对象。
+// CreateClusterInstanceBody 实例对象。
 type CreateClusterInstanceBody struct {
 
 	// 实例规格名称。可以使用[获取实例规格列表](ListFlavors.xml)的name属性确认当前拥有的规格信息。

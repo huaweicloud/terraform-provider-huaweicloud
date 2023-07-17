@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTokenWithIdTokenResponse Response Object
 type CreateTokenWithIdTokenResponse struct {
 	Token *ScopedTokenInfo `json:"token,omitempty"`
 

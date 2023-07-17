@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateSnapshotSettingRequest Request Object
 type UpdateSnapshotSettingRequest struct {
 
 	// 指定待操作的集群ID。

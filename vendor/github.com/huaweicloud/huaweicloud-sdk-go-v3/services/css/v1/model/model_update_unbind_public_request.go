@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateUnbindPublicRequest Request Object
 type UpdateUnbindPublicRequest struct {
 
 	// 指定关闭公网访问集群ID。

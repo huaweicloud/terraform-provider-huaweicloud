@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowAuditlogDownloadLinkResponse Response Object
 type ShowAuditlogDownloadLinkResponse struct {
 
 	// 审计日志下载链接列表。

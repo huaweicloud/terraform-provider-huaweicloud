@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateLoginTokenResponse Response Object
 type CreateLoginTokenResponse struct {
 	Logintoken *LoginToken `json:"logintoken,omitempty"`
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListConfsResponse Response Object
 type ListConfsResponse struct {
 
 	// 配置文件列表。

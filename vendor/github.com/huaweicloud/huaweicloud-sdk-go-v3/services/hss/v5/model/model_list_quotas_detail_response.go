@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListQuotasDetailResponse Response Object
 type ListQuotasDetailResponse struct {
 
 	// 包周期配额数

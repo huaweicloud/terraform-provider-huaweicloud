@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListMsdtcHostsRequest Request Object
 type ListMsdtcHostsRequest struct {
 
 	// 实例ID

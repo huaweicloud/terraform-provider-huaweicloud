@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowTempRequest Request Object
 type ShowTempRequest struct {
 
 	// 事务id

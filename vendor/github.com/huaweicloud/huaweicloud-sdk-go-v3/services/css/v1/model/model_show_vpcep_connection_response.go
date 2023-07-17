@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowVpcepConnectionResponse Response Object
 type ShowVpcepConnectionResponse struct {
 	Connections *[]Connections `json:"connections,omitempty"`
 

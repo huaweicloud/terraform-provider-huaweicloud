@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateMbTasksReportResponse Response Object
 type CreateMbTasksReportResponse struct {
 	HttpStatusCode int `json:"-"`
 }

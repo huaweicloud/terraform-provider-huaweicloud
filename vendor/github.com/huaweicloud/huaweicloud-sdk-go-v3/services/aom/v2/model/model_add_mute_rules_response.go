@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddMuteRulesResponse Response Object
 type AddMuteRulesResponse struct {
 	HttpStatusCode int `json:"-"`
 }

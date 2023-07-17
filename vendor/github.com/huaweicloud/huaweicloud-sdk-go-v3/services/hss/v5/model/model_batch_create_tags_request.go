@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// BatchCreateTagsRequest Request Object
 type BatchCreateTagsRequest struct {
 
 	// 资源类别，hss

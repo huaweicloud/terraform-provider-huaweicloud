@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// SMN信息
+// SmnInfo SMN信息
 type SmnInfo struct {
 
 	// smn发送消息的内容

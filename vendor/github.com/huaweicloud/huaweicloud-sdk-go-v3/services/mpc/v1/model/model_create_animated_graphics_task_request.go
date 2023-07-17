@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateAnimatedGraphicsTaskRequest Request Object
 type CreateAnimatedGraphicsTaskRequest struct {
 	Body *CreateAnimatedGraphicsTaskReq `json:"body,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateInstanceConfigurationAsyncResponse Response Object
 type UpdateInstanceConfigurationAsyncResponse struct {
 
 	// 任务流id

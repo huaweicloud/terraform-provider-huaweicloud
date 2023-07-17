@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartConnectivityTestResponse Response Object
 type StartConnectivityTestResponse struct {
 
 	// 连通性测试结果。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListRecordCallbackConfigsRequest Request Object
 type ListRecordCallbackConfigsRequest struct {
 
 	// 直播推流域名

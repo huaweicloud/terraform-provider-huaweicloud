@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateLoginTokenRequest Request Object
 type CreateLoginTokenRequest struct {
 	Body *CreateLoginTokenRequestBody `json:"body,omitempty"`
 }

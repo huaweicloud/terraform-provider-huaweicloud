@@ -10,9 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	vpc_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceVpcAddressGroup() *schema.Resource {
@@ -70,6 +73,22 @@ func ResourceVpcAddressGroup() *schema.Resource {
 						"The angle brackets (< and >) are not allowed."),
 				),
 			},
+			"max_capacity": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"force_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -82,20 +101,15 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
-	rawAddresses := d.Get("addresses").(*schema.Set).List()
-	ipSet := make([]string, len(rawAddresses))
-	for i, value := range rawAddresses {
-		ipSet[i] = value.(string)
-	}
+	ipSet := utils.ExpandToStringListBySet(d.Get("addresses").(*schema.Set))
 
 	addressGroupBody := &vpc_model.CreateAddressGroupOption{
-		Name:      d.Get("name").(string),
-		IpSet:     &ipSet,
-		IpVersion: int32(d.Get("ip_version").(int)),
-	}
-	if v, ok := d.GetOk("description"); ok {
-		desc := v.(string)
-		addressGroupBody.Description = &desc
+		Name:                d.Get("name").(string),
+		IpSet:               &ipSet,
+		IpVersion:           int32(d.Get("ip_version").(int)),
+		Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
+		EnterpriseProjectId: utils.StringIgnoreEmpty(common.GetEnterpriseProjectID(d, c)),
+		MaxCapacity:         utils.Int32IgnoreEmpty(int32(d.Get("max_capacity").(int))),
 	}
 
 	createOpts := &vpc_model.CreateAddressGroupRequest{
@@ -137,13 +151,11 @@ func resourceVpcAddressGroupRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("description", response.AddressGroup.Description),
 		d.Set("addresses", response.AddressGroup.IpSet),
 		d.Set("ip_version", response.AddressGroup.IpVersion),
+		d.Set("max_capacity", response.AddressGroup.MaxCapacity),
+		d.Set("enterprise_project_id", response.AddressGroup.EnterpriseProjectId),
 	)
 
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving VPC address group: %s", err)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -159,6 +171,7 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 		groupName := d.Get("name").(string)
 		addressGroupBody.Name = &groupName
 	}
+
 	if d.HasChange("description") {
 		groupDescription := d.Get("description").(string)
 		addressGroupBody.Description = &groupDescription
@@ -171,6 +184,10 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 			ipSet[i] = value.(string)
 		}
 		addressGroupBody.IpSet = &ipSet
+	}
+
+	if d.HasChange("max_capacity") {
+		addressGroupBody.MaxCapacity = utils.Int32IgnoreEmpty(int32(d.Get("max_capacity").(int)))
 	}
 
 	updateOpts := &vpc_model.UpdateAddressGroupRequest{
@@ -197,11 +214,18 @@ func resourceVpcAddressGroupDelete(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
-	request := &vpc_model.DeleteAddressGroupRequest{
-		AddressGroupId: d.Id(),
+	if !d.Get("force_destroy").(bool) {
+		request := &vpc_model.DeleteAddressGroupRequest{
+			AddressGroupId: d.Id(),
+		}
+		_, err = client.DeleteAddressGroup(request)
+	} else {
+		req := &vpc_model.DeleteIpAddressGroupForceRequest{
+			AddressGroupId: d.Id(),
+		}
+		_, err = client.DeleteIpAddressGroupForce(req)
 	}
 
-	_, err = client.DeleteAddressGroup(request)
 	if err != nil {
 		return diag.Errorf("error deleting VPC address group: %s", err)
 	}

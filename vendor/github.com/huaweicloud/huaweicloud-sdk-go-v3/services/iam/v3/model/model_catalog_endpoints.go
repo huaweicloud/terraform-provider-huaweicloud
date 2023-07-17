@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CatalogEndpoints
 type CatalogEndpoints struct {
 
 	// 终端节点ID。

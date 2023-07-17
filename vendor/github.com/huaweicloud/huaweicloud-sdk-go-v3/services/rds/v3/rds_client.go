@@ -61,6 +61,27 @@ func (c *RdsClient) AttachEipInvoker(request *model.AttachEipRequest) *AttachEip
 	return &AttachEipInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// BatchDeleteManualBackup 批量删除手动备份
+//
+// 批量删除手动备份。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) BatchDeleteManualBackup(request *model.BatchDeleteManualBackupRequest) (*model.BatchDeleteManualBackupResponse, error) {
+	requestDef := GenReqDefForBatchDeleteManualBackup()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchDeleteManualBackupResponse), nil
+	}
+}
+
+// BatchDeleteManualBackupInvoker 批量删除手动备份
+func (c *RdsClient) BatchDeleteManualBackupInvoker(request *model.BatchDeleteManualBackupRequest) *BatchDeleteManualBackupInvoker {
+	requestDef := GenReqDefForBatchDeleteManualBackup()
+	return &BatchDeleteManualBackupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // BatchTagAddAction 批量添加标签
 //
 // 批量添加标签。
@@ -334,6 +355,26 @@ func (c *RdsClient) DeleteInstanceInvoker(request *model.DeleteInstanceRequest) 
 	return &DeleteInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteJob 删除即时任务
+//
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeleteJob(request *model.DeleteJobRequest) (*model.DeleteJobResponse, error) {
+	requestDef := GenReqDefForDeleteJob()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteJobResponse), nil
+	}
+}
+
+// DeleteJobInvoker 删除即时任务
+func (c *RdsClient) DeleteJobInvoker(request *model.DeleteJobRequest) *DeleteJobInvoker {
+	requestDef := GenReqDefForDeleteJob()
+	return &DeleteJobInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteManualBackup 删除手动备份
 //
 // 删除手动备份。
@@ -523,6 +564,27 @@ func (c *RdsClient) ListDrRelationsInvoker(request *model.ListDrRelationsRequest
 	return &ListDrRelationsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListEngineFlavors 查询实例可变更规格
+//
+// 查询实例可变更规格
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListEngineFlavors(request *model.ListEngineFlavorsRequest) (*model.ListEngineFlavorsResponse, error) {
+	requestDef := GenReqDefForListEngineFlavors()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListEngineFlavorsResponse), nil
+	}
+}
+
+// ListEngineFlavorsInvoker 查询实例可变更规格
+func (c *RdsClient) ListEngineFlavorsInvoker(request *model.ListEngineFlavorsRequest) *ListEngineFlavorsInvoker {
+	requestDef := GenReqDefForListEngineFlavors()
+	return &ListEngineFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListErrorLogs 查询数据库错误日志
 //
 // 查询数据库错误日志。
@@ -565,6 +627,27 @@ func (c *RdsClient) ListErrorLogsNewInvoker(request *model.ListErrorLogsNewReque
 	return &ListErrorLogsNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListErrorlogForLts
+//
+// 查询实例的错误日志数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListErrorlogForLts(request *model.ListErrorlogForLtsRequest) (*model.ListErrorlogForLtsResponse, error) {
+	requestDef := GenReqDefForListErrorlogForLts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListErrorlogForLtsResponse), nil
+	}
+}
+
+// ListErrorlogForLtsInvoker
+func (c *RdsClient) ListErrorlogForLtsInvoker(request *model.ListErrorlogForLtsRequest) *ListErrorlogForLtsInvoker {
+	requestDef := GenReqDefForListErrorlogForLts()
+	return &ListErrorlogForLtsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListFlavors 查询数据库规格
 //
 // 查询数据库规格。
@@ -605,6 +688,27 @@ func (c *RdsClient) ListInstanceParamHistories(request *model.ListInstanceParamH
 func (c *RdsClient) ListInstanceParamHistoriesInvoker(request *model.ListInstanceParamHistoriesRequest) *ListInstanceParamHistoriesInvoker {
 	requestDef := GenReqDefForListInstanceParamHistories()
 	return &ListInstanceParamHistoriesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListInstanceTags 查询实例标签
+//
+// 查询实例标签。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListInstanceTags(request *model.ListInstanceTagsRequest) (*model.ListInstanceTagsResponse, error) {
+	requestDef := GenReqDefForListInstanceTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListInstanceTagsResponse), nil
+	}
+}
+
+// ListInstanceTagsInvoker 查询实例标签
+func (c *RdsClient) ListInstanceTagsInvoker(request *model.ListInstanceTagsRequest) *ListInstanceTagsInvoker {
+	requestDef := GenReqDefForListInstanceTags()
+	return &ListInstanceTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListInstances 查询数据库实例列表
@@ -734,6 +838,27 @@ func (c *RdsClient) ListOffSiteRestoreTimesInvoker(request *model.ListOffSiteRes
 	return &ListOffSiteRestoreTimesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListPredefinedTag
+//
+// 查询预定义标签
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListPredefinedTag(request *model.ListPredefinedTagRequest) (*model.ListPredefinedTagResponse, error) {
+	requestDef := GenReqDefForListPredefinedTag()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPredefinedTagResponse), nil
+	}
+}
+
+// ListPredefinedTagInvoker
+func (c *RdsClient) ListPredefinedTagInvoker(request *model.ListPredefinedTagRequest) *ListPredefinedTagInvoker {
+	requestDef := GenReqDefForListPredefinedTag()
+	return &ListPredefinedTagInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListProjectTags 查询项目标签
 //
 // 查询项目标签。
@@ -753,6 +878,27 @@ func (c *RdsClient) ListProjectTags(request *model.ListProjectTagsRequest) (*mod
 func (c *RdsClient) ListProjectTagsInvoker(request *model.ListProjectTagsRequest) *ListProjectTagsInvoker {
 	requestDef := GenReqDefForListProjectTags()
 	return &ListProjectTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRecycleInstances 查询回收站
+//
+// 查询回收站实例信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListRecycleInstances(request *model.ListRecycleInstancesRequest) (*model.ListRecycleInstancesResponse, error) {
+	requestDef := GenReqDefForListRecycleInstances()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListRecycleInstancesResponse), nil
+	}
+}
+
+// ListRecycleInstancesInvoker 查询回收站
+func (c *RdsClient) ListRecycleInstancesInvoker(request *model.ListRecycleInstancesRequest) *ListRecycleInstancesInvoker {
+	requestDef := GenReqDefForListRecycleInstances()
+	return &ListRecycleInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListRestoreTimes 查询可恢复时间段
@@ -777,6 +923,27 @@ func (c *RdsClient) ListRestoreTimesInvoker(request *model.ListRestoreTimesReque
 	return &ListRestoreTimesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListSimplifiedInstances
+//
+// 获取指定实例详情
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSimplifiedInstances(request *model.ListSimplifiedInstancesRequest) (*model.ListSimplifiedInstancesResponse, error) {
+	requestDef := GenReqDefForListSimplifiedInstances()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSimplifiedInstancesResponse), nil
+	}
+}
+
+// ListSimplifiedInstancesInvoker
+func (c *RdsClient) ListSimplifiedInstancesInvoker(request *model.ListSimplifiedInstancesRequest) *ListSimplifiedInstancesInvoker {
+	requestDef := GenReqDefForListSimplifiedInstances()
+	return &ListSimplifiedInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListSlowLogFile 查询慢日志文件列表
 //
 // 查询慢日志文件列表。
@@ -797,6 +964,27 @@ func (c *RdsClient) ListSlowLogFile(request *model.ListSlowLogFileRequest) (*mod
 func (c *RdsClient) ListSlowLogFileInvoker(request *model.ListSlowLogFileRequest) *ListSlowLogFileInvoker {
 	requestDef := GenReqDefForListSlowLogFile()
 	return &ListSlowLogFileInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSlowLogStatisticsForLts
+//
+// 查询实例慢日志的统计数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSlowLogStatisticsForLts(request *model.ListSlowLogStatisticsForLtsRequest) (*model.ListSlowLogStatisticsForLtsResponse, error) {
+	requestDef := GenReqDefForListSlowLogStatisticsForLts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSlowLogStatisticsForLtsResponse), nil
+	}
+}
+
+// ListSlowLogStatisticsForLtsInvoker
+func (c *RdsClient) ListSlowLogStatisticsForLtsInvoker(request *model.ListSlowLogStatisticsForLtsRequest) *ListSlowLogStatisticsForLtsInvoker {
+	requestDef := GenReqDefForListSlowLogStatisticsForLts()
+	return &ListSlowLogStatisticsForLtsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListSlowLogs 查询数据库慢日志
@@ -841,6 +1029,27 @@ func (c *RdsClient) ListSlowLogsNewInvoker(request *model.ListSlowLogsNewRequest
 	return &ListSlowLogsNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListSlowlogForLts
+//
+// 查询实例的慢日志数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSlowlogForLts(request *model.ListSlowlogForLtsRequest) (*model.ListSlowlogForLtsResponse, error) {
+	requestDef := GenReqDefForListSlowlogForLts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSlowlogForLtsResponse), nil
+	}
+}
+
+// ListSlowlogForLtsInvoker
+func (c *RdsClient) ListSlowlogForLtsInvoker(request *model.ListSlowlogForLtsRequest) *ListSlowlogForLtsInvoker {
+	requestDef := GenReqDefForListSlowlogForLts()
+	return &ListSlowlogForLtsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListSlowlogStatistics 获取慢日志统计信息
 //
 // 获取慢日志统计信息
@@ -860,6 +1069,27 @@ func (c *RdsClient) ListSlowlogStatistics(request *model.ListSlowlogStatisticsRe
 func (c *RdsClient) ListSlowlogStatisticsInvoker(request *model.ListSlowlogStatisticsRequest) *ListSlowlogStatisticsInvoker {
 	requestDef := GenReqDefForListSlowlogStatistics()
 	return &ListSlowlogStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListSslCertDownloadLink 获取SSL证书下载地址
+//
+// 获取SSL证书下载地址
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSslCertDownloadLink(request *model.ListSslCertDownloadLinkRequest) (*model.ListSslCertDownloadLinkResponse, error) {
+	requestDef := GenReqDefForListSslCertDownloadLink()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSslCertDownloadLinkResponse), nil
+	}
+}
+
+// ListSslCertDownloadLinkInvoker 获取SSL证书下载地址
+func (c *RdsClient) ListSslCertDownloadLinkInvoker(request *model.ListSslCertDownloadLinkRequest) *ListSslCertDownloadLinkInvoker {
+	requestDef := GenReqDefForListSslCertDownloadLink()
+	return &ListSslCertDownloadLinkInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListStorageTypes 查询数据库磁盘类型
@@ -1410,6 +1640,27 @@ func (c *RdsClient) ShowQuotas(request *model.ShowQuotasRequest) (*model.ShowQuo
 func (c *RdsClient) ShowQuotasInvoker(request *model.ShowQuotasRequest) *ShowQuotasInvoker {
 	requestDef := GenReqDefForShowQuotas()
 	return &ShowQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowRecyclePolicy 查询回收站的回收策略。
+//
+// 查询回收站的回收策略。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowRecyclePolicy(request *model.ShowRecyclePolicyRequest) (*model.ShowRecyclePolicyResponse, error) {
+	requestDef := GenReqDefForShowRecyclePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowRecyclePolicyResponse), nil
+	}
+}
+
+// ShowRecyclePolicyInvoker 查询回收站的回收策略。
+func (c *RdsClient) ShowRecyclePolicyInvoker(request *model.ShowRecyclePolicyRequest) *ShowRecyclePolicyInvoker {
+	requestDef := GenReqDefForShowRecyclePolicy()
+	return &ShowRecyclePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowReplicationStatus 获取实例的复制状态。
@@ -2359,6 +2610,48 @@ func (c *RdsClient) CreatePostgresqlExtensionInvoker(request *model.CreatePostgr
 	return &CreatePostgresqlExtensionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeletePostgresqlDatabase 删除数据库
+//
+// 删除数据库。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeletePostgresqlDatabase(request *model.DeletePostgresqlDatabaseRequest) (*model.DeletePostgresqlDatabaseResponse, error) {
+	requestDef := GenReqDefForDeletePostgresqlDatabase()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeletePostgresqlDatabaseResponse), nil
+	}
+}
+
+// DeletePostgresqlDatabaseInvoker 删除数据库
+func (c *RdsClient) DeletePostgresqlDatabaseInvoker(request *model.DeletePostgresqlDatabaseRequest) *DeletePostgresqlDatabaseInvoker {
+	requestDef := GenReqDefForDeletePostgresqlDatabase()
+	return &DeletePostgresqlDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeletePostgresqlDbUser 删除数据库用户
+//
+// 删除数据库用户。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeletePostgresqlDbUser(request *model.DeletePostgresqlDbUserRequest) (*model.DeletePostgresqlDbUserResponse, error) {
+	requestDef := GenReqDefForDeletePostgresqlDbUser()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeletePostgresqlDbUserResponse), nil
+	}
+}
+
+// DeletePostgresqlDbUserInvoker 删除数据库用户
+func (c *RdsClient) DeletePostgresqlDbUserInvoker(request *model.DeletePostgresqlDbUserRequest) *DeletePostgresqlDbUserInvoker {
+	requestDef := GenReqDefForDeletePostgresqlDbUser()
+	return &DeletePostgresqlDbUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeletePostgresqlExtension 删除插件
 //
 // 在指定数据库上删除插件。
@@ -2636,6 +2929,69 @@ func (c *RdsClient) StopDatabaseProxyInvoker(request *model.StopDatabaseProxyReq
 	return &StopDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateDbUserPrivilege
+//
+// 数据库帐号授权。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdateDbUserPrivilege(request *model.UpdateDbUserPrivilegeRequest) (*model.UpdateDbUserPrivilegeResponse, error) {
+	requestDef := GenReqDefForUpdateDbUserPrivilege()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDbUserPrivilegeResponse), nil
+	}
+}
+
+// UpdateDbUserPrivilegeInvoker
+func (c *RdsClient) UpdateDbUserPrivilegeInvoker(request *model.UpdateDbUserPrivilegeRequest) *UpdateDbUserPrivilegeInvoker {
+	requestDef := GenReqDefForUpdateDbUserPrivilege()
+	return &UpdateDbUserPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePostgresqlDatabase 修改指定实例的数据库备注
+//
+// 修改指定实例中的数据库备注。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdatePostgresqlDatabase(request *model.UpdatePostgresqlDatabaseRequest) (*model.UpdatePostgresqlDatabaseResponse, error) {
+	requestDef := GenReqDefForUpdatePostgresqlDatabase()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdatePostgresqlDatabaseResponse), nil
+	}
+}
+
+// UpdatePostgresqlDatabaseInvoker 修改指定实例的数据库备注
+func (c *RdsClient) UpdatePostgresqlDatabaseInvoker(request *model.UpdatePostgresqlDatabaseRequest) *UpdatePostgresqlDatabaseInvoker {
+	requestDef := GenReqDefForUpdatePostgresqlDatabase()
+	return &UpdatePostgresqlDatabaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePostgresqlDbUserComment 修改数据库用户名备注
+//
+// 修改数据库用户名备注
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdatePostgresqlDbUserComment(request *model.UpdatePostgresqlDbUserCommentRequest) (*model.UpdatePostgresqlDbUserCommentResponse, error) {
+	requestDef := GenReqDefForUpdatePostgresqlDbUserComment()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdatePostgresqlDbUserCommentResponse), nil
+	}
+}
+
+// UpdatePostgresqlDbUserCommentInvoker 修改数据库用户名备注
+func (c *RdsClient) UpdatePostgresqlDbUserCommentInvoker(request *model.UpdatePostgresqlDbUserCommentRequest) *UpdatePostgresqlDbUserCommentInvoker {
+	requestDef := GenReqDefForUpdatePostgresqlDbUserComment()
+	return &UpdatePostgresqlDbUserCommentInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdatePostgresqlParameterValue 修改实例指定参数的值
 //
 // 修改实例指定参数的值。
@@ -2907,6 +3263,27 @@ func (c *RdsClient) ListSqlserverDbUsers(request *model.ListSqlserverDbUsersRequ
 func (c *RdsClient) ListSqlserverDbUsersInvoker(request *model.ListSqlserverDbUsersRequest) *ListSqlserverDbUsersInvoker {
 	requestDef := GenReqDefForListSqlserverDbUsers()
 	return &ListSqlserverDbUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ModifyCollation 修改实例字符集
+//
+// 修改实例字符集。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ModifyCollation(request *model.ModifyCollationRequest) (*model.ModifyCollationResponse, error) {
+	requestDef := GenReqDefForModifyCollation()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ModifyCollationResponse), nil
+	}
+}
+
+// ModifyCollationInvoker 修改实例字符集
+func (c *RdsClient) ModifyCollationInvoker(request *model.ModifyCollationRequest) *ModifyCollationInvoker {
+	requestDef := GenReqDefForModifyCollation()
+	return &ModifyCollationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // RevokeSqlserverDbUserPrivilege 解除数据库帐号权限

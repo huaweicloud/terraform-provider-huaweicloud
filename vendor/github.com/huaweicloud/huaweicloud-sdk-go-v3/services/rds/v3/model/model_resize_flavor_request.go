@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 变更实例规格时必填。
+// ResizeFlavorRequest 变更实例规格时必填。
 type ResizeFlavorRequest struct {
 	ResizeFlavor *ResizeFlavorObject `json:"resize_flavor"`
 }

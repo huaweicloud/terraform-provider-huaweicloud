@@ -11,7 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -535,7 +537,7 @@ func buildlinkageTrigger(raw map[string]interface{}, triggerType string) (*model
 					{
 						Path:     f["path"].(string),
 						Operator: f["operator"].(string),
-						Value:    f["value"].(string),
+						Value:    utils.String(f["value"].(string)),
 						Strategy: &model.Strategy{
 							Trigger:        utils.StringIgnoreEmpty(f["trigger_strategy"].(string)),
 							EventValidTime: utils.Int32(int32(f["data_validatiy_period"].(int))),
@@ -730,7 +732,6 @@ func flattenLinkageTriggers(conditionGroup *model.ConditionGroup) []interface{} 
 		default:
 			log.Printf("[ERROR] API returned unknown trigger type= %s", v.Type)
 		}
-
 	}
 
 	return rst
@@ -797,7 +798,6 @@ func flattenLinkageActions(actions *[]model.RuleAction) []interface{} {
 		default:
 			log.Printf("[ERROR] API returned unknown action type= %s", v.Type)
 		}
-
 	}
 
 	return rst

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteAssetsRequest Request Object
 type DeleteAssetsRequest struct {
 
 	// 媒资ID，支持一次删除多个媒资，批量删除时以逗号分隔。

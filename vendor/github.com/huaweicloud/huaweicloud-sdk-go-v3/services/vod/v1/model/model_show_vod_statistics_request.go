@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowVodStatisticsRequest Request Object
 type ShowVodStatisticsRequest struct {
 
 	// 起始时间，格式为yyyymmddhhmmss。

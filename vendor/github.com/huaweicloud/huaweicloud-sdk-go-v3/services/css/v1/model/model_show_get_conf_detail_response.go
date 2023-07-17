@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowGetConfDetailResponse Response Object
 type ShowGetConfDetailResponse struct {
 
 	// 配置文件名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateBindPublicResponse Response Object
 type CreateBindPublicResponse struct {
 
 	// 操作行为。固定为bindZone，表示绑定成功。

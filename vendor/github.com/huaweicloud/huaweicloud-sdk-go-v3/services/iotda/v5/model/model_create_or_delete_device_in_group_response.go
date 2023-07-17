@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateOrDeleteDeviceInGroupResponse Response Object
 type CreateOrDeleteDeviceInGroupResponse struct {
 	Body           *string `json:"body,omitempty"`
 	HttpStatusCode int     `json:"-"`

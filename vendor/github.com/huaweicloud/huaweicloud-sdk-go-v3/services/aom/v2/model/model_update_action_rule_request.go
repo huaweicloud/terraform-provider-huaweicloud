@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateActionRuleRequest Request Object
 type UpdateActionRuleRequest struct {
 	Body *ActionRule `json:"body,omitempty"`
 }

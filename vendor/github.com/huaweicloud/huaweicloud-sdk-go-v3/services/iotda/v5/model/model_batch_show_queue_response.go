@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// BatchShowQueueResponse Response Object
 type BatchShowQueueResponse struct {
 
 	// 队列信息列表。

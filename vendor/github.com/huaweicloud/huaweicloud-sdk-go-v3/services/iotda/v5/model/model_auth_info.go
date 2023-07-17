@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设备接入类型。
+// AuthInfo 设备接入类型。
 type AuthInfo struct {
 
 	// **参数说明**：鉴权类型。注意：不填写auth_type默认为密钥认证接入方式(SECRET)。 **取值范围**： - SECRET:使用密钥认证接入方式。 - CERTIFICATES:使用证书认证接入方式。

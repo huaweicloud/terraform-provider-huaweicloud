@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RestoreTablesRequest Request Object
 type RestoreTablesRequest struct {
 
 	// 语言

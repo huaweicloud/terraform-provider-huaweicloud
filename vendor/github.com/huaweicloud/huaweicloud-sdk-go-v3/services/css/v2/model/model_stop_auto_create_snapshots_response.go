@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StopAutoCreateSnapshotsResponse Response Object
 type StopAutoCreateSnapshotsResponse struct {
 	HttpStatusCode int `json:"-"`
 }

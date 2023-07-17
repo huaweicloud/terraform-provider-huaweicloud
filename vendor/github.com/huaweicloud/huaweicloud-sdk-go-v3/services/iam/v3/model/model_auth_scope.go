@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AuthScope
 type AuthScope struct {
 	Domain *AuthScopeDomain `json:"domain,omitempty"`
 

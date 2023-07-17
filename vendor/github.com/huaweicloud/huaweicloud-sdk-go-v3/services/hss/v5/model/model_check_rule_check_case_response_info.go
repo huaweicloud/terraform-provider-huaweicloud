@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 配置检测检查项的检测用例信息
+// CheckRuleCheckCaseResponseInfo 配置检测检查项的检测用例信息
 type CheckRuleCheckCaseResponseInfo struct {
 
 	// 检测用例描述

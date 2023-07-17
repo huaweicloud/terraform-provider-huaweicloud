@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// OsfederationIdentityprovider
 type OsfederationIdentityprovider struct {
 
 	// 身份提供商ID。

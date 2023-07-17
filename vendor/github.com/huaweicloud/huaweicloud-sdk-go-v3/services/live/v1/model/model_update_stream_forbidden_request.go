@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateStreamForbiddenRequest Request Object
 type UpdateStreamForbiddenRequest struct {
 	Body *StreamForbiddenSetting `json:"body,omitempty"`
 }

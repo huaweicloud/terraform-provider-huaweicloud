@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ProjectDetailsAndStatusResult
 type ProjectDetailsAndStatusResult struct {
 
 	// 项目所属账号ID。

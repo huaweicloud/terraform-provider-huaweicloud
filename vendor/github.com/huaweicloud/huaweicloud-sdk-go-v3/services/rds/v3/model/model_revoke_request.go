@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RevokeRequest Request Object
 type RevokeRequest struct {
 
 	// 语言

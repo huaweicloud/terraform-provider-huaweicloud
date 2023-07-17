@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 文件信息
+// EventFileResponseInfo 文件信息
 type EventFileResponseInfo struct {
 
 	// 文件路径

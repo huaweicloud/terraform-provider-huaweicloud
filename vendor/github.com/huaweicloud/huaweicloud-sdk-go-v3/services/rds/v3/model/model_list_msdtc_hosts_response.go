@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListMsdtcHostsResponse Response Object
 type ListMsdtcHostsResponse struct {
 
 	// host总数

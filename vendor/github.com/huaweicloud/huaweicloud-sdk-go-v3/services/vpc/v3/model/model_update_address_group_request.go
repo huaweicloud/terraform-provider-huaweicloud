@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateAddressGroupRequest Request Object
 type UpdateAddressGroupRequest struct {
 
 	// 地址组的唯一标识

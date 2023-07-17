@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 事件或者告警元数据。
+// EventModel 事件或者告警元数据。
 type EventModel struct {
 
 	// 事件或者告警产生的时间，CST毫秒级时间戳。

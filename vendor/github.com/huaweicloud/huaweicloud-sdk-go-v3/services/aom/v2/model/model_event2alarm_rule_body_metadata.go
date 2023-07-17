@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 源数据
+// Event2alarmRuleBodyMetadata 源数据
 type Event2alarmRuleBodyMetadata struct {
 
 	// 用户自定义标签

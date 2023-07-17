@@ -61,6 +61,8 @@ func ConvertInterfaceToString(value interface{}) string {
 		return strconv.FormatInt(value.(int64), 10)
 	case uint64:
 		return strconv.FormatUint(value.(uint64), 10)
+	case bool:
+		return strconv.FormatBool(value.(bool))
 	case string:
 		return value.(string)
 	case []byte:

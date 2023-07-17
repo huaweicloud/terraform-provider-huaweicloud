@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneShowPermissionResponse Response Object
 type KeystoneShowPermissionResponse struct {
 	Role           *RoleResult `json:"role,omitempty"`
 	HttpStatusCode int         `json:"-"`

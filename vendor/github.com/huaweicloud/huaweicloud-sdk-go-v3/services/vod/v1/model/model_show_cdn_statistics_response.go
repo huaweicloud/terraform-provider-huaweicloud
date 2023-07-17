@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowCdnStatisticsResponse Response Object
 type ShowCdnStatisticsResponse struct {
 
 	// 统计起始时间。

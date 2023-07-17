@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 子网信息。
+// CreateClusterInstanceNicsBody 子网信息。
 type CreateClusterInstanceNicsBody struct {
 
 	// 指定虚拟私有云ID，用于集群网络配置。

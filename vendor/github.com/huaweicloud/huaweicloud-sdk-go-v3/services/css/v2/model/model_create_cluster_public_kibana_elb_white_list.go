@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// kibana白名单信息。
+// CreateClusterPublicKibanaElbWhiteList kibana白名单信息。
 type CreateClusterPublicKibanaElbWhiteList struct {
 
 	// 白名单。需要添加白名单的网段或ip，以逗号隔开，不可重复。

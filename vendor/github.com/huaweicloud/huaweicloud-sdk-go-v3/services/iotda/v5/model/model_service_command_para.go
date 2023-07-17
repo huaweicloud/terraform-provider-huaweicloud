@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 参数服务对象。
+// ServiceCommandPara 参数服务对象。
 type ServiceCommandPara struct {
 
 	// **参数说明**：参数的名称。 **取值范围**：长度不超过32，只允许中文、字母、数字、以及_?'#().,&%@!-等字符的组合。

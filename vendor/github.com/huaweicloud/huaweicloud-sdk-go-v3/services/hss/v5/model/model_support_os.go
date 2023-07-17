@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 支持的操作系统，包含如下:   - Linux ：支持Linux系统   - Windows : 支持Windows系统
+// SupportOs 支持的操作系统，包含如下:   - Linux ：支持Linux系统   - Windows : 支持Windows系统
 type SupportOs struct {
 }
 

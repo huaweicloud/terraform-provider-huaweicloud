@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteThumbnailsTaskRequest Request Object
 type DeleteThumbnailsTaskRequest struct {
 
 	// 任务ID

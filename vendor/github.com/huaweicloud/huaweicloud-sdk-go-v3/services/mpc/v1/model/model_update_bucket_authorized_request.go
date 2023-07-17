@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateBucketAuthorizedRequest Request Object
 type UpdateBucketAuthorizedRequest struct {
 	Body *BucketAuthorizedReq `json:"body,omitempty"`
 }

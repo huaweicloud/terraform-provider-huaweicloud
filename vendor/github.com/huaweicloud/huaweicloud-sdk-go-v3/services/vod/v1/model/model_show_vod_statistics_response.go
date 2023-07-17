@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowVodStatisticsResponse Response Object
 type ShowVodStatisticsResponse struct {
 
 	// 统计起始时间。

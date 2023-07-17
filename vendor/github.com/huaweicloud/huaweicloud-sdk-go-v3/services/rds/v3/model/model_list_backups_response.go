@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListBackupsResponse Response Object
 type ListBackupsResponse struct {
 
 	// 备份信息。

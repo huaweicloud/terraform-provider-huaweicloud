@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListPostgresqlDbUserPaginatedRequest Request Object
 type ListPostgresqlDbUserPaginatedRequest struct {
 
 	// 语言

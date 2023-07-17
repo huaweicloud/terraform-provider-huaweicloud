@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// {  \"virtual_mfa_device\": {   \"name\": \"{divice_name}\",   \"user_id\": \"{user_id}\"  } }
+// CreateMfaDevice {  \"virtual_mfa_device\": {   \"name\": \"{divice_name}\",   \"user_id\": \"{user_id}\"  } }
 type CreateMfaDevice struct {
 
 	// 设备名称。 最小长度：1 最大长度：64

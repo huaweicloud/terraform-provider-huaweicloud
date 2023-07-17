@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowAssetCipherRequest Request Object
 type ShowAssetCipherRequest struct {
 
 	// 媒资ID。

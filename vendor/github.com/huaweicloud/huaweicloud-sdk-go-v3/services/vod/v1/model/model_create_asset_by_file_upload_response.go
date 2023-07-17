@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateAssetByFileUploadResponse Response Object
 type CreateAssetByFileUploadResponse struct {
 
 	// 媒体ID

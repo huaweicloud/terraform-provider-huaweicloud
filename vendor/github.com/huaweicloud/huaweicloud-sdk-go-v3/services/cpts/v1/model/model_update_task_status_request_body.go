@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// UpdateTaskStatusRequestBody
+// UpdateTaskStatusRequestBody UpdateTaskStatusRequestBody
 type UpdateTaskStatusRequestBody struct {
 
 	// cluster_id
@@ -22,6 +22,9 @@ type UpdateTaskStatusRequestBody struct {
 
 	// status
 	Status int32 `json:"status"`
+
+	// 企业项目id
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 
 func (o UpdateTaskStatusRequestBody) String() string {

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowKafkaTopicPartitionDiskusageResponse Response Object
 type ShowKafkaTopicPartitionDiskusageResponse struct {
 
 	// Broker列表。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteAllFailedTaskRequest Request Object
 type DeleteAllFailedTaskRequest struct {
 }
 

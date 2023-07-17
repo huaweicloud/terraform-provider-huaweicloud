@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AuthProjectResult
 type AuthProjectResult struct {
 
 	// false.

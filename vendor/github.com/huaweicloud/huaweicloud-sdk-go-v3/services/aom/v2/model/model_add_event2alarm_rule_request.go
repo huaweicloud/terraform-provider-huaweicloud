@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AddEvent2alarmRuleRequest Request Object
 type AddEvent2alarmRuleRequest struct {
 	Body *Event2alarmRuleBody `json:"body,omitempty"`
 }

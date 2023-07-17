@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 文件哈希
+// FileHash 文件哈希
 type FileHash struct {
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改设备影子预期数据结构体。
+// UpdateDesired 修改设备影子预期数据结构体。
 type UpdateDesired struct {
 
 	// **参数说明**：设备的服务ID，在设备关联的产品模型中定义。

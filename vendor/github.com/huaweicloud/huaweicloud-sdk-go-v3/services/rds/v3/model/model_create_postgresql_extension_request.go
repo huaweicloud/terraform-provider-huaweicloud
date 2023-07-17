@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreatePostgresqlExtensionRequest Request Object
 type CreatePostgresqlExtensionRequest struct {
 
 	// 语言

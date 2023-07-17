@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListProjectTestCaseRequest Request Object
 type ListProjectTestCaseRequest struct {
 
 	// 测试工程id

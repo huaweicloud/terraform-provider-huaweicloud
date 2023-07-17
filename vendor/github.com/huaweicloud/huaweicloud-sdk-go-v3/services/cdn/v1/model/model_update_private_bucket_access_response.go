@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdatePrivateBucketAccessResponse Response Object
 type UpdatePrivateBucketAccessResponse struct {
 
 	// 桶开启关闭状态（true：开启；false：关闭）

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteserviceDiscoveryRulesResponse Response Object
 type DeleteserviceDiscoveryRulesResponse struct {
 
 	// 响应码。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// EnableConfigurationResponse Response Object
 type EnableConfigurationResponse struct {
 
 	// 参数组ID。

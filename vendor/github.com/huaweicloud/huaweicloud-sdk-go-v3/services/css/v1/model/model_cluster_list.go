@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群对象。
+// ClusterList 集群对象。
 type ClusterList struct {
 	Datastore *ClusterListDatastore `json:"datastore,omitempty"`
 

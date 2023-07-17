@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 键值对标签。
+// TagWithKeyValue 键值对标签。
 type TagWithKeyValue struct {
 
 	// 标签键。长度为1-128个unicode字符。 可以包含任何语种字母、数字、空格和_.:=+-@， 但首尾不能含有空格，不能以sys开头。

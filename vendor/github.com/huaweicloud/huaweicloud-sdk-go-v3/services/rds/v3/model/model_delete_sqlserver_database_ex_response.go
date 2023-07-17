@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteSqlserverDatabaseExResponse Response Object
 type DeleteSqlserverDatabaseExResponse struct {
 
 	// 任务ID。

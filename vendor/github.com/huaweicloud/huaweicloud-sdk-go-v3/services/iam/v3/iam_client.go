@@ -88,6 +88,27 @@ func (c *IamClient) AssociateAgencyWithProjectPermissionInvoker(request *model.A
 	return &AssociateAgencyWithProjectPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// AssociateRoleToAgencyOnEnterpriseProject application/json
+//
+// 该接口可以基于委托为企业项目授权
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) AssociateRoleToAgencyOnEnterpriseProject(request *model.AssociateRoleToAgencyOnEnterpriseProjectRequest) (*model.AssociateRoleToAgencyOnEnterpriseProjectResponse, error) {
+	requestDef := GenReqDefForAssociateRoleToAgencyOnEnterpriseProject()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AssociateRoleToAgencyOnEnterpriseProjectResponse), nil
+	}
+}
+
+// AssociateRoleToAgencyOnEnterpriseProjectInvoker application/json
+func (c *IamClient) AssociateRoleToAgencyOnEnterpriseProjectInvoker(request *model.AssociateRoleToAgencyOnEnterpriseProjectRequest) *AssociateRoleToAgencyOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForAssociateRoleToAgencyOnEnterpriseProject()
+	return &AssociateRoleToAgencyOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // AssociateRoleToGroupOnEnterpriseProject 基于用户组为企业项目授权
 //
 // 该接口用于基于用户组为企业项目授权。
@@ -2058,6 +2079,27 @@ func (c *IamClient) RemoveProjectPermissionFromAgency(request *model.RemoveProje
 func (c *IamClient) RemoveProjectPermissionFromAgencyInvoker(request *model.RemoveProjectPermissionFromAgencyRequest) *RemoveProjectPermissionFromAgencyInvoker {
 	requestDef := GenReqDefForRemoveProjectPermissionFromAgency()
 	return &RemoveProjectPermissionFromAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RevokeRoleFromAgencyOnEnterpriseProject
+//
+// 该接口可以删除企业项目委托上的授权
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) RevokeRoleFromAgencyOnEnterpriseProject(request *model.RevokeRoleFromAgencyOnEnterpriseProjectRequest) (*model.RevokeRoleFromAgencyOnEnterpriseProjectResponse, error) {
+	requestDef := GenReqDefForRevokeRoleFromAgencyOnEnterpriseProject()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RevokeRoleFromAgencyOnEnterpriseProjectResponse), nil
+	}
+}
+
+// RevokeRoleFromAgencyOnEnterpriseProjectInvoker
+func (c *IamClient) RevokeRoleFromAgencyOnEnterpriseProjectInvoker(request *model.RevokeRoleFromAgencyOnEnterpriseProjectRequest) *RevokeRoleFromAgencyOnEnterpriseProjectInvoker {
+	requestDef := GenReqDefForRevokeRoleFromAgencyOnEnterpriseProject()
+	return &RevokeRoleFromAgencyOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // RevokeRoleFromGroupOnEnterpriseProject 删除企业项目关联用户组的权限

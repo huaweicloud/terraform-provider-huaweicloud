@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CheckMd5DuplicationResponse Response Object
 type CheckMd5DuplicationResponse struct {
 
 	// 是否重复。  取值如下： - 0：表示不重复。 - 1：表示重复。

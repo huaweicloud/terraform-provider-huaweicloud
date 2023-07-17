@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// smn主题相关信息
+// SmnTopics smn主题相关信息
 type SmnTopics struct {
 
 	// Topic的显示名，推送邮件消息时，作为邮件发件人显示。显示名的长度为192byte或64个中文。默认值为空。
@@ -69,13 +69,18 @@ func (c SmnTopicsStatus) MarshalJSON() ([]byte, error) {
 
 func (c *SmnTopicsStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("int32")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(int32)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: int32")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(int32); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to int32 error")
 	}

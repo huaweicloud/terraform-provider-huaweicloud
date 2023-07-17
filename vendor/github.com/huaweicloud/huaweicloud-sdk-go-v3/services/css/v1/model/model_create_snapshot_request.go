@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateSnapshotRequest Request Object
 type CreateSnapshotRequest struct {
 
 	// 指定要创建快照的集群ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateDatabaseResponse Response Object
 type CreateDatabaseResponse struct {
 
 	// 操作结果。

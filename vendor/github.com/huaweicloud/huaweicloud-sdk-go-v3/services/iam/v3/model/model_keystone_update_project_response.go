@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneUpdateProjectResponse Response Object
 type KeystoneUpdateProjectResponse struct {
 	Project        *KeystoneUpdateProjectResult `json:"project,omitempty"`
 	HttpStatusCode int                          `json:"-"`

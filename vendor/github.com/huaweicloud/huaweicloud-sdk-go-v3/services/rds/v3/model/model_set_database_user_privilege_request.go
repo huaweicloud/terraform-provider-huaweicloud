@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetDatabaseUserPrivilegeRequest Request Object
 type SetDatabaseUserPrivilegeRequest struct {
 
 	// 实例ID

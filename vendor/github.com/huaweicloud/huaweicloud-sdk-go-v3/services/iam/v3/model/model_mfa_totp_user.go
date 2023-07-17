@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// MfaTotpUser
 type MfaTotpUser struct {
 
 	// 已开启虚拟MFA方式的登录保护的IAM用户ID。

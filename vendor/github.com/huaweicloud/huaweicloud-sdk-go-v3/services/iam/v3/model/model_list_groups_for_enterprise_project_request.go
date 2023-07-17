@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListGroupsForEnterpriseProjectRequest Request Object
 type ListGroupsForEnterpriseProjectRequest struct {
 
 	// 待查询的企业项目Id。

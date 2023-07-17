@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowReportResponse Response Object
 type ShowReportResponse struct {
 
 	// code

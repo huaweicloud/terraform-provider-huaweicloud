@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateUnscopedTokenWithIdTokenResponse Response Object
 type CreateUnscopedTokenWithIdTokenResponse struct {
 	Token *UnscopedTokenInfo `json:"token,omitempty"`
 

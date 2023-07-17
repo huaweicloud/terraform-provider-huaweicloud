@@ -17,6 +17,18 @@ func (i *BatchCreateOrDeleteKafkaTagInvoker) Invoke() (*model.BatchCreateOrDelet
 	}
 }
 
+type BatchDeleteGroupInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteGroupInvoker) Invoke() (*model.BatchDeleteGroupResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteGroupResponse), nil
+	}
+}
+
 type BatchDeleteInstanceTopicInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -53,6 +65,18 @@ func (i *BatchRestartOrDeleteInstancesInvoker) Invoke() (*model.BatchRestartOrDe
 	}
 }
 
+type CloseKafkaManagerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CloseKafkaManagerInvoker) Invoke() (*model.CloseKafkaManagerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CloseKafkaManagerResponse), nil
+	}
+}
+
 type CreateConnectorInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -62,6 +86,30 @@ func (i *CreateConnectorInvoker) Invoke() (*model.CreateConnectorResponse, error
 		return nil, err
 	} else {
 		return result.(*model.CreateConnectorResponse), nil
+	}
+}
+
+type CreateDeleteConnectorOrderInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateDeleteConnectorOrderInvoker) Invoke() (*model.CreateDeleteConnectorOrderResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateDeleteConnectorOrderResponse), nil
+	}
+}
+
+type CreateInstanceByEngineInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateInstanceByEngineInvoker) Invoke() (*model.CreateInstanceByEngineResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateInstanceByEngineResponse), nil
 	}
 }
 
@@ -89,6 +137,18 @@ func (i *CreateInstanceUserInvoker) Invoke() (*model.CreateInstanceUserResponse,
 	}
 }
 
+type CreateKafkaConsumerGroupInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateKafkaConsumerGroupInvoker) Invoke() (*model.CreateKafkaConsumerGroupResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateKafkaConsumerGroupResponse), nil
+	}
+}
+
 type CreatePartitionInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -113,6 +173,18 @@ func (i *CreatePostPaidInstanceInvoker) Invoke() (*model.CreatePostPaidInstanceR
 	}
 }
 
+type CreateReassignmentTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateReassignmentTaskInvoker) Invoke() (*model.CreateReassignmentTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateReassignmentTaskResponse), nil
+	}
+}
+
 type CreateSinkTaskInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -134,6 +206,18 @@ func (i *DeleteBackgroundTaskInvoker) Invoke() (*model.DeleteBackgroundTaskRespo
 		return nil, err
 	} else {
 		return result.(*model.DeleteBackgroundTaskResponse), nil
+	}
+}
+
+type DeleteConnectorInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteConnectorInvoker) Invoke() (*model.DeleteConnectorResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteConnectorResponse), nil
 	}
 }
 
@@ -305,6 +389,18 @@ func (i *ResetUserPasswrodInvoker) Invoke() (*model.ResetUserPasswrodResponse, e
 	}
 }
 
+type ResizeEngineInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ResizeEngineInstanceInvoker) Invoke() (*model.ResizeEngineInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ResizeEngineInstanceResponse), nil
+	}
+}
+
 type ResizeInstanceInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -374,6 +470,18 @@ func (i *ShowCoordinatorsInvoker) Invoke() (*model.ShowCoordinatorsResponse, err
 		return nil, err
 	} else {
 		return result.(*model.ShowCoordinatorsResponse), nil
+	}
+}
+
+type ShowEngineInstanceExtendProductInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowEngineInstanceExtendProductInfoInvoker) Invoke() (*model.ShowEngineInstanceExtendProductInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowEngineInstanceExtendProductInfoResponse), nil
 	}
 }
 

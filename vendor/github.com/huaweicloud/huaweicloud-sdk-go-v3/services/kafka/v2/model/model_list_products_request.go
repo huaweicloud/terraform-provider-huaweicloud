@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListProductsRequest Request Object
 type ListProductsRequest struct {
 
 	// 消息引擎的类型。当前只支持kafka类型。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyTokenResult
 type AgencyTokenResult struct {
 
 	// 获取token的方式。

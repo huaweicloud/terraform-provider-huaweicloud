@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateMpeCallBackRequest Request Object
 type CreateMpeCallBackRequest struct {
 	Body *MpeCallBackReq `json:"body,omitempty"`
 }

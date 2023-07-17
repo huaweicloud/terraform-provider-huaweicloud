@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateLoginProject
 type UpdateLoginProject struct {
 
 	// IAM用户是否开启登录保护，开启为\"true\"，未开启为\"false\"。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListNotifiedHistoriesRequest Request Object
 type ListNotifiedHistoriesRequest struct {
 
 	// 告警流水号

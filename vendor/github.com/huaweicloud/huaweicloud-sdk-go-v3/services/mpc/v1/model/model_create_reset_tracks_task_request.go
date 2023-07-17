@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateResetTracksTaskRequest Request Object
 type CreateResetTracksTaskRequest struct {
 	Body *CreateResetTracksReq `json:"body,omitempty"`
 }

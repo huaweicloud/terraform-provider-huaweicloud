@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateWatermarkTemplateResponse Response Object
 type CreateWatermarkTemplateResponse struct {
 
 	// 水印模板Id

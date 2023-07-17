@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Catalog
 type Catalog struct {
 
 	// 终端节点信息。

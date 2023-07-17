@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 审核信息数组。  > 仅当审核成功后才能查询到此信息，未审核、正在审核以及审核失败时，无此字段信息。
+// ReviewInfo 审核信息数组。  > 仅当审核成功后才能查询到此信息，未审核、正在审核以及审核失败时，无此字段信息。
 type ReviewInfo struct {
 
 	// 检测结果是否通过。  取值如下： - block：包含敏感信息，不通过。 - pass：不包含敏感信息，通过。 - review：需要人工复检。  > 当同时检测多个场景时，suggestion的值以最可能包含敏感信息的场景为准。即任一场景出现了block则总的suggestion为block，所有场景都pass时suggestion为pass，这两种情况之外则一定有场景需要review，此时suggestion为review。
@@ -73,13 +73,18 @@ func (c ReviewInfoSuggestion) MarshalJSON() ([]byte, error) {
 
 func (c *ReviewInfoSuggestion) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

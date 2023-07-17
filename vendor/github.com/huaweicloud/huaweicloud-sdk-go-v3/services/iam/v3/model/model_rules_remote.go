@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// RulesRemote
 type RulesRemote struct {
 
 	// 表示IdP断言中的属性。

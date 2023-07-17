@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设置公网带宽大小。
+// CreateClusterPublicEipSize 设置公网带宽大小。
 type CreateClusterPublicEipSize struct {
 
 	// 带宽大小。

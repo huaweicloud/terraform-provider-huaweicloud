@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListKeypairsRequest Request Object
 type ListKeypairsRequest struct {
 
 	// 每页返回的个数。 默认值：50。

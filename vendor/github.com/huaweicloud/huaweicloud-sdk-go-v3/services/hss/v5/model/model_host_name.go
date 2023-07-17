@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 服务器名称
+// HostName 服务器名称
 type HostName struct {
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateBindPublicRequest Request Object
 type CreateBindPublicRequest struct {
 
 	// 指定开启公网访问的集群ID。

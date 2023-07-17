@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设备信息结构体，批量查询返回。
+// QueryDeviceSimplify 设备信息结构体，批量查询返回。
 type QueryDeviceSimplify struct {
 
 	// 资源空间ID。

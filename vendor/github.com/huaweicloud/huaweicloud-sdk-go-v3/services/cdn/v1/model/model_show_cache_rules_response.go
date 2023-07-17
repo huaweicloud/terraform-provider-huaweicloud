@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowCacheRulesResponse Response Object
 type ShowCacheRulesResponse struct {
 	CacheConfig    *CacheConfig `json:"cache_config,omitempty"`
 	HttpStatusCode int          `json:"-"`

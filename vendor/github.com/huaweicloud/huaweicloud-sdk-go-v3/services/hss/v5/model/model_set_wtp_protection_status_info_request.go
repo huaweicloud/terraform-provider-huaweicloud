@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetWtpProtectionStatusInfoRequest Request Object
 type SetWtpProtectionStatusInfoRequest struct {
 
 	// Region Id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建密钥对请求体
+// CreateKeypairRequestBody 创建密钥对请求体
 type CreateKeypairRequestBody struct {
 	Keypair *CreateKeypairAction `json:"keypair"`
 }

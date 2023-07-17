@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListExtractTaskResponse Response Object
 type ListExtractTaskResponse struct {
 
 	// 任务总数

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAlarmRuleResponse Response Object
 type ListAlarmRuleResponse struct {
 	MetaData *MetaData `json:"meta_data,omitempty"`
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeletePostgresqlExtensionResponse Response Object
 type DeletePostgresqlExtensionResponse struct {
 	Body           *string `json:"body,omitempty"`
 	HttpStatusCode int     `json:"-"`

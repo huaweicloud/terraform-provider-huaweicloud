@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateResourceTagRequest Request Object
 type CreateResourceTagRequest struct {
 	Body *ReqCreateTag `json:"body,omitempty"`
 }

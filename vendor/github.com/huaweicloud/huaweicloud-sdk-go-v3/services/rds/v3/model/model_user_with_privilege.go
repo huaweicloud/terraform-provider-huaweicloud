@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用户及其权限。
+// UserWithPrivilege 用户及其权限。
 type UserWithPrivilege struct {
 
 	// 用户名。

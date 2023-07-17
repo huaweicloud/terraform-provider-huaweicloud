@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateMpeCallBackResponse Response Object
 type CreateMpeCallBackResponse struct {
 	HttpStatusCode int `json:"-"`
 }

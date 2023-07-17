@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRolesForGroupOnEnterpriseProjectResponse Response Object
 type ListRolesForGroupOnEnterpriseProjectResponse struct {
 
 	// 角色列表。

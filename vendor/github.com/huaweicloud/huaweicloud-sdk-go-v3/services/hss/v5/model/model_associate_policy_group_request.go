@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// AssociatePolicyGroupRequest Request Object
 type AssociatePolicyGroupRequest struct {
 
 	// region id

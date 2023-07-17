@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 配置检测检查项参数信息
+// CheckRuleFixParamInfo 配置检测检查项参数信息
 type CheckRuleFixParamInfo struct {
 
 	// 检查项参数ID

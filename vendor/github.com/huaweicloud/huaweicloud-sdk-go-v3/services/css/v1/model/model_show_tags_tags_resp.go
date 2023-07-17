@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群标签。
+// ShowTagsTagsResp 集群标签。
 type ShowTagsTagsResp struct {
 
 	// 集群标签的key值。

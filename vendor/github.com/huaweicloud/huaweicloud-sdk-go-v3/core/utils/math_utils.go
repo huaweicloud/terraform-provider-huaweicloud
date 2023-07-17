@@ -40,16 +40,18 @@ func Min32(x, y int32) int32 {
 	return x
 }
 
+// RandInt32 生成一个随机数，有效区间是: [min, max), 其中要求 min > 0 & max > min
 func RandInt32(min, max int32) int32 {
-	if min >= max || min == 0 || max == 0 {
+	if min <= 0 || max <= min {
 		return max
 	}
 
-	b, err := rand.Int(reader, big.NewInt(int64(max)))
+	limit := big.NewInt(int64(max - min))
+	r, err := rand.Int(reader, limit)
 	if err != nil {
 		return max
 	}
-	return int32(b.Int64()) + min
+	return int32(r.Int64()) + min
 }
 
 func Pow32(x, y int32) int32 {

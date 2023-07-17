@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTemplateGroupResponse Response Object
 type CreateTemplateGroupResponse struct {
 	TemplateGroup  *TemplateGroup `json:"template_group,omitempty"`
 	HttpStatusCode int            `json:"-"`

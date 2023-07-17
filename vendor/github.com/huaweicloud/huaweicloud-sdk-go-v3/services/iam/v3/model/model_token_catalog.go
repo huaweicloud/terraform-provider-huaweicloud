@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenCatalog
 type TokenCatalog struct {
 
 	// 该接口所属服务。

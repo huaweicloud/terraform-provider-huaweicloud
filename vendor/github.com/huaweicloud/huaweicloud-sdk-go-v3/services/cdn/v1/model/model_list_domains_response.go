@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListDomainsResponse Response Object
 type ListDomainsResponse struct {
 
 	// 总条数。

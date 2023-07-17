@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UnpublishAssetsResponse Response Object
 type UnpublishAssetsResponse struct {
 	AssetInfoArray *[]AssetInfo `json:"asset_info_array,omitempty"`
 	HttpStatusCode int          `json:"-"`

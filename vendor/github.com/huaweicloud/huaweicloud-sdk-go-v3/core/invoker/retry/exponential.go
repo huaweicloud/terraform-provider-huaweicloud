@@ -25,8 +25,18 @@ import (
 
 // Exponential 指数退避 delay = min(最大等待时间, 基础等待时间 * (2^已重试次数))
 type Exponential struct {
+	*strategyBase
 }
 
-func (e *Exponential) ComputeDelayBeforeNextRetry() int32 {
-	return utils.Min32(MaxDelay, BaseDelay*(utils.Pow32(3, 2)))
+func NewExponential() *Exponential {
+	return &Exponential{strategyBase: newStrategyBase()}
+}
+
+func (e *Exponential) ComputeDelayBeforeNextRetry(retryTimes int32) int32 {
+	return getExponentialDelay(e.GetBaseDelay(), retryTimes)
+}
+
+// getExponentialDelay 等于 min(最大等待时间, 基础等待时间 * (2^已重试次数))
+func getExponentialDelay(baseDelay, retryTimes int32) int32 {
+	return utils.Min32(MaxDelay, baseDelay*(utils.Pow32(2, retryTimes)))
 }

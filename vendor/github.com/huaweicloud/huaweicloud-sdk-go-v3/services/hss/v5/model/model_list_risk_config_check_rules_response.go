@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRiskConfigCheckRulesResponse Response Object
 type ListRiskConfigCheckRulesResponse struct {
 
 	// 风险总数

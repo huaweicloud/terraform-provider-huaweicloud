@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ResetPasswordRequest Request Object
 type ResetPasswordRequest struct {
 
 	// 指定待修改集群密码的集群ID。

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneListEndpointsRequest Request Object
 type KeystoneListEndpointsRequest struct {
 
 	// 终端节点平面。可能取值为：public、internal或admin。public： 用户可在公共网络接口上看到。internal：用户可在内部网络接口上看到。admin：管理员可以在安全的网络接口上看到。
@@ -62,13 +62,18 @@ func (c KeystoneListEndpointsRequestInterface) MarshalJSON() ([]byte, error) {
 
 func (c *KeystoneListEndpointsRequestInterface) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListBatchTaskFilesResponse Response Object
 type ListBatchTaskFilesResponse struct {
 
 	// 批量任务文件列表。

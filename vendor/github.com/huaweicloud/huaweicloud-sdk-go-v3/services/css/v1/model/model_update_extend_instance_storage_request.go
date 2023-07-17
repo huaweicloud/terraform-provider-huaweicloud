@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateExtendInstanceStorageRequest Request Object
 type UpdateExtendInstanceStorageRequest struct {
 
 	// 指定待扩容的集群ID。

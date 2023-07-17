@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateMetadataResponse Response Object
 type CreateMetadataResponse struct {
 
 	// 导入结果信息。

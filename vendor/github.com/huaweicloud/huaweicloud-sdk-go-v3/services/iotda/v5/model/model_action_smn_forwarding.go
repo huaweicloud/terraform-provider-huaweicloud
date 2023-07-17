@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 发送给SMN消息结构
+// ActionSmnForwarding 发送给SMN消息结构
 type ActionSmnForwarding struct {
 
 	// **参数说明**：SMN服务对应的region区域。

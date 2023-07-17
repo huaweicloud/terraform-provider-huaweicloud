@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneUpdateUserByAdminResult
 type KeystoneUpdateUserByAdminResult struct {
 
 	// IAM用户密码状态。true：需要修改密码，false：正常。

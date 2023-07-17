@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// LoginTokenAssumedBy
 type LoginTokenAssumedBy struct {
 	User *LoginTokenUser `json:"user,omitempty"`
 }

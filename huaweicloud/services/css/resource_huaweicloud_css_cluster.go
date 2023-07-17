@@ -19,6 +19,7 @@ import (
 	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
 	cssv2model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -1098,9 +1099,9 @@ func updateBackupStrategy(d *schema.ResourceData, cssV1Client *v1.CssClient) err
 		_, err := cssV1Client.CreateAutoCreatePolicy(&model.CreateAutoCreatePolicyRequest{
 			ClusterId: d.Id(),
 			Body: &model.SetRdsBackupCnfReq{
-				Prefix:  "snapshot",
-				Period:  "00:00 GMT+08:00",
-				Keepday: 7,
+				Prefix:  utils.String("snapshot"),
+				Period:  utils.String("00:00 GMT+08:00"),
+				Keepday: utils.Int32(7),
 				Enable:  "false",
 			},
 		})
@@ -1147,9 +1148,9 @@ func updateBackupStrategy(d *schema.ResourceData, cssV1Client *v1.CssClient) err
 			opts := &model.CreateAutoCreatePolicyRequest{
 				ClusterId: d.Id(),
 				Body: &model.SetRdsBackupCnfReq{
-					Prefix:  raw["prefix"].(string),
-					Period:  raw["start_time"].(string),
-					Keepday: int32(raw["keep_days"].(int)),
+					Prefix:  utils.String(raw["prefix"].(string)),
+					Period:  utils.String(raw["start_time"].(string)),
+					Keepday: utils.Int32(int32(raw["keep_days"].(int))),
 					Enable:  "true",
 				},
 			}

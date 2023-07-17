@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateCloseKibanaRequest Request Object
 type UpdateCloseKibanaRequest struct {
 
 	// 指定待关闭的kibana公网访问的集群ID。

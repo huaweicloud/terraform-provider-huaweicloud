@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 账号统计信息
+// UserStatisticInfoResponseInfo 账号统计信息
 type UserStatisticInfoResponseInfo struct {
 
 	// 账号名称

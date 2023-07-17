@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteAssetCategoryRequest Request Object
 type DeleteAssetCategoryRequest struct {
 
 	// 视频分类ID

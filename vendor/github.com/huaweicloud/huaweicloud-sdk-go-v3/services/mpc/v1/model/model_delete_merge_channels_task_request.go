@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteMergeChannelsTaskRequest Request Object
 type DeleteMergeChannelsTaskRequest struct {
 
 	// 任务ID

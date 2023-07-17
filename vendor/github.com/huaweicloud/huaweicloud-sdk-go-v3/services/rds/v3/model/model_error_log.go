@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 错误日志信息。
+// ErrorLog 错误日志信息。
 type ErrorLog struct {
 
 	// 日期时间UTC时间。

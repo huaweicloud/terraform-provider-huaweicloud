@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateDomainResponse Response Object
 type CreateDomainResponse struct {
 	Domain         *CreateDomainResponseBodyContent `json:"domain,omitempty"`
 	HttpStatusCode int                              `json:"-"`

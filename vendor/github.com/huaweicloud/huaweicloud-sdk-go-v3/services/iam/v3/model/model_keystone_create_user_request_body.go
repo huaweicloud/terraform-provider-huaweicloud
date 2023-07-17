@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateUserRequestBody
 type KeystoneCreateUserRequestBody struct {
 	User *KeystoneCreateUserOption `json:"user"`
 }

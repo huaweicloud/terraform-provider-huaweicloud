@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// LoginToken
 type LoginToken struct {
 
 	// 账号ID。

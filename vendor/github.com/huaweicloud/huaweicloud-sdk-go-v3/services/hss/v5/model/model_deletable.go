@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 是否允许删除该策略组
+// Deletable 是否允许删除该策略组
 type Deletable struct {
 }
 

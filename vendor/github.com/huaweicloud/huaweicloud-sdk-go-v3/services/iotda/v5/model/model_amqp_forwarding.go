@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// amqp queue配置信息
+// AmqpForwarding amqp queue配置信息
 type AmqpForwarding struct {
 
 	// **参数说明**：用于接收满足规则条件数据的amqp queue。

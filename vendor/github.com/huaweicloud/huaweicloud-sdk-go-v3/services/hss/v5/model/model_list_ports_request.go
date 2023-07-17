@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListPortsRequest Request Object
 type ListPortsRequest struct {
 
 	// 主机id

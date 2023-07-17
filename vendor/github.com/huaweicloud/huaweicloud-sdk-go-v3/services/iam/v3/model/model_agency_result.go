@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyResult
 type AgencyResult struct {
 
 	// 委托创建时间。

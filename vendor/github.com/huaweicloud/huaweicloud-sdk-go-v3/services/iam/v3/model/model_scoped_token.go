@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ScopedToken
 type ScopedToken struct {
 
 	// 联邦unscoped token的ID。

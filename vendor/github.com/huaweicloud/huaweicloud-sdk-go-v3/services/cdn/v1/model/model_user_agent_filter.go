@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// UA黑白名单设置
+// UserAgentFilter UA黑白名单设置。
 type UserAgentFilter struct {
 
 	// UA黑白名单类型 off：关闭UA黑白名单; black：UA黑名单; white：UA白名单;

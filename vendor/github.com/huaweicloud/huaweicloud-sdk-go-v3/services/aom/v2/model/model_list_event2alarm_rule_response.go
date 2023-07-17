@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListEvent2alarmRuleResponse Response Object
 type ListEvent2alarmRuleResponse struct {
 	Body           *[]Event2alarmRuleBody `json:"body,omitempty"`
 	HttpStatusCode int                    `json:"-"`

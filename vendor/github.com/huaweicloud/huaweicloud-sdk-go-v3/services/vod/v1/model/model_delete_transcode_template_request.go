@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteTranscodeTemplateRequest Request Object
 type DeleteTranscodeTemplateRequest struct {
 
 	// 模板id

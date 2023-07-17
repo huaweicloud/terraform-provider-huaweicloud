@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例支持的功能属性描述。
+// ListEngineSupportFeaturesPropertiesEntity 实例支持的功能属性描述。
 type ListEngineSupportFeaturesPropertiesEntity struct {
 
 	// 转储功能的最大任务数。

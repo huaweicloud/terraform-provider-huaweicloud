@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 任务执行状态统计对象，用于统计任务的整体执行情况。
+// TaskProgress 任务执行状态统计对象，用于统计任务的整体执行情况。
 type TaskProgress struct {
 
 	// 子任务总个数。
@@ -29,6 +29,9 @@ type TaskProgress struct {
 
 	// 停止的子任务个数。
 	Stopped *int32 `json:"stopped,omitempty"`
+
+	// 移除的子任务个数。
+	Removed *int32 `json:"removed,omitempty"`
 }
 
 func (o TaskProgress) String() string {

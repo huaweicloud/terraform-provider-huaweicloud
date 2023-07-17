@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 媒体处理信息
+// MediaProcessTaskInfo 媒体处理信息
 type MediaProcessTaskInfo struct {
 
 	// 任务Id

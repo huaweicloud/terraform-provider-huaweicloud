@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CancelAssetTranscodeTaskRequest Request Object
 type CancelAssetTranscodeTaskRequest struct {
 
 	// 媒资ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RestoreSnapshotRequest Request Object
 type RestoreSnapshotRequest struct {
 
 	// 恢复快照所属的集群ID。

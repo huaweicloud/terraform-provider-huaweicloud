@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateRemuxTaskResponse Response Object
 type CreateRemuxTaskResponse struct {
 
 	// 任务ID

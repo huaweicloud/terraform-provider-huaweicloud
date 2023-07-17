@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowSubNetworkInterfacesQuantityResponse Response Object
 type ShowSubNetworkInterfacesQuantityResponse struct {
 
 	// 请求ID

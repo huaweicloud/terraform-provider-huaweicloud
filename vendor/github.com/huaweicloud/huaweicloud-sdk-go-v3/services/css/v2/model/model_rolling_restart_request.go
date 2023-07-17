@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RollingRestartRequest Request Object
 type RollingRestartRequest struct {
 
 	// 指定重启集群ID。

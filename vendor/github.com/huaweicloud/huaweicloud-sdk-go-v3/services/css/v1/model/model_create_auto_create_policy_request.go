@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateAutoCreatePolicyRequest Request Object
 type CreateAutoCreatePolicyRequest struct {
 
 	// 指定要自动创建快照的集群ID。

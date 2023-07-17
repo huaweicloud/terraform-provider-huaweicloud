@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// AgencyTokenUser
 type AgencyTokenUser struct {
 
 	// 委托方A账号名/委托名。

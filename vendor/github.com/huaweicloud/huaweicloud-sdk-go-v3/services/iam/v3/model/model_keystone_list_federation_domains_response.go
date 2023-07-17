@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneListFederationDomainsResponse Response Object
 type KeystoneListFederationDomainsResponse struct {
 
 	// 账号信息列表。

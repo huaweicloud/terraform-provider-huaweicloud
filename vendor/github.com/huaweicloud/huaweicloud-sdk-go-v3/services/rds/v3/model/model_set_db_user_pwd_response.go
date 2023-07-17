@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetDbUserPwdResponse Response Object
 type SetDbUserPwdResponse struct {
 
 	// 操作结果。

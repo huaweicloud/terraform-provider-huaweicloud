@@ -79,6 +79,25 @@ func GenReqDefForAssociateAgencyWithProjectPermission() *def.HttpRequestDef {
 	return requestDef
 }
 
+func GenReqDefForAssociateRoleToAgencyOnEnterpriseProject() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodPut).
+		WithPath("/v3.0/OS-PERMISSION/subjects/agency/scopes/enterprise-project/role-assignments").
+		WithResponse(new(model.AssociateRoleToAgencyOnEnterpriseProjectResponse)).
+		WithContentType("application/json;charset=UTF-8")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
+	reqDefBuilder.WithResponseField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
 func GenReqDefForAssociateRoleToGroupOnEnterpriseProject() *def.HttpRequestDef {
 	reqDefBuilder := def.NewHttpRequestDefBuilder().
 		WithMethod(http.MethodPut).
@@ -1743,6 +1762,25 @@ func GenReqDefForRemoveProjectPermissionFromAgency() *def.HttpRequestDef {
 		WithName("RoleId").
 		WithJsonTag("role_id").
 		WithLocationType(def.Path))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
+func GenReqDefForRevokeRoleFromAgencyOnEnterpriseProject() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodDelete).
+		WithPath("/v3.0/OS-PERMISSION/subjects/agency/scopes/enterprise-project/role-assignments").
+		WithResponse(new(model.RevokeRoleFromAgencyOnEnterpriseProjectResponse)).
+		WithContentType("application/json")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
+	reqDefBuilder.WithResponseField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
 
 	requestDef := reqDefBuilder.Build()
 	return requestDef

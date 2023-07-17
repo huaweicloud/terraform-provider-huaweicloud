@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneListMappingsRequest Request Object
 type KeystoneListMappingsRequest struct {
 }
 

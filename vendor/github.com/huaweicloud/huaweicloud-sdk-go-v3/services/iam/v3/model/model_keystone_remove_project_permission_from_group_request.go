@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneRemoveProjectPermissionFromGroupRequest Request Object
 type KeystoneRemoveProjectPermissionFromGroupRequest struct {
 
 	// 项目ID，获取方式请参见：[获取项目名称、项目ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。

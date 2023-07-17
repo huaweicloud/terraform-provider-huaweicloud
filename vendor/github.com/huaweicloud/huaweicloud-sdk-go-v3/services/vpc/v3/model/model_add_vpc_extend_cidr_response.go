@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// AddVpcExtendCidrResponse Response Object
 type AddVpcExtendCidrResponse struct {
 	Vpc *Vpc `json:"vpc,omitempty"`
 

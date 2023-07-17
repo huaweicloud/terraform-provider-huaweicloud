@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// DeleteEvent2alarmRuleResponse Response Object
 type DeleteEvent2alarmRuleResponse struct {
 	HttpStatusCode int `json:"-"`
 }

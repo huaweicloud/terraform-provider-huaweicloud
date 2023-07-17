@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 扩容实例磁盘时必填。
+// EnlargeVolumeObject 扩容实例磁盘时必填。
 type EnlargeVolumeObject struct {
 
 	// 每次扩容最小容量为10GB，实例所选容量大小必须为10的整数倍，取值范围：40GB~4000GB。 - MySQL部分用户支持11GB~10000GB，如果您想开通该功能，请联系客服。 - PostgreSQL部分用户支持40GB~15000GB，如果您想开通该功能，请联系客服。

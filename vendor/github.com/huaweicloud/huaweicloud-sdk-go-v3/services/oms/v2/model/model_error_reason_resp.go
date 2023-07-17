@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 迁移任务查询接口中返回的任务失败信息提示
+// ErrorReasonResp 迁移任务查询接口中返回的任务失败信息提示
 type ErrorReasonResp struct {
 
 	// 迁移失败的错误码。

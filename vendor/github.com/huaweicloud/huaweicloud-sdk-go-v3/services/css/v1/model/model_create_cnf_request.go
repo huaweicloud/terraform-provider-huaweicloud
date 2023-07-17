@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateCnfRequest Request Object
 type CreateCnfRequest struct {
 
 	// 指定创建配置文件的集群ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTranscodingTaskRequest Request Object
 type ListTranscodingTaskRequest struct {
 
 	// 客户端语言

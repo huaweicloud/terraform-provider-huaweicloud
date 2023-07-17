@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateAnimatedGraphicsTaskResponse Response Object
 type CreateAnimatedGraphicsTaskResponse struct {
 
 	// 任务ID

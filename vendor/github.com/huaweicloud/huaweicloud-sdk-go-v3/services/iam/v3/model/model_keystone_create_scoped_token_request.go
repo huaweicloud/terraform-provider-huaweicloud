@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneCreateScopedTokenRequest Request Object
 type KeystoneCreateScopedTokenRequest struct {
 	Body *KeystoneCreateScopedTokenRequestBody `json:"body,omitempty"`
 }

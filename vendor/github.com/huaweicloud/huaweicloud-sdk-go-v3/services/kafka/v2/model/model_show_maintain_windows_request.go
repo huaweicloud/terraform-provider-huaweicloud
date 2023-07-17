@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowMaintainWindowsRequest Request Object
 type ShowMaintainWindowsRequest struct {
 }
 

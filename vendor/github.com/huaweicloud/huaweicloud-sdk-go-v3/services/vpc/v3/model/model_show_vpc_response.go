@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowVpcResponse Response Object
 type ShowVpcResponse struct {
 
 	// 请求ID

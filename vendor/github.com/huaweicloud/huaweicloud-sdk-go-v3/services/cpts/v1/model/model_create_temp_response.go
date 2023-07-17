@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTempResponse Response Object
 type CreateTempResponse struct {
 
 	// code

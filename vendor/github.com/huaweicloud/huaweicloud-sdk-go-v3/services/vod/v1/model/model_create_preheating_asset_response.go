@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreatePreheatingAssetResponse Response Object
 type CreatePreheatingAssetResponse struct {
 
 	// 预热任务ID。

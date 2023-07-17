@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateBackupPolicyInfoResponse Response Object
 type UpdateBackupPolicyInfoResponse struct {
 
 	// 错误编码,成功返回0

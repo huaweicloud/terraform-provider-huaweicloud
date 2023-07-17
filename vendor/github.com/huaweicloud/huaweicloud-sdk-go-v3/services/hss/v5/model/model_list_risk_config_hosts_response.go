@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRiskConfigHostsResponse Response Object
 type ListRiskConfigHostsResponse struct {
 
 	// 数据总量

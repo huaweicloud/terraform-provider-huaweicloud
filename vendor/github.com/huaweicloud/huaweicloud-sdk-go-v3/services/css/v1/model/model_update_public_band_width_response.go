@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdatePublicBandWidthResponse Response Object
 type UpdatePublicBandWidthResponse struct {
 	HttpStatusCode int `json:"-"`
 }

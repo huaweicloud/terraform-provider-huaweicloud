@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// {  \"login_protect\":{         \"user_id\": \"16b26081f43d4c628c4bb88cf32e9f9b\",         \"enabled\": true,         \"verification_method\": \"vmfa\"     } }
+// UpdateLoginProtectRespon {  \"login_protect\":{         \"user_id\": \"16b26081f43d4c628c4bb88cf32e9f9b\",         \"enabled\": true,         \"verification_method\": \"vmfa\"     } }
 type UpdateLoginProtectRespon struct {
 
 	// 待修改信息的IAM用户ID。

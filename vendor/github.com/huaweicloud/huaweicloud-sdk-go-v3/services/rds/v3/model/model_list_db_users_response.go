@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListDbUsersResponse Response Object
 type ListDbUsersResponse struct {
 
 	// 用户信息。

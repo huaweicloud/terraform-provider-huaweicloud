@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 节点对象。
+// ClusterListInstances 节点对象。
 type ClusterListInstances struct {
 
 	// 节点状态值。  - 100：创建中。 - 200：可用。 - 303：不可用，如创建失败。

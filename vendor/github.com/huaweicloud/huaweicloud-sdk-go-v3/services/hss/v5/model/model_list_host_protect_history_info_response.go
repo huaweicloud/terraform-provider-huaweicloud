@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListHostProtectHistoryInfoResponse Response Object
 type ListHostProtectHistoryInfoResponse struct {
 
 	// 服务器名称

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteWatermarkTemplateRequest Request Object
 type DeleteWatermarkTemplateRequest struct {
 
 	// 水印模板ID

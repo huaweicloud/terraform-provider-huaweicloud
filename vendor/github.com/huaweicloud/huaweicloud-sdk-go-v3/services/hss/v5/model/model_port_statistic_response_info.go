@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 开放端口统计信息
+// PortStatisticResponseInfo 开放端口统计信息
 type PortStatisticResponseInfo struct {
 
 	// 端口号

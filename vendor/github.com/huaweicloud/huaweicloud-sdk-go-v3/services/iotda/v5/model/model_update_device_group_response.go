@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateDeviceGroupResponse Response Object
 type UpdateDeviceGroupResponse struct {
 
 	// 设备组ID，用于唯一标识一个设备组，在创建设备组时由物联网平台分配。
@@ -19,8 +19,14 @@ type UpdateDeviceGroupResponse struct {
 	Description *string `json:"description,omitempty"`
 
 	// 父设备组ID，该设备组的父设备组ID。
-	SuperGroupId   *string `json:"super_group_id,omitempty"`
-	HttpStatusCode int     `json:"-"`
+	SuperGroupId *string `json:"super_group_id,omitempty"`
+
+	// 设备组类型，分为动态设备组和静态设备组两种
+	GroupType *string `json:"group_type,omitempty"`
+
+	// 动态设备组规则
+	DynamicGroupRule *string `json:"dynamic_group_rule,omitempty"`
+	HttpStatusCode   int     `json:"-"`
 }
 
 func (o UpdateDeviceGroupResponse) String() string {

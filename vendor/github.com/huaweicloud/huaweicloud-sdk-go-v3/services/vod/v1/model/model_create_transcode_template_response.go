@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTranscodeTemplateResponse Response Object
 type CreateTranscodeTemplateResponse struct {
 
 	// 模板组ID<br/>

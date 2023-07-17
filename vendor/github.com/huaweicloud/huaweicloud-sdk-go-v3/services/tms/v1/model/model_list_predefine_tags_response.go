@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListPredefineTagsResponse Response Object
 type ListPredefineTagsResponse struct {
 
 	// 分页位置标识（索引）。

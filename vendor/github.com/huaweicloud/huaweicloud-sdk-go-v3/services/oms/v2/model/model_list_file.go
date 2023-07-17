@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 列表文件配置。
+// ListFile 列表文件配置。
 type ListFile struct {
 
 	// 对象列表文件或URL列表文件对象名。

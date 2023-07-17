@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneRemoveUserFromGroupRequest Request Object
 type KeystoneRemoveUserFromGroupRequest struct {
 
 	// 用户组ID，获取方式请参见：[获取用户组ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。

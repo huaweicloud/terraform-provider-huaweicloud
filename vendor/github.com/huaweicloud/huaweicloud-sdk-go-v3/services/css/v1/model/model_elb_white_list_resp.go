@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 公网访问信息。
+// ElbWhiteListResp 公网访问信息。
 type ElbWhiteListResp struct {
 
 	// 是否开启公网访问控制。 - true: 开启公网访问控制。 - false: 关闭公网访问控制。

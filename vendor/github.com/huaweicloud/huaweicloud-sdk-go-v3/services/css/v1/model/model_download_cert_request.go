@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DownloadCertRequest Request Object
 type DownloadCertRequest struct {
 }
 

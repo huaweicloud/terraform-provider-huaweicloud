@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAppsRequest Request Object
 type ListAppsRequest struct {
 
 	// 主机id

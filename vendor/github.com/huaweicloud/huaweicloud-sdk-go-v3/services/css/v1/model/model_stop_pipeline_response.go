@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StopPipelineResponse Response Object
 type StopPipelineResponse struct {
 	HttpStatusCode int `json:"-"`
 }

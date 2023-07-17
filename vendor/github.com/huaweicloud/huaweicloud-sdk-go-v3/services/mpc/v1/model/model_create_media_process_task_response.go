@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateMediaProcessTaskResponse Response Object
 type CreateMediaProcessTaskResponse struct {
 
 	// 任务Id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListYmlsRequest Request Object
 type ListYmlsRequest struct {
 
 	// 指定查询集群ID。

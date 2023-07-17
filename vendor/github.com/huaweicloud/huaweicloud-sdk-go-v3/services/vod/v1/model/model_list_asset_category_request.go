@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAssetCategoryRequest Request Object
 type ListAssetCategoryRequest struct {
 
 	// 视频分类ID。  若设置为0，则查询所有一级分类。

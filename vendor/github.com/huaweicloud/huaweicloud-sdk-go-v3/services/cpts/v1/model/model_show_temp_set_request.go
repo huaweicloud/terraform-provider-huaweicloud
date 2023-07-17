@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowTempSetRequest Request Object
 type ShowTempSetRequest struct {
 
 	// 测试工程id

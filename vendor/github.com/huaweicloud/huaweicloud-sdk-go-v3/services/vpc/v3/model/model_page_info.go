@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// PageInfo
 type PageInfo struct {
 
 	// 当前页第一条记录

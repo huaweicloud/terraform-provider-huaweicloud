@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateVpcRequest Request Object
 type UpdateVpcRequest struct {
 
 	// VPC资源ID

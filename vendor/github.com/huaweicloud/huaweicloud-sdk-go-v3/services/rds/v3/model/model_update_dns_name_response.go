@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateDnsNameResponse Response Object
 type UpdateDnsNameResponse struct {
 
 	// 任务ID。

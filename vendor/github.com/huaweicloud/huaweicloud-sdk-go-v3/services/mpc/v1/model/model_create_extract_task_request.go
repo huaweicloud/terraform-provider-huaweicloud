@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateExtractTaskRequest Request Object
 type CreateExtractTaskRequest struct {
 	Body *CreateExtractTaskReq `json:"body,omitempty"`
 }

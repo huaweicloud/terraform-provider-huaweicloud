@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetReadOnlySwitchRequest Request Object
 type SetReadOnlySwitchRequest struct {
 
 	// 语言

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDrReplicaStatusResponse Response Object
 type ShowDrReplicaStatusResponse struct {
 
 	// 同步状态，取值范围是0或-1，0表示正常，-1表示异常。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateOriginHostResponse Response Object
 type UpdateOriginHostResponse struct {
 	OriginHost     *DomainOriginHost `json:"origin_host,omitempty"`
 	HttpStatusCode int               `json:"-"`

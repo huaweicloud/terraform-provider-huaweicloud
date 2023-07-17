@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateWatermarkTemplateRequest Request Object
 type CreateWatermarkTemplateRequest struct {
 	Body *CreateWatermarkTemplateReq `json:"body,omitempty"`
 }

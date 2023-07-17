@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneListProjectPermissionsForGroupResponse Response Object
 type KeystoneListProjectPermissionsForGroupResponse struct {
 	Links *Links `json:"links,omitempty"`
 

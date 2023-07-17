@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// HA配置参数，创建HA实例时使用。
+// HaResponse HA配置参数，创建HA实例时使用。
 type HaResponse struct {
 
 	// 备机同步参数。实例主备模式为Ha时有效。 取值： - MySQL为“async”或“semisync”。 - PostgreSQL为“async”或“sync”。 - Microsoft SQL Server为“sync”。
@@ -59,13 +59,18 @@ func (c HaResponseReplicationMode) MarshalJSON() ([]byte, error) {
 
 func (c *HaResponseReplicationMode) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowPartitionMessageResponse Response Object
 type ShowPartitionMessageResponse struct {
 
 	// 消息列表。

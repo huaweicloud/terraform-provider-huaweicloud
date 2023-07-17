@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListRestoreTimesRequest Request Object
 type ListRestoreTimesRequest struct {
 
 	// 语言

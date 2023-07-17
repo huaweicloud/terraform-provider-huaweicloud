@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowDomainNameRequest Request Object
 type ShowDomainNameRequest struct {
 
 	// 实例ID。

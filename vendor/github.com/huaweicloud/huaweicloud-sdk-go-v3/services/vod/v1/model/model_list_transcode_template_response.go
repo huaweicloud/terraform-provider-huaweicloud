@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTranscodeTemplateResponse Response Object
 type ListTranscodeTemplateResponse struct {
 
 	// 模板组信息<br/>

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ConfigByOption
 type ConfigByOption struct {
 
 	// 密码强度策略的正则表达式。(当option为password_regex时返回)

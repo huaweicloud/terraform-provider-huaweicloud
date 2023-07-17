@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 需要提取音频的参数信息。
+// Parameter 需要提取音频的参数信息。
 type Parameter struct {
 
 	// 封装格式。  取值如下： - MP3 - AAC

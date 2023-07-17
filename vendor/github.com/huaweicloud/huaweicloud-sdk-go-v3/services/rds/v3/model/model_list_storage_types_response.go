@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListStorageTypesResponse Response Object
 type ListStorageTypesResponse struct {
 
 	// 实例磁盘类型信息。

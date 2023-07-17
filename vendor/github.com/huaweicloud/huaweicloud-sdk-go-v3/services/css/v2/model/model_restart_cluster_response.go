@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RestartClusterResponse Response Object
 type RestartClusterResponse struct {
 	HttpStatusCode int `json:"-"`
 }

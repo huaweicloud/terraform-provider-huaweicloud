@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 事件编号
+// EventId 事件编号
 type EventId struct {
 }
 

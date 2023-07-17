@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 端口信息
+// PortResponseInfo 端口信息
 type PortResponseInfo struct {
 
 	// 主机id

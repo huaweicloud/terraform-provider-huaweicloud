@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListTaskGroupRequest Request Object
 type ListTaskGroupRequest struct {
 
 	// 查询返回迁移组任务列表当前页面的数量，默认查询10条。 最多返回100条迁移任务信息。

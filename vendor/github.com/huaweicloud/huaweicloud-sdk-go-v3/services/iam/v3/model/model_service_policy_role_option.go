@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ServicePolicyRoleOption
 type ServicePolicyRoleOption struct {
 
 	// 自定义策略展示名。

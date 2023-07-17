@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 集群扩容请求详细描述。
+// RoleExtendGrowReq 集群扩容请求详细描述。
 type RoleExtendGrowReq struct {
 
 	// 扩容实例类型。取值为ess、ess-master或ess-client，可以选择其中一个或多个之间的组合但不可以重复选择。  ess-master、ess-client节点只支持增加实例个数。

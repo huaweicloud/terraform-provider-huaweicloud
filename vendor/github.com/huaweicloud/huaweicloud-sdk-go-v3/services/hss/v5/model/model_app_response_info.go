@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 软件信息
+// AppResponseInfo 软件信息
 type AppResponseInfo struct {
 
 	// agent_id

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListLogItemsRequest Request Object
 type ListLogItemsRequest struct {
 
 	// 日志接口调用方式,当值为\"querylogs\"时接口功能为查询日志内容。

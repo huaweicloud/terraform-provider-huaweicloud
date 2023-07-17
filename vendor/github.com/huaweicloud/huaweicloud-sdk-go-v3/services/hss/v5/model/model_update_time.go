@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 更新时间，毫秒
+// UpdateTime 更新时间，毫秒
 type UpdateTime struct {
 }
 

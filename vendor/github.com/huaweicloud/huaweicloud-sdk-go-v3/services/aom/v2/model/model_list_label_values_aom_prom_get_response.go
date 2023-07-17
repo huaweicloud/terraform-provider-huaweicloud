@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListLabelValuesAomPromGetResponse Response Object
 type ListLabelValuesAomPromGetResponse struct {
 
 	// 响应状态。

@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListDeviceGroupsResponse Response Object
 type ListDeviceGroupsResponse struct {
 
 	// 设备组信息列表。
-	DeviceGroups *[]DeviceGroupResponseDto `json:"device_groups,omitempty"`
+	DeviceGroups *[]DeviceGroupResponseSummary `json:"device_groups,omitempty"`
 
 	Page           *Page `json:"page,omitempty"`
 	HttpStatusCode int   `json:"-"`

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateEncryptTaskResponse Response Object
 type CreateEncryptTaskResponse struct {
 
 	// 加密任务Id

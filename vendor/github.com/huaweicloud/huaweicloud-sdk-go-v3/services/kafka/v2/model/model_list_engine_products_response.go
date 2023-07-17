@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListEngineProductsResponse Response Object
 type ListEngineProductsResponse struct {
 
 	// 分布式消息服务的产品类型。

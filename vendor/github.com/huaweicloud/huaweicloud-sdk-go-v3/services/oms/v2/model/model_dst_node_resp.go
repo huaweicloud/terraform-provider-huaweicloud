@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// DstNodeResp
 type DstNodeResp struct {
 
 	// 目的端桶的名称。

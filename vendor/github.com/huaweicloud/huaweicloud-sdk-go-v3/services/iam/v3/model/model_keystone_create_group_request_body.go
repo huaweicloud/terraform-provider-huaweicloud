@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateGroupRequestBody
 type KeystoneCreateGroupRequestBody struct {
 	Group *KeystoneCreateGroupOption `json:"group"`
 }

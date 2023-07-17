@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 产品概要信息。
+// ProductSummary 产品概要信息。
 type ProductSummary struct {
 
 	// 资源空间ID。

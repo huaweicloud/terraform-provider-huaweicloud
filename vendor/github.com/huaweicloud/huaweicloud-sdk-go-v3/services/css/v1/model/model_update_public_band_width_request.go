@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdatePublicBandWidthRequest Request Object
 type UpdatePublicBandWidthRequest struct {
 
 	// 指定修改公网访问带宽集群ID。

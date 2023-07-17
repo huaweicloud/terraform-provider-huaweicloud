@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainStatsResponse Response Object
 type ShowDomainStatsResponse struct {
 
 	// 按指定的分组方式组织的数据

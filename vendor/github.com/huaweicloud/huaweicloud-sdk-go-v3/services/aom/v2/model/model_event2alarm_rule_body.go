@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 事件类告警实体
+// Event2alarmRuleBody 事件类告警实体
 type Event2alarmRuleBody struct {
 
 	// 用户项目id

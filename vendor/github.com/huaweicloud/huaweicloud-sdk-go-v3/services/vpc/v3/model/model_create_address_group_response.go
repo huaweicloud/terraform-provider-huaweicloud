@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateAddressGroupResponse Response Object
 type CreateAddressGroupResponse struct {
 
 	// 请求ID

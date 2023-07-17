@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//  标签对象。
+// TagVo  标签对象。
 type TagVo struct {
 
 	//   键。 最大长度36个字符。 字符集：A-Z，a-z ， 0-9，‘-’，‘_’，UNICODE字符（\\u4E00-\\u9FFF）。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateManualBackupResponse Response Object
 type CreateManualBackupResponse struct {
 	Backup         *BackupInfo `json:"backup,omitempty"`
 	HttpStatusCode int         `json:"-"`

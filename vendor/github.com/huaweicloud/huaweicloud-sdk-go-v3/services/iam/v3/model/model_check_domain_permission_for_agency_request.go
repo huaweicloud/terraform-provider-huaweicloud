@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CheckDomainPermissionForAgencyRequest Request Object
 type CheckDomainPermissionForAgencyRequest struct {
 
 	// 委托方账号ID，获取方式请参见：[获取账号ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateClusterNameRequest Request Object
 type UpdateClusterNameRequest struct {
 
 	// 指定待更改集群名称的集群ID。

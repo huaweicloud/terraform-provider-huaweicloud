@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTransTemplateResponse Response Object
 type CreateTransTemplateResponse struct {
 
 	// 自定义转码模板编号。

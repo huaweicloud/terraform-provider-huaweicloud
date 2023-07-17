@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListClustersDetailsRequest Request Object
 type ListClustersDetailsRequest struct {
 
 	// 指定查询起始值，默认值为1，即从第1个集群开始查询。

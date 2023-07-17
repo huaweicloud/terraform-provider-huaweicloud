@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListStatSummaryRequest Request Object
 type ListStatSummaryRequest struct {
 
 	// 开始时间。格式为yyyymmdd。必须是与时区无关的UTC时间。

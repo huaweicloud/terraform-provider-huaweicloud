@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListSnapshotsRequest Request Object
 type ListSnapshotsRequest struct {
 
 	// 指定需查询的快照所属的集群的ID。

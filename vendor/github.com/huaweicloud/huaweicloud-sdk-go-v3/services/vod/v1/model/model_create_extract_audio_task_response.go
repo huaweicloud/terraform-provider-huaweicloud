@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateExtractAudioTaskResponse Response Object
 type CreateExtractAudioTaskResponse struct {
 
 	// 视频源媒资ID。

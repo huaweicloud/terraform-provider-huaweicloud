@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 消息体。
+// ShowPartitionMessageEntity 消息体。
 type ShowPartitionMessageEntity struct {
 
 	// 消息的key。

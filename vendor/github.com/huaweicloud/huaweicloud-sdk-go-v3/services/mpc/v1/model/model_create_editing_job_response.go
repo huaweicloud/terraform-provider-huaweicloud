@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateEditingJobResponse Response Object
 type CreateEditingJobResponse struct {
 
 	// 接受任务后产生的任务ID。

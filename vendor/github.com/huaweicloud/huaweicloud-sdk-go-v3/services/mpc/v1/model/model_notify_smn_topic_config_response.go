@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// NotifySmnTopicConfigResponse Response Object
 type NotifySmnTopicConfigResponse struct {
 	HttpStatusCode int `json:"-"`
 }

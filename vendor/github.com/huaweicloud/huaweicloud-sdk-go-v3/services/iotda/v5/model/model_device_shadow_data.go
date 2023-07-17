@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 设备影子数据结构体。
+// DeviceShadowData 设备影子数据结构体。
 type DeviceShadowData struct {
 
 	// 设备的服务ID，在设备关联的产品模型中定义。

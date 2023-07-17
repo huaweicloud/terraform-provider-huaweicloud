@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// Resources
 type Resources struct {
 
 	// 配额最大值。

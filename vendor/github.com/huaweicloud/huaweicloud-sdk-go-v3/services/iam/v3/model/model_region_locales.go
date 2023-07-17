@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// RegionLocales
 type RegionLocales struct {
 
 	// 区域的中文名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateUserInformationRequestBody
 type UpdateUserInformationRequestBody struct {
 	User *UpdateUserInformationOption `json:"user"`
 }

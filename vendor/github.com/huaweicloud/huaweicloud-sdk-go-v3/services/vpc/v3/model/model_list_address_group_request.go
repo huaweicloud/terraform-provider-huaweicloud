@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAddressGroupRequest Request Object
 type ListAddressGroupRequest struct {
 
 	// 功能说明：每页返回的个数 取值范围：0~2000
@@ -26,6 +26,9 @@ type ListAddressGroupRequest struct {
 
 	// 地址组描述信息，填写后按照地址组描述信息过滤，支持多描述同时过滤
 	Description *[]string `json:"description,omitempty"`
+
+	// 功能说明：企业项目ID。可以使用该字段过滤某个企业项目下的IP地址组。 取值范围：最大长度36字节，带“-”连字符的UUID格式，或者是字符串“0”。“0”表示默认企业项目。若需要查询当前用户所有企业项目绑定的IP地址组，请传参all_granted_eps。
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 
 func (o ListAddressGroupRequest) String() string {

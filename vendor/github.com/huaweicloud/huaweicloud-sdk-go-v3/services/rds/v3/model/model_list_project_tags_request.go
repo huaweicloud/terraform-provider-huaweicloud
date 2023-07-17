@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListProjectTagsRequest Request Object
 type ListProjectTagsRequest struct {
 
 	// 语言

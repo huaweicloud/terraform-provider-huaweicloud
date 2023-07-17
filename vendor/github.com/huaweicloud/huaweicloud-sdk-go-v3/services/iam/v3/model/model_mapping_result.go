@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// MappingResult
 type MappingResult struct {
 
 	// 映射ID。

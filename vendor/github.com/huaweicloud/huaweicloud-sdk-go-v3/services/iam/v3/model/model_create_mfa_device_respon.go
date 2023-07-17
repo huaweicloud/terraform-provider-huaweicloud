@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// MFA设备密钥。
+// CreateMfaDeviceRespon MFA设备密钥。
 type CreateMfaDeviceRespon struct {
 
 	// MFA设备序列号。

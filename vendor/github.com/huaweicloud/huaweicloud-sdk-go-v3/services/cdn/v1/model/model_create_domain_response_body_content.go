@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建域名返回信息
+// CreateDomainResponseBodyContent 创建域名返回信息。
 type CreateDomainResponseBodyContent struct {
 
 	// 加速域名ID。
@@ -30,7 +30,7 @@ type CreateDomainResponseBodyContent struct {
 	// 加速域名对应的CNAME。
 	Cname *string `json:"cname,omitempty"`
 
-	// 源站信息
+	// 源站信息。
 	Sources *[]Sources `json:"sources,omitempty"`
 
 	DomainOriginHost *DomainOriginHost `json:"domain_origin_host,omitempty"`
@@ -50,16 +50,16 @@ type CreateDomainResponseBodyContent struct {
 	// 锁定状态（0代表未锁定；1代表锁定）。
 	Locked *int32 `json:"locked,omitempty"`
 
-	// range状态（\"off\"/\"on\"）。
+	// range状态，off：关闭，on：开启。
 	RangeStatus *string `json:"range_status,omitempty"`
 
-	// follow302状态（\"off\"/\"on\"）。
+	// follow302状态，off：关闭，on：开启。
 	FollowStatus *string `json:"follow_status,omitempty"`
 
-	// 是否暂停源站回源。
+	// 是否暂停源站回源（off代表关闭 on代表开启）。
 	OriginStatus *string `json:"origin_status,omitempty"`
 
-	// 自动刷新预热（0代表关闭；1代表打开）
+	// 自动刷新预热（0代表关闭；1代表打开）。
 	AutoRefreshPreheat *int32 `json:"auto_refresh_preheat,omitempty"`
 }
 

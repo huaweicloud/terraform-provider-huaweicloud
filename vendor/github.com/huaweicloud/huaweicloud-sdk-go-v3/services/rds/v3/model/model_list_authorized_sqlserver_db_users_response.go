@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAuthorizedSqlserverDbUsersResponse Response Object
 type ListAuthorizedSqlserverDbUsersResponse struct {
 
 	// 用户及相关权限。

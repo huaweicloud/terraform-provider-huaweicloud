@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListVariablesRequest Request Object
 type ListVariablesRequest struct {
 
 	// 变量类型

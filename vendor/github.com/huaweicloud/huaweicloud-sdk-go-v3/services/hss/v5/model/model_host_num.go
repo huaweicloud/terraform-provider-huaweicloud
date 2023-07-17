@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 关联服务器数
+// HostNum 关联服务器数
 type HostNum struct {
 }
 

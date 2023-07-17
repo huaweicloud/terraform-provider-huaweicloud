@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListMuteRuleRequest Request Object
 type ListMuteRuleRequest struct {
 }
 

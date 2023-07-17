@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneGroupResultWithLinksSelf
 type KeystoneGroupResultWithLinksSelf struct {
 
 	// 用户组描述信息。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则响应结构体
+// RuleResponse 规则响应结构体
 type RuleResponse struct {
 
 	// 规则id。

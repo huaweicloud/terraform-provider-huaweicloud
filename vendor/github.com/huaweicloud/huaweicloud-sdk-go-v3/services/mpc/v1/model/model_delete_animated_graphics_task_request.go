@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteAnimatedGraphicsTaskRequest Request Object
 type DeleteAnimatedGraphicsTaskRequest struct {
 
 	// 任务ID

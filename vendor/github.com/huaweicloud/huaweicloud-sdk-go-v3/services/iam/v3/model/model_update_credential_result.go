@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdateCredentialResult
 type UpdateCredentialResult struct {
 
 	// IAM用户ID。

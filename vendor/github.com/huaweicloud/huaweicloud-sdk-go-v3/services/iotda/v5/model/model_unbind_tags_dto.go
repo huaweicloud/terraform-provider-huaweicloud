@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 创建标签请求结构体。
+// UnbindTagsDto 创建标签请求结构体。
 type UnbindTagsDto struct {
 
 	// **参数说明**：要绑定标签的资源类型。 **取值范围**： - device：设备。

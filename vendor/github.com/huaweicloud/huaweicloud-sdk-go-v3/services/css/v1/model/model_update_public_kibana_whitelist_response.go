@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdatePublicKibanaWhitelistResponse Response Object
 type UpdatePublicKibanaWhitelistResponse struct {
 	HttpStatusCode int `json:"-"`
 }

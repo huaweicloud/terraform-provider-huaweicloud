@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateTemporaryAccessKeyByAgencyResponse Response Object
 type CreateTemporaryAccessKeyByAgencyResponse struct {
 	Credential     *Credential `json:"credential,omitempty"`
 	HttpStatusCode int         `json:"-"`

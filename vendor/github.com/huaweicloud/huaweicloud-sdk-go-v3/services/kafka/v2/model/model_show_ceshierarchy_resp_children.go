@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 子维度信息。
+// ShowCeshierarchyRespChildren 子维度信息。
 type ShowCeshierarchyRespChildren struct {
 
 	// 子维度名称。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneListMappingsResponse Response Object
 type KeystoneListMappingsResponse struct {
 	Links *Links `json:"links,omitempty"`
 

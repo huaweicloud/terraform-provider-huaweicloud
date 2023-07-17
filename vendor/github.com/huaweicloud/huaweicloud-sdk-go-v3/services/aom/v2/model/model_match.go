@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 静默规则的匹配条件
+// Match 静默规则的匹配条件
 type Match struct {
 
 	// 指定按照Metadata中的key进行匹配
@@ -65,13 +65,18 @@ func (c MatchOperate) MarshalJSON() ([]byte, error) {
 
 func (c *MatchOperate) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例磁盘类型信息。
+// Storage 实例磁盘类型信息。
 type Storage struct {
 
 	// 磁盘类型名称，可能取值如下： - ULTRAHIGH：表示SSD。 - LOCALSSD：表示本地SSD。 - CLOUDSSD：表示SSD云盘，仅支持通用型和独享型规格实例。 - ESSD：表示极速型SSD，仅支持独享型规格实例。

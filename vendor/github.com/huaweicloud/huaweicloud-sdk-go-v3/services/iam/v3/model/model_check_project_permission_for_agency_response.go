@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CheckProjectPermissionForAgencyResponse Response Object
 type CheckProjectPermissionForAgencyResponse struct {
 	HttpStatusCode int `json:"-"`
 }

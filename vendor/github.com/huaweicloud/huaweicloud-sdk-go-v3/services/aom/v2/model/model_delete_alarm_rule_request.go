@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteAlarmRuleRequest Request Object
 type DeleteAlarmRuleRequest struct {
 
 	// 阈值规则ID。

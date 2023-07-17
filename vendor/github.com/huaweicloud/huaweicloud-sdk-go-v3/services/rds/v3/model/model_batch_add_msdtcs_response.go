@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// BatchAddMsdtcsResponse Response Object
 type BatchAddMsdtcsResponse struct {
 
 	// 任务流id

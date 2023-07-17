@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetBinlogClearPolicyRequest Request Object
 type SetBinlogClearPolicyRequest struct {
 
 	// 语言

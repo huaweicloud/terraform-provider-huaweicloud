@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 规则条件组
+// ConditionGroup 规则条件组
 type ConditionGroup struct {
 
 	// **参数说明**：规则的条件列表，单个规则最多支持设置10个条件。

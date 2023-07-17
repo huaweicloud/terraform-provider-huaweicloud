@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 要删除的规则名称
+// DeleteMuteRuleName 要删除的规则名称
 type DeleteMuteRuleName struct {
 
 	// 要删除的静默规则的名称

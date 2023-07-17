@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateQualityEnhanceTemplateResponse Response Object
 type CreateQualityEnhanceTemplateResponse struct {
 
 	// 模板ID。

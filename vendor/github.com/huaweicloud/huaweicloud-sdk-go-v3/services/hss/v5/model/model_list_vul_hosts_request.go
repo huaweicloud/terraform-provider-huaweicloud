@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListVulHostsRequest Request Object
 type ListVulHostsRequest struct {
 
 	// 企业租户ID，查询所有企业项目时填写：all_granted_eps
@@ -15,7 +15,7 @@ type ListVulHostsRequest struct {
 	// 漏洞ID
 	VulId string `json:"vul_id"`
 
-	// 漏洞类型   - linux_vul : 漏洞类型-linux漏洞   - windows_vul : 漏洞类型-windows漏洞
+	// 漏洞类型   - linux_vul : 漏洞类型-linux漏洞   - windows_vul : 漏洞类型-windows漏洞   - web_cms : Web-CMS漏洞   - app_vul : 应用漏洞
 	Type string `json:"type"`
 
 	// 受影响资产名称
@@ -32,6 +32,21 @@ type ListVulHostsRequest struct {
 
 	// 偏移
 	Offset *int32 `json:"offset,omitempty"`
+
+	// 资产重要性 important:重要 common：一般 test：测试
+	AssetValue *string `json:"asset_value,omitempty"`
+
+	// 服务器组名称
+	GroupName *string `json:"group_name,omitempty"`
+
+	// 处置状态，包含如下:   - unhandled ：未处理   - handled : 已处理
+	HandleStatus *string `json:"handle_status,omitempty"`
+
+	// 危险程度 ，Critical，High，Medium，Low
+	SeverityLevel *string `json:"severity_level,omitempty"`
+
+	// 是否影响业务
+	IsAffectBusiness *bool `json:"is_affect_business,omitempty"`
 }
 
 func (o ListVulHostsRequest) String() string {

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListClustersDetailsResponse Response Object
 type ListClustersDetailsResponse struct {
 
 	// 集群个数。

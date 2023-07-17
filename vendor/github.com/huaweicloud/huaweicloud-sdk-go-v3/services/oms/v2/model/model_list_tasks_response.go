@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTasksResponse Response Object
 type ListTasksResponse struct {
 
 	// 查询的任务详情

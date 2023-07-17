@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 支持的磁盘IO类型信息。
+// ListEngineIosEntity 支持的磁盘IO类型信息。
 type ListEngineIosEntity struct {
 
 	// 磁盘IO编码。

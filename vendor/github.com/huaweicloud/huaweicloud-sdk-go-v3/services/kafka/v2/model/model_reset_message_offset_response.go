@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ResetMessageOffsetResponse Response Object
 type ResetMessageOffsetResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListResetTracksTaskResponse Response Object
 type ListResetTracksTaskResponse struct {
 
 	// 任务列表

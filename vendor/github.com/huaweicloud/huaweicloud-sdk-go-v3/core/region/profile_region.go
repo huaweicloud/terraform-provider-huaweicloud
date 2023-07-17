@@ -45,11 +45,10 @@ type ProfileCache struct {
 }
 
 func getProfileCache() *ProfileCache {
-	if profileCache == nil {
-		profileOnce.Do(func() {
-			profileCache = &ProfileCache{value: resolveProfile()}
-		})
-	}
+	profileOnce.Do(func() {
+		profileCache = &ProfileCache{value: resolveProfile()}
+	})
+
 	return profileCache
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowInstanceTopicDetailResponse Response Object
 type ShowInstanceTopicDetailResponse struct {
 
 	// topic名称。

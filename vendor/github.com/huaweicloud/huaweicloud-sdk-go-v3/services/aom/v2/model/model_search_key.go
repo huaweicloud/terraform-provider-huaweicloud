@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 日志过滤条件集合，不同日志来源所需字段不同。
+// SearchKey 日志过滤条件集合，不同日志来源所需字段不同。
 type SearchKey struct {
 
 	// 应用名称。

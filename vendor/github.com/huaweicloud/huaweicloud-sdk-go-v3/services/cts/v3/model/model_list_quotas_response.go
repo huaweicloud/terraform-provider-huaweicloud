@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListQuotasResponse Response Object
 type ListQuotasResponse struct {
 
 	// 本次查询追踪器列表返回的追踪器数组。
-	Resources      *[]Quota `json:"resources,omitempty"`
-	HttpStatusCode int      `json:"-"`
+	Resources      *[]CtsQuota `json:"resources,omitempty"`
+	HttpStatusCode int         `json:"-"`
 }
 
 func (o ListQuotasResponse) String() string {

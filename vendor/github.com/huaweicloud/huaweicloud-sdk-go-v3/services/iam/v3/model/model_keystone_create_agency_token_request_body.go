@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateAgencyTokenRequestBody
 type KeystoneCreateAgencyTokenRequestBody struct {
 	Auth *AgencyTokenAuth `json:"auth"`
 }

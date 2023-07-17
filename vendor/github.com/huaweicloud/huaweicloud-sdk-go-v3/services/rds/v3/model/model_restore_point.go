@@ -18,7 +18,7 @@ type RestorePoint struct {
 	BackupId *string `json:"backup_id,omitempty"`
 
 	// 恢复数据的时间点，格式为UNIX时间戳，单位是毫秒，时区为UTC。
-	RestoreTime *int32 `json:"restore_time,omitempty"`
+	RestoreTime *int64 `json:"restore_time,omitempty"`
 
 	// 仅适用于SQL Server引擎，当有此参数时表示支持局部恢复和重命名恢复，恢复数据以局部恢复为主。  - 新数据库名称不可与源实例数据库名称重名，新数据库名称为空，默认按照原数据库名进行恢复。   注意：   不填写该字段时，默认恢复全部数据库。    示例：”database_name”:{“原库名”:”新库名”}  - 新数据库名不能包含rdsadmin、master、msdb、tempdb、model或resource字段（不区分大小写）。 - 数据库名称长度在1~64个字符之间，包含字母、数字、下划线或中划线，不能包含其他特殊字符。
 	DatabaseName map[string]string `json:"database_name,omitempty"`

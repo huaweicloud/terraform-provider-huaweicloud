@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteIkThesaurusRequest Request Object
 type DeleteIkThesaurusRequest struct {
 
 	// 指定要删除自定义词库的集群ID。

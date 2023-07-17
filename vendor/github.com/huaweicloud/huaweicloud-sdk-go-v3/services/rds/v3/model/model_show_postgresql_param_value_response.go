@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowPostgresqlParamValueResponse Response Object
 type ShowPostgresqlParamValueResponse struct {
 
 	// 参数名称。

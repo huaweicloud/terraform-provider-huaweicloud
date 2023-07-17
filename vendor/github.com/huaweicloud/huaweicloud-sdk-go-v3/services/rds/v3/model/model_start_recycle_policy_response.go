@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartRecyclePolicyResponse Response Object
 type StartRecyclePolicyResponse struct {
 
 	// 操作结果。

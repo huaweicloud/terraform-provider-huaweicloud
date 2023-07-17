@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateTaskGroupRequest Request Object
 type CreateTaskGroupRequest struct {
 	Body *CreateTaskGroupReq `json:"body,omitempty"`
 }

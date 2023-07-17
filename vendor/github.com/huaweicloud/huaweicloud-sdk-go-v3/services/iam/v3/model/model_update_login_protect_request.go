@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateLoginProtectRequest Request Object
 type UpdateLoginProtectRequest struct {
 
 	// 待修改登录保护状态信息的IAM用户ID。

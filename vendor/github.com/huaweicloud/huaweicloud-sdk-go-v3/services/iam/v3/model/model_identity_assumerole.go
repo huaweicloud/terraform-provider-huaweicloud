@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// IdentityAssumerole
 type IdentityAssumerole struct {
 
 	// 委托名。

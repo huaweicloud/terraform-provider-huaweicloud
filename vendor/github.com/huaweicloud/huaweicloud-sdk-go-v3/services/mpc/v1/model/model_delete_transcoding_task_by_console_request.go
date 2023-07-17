@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteTranscodingTaskByConsoleRequest Request Object
 type DeleteTranscodingTaskByConsoleRequest struct {
 
 	// 任务ID

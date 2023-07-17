@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListDomainPermissionsForAgencyResponse Response Object
 type ListDomainPermissionsForAgencyResponse struct {
 
 	// 权限信息列表。

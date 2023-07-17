@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTopStatisticsResponse Response Object
 type ListTopStatisticsResponse struct {
 	TopUrls        *[]TopUrl `json:"top_urls,omitempty"`
 	HttpStatusCode int       `json:"-"`

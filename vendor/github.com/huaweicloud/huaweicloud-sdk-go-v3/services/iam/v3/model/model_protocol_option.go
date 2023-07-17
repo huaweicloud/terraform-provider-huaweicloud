@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// ProtocolOption
 type ProtocolOption struct {
 
 	// 映射ID。身份提供商类型为iam_user_sso时，不需要绑定映射ID，无需传入此字段；否则此字段必填。

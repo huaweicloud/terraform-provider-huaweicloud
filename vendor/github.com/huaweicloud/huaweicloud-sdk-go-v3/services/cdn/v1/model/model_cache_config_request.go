@@ -11,7 +11,7 @@ type CacheConfigRequest struct {
 	// 是否忽略url中的参数。
 	IgnoreUrlParameter *bool `json:"ignore_url_parameter,omitempty"`
 
-	// 缓存规则是否遵循源站
+	// 缓存规则是否遵循源站。
 	FollowOrigin *bool `json:"follow_origin,omitempty"`
 
 	Compress *CompressRequest `json:"compress,omitempty"`

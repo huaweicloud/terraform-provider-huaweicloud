@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// QuotaResult
 type QuotaResult struct {
 
 	// 资源信息

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 查询结果详细。
+// MetricDataValue 查询结果详细。
 type MetricDataValue struct {
 
 	// 重点指标。

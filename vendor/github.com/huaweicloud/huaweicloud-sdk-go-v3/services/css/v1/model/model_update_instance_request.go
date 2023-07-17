@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateInstanceRequest Request Object
 type UpdateInstanceRequest struct {
 
 	// 指定替换集群ID。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListAutoLaunchStatisticsResponse Response Object
 type ListAutoLaunchStatisticsResponse struct {
 
 	// 自启动项统计信息总数,

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// SetSensitiveSlowLogRequest Request Object
 type SetSensitiveSlowLogRequest struct {
 
 	// 语言

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAutoLaunchStatisticsRequest Request Object
 type ListAutoLaunchStatisticsRequest struct {
 
 	// 自启动项名称

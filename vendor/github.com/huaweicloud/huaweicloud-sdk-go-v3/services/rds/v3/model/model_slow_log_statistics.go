@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 慢日志信息。
+// SlowLogStatistics 慢日志信息。
 type SlowLogStatistics struct {
 
 	// 执行次数。

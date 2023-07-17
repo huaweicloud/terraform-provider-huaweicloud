@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 媒资存储参数信息。
+// FileAddr 媒资存储参数信息。
 type FileAddr struct {
 
 	// OBS的bucket名称。

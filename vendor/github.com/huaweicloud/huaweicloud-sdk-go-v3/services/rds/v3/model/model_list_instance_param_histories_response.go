@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListInstanceParamHistoriesResponse Response Object
 type ListInstanceParamHistoriesResponse struct {
 
 	// 历史记录总数

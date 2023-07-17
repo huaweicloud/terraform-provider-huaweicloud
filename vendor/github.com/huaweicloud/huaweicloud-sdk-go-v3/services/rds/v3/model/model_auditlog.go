@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 审计日志信息。
+// Auditlog 审计日志信息。
 type Auditlog struct {
 
 	// 审计日志ID。

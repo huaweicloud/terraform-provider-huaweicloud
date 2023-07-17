@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateUnbindPublicResponse Response Object
 type UpdateUnbindPublicResponse struct {
 
 	// 操作行为。固定为：unbindZone，表示解绑成功。

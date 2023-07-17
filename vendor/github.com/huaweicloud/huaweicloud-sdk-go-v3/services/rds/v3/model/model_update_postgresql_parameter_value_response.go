@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdatePostgresqlParameterValueResponse Response Object
 type UpdatePostgresqlParameterValueResponse struct {
 
 	// 任务ID。

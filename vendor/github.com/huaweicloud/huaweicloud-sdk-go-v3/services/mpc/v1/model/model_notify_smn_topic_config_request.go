@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// NotifySmnTopicConfigRequest Request Object
 type NotifySmnTopicConfigRequest struct {
 	Body *NotificationConfigReq `json:"body,omitempty"`
 }

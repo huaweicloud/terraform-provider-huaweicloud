@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 指标维度参数
+// Dimension2 指标维度参数
 type Dimension2 struct {
 
 	// 维度名称。

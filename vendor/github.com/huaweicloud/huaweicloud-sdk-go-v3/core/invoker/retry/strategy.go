@@ -20,10 +20,33 @@
 package retry
 
 const (
-	BaseDelay = 5
-	MaxDelay  = 60 * 1000
+	BaseDelay = 10        // base delay is 10ms
+	MaxDelay  = 60 * 1000 // max delay is 60s
 )
 
+type strategyBase struct {
+	baseDelay int32
+}
+
+// newStrategyBase new struct with default base delay: BaseDelay
+func newStrategyBase() *strategyBase {
+	return &strategyBase{baseDelay: BaseDelay}
+}
+
+func (s *strategyBase) SetBaseDelay(baseDelay int32) {
+	if s != nil {
+		s.baseDelay = baseDelay
+	}
+}
+
+func (s *strategyBase) GetBaseDelay() int32 {
+	if s != nil {
+		return s.baseDelay
+	}
+	return BaseDelay
+}
+
 type Strategy interface {
-	ComputeDelayBeforeNextRetry() int32
+	SetBaseDelay(int32)
+	ComputeDelayBeforeNextRetry(int32) int32
 }

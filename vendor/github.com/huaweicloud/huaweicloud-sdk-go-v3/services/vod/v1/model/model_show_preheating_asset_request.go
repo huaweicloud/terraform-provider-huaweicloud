@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowPreheatingAssetRequest Request Object
 type ShowPreheatingAssetRequest struct {
 
 	// 任务ID

@@ -24,7 +24,7 @@ type ProjectsSet struct {
 	// 工程名字
 	Name *string `json:"name,omitempty"`
 
-	// 工程来源 0:CPTS,2:CloudTest
+	// 工程来源 0：PerfTest，2：CloudTest
 	Source *int32 `json:"source,omitempty"`
 
 	// 外部参数

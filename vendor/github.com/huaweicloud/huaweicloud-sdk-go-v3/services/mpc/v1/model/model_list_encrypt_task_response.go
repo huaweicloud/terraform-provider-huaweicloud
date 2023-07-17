@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListEncryptTaskResponse Response Object
 type ListEncryptTaskResponse struct {
 
 	// 任务列表

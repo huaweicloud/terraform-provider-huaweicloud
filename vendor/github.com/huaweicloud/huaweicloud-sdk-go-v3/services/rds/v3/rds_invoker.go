@@ -29,6 +29,18 @@ func (i *AttachEipInvoker) Invoke() (*model.AttachEipResponse, error) {
 	}
 }
 
+type BatchDeleteManualBackupInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteManualBackupInvoker) Invoke() (*model.BatchDeleteManualBackupResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteManualBackupResponse), nil
+	}
+}
+
 type BatchTagAddActionInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -185,6 +197,18 @@ func (i *DeleteInstanceInvoker) Invoke() (*model.DeleteInstanceResponse, error) 
 	}
 }
 
+type DeleteJobInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteJobInvoker) Invoke() (*model.DeleteJobResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteJobResponse), nil
+	}
+}
+
 type DeleteManualBackupInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -293,6 +317,18 @@ func (i *ListDrRelationsInvoker) Invoke() (*model.ListDrRelationsResponse, error
 	}
 }
 
+type ListEngineFlavorsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListEngineFlavorsInvoker) Invoke() (*model.ListEngineFlavorsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListEngineFlavorsResponse), nil
+	}
+}
+
 type ListErrorLogsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -317,6 +353,18 @@ func (i *ListErrorLogsNewInvoker) Invoke() (*model.ListErrorLogsNewResponse, err
 	}
 }
 
+type ListErrorlogForLtsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListErrorlogForLtsInvoker) Invoke() (*model.ListErrorlogForLtsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListErrorlogForLtsResponse), nil
+	}
+}
+
 type ListFlavorsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -338,6 +386,18 @@ func (i *ListInstanceParamHistoriesInvoker) Invoke() (*model.ListInstanceParamHi
 		return nil, err
 	} else {
 		return result.(*model.ListInstanceParamHistoriesResponse), nil
+	}
+}
+
+type ListInstanceTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListInstanceTagsInvoker) Invoke() (*model.ListInstanceTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListInstanceTagsResponse), nil
 	}
 }
 
@@ -413,6 +473,18 @@ func (i *ListOffSiteRestoreTimesInvoker) Invoke() (*model.ListOffSiteRestoreTime
 	}
 }
 
+type ListPredefinedTagInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPredefinedTagInvoker) Invoke() (*model.ListPredefinedTagResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPredefinedTagResponse), nil
+	}
+}
+
 type ListProjectTagsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -422,6 +494,18 @@ func (i *ListProjectTagsInvoker) Invoke() (*model.ListProjectTagsResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ListProjectTagsResponse), nil
+	}
+}
+
+type ListRecycleInstancesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListRecycleInstancesInvoker) Invoke() (*model.ListRecycleInstancesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListRecycleInstancesResponse), nil
 	}
 }
 
@@ -437,6 +521,18 @@ func (i *ListRestoreTimesInvoker) Invoke() (*model.ListRestoreTimesResponse, err
 	}
 }
 
+type ListSimplifiedInstancesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSimplifiedInstancesInvoker) Invoke() (*model.ListSimplifiedInstancesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSimplifiedInstancesResponse), nil
+	}
+}
+
 type ListSlowLogFileInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -446,6 +542,18 @@ func (i *ListSlowLogFileInvoker) Invoke() (*model.ListSlowLogFileResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ListSlowLogFileResponse), nil
+	}
+}
+
+type ListSlowLogStatisticsForLtsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSlowLogStatisticsForLtsInvoker) Invoke() (*model.ListSlowLogStatisticsForLtsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSlowLogStatisticsForLtsResponse), nil
 	}
 }
 
@@ -473,6 +581,18 @@ func (i *ListSlowLogsNewInvoker) Invoke() (*model.ListSlowLogsNewResponse, error
 	}
 }
 
+type ListSlowlogForLtsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSlowlogForLtsInvoker) Invoke() (*model.ListSlowlogForLtsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSlowlogForLtsResponse), nil
+	}
+}
+
 type ListSlowlogStatisticsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -482,6 +602,18 @@ func (i *ListSlowlogStatisticsInvoker) Invoke() (*model.ListSlowlogStatisticsRes
 		return nil, err
 	} else {
 		return result.(*model.ListSlowlogStatisticsResponse), nil
+	}
+}
+
+type ListSslCertDownloadLinkInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSslCertDownloadLinkInvoker) Invoke() (*model.ListSslCertDownloadLinkResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSslCertDownloadLinkResponse), nil
 	}
 }
 
@@ -794,6 +926,18 @@ func (i *ShowQuotasInvoker) Invoke() (*model.ShowQuotasResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ShowQuotasResponse), nil
+	}
+}
+
+type ShowRecyclePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowRecyclePolicyInvoker) Invoke() (*model.ShowRecyclePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowRecyclePolicyResponse), nil
 	}
 }
 
@@ -1337,6 +1481,30 @@ func (i *CreatePostgresqlExtensionInvoker) Invoke() (*model.CreatePostgresqlExte
 	}
 }
 
+type DeletePostgresqlDatabaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeletePostgresqlDatabaseInvoker) Invoke() (*model.DeletePostgresqlDatabaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeletePostgresqlDatabaseResponse), nil
+	}
+}
+
+type DeletePostgresqlDbUserInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeletePostgresqlDbUserInvoker) Invoke() (*model.DeletePostgresqlDbUserResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeletePostgresqlDbUserResponse), nil
+	}
+}
+
 type DeletePostgresqlExtensionInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1493,6 +1661,42 @@ func (i *StopDatabaseProxyInvoker) Invoke() (*model.StopDatabaseProxyResponse, e
 	}
 }
 
+type UpdateDbUserPrivilegeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDbUserPrivilegeInvoker) Invoke() (*model.UpdateDbUserPrivilegeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDbUserPrivilegeResponse), nil
+	}
+}
+
+type UpdatePostgresqlDatabaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdatePostgresqlDatabaseInvoker) Invoke() (*model.UpdatePostgresqlDatabaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdatePostgresqlDatabaseResponse), nil
+	}
+}
+
+type UpdatePostgresqlDbUserCommentInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdatePostgresqlDbUserCommentInvoker) Invoke() (*model.UpdatePostgresqlDbUserCommentResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdatePostgresqlDbUserCommentResponse), nil
+	}
+}
+
 type UpdatePostgresqlParameterValueInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1646,6 +1850,18 @@ func (i *ListSqlserverDbUsersInvoker) Invoke() (*model.ListSqlserverDbUsersRespo
 		return nil, err
 	} else {
 		return result.(*model.ListSqlserverDbUsersResponse), nil
+	}
+}
+
+type ModifyCollationInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyCollationInvoker) Invoke() (*model.ModifyCollationResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyCollationResponse), nil
 	}
 }
 

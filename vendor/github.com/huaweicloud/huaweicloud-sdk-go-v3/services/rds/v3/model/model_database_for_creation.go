@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 数据库信息。
+// DatabaseForCreation 数据库信息。
 type DatabaseForCreation struct {
 
 	// 数据库名称。 数据库名称长度可在1～64个字符之间，由字母、数字、中划线、下划线或$组成，$累计总长度小于等于10个字符，（MySQL 8.0不可包含$）。

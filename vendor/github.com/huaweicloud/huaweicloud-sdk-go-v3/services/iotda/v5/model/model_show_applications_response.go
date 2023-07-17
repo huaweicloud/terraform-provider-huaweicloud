@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowApplicationsResponse Response Object
 type ShowApplicationsResponse struct {
 
 	// 资源空间信息列表。

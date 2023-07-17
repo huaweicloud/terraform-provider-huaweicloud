@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateAssetCategoryResponse Response Object
 type UpdateAssetCategoryResponse struct {
 
 	// 媒资分类名称。

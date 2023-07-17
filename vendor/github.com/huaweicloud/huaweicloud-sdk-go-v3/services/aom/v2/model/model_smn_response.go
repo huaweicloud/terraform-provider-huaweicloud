@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// SMN返回的发送结果信息
+// SmnResponse SMN返回的发送结果信息
 type SmnResponse struct {
 
 	// 发送时间。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 智能压缩。
+// Compress 智能压缩。
 type Compress struct {
 
 	// 智能压缩开关（on：开启，off：关闭）。

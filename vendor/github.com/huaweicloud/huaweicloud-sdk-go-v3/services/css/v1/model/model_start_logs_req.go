@@ -8,7 +8,7 @@ import (
 
 type StartLogsReq struct {
 
-	// IAM委托。
+	// 委托名称，委托给CSS，允许CSS调用您的其他云服务。
 	Agency string `json:"agency"`
 
 	// 日志在OBS桶中的备份路径。

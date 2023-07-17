@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 用户可以自主修改的属性。
+// AllowUserBody 用户可以自主修改的属性。
 type AllowUserBody struct {
 
 	// 是否允许子用户自行管理AK，取值范围true或false。

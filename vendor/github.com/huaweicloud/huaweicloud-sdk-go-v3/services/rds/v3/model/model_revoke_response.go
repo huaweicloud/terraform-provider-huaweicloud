@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// RevokeResponse Response Object
 type RevokeResponse struct {
 
 	// 操作结果。

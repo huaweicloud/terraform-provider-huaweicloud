@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateMfaDeviceReq
 type CreateMfaDeviceReq struct {
 	VirtualMfaDevice *CreateMfaDevice `json:"virtual_mfa_device"`
 }

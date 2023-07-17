@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateMbTasksReportRequest Request Object
 type CreateMbTasksReportRequest struct {
 	Body *MbTasksReportReq `json:"body,omitempty"`
 }

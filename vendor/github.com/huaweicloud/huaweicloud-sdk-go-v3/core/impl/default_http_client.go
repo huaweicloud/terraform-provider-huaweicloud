@@ -41,19 +41,24 @@ type DefaultHttpClient struct {
 }
 
 func NewDefaultHttpClient(httpConfig *config.HttpConfig) *DefaultHttpClient {
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: httpConfig.IgnoreSSLVerification},
-	}
+	var transport *http.Transport
+	if httpConfig.HttpTransport != nil {
+		transport = httpConfig.HttpTransport
+	} else {
+		transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: httpConfig.IgnoreSSLVerification},
+		}
 
-	if httpConfig.DialContext != nil {
-		transport.DialContext = httpConfig.DialContext
-	}
+		if httpConfig.DialContext != nil {
+			transport.DialContext = httpConfig.DialContext
+		}
 
-	if httpConfig.HttpProxy != nil {
-		proxyUrl := httpConfig.HttpProxy.GetProxyUrl()
-		proxy, err := url.Parse(proxyUrl)
-		if err == nil {
-			transport.Proxy = http.ProxyURL(proxy)
+		if httpConfig.HttpProxy != nil {
+			proxyUrl := httpConfig.HttpProxy.GetProxyUrl()
+			proxy, err := url.Parse(proxyUrl)
+			if err == nil {
+				transport.Proxy = http.ProxyURL(proxy)
+			}
 		}
 	}
 
@@ -65,6 +70,12 @@ func NewDefaultHttpClient(httpConfig *config.HttpConfig) *DefaultHttpClient {
 	client.goHttpClient = &http.Client{
 		Transport: client.transport,
 		Timeout:   httpConfig.Timeout,
+	}
+
+	if !httpConfig.AllowRedirects {
+		client.goHttpClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
 	}
 
 	client.httpHandler = httpConfig.HttpHandler

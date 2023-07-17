@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateRecordCallbackConfigRequest Request Object
 type UpdateRecordCallbackConfigRequest struct {
 
 	// 配置ID，在创建配置成功后返回

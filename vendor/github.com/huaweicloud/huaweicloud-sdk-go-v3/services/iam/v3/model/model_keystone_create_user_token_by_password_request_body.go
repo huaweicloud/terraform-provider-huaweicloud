@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// KeystoneCreateUserTokenByPasswordRequestBody
 type KeystoneCreateUserTokenByPasswordRequestBody struct {
 	Auth *PwdAuth `json:"auth"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowBackupPolicyInfoResponse Response Object
 type ShowBackupPolicyInfoResponse struct {
 
 	// 策略是否启用

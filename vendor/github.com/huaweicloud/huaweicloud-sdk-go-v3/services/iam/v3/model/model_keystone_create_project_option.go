@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 项目信息。
+// KeystoneCreateProjectOption 项目信息。
 type KeystoneCreateProjectOption struct {
 
 	// 项目名称。必须以存在的\"区域ID_\"开头，长度小于等于64字符。例如区域“华北-北京一”的区域ID为“cn-north-1”，在其下创建项目时，项目名应填“cn-north-1_IAMProject”

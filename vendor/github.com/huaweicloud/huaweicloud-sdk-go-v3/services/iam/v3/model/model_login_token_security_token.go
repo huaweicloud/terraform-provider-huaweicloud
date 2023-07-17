@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// LoginTokenSecurityToken
 type LoginTokenSecurityToken struct {
 
 	// AK。

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//
+// SecurityGroupRule
 type SecurityGroupRule struct {
 
 	// 功能描述：安全组规则对应的唯一标识 取值范围：带“-”的标准UUID格式

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneUpdateGroupResponse Response Object
 type KeystoneUpdateGroupResponse struct {
 	Group          *KeystoneGroupResultWithLinksSelf `json:"group,omitempty"`
 	HttpStatusCode int                               `json:"-"`

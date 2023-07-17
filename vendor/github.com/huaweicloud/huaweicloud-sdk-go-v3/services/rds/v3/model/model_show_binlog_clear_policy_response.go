@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowBinlogClearPolicyResponse Response Object
 type ShowBinlogClearPolicyResponse struct {
 
 	// binlog保留时长

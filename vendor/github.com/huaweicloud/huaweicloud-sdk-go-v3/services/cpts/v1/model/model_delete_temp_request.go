@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteTempRequest Request Object
 type DeleteTempRequest struct {
 
 	// 事务id

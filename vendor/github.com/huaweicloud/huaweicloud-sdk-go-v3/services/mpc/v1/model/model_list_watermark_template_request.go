@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListWatermarkTemplateRequest Request Object
 type ListWatermarkTemplateRequest struct {
 
 	// 水印模板ID，最多10个

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneShowEndpointRequest Request Object
 type KeystoneShowEndpointRequest struct {
 
 	// 待查询的终端节点ID。

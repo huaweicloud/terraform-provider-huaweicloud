@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowInformationAboutDatabaseProxyResponse Response Object
 type ShowInformationAboutDatabaseProxyResponse struct {
 	Proxy *Proxy `json:"proxy,omitempty"`
 

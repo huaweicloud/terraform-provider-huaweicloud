@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteBindingDeviceRequest Request Object
 type DeleteBindingDeviceRequest struct {
 	Body *UnbindMfaDevice `json:"body,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改设备影子预期数据结构体。
+// UpdateDesireds 修改设备影子预期数据结构体。
 type UpdateDesireds struct {
 
 	// **参数说明**：设备影子期望值构体。

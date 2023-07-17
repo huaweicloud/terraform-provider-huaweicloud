@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowCertificatesHttpsInfoRequest Request Object
 type ShowCertificatesHttpsInfoRequest struct {
 
 	// 每页的数量，取值范围1-10000，不设值时默认值为30。

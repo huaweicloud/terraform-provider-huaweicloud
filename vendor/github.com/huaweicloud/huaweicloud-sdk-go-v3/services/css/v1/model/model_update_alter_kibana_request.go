@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateAlterKibanaRequest Request Object
 type UpdateAlterKibanaRequest struct {
 
 	// 指定待修改kibana公网带宽的集群ID。

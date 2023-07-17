@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 进程统计信息
+// AppStatisticResponseInfo 进程统计信息
 type AppStatisticResponseInfo struct {
 
 	// 软件名称

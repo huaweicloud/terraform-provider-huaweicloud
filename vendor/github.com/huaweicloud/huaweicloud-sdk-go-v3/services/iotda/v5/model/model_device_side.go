@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 端侧设备信息
+// DeviceSide 端侧设备信息
 type DeviceSide struct {
 
 	// **参数说明**：端侧执行下发的目标设备ID列表。设备ID，用于唯一标识一个设备，在注册设备时由物联网平台分配获得。

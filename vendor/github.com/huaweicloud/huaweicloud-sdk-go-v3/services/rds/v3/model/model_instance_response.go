@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例信息。
+// InstanceResponse 实例信息。
 type InstanceResponse struct {
 
 	// 实例ID。

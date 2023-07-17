@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateKeypairRequest Request Object
 type CreateKeypairRequest struct {
 	Body *CreateKeypairRequestBody `json:"body,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// UpdatePermanentAccessKeyRequestBody
 type UpdatePermanentAccessKeyRequestBody struct {
 	Credential *UpdateCredentialOption `json:"credential"`
 }

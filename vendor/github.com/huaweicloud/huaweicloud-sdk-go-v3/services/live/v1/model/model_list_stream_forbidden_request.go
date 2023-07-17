@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListStreamForbiddenRequest Request Object
 type ListStreamForbiddenRequest struct {
 
 	// 推流域名

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateInstanceCrossVpcIpRequest Request Object
 type UpdateInstanceCrossVpcIpRequest struct {
 
 	// 实例ID。

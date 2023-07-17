@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// StartupInstanceResponse Response Object
 type StartupInstanceResponse struct {
 
 	// 任务ID。

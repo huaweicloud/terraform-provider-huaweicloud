@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowBatchTaskResponse Response Object
 type ShowBatchTaskResponse struct {
 	Batchtask *Task `json:"batchtask,omitempty"`
 

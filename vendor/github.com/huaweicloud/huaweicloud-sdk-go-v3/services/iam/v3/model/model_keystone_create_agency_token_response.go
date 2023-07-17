@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneCreateAgencyTokenResponse Response Object
 type KeystoneCreateAgencyTokenResponse struct {
 	Token *AgencyTokenResult `json:"token,omitempty"`
 

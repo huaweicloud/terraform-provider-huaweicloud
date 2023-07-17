@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListAllObsObjListRequest Request Object
 type ListAllObsObjListRequest struct {
 
 	// 桶名

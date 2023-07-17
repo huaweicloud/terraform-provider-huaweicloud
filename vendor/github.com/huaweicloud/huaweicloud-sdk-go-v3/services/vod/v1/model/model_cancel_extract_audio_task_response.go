@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CancelExtractAudioTaskResponse Response Object
 type CancelExtractAudioTaskResponse struct {
 	HttpStatusCode int `json:"-"`
 }

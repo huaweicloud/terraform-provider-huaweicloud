@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 弹性IP信息。
+// BindPublicReqEip 弹性IP信息。
 type BindPublicReqEip struct {
 	BandWidth *BindPublicReqEipBandWidth `json:"bandWidth"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// KeystoneValidateTokenRequest Request Object
 type KeystoneValidateTokenRequest struct {
 
 	// 待校验的token。

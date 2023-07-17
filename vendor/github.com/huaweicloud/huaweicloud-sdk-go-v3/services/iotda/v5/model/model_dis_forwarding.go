@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// DIS服务配置信息
+// DisForwarding DIS服务配置信息
 type DisForwarding struct {
 
 	// **参数说明**：DIS服务对应的region区域

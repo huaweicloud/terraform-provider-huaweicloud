@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateThumbnailsTaskRequest Request Object
 type CreateThumbnailsTaskRequest struct {
 	Body *CreateThumbReq `json:"body,omitempty"`
 }

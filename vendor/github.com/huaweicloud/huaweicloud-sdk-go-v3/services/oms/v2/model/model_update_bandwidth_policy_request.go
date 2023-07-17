@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateBandwidthPolicyRequest Request Object
 type UpdateBandwidthPolicyRequest struct {
 
 	// 任务ID。

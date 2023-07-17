@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Kibana公网访问信息。
+// PublicKibanaRespBody Kibana公网访问信息。
 type PublicKibanaRespBody struct {
 
 	// 带宽大小。单位：Mbit/s

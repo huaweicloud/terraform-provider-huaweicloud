@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListWeakPasswordUsersResponse Response Object
 type ListWeakPasswordUsersResponse struct {
 
 	// 总数

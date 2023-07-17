@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 转存目标的描述。
+// ShowSinkTaskDetailRespObsDestinationDescriptor 转存目标的描述。
 type ShowSinkTaskDetailRespObsDestinationDescriptor struct {
 
 	// 消费启动策略：  - latest：从Topic最后端开始消费。  - earliest: 从Topic最前端消息开始消费。  默认是latest。

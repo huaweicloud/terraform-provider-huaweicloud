@@ -9,9 +9,9 @@ import (
 type AssociatePolicyGroupRequestInfo struct {
 
 	// 部署的目标策略组ID
-	TargetPolicyGroupId *string `json:"target_policy_group_id,omitempty"`
+	TargetPolicyGroupId string `json:"target_policy_group_id"`
 
-	// 是否要对全量主机部署策略，如果为true的话，不需填写host_id_list
+	// 是否要对全量主机部署策略，如果为true的话，不需填写host_id_list，如果为false的话，需要填写host_id_list
 	OperateAll *bool `json:"operate_all,omitempty"`
 
 	// 服务器ID列表

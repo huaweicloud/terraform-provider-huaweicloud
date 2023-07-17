@@ -52,6 +52,24 @@ type ContentInfo struct {
 
 	// url
 	Url *string `json:"url,omitempty"`
+
+	// rtmp地址
+	RtmpUrl *string `json:"rtmp_url,omitempty"`
+
+	// flv地址
+	FlvUrl *string `json:"flv_url,omitempty"`
+
+	// 分辨率策略
+	BitrateType *int32 `json:"bitrate_type,omitempty"`
+
+	// duration
+	Duration *int32 `json:"duration,omitempty"`
+
+	// HLS重试延迟时间
+	RetryDelay *int32 `json:"retry_delay,omitempty"`
+
+	// HLS重试次数
+	RetryTime *int32 `json:"retry_time,omitempty"`
 }
 
 func (o ContentInfo) String() string {

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateAsyncCommandResponse Response Object
 type CreateAsyncCommandResponse struct {
 
 	// 设备ID，用于唯一标识一个设备，在注册设备时由物联网平台分配获得。

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ChangeVulStatusRequest Request Object
 type ChangeVulStatusRequest struct {
 
 	// 企业租户ID，查询所有企业项目时填写：all_granted_eps

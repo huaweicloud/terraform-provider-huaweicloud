@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateMuteRuleRequest Request Object
 type UpdateMuteRuleRequest struct {
 	Body *MuteRule `json:"body,omitempty"`
 }

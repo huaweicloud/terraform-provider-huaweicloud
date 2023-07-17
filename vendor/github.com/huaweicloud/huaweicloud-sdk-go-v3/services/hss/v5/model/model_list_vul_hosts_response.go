@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListVulHostsResponse Response Object
 type ListVulHostsResponse struct {
 
 	// 受影响的云服务器台数

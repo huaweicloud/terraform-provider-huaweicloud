@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowKafkaTopicPartitionDiskusageRequest Request Object
 type ShowKafkaTopicPartitionDiskusageRequest struct {
 
 	// 实例ID。

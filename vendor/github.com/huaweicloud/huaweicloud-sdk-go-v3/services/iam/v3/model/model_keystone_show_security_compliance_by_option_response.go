@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneShowSecurityComplianceByOptionResponse Response Object
 type KeystoneShowSecurityComplianceByOptionResponse struct {
 	Config         *ConfigByOption `json:"config,omitempty"`
 	HttpStatusCode int             `json:"-"`

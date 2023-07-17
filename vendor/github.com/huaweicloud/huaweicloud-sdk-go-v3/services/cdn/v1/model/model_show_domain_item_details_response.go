@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainItemDetailsResponse Response Object
 type ShowDomainItemDetailsResponse struct {
 	DomainItemDetails *DomainItemDetail `json:"domain_item_details,omitempty"`
 	HttpStatusCode    int               `json:"-"`

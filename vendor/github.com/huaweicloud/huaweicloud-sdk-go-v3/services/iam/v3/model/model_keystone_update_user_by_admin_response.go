@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// KeystoneUpdateUserByAdminResponse Response Object
 type KeystoneUpdateUserByAdminResponse struct {
 	User           *KeystoneUpdateUserByAdminResult `json:"user,omitempty"`
 	HttpStatusCode int                              `json:"-"`

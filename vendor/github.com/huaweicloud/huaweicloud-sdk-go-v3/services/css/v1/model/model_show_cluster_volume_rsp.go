@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 实例磁盘信息。
+// ShowClusterVolumeRsp 实例磁盘信息。
 type ShowClusterVolumeRsp struct {
 
 	// 实例磁盘类型。

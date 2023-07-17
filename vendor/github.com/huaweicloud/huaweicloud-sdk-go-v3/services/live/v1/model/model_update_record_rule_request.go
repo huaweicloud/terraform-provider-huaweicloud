@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateRecordRuleRequest Request Object
 type UpdateRecordRuleRequest struct {
 
 	// 规则ID，在创建成功规则后返回

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ListWtpProtectHostRequest Request Object
 type ListWtpProtectHostRequest struct {
 
 	// Region Id

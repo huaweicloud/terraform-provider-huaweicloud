@@ -211,7 +211,9 @@ func (c *IoTDAClient) ShowApplicationsInvoker(request *model.ShowApplicationsReq
 // CreateAsyncCommand 下发异步设备命令
 //
 // 设备的产品模型中定义了物联网平台可向设备下发的命令，应用服务器可调用此接口向指定设备下发异步命令，以实现对设备的控制。平台负责将命令发送给设备，并将设备执行命令结果异步通知应用服务器。 命令执行结果支持灵活的数据流转，应用服务器通过调用物联网平台的创建规则触发条件（Resource:device.command.status，Event:update）、创建规则动作并激活规则后，当命令状态变更时，物联网平台会根据规则将结果发送到规则指定的服务器，如用户自定义的HTTP服务器，AMQP服务器，以及华为云的其他储存服务器等, 详情参考[[设备命令状态变更通知](https://support.huaweicloud.com/api-iothub/iot_06_v5_01212.html)](tag:hws)[[设备命令状态变更通知](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_01212.html)](tag:hws_hk)。
-// 注意：此接口适用于NB设备异步命令下发，暂不支持其他协议类型设备命令下发。
+// 注意：
+// - 此接口适用于NB设备异步命令下发，暂不支持其他协议类型设备命令下发。
+// - 此接口仅支持单个设备异步命令下发，如需多个设备异步命令下发，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) CreateAsyncCommand(request *model.CreateAsyncCommandRequest) (*model.CreateAsyncCommandResponse, error) {
@@ -293,6 +295,27 @@ func (c *IoTDAClient) ListBatchTasksInvoker(request *model.ListBatchTasksRequest
 	return &ListBatchTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// RetryBatchTask 重试批量任务
+//
+// 应用服务器可调用此接口重试批量任务，目前只支持task_type为firmwareUpgrade，softwareUpgrade。如果task_id对应任务已经成功、停止、正在停止、等待中或初始化中，则不可以调用该接口。如果请求Body为{}，则调用该接口后会重新执行所有状态为失败、失败待重试和已停止的子任务。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) RetryBatchTask(request *model.RetryBatchTaskRequest) (*model.RetryBatchTaskResponse, error) {
+	requestDef := GenReqDefForRetryBatchTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RetryBatchTaskResponse), nil
+	}
+}
+
+// RetryBatchTaskInvoker 重试批量任务
+func (c *IoTDAClient) RetryBatchTaskInvoker(request *model.RetryBatchTaskRequest) *RetryBatchTaskInvoker {
+	requestDef := GenReqDefForRetryBatchTask()
+	return &RetryBatchTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowBatchTask 查询批量任务
 //
 // 应用服务器可调用此接口查询物联网平台中指定批量任务的信息，包括任务内容、任务状态、任务完成情况统计以及子任务列表等。
@@ -312,6 +335,27 @@ func (c *IoTDAClient) ShowBatchTask(request *model.ShowBatchTaskRequest) (*model
 func (c *IoTDAClient) ShowBatchTaskInvoker(request *model.ShowBatchTaskRequest) *ShowBatchTaskInvoker {
 	requestDef := GenReqDefForShowBatchTask()
 	return &ShowBatchTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StopBatchTask 停止批量任务
+//
+// 应用服务器可调用此接口停止批量任务，目前只支持task_type为firmwareUpgrade，softwareUpgrade。如果task_id对应任务已经完成（成功、失败、部分成功，已经停止）或正在停止中，则不可以调用该接口。如果请求Body为{}，则调用该接口后会停止所有正在执行中、等待中和失败待重试状态的子任务。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) StopBatchTask(request *model.StopBatchTaskRequest) (*model.StopBatchTaskResponse, error) {
+	requestDef := GenReqDefForStopBatchTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.StopBatchTaskResponse), nil
+	}
+}
+
+// StopBatchTaskInvoker 停止批量任务
+func (c *IoTDAClient) StopBatchTaskInvoker(request *model.StopBatchTaskRequest) *StopBatchTaskInvoker {
+	requestDef := GenReqDefForStopBatchTask()
+	return &StopBatchTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteBatchTaskFile 删除批量任务文件
@@ -354,6 +398,60 @@ func (c *IoTDAClient) ListBatchTaskFiles(request *model.ListBatchTaskFilesReques
 func (c *IoTDAClient) ListBatchTaskFilesInvoker(request *model.ListBatchTaskFilesRequest) *ListBatchTaskFilesInvoker {
 	requestDef := GenReqDefForListBatchTaskFiles()
 	return &ListBatchTaskFilesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UploadBatchTaskFile 上传批量任务文件
+//
+// 应用服务器可调用此接口上传批量任务文件，用于创建批量任务。当前支持批量创建设备任务、批量删除设备任务、批量冻结设备任务、批量解冻设备任务的文件上传。
+// - [批量注册设备模板](https://developer.obs.cn-north-4.myhuaweicloud.com/template/BatchCreateDevices_Template.xlsx)
+//
+//
+// - [批量删除设备模板](https://developer.obs.cn-north-4.myhuaweicloud.com/template/BatchDeleteDevices_Template.xlsx)
+//
+//
+// - [批量冻结设备模板](https://developer.obs.cn-north-4.myhuaweicloud.com/template/BatchFreezeDevices_Template.xlsx)
+//
+//
+// - [批量解冻设备模板](https://developer.obs.cn-north-4.myhuaweicloud.com/template/BatchUnfreezeDevices_Template.xlsx)
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) UploadBatchTaskFile(request *model.UploadBatchTaskFileRequest) (*model.UploadBatchTaskFileResponse, error) {
+	requestDef := GenReqDefForUploadBatchTaskFile()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UploadBatchTaskFileResponse), nil
+	}
+}
+
+// UploadBatchTaskFileInvoker 上传批量任务文件
+func (c *IoTDAClient) UploadBatchTaskFileInvoker(request *model.UploadBatchTaskFileRequest) *UploadBatchTaskFileInvoker {
+	requestDef := GenReqDefForUploadBatchTaskFile()
+	return &UploadBatchTaskFileInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BroadcastMessage 下发广播消息
+//
+// 应用服务器可调用此接口向订阅了指定Topic的所有在线设备发布广播消息。应用将广播消息下发给平台后，平台会先返回应用响应结果，再将消息广播给设备。
+// 注意：
+// - 此接口只适用于使用MQTT协议接入的设备。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) BroadcastMessage(request *model.BroadcastMessageRequest) (*model.BroadcastMessageResponse, error) {
+	requestDef := GenReqDefForBroadcastMessage()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BroadcastMessageResponse), nil
+	}
+}
+
+// BroadcastMessageInvoker 下发广播消息
+func (c *IoTDAClient) BroadcastMessageInvoker(request *model.BroadcastMessageRequest) *BroadcastMessageInvoker {
+	requestDef := GenReqDefForBroadcastMessage()
+	return &BroadcastMessageInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // AddCertificate 上传设备CA证书
@@ -442,8 +540,10 @@ func (c *IoTDAClient) ListCertificatesInvoker(request *model.ListCertificatesReq
 
 // CreateCommand 下发设备命令
 //
-// 设备的产品模型中定义了物联网平台可向设备下发的命令，应用服务器可调用此接口向指定设备下发命令，以实现对设备的同步控制。平台负责将命令以同步方式发送给设备，并将设备执行命令结果同步返回, 如果设备没有响应，平台会返回给应用服务器超时，平台超时间是20秒。
-// 注意：此接口适用于MQTT设备同步命令下发，暂不支持NB-IoT设备命令下发。
+// 设备的产品模型中定义了物联网平台可向设备下发的命令，应用服务器可调用此接口向指定设备下发命令，以实现对设备的同步控制。平台负责将命令以同步方式发送给设备，并将设备执行命令结果同步返回, 如果设备没有响应，平台会返回给应用服务器超时，平台超时时间是20秒。如果命令下发需要超过20秒，建议采用[[消息下发](https://support.huaweicloud.com/api-iothub/iot_06_v5_0059.html)](tag:hws)[[消息下发](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0059.html)](tag:hws_hk)。
+// 注意：
+// - 此接口适用于MQTT设备同步命令下发，暂不支持NB-IoT设备命令下发。
+// - 此接口仅支持单个设备同步命令下发，如需多个设备同步命令下发，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) CreateCommand(request *model.CreateCommandRequest) (*model.CreateCommandResponse, error) {
@@ -464,7 +564,7 @@ func (c *IoTDAClient) CreateCommandInvoker(request *model.CreateCommandRequest) 
 
 // AddDeviceGroup 添加设备组
 //
-// 应用服务器可调用此接口新建设备组，一个华为云账号下最多可有1,000个分组，包括父分组和子分组。设备组的最大层级关系不超过5层，即群组形成的关系树最大深度不超过5。
+// 应用服务器可调用此接口新建设备组，一个华为云账号下最多可有1,000个设备组，包括父设备组和子设备组。设备组的最大层级关系不超过5层，即群组形成的关系树最大深度不超过5。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) AddDeviceGroup(request *model.AddDeviceGroupRequest) (*model.AddDeviceGroupResponse, error) {
@@ -616,6 +716,7 @@ func (c *IoTDAClient) UpdateDeviceGroupInvoker(request *model.UpdateDeviceGroupR
 // - 该接口支持使用gateway_id参数指定在父设备下创建一个子设备，并且支持多级子设备，当前最大支持二级子设备。
 // - 该接口同时还支持对设备进行初始配置，接口会读取创建设备请求参数product_id对应的产品详情，如果产品的属性有定义默认值，则会将该属性默认值写入该设备的设备影子中。
 // - 用户还可以使用创建设备请求参数shadow字段为设备指定初始配置，指定后将会根据service_id和desired设置的属性值与产品中对应属性的默认值比对，如果不同，则将以shadow字段中设置的属性值为准写入到设备影子中。
+// - 该接口仅支持创建单个设备，如需批量注册设备，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) AddDevice(request *model.AddDeviceRequest) (*model.AddDeviceResponse, error) {
@@ -636,7 +737,7 @@ func (c *IoTDAClient) AddDeviceInvoker(request *model.AddDeviceRequest) *AddDevi
 
 // DeleteDevice 删除设备
 //
-// 应用服务器可调用此接口在物联网平台上删除指定设备。若设备下连接了非直连设备，则必须把设备下的非直连设备都删除后，才能删除该设备。
+// 应用服务器可调用此接口在物联网平台上删除指定设备。若设备下连接了非直连设备，则必须把设备下的非直连设备都删除后，才能删除该设备。该接口仅支持删除单个设备，如需批量删除设备，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) DeleteDevice(request *model.DeleteDeviceRequest) (*model.DeleteDeviceResponse, error) {
@@ -657,7 +758,7 @@ func (c *IoTDAClient) DeleteDeviceInvoker(request *model.DeleteDeviceRequest) *D
 
 // FreezeDevice 冻结设备
 //
-// 应用服务器可调用此接口冻结设备，设备冻结后不能再连接上线，可以通过解冻设备接口解除设备冻结。注意，当前仅支持冻结与平台直连的设备。
+// 应用服务器可调用此接口冻结设备，设备冻结后不能再连接上线，可以通过解冻设备接口解除设备冻结。注意，当前仅支持冻结与平台直连的设备。该接口仅支持冻结单个设备，如需批量冻结设备，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) FreezeDevice(request *model.FreezeDeviceRequest) (*model.FreezeDeviceResponse, error) {
@@ -822,17 +923,18 @@ func (c *IoTDAClient) ResetFingerprintInvoker(request *model.ResetFingerprintReq
 // | 字段名      | 类型   | 说明             | 取值范围                                                     |
 // | :---------- | :----- | :--------------- | :----------------------------------------------------------- |
 // | app_id      | string | 资源空间ID       | 长度不超过36，只允许字母、数字、下划线（_）、连接符（-）的组合。 |
-// | device_id   | string | 设备ID           | 长度不超过128，只允许字母、数字、下划线（_）、连接符（-）的组合，建议不少于4个字符。 |
+// | device_id   | string | 设备ID           | 长度不超过128，只允许字母、数字、下划线（_）、连接符（-）的组合。 |
 // | gateway_id  | string | 网关ID           | 长度不超过128，只允许字母、数字、下划线（_）、连接符（-）的组合。 |
 // | product_id  | string | 设备关联的产品ID | 长度不超过36，只允许字母、数字、下划线（_）、连接符（-）的组合。 |
-// | device_name | string | 设备名称         | 长度不超过256，只允许中文、字母、数字、以及_?&#39;#().,&amp;%@!-等字符的组合，建议不少于4个字符。 |
-// | node_id     | string | 设备标识码       | 长度不超过64，只允许字母、数字、下划线（_）、连接符（-）的组合，建议不少于4个字符 |
+// | device_name | string | 设备名称         | 长度不超过256，只允许中文、字母、数字、以及_?&#39;#().,&amp;%@!-等字符的组合符。 |
+// | node_id     | string | 设备标识码       | 长度不超过64，只允许字母、数字、下划线（_）、连接符（-）的组合 |
 // | status      | string | 设备的状态       | ONLINE(在线)、OFFLINE(离线)、ABNORMAL(异常)、INACTIVE(未激活)、FROZEN(冻结) |
 // | node_type   | string | 设备节点类型     | GATEWAY(直连设备或网关)、ENDPOINT(非直连设备)                |
 // | tag_key     | string | 标签键           | 长度不超过64，只允许中文、字母、数字、以及_.-等字符的组合。  |
 // | tag_value   | string | 标签值           | 长度不超过128，只允许中文、字母、数字、以及_.-等字符的组合。 |
 // | sw_version  | string | 软件版本         | 长度不超过64，只允许字母、数字、下划线（_）、连接符（-）、英文点(.)的组合。 |
 // | fw_version  | string | 固件版本         | 长度不超过64，只允许字母、数字、下划线（_）、连接符（-）、英文点(.)的组合。 |
+// | group_id    | string | 群组Id           | 长度不超过36，十六进制字符串和连接符（-）的组合              |
 // | create_time | string | 设备注册时间     | 格式：yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSS&#39;Z&#39;，如：2015-06-06T12:10:10.000Z |
 // | marker      | string | 结果记录ID       | 长度为24的十六进制字符串，如ffffffffffffffffffffffff         |
 //
@@ -845,8 +947,8 @@ func (c *IoTDAClient) ResetFingerprintInvoker(request *model.ResetFingerprintReq
 // | &gt;       | create_time、marker                      |
 // | &lt;       | create_time、marker                      |
 // | like    | device_name、node_id、tag_key、tag_value |
-// | in      | 所有                                     |
-// | not  in | 所有                                     |
+// | in      | 除tag_key、tag_value以外字段             |
+// | not  in | 除tag_key、tag_value以外字段             |
 //
 // #### SQL 限制
 //
@@ -896,7 +998,7 @@ func (c *IoTDAClient) ShowDeviceInvoker(request *model.ShowDeviceRequest) *ShowD
 
 // UnfreezeDevice 解冻设备
 //
-// 应用服务器可调用此接口解冻设备，解除冻结后，设备可以连接上线。
+// 应用服务器可调用此接口解冻设备，解除冻结后，设备可以连接上线。该接口仅支持解冻单个设备，如需批量解冻设备，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) UnfreezeDevice(request *model.UnfreezeDeviceRequest) (*model.UnfreezeDeviceResponse, error) {
@@ -943,7 +1045,7 @@ func (c *IoTDAClient) UpdateDeviceInvoker(request *model.UpdateDeviceRequest) *U
 // 设备影子介绍：
 // 设备影子是一个用于存储和检索设备当前状态信息的JSON文档。
 // - 每个设备有且只有一个设备影子，由设备ID唯一标识
-// - 设备影子仅保存最近一次设备的上报数据和预期数据
+// - 设备影子用于存储设备上报的(状态)属性和应用程序期望的设备(状态)属性
 // - 无论该设备是否在线，都可以通过该影子获取和设置设备的属性
 // - 设备上线或者设备上报属性时，如果desired区和reported区存在差异，则将差异部分下发给设备，配置的预期属性需在产品模型中定义且method具有可写属性“W”才可下发
 //
@@ -974,9 +1076,10 @@ func (c *IoTDAClient) ShowDeviceShadowInvoker(request *model.ShowDeviceShadowReq
 // 设备影子介绍：
 // 设备影子是一个用于存储和检索设备当前状态信息的JSON文档。
 // - 每个设备有且只有一个设备影子，由设备ID唯一标识
-// - 设备影子仅保存最近一次设备的上报数据和预期数据
+// - 设备影子用于存储设备上报的(状态)属性和应用程序期望的设备(状态)属性
 // - 无论该设备是否在线，都可以通过该影子获取和设置设备的属性
 // - 设备上线或者设备上报属性时，如果desired区和reported区存在差异，则将差异部分下发给设备，配置的预期属性需在产品模型中定义且method具有可写属性“W”才可下发
+// - 该接口仅支持配置单个设备的设备影子的预期数据，如需多个设备的设备影子配置，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // 限制：
 // 设备影子JSON文档中的key不允许特殊字符：点(.)、dollar符号($)、空char(十六进制的ASCII码为00)。如果包含了以上特殊字符则无法正常刷新影子文档。
@@ -1001,7 +1104,9 @@ func (c *IoTDAClient) UpdateDeviceShadowDesiredDataInvoker(request *model.Update
 // CreateMessage 下发设备消息
 //
 // 物联网平台可向设备下发消息，应用服务器可调用此接口向指定设备下发消息，以实现对设备的控制。应用将消息下发给平台后，平台返回应用响应结果，平台再将消息发送给设备。平台返回应用响应结果不一定是设备接收结果，建议用户应用通过订阅[[设备消息状态变更通知](https://support.huaweicloud.com/api-iothub/iot_06_v5_01203.html)](tag:hws)[[设备消息状态变更通知](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_01203.html)](tag:hws_hk)，订阅后平台会将设备接收结果推送给订阅的应用。
-// 注意：此接口适用于MQTT设备消息下发，暂不支持其他协议接入的设备消息下发。
+// 注意：
+// - 此接口适用于MQTT设备消息下发，暂不支持其他协议接入的设备消息下发。
+// - 此接口仅支持单个设备消息下发，如需多个设备消息下发，请参见 [[创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)](tag:hws)[[创建批量任务](https://support.huaweicloud.com/intl/zh-cn/api-iothub/iot_06_v5_0045.html)](tag:hws_hk)。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) CreateMessage(request *model.CreateMessageRequest) (*model.CreateMessageResponse, error) {
@@ -1062,9 +1167,97 @@ func (c *IoTDAClient) ShowDeviceMessageInvoker(request *model.ShowDeviceMessageR
 	return &ShowDeviceMessageInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateOtaPackage 创建OTA升级包
+//
+// 用户可调用此接口创建升级包关联OBS对象
+// 使用前提：使用该API需要您授权设备接入服务(IoTDA)的实例访问对象存储服务(OBS)以及 密钥管理服务(KMS Administrator)的权限。在“[[统一身份认证服务（IAM）](https://console.huaweicloud.com/iam)](tag:hws)[[统一身份认证服务（IAM）](https://console-intl.huaweicloud.com/iam)](tag:hws_hk) - 委托”中将委托名称为iotda_admin_trust的委托授权KMS Administrator和OBS OperateAccess
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) CreateOtaPackage(request *model.CreateOtaPackageRequest) (*model.CreateOtaPackageResponse, error) {
+	requestDef := GenReqDefForCreateOtaPackage()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateOtaPackageResponse), nil
+	}
+}
+
+// CreateOtaPackageInvoker 创建OTA升级包
+func (c *IoTDAClient) CreateOtaPackageInvoker(request *model.CreateOtaPackageRequest) *CreateOtaPackageInvoker {
+	requestDef := GenReqDefForCreateOtaPackage()
+	return &CreateOtaPackageInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteOtaPackage 删除OTA升级包
+//
+// 用户可调用此接口删除关联OBS对象的升级包信息，不会删除OBS上对象
+// 使用前提：使用该API需要您授权设备接入服务(IoTDA)的实例访问对象存储服务(OBS)以及 密钥管理服务(KMS Administrator)的权限。在“[[统一身份认证服务（IAM）](https://console.huaweicloud.com/iam)](tag:hws)[[统一身份认证服务（IAM）](https://console-intl.huaweicloud.com/iam)](tag:hws_hk) - 委托”中将委托名称为iotda_admin_trust的委托授权KMS Administrator和OBS OperateAccess
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) DeleteOtaPackage(request *model.DeleteOtaPackageRequest) (*model.DeleteOtaPackageResponse, error) {
+	requestDef := GenReqDefForDeleteOtaPackage()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteOtaPackageResponse), nil
+	}
+}
+
+// DeleteOtaPackageInvoker 删除OTA升级包
+func (c *IoTDAClient) DeleteOtaPackageInvoker(request *model.DeleteOtaPackageRequest) *DeleteOtaPackageInvoker {
+	requestDef := GenReqDefForDeleteOtaPackage()
+	return &DeleteOtaPackageInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListOtaPackageInfo 查询OTA升级包列表
+//
+// 用户可调用此接口查询关联OBS对象的升级包列表
+// 使用前提：使用该API需要您授权设备接入服务(IoTDA)的实例访问对象存储服务(OBS)以及 密钥管理服务(KMS Administrator)的权限。在“[[统一身份认证服务（IAM）](https://console.huaweicloud.com/iam)](tag:hws)[[统一身份认证服务（IAM）](https://console-intl.huaweicloud.com/iam)](tag:hws_hk) - 委托”中将委托名称为iotda_admin_trust的委托授权KMS Administrator和OBS OperateAccess
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ListOtaPackageInfo(request *model.ListOtaPackageInfoRequest) (*model.ListOtaPackageInfoResponse, error) {
+	requestDef := GenReqDefForListOtaPackageInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListOtaPackageInfoResponse), nil
+	}
+}
+
+// ListOtaPackageInfoInvoker 查询OTA升级包列表
+func (c *IoTDAClient) ListOtaPackageInfoInvoker(request *model.ListOtaPackageInfoRequest) *ListOtaPackageInfoInvoker {
+	requestDef := GenReqDefForListOtaPackageInfo()
+	return &ListOtaPackageInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowOtaPackage 获取OTA升级包详情
+//
+// 用户可调用此接口查询关联OBS对象的升级包详情
+// 使用前提：使用该API需要您授权设备接入服务(IoTDA)的实例访问对象存储服务(OBS)以及 密钥管理服务(KMS Administrator)的权限。在“[[统一身份认证服务（IAM）](https://console.huaweicloud.com/iam)](tag:hws)[[统一身份认证服务（IAM）](https://console-intl.huaweicloud.com/iam)](tag:hws_hk) - 委托”中将委托名称为iotda_admin_trust的委托授权KMS Administrator和OBS OperateAccess
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ShowOtaPackage(request *model.ShowOtaPackageRequest) (*model.ShowOtaPackageResponse, error) {
+	requestDef := GenReqDefForShowOtaPackage()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowOtaPackageResponse), nil
+	}
+}
+
+// ShowOtaPackageInvoker 获取OTA升级包详情
+func (c *IoTDAClient) ShowOtaPackageInvoker(request *model.ShowOtaPackageRequest) *ShowOtaPackageInvoker {
+	requestDef := GenReqDefForShowOtaPackage()
+	return &ShowOtaPackageInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateProduct 创建产品
 //
-// 应用服务器可调用此接口创建产品。
+// 应用服务器可调用此接口创建产品。此接口仅创建了产品，没有创建和安装插件，如果需要对数据进行编解码，还需要在平台开发和安装插件。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) CreateProduct(request *model.CreateProductRequest) (*model.CreateProductResponse, error) {
@@ -1085,7 +1278,7 @@ func (c *IoTDAClient) CreateProductInvoker(request *model.CreateProductRequest) 
 
 // DeleteProduct 删除产品
 //
-// 应用服务器可调用此接口删除已导入物联网平台的指定产品模型。
+// 应用服务器可调用此接口删除已导入物联网平台的指定产品模型。此接口仅删除了产品，未删除关联的插件，在产品下存在设备时，该产品不允许删除。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) DeleteProduct(request *model.DeleteProductRequest) (*model.DeleteProductResponse, error) {
@@ -1148,7 +1341,7 @@ func (c *IoTDAClient) ShowProductInvoker(request *model.ShowProductRequest) *Sho
 
 // UpdateProduct 修改产品
 //
-// 应用服务器可调用此接口修改已导入物联网平台的指定产品模型，包括产品模型的服务、属性、命令等。
+// 应用服务器可调用此接口修改已导入物联网平台的指定产品模型，包括产品模型的服务、属性、命令等。此接口仅修改了产品，未修改和安装插件，如果修改了产品中的service定义，且在平台中有对应的插件，请修改并重新安装插件。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *IoTDAClient) UpdateProduct(request *model.UpdateProductRequest) (*model.UpdateProductResponse, error) {

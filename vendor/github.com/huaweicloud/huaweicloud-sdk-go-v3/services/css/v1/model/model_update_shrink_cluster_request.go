@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateShrinkClusterRequest Request Object
 type UpdateShrinkClusterRequest struct {
 
 	// 指定待缩容的集群ID。

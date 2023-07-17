@@ -50,7 +50,7 @@ type ShowInstanceResp struct {
 	// 资源规格标识。   - dms.instance.kafka.cluster.c3.mini：Kafka实例的基准带宽为100MByte/秒。   - dms.instance.kafka.cluster.c3.small.2：Kafka实例的基准带宽为300MByte/秒。   - dms.instance.kafka.cluster.c3.middle.2：Kafka实例的基准带宽为600MByte/秒。   - dms.instance.kafka.cluster.c3.high.2：Kafka实例的基准带宽为1200MByte/秒。
 	ResourceSpecCode *string `json:"resource_spec_code,omitempty"`
 
-	// [付费模式，1表示按需计费，0表示包年/包月计费。](tag:hc,hk,hws,hws_hk,otc,ctc,sbc,hk_sbc,cmcc)[付费模式，暂未使用。](tag:hws_ocb,ocb)[付费模式，1表示按需计费](tag:hws_eu)
+	// '[付费模式，1表示按需计费，0表示包年/包月计费。](tag:hc,hk,hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[付费模式，暂未使用。](tag:hws_ocb,ocb) [付费模式，1表示按需计费。](tag:otc,dt,g42,tm,hk_g42,hk_tm)'
 	ChargingMode *int32 `json:"charging_mode,omitempty"`
 
 	// VPC ID。
@@ -61,6 +61,12 @@ type ShowInstanceResp struct {
 
 	// 完成创建时间。  格式为时间戳，指从格林威治时间 1970年01月01日00时00分00秒起至指定时间的偏差总毫秒数。
 	CreatedAt *string `json:"created_at,omitempty"`
+
+	// 子网名称。
+	SubnetName *string `json:"subnet_name,omitempty"`
+
+	// 子网网段。
+	SubnetCidr *string `json:"subnet_cidr,omitempty"`
 
 	// 用户ID。
 	UserId *string `json:"user_id,omitempty"`
@@ -89,11 +95,20 @@ type ShowInstanceResp struct {
 	// 是否开启安全认证。 - true：开启 - false：未开启
 	SslEnable *bool `json:"ssl_enable,omitempty"`
 
+	// 开启SASL后使用的安全协议。 - SASL_SSL: 采用SSL证书进行加密传输，支持帐号密码认证，安全性更高。 - SASL_PLAINTEXT: 明文传输，支持帐号密码认证，性能更好，仅支持SCRAM-SHA-512机制。
+	KafkaSecurityProtocol *string `json:"kafka_security_protocol,omitempty"`
+
+	// 开启SASL后使用的认证机制。 - PLAIN: 简单的用户名密码校验。 - SCRAM-SHA-512: 用户凭证校验，安全性比PLAIN机制更高。
+	SaslEnabledMechanisms *[]ShowInstanceRespSaslEnabledMechanisms `json:"sasl_enabled_mechanisms,omitempty"`
+
 	// 是否开启双向认证。
 	SslTwoWayEnable *bool `json:"ssl_two_way_enable,omitempty"`
 
 	// 是否能够证书替换。
 	CertReplaced *bool `json:"cert_replaced,omitempty"`
+
+	// 公网访问Kafka Manager连接地址。
+	PublicManagementConnectAddress *string `json:"public_management_connect_address,omitempty"`
 
 	// 企业项目ID。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
@@ -152,6 +167,9 @@ type ShowInstanceResp struct {
 	// kafka公网访问带宽。
 	PublicBandwidth *int32 `json:"public_bandwidth,omitempty"`
 
+	// 是否已开启kafka manager
+	KafkaManagerEnable *bool `json:"kafka_manager_enable,omitempty"`
+
 	// 登录Kafka Manager的用户名。
 	KafkaManagerUser *string `json:"kafka_manager_user,omitempty"`
 
@@ -206,18 +224,6 @@ type ShowInstanceResp struct {
 	// 磁盘加密key，未开启磁盘加密时为空。
 	DiskEncryptedKey *string `json:"disk_encrypted_key,omitempty"`
 
-	// 公网访问Kafka Manager连接地址。
-	PublicManagementConnectAddress *string `json:"public_management_connect_address,omitempty"`
-
-	// 子网网段。
-	SubnetCidr *string `json:"subnet_cidr,omitempty"`
-
-	// 子网名称。
-	SubnetName *string `json:"subnet_name,omitempty"`
-
-	// 是否开启访问控制。
-	EnableAcl *bool `json:"enable_acl,omitempty"`
-
 	// Kafka实例私有连接地址。
 	KafkaPrivateConnectAddress *string `json:"kafka_private_connect_address,omitempty"`
 
@@ -229,6 +235,9 @@ type ShowInstanceResp struct {
 
 	// 节点数。
 	NodeNum *int32 `json:"node_num,omitempty"`
+
+	// 是否开启访问控制。
+	EnableAcl *bool `json:"enable_acl,omitempty"`
 
 	// 是否启用新规格计费。
 	NewSpecBillingEnable *bool `json:"new_spec_billing_enable,omitempty"`
@@ -250,6 +259,53 @@ func (o ShowInstanceResp) String() string {
 	}
 
 	return strings.Join([]string{"ShowInstanceResp", string(data)}, " ")
+}
+
+type ShowInstanceRespSaslEnabledMechanisms struct {
+	value string
+}
+
+type ShowInstanceRespSaslEnabledMechanismsEnum struct {
+	PLAIN         ShowInstanceRespSaslEnabledMechanisms
+	SCRAM_SHA_512 ShowInstanceRespSaslEnabledMechanisms
+}
+
+func GetShowInstanceRespSaslEnabledMechanismsEnum() ShowInstanceRespSaslEnabledMechanismsEnum {
+	return ShowInstanceRespSaslEnabledMechanismsEnum{
+		PLAIN: ShowInstanceRespSaslEnabledMechanisms{
+			value: "PLAIN",
+		},
+		SCRAM_SHA_512: ShowInstanceRespSaslEnabledMechanisms{
+			value: "SCRAM-SHA-512",
+		},
+	}
+}
+
+func (c ShowInstanceRespSaslEnabledMechanisms) Value() string {
+	return c.value
+}
+
+func (c ShowInstanceRespSaslEnabledMechanisms) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *ShowInstanceRespSaslEnabledMechanisms) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }
 
 type ShowInstanceRespType struct {
@@ -282,13 +338,18 @@ func (c ShowInstanceRespType) MarshalJSON() ([]byte, error) {
 
 func (c *ShowInstanceRespType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}
@@ -324,13 +385,18 @@ func (c ShowInstanceRespRetentionPolicy) MarshalJSON() ([]byte, error) {
 
 func (c *ShowInstanceRespRetentionPolicy) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

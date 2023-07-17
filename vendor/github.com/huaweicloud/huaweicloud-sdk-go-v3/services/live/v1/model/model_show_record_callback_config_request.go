@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowRecordCallbackConfigRequest Request Object
 type ShowRecordCallbackConfigRequest struct {
 
 	// 配置ID

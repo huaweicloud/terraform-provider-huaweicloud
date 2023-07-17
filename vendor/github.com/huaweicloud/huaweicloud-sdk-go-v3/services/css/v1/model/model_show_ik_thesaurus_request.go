@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowIkThesaurusRequest Request Object
 type ShowIkThesaurusRequest struct {
 
 	// 指定需查询词库状态的集群ID。

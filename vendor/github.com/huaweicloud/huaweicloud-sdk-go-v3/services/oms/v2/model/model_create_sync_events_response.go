@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateSyncEventsResponse Response Object
 type CreateSyncEventsResponse struct {
 	HttpStatusCode int `json:"-"`
 }

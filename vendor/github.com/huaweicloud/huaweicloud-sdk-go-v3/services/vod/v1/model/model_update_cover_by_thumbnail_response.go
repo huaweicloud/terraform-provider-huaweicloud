@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// UpdateCoverByThumbnailResponse Response Object
 type UpdateCoverByThumbnailResponse struct {
 	HttpStatusCode int `json:"-"`
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowTakeOverTaskDetailsResponse Response Object
 type ShowTakeOverTaskDetailsResponse struct {
 
 	// 总数。

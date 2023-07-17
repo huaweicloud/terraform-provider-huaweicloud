@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateAssetByFileUploadRequest Request Object
 type CreateAssetByFileUploadRequest struct {
 	Body *CreateAssetByFileUploadReq `json:"body,omitempty"`
 }

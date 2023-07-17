@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 修改预定义标签
+// ModifyPrefineTag 修改预定义标签
 type ModifyPrefineTag struct {
 	NewTag *PredefineTagRequest `json:"new_tag"`
 

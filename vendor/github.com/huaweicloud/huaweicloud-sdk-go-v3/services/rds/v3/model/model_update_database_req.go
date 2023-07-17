@@ -12,7 +12,7 @@ type UpdateDatabaseReq struct {
 	Name string `json:"name"`
 
 	// 数据库备注。
-	Comment string `json:"comment"`
+	Comment *string `json:"comment,omitempty"`
 }
 
 func (o UpdateDatabaseReq) String() string {

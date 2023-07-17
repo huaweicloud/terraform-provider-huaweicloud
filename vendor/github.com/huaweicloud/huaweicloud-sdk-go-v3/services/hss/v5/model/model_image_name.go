@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 镜像名称
+// ImageName 镜像名称
 type ImageName struct {
 }
 

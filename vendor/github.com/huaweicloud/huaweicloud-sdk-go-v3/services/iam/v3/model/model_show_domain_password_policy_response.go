@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowDomainPasswordPolicyResponse Response Object
 type ShowDomainPasswordPolicyResponse struct {
 	PasswordPolicy *PasswordPolicyResult `json:"password_policy,omitempty"`
 	HttpStatusCode int                   `json:"-"`

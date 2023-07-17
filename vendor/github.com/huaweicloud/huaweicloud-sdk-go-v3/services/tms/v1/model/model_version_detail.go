@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// 版本详情
+// VersionDetail 版本详情
 type VersionDetail struct {
 
 	// 版本ID（版本号），如v1.0。
@@ -73,13 +73,18 @@ func (c VersionDetailStatus) MarshalJSON() ([]byte, error) {
 
 func (c *VersionDetailStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
-	if myConverter != nil {
-		val, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-		if err == nil {
-			c.value = val.(string)
-			return nil
-		}
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
 		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
 	} else {
 		return errors.New("convert enum data to string error")
 	}

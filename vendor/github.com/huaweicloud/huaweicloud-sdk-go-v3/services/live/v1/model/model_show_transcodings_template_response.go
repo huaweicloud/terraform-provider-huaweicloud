@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowTranscodingsTemplateResponse Response Object
 type ShowTranscodingsTemplateResponse struct {
 
 	// 查询结果的总元素数量

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateSecurityGroupRuleRequest Request Object
 type CreateSecurityGroupRuleRequest struct {
 	Body *CreateSecurityGroupRuleRequestBody `json:"body,omitempty"`
 }

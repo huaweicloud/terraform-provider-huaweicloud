@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowReplicationStatusResponse Response Object
 type ShowReplicationStatusResponse struct {
 
 	// 复制状态。

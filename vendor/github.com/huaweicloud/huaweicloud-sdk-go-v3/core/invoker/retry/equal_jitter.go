@@ -25,9 +25,14 @@ import (
 
 // EqualJitter 等抖动指数退避 delay = Exponential/2 + random(0, Exponential/2)
 type EqualJitter struct {
+	*strategyBase
 }
 
-func (e *EqualJitter) ComputeDelayBeforeNextRetry() int32 {
-	delay := utils.Min32(MaxDelay, BaseDelay*(utils.Pow32(3, 2)))
-	return delay/2 + utils.RandInt32(0, delay/2)
+func NewEqualJitter() *EqualJitter {
+	return &EqualJitter{strategyBase: newStrategyBase()}
+}
+
+func (e *EqualJitter) ComputeDelayBeforeNextRetry(retryTimes int32) int32 {
+	expoDelay := getExponentialDelay(e.GetBaseDelay(), retryTimes)
+	return expoDelay/2 + utils.RandInt32(1, expoDelay/2)
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 服务器弱口令列表
+// WeakPwdListInfoResponseInfo 服务器弱口令列表
 type WeakPwdListInfoResponseInfo struct {
 
 	// 服务器ID

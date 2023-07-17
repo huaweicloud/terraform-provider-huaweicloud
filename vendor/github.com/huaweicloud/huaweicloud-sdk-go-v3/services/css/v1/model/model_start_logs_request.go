@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartLogsRequest Request Object
 type StartLogsRequest struct {
 
 	// 指定开启日志的集群ID。

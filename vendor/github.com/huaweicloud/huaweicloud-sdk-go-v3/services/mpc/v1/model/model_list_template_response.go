@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTemplateResponse Response Object
 type ListTemplateResponse struct {
 
 	// 转码模板

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// LoginPolicyResult
 type LoginPolicyResult struct {
 
 	// 账号在该值设置的有效期内未使用，则被停用。

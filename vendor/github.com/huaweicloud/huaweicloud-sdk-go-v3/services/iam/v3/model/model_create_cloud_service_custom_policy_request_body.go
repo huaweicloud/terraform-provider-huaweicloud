@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateCloudServiceCustomPolicyRequestBody
 type CreateCloudServiceCustomPolicyRequestBody struct {
 	Role *ServicePolicyRoleOption `json:"role"`
 }

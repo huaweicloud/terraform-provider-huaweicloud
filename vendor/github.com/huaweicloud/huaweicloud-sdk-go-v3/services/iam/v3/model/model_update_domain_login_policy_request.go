@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateDomainLoginPolicyRequest Request Object
 type UpdateDomainLoginPolicyRequest struct {
 
 	// 账号ID，获取方式请参见：[获取账号ID](https://support.huaweicloud.com/api-iam/iam_17_0002.html)。

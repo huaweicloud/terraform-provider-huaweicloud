@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeleteMediaProcessTaskRequest Request Object
 type DeleteMediaProcessTaskRequest struct {
 
 	// 任务ID

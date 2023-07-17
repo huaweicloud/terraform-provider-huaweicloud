@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// CreateLoadIkThesaurusResponse Response Object
 type CreateLoadIkThesaurusResponse struct {
 	HttpStatusCode int `json:"-"`
 }

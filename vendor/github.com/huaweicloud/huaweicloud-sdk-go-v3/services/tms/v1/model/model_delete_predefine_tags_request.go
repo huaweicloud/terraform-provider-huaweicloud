@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// DeletePredefineTagsRequest Request Object
 type DeletePredefineTagsRequest struct {
 	Body *ReqDeletePredefineTag `json:"body,omitempty"`
 }

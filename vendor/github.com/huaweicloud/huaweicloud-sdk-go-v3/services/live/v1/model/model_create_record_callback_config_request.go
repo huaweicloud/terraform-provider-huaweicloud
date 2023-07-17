@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// CreateRecordCallbackConfigRequest Request Object
 type CreateRecordCallbackConfigRequest struct {
 	Body *RecordCallbackConfigRequest `json:"body,omitempty"`
 }

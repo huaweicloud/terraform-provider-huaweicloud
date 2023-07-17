@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 自启动项变动历史信息
+// AutoLaunchChangeResponseInfo 自启动项变动历史信息
 type AutoLaunchChangeResponseInfo struct {
 
 	// agent_id

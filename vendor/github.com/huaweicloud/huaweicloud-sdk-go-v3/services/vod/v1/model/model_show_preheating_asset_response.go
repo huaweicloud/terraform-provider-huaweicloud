@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowPreheatingAssetResponse Response Object
 type ShowPreheatingAssetResponse struct {
 
 	// 预热任务数组

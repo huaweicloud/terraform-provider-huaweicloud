@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// SetSecurityGroupResponse Response Object
 type SetSecurityGroupResponse struct {
 
 	// 任务ID

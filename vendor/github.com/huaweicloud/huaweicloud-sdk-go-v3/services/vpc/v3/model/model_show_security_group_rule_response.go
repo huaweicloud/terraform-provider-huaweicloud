@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ShowSecurityGroupRuleResponse Response Object
 type ShowSecurityGroupRuleResponse struct {
 
 	// 请求ID

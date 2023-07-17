@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListRangeQueryAomPromPostResponse Response Object
 type ListRangeQueryAomPromPostResponse struct {
 
 	// 响应状态。

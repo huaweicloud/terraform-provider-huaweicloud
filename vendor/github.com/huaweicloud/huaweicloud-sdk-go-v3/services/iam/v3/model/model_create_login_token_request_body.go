@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// CreateLoginTokenRequestBody
 type CreateLoginTokenRequestBody struct {
 	Auth *LoginTokenAuth `json:"auth"`
 }

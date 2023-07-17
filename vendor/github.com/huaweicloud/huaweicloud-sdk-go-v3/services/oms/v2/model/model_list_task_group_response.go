@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListTaskGroupResponse Response Object
 type ListTaskGroupResponse struct {
 
 	// 满足查询条件的任务组总数

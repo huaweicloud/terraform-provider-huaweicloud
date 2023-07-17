@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// RestartManagerRequest Request Object
 type RestartManagerRequest struct {
 
 	// 实例ID。

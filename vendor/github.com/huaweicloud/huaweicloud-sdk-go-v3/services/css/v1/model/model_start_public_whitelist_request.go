@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// StartPublicWhitelistRequest Request Object
 type StartPublicWhitelistRequest struct {
 
 	// 指定开启公网访问控制白名单集群ID。

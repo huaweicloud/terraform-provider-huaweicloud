@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// id token信息
+// GetIdTokenIdTokenBody id token信息
 type GetIdTokenIdTokenBody struct {
 
 	// id_token的值

@@ -21,7 +21,7 @@ func CdnClientBuilder() *http_client.HcHttpClientBuilder {
 
 // BatchDeleteTags 删除资源标签配置接口
 //
-// 用于删除资源标签
+// 用于删除资源标签。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) BatchDeleteTags(request *model.BatchDeleteTagsRequest) (*model.BatchDeleteTagsResponse, error) {
@@ -105,7 +105,7 @@ func (c *CdnClient) CreateRefreshTasksInvoker(request *model.CreateRefreshTasksR
 
 // CreateTags 创建资源标签配置接口
 //
-// 用于创建资源标签
+// 用于创建资源标签。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) CreateTags(request *model.CreateTagsRequest) (*model.CreateTagsResponse, error) {
@@ -294,7 +294,8 @@ func (c *CdnClient) ShowDomainDetailInvoker(request *model.ShowDomainDetailReque
 
 // ShowDomainFullConfig 查询域名配置接口
 //
-// 查询域名配置接口，支持查询回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、缓存URL参数、IPv6开关、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面
+// 查询域名配置接口，
+// 支持查询回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、IPv6开关、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面、缓存规则、IP黑白名单、防盗链、强制跳转。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowDomainFullConfig(request *model.ShowDomainFullConfigRequest) (*model.ShowDomainFullConfigResponse, error) {
@@ -374,7 +375,7 @@ func (c *CdnClient) ShowDomainItemLocationDetailsInvoker(request *model.ShowDoma
 	return &ShowDomainItemLocationDetailsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ShowDomainLocationStats 查询域名统计数据-区域运营商
+// ShowDomainLocationStats 按区域运营商查询域名统计数据
 //
 // - 支持查询90天内的数据。
 //
@@ -382,9 +383,7 @@ func (c *CdnClient) ShowDomainItemLocationDetailsInvoker(request *model.ShowDoma
 //
 // - 最多同时指定20个域名。
 //
-// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果传的不是5分钟时刻点，
-// 返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24 20:15:00 表示取 [20:15:00,
-// 20:20:00)的统计数据，且左闭右开。
+// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，且时间点必须为与查询时间间隔参数匹配的整时刻点。比如查询时间间隔为5分钟时，起始时间和结束时间必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果时间点与时间间隔不匹配，返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据，且左闭右开。
 //
 // - action取值：location_detail,location_summary
 //
@@ -403,7 +402,7 @@ func (c *CdnClient) ShowDomainLocationStats(request *model.ShowDomainLocationSta
 	}
 }
 
-// ShowDomainLocationStatsInvoker 查询域名统计数据-区域运营商
+// ShowDomainLocationStatsInvoker 按区域运营商查询域名统计数据
 func (c *CdnClient) ShowDomainLocationStatsInvoker(request *model.ShowDomainLocationStatsRequest) *ShowDomainLocationStatsInvoker {
 	requestDef := GenReqDefForShowDomainLocationStats()
 	return &ShowDomainLocationStatsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -417,8 +416,7 @@ func (c *CdnClient) ShowDomainLocationStatsInvoker(request *model.ShowDomainLoca
 //
 // - 最多同时指定20个域名。
 //
-// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果传的不是5分钟时刻点，返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24
-// 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据，且左闭右开。
+// - 起始时间和结束时间需要同时指定，左闭右开，毫秒级时间戳，且时间点必须为与查询时间间隔参数匹配的整时刻点。比如查询时间间隔为5分钟时，起始时间和结束时间必须为5分钟整时刻点，如：0分、5分、10分、15分等，如果时间点与时间间隔不匹配，返回数据可能与预期不一致。统一用开始时间表示一个时间段，如：2019-01-24 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据，且左闭右开。
 //
 // - action取值：detail,summary
 //
@@ -529,7 +527,7 @@ func (c *CdnClient) ShowIpInfoInvoker(request *model.ShowIpInfoRequest) *ShowIpI
 
 // ShowLogs 日志查询
 //
-// 日志查询。
+// 查询日志下载链接，支持查询30天内的日志信息。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowLogs(request *model.ShowLogsRequest) (*model.ShowLogsResponse, error) {
@@ -634,7 +632,7 @@ func (c *CdnClient) ShowResponseHeaderInvoker(request *model.ShowResponseHeaderR
 
 // ShowTags 查询资源标签列表配置接口
 //
-// 用于查询资源标签列表
+// 用于查询资源标签列表。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) ShowTags(request *model.ShowTagsRequest) (*model.ShowTagsResponse, error) {
@@ -752,7 +750,8 @@ func (c *CdnClient) UpdateCacheRulesInvoker(request *model.UpdateCacheRulesReque
 
 // UpdateDomainFullConfig 修改域名全量配置接口
 //
-// 修改域名全量配置接口，支持配置回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、缓存URL参数、IPv6、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面
+// 修改域名配置接口，
+// 支持修改回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、IPv6开关、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面、缓存规则、IP黑白名单、防盗链、强制跳转。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateDomainFullConfig(request *model.UpdateDomainFullConfigRequest) (*model.UpdateDomainFullConfigResponse, error) {
@@ -792,9 +791,9 @@ func (c *CdnClient) UpdateDomainMultiCertificatesInvoker(request *model.UpdateDo
 	return &UpdateDomainMultiCertificatesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// UpdateDomainOrigin 修改源站信息
+// UpdateDomainOrigin 修改源站信息。
 //
-// 修改源站信息。源站IP地址或域名都可以指引CDN节点回源到对应的源站服务器，源站域名不能与加速域名相同。
+// 修改加速域名的源站配置。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *CdnClient) UpdateDomainOrigin(request *model.UpdateDomainOriginRequest) (*model.UpdateDomainOriginResponse, error) {
@@ -807,7 +806,7 @@ func (c *CdnClient) UpdateDomainOrigin(request *model.UpdateDomainOriginRequest)
 	}
 }
 
-// UpdateDomainOriginInvoker 修改源站信息
+// UpdateDomainOriginInvoker 修改源站信息。
 func (c *CdnClient) UpdateDomainOriginInvoker(request *model.UpdateDomainOriginRequest) *UpdateDomainOriginInvoker {
 	requestDef := GenReqDefForUpdateDomainOrigin()
 	return &UpdateDomainOriginInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -855,7 +854,7 @@ func (c *CdnClient) UpdateHttpsInfoInvoker(request *model.UpdateHttpsInfoRequest
 	return &UpdateHttpsInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// UpdateOriginHost 修改回源HOST
+// UpdateOriginHost 修改回源HOST。
 //
 // 修改回源HOST。回源HOST是CDN节点在回源过程中，在源站访问的站点域名，即http请求头中的host信息。
 //
@@ -870,7 +869,7 @@ func (c *CdnClient) UpdateOriginHost(request *model.UpdateOriginHostRequest) (*m
 	}
 }
 
-// UpdateOriginHostInvoker 修改回源HOST
+// UpdateOriginHostInvoker 修改回源HOST。
 func (c *CdnClient) UpdateOriginHostInvoker(request *model.UpdateOriginHostRequest) *UpdateOriginHostInvoker {
 	requestDef := GenReqDefForUpdateOriginHost()
 	return &UpdateOriginHostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}

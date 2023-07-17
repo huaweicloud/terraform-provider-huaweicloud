@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-//
+// TokenDomainResult
 type TokenDomainResult struct {
 
 	// 用户所属账号名。

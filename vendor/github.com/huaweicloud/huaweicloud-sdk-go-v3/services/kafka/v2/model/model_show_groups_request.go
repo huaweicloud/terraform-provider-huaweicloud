@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// ShowGroupsRequest Request Object
 type ShowGroupsRequest struct {
 
 	// 实例ID。

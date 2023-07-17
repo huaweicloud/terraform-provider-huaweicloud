@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Response Object
+// ListSlowLogsResponse Response Object
 type ListSlowLogsResponse struct {
 	SlowLogList *[]SlowLog `json:"slow_log_list,omitempty"`
 

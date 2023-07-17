@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Request Object
+// UpdateVpcepConnectionRequest Request Object
 type UpdateVpcepConnectionRequest struct {
 
 	// 指定更新终端节点的集群ID。

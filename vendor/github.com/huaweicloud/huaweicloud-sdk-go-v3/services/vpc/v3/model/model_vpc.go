@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//
+// Vpc
 type Vpc struct {
 
 	// 功能描述：VPC对应的唯一标识 取值范围：带“-”的UUID格式
