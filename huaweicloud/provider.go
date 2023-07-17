@@ -89,6 +89,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/tms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ucs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vod"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpcep"
@@ -1024,6 +1025,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_image_auto_sync":          swr.ResourceSwrImageAutoSync(),
 
 			"huaweicloud_tms_tags": tms.ResourceTmsTag(),
+
+			"huaweicloud_ucs_policy": ucs.ResourcePolicy(),
 
 			"huaweicloud_vod_media_asset":                vod.ResourceMediaAsset(),
 			"huaweicloud_vod_media_category":             vod.ResourceMediaCategory(),

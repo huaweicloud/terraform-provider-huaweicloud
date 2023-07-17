@@ -141,6 +141,8 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "IMS",
 	},
+
+	// ******* catalog for Container *******
 	"ccev1": {
 		Name:             "cce",
 		Version:          "api/v1",
@@ -158,10 +160,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "CCE",
 	},
-	"aom": {
-		Name:    "aom",
-		Version: "svcstg/icmgr/v1",
-		Product: "AOM",
+	"swr": {
+		Name:             "swr-api",
+		Version:          "v2",
+		WithOutProjectID: true,
+		Product:          "SWR",
 	},
 	"cci": {
 		Name:             "cci",
@@ -175,16 +178,24 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "CCI",
 	},
+	"ucs": {
+		Name:             "ucs",
+		Version:          "v1",
+		Scope:            "global",
+		Admin:            true,
+		WithOutProjectID: true,
+		Product:          "UCS",
+	},
+
+	"aom": {
+		Name:    "aom",
+		Version: "svcstg/icmgr/v1",
+		Product: "AOM",
+	},
 	"fgs": {
 		Name:    "functiongraph",
 		Version: "v2",
 		Product: "FunctionGraph",
-	},
-	"swr": {
-		Name:             "swr-api",
-		Version:          "v2",
-		WithOutProjectID: true,
-		Product:          "SWR",
 	},
 	"bms": {
 		Name:    "bms",
