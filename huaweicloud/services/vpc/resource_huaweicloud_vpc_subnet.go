@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dns/v2/nameservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
 
 	"github.com/hashicorp/go-multierror"
@@ -20,17 +21,20 @@ import (
 )
 
 // refer to: https://support.huaweicloud.com/intl/en-us/dns_faq/dns_faq_002.html
-var defaultDNSList = map[string][]string{
+var privateDNSList = map[string][]string{
 	"cn-north-1":     {"100.125.1.250", "100.125.21.250"},  // Beijing-1
 	"cn-north-4":     {"100.125.1.250", "100.125.129.250"}, // Beijing-4
+	"cn-north-9":     {"100.125.1.250", "100.125.107.250"}, // Ulanqab
 	"cn-east-2":      {"100.125.17.29", "100.125.135.29"},  // Shanghai-2
 	"cn-east-3":      {"100.125.1.250", "100.125.64.250"},  // Shanghai-1
 	"cn-south-1":     {"100.125.1.250", "100.125.136.29"},  // Guangzhou
+	"cn-south-4":     {"100.125.0.167"},                    // Guangzhou-InvitationOnly
 	"cn-southwest-2": {"100.125.1.250", "100.125.129.250"}, // Guiyang-1
 	"ap-southeast-1": {"100.125.1.250", "100.125.3.250"},   // Hong Kong
 	"ap-southeast-2": {"100.125.1.250", "100.125.1.251"},   // Bangkok
 	"ap-southeast-3": {"100.125.1.250", "100.125.128.250"}, // Singapore
 	"af-south-1":     {"100.125.1.250", "100.125.1.14"},    // Johannesburg
+	"tr-west-1":      {"100.125.2.250", "100.125.2.251"},   // Turkey Istanbul
 	"sa-brazil-1":    {"100.125.1.22", "100.125.1.90"},     // LA-Sao Paulo-1
 	"na-mexico-1":    {"100.125.1.22", "100.125.1.90"},     // LA-Mexico City-1
 	"la-north-2":     {"100.125.1.250", "100.125.1.242"},   // LA-Mexico City-2
@@ -38,20 +42,54 @@ var defaultDNSList = map[string][]string{
 	"sa-chile-1":     {"100.125.1.250", "100.125.0.250"},   // LA-Santiago2
 }
 
-// ResourceSubnetDNSListV1 is used to obtain the corresponding DNS list according to the region.
-func ResourceSubnetDNSListV1(d *schema.ResourceData, region string) []string {
-	rawDNSN := d.Get("dns_list").([]interface{})
-	dnsn := make([]string, len(rawDNSN))
-	for i, raw := range rawDNSN {
-		dnsn[i] = raw.(string)
+// buildSubnetDNSList is used to obtain the DNS list according to the region in the following orders:
+// 1. return the dns_list if it was specified;
+// 2. return nil if primary_dns was specified, otherwise continue;
+// 3. return the private DNS list if the region is in **privateDNSList**
+// 4. try to get the private DNS list through API https://support.huaweicloud.com/intl/en-us/api-dns/dns_api_69001.html
+// 5. return the public DNS if any error occurs;
+func buildSubnetDNSList(d *schema.ResourceData, cfg *config.Config, region string) []string {
+	if raw, ok := d.GetOk("dns_list"); ok {
+		return utils.ExpandToStringList(raw.([]interface{}))
 	}
 
-	// get the default DNS if it was not specified in schema
+	// get the DNS list only when primary_dns was not specified
 	_, hasPrimaryDNS := d.GetOk("primary_dns")
-	if region != "" && len(rawDNSN) == 0 && !hasPrimaryDNS {
-		dnsn = defaultDNSList[region]
+	if hasPrimaryDNS {
+		return nil
 	}
-	return dnsn
+
+	if dnsn, ok := privateDNSList[region]; ok {
+		return dnsn
+	}
+
+	// public DNS: 8.8.8.8(google-public-dns-a.google.com) and 114.114.114.114(China)
+	publicDNSList := []string{"8.8.8.8", "114.114.114.114"}
+
+	dnsClient, err := cfg.DnsWithRegionClient(region)
+	if err != nil {
+		log.Printf("[WARN] cannot generate DNS client, use %v as the DNS list", publicDNSList)
+		return publicDNSList
+	}
+
+	opts := nameservers.ListOpts{
+		Region: region,
+	}
+	dsnServers, err := nameservers.List(dnsClient, &opts)
+	if len(dsnServers) > 0 {
+		records := dsnServers[0].Records
+		dnsList := make([]string, len(records))
+		for i := range records {
+			dnsList[i] = records[i].Address
+		}
+		return dnsList
+	}
+
+	if err != nil {
+		log.Printf("[WARN] failed to fetch the name servers: %s", err)
+	}
+	log.Printf("[WARN] use %v as the DNS list", publicDNSList)
+	return publicDNSList
 }
 
 func ResourceVpcSubnetV1() *schema.Resource {
@@ -221,7 +259,7 @@ func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		VPC_ID:           d.Get("vpc_id").(string),
 		PRIMARY_DNS:      d.Get("primary_dns").(string),
 		SECONDARY_DNS:    d.Get("secondary_dns").(string),
-		DnsList:          ResourceSubnetDNSListV1(d, region),
+		DnsList:          buildSubnetDNSList(d, config, region),
 		ExtraDhcpOpts:    buildDhcpOpts(d, false),
 	}
 	log.Printf("[DEBUG] Create VPC subnet options: %#v", createOpts)
@@ -369,7 +407,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			updateOpts.SECONDARY_DNS = d.Get("secondary_dns").(string)
 		}
 		if d.HasChange("dns_list") {
-			dnsList := ResourceSubnetDNSListV1(d, "")
+			dnsList := utils.ExpandToStringList(d.Get("dns_list").([]interface{}))
 			updateOpts.DnsList = &dnsList
 		}
 		if d.HasChanges("dhcp_lease_time", "ntp_server_address") {
