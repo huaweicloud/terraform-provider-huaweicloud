@@ -443,6 +443,9 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
+		if epsClient.ProjectID == "" {
+			epsClient.ProjectID = conf.GetProjectID(region)
+		}
 
 		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region); err != nil {
 			return diag.FromErr(err)

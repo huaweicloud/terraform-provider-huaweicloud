@@ -1012,6 +1012,9 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		if err != nil {
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
+		if epsClient.ProjectID == "" {
+			epsClient.ProjectID = cfg.GetProjectID(region)
+		}
 
 		if err := migrateEnterpriseProject(ctx, d, ecsClient, epsClient, region); err != nil {
 			return diag.FromErr(err)
