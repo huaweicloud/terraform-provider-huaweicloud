@@ -194,7 +194,8 @@ func resourceNetworkingSecGroupRuleCreateV1(ctx context.Context, d *schema.Resou
 func resourceNetworkingSecGroupRuleCreateV3(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	v3Client, err := config.NetworkingV3Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	v3Client, err := config.NetworkingV3Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
 	}
@@ -217,8 +218,9 @@ func resourceNetworkingSecGroupRuleCreateV3(ctx context.Context, d *schema.Resou
 	resp, err := v3Rules.Create(v3Client, opt)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return fmtp.DiagErrorf("The current region does not support creating security group rules through the "+
-				"ver.3 API: %#v", err)
+			return fmtp.DiagErrorf("these parameters (%v) are not support in current region (%s), please stop using "+
+				"and re-run the script. However, the 'ports' parameter can be replaced by parameter 'port_range_min' "+
+				"and parameter 'port_range_max'", utils.MarshalValue(advancedParams), region)
 		}
 		return fmtp.DiagErrorf("Error creating Security Group rule: %s", err)
 	}
