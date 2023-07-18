@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -191,7 +190,7 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.DhcpEnable = &dhcp
 	}
 	if d.HasChange("dns_list") {
-		dnsList := vpc.ResourceSubnetDNSListV1(d, "")
+		dnsList := utils.ExpandToStringList(d.Get("dns_list").([]interface{}))
 		updateOpts.DNSList = &dnsList
 	}
 

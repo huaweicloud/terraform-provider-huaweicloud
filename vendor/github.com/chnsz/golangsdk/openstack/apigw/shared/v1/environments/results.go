@@ -1,6 +1,8 @@
 package environments
 
-import "github.com/chnsz/golangsdk/pagination"
+import (
+	"github.com/chnsz/golangsdk/pagination"
+)
 
 type ListResp struct {
 	// Number of environments that match the query conditions.
@@ -9,6 +11,11 @@ type ListResp struct {
 	Size int `json:"size"`
 	// Environment list.
 	Environments []Environment `json:"envs"`
+}
+
+// EnvironmentPage represents the response pages of the List method.
+type EnvironmentPage struct {
+	pagination.SinglePageBase
 }
 
 type Environment struct {
@@ -20,9 +27,4 @@ type Environment struct {
 	CreateTime string `json:"create_time"`
 	// Description of the environment.
 	Description string `json:"remark"`
-}
-
-// EnvironmentPage represents the response pages of the List method.
-type EnvironmentPage struct {
-	pagination.SinglePageBase
 }
