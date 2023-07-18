@@ -66,6 +66,25 @@ resource "huaweicloud_vpn_gateway" "test" {
 }
 ```
 
+### Creating a private VPN gateway with Enterprise Router
+
+```hcl
+variable "name" {}
+variable "er_id" {}
+variable "access_vpc_id" {}
+variable "access_subnet_id" {}
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name               = var.name
+  network_type       = "private"
+  attachment_type    = "er"
+  er_id              = var.er_id
+  availability_zones = ["cn-north-4a", "cn-north-4b"]
+  access_vpc_id      = var.access_vpc_id
+  access_subnet_id   = var.access_subnet_id
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -75,37 +94,62 @@ The following arguments are supported:
 
 * `name` - (Required, String) The name of the VPN gateway. Only letters, digits, underscores(_) and hypens(-) are supported.
 
-* `vpc_id` - (Required, String, ForceNew) The ID of the VPC to which the VPN gateway is connected.
-
-  Changing this parameter will create a new resource.
-
-* `local_subnets` - (Required, List) The list of local subnets.
-
-* `connect_subnet` - (Required, String, ForceNew) The Network ID of the VPC subnet used by the VPN gateway.
-
-  Changing this parameter will create a new resource.
-
 * `availability_zones` - (Required, List, ForceNew) The list of availability zone IDs.
-
-  Changing this parameter will create a new resource.
-
-* `master_eip` - (Required, List, ForceNew) The master EIP configurations.
-  The [object](#Gateway_CreateRequestEip) structure is documented below.
-
-  Changing this parameter will create a new resource.
-
-* `slave_eip` - (Required, List, ForceNew) The slave EIP configurations.
-  The [object](#Gateway_CreateRequestEip) structure is documented below.
-
-  Changing this parameter will create a new resource.
-
-* `attachment_type` - (Optional, String, ForceNew) The attachment type. The value can be **vpc**.
-  Defaults to **vpc**
 
   Changing this parameter will create a new resource.
 
 * `flavor` - (Optional, String, ForceNew) The flavor of the VPN gateway.
   The value can be **Basic**, **Professional1** and **Professional2**. Defaults to **Professional1**.
+
+  Changing this parameter will create a new resource.
+
+* `attachment_type` - (Optional, String, ForceNew) The attachment type. The value can be **vpc** and **er**.
+  Defaults to **vpc**.
+
+  Changing this parameter will create a new resource.
+
+* `network_type` - (Optional, String, ForceNew) The network type. The value can be **public** and **private**.
+  Defaults to **public**.
+
+  Changing this parameter will create a new resource.
+
+* `vpc_id` - (Optional, String, ForceNew) The ID of the VPC to which the VPN gateway is connected.
+  This parameter is mandatory when `attachment_type` is **vpc**.
+
+  Changing this parameter will create a new resource.
+
+* `local_subnets` - (Optional, List) The list of local subnets.
+  This parameter is mandatory when `attachment_type` is **vpc**.
+
+* `connect_subnet` - (Optional, String, ForceNew) The Network ID of the VPC subnet used by the VPN gateway.
+  This parameter is mandatory when `attachment_type` is **vpc**.
+
+  Changing this parameter will create a new resource.
+
+* `er_id` - (Optional, String, ForceNew) The enterprise router ID to attach with to VPN gateway.
+  This parameter is mandatory when `attachment_type` is **er**.
+
+  Changing this parameter will create a new resource.
+
+* `master_eip` - (Optional, List, ForceNew) The master EIP configurations.
+  This parameter is mandatory when `network_type` is **public** or left empty.
+  The [object](#Gateway_CreateRequestEip) structure is documented below.
+
+  Changing this parameter will create a new resource.
+
+* `slave_eip` - (Optional, List, ForceNew) The slave EIP configurations.
+  This parameter is mandatory when `network_type` is **public** or left empty.
+  The [object](#Gateway_CreateRequestEip) structure is documented below.
+
+  Changing this parameter will create a new resource.
+
+* `access_vpc_id` - (Optional, String, ForceNew) The access VPC ID.
+  The defaul value is the value of `vpc_id`.
+
+  Changing this parameter will create a new resource.
+
+* `access_subnet_id` - (Optional, String, ForceNew) The access subnet ID.
+  The defaul value is the value of `connect_subnet`.
 
   Changing this parameter will create a new resource.
 
@@ -133,8 +177,9 @@ The `master_eip` or `slave_eip` block supports:
 
   Changing this parameter will create a new resource.
 
-* `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size in Mbit/s. When the `flavor` is **V300**, the value
-  cannot be greater than **300**. When the `flavor` is **V1G**, the value cannot be greater than **1024**.
+* `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size in Mbit/s. When the `flavor` is **Basic**, the value
+  cannot be greater than **100**. When the `flavor` is **Professional1**, the value cannot be greater than **300**.
+  When the `flavor` is **Professional2**, the value cannot be greater than **1000**.
 
   Changing this parameter will create a new resource.
 
@@ -180,14 +225,14 @@ The `master_eip` or `slave_eip` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `update` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 
 The gateway can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpn_gateway.test 0ce123456a00f2591fabc00385ff1234
 ```

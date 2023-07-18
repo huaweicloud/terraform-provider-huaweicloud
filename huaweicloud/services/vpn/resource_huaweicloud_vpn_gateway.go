@@ -58,54 +58,12 @@ func ResourceGateway() *schema.Resource {
 					validation.StringLenBetween(1, 64),
 				),
 			},
-			"vpc_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The ID of the VPC to which the VPN gateway is connected.`,
-			},
-			"local_subnets": {
-				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Required:    true,
-				Description: `The local subnets.`,
-			},
-			"connect_subnet": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The Network ID of the VPC subnet used by the VPN gateway.`,
-			},
 			"availability_zones": {
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				ForceNew:    true,
 				Description: `The availability zone IDs.`,
-			},
-			"master_eip": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     GatewayEipSchema(),
-				Required: true,
-				ForceNew: true,
-			},
-			"slave_eip": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     GatewayEipSchema(),
-				Required: true,
-				ForceNew: true,
-			},
-			"attachment_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "vpc",
-				ForceNew:    true,
-				Description: `The attachment type.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"vpc",
-				}, false),
 			},
 			"flavor": {
 				Type:        schema.TypeString,
@@ -116,6 +74,81 @@ func ResourceGateway() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"V1G", "V300", "Basic", "Professional1", "Professional2",
 				}, false),
+			},
+			"attachment_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "vpc",
+				ForceNew:    true,
+				Description: `The attachment type.`,
+				ValidateFunc: validation.StringInSlice([]string{
+					"vpc", "er",
+				}, false),
+			},
+			"network_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The network type of the VPN gateway.`,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the VPC to which the VPN gateway is connected.`,
+			},
+			"local_subnets": {
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Computed:    true,
+				Description: `The local subnets.`,
+			},
+			"connect_subnet": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The Network ID of the VPC subnet used by the VPN gateway.`,
+			},
+			"er_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The enterprise router ID to attach with to VPN gateway.`,
+			},
+			"master_eip": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem:     GatewayEipSchema(),
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"slave_eip": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem:     GatewayEipSchema(),
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"access_vpc_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The access VPC ID of the VPN gateway.`,
+			},
+			"access_subnet_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The access subnet ID of the VPN gateway.`,
 			},
 			"asn": {
 				Type:        schema.TypeInt,
@@ -303,6 +336,10 @@ func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, config *confi
 		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
 		"master_eip":            buildCreateGatewayMasterEipChildBody(d),
 		"slave_eip":             buildCreateGatewaySlaveEipChildBody(d),
+		"access_vpc_id":         utils.ValueIngoreEmpty(d.Get("access_vpc_id")),
+		"access_subnet_id":      utils.ValueIngoreEmpty(d.Get("access_subnet_id")),
+		"er_id":                 utils.ValueIngoreEmpty(d.Get("er_id")),
+		"network_type":          utils.ValueIngoreEmpty(d.Get("network_type")),
 	}
 	return params
 }
@@ -467,6 +504,10 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, meta inter
 		d.Set("used_connection_group", utils.PathSearch("vpn_gateway.used_connection_group", getGatewayRespBody, nil)),
 		d.Set("used_connection_number", utils.PathSearch("vpn_gateway.used_connection_number", getGatewayRespBody, nil)),
 		d.Set("vpc_id", utils.PathSearch("vpn_gateway.vpc_id", getGatewayRespBody, nil)),
+		d.Set("access_vpc_id", utils.PathSearch("vpn_gateway.access_vpc_id", getGatewayRespBody, nil)),
+		d.Set("access_subnet_id", utils.PathSearch("vpn_gateway.access_subnet_id", getGatewayRespBody, nil)),
+		d.Set("er_id", utils.PathSearch("vpn_gateway.er_id", getGatewayRespBody, nil)),
+		d.Set("network_type", utils.PathSearch("vpn_gateway.network_type", getGatewayRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

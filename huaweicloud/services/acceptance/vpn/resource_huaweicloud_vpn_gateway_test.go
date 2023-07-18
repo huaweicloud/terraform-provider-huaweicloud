@@ -93,8 +93,53 @@ func TestAccGateway_basic(t *testing.T) {
 	})
 }
 
+func TestAccGateway_withER(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_gateway.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGatewayResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testGateway_withER(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "network_type", "private"),
+					resource.TestCheckResourceAttr(rName, "attachment_type", "er"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(rName, "er_id", "huaweicloud_er_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "access_vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "access_subnet_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.1",
+						"data.huaweicloud_availability_zones.test", "names.1"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testGateway_base(name string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
   cidr = "192.168.0.0/16"
@@ -142,7 +187,10 @@ resource "huaweicloud_vpn_gateway" "test" {
   vpc_id             = huaweicloud_vpc.test.id
   local_subnets      = [huaweicloud_vpc_subnet.test.cidr]
   connect_subnet     = huaweicloud_vpc_subnet.test.id
-  availability_zones = ["cn-north-4a", "cn-north-4b"]
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
 
   master_eip {
     id = huaweicloud_vpc_eip.test1.id
@@ -164,7 +212,10 @@ resource "huaweicloud_vpn_gateway" "test" {
   vpc_id             = huaweicloud_vpc.test.id
   local_subnets      = [huaweicloud_vpc_subnet.test.cidr, "192.168.2.0/24"]
   connect_subnet     = huaweicloud_vpc_subnet.test.id
-  availability_zones = ["cn-north-4a", "cn-north-4b"]
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
 
   master_eip {
     id = huaweicloud_vpc_eip.test1.id
@@ -175,4 +226,46 @@ resource "huaweicloud_vpn_gateway" "test" {
   }
 }
 `, testGateway_base(name), name)
+}
+
+func testGateway_withER(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "172.16.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "172.16.0.0/24"
+  gateway_ip = "172.16.0.1"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_er_instance" "test" {
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[3]
+  ]
+
+  name = "%[1]s"
+  asn  = "65000"
+}
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name               = "%[1]s"
+  network_type       = "private"
+  attachment_type    = "er"
+  er_id              = huaweicloud_er_instance.test.id
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
+
+  access_vpc_id    = huaweicloud_vpc.test.id
+  access_subnet_id = huaweicloud_vpc_subnet.test.id
+}
+`, name)
 }
