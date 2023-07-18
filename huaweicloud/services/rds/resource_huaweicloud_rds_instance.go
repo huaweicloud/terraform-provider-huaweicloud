@@ -524,7 +524,20 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
 		}
 
-		err = instances.EnableAutoExpand(client, opts)
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.EnableAutoExpand(client, opts)
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			return diag.Errorf("error configuring auto-expansion: %v", err)
 		}
@@ -779,12 +792,38 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 				LimitSize:        limitSize,
 				TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
 			}
-			err = instances.EnableAutoExpand(client, opts)
+			retryFunc := func() (interface{}, bool, error) {
+				err = instances.EnableAutoExpand(client, opts)
+				retry, err := handleMultiOperationsError(err)
+				return nil, retry, err
+			}
+			_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+				Ctx:          ctx,
+				RetryFunc:    retryFunc,
+				WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+				WaitTarget:   []string{"ACTIVE"},
+				Timeout:      d.Timeout(schema.TimeoutUpdate),
+				DelayTimeout: 10 * time.Second,
+				PollInterval: 10 * time.Second,
+			})
 			if err != nil {
 				return diag.Errorf("an error occurred while enable automatic expansion of instance storage: %v", err)
 			}
 		} else {
-			err = instances.DisableAutoExpand(client, instanceID)
+			retryFunc := func() (interface{}, bool, error) {
+				err = instances.DisableAutoExpand(client, instanceID)
+				retry, err := handleMultiOperationsError(err)
+				return nil, retry, err
+			}
+			_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+				Ctx:          ctx,
+				RetryFunc:    retryFunc,
+				WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+				WaitTarget:   []string{"ACTIVE"},
+				Timeout:      d.Timeout(schema.TimeoutUpdate),
+				DelayTimeout: 10 * time.Second,
+				PollInterval: 10 * time.Second,
+			})
 			if err != nil {
 				return diag.Errorf("an error occurred while disable automatic expansion of instance storage: %v", err)
 			}
@@ -815,7 +854,7 @@ func resourceRdsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"ACTIVE"},
+		Pending:      []string{"ACTIVE", "BACKING UP"},
 		Target:       []string{"DELETED"},
 		Refresh:      rdsInstanceStateRefreshFunc(client, id),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
