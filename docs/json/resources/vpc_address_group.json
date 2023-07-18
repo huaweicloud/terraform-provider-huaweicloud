@@ -16,6 +16,17 @@
                 "type": "string",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "force_destroy": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -25,6 +36,11 @@
                 "optional": true,
                 "forcenew": true,
                 "default": 4
+              },
+              "max_capacity": {
+                "type": "number",
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",

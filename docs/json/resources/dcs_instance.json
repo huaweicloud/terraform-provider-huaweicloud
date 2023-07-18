@@ -34,6 +34,13 @@
                 "computed": true,
                 "forcenew": true
               },
+              "deleted_nodes": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
               "description": {
                 "type": "string",
                 "optional": true,
@@ -123,6 +130,13 @@
               "rename_commands": {
                 "type": [
                   "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "reserved_ips": {
+                "type": [
+                  "list",
                   "string"
                 ],
                 "optional": true

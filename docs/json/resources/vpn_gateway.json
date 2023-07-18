@@ -5,6 +5,20 @@
         "huaweicloud_vpn_gateway": {
           "block": {
             "attributes": {
+              "access_subnet_id": {
+                "type": "string",
+                "description": "The access subnet ID of the VPN gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "access_vpc_id": {
+                "type": "string",
+                "description": "The access VPC ID of the VPN gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "asn": {
                 "type": "number",
                 "description": "The ASN number of BGP",
@@ -31,7 +45,8 @@
               "connect_subnet": {
                 "type": "string",
                 "description": "The Network ID of the VPC subnet used by the VPN gateway.",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "created_at": {
@@ -42,6 +57,13 @@
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The enterprise project ID",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "er_id": {
+                "type": "string",
+                "description": "The enterprise router ID to attach with to VPN gateway.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -63,12 +85,20 @@
                   "string"
                 ],
                 "description": "The local subnets.",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
                 "description": "The name of the VPN gateway. Only letters, digits, underscores(_) and hypens(-) are supported.",
                 "required": true
+              },
+              "network_type": {
+                "type": "string",
+                "description": "The network type of the VPN gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -97,7 +127,8 @@
               "vpc_id": {
                 "type": "string",
                 "description": "The ID of the VPC to which the VPN gateway is connected.",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               }
             },
@@ -159,7 +190,6 @@
                 },
                 "nesting_mode": "list",
                 "forcenew": true,
-                "min_items": 1,
                 "max_items": 1
               },
               "slave_eip": {
@@ -219,7 +249,6 @@
                 },
                 "nesting_mode": "list",
                 "forcenew": true,
-                "min_items": 1,
                 "max_items": 1
               }
             }

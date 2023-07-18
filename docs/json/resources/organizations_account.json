@@ -46,6 +46,13 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
           }
         }
       }

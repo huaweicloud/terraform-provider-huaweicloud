@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ucs_policy": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The created time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the UCS policy.",
+                "optional": true
+              },
+              "iam_user_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of iam user IDs to associate to the policy.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the UCS policy.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the UCS policy.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The updated time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "details": {
+                "block": {
+                  "attributes": {
+                    "operations": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the list of operations.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "resources": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the list of resources.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the details of the UCS policy."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
