@@ -78,7 +78,8 @@ func ResourceIdentityPasswordPolicy() *schema.Resource {
 
 func resourcePasswordPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMV3Client("")
+	region := cfg.GetRegion(d)
+	iamClient, err := cfg.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -109,7 +110,8 @@ func resourcePasswordPolicyUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func resourcePasswordPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMV3Client("")
+	region := cfg.GetRegion(d)
+	iamClient, err := cfg.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -136,7 +138,8 @@ func resourcePasswordPolicyRead(_ context.Context, d *schema.ResourceData, meta 
 
 func resourcePasswordPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	iamClient, err := cfg.IAMV3Client("")
+	region := cfg.GetRegion(d)
+	iamClient, err := cfg.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
