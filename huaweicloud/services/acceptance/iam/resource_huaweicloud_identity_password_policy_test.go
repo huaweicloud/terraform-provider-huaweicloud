@@ -70,7 +70,7 @@ func testAccCheckPasswordPolicyExists(n string) resource.TestCheckFunc {
 		}
 
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := cfg.IAMV3Client("")
+		client, err := cfg.IAMV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating IAM client: %s", err)
 		}
@@ -82,7 +82,7 @@ func testAccCheckPasswordPolicyExists(n string) resource.TestCheckFunc {
 
 func testAccCheckPasswordPolicyDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := cfg.IAMV3Client("")
+	client, err := cfg.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating IAM client: %s", err)
 	}
