@@ -296,6 +296,9 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
+		if epsClient.ProjectID == "" {
+			epsClient.ProjectID = conf.GetProjectID(region)
+		}
 
 		if err := resourceWafDedicatedEPSIdUpdate(d.Id(), epsId, client, epsClient, region); err != nil {
 			return diag.FromErr(err)
