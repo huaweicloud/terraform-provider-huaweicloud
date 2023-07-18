@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 1.52.1 (July 18, 2023)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dcs_instance: Support scaling down the instance [GH-3185]
+* resource/huaweicloud_vpc_address_group: Add `enterprise_project_id` support [GH-3191]
+* resource/huaweicloud_waf_cloud_instance: Support postpaid charging mode [GH-3195]
+* resource/huaweicloud_vpc_subnet: Try to get the DNS list through API [GH-3198]
+* resource/huaweicloud_vpn_gateway: Support attach to ER instance[GH-3199]
+
+BUG FIXES:
+
+* resource/huaweicloud_dcs_instance:: Add retry mechanism when restarting [GH-3196]
+* resource/huaweicloud_identity_password_policy: Update the endpoint of IAM client with region [GH-3202]
+
 ## 1.52.0 (July 14, 2023)
 
 * **New Resurce:**
