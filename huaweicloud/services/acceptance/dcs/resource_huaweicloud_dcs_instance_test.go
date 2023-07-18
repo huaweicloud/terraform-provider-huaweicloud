@@ -85,6 +85,677 @@ func TestAccDcsInstances_basic(t *testing.T) {
 	})
 }
 
+func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_ha(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_ha_expand_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_ha_reduce_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_ha(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_ha_expand_replica(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_ha(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_ha_to_proxy(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_rw(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_rw_expand_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "16"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_rw_reduce_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_rw(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_rw_expand_replica(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_rw(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_rw_to_proxy(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_proxy(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_proxy_expand_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "16"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_proxy_reduce_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_proxy(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_proxy_to_ha(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_proxy(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_proxy_to_rw(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_cluster(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_cluster_expand_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_cluster_reduce_capacity(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
+func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_cluster(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_cluster_expand_replica(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+			},
+		},
+	})
+}
+
 func TestAccDcsInstances_withEpsId(t *testing.T) {
 	var instance instances.DcsInstance
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
@@ -332,7 +1003,7 @@ data "huaweicloud_dcs_flavors" "test" {
 resource "huaweicloud_dcs_instance" "instance_1" {
   name               = "%s"
   engine_version     = "5.0"
-  password           = "Huawei_test_update"
+  password           = "Huawei_test"
   engine             = "Redis"
   port               = 6389
   capacity           = 1
@@ -352,11 +1023,11 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   }
 
   rename_commands = {
-    command  = "command_update"
-    keys     = "keys_update"
-    flushall = "flushall_update"
-    flushdb  = "flushdb_update"
-    hgetall  = "hgetall_update"
+    command  = "command001"
+    keys     = "keys001"
+    flushall = "flushall001"
+    flushdb  = "flushdb001"
+    hgetall  = "hgetall001"
   }
 
   tags = {
@@ -364,6 +1035,557 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     owner = "terraform_update"
   }
 }`, common.TestVpc(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_ha(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 1
+  name           = "redis.ha.xu1.large.r2.1"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6388
+  capacity           = 1
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "22:00:00"
+  maintain_end       = "02:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_ha_expand_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.ha.xu1.large.r2.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_ha_reduce_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 1
+  name           = "redis.ha.xu1.large.r2.1"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 1
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_ha_expand_replica(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 1
+  name           = "redis.ha.xu1.large.r4.1"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 1
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_ha_to_proxy(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.proxy.xu1.large.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_rw(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.ha.xu1.large.p2.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6388
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "22:00:00"
+  maintain_end       = "02:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_rw_expand_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 16
+  name           = "redis.ha.xu1.large.p2.16"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 16
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_rw_reduce_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.ha.xu1.large.p2.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_rw_expand_replica(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.ha.xu1.large.p4.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_rw_to_proxy(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.proxy.xu1.large.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_proxy(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.proxy.xu1.large.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6388
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "22:00:00"
+  maintain_end       = "02:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_proxy_expand_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 16
+  name           = "redis.proxy.xu1.large.s1.16"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 16
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_proxy_reduce_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.proxy.xu1.large.s1.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test_update"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_proxy_to_ha(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.ha.xu1.large.r2.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_proxy_to_rw(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.ha.xu1.large.p2.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_cluster(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.cluster.xu1.large.r2.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6388
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "22:00:00"
+  maintain_end       = "02:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_cluster_expand_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 8
+  name           = "redis.cluster.xu1.large.r2.s1.8"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 8
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_cluster_reduce_capacity(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.cluster.xu1.large.r2.s1.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
+}
+
+func testAccDcsV1Instance_cluster_expand_replica(instanceName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dcs_flavors" "test" {
+  engine         = "Redis"
+  engine_version = "5.0"
+  capacity       = 4
+  name           = "redis.cluster.xu1.large.r3.4"
+}
+
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name               = "%s"
+  engine_version     = "5.0"
+  password           = "Huawei_test"
+  engine             = "Redis"
+  port               = 6389
+  capacity           = 4
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
+}`, common.TestBaseNetwork(instanceName), instanceName)
 }
 
 func testAccDcsV1Instance_epsId(instanceName string) string {

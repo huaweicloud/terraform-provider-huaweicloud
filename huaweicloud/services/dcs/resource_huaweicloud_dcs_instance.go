@@ -21,6 +21,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dcs/v2/availablezones"
+	"github.com/chnsz/golangsdk/openstack/dcs/v2/flavors"
 	"github.com/chnsz/golangsdk/openstack/dcs/v2/instances"
 	dcsTags "github.com/chnsz/golangsdk/openstack/dcs/v2/tags"
 	"github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists"
@@ -274,6 +275,17 @@ func ResourceDcsInstance() *schema.Resource {
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":      common.SchemaAutoPay(nil),
 			"tags":          common.TagsSchema(),
+			"deleted_nodes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				MaxItems: 1,
+			},
+			"reserved_ips": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -987,21 +999,18 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	if d.HasChanges("flavor", "capacity") {
-		specCode := d.Get("flavor").(string)
-		opts := instances.ResizeInstanceOpts{
-			SpecCode:    specCode,
-			NewCapacity: d.Get("capacity").(float64),
+		oVal, nVal := d.GetChange("flavor")
+		oldSpecCode := oVal.(string)
+		newSpecCode := nVal.(string)
+		opts, err := buildResizeInstanceOpt(client, d, oldSpecCode, newSpecCode)
+		if err != nil {
+			return err
 		}
-		if d.Get("charging_mode").(string) == chargeModePrePaid {
-			opts.BssParam = instances.DcsBssParamOpts{
-				IsAutoPay: "true",
-			}
-		}
-		log.Printf("[DEBUG] Resize DCS instance options : %#v", opts)
+		log.Printf("[DEBUG] Resize DCS instance options : %#v", *opts)
 
 		var res *instances.ResizeResponse
 		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-			res, err = instances.ResizeInstance(client, d.Id(), opts)
+			res, err = instances.ResizeInstance(client, d.Id(), *opts)
 			isRetry, err := handleOperationError(err)
 			if isRetry {
 				return resource.RetryableError(err)
@@ -1041,10 +1050,84 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 		if instance.SpecCode != d.Get("flavor").(string) {
 			return fmt.Errorf("change flavor failed, after changed the DCS flavor still is: %s, expected: %s",
-				instance.SpecCode, specCode)
+				instance.SpecCode, newSpecCode)
 		}
 	}
 	return nil
+}
+
+func buildResizeInstanceOpt(client *golangsdk.ServiceClient, d *schema.ResourceData, oldSpecCode,
+	newSpecCode string) (*instances.ResizeInstanceOpts, error) {
+	opts := instances.ResizeInstanceOpts{
+		SpecCode:    newSpecCode,
+		NewCapacity: d.Get("capacity").(float64),
+	}
+	if d.Get("charging_mode").(string) == chargeModePrePaid {
+		opts.BssParam = instances.DcsBssParamOpts{
+			IsAutoPay: "true",
+		}
+	}
+	if oldSpecCode == newSpecCode {
+		return nil, fmt.Errorf("the param flavor is invalid")
+	}
+	oldFlavor, err := getFlavorBySpecCode(client, oldSpecCode)
+	if err != nil {
+		return nil, err
+	}
+	newFlavor, err := getFlavorBySpecCode(client, newSpecCode)
+	if err != nil {
+		return nil, err
+	}
+	changeType := getFlavorChangeType(oldFlavor, newFlavor)
+	opts.ChangeType = changeType
+	if changeType == "createReplication" {
+		azCodes, err := getAzCode(d, client)
+		if err != nil {
+			return nil, err
+		}
+		opts.AvailableZones = azCodes
+	}
+	if changeType == "deleteReplication" {
+		if newFlavor.CacheMode == "ha" {
+			opts.NodeList = utils.ExpandToStringList(d.Get("deleted_nodes").([]interface{}))
+		} else if newFlavor.CacheMode == "cluster" {
+			azCodes, err := getAzCode(d, client)
+			if err != nil {
+				return nil, err
+			}
+			opts.ReservedIp = utils.ExpandToStringList(d.Get("reserved_ips").([]interface{}))
+			opts.AvailableZones = azCodes
+		}
+	}
+	return &opts, nil
+}
+
+func getFlavorChangeType(oldFlavor, newFlavor *flavors.Flavor) string {
+	// if the cache mode is different, it indicates the type has been changed
+	if oldFlavor.CacheMode != newFlavor.CacheMode {
+		return "instanceType"
+	}
+	// indicates the replica count increase, should add replica
+	if oldFlavor.ReplicaCount < newFlavor.ReplicaCount {
+		return "createReplication"
+	}
+	// indicates the replica count decrease, should delete replica
+	if oldFlavor.ReplicaCount > newFlavor.ReplicaCount {
+		return "deleteReplication"
+	}
+	// indicates only the capacity been changed
+	return ""
+}
+
+func getFlavorBySpecCode(client *golangsdk.ServiceClient, specCode string) (*flavors.Flavor, error) {
+	list, err := flavors.List(client, &flavors.ListOpts{SpecCode: specCode}).Extract()
+	if err != nil {
+		return nil, fmt.Errorf("error getting dcs flavors list by specCode %s: %s", specCode, err)
+	}
+	if len(list) < 1 {
+		return nil, fmt.Errorf("the result queried by specCode(%s) is empty", specCode)
+	}
+	return &list[0], nil
 }
 
 func handleOperationError(err error) (bool, error) {
@@ -1096,6 +1179,21 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 
 	d.SetId("")
 	return nil
+}
+
+func getAzCode(d *schema.ResourceData, client *golangsdk.ServiceClient) ([]string, error) {
+	var azCodes []string
+	availabilityZones, ok := d.GetOk("availability_zones")
+	if ok {
+		azCodes = utils.ExpandToStringList(availabilityZones.([]interface{}))
+	} else {
+		availableZonesCodes, err := getAvailableZoneCodeByID(client, d.Get("available_zones").([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		azCodes = availableZonesCodes
+	}
+	return azCodes, nil
 }
 
 func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface{}) ([]string, error) {

@@ -212,6 +212,13 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of an instance.
   It is a string that contains a maximum of 1024 characters.
 
+* `deleted_nodes` - (Optional, List) Specifies the ID of the replica to delete. This parameter is mandatory when
+  you delete replicas of a master/standby DCS Redis 4.0 or 5.0 instance. Currently, only one replica can be deleted
+  at a time.
+
+* `reserved_ips` - (Optional, List) Specifies IP addresses to retain. Mandatory during cluster scale-in. If this
+  parameter is not set, the system randomly deletes unnecessary shards.
+
 The `whitelists` block supports:
 
 * `group_name` - (Required, String) Specifies the name of IP address group.
