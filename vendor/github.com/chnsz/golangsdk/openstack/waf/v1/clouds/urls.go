@@ -6,6 +6,10 @@ func createURL(client *golangsdk.ServiceClient) string {
 	return client.ServiceURL("subscription/purchase/prepaid-cloud-waf")
 }
 
+func createOrDeletePostPaidURL(client *golangsdk.ServiceClient) string {
+	return client.ServiceURL("postpaid")
+}
+
 func getURL(client *golangsdk.ServiceClient) string {
 	return client.ServiceURL("subscription")
 }

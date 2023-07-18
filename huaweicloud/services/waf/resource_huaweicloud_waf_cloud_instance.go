@@ -28,17 +28,19 @@ type (
 )
 
 const (
-	ChargingModePrePaid ChargingMode = "prePaid"
+	ChargingModePrePaid  ChargingMode = "prePaid"
+	ChargingModePostPaid ChargingMode = "postPaid"
 
 	SpecCodeIntroduction SpecCode = "detection"    // Introduction edition.
 	SpecCodeStandard     SpecCode = "professional" // Standard edition (The old is professional edition).
 	SpecCodeProfessional SpecCode = "enterprise"   // Professional edition (The old is enterprise edition).
 	SpecCodePlatinum     SpecCode = "ultimate"     // Platinum edition (The old is ultimate edition).
 
-	ResourceTypeInstance  ResourceType = "hws.resource.type.waf"
-	ResourceTypeBandwidth ResourceType = "hws.resource.type.waf.bandwidth"
-	ResourceTypeDomain    ResourceType = "hws.resource.type.waf.domain"
-	ResourceTypeRule      ResourceType = "hws.resource.type.waf.rule"
+	ResourceTypeInstance        ResourceType = "hws.resource.type.waf"                 // prepaid resource type
+	ResourceTypeBandwidth       ResourceType = "hws.resource.type.waf.bandwidth"       // prepaid resource type
+	ResourceTypeDomain          ResourceType = "hws.resource.type.waf.domain"          // prepaid resource type
+	ResourceTypeRule            ResourceType = "hws.resource.type.waf.rule"            // prepaid resource type
+	ResourceTypePayPerUseDomain ResourceType = "hws.resource.type.waf.payperusedomain" // postpaid resource type
 )
 
 func expackProductSchema() *schema.Resource {
@@ -48,7 +50,7 @@ func expackProductSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
-				Description: "The number of extended packages.",
+				Description: "Specifies the number of extended packages.",
 			},
 		},
 	}
@@ -77,50 +79,45 @@ func ResourceCloudInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: "The region where the cloud WAF is located.",
-			},
-			"resource_spec_code": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(SpecCodeIntroduction),
-					string(SpecCodeStandard),
-					string(SpecCodeProfessional),
-					string(SpecCodePlatinum),
-				}, false),
-				Description: "The specification of the cloud WAF.",
+				Description: "Specifies the region where the cloud WAF is located.",
 			},
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid",
+					"prePaid", "postPaid",
 				}, false),
-				Description: "The charging mode of the cloud WAF.",
+				Description: "Specifies the charging mode of the cloud WAF.",
 			},
-			"period_unit": {
+			"website": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
+				ConflictsWith: []string{"resource_spec_code", "period_unit", "period", "auto_renew",
+					"bandwidth_expack_product", "domain_expack_product", "rule_expack_product"},
+				Description: "Specifies the website to which the account belongs.",
+			},
+			"resource_spec_code": {
+				Type:     schema.TypeString,
+				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
+					string(SpecCodeIntroduction),
+					string(SpecCodeStandard),
+					string(SpecCodeProfessional),
+					string(SpecCodePlatinum),
 				}, false),
+				Description: "Specifies the specification of the cloud WAF.",
 			},
-			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 9),
-			},
-			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+			"period_unit": common.SchemaPeriodUnit(nil),
+			"period":      common.SchemaPeriod(nil),
+			"auto_renew":  common.SchemaAutoRenewUpdatable(nil),
 			"bandwidth_expack_product": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
 				Elem:        expackProductSchema(),
 				MaxItems:    1,
-				Description: "The configuration of the bandwidth extended packages.",
+				Description: "Specifies the configuration of the bandwidth extended packages.",
 			},
 			"domain_expack_product": {
 				Type:        schema.TypeList,
@@ -128,7 +125,7 @@ func ResourceCloudInstance() *schema.Resource {
 				Computed:    true,
 				Elem:        expackProductSchema(),
 				MaxItems:    1,
-				Description: "The configuration of the domain extended packages.",
+				Description: "Specifies the configuration of the domain extended packages.",
 			},
 			"rule_expack_product": {
 				Type:        schema.TypeList,
@@ -136,13 +133,13 @@ func ResourceCloudInstance() *schema.Resource {
 				Computed:    true,
 				Elem:        expackProductSchema(),
 				MaxItems:    1,
-				Description: "The configuration of the rule extended packages.",
+				Description: "Specifies the configuration of the rule extended packages.",
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "The ID of the enterprise project to which the cloud WAF belongs.",
+				Description: "Specifies the ID of the enterprise project to which the cloud WAF belongs.",
 			},
 			// Attributes
 			"status": {
@@ -181,6 +178,66 @@ func resourceCloudInstanceCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating WAF v1 client: %s", err)
 	}
 
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return diag.FromErr(err)
+		}
+
+		orderId, err := createPrePaidCloudInstance(wafClient, cfg, region, d)
+		if err != nil {
+			return diag.Errorf("error creating prepaid cloud WAF: %s", err)
+		}
+		if orderId == nil {
+			return diag.Errorf("error creating prepaid cloud WAF, cause cannot find order id in response")
+		}
+
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("the order is not completed while creating prepaid cloud WAF: %s", err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
+	} else {
+		if err := validatePostPaidParameter(d); err != nil {
+			return diag.FromErr(err)
+		}
+
+		instance, err := createPostPaidCloudInstance(wafClient, cfg, region, d)
+		if err != nil {
+			return diag.Errorf("error creating postpaid cloud WAF: %s", err)
+		}
+		if instance == nil {
+			return diag.Errorf("error creating postpaid cloud WAF, cause cannot find instance in response")
+		}
+
+		resourceId, err := flattenResourceIdByType(instance, ResourceTypePayPerUseDomain)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
+	}
+
+	return resourceCloudInstanceRead(ctx, d, meta)
+}
+
+func validatePostPaidParameter(d *schema.ResourceData) error {
+	if _, ok := d.GetOk("website"); !ok {
+		return fmt.Errorf("`website` must be specified in postpaid charging mode")
+	}
+	return nil
+}
+
+func createPrePaidCloudInstance(wafClient *golangsdk.ServiceClient, cfg *config.Config, region string,
+	d *schema.ResourceData) (*string, error) {
 	opts := clouds.CreateOpts{
 		ProjectId:   wafClient.ProviderClient.ProjectID,
 		IsAutoPay:   utils.Bool(true),
@@ -194,29 +251,28 @@ func resourceCloudInstanceCreate(ctx context.Context, d *schema.ResourceData, me
 		BandwidthExpackProductInfo: buildExtendedPackages(d.Get("bandwidth_expack_product").([]interface{})),
 		DomainExpackProductInfo:    buildExtendedPackages(d.Get("domain_expack_product").([]interface{})),
 		RuleExpackProductInfo:      buildExtendedPackages(d.Get("rule_expack_product").([]interface{})),
-		EnterpriseProjectId:        common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId:        cfg.GetEnterpriseProjectID(d),
 	}
-	orderId, err := clouds.Create(wafClient, opts)
-	if err != nil {
-		return diag.Errorf("error creating cloud WAF: %s", err)
-	}
+	return clouds.Create(wafClient, opts)
+}
 
-	bssClient, err := cfg.BssV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating BSS v2 client: %s", err)
+func createPostPaidCloudInstance(wafClient *golangsdk.ServiceClient, cfg *config.Config, region string,
+	d *schema.ResourceData) (*clouds.Instance, error) {
+	opts := clouds.CreatePostPaidOpts{
+		Region:              region,
+		ConsoleArea:         d.Get("website").(string),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	err = common.WaitOrderComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.Errorf("the order is not completed while creating cloud WAF: %#v", err)
-	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	return clouds.CreatePostPaid(wafClient, opts)
+}
 
-	d.SetId(resourceId)
-
-	return resourceCloudInstanceRead(ctx, d, meta)
+func flattenResourceIdByType(instance *clouds.Instance, resourceType ResourceType) (string, error) {
+	for _, v := range instance.Resources {
+		if v.Type == string(resourceType) {
+			return v.ID, nil
+		}
+	}
+	return "", fmt.Errorf("cannot find target resource type (%s) from response", resourceType)
 }
 
 // Because the request value and the response value of the WAF API are different, we need to match the response value.
@@ -238,25 +294,29 @@ func analysisSpecCode(specCode string) (string, error) {
 	return result[1], nil
 }
 
-func QueryCloudInstance(client *golangsdk.ServiceClient, instanceId string) (*clouds.Instance, error) {
+func QueryCloudInstance(client *golangsdk.ServiceClient, instanceId, epsId string) (*clouds.Instance,
+	ChargingMode, error) {
 	default404Err := golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 			Body: []byte(fmt.Sprintf("the cloud WAF (%s) does not exist", instanceId)),
 		},
 	}
-	resp, err := clouds.Get(client)
+	resp, err := clouds.GetWithEpsID(client, epsId)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if resp == nil || len(resp.Resources) < 1 {
-		return nil, default404Err
+		return nil, "", default404Err
 	}
 	for _, val := range resp.Resources {
 		if val.Type == string(ResourceTypeInstance) && val.ID == instanceId {
-			return resp, nil
+			return resp, ChargingModePrePaid, nil
+		}
+		if val.Type == string(ResourceTypePayPerUseDomain) && val.ID == instanceId {
+			return resp, ChargingModePostPaid, nil
 		}
 	}
-	return nil, default404Err
+	return nil, "", default404Err
 }
 
 func flattenExtendedPackages(res clouds.Resource) []map[string]interface{} {
@@ -276,17 +336,20 @@ func resourceCloudInstanceRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	instanceId := d.Id()
-	resp, err := QueryCloudInstance(wafClient, instanceId)
+	epsId := d.Get("enterprise_project_id").(string)
+	resp, chargingMode, err := QueryCloudInstance(wafClient, instanceId, epsId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "cloud WAF")
 	}
 	log.Printf("[DEBUG] The resources list of the cloud WAF is: %#v", resp.Resources)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", region),
+		d.Set("charging_mode", chargingMode),
 	)
 	for _, val := range resp.Resources {
-		if val.Type == string(ResourceTypeInstance) {
+		switch val.Type {
+		case string(ResourceTypeInstance):
 			specCode, err := analysisSpecCode(val.SpecCode)
 			if err != nil {
 				return diag.FromErr(err)
@@ -295,15 +358,15 @@ func resourceCloudInstanceRead(_ context.Context, d *schema.ResourceData, meta i
 				d.Set("resource_spec_code", specCode),
 				d.Set("status", val.Status),
 			)
-		}
-		if val.Type == string(ResourceTypeBandwidth) {
+		case string(ResourceTypeBandwidth):
 			mErr = multierror.Append(mErr, d.Set("bandwidth_expack_product", flattenExtendedPackages(val)))
-		}
-		if val.Type == string(ResourceTypeDomain) {
+		case string(ResourceTypeDomain):
 			mErr = multierror.Append(mErr, d.Set("domain_expack_product", flattenExtendedPackages(val)))
-		}
-		if val.Type == string(ResourceTypeRule) {
+		case string(ResourceTypeRule):
 			mErr = multierror.Append(mErr, d.Set("rule_expack_product", flattenExtendedPackages(val)))
+		case string(ResourceTypePayPerUseDomain):
+			// fill the domain status for postpaid resource type
+			mErr = multierror.Append(mErr, d.Set("status", val.Status))
 		}
 	}
 
@@ -325,12 +388,12 @@ func updateExtendedPackages(ctx context.Context, wafClient *golangsdk.ServiceCli
 			IsAutoPay:           utils.Bool(true),
 			IsAutoRenew:         utils.Bool(getAutoRenewValue(d.Get("auto_renew").(string))),
 			RegionId:            region,
-			EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
 		updateOpts = clouds.UpdateOpts{
 			ProjectId:           wafClient.ProviderClient.ProjectID,
 			IsAutoPay:           utils.Bool(true),
-			EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
 	)
 	if d.HasChange("bandwidth_expack_product.0.resource_size") {
@@ -397,6 +460,10 @@ func updateExtendedPackages(ctx context.Context, wafClient *golangsdk.ServiceCli
 }
 
 func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if d.Get("charging_mode").(string) == string(ChargingModePostPaid) {
+		return diag.Errorf("the postpaid charging mode cloud WAF instances cannot be updated.")
+	}
+
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	wafClient, err := cfg.WafV1Client(region)
@@ -410,7 +477,7 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 			opts = clouds.UpdateOpts{
 				ProjectId:           cfg.GetProjectID(region),
 				IsAutoPay:           utils.Bool(true),
-				EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+				EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 			}
 		)
 
@@ -454,10 +521,10 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 	return resourceCloudInstanceRead(ctx, d, meta)
 }
 
-func cloudInstanceDeleteRefreshFunc(client *golangsdk.ServiceClient, instanceId string) resource.StateRefreshFunc {
+func cloudInstanceDeleteRefreshFunc(client *golangsdk.ServiceClient, instanceId, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var unprotectedHostId string = ""
-		resp, err := QueryCloudInstance(client, instanceId)
+		resp, _, err := QueryCloudInstance(client, instanceId, epsId)
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			return unprotectedHostId, "DELETED", nil
 		}
@@ -467,28 +534,42 @@ func cloudInstanceDeleteRefreshFunc(client *golangsdk.ServiceClient, instanceId 
 
 func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	instanceId := d.Id()
-	err := common.UnsubscribePrePaidResource(d, cfg, []string{instanceId})
-	if err != nil {
-		return diag.Errorf("error unsubscribing cloud WAF: %s", err)
-	}
-
 	region := cfg.GetRegion(d)
 	wafClient, err := cfg.WafV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating WAF v1 client: %s", err)
 	}
+
+	chargingMode := d.Get("charging_mode").(string)
+	epsId := cfg.GetEnterpriseProjectID(d)
+	if chargingMode == string(ChargingModePostPaid) {
+		opts := clouds.DeletePostPaidOpts{
+			Region:              region,
+			EnterpriseProjectId: epsId,
+		}
+		if err = clouds.DeletePostPaid(wafClient, opts); err != nil {
+			return diag.Errorf("error deleting the postpaid cloud WAF: %s", err)
+		}
+		return nil
+	}
+
+	instanceId := d.Id()
+	err = common.UnsubscribePrePaidResource(d, cfg, []string{instanceId})
+	if err != nil {
+		return diag.Errorf("error unsubscribing cloud WAF: %s", err)
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
-		Refresh:      cloudInstanceDeleteRefreshFunc(wafClient, instanceId),
+		Refresh:      cloudInstanceDeleteRefreshFunc(wafClient, instanceId, epsId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting to delete the cloud WAF (%s): %s", instanceId, err)
+		return diag.Errorf("error waiting to delete the postpaid cloud WAF (%s): %s", instanceId, err)
 	}
 	return nil
 }
