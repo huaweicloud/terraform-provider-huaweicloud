@@ -2,7 +2,6 @@ package cce
 
 import (
 	"context"
-	"strconv"
 	"strings"
 	"time"
 
@@ -331,27 +330,26 @@ func ResourceCCENodePool() *schema.Resource {
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
 
-			"billing_mode": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"max_pods": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Deprecated",
 			},
 			"preinstall": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				ForceNew:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				StateFunc:   utils.DecodeHashAndHexEncode,
+				Description: "schema: Deprecated",
 			},
 			"postinstall": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				ForceNew:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				StateFunc:   utils.DecodeHashAndHexEncode,
+				Description: "schema: Deprecated",
 			},
 			"runtime": {
 				Type:     schema.TypeString,
@@ -363,12 +361,15 @@ func ResourceCCENodePool() *schema.Resource {
 				}, false),
 			},
 			"extend_param": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Deprecated",
 			},
+			"extend_params": resourceNodeExtendParamsSchema([]string{
+				"max_pods", "preinstall", "postinstall", "extend_param",
+			}),
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -415,6 +416,10 @@ func ResourceCCENodePool() *schema.Resource {
 				ForceNew: true,
 			},
 			"current_node_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -498,7 +503,7 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 						SubnetId: d.Get("subnet_id").(string),
 					},
 				},
-				ExtendParam: buildResourceNodeExtendParam(d),
+				ExtendParam: buildExtendParams(d),
 				Taints:      buildResourceNodeTaint(d),
 				UserTags:    resourceCCENodePoolTags(d),
 			},
@@ -611,31 +616,6 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 	if s.Spec.NodeTemplate.BillingMode != 0 {
 		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
 	}
-
-	// set extend_param
-	var extendParam = s.Spec.NodeTemplate.ExtendParam
-	mErr = multierror.Append(mErr, d.Set("max_pods", extendParam["maxPods"]))
-	delete(extendParam, "maxPods")
-
-	extendParamToSet := map[string]string{}
-	for k, v := range extendParam {
-		switch v := v.(type) {
-		case string:
-			extendParamToSet[k] = v
-		case int:
-			extendParamToSet[k] = strconv.Itoa(v)
-		case int32:
-			extendParamToSet[k] = strconv.FormatInt(int64(v), 10)
-		case float64:
-			extendParamToSet[k] = strconv.FormatFloat(v, 'f', -1, 64)
-		case bool:
-			extendParamToSet[k] = strconv.FormatBool(v)
-		default:
-			logp.Printf("[WARN] can not set %s to extend_param, the value is %v", k, v)
-		}
-	}
-
-	mErr = multierror.Append(mErr, d.Set("extend_param", extendParamToSet))
 
 	if s.Spec.NodeTemplate.RunTime != nil {
 		mErr = multierror.Append(mErr, d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name))
