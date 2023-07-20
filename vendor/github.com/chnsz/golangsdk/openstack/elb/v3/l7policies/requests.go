@@ -62,9 +62,71 @@ type CreateOpts struct {
 	// Only valid if action is REDIRECT_TO_LISTENER.
 	RedirectListenerID string `json:"redirect_listener_id,omitempty"`
 
+	// Requests matching this policy will be redirected to the URL.
+	// Only valid if action is REDIRECT_TO_URL.
+	RedirectUrlConfig *RedirectUrlConfig `json:"redirect_url_config,omitempty"`
+
+	// Requests matching this policy will be redirected to the configuration of the page.
+	// Only valid if action is FIXED_RESPONSE.
+	FixedResponseConfig *FixedResponseConfig `json:"fixed_response_config,omitempty"`
+
+	// The config of the redirected pool.
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsExtendConfig *RedirectPoolsExtendConfig `json:"redirect_pools_extend_config,omitempty"`
+
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+}
+
+type RedirectUrlConfig struct {
+	// The protocol for redirection.
+	Protocol string `json:"protocol,omitempty"`
+
+	// The host name that requests are redirected to.
+	Host string `json:"host,omitempty"`
+
+	// The port that requests are redirected to.
+	Port string `json:"port,omitempty"`
+
+	// The path that requests are redirected to.
+	Path string `json:"path,omitempty"`
+
+	// The query string set in the URL for redirection.
+	Query string `json:"query"`
+
+	// The status code returned after the requests are redirected.
+	StatusCode string `json:"status_code" required:"true"`
+}
+
+type FixedResponseConfig struct {
+	// The fixed HTTP status code configured in the forwarding rule.
+	StatusCode string `json:"status_code" required:"true"`
+
+	// The format of the response body.
+	ContentType string `json:"content_type,omitempty"`
+
+	// The content of the response message body.
+	MessageBody string `json:"message_body"`
+}
+
+type RedirectPoolsExtendConfig struct {
+	// Whether the rewriter url enable
+	RewriteUrlEnable bool `json:"rewrite_url_enable,omitempty"`
+
+	// The rewriter url config
+	RewriteUrlConfig *RewriteUrlConfig `json:"rewrite_url_config,omitempty"`
+}
+
+type RewriteUrlConfig struct {
+	// The host of the rewriter url
+	Host string `json:"host,omitempty"`
+
+	// The path that requests are redirected to.
+	Path string `json:"path,omitempty"`
+
+	// The query string set in the URL for redirection.
+	Query string `json:"query"`
 }
 
 // ToL7PolicyCreateMap builds a request body from CreateOpts.
@@ -164,6 +226,9 @@ type UpdateOpts struct {
 	// The position of this policy on the listener.
 	Position int32 `json:"position,omitempty"`
 
+	// The priority of this policy on the listener.
+	Priority int32 `json:"priority,omitempty"`
+
 	// A human-readable description for the resource, empty string is allowed.
 	Description *string `json:"description,omitempty"`
 
@@ -174,6 +239,18 @@ type UpdateOpts struct {
 	// Requests matching this policy will be redirected to this LISTENER.
 	// Only valid if action is REDIRECT_TO_LISTENER.
 	RedirectListenerID *string `json:"redirect_listener_id,omitempty"`
+
+	// Requests matching this policy will be redirected to the URL.
+	// Only valid if action is REDIRECT_TO_URL.
+	RedirectUrlConfig *RedirectUrlConfig `json:"redirect_url_config,omitempty"`
+
+	// Requests matching this policy will be redirected to the configuration of the page.
+	// Only valid if action is FIXED_RESPONSE.
+	FixedResponseConfig *FixedResponseConfig `json:"fixed_response_config,omitempty"`
+
+	// The config of the redirected pool.
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsExtendConfig *RedirectPoolsExtendConfig `json:"redirect_pools_extend_config,omitempty"`
 
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
