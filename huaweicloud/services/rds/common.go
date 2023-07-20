@@ -30,6 +30,7 @@ func handleMultiOperationsError(err error) (bool, error) {
 			"DBS.200019": struct{}{},
 			"DBS.200047": struct{}{},
 			"DBS.200080": struct{}{},
+			"DBS.201015": struct{}{},
 			"DBS.201206": struct{}{},
 			"DBS.212033": struct{}{},
 			"DBS.280011": struct{}{},
