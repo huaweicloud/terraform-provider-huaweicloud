@@ -68,6 +68,19 @@ The `volumes` block supports:
 
 * `description` - The disk description.
 
+* `volume_type` - The disk type. Valid values are as follows:
+  + **SAS**: High I/O type.
+  + **SSD**: Ultra-high I/O type.
+  + **GPSSD**: General purpose SSD type.
+  + **ESSD**: Extreme SSD type.
+  + **GPSSD2**: General purpose SSD V2 type.
+  + **ESSD2**: Extreme SSD V2 type.
+
+* `iops` - the IOPS(Input/Output Operations Per Second) of the volume. Only valid when `volume_type` is **GPSSD2** or
+  **ESSD2**.
+
+* `throughput` - The throughput of the system disk. Only valid when `volume_type` is **GPSSD2**.
+
 * `enterprise_project_id` - The ID of the enterprise project associated with the disk.
 
 * `name` - The disk name.
