@@ -140,33 +140,6 @@ func ResourceRdsInstance() *schema.Resource {
 				},
 			},
 
-			"restore": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"instance_id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"backup_id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"database_name": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							ForceNew: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -390,15 +363,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		Volume:              buildRdsInstanceVolume(d),
 		Ha:                  buildRdsInstanceHaReplicationMode(d),
 		UnchangeableParam:   buildRdsInstanceUnchangeableParam(d),
-		RestorePoint:        buildRdsInstanceRestorePoint(d),
 	}
 
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
-		if createOpts.RestorePoint != nil {
-			return diag.Errorf("restoring to a prepaid instance is not supported")
-		}
-
 		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return diag.FromErr(err)
 		}
@@ -989,20 +957,6 @@ func buildRdsInstanceUnchangeableParam(d *schema.ResourceData) *instances.Unchan
 		unchangeableParam.LowerCaseTableNames = v.(string)
 	}
 	return unchangeableParam
-}
-
-func buildRdsInstanceRestorePoint(d *schema.ResourceData) *instances.RestorePoint {
-	if restoreRaw, ok := d.GetOk("restore"); ok {
-		restorePoint := instances.RestorePoint{}
-		restore := restoreRaw.([]interface{})[0].(map[string]interface{})
-		restorePoint.Type = "backup"
-		restorePoint.InstanceId = restore["instance_id"].(string)
-		restorePoint.BackupId = restore["backup_id"].(string)
-		databaseName := restore["database_name"].(map[string]interface{})
-		restorePoint.DatabaseName = utils.ExpandToStringMap(databaseName)
-		return &restorePoint
-	}
-	return nil
 }
 
 func buildRdsInstanceHaReplicationMode(d *schema.ResourceData) *instances.Ha {
