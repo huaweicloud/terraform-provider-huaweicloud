@@ -61,19 +61,145 @@ func ResourceL7PolicyV3() *schema.Resource {
 				Default:  "REDIRECT_TO_POOL",
 				ForceNew: true,
 			},
+			"priority": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"redirect_listener_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ExactlyOneOf: []string{"redirect_listener_id", "redirect_pool_id"},
-				Computed:     true,
+				Type:     schema.TypeString,
+				Optional: true,
+				ExactlyOneOf: []string{"redirect_listener_id", "redirect_pool_id", "redirect_url_config",
+					"fixed_response_config"},
+				Computed: true,
 			},
 			"redirect_pool_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
+			"redirect_pools_extend_config": {
+				Type:     schema.TypeList,
+				Elem:     redirectPoolsExtendConfigSchema(),
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+			},
+			"redirect_url_config": {
+				Type:     schema.TypeList,
+				Elem:     redirectUrlConfigSchema(),
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+			},
+			"fixed_response_config": {
+				Type:     schema.TypeList,
+				Elem:     fixedResponseConfigSchema(),
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
+}
+
+func redirectPoolsExtendConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"rewrite_url_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"rewrite_url_config": {
+				Type:     schema.TypeList,
+				Elem:     rewriteUrlConfigSchema(),
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func rewriteUrlConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"path": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"query": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func redirectUrlConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"status_code": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"port": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"path": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"query": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func fixedResponseConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"status_code": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"content_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"message_body": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -88,12 +214,18 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Action:      l7policies.Action(action),
+		Priority:    int32(d.Get("priority").(int)),
 		ListenerID:  d.Get("listener_id").(string),
 	}
 	if action == "REDIRECT_TO_POOL" {
 		createOpts.RedirectPoolID = d.Get("redirect_pool_id").(string)
-	} else {
+		createOpts.RedirectPoolsExtendConfig = buildRedirectPoolsExtendConfig(d)
+	} else if action == "REDIRECT_TO_LISTENER" {
 		createOpts.RedirectListenerID = d.Get("redirect_listener_id").(string)
+	} else if action == "REDIRECT_TO_URL" {
+		createOpts.RedirectUrlConfig = buildRedirectUrlConfig(d)
+	} else {
+		createOpts.FixedResponseConfig = buildFixedResponseConfig(d)
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -114,6 +246,67 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceL7PolicyV3Read(ctx, d, meta)
 }
 
+func buildRedirectPoolsExtendConfig(d *schema.ResourceData) *l7policies.RedirectPoolsExtendConfig {
+	var redirectPoolsExtendConfig *l7policies.RedirectPoolsExtendConfig
+	redirectPoolsExtendConfigRaw := d.Get("redirect_pools_extend_config").([]interface{})
+	log.Printf("[DEBUG] redirectPoolsExtendConfigRaw: %+v", redirectPoolsExtendConfigRaw)
+	if len(redirectPoolsExtendConfigRaw) == 1 {
+		redirectPoolsExtendConfig = &l7policies.RedirectPoolsExtendConfig{}
+		rewriteUrlConfigRaw := redirectPoolsExtendConfigRaw[0].(map[string]interface{})
+		redirectPoolsExtendConfig.RewriteUrlEnable = rewriteUrlConfigRaw["rewrite_url_enabled"].(bool)
+		redirectPoolsExtendConfig.RewriteUrlConfig = buildRewriteUrlConfig(rewriteUrlConfigRaw["rewrite_url_config"])
+	}
+	log.Printf("[DEBUG] redirectPoolsExtendConfig: %+v", redirectPoolsExtendConfig)
+	return redirectPoolsExtendConfig
+}
+
+func buildRewriteUrlConfig(data interface{}) *l7policies.RewriteUrlConfig {
+	var rewriteUrlConfig *l7policies.RewriteUrlConfig
+	rewriteUrlConfigRaw := data.([]interface{})
+	log.Printf("[DEBUG] rewriteUrlConfigRaw: %+v", rewriteUrlConfigRaw)
+	if len(rewriteUrlConfigRaw) == 1 {
+		if v, ok := rewriteUrlConfigRaw[0].(map[string]interface{}); ok {
+			rewriteUrlConfig = &l7policies.RewriteUrlConfig{}
+			rewriteUrlConfig.Host = v["host"].(string)
+			rewriteUrlConfig.Path = v["path"].(string)
+			rewriteUrlConfig.Query = v["query"].(string)
+		}
+	}
+	log.Printf("[DEBUG] rewriteUrlConfig: %+v", rewriteUrlConfig)
+	return rewriteUrlConfig
+}
+
+func buildRedirectUrlConfig(d *schema.ResourceData) *l7policies.RedirectUrlConfig {
+	var redirectUrlConfig *l7policies.RedirectUrlConfig
+	redirectUrlConfigRaw := d.Get("redirect_url_config").([]interface{})
+	log.Printf("[DEBUG] redirectUrlConfigRaw: %+v", redirectUrlConfigRaw)
+	if len(redirectUrlConfigRaw) == 1 {
+		redirectUrlConfig = &l7policies.RedirectUrlConfig{}
+		redirectUrlConfig.Protocol = redirectUrlConfigRaw[0].(map[string]interface{})["protocol"].(string)
+		redirectUrlConfig.Host = redirectUrlConfigRaw[0].(map[string]interface{})["host"].(string)
+		redirectUrlConfig.Port = redirectUrlConfigRaw[0].(map[string]interface{})["port"].(string)
+		redirectUrlConfig.Path = redirectUrlConfigRaw[0].(map[string]interface{})["path"].(string)
+		redirectUrlConfig.Query = redirectUrlConfigRaw[0].(map[string]interface{})["query"].(string)
+		redirectUrlConfig.StatusCode = redirectUrlConfigRaw[0].(map[string]interface{})["status_code"].(string)
+	}
+	log.Printf("[DEBUG] redirectUrlConfig: %+v", redirectUrlConfig)
+	return redirectUrlConfig
+}
+
+func buildFixedResponseConfig(d *schema.ResourceData) *l7policies.FixedResponseConfig {
+	var fixedResponseConfig *l7policies.FixedResponseConfig
+	fixedResponseConfigRaw := d.Get("fixed_response_config").([]interface{})
+	log.Printf("[DEBUG] fixedResponseConfigRaw: %+v", fixedResponseConfigRaw)
+	if len(fixedResponseConfigRaw) == 1 {
+		fixedResponseConfig = &l7policies.FixedResponseConfig{}
+		fixedResponseConfig.StatusCode = fixedResponseConfigRaw[0].(map[string]interface{})["status_code"].(string)
+		fixedResponseConfig.ContentType = fixedResponseConfigRaw[0].(map[string]interface{})["content_type"].(string)
+		fixedResponseConfig.MessageBody = fixedResponseConfigRaw[0].(map[string]interface{})["message_body"].(string)
+	}
+	log.Printf("[DEBUG] fixedResponseConfig: %+v", fixedResponseConfig)
+	return fixedResponseConfig
+}
+
 func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
@@ -132,9 +325,13 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("description", l7Policy.Description),
 		d.Set("name", l7Policy.Name),
 		d.Set("action", l7Policy.Action),
+		d.Set("priority", l7Policy.Priority),
 		d.Set("listener_id", l7Policy.ListenerID),
 		d.Set("redirect_pool_id", l7Policy.RedirectPoolID),
 		d.Set("redirect_listener_id", l7Policy.RedirectListenerID),
+		d.Set("redirect_pools_extend_config", flattenRedirectPoolsExtendConfig(l7Policy)),
+		d.Set("redirect_url_config", flattenRedirectUrlConfig(l7Policy)),
+		d.Set("fixed_response_config", flattenFixedResponseConfig(l7Policy)),
 		d.Set("region", cfg.GetRegion(d)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -142,6 +339,60 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 	}
 
 	return nil
+}
+
+func flattenRedirectPoolsExtendConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
+	var redirectPoolsExtendConfig []map[string]interface{}
+	if l7policy.RedirectPoolsExtendConfig != nil {
+		redirectPoolsExtendConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["rewrite_url_enabled"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlEnable
+		params["rewrite_url_config"] = flattenRewriteUrlConfig(l7policy)
+		redirectPoolsExtendConfig[0] = params
+	}
+	return redirectPoolsExtendConfig
+}
+
+func flattenRewriteUrlConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
+	var rewriteUrlConfig []map[string]interface{}
+	if l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig != nil {
+		rewriteUrlConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["host"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig.Host
+		params["path"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig.Path
+		params["query"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig.Query
+		rewriteUrlConfig[0] = params
+	}
+	return rewriteUrlConfig
+}
+
+func flattenRedirectUrlConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
+	var redirectUrlConfig []map[string]interface{}
+	if l7policy.RedirectUrlConfig != nil {
+		redirectUrlConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["protocol"] = l7policy.RedirectUrlConfig.Protocol
+		params["host"] = l7policy.RedirectUrlConfig.Host
+		params["port"] = l7policy.RedirectUrlConfig.Port
+		params["path"] = l7policy.RedirectUrlConfig.Path
+		params["query"] = l7policy.RedirectUrlConfig.Query
+		params["status_code"] = l7policy.RedirectUrlConfig.StatusCode
+		redirectUrlConfig[0] = params
+	}
+	return redirectUrlConfig
+}
+
+func flattenFixedResponseConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
+	var fixedResponseConfig []map[string]interface{}
+	if l7policy.FixedResponseConfig != nil {
+		fixedResponseConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["status_code"] = l7policy.FixedResponseConfig.StatusCode
+		params["content_type"] = l7policy.FixedResponseConfig.ContentType
+		params["message_body"] = l7policy.FixedResponseConfig.MessageBody
+		fixedResponseConfig[0] = params
+	}
+	return fixedResponseConfig
 }
 
 func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -157,6 +408,10 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		name := d.Get("name").(string)
 		updateOpts.Name = &name
 	}
+	if d.HasChange("priority") {
+		priority := d.Get("priority").(int)
+		updateOpts.Priority = int32(priority)
+	}
 	if d.HasChange("description") {
 		description := d.Get("description").(string)
 		updateOpts.Description = &description
@@ -165,9 +420,18 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		redirectPoolID := d.Get("redirect_pool_id").(string)
 		updateOpts.RedirectPoolID = &redirectPoolID
 	}
+	if d.HasChange("redirect_pools_extend_config") {
+		updateOpts.RedirectPoolsExtendConfig = buildRedirectPoolsExtendConfig(d)
+	}
 	if d.HasChange("redirect_listener_id") {
 		redirectListenerID := d.Get("redirect_listener_id").(string)
 		updateOpts.RedirectListenerID = &redirectListenerID
+	}
+	if d.HasChange("redirect_url_config") {
+		updateOpts.RedirectUrlConfig = buildRedirectUrlConfig(d)
+	}
+	if d.HasChange("fixed_response_config") {
+		updateOpts.FixedResponseConfig = buildFixedResponseConfig(d)
 	}
 
 	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
