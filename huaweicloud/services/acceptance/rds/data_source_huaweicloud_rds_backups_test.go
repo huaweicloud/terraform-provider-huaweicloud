@@ -40,7 +40,7 @@ func TestAccDatasourceBackup_basic(t *testing.T) {
 }
 
 func testAccDatasourceBackup_basic() string {
-	backupConfig := testBackup_basic(acceptance.RandomAccResourceName())
+	backupConfig := testBackup_mysql_basic(acceptance.RandomAccResourceName())
 	return fmt.Sprintf(`
 %s 
 
