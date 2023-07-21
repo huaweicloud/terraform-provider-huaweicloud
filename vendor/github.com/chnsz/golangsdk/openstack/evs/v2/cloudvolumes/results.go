@@ -59,6 +59,16 @@ type VolumeMetadata struct {
 	AttachedMode string `json:"attached_mode"`
 }
 
+// IOPSAndThroughput is the struct of IOPS and throughput
+type IOPSAndThroughput struct {
+	// The frozened mark
+	Frozened bool `json:"frozened"`
+	// The iops or throughput id
+	ID string `json:"id"`
+	// The iops or throughput value
+	TotalVal int `json:"total_val"`
+}
+
 // Link is an object that represents a link to which the disk belongs.
 type Link struct {
 	// Specifies the corresponding shortcut link.
@@ -81,6 +91,10 @@ type Volume struct {
 	Description string `json:"description"`
 	// The type of volume to create, either SATA or SSD.
 	VolumeType string `json:"volume_type"`
+	// The IOPS of the volume. Only exist when volume_type is `ESSD2` or `GPSSD2`
+	IOPS IOPSAndThroughput `json:"iops"`
+	// The throughput of the volume. Only exist when volume_type is `GPSSD2`
+	Throughput IOPSAndThroughput `json:"throughput"`
 	// AvailabilityZone is which availability zone the volume is in.
 	AvailabilityZone string `json:"availability_zone"`
 	// Instances onto which the volume is attached.

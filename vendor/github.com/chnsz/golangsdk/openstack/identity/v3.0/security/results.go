@@ -24,3 +24,33 @@ type PasswordPolicy struct {
 type PasswordPolicyResp struct {
 	Body PasswordPolicy `json:"password_policy"`
 }
+
+type ProtectPolicy struct {
+	// Indicates whether to enable operation protection.
+	Protection bool `json:"operation_protection"`
+	// the attributes IAM users can modify.
+	AllowUser AllowUserBody `json:"allow_user"`
+	// Indicates whether to designate a person for verification.
+	AdminCheck string `json:"admin_check"`
+	// the verification method. The optional values are mobile and email.
+	Scene string `json:"scene"`
+	// the mobile number used for verification. Example: 0086-123456789
+	Mobile string `json:"mobile"`
+	// the email address used for verification. An example value is example@email.com.
+	Email string `json:"email"`
+}
+
+type AllowUserBody struct {
+	// Indicates whether to allow IAM users to manage access keys by themselves.
+	ManageAccesskey bool `json:"manage_accesskey"`
+	// Indicates whether to allow IAM users to change their email addresses.
+	ManageEmail bool `json:"manage_email"`
+	// Indicates whether to allow IAM users to change their mobile numbers.
+	ManageMobile bool `json:"manage_mobile"`
+	// Indicates whether to allow IAM users to change their passwords.
+	ManagePassword bool `json:"manage_password"`
+}
+
+type ProtectPolicyResp struct {
+	Body ProtectPolicy `json:"protect_policy"`
+}

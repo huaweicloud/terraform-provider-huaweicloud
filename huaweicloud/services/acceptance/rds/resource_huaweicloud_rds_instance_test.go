@@ -286,6 +286,139 @@ func TestAccRdsInstance_withParameters(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_restore_mysql(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test_backup"
+	pwd := acceptance.RandomPassword()
+	newPwd := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_restore_mysql(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "400"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
+				),
+			},
+			{
+				Config: testAccRdsInstance_restore_mysql_update(name, newPwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.1.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "500"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "20"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
+				),
+			},
+		},
+	})
+}
+
+func TestAccRdsInstance_restore_sqlserver(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test_backup"
+	pwd := acceptance.RandomPassword()
+	newPwd := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_restore_sqlserver(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
+				),
+			},
+			{
+				Config: testAccRdsInstance_restore_sqlserver_update(name, newPwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.1.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8636"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
+				),
+			},
+		},
+	})
+}
+
+func TestAccRdsInstance_restore_pg(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test_backup"
+	pwd := acceptance.RandomPassword()
+	newPwd := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_restore_pg(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8732"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
+				),
+			},
+			{
+				Config: testAccRdsInstance_restore_pg_update(name, newPwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.1.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8733"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -823,4 +956,262 @@ resource "huaweicloud_rds_instance" "test" {
   }
 }
 `, common.TestBaseNetwork(name), name)
+}
+
+func testAccRdsInstance_restore_mysql(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_vpc" "test_update" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test_update" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test_update" {
+  name = "default"
+}
+
+resource "huaweicloud_rds_instance" "test_backup" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
+  vpc_id            = data.huaweicloud_vpc.test_update.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable        = true  
+
+  restore {
+    instance_id = huaweicloud_rds_backup.test.instance_id
+    backup_id   = huaweicloud_rds_backup.test.id
+  }
+
+  db {
+    password = "%[3]s"
+    type     = "MySQL"
+    version  = "8.0"
+    port     = 3306
+  }
+
+  backup_strategy {
+    start_time = "08:15-09:15"
+    keep_days  = 3
+    period     = 1
+  }
+
+  volume {
+    type              = "CLOUDSSD"
+    size              = 50
+    limit_size        = 400
+    trigger_threshold = 15
+  }
+}
+`, testBackup_mysql_basic(name), name, pwd)
+}
+
+func testAccRdsInstance_restore_mysql_update(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_vpc" "test_update" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test_update" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test_update" {
+  name = "default"
+}
+
+resource "huaweicloud_rds_instance" "test_backup" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
+  vpc_id            = data.huaweicloud_vpc.test_update.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable        = false
+
+  restore {
+    instance_id = huaweicloud_rds_backup.test.instance_id
+    backup_id   = huaweicloud_rds_backup.test.id
+  }
+
+  db {
+    password = "%[3]s"
+    type     = "MySQL"
+    version  = "8.0"
+    port     = 3308
+  }
+
+  backup_strategy {
+    start_time = "18:15-19:15"
+    keep_days  = 5
+    period     = 3
+  }
+
+  volume {
+    type              = "CLOUDSSD"
+    size              = 60
+    limit_size        = 500
+    trigger_threshold = 20
+  }
+}
+`, testBackup_mysql_basic(name), name, pwd)
+}
+
+func testAccRdsInstance_restore_sqlserver(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test_backup" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  restore {
+    instance_id = huaweicloud_rds_backup.test.instance_id
+    backup_id   = huaweicloud_rds_backup.test.id
+  }
+
+  db {
+    password = "%[3]s"
+    type     = "SQLServer"
+    version  = "2019_SE"
+    port     = 8635
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, testBackup_sqlserver_basic(name), name, pwd)
+}
+
+func testAccRdsInstance_restore_sqlserver_update(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test_backup" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  restore {
+    instance_id = huaweicloud_rds_backup.test.instance_id
+    backup_id   = huaweicloud_rds_backup.test.id
+  }
+
+  db {
+    password = "%[3]s"
+    type     = "SQLServer"
+    version  = "2019_SE"
+    port     = 8636
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 60
+  }
+}
+`, testBackup_sqlserver_basic(name), name, pwd)
+}
+
+func testAccRdsInstance_restore_pg(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_vpc" "test_update" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test_update" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test_update" {
+  name = "default"
+}
+
+resource "huaweicloud_rds_instance" "test_backup" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
+  vpc_id            = data.huaweicloud_vpc.test_update.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  restore {
+    instance_id = huaweicloud_rds_backup.test.instance_id
+    backup_id   = huaweicloud_rds_backup.test.id
+  }
+
+  db {
+    password = "%[3]s"
+    type     = "PostgreSQL"
+    version  = "14"
+    port     = 8732
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, testBackup_pg_basic(name), name, pwd)
+}
+
+func testAccRdsInstance_restore_pg_update(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_vpc" "test_update" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test_update" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test_update" {
+  name = "default"
+}
+
+resource "huaweicloud_rds_instance" "test_backup" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
+  vpc_id            = data.huaweicloud_vpc.test_update.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  restore {
+    instance_id = huaweicloud_rds_backup.test.instance_id
+    backup_id   = huaweicloud_rds_backup.test.id
+  }
+
+  db {
+    password = "%[3]s"
+    type     = "PostgreSQL"
+    version  = "14"
+    port     = 8733
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 60
+  }
+}
+`, testBackup_pg_basic(name), name, pwd)
 }

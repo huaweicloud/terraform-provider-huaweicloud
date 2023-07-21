@@ -140,6 +140,34 @@ func ResourceRdsInstance() *schema.Resource {
 				},
 			},
 
+			"restore": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"period"},
+				MaxItems:      1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"backup_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"database_name": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -363,6 +391,7 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		Volume:              buildRdsInstanceVolume(d),
 		Ha:                  buildRdsInstanceHaReplicationMode(d),
 		UnchangeableParam:   buildRdsInstanceUnchangeableParam(d),
+		RestorePoint:        buildRdsInstanceRestorePoint(d),
 	}
 
 	// PrePaid
@@ -957,6 +986,21 @@ func buildRdsInstanceUnchangeableParam(d *schema.ResourceData) *instances.Unchan
 		unchangeableParam.LowerCaseTableNames = v.(string)
 	}
 	return unchangeableParam
+}
+
+func buildRdsInstanceRestorePoint(d *schema.ResourceData) *instances.RestorePoint {
+	if restoreRaw, ok := d.GetOk("restore"); ok {
+		if v, ok := restoreRaw.([]interface{})[0].(map[string]interface{}); ok {
+			restorePoint := instances.RestorePoint{
+				Type:         "backup",
+				InstanceId:   v["instance_id"].(string),
+				BackupId:     v["backup_id"].(string),
+				DatabaseName: utils.ExpandToStringMap(v["database_name"].(map[string]interface{})),
+			}
+			return &restorePoint
+		}
+	}
+	return nil
 }
 
 func buildRdsInstanceHaReplicationMode(d *schema.ResourceData) *instances.Ha {

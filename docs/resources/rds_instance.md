@@ -188,6 +188,9 @@ The following arguments are supported:
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
+* `restore` - (Optional, List, ForceNew) Specifies the restoration information. It only supported restore to postpaid
+  instance. Structure is documented below. Changing this parameter will create a new resource.
+
 * `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance. Changing this
   parameter will create a new resource.
 
@@ -275,7 +278,7 @@ The `volume` block supports:
   + *ULTRAHIGH*: SSD storage.
   + *LOCALSSD*: local SSD storage.
   + *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB
-      instances.
+    instances.
   + *ESSD*: extreme SSD storage.
 
   Changing this parameter will create a new resource. For details about volume types, see
@@ -292,6 +295,17 @@ The `volume` block supports:
   + **10**
   + **15**
   + **20**
+
+The `restore` block supports:
+
+* `instance_id` - (Required, String, ForceNew) Specifies the source DB instance ID. Changing this parameter will create
+  a new resource.
+
+* `backup_id` - (Required, String, ForceNew) Specifies the ID of the backup used to restore data. Changing this
+  parameter will create a new resource.
+
+* `database_name` - (Optional, Map, ForceNew) Specifies the database to be restored. This parameter applies only to
+  Microsoft SQL Server databases. Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 
