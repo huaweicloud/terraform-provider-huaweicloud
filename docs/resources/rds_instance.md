@@ -188,6 +188,9 @@ The following arguments are supported:
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
+* `restore` - (Optional, List, ForceNew) Specifies the restoration information. It only supported restore to postpaid
+  instance. Structure is documented below. Changing this parameter will create a new resource.
+
 * `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance. Changing this
   parameter will create a new resource.
 
@@ -265,22 +268,6 @@ The `db` block supports:
   + The Microsoft SQL Server database port can be 1433 or ranges from 2100 to 9500, excluding 5355 and 5985. The
       default value is 1433.
 
-The `volume` block supports:
-
-* `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000 GB. The value must be a
-  multiple of 10 and greater than the original size.
-
-* `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following and is
-  case-sensitive:
-  + *ULTRAHIGH*: SSD storage.
-  + *LOCALSSD*: local SSD storage.
-  + *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB
-      instances.
-  + *ESSD*: extreme SSD storage.
-
-  Changing this parameter will create a new resource. For details about volume types, see
-  [DB Instance Storage Types](https://support.huaweicloud.com/intl/en-us/productdesc-rds/rds_01_0020.html).
-
 * `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption.
   Changing this parameter will create a new resource.
 
@@ -292,6 +279,33 @@ The `volume` block supports:
   + **10**
   + **15**
   + **20**
+
+The `volume` block supports:
+
+* `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000 GB. The value must be a
+  multiple of 10 and greater than the original size.
+
+* `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following and is
+  case-sensitive:
+  + *ULTRAHIGH*: SSD storage.
+  + *LOCALSSD*: local SSD storage.
+  + *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB
+    instances.
+  + *ESSD*: extreme SSD storage.
+
+  Changing this parameter will create a new resource. For details about volume types, see
+  [DB Instance Storage Types](https://support.huaweicloud.com/intl/en-us/productdesc-rds/rds_01_0020.html).
+
+The `restore` block supports:
+
+* `instance_id` - (Required, String, ForceNew) Specifies the DB instance ID. Changing this parameter will create
+  a new resource.
+
+* `backup_id` - (Required, String, ForceNew) Specifies the ID of the backup used to restore data. Changing this
+  parameter will create a new resource.
+
+* `database_name` - (Optional, Map, ForceNew) Specifies the database to be restored. This parameter applies only to
+  Microsoft SQL Server databases. Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 

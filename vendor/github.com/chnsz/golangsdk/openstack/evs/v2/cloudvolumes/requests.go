@@ -79,6 +79,10 @@ type VolumeOpts struct {
 	Tags map[string]string `json:"tags,omitempty"`
 	// the enterprise project id
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+	// The iops of evs volume. Only required when volume_type is `GPSSD2` or `ESSD2`
+	IOPS int `json:"iops,omitempty"`
+	// The throughput of evs volume. Only required when volume_type is `GPSSD2`
+	Throughput int `json:"throughput,omitempty"`
 }
 
 // SchedulerOpts contains the scheduler hints

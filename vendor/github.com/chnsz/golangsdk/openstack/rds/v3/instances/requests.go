@@ -22,6 +22,7 @@ type CreateOpts struct {
 	VpcId               string             `json:"vpc_id" required:"true"`
 	SubnetId            string             `json:"subnet_id" required:"true"`
 	SecurityGroupId     string             `json:"security_group_id" required:"true"`
+	RestorePoint        *RestorePoint      `json:"restore_point,omitempty"`
 	ChargeInfo          *ChargeInfo        `json:"charge_info,omitempty"`
 	TimeZone            string             `json:"time_zone,omitempty"`
 	FixedIp             string             `json:"data_vip,omitempty"`
@@ -63,6 +64,14 @@ type BackupStrategy struct {
 type Volume struct {
 	Type string `json:"type" required:"true"`
 	Size int    `json:"size" required:"true"`
+}
+
+type RestorePoint struct {
+	InstanceId   string            `json:"instance_id" required:"true"`
+	Type         string            `json:"type" required:"true"`
+	BackupId     string            `json:"backup_id,omitempty"`
+	RestoreTime  string            `json:"restore_time,omitempty"`
+	DatabaseName map[string]string `json:"database_name,omitempty"`
 }
 
 type ChargeInfo struct {
