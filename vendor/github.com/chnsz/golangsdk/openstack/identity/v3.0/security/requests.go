@@ -42,3 +42,52 @@ func GetPasswordPolicy(client *golangsdk.ServiceClient, domainID string) (*Passw
 	_, err := client.Get(passwordPolicyURL(client, domainID), &resp, nil)
 	return &resp.Body, err
 }
+
+// ProtectPolicyOpts provides options used to modify the operation protection policy.
+type ProtectPolicyOpts struct {
+	// Specifies whether to enable operation protection. The value can be true or false.
+	Protection *bool `json:"operation_protection" required:"true"`
+	// Specifies the attributes IAM users can modify.
+	AllowUser *AllowUserOpts `json:"allow_user,omitempty"`
+	// Specifies whether to designate a person for verification.
+	// If this parameter is set to on, you need to specify the scene parameter to designate a person for verification.
+	// If this parameter is set to off, the designated operator is responsible for the verification.
+	AdminCheck *string `json:"admin_check,omitempty"`
+	// Specifies the verification method. This parameter is mandatory when admin_check is set to on.
+	// The optional values are mobile and email.
+	Scene *string `json:"scene,omitempty"`
+	// Specifies the mobile number used for verification. Example: 0086-123456789
+	Mobile *string `json:"mobile,omitempty"`
+	// Specifies the email address used for verification. An example value is example@email.com.
+	Email *string `json:"email,omitempty"`
+}
+
+type AllowUserOpts struct {
+	// Specifies whether to allow IAM users to manage access keys by themselves.
+	ManageAccesskey *bool `json:"manage_accesskey,omitempty"`
+	// Specifies whether to allow IAM users to change their email addresses.
+	ManageEmail *bool `json:"manage_email,omitempty"`
+	// Specifies whether to allow IAM users to change their mobile numbers.
+	ManageMobile *bool `json:"manage_mobile,omitempty"`
+	// Specifies whether to allow IAM users to change their passwords.
+	ManagePassword *bool `json:"manage_password,omitempty"`
+}
+
+// UpdateProtectPolicy can modify the operation protection policy
+func UpdateProtectPolicy(client *golangsdk.ServiceClient, opts *ProtectPolicyOpts, domainID string) (*ProtectPolicy, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "protect_policy")
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ProtectPolicyResp
+	_, err = client.Put(protectPolicyURL(client, domainID), &b, &resp, nil)
+	return &resp.Body, err
+}
+
+// GetProtectPolicy retrieves details of the operation protection policy
+func GetProtectPolicy(client *golangsdk.ServiceClient, domainID string) (*ProtectPolicy, error) {
+	var resp ProtectPolicyResp
+	_, err := client.Get(protectPolicyURL(client, domainID), &resp, nil)
+	return &resp.Body, err
+}

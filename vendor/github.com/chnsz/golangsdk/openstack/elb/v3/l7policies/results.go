@@ -23,6 +23,9 @@ type L7Policy struct {
 	// The position of this policy on the listener.
 	Position int32 `json:"position"`
 
+	// The priority of this policy on the listener.
+	Priority int32 `json:"priority"`
+
 	// A human-readable description for the resource.
 	Description string `json:"description"`
 
@@ -37,6 +40,18 @@ type L7Policy struct {
 	// Requests matching this policy will be redirected to this Listener.
 	// Only valid if action is REDIRECT_TO_LISTENER.
 	RedirectListenerID string `json:"redirect_listener_id"`
+
+	// Requests matching this policy will be redirected to the URL.
+	// Only valid if action is REDIRECT_TO_URL.
+	RedirectUrlConfig *RedirectUrlConfig `json:"redirect_url_config"`
+
+	// Requests matching this policy will be redirected to the configuration of the page.
+	// Only valid if action is FIXED_RESPONSE.
+	FixedResponseConfig *FixedResponseConfig `json:"fixed_response_config"`
+
+	// The config of the redirected pool.
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsExtendConfig *RedirectPoolsExtendConfig `json:"redirect_pools_extend_config"`
 
 	// The administrative state of the L7 policy, which is up (true) or down (false).
 	AdminStateUp bool `json:"admin_state_up"`
