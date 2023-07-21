@@ -2,13 +2,16 @@ package fgs
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/fgs/v2/aliases"
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/function"
+	"github.com/chnsz/golangsdk/openstack/fgs/v2/versions"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -236,6 +239,41 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\-?\d+$`),
 					`invalid value of maximum instance number, want an integer number or integer string.`),
 			},
+			"versions": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The version name.",
+						},
+						"aliases": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The name of the version alias.",
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "The description of the version alias.",
+									},
+								},
+							},
+							Description: "The aliases management for specified version.",
+						},
+					},
+				},
+				Description: "The versions management of the function.",
+			},
 			"tags": common.TagsSchema(),
 			"version": {
 				Type:     schema.TypeString,
@@ -362,7 +400,36 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	if err = createFunctionVersions(fgsClient, urn, d.Get("versions").(*schema.Set)); err != nil {
+		return fmt.Errorf("error creating function versions: %s", err)
+	}
+
 	return resourceFgsFunctionV2Read(d, meta)
+}
+
+func createFunctionVersions(client *golangsdk.ServiceClient, functionUrn string, versionSet *schema.Set) error {
+	for _, v := range versionSet.List() {
+		version := v.(map[string]interface{})
+		versionNum := version["name"].(string) // The version name, also name as the version number.
+		// In the future, the function will support manage multiple versions, and will add the corresponding logic to
+		// create versions based on the related API (Create) in this place.
+		aliasCfg := version["aliases"].([]interface{})
+		if len(aliasCfg) < 1 {
+			continue
+		}
+		alias := aliasCfg[0].(map[string]interface{})
+		opt := aliases.CreateOpts{
+			FunctionUrn: functionUrn,
+			Name:        alias["name"].(string),
+			Version:     versionNum,
+			Description: alias["description"].(string),
+		}
+		_, err := aliases.Create(client, opt)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func setFgsFunctionApp(d *schema.ResourceData, app string) error {
@@ -427,6 +494,64 @@ func flattenFgsCustomImage(imageConfig function.CustomImage) []map[string]interf
 	return nil
 }
 
+func queryFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) ([]string, error) {
+	queryOpts := versions.ListOpts{
+		FunctionUrn: functionUrn,
+	}
+	versionList, err := versions.List(client, queryOpts)
+	if err != nil {
+		return nil, fmt.Errorf("error querying version list for the specified function URN: %s", err)
+	}
+	// The length of the function version list is at least 1 (when creating a function, a version named latest is
+	// created by default).
+	result := make([]string, len(versionList))
+	for i, version := range versionList {
+		result[i] = version.Version
+	}
+	return result, nil
+}
+
+func queryFunctionAliases(client *golangsdk.ServiceClient, functionUrn string) (map[string][]interface{}, error) {
+	aliasList, err := aliases.List(client, functionUrn)
+	if err != nil {
+		return nil, fmt.Errorf("error querying alias list for the specified function URN: %s", err)
+	}
+
+	// Multiple version aliases may exist in the future.
+	result := make(map[string][]interface{})
+	for _, v := range aliasList {
+		result[v.Version] = append(result[v.Version], map[string]interface{}{
+			"name":        v.Name,
+			"description": v.Description,
+		})
+	}
+	return result, nil
+}
+
+func parseFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) ([]map[string]interface{}, error) {
+	versionList, err := queryFunctionVersions(client, functionUrn)
+	if err != nil {
+		return nil, err
+	}
+	aliasesConfig, err := queryFunctionAliases(client, functionUrn)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]map[string]interface{}, 0, len(versionList))
+	for _, versionNum := range versionList {
+		version := map[string]interface{}{
+			"name": versionNum, // The version name, also name as the version number.
+		}
+		if v, ok := aliasesConfig[versionNum]; ok {
+			version["aliases"] = v
+		}
+		result = append(result, version)
+	}
+
+	return result, nil
+}
+
 func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
@@ -434,12 +559,18 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
-	f, err := function.GetMetadata(fgsClient, d.Id()).Extract()
+	functionUrn := resourceFgsFunctionUrn(d.Id())
+	f, err := function.GetMetadata(fgsClient, functionUrn).Extract()
 	if err != nil {
 		return common.CheckDeleted(d, err, "function")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Function %s: %+v", d.Id(), f)
+	versionConfig, err := parseFunctionVersions(fgsClient, functionUrn)
+	if err != nil {
+		// Not all regions support the version related API calls.
+		log.Printf("[ERROR] Unable to parsing the function versions: %s", err)
+	}
+	logp.Printf("[DEBUG] Retrieved Function %s: %+v", functionUrn, f)
 	mErr := multierror.Append(
 		d.Set("name", f.FuncName),
 		d.Set("code_type", f.CodeType),
@@ -453,7 +584,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("user_data", f.UserData),
 		d.Set("encrypted_user_data", f.EncryptedUserData),
 		d.Set("version", f.Version),
-		d.Set("urn", resourceFgsFunctionUrn(d.Id())),
+		d.Set("urn", functionUrn),
 		d.Set("app_agency", f.AppXrole),
 		d.Set("depend_list", f.DependList),
 		d.Set("initializer_handler", f.InitializerHandler),
@@ -466,6 +597,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		setFgsFunctionAgency(d, f.Xrole),
 		setFgsFunctionVpcAccess(d, f.FuncVpc),
 		setFuncionMountConfig(d, f.MountConfig),
+		d.Set("versions", versionConfig),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmtp.Errorf("Error setting vault fields: %s", err)
@@ -499,6 +631,46 @@ func updateFunctionTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 			return fmt.Errorf("failed to add tags to FunctionGraph function (%s): %s", functionUrn, err)
 		}
 	}
+	return nil
+}
+
+func deleteFunctionVersions(client *golangsdk.ServiceClient, functionUrn string, versionSet *schema.Set) error {
+	// In the future, the function will support manage multiple versions.
+	for _, v := range versionSet.List() {
+		version := v.(map[string]interface{})
+		aliasCfg := version["aliases"].([]interface{})
+		if len(aliasCfg) > 0 {
+			alias := aliasCfg[0].(map[string]interface{})
+			err := aliases.Delete(client, functionUrn, alias["name"].(string))
+			if err != nil {
+				return err
+			}
+		}
+		// There will be added the corresponding logic to delete versions based on the related APIs in this place when
+		// the API (Delete) is support.
+	}
+	return nil
+}
+
+func updateFunctionVersions(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		functionUrn = resourceFgsFunctionUrn(d.Id())
+
+		oldSet, newSet = d.GetChange("versions")
+		decrease       = oldSet.(*schema.Set).Difference(newSet.(*schema.Set))
+		increase       = newSet.(*schema.Set).Difference(oldSet.(*schema.Set))
+	)
+
+	err := deleteFunctionVersions(client, functionUrn, decrease)
+	if err != nil {
+		return fmt.Errorf("error deleting function versions: %s", err)
+	}
+
+	err = createFunctionVersions(client, functionUrn, increase)
+	if err != nil {
+		return fmt.Errorf("error creating function versions: %s", err)
+	}
+
 	return nil
 }
 
@@ -539,6 +711,12 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("tags") {
 		if err = updateFunctionTags(fgsClient, d); err != nil {
 			return fmt.Errorf("failed to update function tags: %s", err)
+		}
+	}
+
+	if d.HasChange("versions") {
+		if err = updateFunctionVersions(fgsClient, d); err != nil {
+			return fmt.Errorf("failed to update function versions: %s", err)
 		}
 	}
 
