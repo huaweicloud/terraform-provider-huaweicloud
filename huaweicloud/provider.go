@@ -930,8 +930,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_group":  ResourceLTSGroupV2(),
 			"huaweicloud_lts_stream": ResourceLTSStreamV2(),
 
-			"huaweicloud_mapreduce_cluster": mrs.ResourceMRSClusterV2(),
-			"huaweicloud_mapreduce_job":     mrs.ResourceMRSJobV2(),
+			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
+			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
+			"huaweicloud_mapreduce_data_connection": mrs.ResourceDataConnection(),
 
 			"huaweicloud_meeting_admin_assignment": meeting.ResourceAdminAssignment(),
 			"huaweicloud_meeting_conference":       meeting.ResourceConference(),
