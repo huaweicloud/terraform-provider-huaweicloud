@@ -97,6 +97,18 @@ func DataSourceEvsVolumesV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"volume_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"iops": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"throughput": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"enterprise_project_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -182,6 +194,9 @@ func sourceEvsVolumes(volumes []cloudvolumes.Volume) ([]map[string]interface{}, 
 			"attachments":           sourceEvsAttachment(volume.Attachments, volume.Metadata.AttachedMode),
 			"availability_zone":     volume.AvailabilityZone,
 			"description":           volume.Description,
+			"volume_type":           volume.VolumeType,
+			"iops":                  volume.IOPS.TotalVal,
+			"throughput":            volume.Throughput.TotalVal,
 			"enterprise_project_id": volume.EnterpriseProjectID,
 			"name":                  volume.Name,
 			"service_type":          volume.ServiceType,

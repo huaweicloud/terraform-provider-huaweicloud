@@ -59,6 +59,18 @@ func ResourceEvsVolume() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"iops": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"throughput": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"device_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -181,6 +193,15 @@ func resourceVolumeAttachmentHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
+func validateParameter(d *schema.ResourceData) error {
+	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
+		if d.Get("volume_type").(string) == "ESSD2" {
+			return fmt.Errorf("`volume_type` cannot be set to ESSD2 in prepaid charging mode")
+		}
+	}
+	return nil
+}
+
 func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) cloudvolumes.CreateOpts {
 	volumeOpts := cloudvolumes.VolumeOpts{
 		AvailabilityZone:    d.Get("availability_zone").(string),
@@ -192,6 +213,8 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 		SnapshotID:          d.Get("snapshot_id").(string),
 		ImageID:             d.Get("image_id").(string),
 		Multiattach:         d.Get("multiattach").(bool),
+		IOPS:                d.Get("iops").(int),
+		Throughput:          d.Get("throughput").(int),
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
 		Tags:                resourceContainerTags(d),
 	}
@@ -234,6 +257,9 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	evsV21Client, err := config.BlockStorageV21Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2.1 client: %s", err)
+	}
+	if err := validateParameter(d); err != nil {
+		return diag.FromErr(err)
 	}
 
 	opt := buildEvsVolumeCreateOpts(d, config)
@@ -334,6 +360,8 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("availability_zone", resp.AvailabilityZone),
 		d.Set("snapshot_id", resp.SnapshotID),
 		d.Set("volume_type", resp.VolumeType),
+		d.Set("iops", resp.IOPS.TotalVal),
+		d.Set("throughput", resp.Throughput.TotalVal),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("region", config.GetRegion(d)),
 		d.Set("wwn", resp.WWN),
