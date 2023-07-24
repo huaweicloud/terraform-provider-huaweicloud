@@ -46,13 +46,38 @@ func testAccCheckCCENodePoolV3DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCCENodePoolV3DataSource_basic(rName string) string {
+func testAccCCENodePoolV3DataSource_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+}
 
 data "huaweicloud_cce_node_pool" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   name       = huaweicloud_cce_node_pool.test.name
 }
-`, testAccCCENodePool_basic(rName))
+`, testAccNodePool_base(name), name)
 }

@@ -2,33 +2,35 @@ package cce
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cce/v3/nodepools"
-	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cce/v3/nodepools"
+	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceCCENodePool() *schema.Resource {
+func ResourceNodePool() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCCENodePoolCreate,
-		ReadContext:   resourceCCENodePoolRead,
-		UpdateContext: resourceCCENodePoolUpdate,
-		DeleteContext: resourceCCENodePoolDelete,
+		CreateContext: resourceNodePoolCreate,
+		ReadContext:   resourceNodePoolRead,
+		UpdateContext: resourceNodePoolUpdate,
+		DeleteContext: resourceNodePoolDelete,
+
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceCCENodePoolV3Import,
+			StateContext: resourceNodePoolImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -89,18 +91,6 @@ func ResourceCCENodePool() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
-						"hw_passthrough": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							ForceNew:    true,
-							Description: "schema: Internal",
-						},
-						"extend_param": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							ForceNew:   true,
-							Deprecated: "use extend_params instead",
-						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -113,7 +103,24 @@ func ResourceCCENodePool() *schema.Resource {
 							Computed: true,
 							ForceNew: true,
 						},
-					}},
+
+						// Internal parameters
+						"hw_passthrough": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
+						},
+
+						// Deprecated parameters
+						"extend_param": {
+							Type:       schema.TypeString,
+							Optional:   true,
+							ForceNew:   true,
+							Deprecated: "use extend_params instead",
+						},
+					},
+				},
 			},
 			"data_volumes": {
 				Type:     schema.TypeList,
@@ -131,18 +138,6 @@ func ResourceCCENodePool() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
-						"hw_passthrough": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							ForceNew:    true,
-							Description: "schema: Internal",
-						},
-						"extend_param": {
-							Type:       schema.TypeString,
-							Optional:   true,
-							ForceNew:   true,
-							Deprecated: "use extend_params instead",
-						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -155,7 +150,24 @@ func ResourceCCENodePool() *schema.Resource {
 							Computed: true,
 							ForceNew: true,
 						},
-					}},
+
+						// Internal parameters
+						"hw_passthrough": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
+						},
+
+						// Deprecated parameters
+						"extend_param": {
+							Type:       schema.TypeString,
+							Optional:   true,
+							ForceNew:   true,
+							Deprecated: "use extend_params instead",
+						},
+					},
+				},
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
@@ -176,11 +188,10 @@ func ResourceCCENodePool() *schema.Resource {
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"password": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Sensitive:    true,
-				ExactlyOneOf: []string{"password", "key_pair"},
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
 			},
 			"storage": {
 				Type:     schema.TypeList,
@@ -298,11 +309,13 @@ func ResourceCCENodePool() *schema.Resource {
 													Computed: true,
 												},
 											},
-										}},
+										},
+									},
 								},
 							},
 						},
-					}},
+					},
+				},
 			},
 			"taints": {
 				Type:     schema.TypeList,
@@ -330,27 +343,6 @@ func ResourceCCENodePool() *schema.Resource {
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
 
-			"max_pods": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "schema: Deprecated",
-			},
-			"preinstall": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				StateFunc:   utils.DecodeHashAndHexEncode,
-				Description: "schema: Deprecated",
-			},
-			"postinstall": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				StateFunc:   utils.DecodeHashAndHexEncode,
-				Description: "schema: Deprecated",
-			},
 			"runtime": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -359,13 +351,6 @@ func ResourceCCENodePool() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"docker", "containerd",
 				}, false),
-			},
-			"extend_param": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "schema: Deprecated",
 			},
 			"extend_params": resourceNodeExtendParamsSchema([]string{
 				"max_pods", "preinstall", "postinstall", "extend_param",
@@ -427,13 +412,38 @@ func ResourceCCENodePool() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			// Deprecated parameters
+			"max_pods": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
+			},
+			"preinstall": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				StateFunc:   utils.DecodeHashAndHexEncode,
+				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
+			},
+			"postinstall": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				StateFunc:   utils.DecodeHashAndHexEncode,
+				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
+			},
+			"extend_param": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Deprecated; This parameter has been replaced by the 'extend_params' parameter.",
+			},
 		},
 	}
-}
-
-func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
-	tagRaw := d.Get("tags").(map[string]interface{})
-	return utils.ExpandResourceTags(tagRaw)
 }
 
 func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec {
@@ -449,37 +459,16 @@ func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec 
 	return groups
 }
 
-func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
-	}
-
-	// validation
+func buildNodePoolCreateOpts(d *schema.ResourceData) (*nodepools.CreateOpts, error) {
+	// Validate whether prepaid parameters are configured.
 	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" {
-		billingMode = 1
 		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
-			return diag.FromErr(err)
+			return nil, err
 		}
+		billingMode = 1
 	}
 
-	// wait for the cce cluster to become available
-	clusterid := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
-		Target:     []string{"Available"},
-		Refresh:    waitForClusterAvailable(nodePoolClient, clusterid),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 5 * time.Second,
-	}
-	_, err = stateCluster.WaitForStateContext(ctx)
-	if err != nil {
-		return fmtp.DiagErrorf("Error waiting for HuaweiCloud CCE cluster to be Available: %s", err)
-	}
-
-	initialNodeCount := d.Get("initial_node_count").(int)
 	createOpts := nodepools.CreateOpts{
 		Kind:       "NodePool",
 		ApiVersion: "v3",
@@ -505,7 +494,7 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 				},
 				ExtendParam: buildExtendParams(d),
 				Taints:      buildResourceNodeTaint(d),
-				UserTags:    resourceCCENodePoolTags(d),
+				UserTags:    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 			},
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scall_enable").(bool),
@@ -514,7 +503,7 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
-			InitialNodeCount:     &initialNodeCount,
+			InitialNodeCount:     utils.Int(d.Get("initial_node_count").(int)),
 			PodSecurityGroups:    buildPodSecurityGroups(d.Get("pod_security_groups").([]interface{})),
 			CustomSecurityGroups: utils.ExpandToStringList(d.Get("security_groups").([]interface{})),
 			NodeManagement: nodepools.NodeManagementSpec{
@@ -529,72 +518,85 @@ func resourceCCENodePoolCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-	// Add loginSpec here so it wouldn't go in the above log entry
-	var loginSpec nodes.LoginSpec
-	if common.HasFilledOpt(d, "key_pair") {
-		loginSpec = nodes.LoginSpec{
-			SshKey: d.Get("key_pair").(string),
-		}
-	} else if common.HasFilledOpt(d, "password") {
-		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		loginSpec = nodes.LoginSpec{
-			UserPassword: nodes.UserPassword{
-				Username: "root",
-				Password: password,
-			},
-		}
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add loginSpec here, so it wouldn't go in the above log entry
+	loginSpec, err := buildResourceNodeLoginSpec(d)
+	if err != nil {
+		return nil, err
 	}
 	createOpts.Spec.NodeTemplate.Login = loginSpec
+	return &createOpts, nil
+}
 
-	s, err := nodepools.Create(nodePoolClient, clusterid, createOpts).Extract()
+func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud Node Pool: %s", err)
+		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	if len(s.Metadata.Id) == 0 {
-		return fmtp.DiagErrorf("Error fetching CreateNodePool id")
+	// Wait for the cce cluster to become available.
+	clusterId := d.Get("cluster_id").(string)
+	stateCluster := &resource.StateChangeConf{
+		Target:     []string{"Available"},
+		Refresh:    waitForClusterAvailable(cceClient, clusterId),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      5 * time.Second,
+		MinTimeout: 5 * time.Second,
 	}
+	_, err = stateCluster.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for CCE cluster to be available: %s", err)
+	}
+
+	createOpts, err := buildNodePoolCreateOpts(d)
+	if err != nil {
+		return diag.Errorf("error creating CreateOpts structure of 'Create' method for CCE node pool: %s", err)
+	}
+	resp, err := nodepools.Create(cceClient, clusterId, createOpts).Extract()
+	if err != nil {
+		return diag.Errorf("error creating CCE node pool: %s", err)
+	}
+	log.Printf("[DEBUG] The response of the 'Create' method for CCE node pool is: %v", resp)
+	if resp.Metadata.Id == "" {
+		return diag.Errorf("error fetching resource ID from the API response of CCE node pool")
+	}
+	d.SetId(resp.Metadata.Id)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Synchronizing"},
+		Pending:      []string{"Synchronizing", "Synchronized"},
 		Target:       []string{""},
-		Refresh:      waitForCceNodePoolActive(nodePoolClient, clusterid, s.Metadata.Id),
+		Refresh:      waitForNodePoolActive(cceClient, clusterId, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        120 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
+		return diag.Errorf("error waiting for CCE node pool to become available: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Create node pool: %v", s)
-
-	d.SetId(s.Metadata.Id)
-	return resourceCCENodePoolRead(ctx, d, meta)
+	return resourceNodePoolRead(ctx, d, meta)
 }
 
-func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
+func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	cceClient, err := cfg.CceV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
+		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
-	clusterid := d.Get("cluster_id").(string)
-	s, err := nodepools.Get(nodePoolClient, clusterid, d.Id()).Extract()
+	clusterId := d.Get("cluster_id").(string)
+	s, err := nodepools.Get(cceClient, clusterId, d.Id()).Extract()
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud Node Pool")
+		return common.CheckDeletedDiag(d, err, "error retrieving CCE node pool")
 	}
 
 	// The following parameters are not returned:
-	// password, subnet_id, preinstall, posteinstall, taints, initial_node_count, pod_security_groups
+	// password, subnet_id, preinstall, postinstall, taints, initial_node_count, pod_security_groups
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),
 		d.Set("flavor_id", s.Spec.NodeTemplate.Flavor),
 		d.Set("availability_zone", s.Spec.NodeTemplate.Az),
@@ -611,6 +613,10 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("ecs_group_id", s.Spec.NodeManagement.ServerGroupReference),
 		d.Set("storage", flattenStorage(s.Spec.NodeTemplate.Storage)),
 		d.Set("security_groups", s.Spec.CustomSecurityGroups),
+		d.Set("tags", utils.TagsToMap(s.Spec.NodeTemplate.UserTags)),
+		d.Set("status", s.Status.Phase),
+		d.Set("data_volumes", flattenResourceNodeDataVolume(s.Spec.NodeTemplate.DataVolumes)),
+		d.Set("root_volume", flattenResourceNodeRootVolume(s.Spec.NodeTemplate.RootVolume)),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
@@ -621,7 +627,7 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		mErr = multierror.Append(mErr, d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name))
 	}
 
-	labels := map[string]string{}
+	labels := make(map[string]interface{})
 	for key, val := range s.Spec.NodeTemplate.K8sTags {
 		if strings.Contains(key, "cce.cloud.com") {
 			continue
@@ -629,46 +635,9 @@ func resourceCCENodePoolRead(_ context.Context, d *schema.ResourceData, meta int
 		labels[key] = val
 	}
 	mErr = multierror.Append(mErr, d.Set("labels", labels))
-
-	var volumes []map[string]interface{}
-	for _, pairObject := range s.Spec.NodeTemplate.DataVolumes {
-		volume := make(map[string]interface{})
-		volume["size"] = pairObject.Size
-		volume["volumetype"] = pairObject.VolumeType
-		volume["hw_passthrough"] = pairObject.HwPassthrough
-		volume["extend_params"] = pairObject.ExtendParam
-		volume["extend_param"] = ""
-		if pairObject.Metadata != nil {
-			volume["kms_key_id"] = pairObject.Metadata.SystemCmkid
-		}
-		volumes = append(volumes, volume)
-	}
-	mErr = multierror.Append(mErr, d.Set("data_volumes", volumes))
-
-	rootVolume := []map[string]interface{}{
-		{
-			"size":           s.Spec.NodeTemplate.RootVolume.Size,
-			"volumetype":     s.Spec.NodeTemplate.RootVolume.VolumeType,
-			"hw_passthrough": s.Spec.NodeTemplate.RootVolume.HwPassthrough,
-			"extend_params":  s.Spec.NodeTemplate.RootVolume.ExtendParam,
-			"extend_param":   "",
-		},
-	}
-	if s.Spec.NodeTemplate.RootVolume.Metadata != nil {
-		rootVolume[0]["kms_key_id"] = s.Spec.NodeTemplate.RootVolume.Metadata.SystemCmkid
-	}
-	mErr = multierror.Append(mErr, d.Set("root_volume", rootVolume))
-
-	tagmap := utils.TagsToMap(s.Spec.NodeTemplate.UserTags)
-	mErr = multierror.Append(mErr,
-		d.Set("tags", tagmap),
-		d.Set("status", s.Status.Phase),
-	)
-
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting CCE Node Pool fields: %s", err)
+		return diag.Errorf("error setting CCE node pool fields: %s", err)
 	}
-
 	return nil
 }
 
@@ -680,24 +649,25 @@ func flattenStorage(storageRaw *nodes.StorageSpec) []map[string]interface{} {
 	storageSelectorsRaw := storageRaw.StorageSelectors
 	storageSelectors := make([]map[string]interface{}, len(storageSelectorsRaw))
 	for i, s := range storageSelectorsRaw {
-		storageSelectors[i] = map[string]interface{}{
+		storageSelector := map[string]interface{}{
 			"name": s.Name,
 			"type": s.StorageType,
 		}
 
 		if s.MatchLabels != (nodes.MatchLabelsSpec{}) {
-			storageSelectors[i]["match_label_size"] = s.MatchLabels.Size
-			storageSelectors[i]["match_label_volume_type"] = s.MatchLabels.VolumeType
-			storageSelectors[i]["match_label_metadata_encrypted"] = s.MatchLabels.MetadataEncrypted
-			storageSelectors[i]["match_label_metadata_cmkid"] = s.MatchLabels.MetadataCmkid
-			storageSelectors[i]["match_label_count"] = s.MatchLabels.Count
+			storageSelector["match_label_size"] = s.MatchLabels.Size
+			storageSelector["match_label_volume_type"] = s.MatchLabels.VolumeType
+			storageSelector["match_label_metadata_encrypted"] = s.MatchLabels.MetadataEncrypted
+			storageSelector["match_label_metadata_cmkid"] = s.MatchLabels.MetadataCmkid
+			storageSelector["match_label_count"] = s.MatchLabels.Count
 		}
+		storageSelectors[i] = storageSelector
 	}
 
 	storageGroupsRaw := storageRaw.StorageGroups
 	storageGroups := make([]map[string]interface{}, len(storageGroupsRaw))
 	for i, v := range storageGroupsRaw {
-		storageGroups[i] = map[string]interface{}{
+		storageGroup := map[string]interface{}{
 			"name":           v.Name,
 			"cce_managed":    v.CceManaged,
 			"selector_names": v.SelectorNames,
@@ -705,22 +675,24 @@ func flattenStorage(storageRaw *nodes.StorageSpec) []map[string]interface{} {
 
 		virtualSpaces := make([]map[string]interface{}, len(v.VirtualSpaces))
 		for k, s := range v.VirtualSpaces {
-			virtualSpaces[k] = map[string]interface{}{
+			virtualSpace := map[string]interface{}{
 				"name": s.Name,
 				"size": s.Size,
 			}
 
 			if s.LVMConfig != nil {
-				virtualSpaces[k]["lvm_lv_type"] = s.LVMConfig.LvType
-				virtualSpaces[k]["lvm_path"] = s.LVMConfig.Path
+				virtualSpace["lvm_lv_type"] = s.LVMConfig.LvType
+				virtualSpace["lvm_path"] = s.LVMConfig.Path
 			}
-
 			if s.RuntimeConfig != nil {
-				virtualSpaces[k]["runtime_lv_type"] = s.RuntimeConfig.LvType
+				virtualSpace["runtime_lv_type"] = s.RuntimeConfig.LvType
 			}
-		}
 
-		storageGroups[i]["virtual_spaces"] = virtualSpaces
+			virtualSpaces[k] = virtualSpace
+		}
+		storageGroup["virtual_spaces"] = virtualSpaces
+
+		storageGroups[i] = storageGroup
 	}
 
 	return []map[string]interface{}{
@@ -731,28 +703,10 @@ func flattenStorage(storageRaw *nodes.StorageSpec) []map[string]interface{} {
 	}
 }
 
-func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
+func buildNodePoolUpdateOpts(d *schema.ResourceData) (*nodepools.UpdateOpts, error) {
+	loginSpec, err := buildResourceNodeLoginSpec(d)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
-	}
-
-	initialNodeCount := d.Get("initial_node_count").(int)
-	var loginSpec nodes.LoginSpec
-	if common.HasFilledOpt(d, "key_pair") {
-		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
-	} else if common.HasFilledOpt(d, "password") {
-		password, err := utils.TryPasswordEncrypt(d.Get("password").(string))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		loginSpec = nodes.LoginSpec{
-			UserPassword: nodes.UserPassword{
-				Username: "root",
-				Password: password,
-			},
-		}
+		return nil, err
 	}
 
 	updateOpts := nodepools.UpdateOpts{
@@ -762,7 +716,7 @@ func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 			Name: d.Get("name").(string),
 		},
 		Spec: nodepools.UpdateSpec{
-			InitialNodeCount: &initialNodeCount,
+			InitialNodeCount: utils.Int(d.Get("initial_node_count").(int)),
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scall_enable").(bool),
 				MinNodeCount:          d.Get("min_node_count").(int),
@@ -777,66 +731,80 @@ func resourceCCENodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta
 				RootVolume:  buildResourceNodeRootVolume(d),
 				DataVolumes: buildResourceNodeDataVolume(d),
 				Count:       1,
-				UserTags:    resourceCCENodePoolTags(d),
+				UserTags:    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 				K8sTags:     buildResourceNodeK8sTags(d),
 				Taints:      buildResourceNodeTaint(d),
 			},
 			Type: d.Get("type").(string),
 		},
 	}
+	return &updateOpts, nil
+}
 
-	clusterid := d.Get("cluster_id").(string)
-	_, err = nodepools.Update(nodePoolClient, clusterid, d.Id(), updateOpts).Extract()
+func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating HuaweiCloud Node Node Pool: %s", err)
+		return diag.Errorf("error creating CCE v3 client: %s", err)
+	}
+
+	updateOpts, err := buildNodePoolUpdateOpts(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	clusterId := d.Get("cluster_id").(string)
+	nodePoolId := d.Id()
+	_, err = nodepools.Update(cceClient, clusterId, nodePoolId, updateOpts).Extract()
+	if err != nil {
+		return diag.Errorf("error updating CCE node pool (%s): %s", nodePoolId, err)
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Synchronizing"},
+		Pending:      []string{"Synchronizing", "Synchronized"},
 		Target:       []string{""},
-		Refresh:      waitForCceNodePoolActive(nodePoolClient, clusterid, d.Id()),
+		Refresh:      waitForNodePoolActive(cceClient, clusterId, nodePoolId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        60 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating HuaweiCloud CCE Node Pool: %s", err)
+		return diag.Errorf("error waiting for CCE node pool (%s) to become available: %s", nodePoolId, err)
 	}
 
-	return resourceCCENodePoolRead(ctx, d, meta)
+	return resourceNodePoolRead(ctx, d, meta)
 }
 
-func resourceCCENodePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	nodePoolClient, err := config.CceV3Client(config.GetRegion(d))
+func resourceNodePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCE client: %s", err)
+		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
-	clusterid := d.Get("cluster_id").(string)
-	err = nodepools.Delete(nodePoolClient, clusterid, d.Id()).ExtractErr()
+
+	clusterId := d.Get("cluster_id").(string)
+	nodePoolId := d.Id()
+	err = nodepools.Delete(cceClient, clusterId, nodePoolId).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
+		return diag.Errorf("error deleting CCE node pool (%s): %s", nodePoolId, err)
 	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting"},
 		Target:       []string{"Deleted"},
-		Refresh:      waitForCceNodePoolDelete(nodePoolClient, clusterid, d.Id()),
+		Refresh:      waitForNodePoolDelete(cceClient, clusterId, nodePoolId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
-
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
+		return diag.Errorf("error waiting for CCE node pool (%s) to become deleted: %s", nodePoolId, err)
 	}
-
-	d.SetId("")
 	return nil
 }
 
-func waitForCceNodePoolActive(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
+func waitForNodePoolActive(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()
 		if err != nil {
@@ -846,37 +814,35 @@ func waitForCceNodePoolActive(cceClient *golangsdk.ServiceClient, clusterId, nod
 	}
 }
 
-func waitForCceNodePoolDelete(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
+func waitForNodePoolDelete(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE Node Pool %s.\n", nodePoolId)
-
+		log.Printf("[DEBUG] Attempting to delete CCE node pool (%s).", nodePoolId)
 		r, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()
-
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE Node Pool %s", nodePoolId)
+				log.Printf("[DEBUG] Successfully deleted CCE node pool (%s)", nodePoolId)
 				return r, "Deleted", nil
 			}
 			return r, "Deleting", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud CCE Node Pool %s still available.\n", nodePoolId)
+		log.Printf("[DEBUG] CCE node pool (%s) is still available.", nodePoolId)
 		return r, r.Status.Phase, nil
 	}
 }
 
-func resourceCCENodePoolV3Import(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
+func resourceNodePoolImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	importId := d.Id()
+	parts := strings.Split(importId, "/")
 	if len(parts) != 2 {
-		err := fmtp.Errorf("Invalid format specified for CCE Node Pool. Format must be <cluster id>/<node pool id>")
-		return nil, err
+		return nil, fmt.Errorf("invalid format specified for CCE node pool, want '<cluster_id>/<id>', but got '%s'",
+			importId)
 	}
 
 	clusterID := parts[0]
 	nodePoolID := parts[1]
 
 	d.SetId(nodePoolID)
-	d.Set("cluster_id", clusterID)
-
-	return []*schema.ResourceData{d}, nil
+	err := d.Set("cluster_id", clusterID)
+	return []*schema.ResourceData{d}, err
 }

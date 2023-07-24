@@ -168,7 +168,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 
   ~> You need to remove all nodes in the node pool on the console, before deleting a prepaid node pool.
 
-## Argument Reference
+## Arguments Reference
 
 The following arguments are supported:
 
@@ -403,15 +403,15 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 20 minute.
-* `delete` - Default is 20 minute.
+* `create` - Default is 20 minutes.
+* `delete` - Default is 20 minutes.
 
 ## Import
 
-CCE node pool can be imported using the cluster ID and node pool ID separated by a slash, e.g.:
+CCE node pool can be imported using the cluster ID and node pool ID separated by a slash, e.g.
 
-```
-$ terraform import huaweicloud_cce_node_pool.my_node_pool 5c20fdad-7288-11eb-b817-0255ac10158b/e9287dff-7288-11eb-b817-0255ac10158b
+```bash
+$ terraform import huaweicloud_cce_node_pool.my_node_pool <cluster_id>/<id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -421,9 +421,9 @@ It is generally recommended running `terraform plan` after importing a node pool
 You can then decide if changes should be applied to the node pool, or the resource
 definition should be updated to align with the node pool. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cce_node_pool" "my_node_pool" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [
