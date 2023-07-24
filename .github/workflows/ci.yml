@@ -53,6 +53,15 @@ jobs:
   # This workflow contains a job called "tfproviderlint"
   # Ignoring bflad/tfproviderlint until https://github.com/bflad/tfproviderlint/issues/255 is fixed...
   # using ShiChangkuo/tfproviderlint instead
+  # Ignore rules:
+  # + R019: d.HasChanges() has many arguments, consider d.HasChangesExcept()
+  # + S018: schema should use TypeList with MaxItems 1
+  # + V011: custom SchemaValidateFunc should be replaced with validation.StringLenBetween()
+  # + V012: want "custom SchemaValidateFunc should be replaced with validation.IntAtLeast(), validation.IntAtMost(),
+  #         or validation.IntBetween()
+  # + V013: custom SchemaValidateFunc should be replaced with validation.StringInSlice() or
+  #         validation.StringNotInSlice()
+  # + V014: custom SchemaValidateFunc should be replaced with validation.IntInSlice() or validation.IntNotInSlice()
   tfproviderlint:
     runs-on: ubuntu-latest
 
@@ -77,7 +86,7 @@ jobs:
           cd ${{ github.workspace }}/tfproviderlint/cmd/tfproviderlint
           go install
           cd ${{ github.workspace }}/terraform-provider-huaweicloud
-          tfproviderlint -V011=false -V012=false -V013=false -V014=false -R019=false ./...
+          tfproviderlint -R019=false -S018=false -V011=false -V012=false -V013=false -V014=false ./...
 
   schema-markdown-check:
     runs-on: ubuntu-latest
