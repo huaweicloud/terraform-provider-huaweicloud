@@ -44,7 +44,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCENodePoolImportStateIdFunc(),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count",
+					"initial_node_count", "extend_params",
 				},
 			},
 			{
@@ -391,7 +391,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   max_node_count           = 0
   scale_down_cooldown_time = 0
   priority                 = 0
-  type 				       = "vm"
+  type                     = "vm"
 
   root_volume {
     size       = 40
@@ -400,6 +400,14 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  extend_params {
+    docker_base_size = 20
+    postinstall      = <<EOF
+#! /bin/bash
+date
+EOF
   }
 }
 `, testAccCCENodePool_Base(rName), rName)
@@ -422,7 +430,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   max_node_count           = 9
   scale_down_cooldown_time = 100
   priority                 = 1
-  type 				       = "vm"
+  type                     = "vm"
 
   root_volume {
     size       = 40
@@ -431,6 +439,20 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+
+  extend_params {
+    docker_base_size = 20
+    postinstall      = <<EOF
+#! /bin/bash
+date
+EOF
+  }
+
+  lifecycle {
+    ignore_changes = [
+      extend_params
+    ]
   }
 }
 `, testAccCCENodePool_Base(rName), updateName)
@@ -453,30 +475,44 @@ resource "huaweicloud_cce_node_pool" "test" {
   max_node_count           = 0
   scale_down_cooldown_time = 0
   priority                 = 0
-  type 				       = "vm"
+  type                     = "vm"
 
   root_volume {
-    size       = 40
-	volumetype = "SSD"
-	extend_params = {
-	  test_key = "test_val"
-	}
+    size          = 40
+    volumetype    = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
   }
 
   data_volumes {
-    size       = 100
-	volumetype = "SSD"
-	extend_params = {
-	  test_key1 = "test_val1"
-	}
+    size          = 100
+    volumetype    = "SSD"
+    extend_params = {
+      test_key1 = "test_val1"
+    }
   }
 
   data_volumes {
-    size       = 100
-	volumetype = "SSD"
-	extend_params = {
-	  test_key2 = "test_val2"
-	}
+    size          = 100
+    volumetype    = "SSD"
+    extend_params = {
+      test_key2 = "test_val2"
+    }
+  }
+
+  extend_params {
+    docker_base_size = 20
+    postinstall      = <<EOF
+#! /bin/bash
+date
+EOF
+  }
+
+  lifecycle {
+    ignore_changes = [
+      extend_params
+    ]
   }
 }
 `, testAccCCENodePool_Base(rName), rName)

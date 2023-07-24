@@ -338,17 +338,8 @@ The following arguments are supported:
 * `bandwidth_size` - (Optional, Int, ForceNew) Specifies the bandwidth size.
   Changing this parameter will create a new resource.
 
-* `max_pods` - (Optional, Int, ForceNew) Specifies the maximum number of instances a node is allowed to create.
-  Changing this parameter will create a new resource.
-
 * `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. If specified, the node will be created under
   the cloud server group. Changing this parameter will create a new resource.
-
-* `preinstall` - (Optional, String, ForceNew) Specifies the script to be executed before installation.
-  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
-
-* `postinstall` - (Optional, String, ForceNew) Specifies the script to be executed after installation.
-  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE node. Valid values are *prePaid*
   and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
@@ -366,21 +357,9 @@ The following arguments are supported:
 * `runtime` - (Optional, String, ForceNew) Specifies the runtime of the CCE node. Valid values are *docker* and
   *containerd*. Changing this creates a new resource.
 
-* `extend_param` - (Optional, Map, ForceNew) Specifies the extended parameter.
+* `extend_params` - (Optional, List, ForceNew) Specifies the extended parameters.
+  The [object](#extend_params) structure is documented below.
   Changing this parameter will create a new resource.
-  The available keys are as follows:
-  + **agency_name**: The agency name to provide temporary credentials for CCE node to access other cloud services.
-  + **alpha.cce/NodeImageID**: The custom image ID used to create the BMS nodes.
-  + **dockerBaseSize**: The available disk space of a single docker container on the node in device mapper mode.
-  + **DockerLVMConfigOverride**: Specifies the data disk configurations of Docker.
-
-  The following is an example default configuration:
-
-```hcl
-extend_param = {
-  DockerLVMConfigOverride = "dockerThinpool=vgpaas/90%VG;kubernetesLV=vgpaas/10%VG;diskType=evs;lvType=linear"
-}
-```
 
 * `labels` - (Optional, Map, ForceNew) Specifies the tags of a Kubernetes node, key/value pair format.
   Changing this parameter will create a new resource.
@@ -398,6 +377,39 @@ extend_param = {
     create a new resource.
   + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
     Changing this parameter will create a new resource.
+
+<a name="extend_params"></a>
+The `extend_params` block supports:
+
+* `max_pods` - (Optional, Int, ForceNew) Specifies the maximum number of instances a node is allowed to create.
+  Changing this parameter will create a new resource.
+
+* `docker_base_size` - (Optional, Int, ForceNew) Specifies the available disk space of a single container on a node,
+  in GB. Changing this parameter will create a new resource.
+
+* `preinstall` - (Optional, String, ForceNew) Specifies the script to be executed before installation.
+  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
+
+* `postinstall` - (Optional, String, ForceNew) Specifies the script to be executed after installation.
+  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
+
+* `node_image_id` - (Optional, String, ForceNew) Specifies the image ID to create the node.
+  Changing this parameter will create a new resource.
+
+* `node_multi_queue` - (Optional, String, ForceNew) Specifies the number of ENI queues.
+  Example setting: **"[{\"queue\":4}]"**. Changing this parameter will create a new resource.
+
+* `nic_threshold` - (Optional, String, ForceNew) Specifies the ENI pre-binding thresholds.
+  Example setting: **"0.3:0.6"**. Changing this parameter will create a new resource.
+
+* `agency_name` - (Optional, String, ForceNew) Specifies the agency name.
+  Changing this parameter will create a new resource.
+
+* `kube_reserved_mem` - (Optional, Int, ForceNew) Specifies the reserved node memory, which is reserved for
+  Kubernetes-related components. Changing this parameter will create a new resource.
+
+* `system_reserved_mem` - (Optional, Int, ForceNew) Specifies the reserved node memory, which is reserved
+  value for system components. Changing this parameter will create a new resource.
 
 The `selectors` block supports:
 
@@ -471,8 +483,8 @@ $ terraform import huaweicloud_cce_node.my_node 5c20fdad-7288-11eb-b817-0255ac10
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `fixed_ip`, `eip_id`, `preinstall`, `postinstall`, `iptype`, `bandwidth_charge_mode`, `bandwidth_size`,
-`share_type`, `max_pods`, `extend_param`, `labels`, `taints` and arguments for pre-paid. It is generally recommended
+`password`, `fixed_ip`, `eip_id`, `iptype`, `bandwidth_charge_mode`, `bandwidth_size`,
+`share_type`, `extend_params`, `labels`, `taints` and arguments for pre-paid. It is generally recommended
 running `terraform plan` after importing a node. You can then decide if changes should be applied to the node, or the
 resource definition should be updated to align with the node. Also you can ignore changes as below.
 
@@ -482,7 +494,7 @@ resource "huaweicloud_cce_node" "my_node" {
 
   lifecycle {
     ignore_changes = [
-      extend_param, labels,
+      extend_params, labels,
     ]
   }
 }

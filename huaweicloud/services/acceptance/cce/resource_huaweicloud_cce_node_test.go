@@ -46,7 +46,7 @@ func TestAccNode_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCENodeImportStateIdFunc(),
 				ImportStateVerifyIgnore: []string{
-					"taints",
+					"taints", "extend_params",
 				},
 			},
 			{
@@ -369,6 +369,14 @@ resource "huaweicloud_cce_node" "test" {
     value  = "test_value"
     effect = "NoSchedule"
   }
+
+  extend_params {
+    docker_base_size = 20
+    postinstall      = <<EOF
+#! /bin/bash
+date
+EOF
+  }
 }
 `, testAccNode_Base(rName), rName)
 }
@@ -411,9 +419,17 @@ resource "huaweicloud_cce_node" "test" {
     effect = "NoSchedule"
   }
 
+  extend_params {
+    docker_base_size = 20
+    postinstall      = <<EOF
+#! /bin/bash
+date
+EOF
+  }
+
   lifecycle {
     ignore_changes = [
-      taints,
+      taints, extend_params
     ]
   }
 }

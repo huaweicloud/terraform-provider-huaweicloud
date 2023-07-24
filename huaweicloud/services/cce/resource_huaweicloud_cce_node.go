@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -373,36 +372,39 @@ func ResourceNode() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "schema: Internal",
+				Description: "schema: Deprecated",
 			},
 			"product_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "schema: Internal",
+				Description: "schema: Deprecated",
 			},
 			"max_pods": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Deprecated",
 			},
 			"public_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "schema: Internal",
+				Description: "schema: Deprecated",
 			},
 			"preinstall": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				ForceNew:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Deprecated",
+				StateFunc:   utils.DecodeHashAndHexEncode,
 			},
 			"postinstall": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				ForceNew:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Deprecated",
+				StateFunc:   utils.DecodeHashAndHexEncode,
 			},
 			// (k8s_tags)
 			"labels": {
@@ -429,11 +431,16 @@ func ResourceNode() *schema.Resource {
 			"auto_pay":      common.SchemaAutoPay(nil),
 
 			"extend_param": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Deprecated",
 			},
+			"extend_params": resourceNodeExtendParamsSchema([]string{
+				"max_pods", "public_key", "preinstall", "postinstall", "extend_param",
+				"billing_mode", "order_id", "product_id", "ecs_performance_type",
+			}),
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -597,72 +604,6 @@ func buildResourceNodeEipIDs(d *schema.ResourceData) []string {
 		id[i] = raw.(string)
 	}
 	return id
-}
-
-func buildResourceNodeExtendParam(d *schema.ResourceData) map[string]interface{} {
-	extendParam := make(map[string]interface{})
-	if v, ok := d.GetOk("extend_param"); ok {
-		for key, val := range v.(map[string]interface{}) {
-			extendParam[key] = val.(string)
-		}
-		if v, ok := extendParam["periodNum"]; ok {
-			periodNum, err := strconv.Atoi(v.(string))
-			if err != nil {
-				log.Printf("[WARNING] PeriodNum %s invalid, Type conversion error: %s", v.(string), err)
-			}
-			extendParam["periodNum"] = periodNum
-		}
-	}
-
-	// assemble the charge info
-	var isPrePaid bool
-	var billingMode int
-
-	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		isPrePaid = true
-	}
-	if v, ok := d.GetOk("billing_mode"); ok {
-		billingMode = v.(int)
-	}
-	if isPrePaid || billingMode == 1 {
-		extendParam["chargingMode"] = 1
-		extendParam["isAutoRenew"] = "false"
-		extendParam["isAutoPay"] = common.GetAutoPay(d)
-	}
-
-	if v, ok := d.GetOk("period_unit"); ok {
-		extendParam["periodType"] = v.(string)
-	}
-	if v, ok := d.GetOk("period"); ok {
-		extendParam["periodNum"] = v.(int)
-	}
-	if v, ok := d.GetOk("auto_renew"); ok {
-		extendParam["isAutoRenew"] = v.(string)
-	}
-
-	if v, ok := d.GetOk("ecs_performance_type"); ok {
-		extendParam["ecs:performancetype"] = v.(string)
-	}
-	if v, ok := d.GetOk("max_pods"); ok {
-		extendParam["maxPods"] = v.(int)
-	}
-	if v, ok := d.GetOk("order_id"); ok {
-		extendParam["orderID"] = v.(string)
-	}
-	if v, ok := d.GetOk("product_id"); ok {
-		extendParam["productID"] = v.(string)
-	}
-	if v, ok := d.GetOk("public_key"); ok {
-		extendParam["publicKey"] = v.(string)
-	}
-	if v, ok := d.GetOk("preinstall"); ok {
-		extendParam["alpha.cce/preInstall"] = utils.TryBase64EncodeString(v.(string))
-	}
-	if v, ok := d.GetOk("postinstall"); ok {
-		extendParam["alpha.cce/postInstall"] = utils.TryBase64EncodeString(v.(string))
-	}
-
-	return extendParam
 }
 
 func buildResourceNodeStorage(d *schema.ResourceData) *nodes.StorageSpec {
@@ -848,7 +789,7 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 			Count:       1,
 			NodeNicSpec: buildResourceNodeNicSpec(d),
 			EcsGroupID:  d.Get("ecs_group_id").(string),
-			ExtendParam: buildResourceNodeExtendParam(d),
+			ExtendParam: buildExtendParams(d),
 			Taints:      buildResourceNodeTaint(d),
 			K8sTags:     buildResourceNodeK8sTags(d),
 			UserTags:    buildResourceNodeTags(d),
