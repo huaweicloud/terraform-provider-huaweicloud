@@ -42,22 +42,18 @@ func ResourceRAMShare() *schema.Resource {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the list of one or more principals associated with the resource share.`,
 			},
 			"resource_urns": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the list of URNs of one or more resources associated with the resource share.`,
 			},
 			"permission_ids": {
 				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the list of RAM permissions associated with the resource share.`,
 			},
 			"description": {
@@ -70,7 +66,7 @@ func ResourceRAMShare() *schema.Resource {
 			"owning_account_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The owning account id of the RAM share.`,
+				Description: `The owning account ID of the RAM share.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -102,7 +98,7 @@ func associatedPermissionsSchema() *schema.Resource {
 			"permission_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The permission id.`,
+				Description: `The permission ID.`,
 			},
 			"permission_name": {
 				Type:        schema.TypeString,
@@ -156,7 +152,7 @@ func resourceRAMShareCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	id, err := jmespath.Search("resource_share.id", createRAMShareRespBody)
 	if err != nil {
-		return diag.Errorf("error creating RAMShare: ID is not found in API response")
+		return diag.Errorf("error creating RAM share: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 	return resourceRAMShareRead(ctx, d, meta)
@@ -275,14 +271,13 @@ func setRAMShareAssociations(associationType string, client *golangsdk.ServiceCl
 		return err
 	}
 
+	jsonPath := "resource_share_associations[?status=='associating' || status=='associated'].associated_entity"
 	if associationType == "resource" {
-		return d.Set("resource_urns", utils.PathSearch(
-			"resource_share_associations[].associated_entity", getResourceUrnsRespBody, nil))
+		return d.Set("resource_urns", utils.PathSearch(jsonPath, getResourceUrnsRespBody, nil))
 	}
 
 	if associationType == "principal" {
-		return d.Set("principals", utils.PathSearch(
-			"resource_share_associations[].associated_entity", getResourceUrnsRespBody, nil))
+		return d.Set("principals", utils.PathSearch(jsonPath, getResourceUrnsRespBody, nil))
 	}
 
 	return fmt.Errorf("got an invalid association type: %s when search share associations", associationType)
@@ -309,8 +304,6 @@ func setRAMSharePermissions(client *golangsdk.ServiceClient, d *schema.ResourceD
 
 	mErr := multierror.Append(
 		nil,
-		d.Set("permission_ids", utils.PathSearch("associated_permissions[].permission_id",
-			getPermissionsRespBody, nil)),
 		d.Set("associated_permissions", flattenAssociatedPermissions(getPermissionsRespBody)),
 	)
 	return mErr.ErrorOrNil()
@@ -320,7 +313,8 @@ func flattenAssociatedPermissions(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
-	curJson := utils.PathSearch("associated_permissions", resp, make([]interface{}, 0))
+	jsonPath := "associated_permissions[?status=='associating' || status=='associated']"
+	curJson := utils.PathSearch(jsonPath, resp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, len(curArray))
 	for i, v := range curArray {
@@ -368,6 +362,30 @@ func resourceRAMShareUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		err = updateRAMShareTags(updateRAMShareClient, d)
 		if err != nil {
 			return diag.Errorf("error updating RAM share tags: %s", err)
+		}
+	}
+
+	if d.HasChanges("principals", "resource_urns") {
+		oldPrincipalsRaws, newPrincipalsRaws := d.GetChange("principals")
+		oldPrincipals := oldPrincipalsRaws.(*schema.Set).Difference(newPrincipalsRaws.(*schema.Set)).List()
+		newPrincipals := newPrincipalsRaws.(*schema.Set).Difference(oldPrincipalsRaws.(*schema.Set)).List()
+
+		oldResourceUrnsRaws, newResourceUrnsRaws := d.GetChange("resource_urns")
+		oldResourceUrns := oldResourceUrnsRaws.(*schema.Set).Difference(newResourceUrnsRaws.(*schema.Set)).List()
+		newResourceUrns := newResourceUrnsRaws.(*schema.Set).Difference(oldResourceUrnsRaws.(*schema.Set)).List()
+
+		if len(oldPrincipals) > 0 || len(oldResourceUrns) > 0 {
+			err = disassociatePrincipalsAndResourceUrns(updateRAMShareClient, d.Id(), oldPrincipals, oldResourceUrns)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if len(newPrincipals) > 0 || len(newResourceUrns) > 0 {
+			err = associatePrincipalsAndResourceUrns(updateRAMShareClient, d.Id(), newPrincipals, newResourceUrns)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -447,7 +465,9 @@ func resourceRAMShareDelete(ctx context.Context, d *schema.ResourceData, meta in
 		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "ram.1102" {
 				// There are resources in use in the resource share. Do disassociate before delete share
-				err = disassociateRAMShare(deleteRAMShareClient, d)
+				principals := d.Get("principals").(*schema.Set).List()
+				resourceUrns := d.Get("resource_urns").(*schema.Set).List()
+				err = disassociatePrincipalsAndResourceUrns(deleteRAMShareClient, d.Id(), principals, resourceUrns)
 				if err == nil {
 					// retry delete
 					return resourceRAMShareDelete(ctx, d, meta)
@@ -459,20 +479,40 @@ func resourceRAMShareDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func disassociateRAMShare(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	disassociateRAMShareHttpUrl := "v1/resource-shares/{resource_share_id}/disassociate"
-	disassociateRAMSharePath := client.Endpoint + disassociateRAMShareHttpUrl
-	disassociateRAMSharePath = strings.ReplaceAll(disassociateRAMSharePath, "{resource_share_id}", d.Id())
-	disassociateRAMShareOpt := golangsdk.RequestOpts{
+func associatePrincipalsAndResourceUrns(client *golangsdk.ServiceClient, resourceId string, principals,
+	resourceUrns []interface{}) error {
+	associateHttpUrl := "v1/resource-shares/{resource_share_id}/associate"
+	associatePath := client.Endpoint + associateHttpUrl
+	associatePath = strings.ReplaceAll(associatePath, "{resource_share_id}", resourceId)
+	associateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
-			"principals":    d.Get("principals").(*schema.Set).List(),
-			"resource_urns": d.Get("resource_urns").(*schema.Set).List(),
+			"principals":    principals,
+			"resource_urns": resourceUrns,
 		},
 	}
-	_, err := client.Request("POST", disassociateRAMSharePath, &disassociateRAMShareOpt)
+	_, err := client.Request("POST", associatePath, &associateOpt)
 	if err != nil {
-		return fmt.Errorf("error disassociate RAM share, %s", err)
+		return fmt.Errorf("error associate RAM share principals and resource urns, %s", err)
+	}
+	return nil
+}
+
+func disassociatePrincipalsAndResourceUrns(client *golangsdk.ServiceClient, resourceId string, principals,
+	resourceUrns []interface{}) error {
+	disassociateHttpUrl := "v1/resource-shares/{resource_share_id}/disassociate"
+	disassociatePath := client.Endpoint + disassociateHttpUrl
+	disassociatePath = strings.ReplaceAll(disassociatePath, "{resource_share_id}", resourceId)
+	disassociateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"principals":    principals,
+			"resource_urns": resourceUrns,
+		},
+	}
+	_, err := client.Request("POST", disassociatePath, &disassociateOpt)
+	if err != nil {
+		return fmt.Errorf("error disassociate RAM share principals and resource urns, %s", err)
 	}
 	return nil
 }

@@ -89,7 +89,6 @@ func TestAccRAMShare_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "principals.0", acceptance.HW_RAM_SHARE_ACCOUNT_ID),
 					resource.TestCheckResourceAttr(rName, "resource_urns.0", acceptance.HW_RAM_SHARE_RESOURCE_URN),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName, "permission_ids.#", "1"),
 					resource.TestCheckResourceAttr(rName, "associated_permissions.#", "1"),
 					resource.TestCheckResourceAttrSet(rName, "owning_account_id"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
@@ -98,18 +97,39 @@ func TestAccRAMShare_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testRAMShare_basic_update(name),
+				// update principal
+				Config: testRAMShare_basic_update(name, acceptance.HW_RAM_SHARE_UPDATE_ACCOUNT_ID,
+					acceptance.HW_RAM_SHARE_RESOURCE_URN),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "description", "test description information update"),
+					resource.TestCheckResourceAttr(rName, "description",
+						"test description information update"),
+					resource.TestCheckResourceAttr(rName, "principals.0",
+						acceptance.HW_RAM_SHARE_UPDATE_ACCOUNT_ID),
+					resource.TestCheckResourceAttr(rName, "resource_urns.0", acceptance.HW_RAM_SHARE_RESOURCE_URN),
 					resource.TestCheckResourceAttr(rName, "tags.foo_update", "bar_update"),
+				),
+			},
+			{
+				// update resource urn
+				Config: testRAMShare_basic_update(name, acceptance.HW_RAM_SHARE_UPDATE_ACCOUNT_ID,
+					acceptance.HW_RAM_SHARE_UPDATE_RESOURCE_URN),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "principals.0",
+						acceptance.HW_RAM_SHARE_UPDATE_ACCOUNT_ID),
+					resource.TestCheckResourceAttr(rName, "resource_urns.0",
+						acceptance.HW_RAM_SHARE_UPDATE_RESOURCE_URN),
 				),
 			},
 			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"permission_ids",
+				},
 			},
 		},
 	})
@@ -131,7 +151,7 @@ resource "huaweicloud_ram_resource_share" "test" {
 `, name, acceptance.HW_RAM_SHARE_ACCOUNT_ID, acceptance.HW_RAM_SHARE_RESOURCE_URN)
 }
 
-func testRAMShare_basic_update(name string) string {
+func testRAMShare_basic_update(name, accountID, resourceUrn string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_ram_resource_share" "test" {
   name        = "%[1]s_update"
@@ -144,5 +164,5 @@ resource "huaweicloud_ram_resource_share" "test" {
     foo_update = "bar_update"
   }
 }
-`, name, acceptance.HW_RAM_SHARE_ACCOUNT_ID, acceptance.HW_RAM_SHARE_RESOURCE_URN)
+`, name, accountID, resourceUrn)
 }
