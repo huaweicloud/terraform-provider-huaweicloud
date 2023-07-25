@@ -13,6 +13,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 type GroupNodeNum struct {
@@ -420,6 +421,43 @@ func TestAccMrsMapReduceCluster_custom_fullsize(t *testing.T) {
 	})
 }
 
+func TestAccMrsMapReduceCluster_externalDataSources(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	rName := acceptance.RandomAccResourceName()
+	password := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMrsCustom(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsClusterConfig_externalDataSources(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "ANALYSIS"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"manager_admin_pass",
+					"node_admin_pass",
+					"external_datasources",
+				},
+			},
+		},
+	})
+}
+
 func buildGroupNodeNumbers(analysisCoreNum, streamCoreNum, analysisTaskNum, streamTaskNum int) GroupNodeNum {
 	return GroupNodeNum{
 		AnalysisCoreNum: analysisCoreNum,
@@ -747,7 +785,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   name               = "%s"
   type               = "MIXED"
-  version            = "MRS 1.9.2"
+  version            = "MRS 3.1.5"
   safe_mode          = true
   manager_admin_pass = "%s"
   node_admin_pass    = "%s"
@@ -889,6 +927,100 @@ master_nodes {
   }
   
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, nodeNum1)
+}
+
+func testAccMrsClusterConfig_externalDataSources(rName, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type           = "MySQL"
+  group_type        = "general"
+  db_version        = "5.7"
+  instance_mode     = "single"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors.0.name
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+  fixed_ip          = "192.168.0.58"
+
+  db {
+    password = "Huangwei!120521"
+    type     = "MySQL"
+    version  = "5.7"
+    port     = 3306
+  }
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+
+resource "huaweicloud_rds_mysql_database" "test" {
+  instance_id   = huaweicloud_rds_instance.test.id
+  name          = "%[2]s"
+  character_set = "utf8"
+}
+
+resource "huaweicloud_mapreduce_data_connection" "test" {
+  name        = "%[2]s"
+  source_type = "RDS_MYSQL"
+  source_info {
+    db_instance_id = huaweicloud_rds_instance.test.id
+    db_name        = huaweicloud_rds_mysql_database.test.name
+    user_name      = "root"
+    password       = "%[3]s"
+  }
+}
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%[2]s"
+  type               = "ANALYSIS"
+  version            = "MRS 1.9.2"
+  safe_mode          = false
+  manager_admin_pass = "%[3]s"
+  node_admin_pass    = "%[3]s"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  component_list     = ["Hadoop", "Hive", "Tez"]
+
+  master_nodes {
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 600
+    data_volume_type  = "SAS"
+    data_volume_size  = 600
+    data_volume_count = 1
+  }
+  analysis_core_nodes {
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 600
+    data_volume_type  = "SAS"
+    data_volume_size  = 600
+    data_volume_count = 1
+  }
+
+  external_datasources {
+    component_name     = "Hive"
+    role_type          = "hive_metastore"
+    source_type        = "RDS_MYSQL"
+    data_connection_id = huaweicloud_mapreduce_data_connection.test.id
+  }
+}`, common.TestBaseNetwork(rName), rName, pwd)
 }
 
 func testAccMrsMapReduceClusterConfig_customSeparate(rName, pwd string, nodeNum1 int) string {
