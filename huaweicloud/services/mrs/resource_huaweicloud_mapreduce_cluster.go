@@ -227,6 +227,12 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"external_datasources": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     externalDatasourceSchema(),
+				ForceNew: true,
+			},
 			"total_node_number": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -377,6 +383,33 @@ func componentConfigsSchemaResource() *schema.Resource {
 						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func externalDatasourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"component_name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"role_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"source_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"data_connection_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -569,6 +602,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		ClusterType:          d.Get("type").(string),
 		ManagerAdminPassword: d.Get("manager_admin_pass").(string),
 		VpcName:              vpcResp.Name,
+		VpcId:                vpcId,
 		SubnetId:             subnetId,
 		SubnetName:           subnetResp.Name,
 		EipId:                eipId,
@@ -582,6 +616,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		ComponentConfigs:     buildComponentConfigOpts(d),
 		TemplateId:           d.Get("template_id").(string),
 		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		ExternalDatasources:  buildClusterExternalDatasources(d.Get("external_datasources")),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -610,6 +645,28 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	return resourceMRSClusterV2Read(ctx, d, meta)
+}
+
+func buildClusterExternalDatasources(rawParams interface{}) []clusterV2.ExternalDatasource {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		params := make([]clusterV2.ExternalDatasource, 0)
+		for _, raw := range rawArray {
+			item := raw.(map[string]interface{})
+			param := clusterV2.ExternalDatasource{
+				ComponentName: item["component_name"].(string),
+				RoleType:      item["role_type"].(string),
+				SourceType:    item["source_type"].(string),
+				ConnectorId:   item["data_connection_id"].(string),
+			}
+			params = append(params, param)
+		}
+		return params
+	}
+	return nil
 }
 
 func queryEipInfo(client *golangsdk.ServiceClient, eipId, publicIp, epsID string) (eipID string, publicIP string, err error) {
