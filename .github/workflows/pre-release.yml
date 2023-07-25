@@ -169,6 +169,8 @@ jobs:
       HW_ADMIN: "true"
       HW_ENTERPRISE_PROJECT_ID: "0"
       HW_ENTERPRISE_PROJECT_ID_TEST: "0"
+      TF_LOG: "DEBUG"
+      TF_LOG_PATH: "${{ github.workspace }}/acceptance.log"
 
     runs-on: ubuntu-latest
     steps:
@@ -192,7 +194,7 @@ jobs:
           total=0
           last_tag=$(git tag --sort=-creatordate | sed -n 1p)
           all_files=$(git diff $last_tag --name-only huaweicloud | grep -v "_test.go")
-          echo -e "the following files have changed since $last_tag:\n$all_files\n"
+          echo -e "the following files have changed since $last_tag:\n$all_files\n" | tee -a ${{ env.TF_LOG_PATH }}
 
           for f in $all_files; do
             path=${f%/*}
@@ -208,16 +210,25 @@ jobs:
               basic_case=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk 'NR==1{print $2}' | awk -F '(' '{print $1}')
               if [ "X$basic_case" != "X" ]; then
                 total=`expr $total + 1`
-                echo -e "\n[$total] `date` run acceptance basic test: $basic_case"
+                echo -e "\n[$total] `date` run acceptance basic test: $basic_case" | tee -a ${{ env.TF_LOG_PATH }}
                 make testacc TEST="./$path" TESTARGS="-run ${basic_case}"
                 if [ $? -ne 0 ]; then
                   result=`expr $result + 1`
                 fi
               fi
             else
-              echo -e "\n[skipped] --- ./${test_file} does not exist"
+              echo -e "\n[skipped] --- ./${test_file} does not exist" | tee -a ${{ env.TF_LOG_PATH }}
             fi
           done
 
-          echo -e "\n[summary] $result failed in $total acceptance basic tests"
+          echo -e "\n[summary] $result failed in $total acceptance basic tests" | tee -a ${{ env.TF_LOG_PATH }}
           exit $result
+
+      - name: Upload acceptance log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: acceptance-release
+          path: |
+            ${{ env.TF_LOG_PATH }}
+          if-no-files-found: ignore
