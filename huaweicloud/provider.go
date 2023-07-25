@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/antiddos"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apigateway"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
@@ -643,8 +644,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
-			"huaweicloud_api_gateway_api":   ResourceAPIGatewayAPI(),
-			"huaweicloud_api_gateway_group": ResourceAPIGatewayGroup(),
+			"huaweicloud_api_gateway_api":         ResourceAPIGatewayAPI(),
+			"huaweicloud_api_gateway_environment": apigateway.ResourceEnvironment(),
+			"huaweicloud_api_gateway_group":       ResourceAPIGatewayGroup(),
 
 			"huaweicloud_apig_acl_policy":                  apig.ResourceAclPolicy(),
 			"huaweicloud_apig_acl_policy_associate":        apig.ResourceAclPolicyAssociate(),
