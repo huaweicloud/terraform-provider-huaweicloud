@@ -1,4 +1,4 @@
-package cmdb
+package lts
 
 import (
 	"encoding/json"
