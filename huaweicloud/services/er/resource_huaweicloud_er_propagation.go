@@ -137,7 +137,7 @@ func QueryPropagationById(client *golangsdk.ServiceClient, instanceId, routeTabl
 	if err != nil {
 		return nil, err
 	}
-	if len(resp) < 1 {
+	if len(result) < 1 {
 		return nil, golangsdk.ErrDefault404{
 			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 				Body: []byte(fmt.Sprintf("the propagation (%s) does not exist", propagationId)),
