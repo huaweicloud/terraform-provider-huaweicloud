@@ -169,6 +169,21 @@ The following arguments are supported:
   | 600MB | 4 |
   | 1,200MB | 8 |
 
+* `security_protocol` - (Optional, String, ForceNew) Specifies the protocol to use after SASL is enabled (`access_user`
+  and `password` are specified). Value options:
+  + **SASL_SSL**: Data is encrypted with SSL certificates for high-security transmission.
+  + **SASL_PLAINTEXT**: Data is transmitted in plaintext with username and password authentication. This protocol only
+    uses the SCRAM-SHA-512 mechanism and delivers high performance.
+  
+  Defaults to **SASL_SSL**. Changing this creates a new instance resource.
+
+* `enabled_mechanisms` - (Optional, List, ForceNew) Specifies the authentication mechanisms to use after SASL is
+  enabled (`access_user` and `password` are specified). Value options:
+  + **PLAIN**: Simple username and password verification.
+  + **SCRAM-SHA-512**: User credential verification, which is more secure than **PLAIN**.
+  
+  Defaults to [**PLAIN**]. Changing this creates a new instance resource.
+
 * `retention_policy` - (Optional, String) Specifies the action to be taken when the memory usage reaches the disk
   capacity threshold. The valid values are as follows:
   + **time_base**: Automatically delete the earliest messages.

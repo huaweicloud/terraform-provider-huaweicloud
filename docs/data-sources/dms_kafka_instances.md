@@ -96,6 +96,10 @@ The `instances` block supports:
 
 * `public_ip_ids` - The IDs of the elastic IP address (EIP).
 
+* `security_protocol` - The protocol to use after SASL is enabled.
+
+* `enabled_mechanisms` - The authentication mechanisms to use after SASL is enabled.
+
 * `public_conn_addresses` - The instance public access address.
   The format of each connection address is `{IP address}:{port}`.
 

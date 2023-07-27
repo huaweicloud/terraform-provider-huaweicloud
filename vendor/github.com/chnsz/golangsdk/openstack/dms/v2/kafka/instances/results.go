@@ -62,6 +62,8 @@ type Instance struct {
 	EnablePublicIP             bool               `json:"enable_publicip"`
 	ManagementConnectAddress   string             `json:"management_connect_address"`
 	SslEnable                  bool               `json:"ssl_enable"`
+	KafkaSecurityProtocol      string             `json:"kafka_security_protocol"`
+	SaslEnabledMechanisms      []string           `json:"sasl_enabled_mechanisms"`
 	EnterpriseProjectID        string             `json:"enterprise_project_id"`
 	IsLogicalVolume            bool               `json:"is_logical_volume"`
 	ExtendTimes                int                `json:"extend_times"`

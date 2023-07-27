@@ -162,6 +162,15 @@ func DataSourceDmsKafkaInstances() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"security_protocol": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"enabled_mechanisms": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 						"used_storage_space": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -287,6 +296,8 @@ func flattenKafkaInstanceList(client *golangsdk.ServiceClient, conf *config.Conf
 			"enable_auto_topic":          val.EnableAutoTopic,
 			"partition_num":              partitionNum,
 			"ssl_enable":                 val.SslEnable,
+			"security_protocol":          val.KafkaSecurityProtocol,
+			"enabled_mechanisms":         val.SaslEnabledMechanisms,
 			"used_storage_space":         val.UsedStorageSpace,
 			"connect_address":            val.ConnectAddress,
 			"port":                       val.Port,

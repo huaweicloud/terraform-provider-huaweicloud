@@ -46,6 +46,8 @@ func TestAccKafkaInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttr(resourceName, "security_protocol", "SASL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(resourceName, "enabled_mechanisms.0", "SCRAM-SHA-512"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestMatchResourceAttr(resourceName, "cross_vpc_accesses.#", regexp.MustCompile(`[1-9]\d*`)),
@@ -216,6 +218,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
+					resource.TestCheckResourceAttr(resourceName, "security_protocol", "SASL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(resourceName, "enabled_mechanisms.0", "SCRAM-SHA-512"),
 					resource.TestCheckResourceAttrPair(resourceName, "broker_num",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.properties.0.min_broker"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
@@ -280,8 +284,10 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   engine_version    = data.huaweicloud_dms_product.test.version
   storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
 
-  manager_user      = "kafka-user"
-  manager_password  = "Kafkatest@123"
+  manager_user       = "kafka-user"
+  manager_password   = "Kafkatest@123"
+  security_protocol  = "SASL_PLAINTEXT"
+  enabled_mechanisms = ["SCRAM-SHA-512"]
 
   tags = {
     key   = "value"
@@ -320,8 +326,10 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   engine_version    = data.huaweicloud_dms_product.test.version
   storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
 
-  manager_user      = "kafka-user"
-  manager_password  = "Kafkatest@123"
+  manager_user       = "kafka-user"
+  manager_password   = "Kafkatest@123"
+  security_protocol  = "SASL_PLAINTEXT"
+  enabled_mechanisms = ["SCRAM-SHA-512"]
 
   tags = {
     key1  = "value"
@@ -450,10 +458,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num     = 3
 
-  access_user      = "user"
-  password         = "Kafkatest@123"
-  manager_user     = "kafka-user"
-  manager_password = "Kafkatest@123"
+  access_user        = "user"
+  password           = "Kafkatest@123"
+  manager_user       = "kafka-user"
+  manager_password   = "Kafkatest@123"
+  security_protocol  = "SASL_PLAINTEXT"
+  enabled_mechanisms = ["SCRAM-SHA-512"]
 
   cross_vpc_accesses {
     advertised_ip = ""
@@ -501,10 +511,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   storage_space  = 600
   broker_num     = 4
 
-  access_user      = "user"
-  password         = "Kafkatest@123"
-  manager_user     = "kafka-user"
-  manager_password = "Kafkatest@123"
+  access_user        = "user"
+  password           = "Kafkatest@123"
+  manager_user       = "kafka-user"
+  manager_password   = "Kafkatest@123"
+  security_protocol  = "SASL_PLAINTEXT"
+  enabled_mechanisms = ["SCRAM-SHA-512"]
 
   cross_vpc_accesses {
     advertised_ip = "192.168.0.61"
