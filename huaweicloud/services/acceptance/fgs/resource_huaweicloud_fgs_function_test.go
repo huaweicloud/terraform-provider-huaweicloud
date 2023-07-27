@@ -514,3 +514,132 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, name, maxInstanceNum)
 }
+
+func TestAccFgsV2Function_versions(t *testing.T) {
+	var (
+		f function.Function
+
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_versions_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.name", "latest"),
+				),
+			},
+			{
+				Config: testAccFunction_versions_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.name", "latest"),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.name", "demo"),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.description",
+						"This is a description of the demo alias"),
+				),
+			},
+			{
+				Config: testAccFunction_versions_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.name", "latest"),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.name", "demo_update"),
+					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.description", ""),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_versions_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  functiongraph_version = "v2"
+  name                  = "%[1]s"
+  app                   = "default"
+  handler               = "index.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  // Test whether 'plan' and 'apply' commands will report an error when only the version number is filled in.
+  versions {
+    name = "latest"
+  }
+}
+`, name)
+}
+
+func testAccFunction_versions_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  functiongraph_version = "v2"
+  name                  = "%[1]s"
+  app                   = "default"
+  handler               = "index.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  versions {
+    name = "latest"
+
+    aliases {
+      name        = "demo"
+      description = "This is a description of the demo alias"
+    }
+  }
+}
+`, name)
+}
+
+func testAccFunction_versions_step3(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  functiongraph_version = "v2"
+  name                  = "%[1]s"
+  app                   = "default"
+  handler               = "index.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  versions {
+    name = "latest"
+
+    aliases {
+      name = "demo_update"
+    }
+  }
+}
+`, name)
+}

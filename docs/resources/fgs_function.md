@@ -76,6 +76,31 @@ resource "huaweicloud_fgs_function" "by_swr_image" {
 }
 ```
 
+### Create function with an alias for latest version
+
+```hcl
+variable "function_name" {}
+
+resource "huaweicloud_fgs_function" "with_alias" {
+  name        = var.function_name
+  app         = "default"
+  handler     = "test.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  versions {
+    name = "latest"
+
+    aliases {
+      name = "demo"
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -169,6 +194,9 @@ The following arguments are supported:
 
   -> This parameter is only supported by the `v2` version of the function.
 
+* `versions` - (Optional, List) Specifies the versions management of the function.
+  The [object](#functiongraph_versions_management) structure is documented below.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
 
 The `func_mounts` block supports:
@@ -185,6 +213,25 @@ The `func_mounts` block supports:
 The `custom_image` block supports:
 
 * `url` - (Required, String) Specifies the URL of SWR image, the URL must start with `swr.`.
+
+<a name="functiongraph_versions_management"></a>
+The `versions` block supports:
+
+* `name` - (Required, String) Specifies the version name.
+
+  -> Currently, only supports the management of the default version (**latest**).
+
+* `aliases` - (Optional, List) Specifies the aliases management for specified version.
+  The [object](#functiongraph_aliases_management) structure is documented below.
+
+  -> A version can configure at most **one** alias.
+
+<a name="functiongraph_aliases_management"></a>
+The `aliases` block supports:
+
+* `name` - (Required, String) Specifies the name of the version alias.
+
+* `description` - (Optional, String) Specifies the description of the version alias.
 
 ## Attributes Reference
 
