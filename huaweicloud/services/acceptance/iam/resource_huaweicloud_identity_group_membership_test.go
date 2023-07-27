@@ -4,21 +4,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
-	var groupName = acceptance.RandomAccResourceName()
-	var userName = acceptance.RandomAccResourceName()
-	var userName2 = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_identity_group_membership.membership_1"
+func TestAccIdentityGroupMembership_basic(t *testing.T) {
+	var (
+		groupName    = acceptance.RandomAccResourceName()
+		userName     = acceptance.RandomAccResourceName()
+		userName2    = acceptance.RandomAccResourceName()
+		password     = acceptance.RandomPassword()
+		resourceName = "huaweicloud_identity_group_membership.membership_1"
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -26,35 +28,35 @@ func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIdentityV3GroupMembershipDestroy,
+		CheckDestroy:      testAccCheckIdentityGroupMembershipDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV3GroupMembership_basic(groupName, userName),
+				Config: testAccIdentityGroupMembership_basic(groupName, userName, password),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupMembershipExists(resourceName, []string{userName}),
+					testAccCheckIdentityGroupMembershipExists(resourceName, []string{userName}),
 				),
 			},
 			{
-				Config: testAccIdentityV3GroupMembership_update(groupName, userName, userName2),
+				Config: testAccIdentityGroupMembership_update(groupName, userName, userName2, password),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupMembershipExists(resourceName, []string{userName, userName2}),
+					testAccCheckIdentityGroupMembershipExists(resourceName, []string{userName, userName2}),
 				),
 			},
 			{
-				Config: testAccIdentityV3GroupMembership_updatedown(groupName, userName2),
+				Config: testAccIdentityGroupMembership_updatedown(groupName, userName2, password),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupMembershipExists(resourceName, []string{userName2}),
+					testAccCheckIdentityGroupMembershipExists(resourceName, []string{userName2}),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckIdentityV3GroupMembershipDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
+func testAccCheckIdentityGroupMembershipDestroy(s *terraform.State) error {
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmt.Errorf("error creating IAM client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -63,34 +65,33 @@ func testAccCheckIdentityV3GroupMembershipDestroy(s *terraform.State) error {
 		}
 
 		_, err := users.ListInGroup(identityClient, rs.Primary.Attributes["group"], nil).AllPages()
-
 		if err == nil {
-			return fmtp.Errorf("User still exists")
+			return fmt.Errorf("user still exists in group")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckIdentityV3GroupMembershipExists(n string, us []string) resource.TestCheckFunc {
+func testAccCheckIdentityGroupMembershipExists(n string, us []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		identityClient, err := cfg.IdentityV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+			return fmt.Errorf("error creating IAM client: %s", err)
 		}
 		group := rs.Primary.Attributes["group"]
 		if group == "" {
-			return fmtp.Errorf("No group is set")
+			return fmt.Errorf("No group is set")
 		}
 
 		pages, err := users.ListInGroup(identityClient, group, nil).AllPages()
@@ -113,14 +114,14 @@ func testAccCheckIdentityV3GroupMembershipExists(n string, us []string) resource
 		}
 
 		if uc > 0 {
-			return fmtp.Errorf("Bad group membership compare, excepted(%d), but(%d)", len(us), len(founds))
+			return fmt.Errorf("bad group membership compare, excepted(%d), but(%d)", len(us), len(founds))
 		}
 
 		return nil
 	}
 }
 
-func testAccIdentityV3GroupMembership_basic(groupName, userName string) string {
+func testAccIdentityGroupMembership_basic(groupName, userName, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name = "%s"
@@ -128,7 +129,7 @@ resource "huaweicloud_identity_group" "group_1" {
 
 resource "huaweicloud_identity_user" "user_1" {
   name     = "%s"
-  password = "password123@#"
+  password = "%s"
   enabled  = true
 }
    
@@ -136,10 +137,10 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
   group = huaweicloud_identity_group.group_1.id
   users = [huaweicloud_identity_user.user_1.id]
 }
-`, groupName, userName)
+`, groupName, userName, password)
 }
 
-func testAccIdentityV3GroupMembership_update(groupName, userName string, userName2 string) string {
+func testAccIdentityGroupMembership_update(groupName, userName1, userName2, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name = "%s"
@@ -147,13 +148,13 @@ resource "huaweicloud_identity_group" "group_1" {
 
 resource "huaweicloud_identity_user" "user_1" {
   name     = "%s"
-  password = "password123@#"
+  password = "%s"
   enabled  = true
 }
 
 resource "huaweicloud_identity_user" "user_2" {
   name     = "%s"
-  password = "password123@#"
+  password = "%s"
   enabled  = true
 }
 
@@ -162,10 +163,10 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
   group = huaweicloud_identity_group.group_1.id
   users = [huaweicloud_identity_user.user_1.id, huaweicloud_identity_user.user_2.id]
 }
-`, groupName, userName, userName2)
+`, groupName, userName1, password, userName2, password)
 }
 
-func testAccIdentityV3GroupMembership_updatedown(groupName, userName string) string {
+func testAccIdentityGroupMembership_updatedown(groupName, userName, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name = "%s"
@@ -173,7 +174,7 @@ resource "huaweicloud_identity_group" "group_1" {
 
 resource "huaweicloud_identity_user" "user_2" {
   name     = "%s"
-  password = "password123@#"
+  password = "%s"
   enabled  = true
 }
 
@@ -181,5 +182,5 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
   group = huaweicloud_identity_group.group_1.id
   users = [huaweicloud_identity_user.user_2.id]
 }
-`, groupName, userName)
+`, groupName, userName, password)
 }

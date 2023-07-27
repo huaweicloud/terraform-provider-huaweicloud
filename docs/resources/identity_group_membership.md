@@ -4,9 +4,9 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_group_membership
 
-Manages a User Group Membership resource within HuaweiCloud IAM service.
+Manages an IAM group membership resource within HuaweiCloud.
 
-Note: You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
+-> **NOTE:** You *must* have admin privileges to use this resource.
 
 ## Example Usage
 
@@ -41,12 +41,12 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
 
 The following arguments are supported:
 
-* `group` - (Required, String, ForceNew) The group ID of this membership.
+* `group` - (Required, String, ForceNew) Specifies the group ID of this membership.
 
-* `users` - (Required, List) A List of user IDs to associate to the group.
+* `users` - (Required, List) Specifies a list of IAM user IDs to associate to the group.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
