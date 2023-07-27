@@ -2,27 +2,28 @@ package iam
 
 import (
 	"context"
+	"log"
 	"regexp"
 	"strings"
 
-	iam_users "github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
-	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
+	identity_users "github.com/chnsz/golangsdk/openstack/identity/v3/users"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceIdentityUserV3() *schema.Resource {
+func ResourceIdentityUser() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityUserV3Create,
-		ReadContext:   resourceIdentityUserV3Read,
-		UpdateContext: resourceIdentityUserV3Update,
-		DeleteContext: resourceIdentityUserV3Delete,
+		CreateContext: resourceIdentityUserCreate,
+		ReadContext:   resourceIdentityUserRead,
+		UpdateContext: resourceIdentityUserUpdate,
+		DeleteContext: resourceIdentityUserDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -92,20 +93,20 @@ func ResourceIdentityUserV3() *schema.Resource {
 	}
 }
 
-func resourceIdentityUserV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
+func resourceIdentityUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	if config.DomainID == "" {
-		return fmtp.DiagErrorf("the domain_id must be specified in the provider configuration")
+	if cfg.DomainID == "" {
+		return diag.Errorf("the domain_id must be specified in the provider configuration")
 	}
 
 	enabled := d.Get("enabled").(bool)
 	reset := d.Get("pwd_reset").(bool)
-	createOpts := iam_users.CreateOpts{
+	createOpts := users.CreateOpts{
 		Name:          d.Get("name").(string),
 		Description:   d.Get("description").(string),
 		Email:         d.Get("email").(string),
@@ -114,42 +115,41 @@ func resourceIdentityUserV3Create(ctx context.Context, d *schema.ResourceData, m
 		AccessMode:    d.Get("access_type").(string),
 		Enabled:       &enabled,
 		PasswordReset: &reset,
-		DomainID:      config.DomainID,
+		DomainID:      cfg.DomainID,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
-	user, err := iam_users.Create(iamClient, createOpts).Extract()
+	user, err := users.Create(iamClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam user: %s", err)
+		return diag.Errorf("error creating IAM user: %s", err)
 	}
 
 	d.SetId(user.ID)
-
-	return resourceIdentityUserV3Read(ctx, d, meta)
+	return resourceIdentityUserRead(ctx, d, meta)
 }
 
-func resourceIdentityUserV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
+func resourceIdentityUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	user, err := iam_users.Get(iamClient, d.Id()).Extract()
+	user, err := users.Get(iamClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "user")
 	}
 
-	logp.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
-
+	log.Printf("[DEBUG] Retrieved IAM user: %#v", user)
 	mErr := multierror.Append(nil,
 		d.Set("enabled", user.Enabled),
 		d.Set("name", user.Name),
 		d.Set("description", user.Description),
 		d.Set("email", user.Email),
+		d.Set("phone", normalizePhoneNumber(user.Phone)),
 		d.Set("country_code", user.AreaCode),
 		d.Set("access_type", user.AccessMode),
 		d.Set("password_strength", user.PasswordStrength),
@@ -158,29 +158,31 @@ func resourceIdentityUserV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("last_login", user.LastLogin),
 	)
 
-	phone := strings.Split(user.Phone, "-")
-	if len(phone) > 1 {
-		mErr = multierror.Append(mErr, d.Set("phone", phone[1]))
-	} else {
-		mErr = multierror.Append(mErr, d.Set("phone", user.Phone))
-	}
-
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting identity role fields: %s", err)
+		return diag.Errorf("error setting IAM user fields: %s", err)
 	}
-
 	return nil
 }
 
-func resourceIdentityUserV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+func normalizePhoneNumber(raw string) string {
+	phone := raw
+
+	rawList := strings.Split(raw, "-")
+	if len(rawList) > 1 {
+		phone = rawList[1]
 	}
 
-	var updateOpts iam_users.UpdateOpts
+	return phone
+}
 
+func resourceIdentityUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating IAM client: %s", err)
+	}
+
+	var updateOpts users.UpdateOpts
 	if d.HasChange("name") {
 		updateOpts.Name = d.Get("name").(string)
 	}
@@ -212,31 +214,31 @@ func resourceIdentityUserV3Update(ctx context.Context, d *schema.ResourceData, m
 		updateOpts.PasswordReset = &reset
 	}
 
-	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
+	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
 	// Add password here so it wouldn't go in the above log entry
 	if d.HasChange("password") {
 		updateOpts.Password = d.Get("password").(string)
 	}
 
-	_, err = iam_users.Update(iamClient, d.Id(), updateOpts).Extract()
+	_, err = users.Update(iamClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating HuaweiCloud user: %s", err)
+		return diag.Errorf("error updating IAM user: %s", err)
 	}
 
-	return resourceIdentityUserV3Read(ctx, d, meta)
+	return resourceIdentityUserRead(ctx, d, meta)
 }
 
-func resourceIdentityUserV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityUserDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	err = users.Delete(identityClient, d.Id()).ExtractErr()
+	err = identity_users.Delete(identityClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud user: %s", err)
+		return diag.Errorf("error deleting IAM user: %s", err)
 	}
 
 	return nil

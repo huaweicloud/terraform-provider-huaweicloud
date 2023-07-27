@@ -12,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -119,7 +120,7 @@ func flattenIAMUserList(client *golangsdk.ServiceClient, userList []users.User) 
 		if groupNames, err := getUserOwnGroups(client, val.ID); err == nil {
 			result[i]["groups"] = groupNames
 		} else {
-			log.Printf("[WARN] faied to get groups to which the user belongs: %s", err)
+			log.Printf("[WARN] faied to get groups to which the user %s belongs: %s", val.Name, err)
 		}
 	}
 	return result, ids

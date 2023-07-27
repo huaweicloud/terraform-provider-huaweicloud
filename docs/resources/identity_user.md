@@ -4,9 +4,9 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_user
 
-Manages a User resource within HuaweiCloud IAM service.
+Manages an IAM user resource within HuaweiCloud.
 
-Note: You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
+-> **NOTE:** You *must* have admin privileges to use this resource.
 
 ## Example Usage
 
@@ -45,9 +45,9 @@ The following arguments are supported:
 * `enabled` - (Optional, Bool) Specifies whether the user is enabled or disabled. Valid values are `true` and `false`.
 
 * `access_type` - (Optional, String) Specifies the access type of the user. Available values are:
-  + default: support both programmatic and management console access.
-  + programmatic: only support programmatic access.
-  + console: only support management console access.
+  + **default**: support both programmatic and management console access.
+  + **programmatic**: only support programmatic access.
+  + **console**: only support management console access.
 
 ## Attributes Reference
 
@@ -71,13 +71,13 @@ $ terraform import huaweicloud_identity_user.user_1 89c60255-9bd6-460c-822a-e2b9
 
 But due to the security reason, `password` can not be imported, you can ignore it as below.
 
-```
+```hcl
 resource "huaweicloud_identity_user" "user_1" {
   ...
 
   lifecycle {
     ignore_changes = [
-      "password",
+      password,
     ]
   }
 }

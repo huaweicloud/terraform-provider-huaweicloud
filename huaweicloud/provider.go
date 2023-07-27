@@ -878,7 +878,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_project":               iam.ResourceIdentityProjectV3(),
 			"huaweicloud_identity_role":                  iam.ResourceIdentityRole(),
 			"huaweicloud_identity_role_assignment":       iam.ResourceIdentityGroupRoleAssignment(),
-			"huaweicloud_identity_user":                  iam.ResourceIdentityUserV3(),
+			"huaweicloud_identity_user":                  iam.ResourceIdentityUser(),
 			"huaweicloud_identity_user_role_assignment":  iam.ResourceIdentityUserRoleAssignment(),
 			"huaweicloud_identity_provider":              iam.ResourceIdentityProvider(),
 			"huaweicloud_identity_password_policy":       iam.ResourceIdentityPasswordPolicy(),
@@ -1190,7 +1190,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_identity_project_v3":          iam.ResourceIdentityProjectV3(),
 			"huaweicloud_identity_role_assignment_v3":  iam.ResourceIdentityGroupRoleAssignment(),
-			"huaweicloud_identity_user_v3":             iam.ResourceIdentityUserV3(),
+			"huaweicloud_identity_user_v3":             iam.ResourceIdentityUser(),
 			"huaweicloud_identity_group_v3":            iam.ResourceIdentityGroup(),
 			"huaweicloud_identity_group_membership_v3": iam.ResourceIdentityGroupMembershipV3(),
 			"huaweicloud_identity_provider_conversion": iam.ResourceIAMProviderConversion(),
