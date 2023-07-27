@@ -6,9 +6,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -16,40 +14,48 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestAccCCENodePool_basic(t *testing.T) {
-	var nodePool nodepools.NodePool
+func getNodePoolFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CCE v3 client: %s", err)
+	}
+	return nodepools.Get(client, state.Primary.Attributes["cluster_id"], state.Primary.ID).Extract()
+}
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := rName + "update"
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
+func TestAccNodePool_basic(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		updateName   = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		baseConfig = testAccNodePool_base(name)
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodePool_basic(rName),
+				Config: testAccNodePool_basic_step1(name, baseConfig),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "current_node_count", "1"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCCENodePoolImportStateIdFunc(),
-				ImportStateVerifyIgnore: []string{
-					"initial_node_count", "extend_params",
-				},
-			},
-			{
-				Config: testAccCCENodePool_update(rName, updateName),
+				Config: testAccNodePool_basic_step2(updateName, baseConfig),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "current_node_count", "2"),
 					resource.TestCheckResourceAttr(resourceName, "scall_enable", "true"),
@@ -60,307 +66,36 @@ func TestAccCCENodePool_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCCENodePool_volume_extendParams(rName),
+				Config: testAccNodePool_basic_step3(updateName, baseConfig),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
 					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key1", "test_val1"),
 					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.extend_params.test_key2", "test_val2"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccCCENodePool_tagsLabelsTaints(t *testing.T) {
-	var nodePool nodepools.NodePool
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
-		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodePool_tagsLabelsTaints(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.test2", "val2"),
-					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1"),
-					resource.TestCheckResourceAttr(resourceName, "labels.test2", "val2"),
-					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
-					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value"),
-					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
-				),
-			},
-			{
-				Config: testAccCCENodePool_tagsLabelsTaints_update(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1_update"),
-					resource.TestCheckResourceAttr(resourceName, "tags.test2_update", "val2_update"),
-					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1_update"),
-					resource.TestCheckResourceAttr(resourceName, "labels.test2_update", "val2_update"),
-					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
-					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value_update"),
-					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
-					resource.TestCheckResourceAttr(resourceName, "taints.1.key", "test_key_update"),
-					resource.TestCheckResourceAttr(resourceName, "taints.1.value", "test_value_update"),
-					resource.TestCheckResourceAttr(resourceName, "taints.1.effect", "NoSchedule"),
-				),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"initial_node_count", "extend_params",
+				},
 			},
 		},
 	})
 }
 
-func TestAccCCENodePool_volume_encryption(t *testing.T) {
-	var nodePool nodepools.NodePool
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckKms(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCCENodePool_volume_encryption(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.kms_key_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.kms_key_id"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccCCENodePool_prePaid(t *testing.T) {
-	var nodePool nodepools.NodePool
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckChargingMode(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCCENodePool_prePaid(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "current_node_count", "1"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccCCENodePool_SecurityGroups(t *testing.T) {
-	var nodePool nodepools.NodePool
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCCENodePool_SecurityGroups(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrPair(resourceName, "security_groups.0",
-						"huaweicloud_networking_secgroup.test.0", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "security_groups.1",
-						"huaweicloud_networking_secgroup.test.1", "id"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccCCENodePool_serverGroup(t *testing.T) {
-	var nodePool nodepools.NodePool
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCCENodePool_serverGroup(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrPair(resourceName, "ecs_group_id",
-						"huaweicloud_compute_servergroup.test", "id"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccCCENodePool_storage(t *testing.T) {
-	var nodePool nodepools.NodePool
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_pool.test"
-	// clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckCCENodePoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCCENodePool_storage(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "storage.0.selectors.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "storage.0.groups.#"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
-	}
-
-	var clusterId string
-	var nodepollId string
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "huaweicloud_cce_cluster" {
-			clusterId = rs.Primary.ID
-		}
-
-		if rs.Type == "huaweicloud_cce_node_pool" {
-			nodepollId = rs.Primary.ID
-		}
-
-		if clusterId == "" || nodepollId == "" {
-			continue
-		}
-
-		_, err := nodepools.Get(cceClient, clusterId, nodepollId).Extract()
-		if err == nil {
-			return fmtp.Errorf("Node still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCCENodePoolImportStateIdFunc() resource.ImportStateIdFunc {
-	return func(s *terraform.State) (string, error) {
-		cluster, ok := s.RootModule().Resources["huaweicloud_cce_cluster.test"]
-		if !ok {
-			return "", fmtp.Errorf("Cluster not found: %s", cluster)
-		}
-		nodePool, ok := s.RootModule().Resources["huaweicloud_cce_node_pool.test"]
-		if !ok {
-			return "", fmtp.Errorf("Node pool not found: %s", nodePool)
-		}
-		if cluster.Primary.ID == "" || nodePool.Primary.ID == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", cluster.Primary.ID, nodePool.Primary.ID)
-		}
-		return fmt.Sprintf("%s/%s", cluster.Primary.ID, nodePool.Primary.ID), nil
-	}
-}
-
-func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools.NodePool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-		c, ok := s.RootModule().Resources[cluster]
-		if !ok {
-			return fmtp.Errorf("Cluster not found: %s", c)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-		if c.Primary.ID == "" {
-			return fmtp.Errorf("Cluster id is not set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
-		}
-
-		found, err := nodepools.Get(cceClient, c.Primary.ID, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Metadata.Id != rs.Primary.ID {
-			return fmtp.Errorf("Node Pool not found")
-		}
-
-		*nodePool = *found
-
-		return nil
-	}
-}
-
-func testAccCCENodePool_Base(rName string) string {
+func testAccNodePool_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_kps_keypair" "test" {
   name = "%[2]s"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_cce_cluster" "test" {
@@ -374,18 +109,18 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCCENodePool_basic(rName string) string {
+func testAccNodePool_basic_step1(name, baseConfig string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
+  name                     = "%[2]s"
   os                       = "EulerOS 2.5"
   flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
@@ -410,21 +145,21 @@ date
 EOF
   }
 }
-`, testAccCCENodePool_Base(rName), rName)
+`, baseConfig, name)
 }
 
-func testAccCCENodePool_update(rName, updateName string) string {
+func testAccNodePool_basic_step2(name, baseConfig string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
+  name                     = "%[2]s"
   os                       = "EulerOS 2.5"
   flavor_id                = "s6.large.2"
   initial_node_count       = 2
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = true
   min_node_count           = 2
   max_node_count           = 9
@@ -455,21 +190,21 @@ EOF
     ]
   }
 }
-`, testAccCCENodePool_Base(rName), updateName)
+`, baseConfig, name)
 }
 
-func testAccCCENodePool_volume_extendParams(rName string) string {
+func testAccNodePool_basic_step3(name, baseConfig string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
+  name                     = "%[2]s"
   os                       = "EulerOS 2.5"
   flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
@@ -515,26 +250,232 @@ EOF
     ]
   }
 }
-`, testAccCCENodePool_Base(rName), rName)
+`, baseConfig, name)
 }
 
-func testAccCCENodePool_volume_encryption(rName string) string {
+func testAccNodePoolImportStateIdFunc(resName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		var clusterId, nodePoolId string
+		rs, ok := s.RootModule().Resources[resName]
+		if !ok {
+			return "", fmt.Errorf("the resource (%s) of CCE node pool is not found in the tfstate", resName)
+		}
+		clusterId = rs.Primary.Attributes["cluster_id"]
+		nodePoolId = rs.Primary.ID
+		if clusterId == "" || nodePoolId == "" {
+			return "", fmt.Errorf("the CCE node pool ID is not exist or related CCE cluster ID is missing")
+		}
+		return fmt.Sprintf("%s/%s", clusterId, nodePoolId), nil
+	}
+}
+
+func TestAccNodePool_tagsLabelsTaints(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_tagsLabelsTaints_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.test2", "val2"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test2", "val2"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
+				),
+			},
+			{
+				Config: testAccNodePool_tagsLabelsTaints_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.test2_update", "val2_update"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1_update"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test2_update", "val2_update"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value_update"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
+					resource.TestCheckResourceAttr(resourceName, "taints.1.key", "new_test_key"),
+					resource.TestCheckResourceAttr(resourceName, "taints.1.value", "new_test_value"),
+					resource.TestCheckResourceAttr(resourceName, "taints.1.effect", "NoSchedule"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_tagsLabelsTaints_step1(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_kps_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  tags = {
+    test1 = "val1"
+    test2 = "val2"
+  }
+
+  labels = {
+    test1 = "val1"
+    test2 = "val2"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value"
+    effect = "NoSchedule"
+  }
+
+}
+`, testAccNodePool_base(name), name)
+}
+
+func testAccNodePool_tagsLabelsTaints_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_kps_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  tags = {
+    test1        = "val1_update"
+    test2_update = "val2_update"
+  }
+
+  labels = {
+    test1        = "val1_update"
+    test2_update = "val2_update"
+  }
+
+  taints {
+    key    = "test_key"
+    value  = "test_value_update"
+    effect = "NoSchedule"
+  }
+
+  taints {
+    key    = "new_test_key"
+    value  = "new_test_value"
+    effect = "NoSchedule"
+  }
+}
+`, testAccNodePool_base(name), name)
+}
+
+func TestAccNodePool_volume_encryption(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckKms(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_volume_encryption(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrSet(resourceName, "root_volume.0.kms_key_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "data_volumes.0.kms_key_id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_volume_encryption(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_kms_key" "test" {
-  key_alias    = "%s"
+  key_alias    = "%[2]s"
   pending_days = "7"
 }
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
+  name                     = "%[2]s"
   os                       = "EulerOS 2.5"
   flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
@@ -553,18 +494,122 @@ resource "huaweicloud_cce_node_pool" "test" {
     kms_key_id = huaweicloud_kms_key.test.id
   }
 }
-`, testAccCCENodePool_Base(rName), rName, rName)
+`, testAccNodePool_base(name), name)
 }
 
-func testAccCCENodePool_SecurityGroups(rName string) string {
+func TestAccNodePool_prePaid(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_prePaid(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "current_node_count", "1"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_prePaid(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%[2]s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_kps_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+}
+`, testAccNodePool_base(rName), rName)
+}
+
+func TestAccNodePool_SecurityGroups(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_SecurityGroups(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "security_groups.0",
+						"huaweicloud_networking_secgroup.test.0", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_groups.1",
+						"huaweicloud_networking_secgroup.test.1", "id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_SecurityGroups(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_compute_keypair" "test" {
-  name       = "%[2]s"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+resource "huaweicloud_kps_keypair" "test" {
+  name = "%[2]s"
 }
 
 resource "huaweicloud_networking_secgroup" "test" {
@@ -578,7 +623,7 @@ resource "huaweicloud_networking_secgroup_rule" "rule1" {
   action            = "allow"
   direction         = "ingress"
   ethertype         = "IPv4"
-  remote_ip_prefix  = huaweicloud_vpc_subnet.eni_test.cidr
+  remote_ip_prefix  = huaweicloud_vpc_subnet.eni_test[0].cidr
 }
 
 resource "huaweicloud_networking_secgroup_rule" "rule2" {
@@ -640,11 +685,11 @@ resource "huaweicloud_networking_secgroup_rule" "rule7" {
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
-  os                       = "CentOS 7.6"
-  flavor_id                = "c7.large.2"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
@@ -671,148 +716,46 @@ resource "huaweicloud_cce_node_pool" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccCluster_turbo(rName, 1), rName)
+`, testAccCluster_turbo(name, 1), name)
 }
 
-func testAccCCENodePool_tagsLabelsTaints(rName string) string {
+func TestAccNodePool_serverGroup(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_serverGroup(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "ecs_group_id",
+						"huaweicloud_compute_servergroup.test", "id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_serverGroup(rName string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
-  os                       = "EulerOS 2.5"
-  flavor_id                = "s6.large.2"
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
-  scall_enable             = false
-  min_node_count           = 0
-  max_node_count           = 0
-  scale_down_cooldown_time = 0
-  priority                 = 0
-  type                     = "vm"
-
-  root_volume {
-    size       = 40
-    volumetype = "SSD"
-  }
-  data_volumes {
-    size       = 100
-    volumetype = "SSD"
-  }
-
-  tags = {
-	test1 = "val1"
-	test2 = "val2"
-  }
-
-  labels = {
-	test1 = "val1"
-	test2 = "val2"
-  }
-
-  taints {
-	key    = "test_key"
-	value  = "test_value"
-	effect = "NoSchedule"
-  }
-
-}
-`, testAccCCENodePool_Base(rName), rName)
-}
-
-func testAccCCENodePool_tagsLabelsTaints_update(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
-  os                       = "EulerOS 2.5"
-  flavor_id                = "s6.large.2"
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
-  scall_enable             = false
-  min_node_count           = 0
-  max_node_count           = 0
-  scale_down_cooldown_time = 0
-  priority                 = 0
-  type                     = "vm"
-
-  root_volume {
-    size       = 40
-    volumetype = "SSD"
-  }
-  data_volumes {
-    size       = 100
-    volumetype = "SSD"
-  }
-
-  tags = {
-	test1        = "val1_update"
-	test2_update = "val2_update"
-  }
-
-  labels = {
-	test1        = "val1_update"
-	test2_update = "val2_update"
-  }
-
-  taints {
-	key    = "test_key"
-	value  = "test_value_update"
-	effect = "NoSchedule"
-  }
-
-  taints {
-	key    = "test_key_update"
-	value  = "test_value_update"
-	effect = "NoSchedule"
-  }
-}
-`, testAccCCENodePool_Base(rName), rName)
-}
-
-func testAccCCENodePool_prePaid(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%s"
-  os                       = "EulerOS 2.5"
-  flavor_id                = "s6.large.2"
-  initial_node_count       = 1
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
-  scall_enable             = false
-  min_node_count           = 0
-  max_node_count           = 0
-  scale_down_cooldown_time = 0
-  priority                 = 0
-  type                     = "vm"
-
-  charging_mode = "prePaid"
-  period_unit   = "month"
-  period        = 1
-
-  root_volume {
-    size       = 40
-    volumetype = "SSD"
-  }
-  data_volumes {
-    size       = 100
-    volumetype = "SSD"
-  }
-}
-`, testAccCCENodePool_Base(rName), rName)
-}
-
-func testAccCCENodePool_serverGroup(rName string) string {
-	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_compute_servergroup" "test" {
   name     = "%[2]s"
@@ -826,7 +769,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
@@ -844,15 +787,49 @@ resource "huaweicloud_cce_node_pool" "test" {
     volumetype = "SSD"
   }
 }
-`, testAccCCENodePool_Base(rName), rName)
+`, testAccNodePool_base(rName), rName)
 }
 
-func testAccCCENodePool_storage(rName string) string {
+func TestAccNodePool_storage(t *testing.T) {
+	var (
+		nodePool nodepools.NodePool
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_pool.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&nodePool,
+			getNodePoolFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodePool_storage(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrSet(resourceName, "storage.0.selectors.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage.0.groups.#"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodePool_storage(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_kms_key" "test" {
-  key_alias    = "%s"
+  key_alias    = "%[2]s"
   pending_days = "7"
 }
 
@@ -863,7 +840,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
@@ -935,5 +912,5 @@ resource "huaweicloud_cce_node_pool" "test" {
     }
   }
 }
-`, testAccCCENodePool_Base(rName), rName)
+`, testAccNodePool_base(rName), rName)
 }

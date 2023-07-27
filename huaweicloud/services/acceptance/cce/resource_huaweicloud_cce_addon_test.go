@@ -242,7 +242,7 @@ data "huaweicloud_cce_addon_template" "test" {
   name       = "autoscaler"
   version    = "1.25.21"
 }
-`, testAccCCENodePool_Base(rName), rName)
+`, testAccNodePool_base(rName), rName)
 }
 
 func testAccAddon_values(rName string) string {
