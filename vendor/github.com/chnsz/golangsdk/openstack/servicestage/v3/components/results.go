@@ -2,6 +2,13 @@ package components
 
 import "github.com/chnsz/golangsdk/pagination"
 
+type JobResp struct {
+	// Component  ID.
+	ComponentId string `json:"component_id"`
+	// Job ID.
+	JobId string `json:"job_id"`
+}
+
 // Component is the structure that represents the detail of the application component.
 type Component struct {
 	// Source of the code or software package.
@@ -34,32 +41,32 @@ type Component struct {
 	PlatformType string `json:"platform_type"`
 	// Version
 	Version         string          `json:"version"`
-	LimitCpu        int             `json:"limit_cpu"`
-	LimitMemory     int             `json:"limit_memory"`
-	RequestCpu      int             `json:"request_cpu"`
-	RequestMemory   int             `json:"request_memory"`
-	Replica         int             `json:"replica"`
-	Envs            []Env           `json:"envs"`
-	Storages        []Storage       `json:"storages"`
-	Command         Command         `json:"command"`
-	PostStart       K8sLifeCycle    `json:"post_start"`
-	PreStop         K8sLifeCycle    `json:"pre_stop"`
+	LimitCpu        float64             `json:"limit_cpu"`
+	LimitMemory     float64             `json:"limit_memory"`
+	RequestCpu      float64             `json:"request_cpu"`
+	RequestMemory   float64             `json:"request_memory"`
+	Replica         float64             `json:"replica"`
+	Envs            []*Env           `json:"envs"`
+	Storage        []*Storage       `json:"storage"`
+	Command         *Command         `json:"command"`
+	PostStart       *K8sLifeCycle    `json:"post_start"`
+	PreStop         *K8sLifeCycle    `json:"pre_stop"`
 	Timezone        string          `json:"timezone"`
-	Mesher          Mesher          `json:"mesher"`
-	DeployStrategy  DeployStrategy  `json:"deploy_strategy"`
-	HostAliases     []HostAlias     `json:"host_aliases"`
+	Mesher          *Mesher          `json:"mesher"`
+	DeployStrategy  *DeployStrategy  `json:"deploy_strategy"`
+	HostAliases     []*HostAlias     `json:"host_aliases"`
 	DnsPolicy       string          `json:"dns_policy"`
-	DnsConfig       DnsConfig       `json:"dns_config"`
-	SecurityContext SecurityContext `json:"security_context"`
+	DnsConfig       *DnsConfig       `json:"dns_config"`
+	SecurityContext *SecurityContext `json:"security_context"`
 	WorkloadKind    string          `json:"workload_kind"`
 	JvmOpts         string          `json:"jvm_opts"`
-	TomcatOpts      TomcatOpts      `json:"tomcat_opts"`
-	Logs            []Log           `json:"logs"`
-	CustomMetric    CustomMetric    `json:"custom_metric"`
-	Affinity        Affinity        `json:"affinity"`
-	AntiAffinity    Affinity        `json:"anti_affinity"`
-	LivenessProbe   K8sProbe        `json:"liveness_probe"`
-	ReadinessProbe  K8sProbe        `json:"readiness_probe"`
+	TomcatOpts      *TomcatOpts      `json:"tomcat_opts"`
+	Logs            []*Log           `json:"logs"`
+	CustomMetric    *CustomMetric    `json:"custom_metric"`
+	Affinity        *Affinity        `json:"affinity"`
+	AntiAffinity    *Affinity        `json:"anti_affinity"`
+	LivenessProbe   *K8sProbe        `json:"liveness_probe"`
+	ReadinessProbe  *K8sProbe        `json:"readiness_probe"`
 	ReferResources  []*Resource     `json:"refer_resources"`
 	// The enterprise project ID.
 	EnterpriseProjectId string `json:"enterprise_project_id"`
@@ -164,37 +171,36 @@ type Parameter struct {
 }
 
 type Env struct {
-	Name         string       `json:"name"`
-	Value        string       `json:"value"`
-	Inner        bool         `json:"inner"`
-	EnvValueFrom EnvValueFrom `json:"value_from"`
+	Name         string        `json:"name"`
+	Value        string        `json:"value,omitempty"`
+	EnvValueFrom *EnvValueFrom `json:"value_from,omitempty"`
 }
 
 type EnvValueFrom struct {
-	ReferenceType string `json:"reference_type"`
-	Name          string `json:"name"`
-	Key           string `json:"key"`
+	ReferenceType string `json:"reference_type,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Key           string `json:"key,omitempty"`
 	Optional      bool   `json:"optional"`
 }
 
 type Storage struct {
-	Type       string           `json:"type"`
-	Name       string           `json:"name"`
-	Parameters StorageParameter `json:"parameters"`
-	Mounts     StorageMounts    `json:"mounts"`
+	Type       string            `json:"type"`
+	Name       string            `json:"name"`
+	Parameters *StorageParameter `json:"parameters,omitempty"`
+	Mounts     []*StorageMounts  `json:"mounts,omitempty"`
 }
 
 type StorageParameter struct {
-	Path        string `json:"path"`
-	Name        string `json:"name"`
-	DefaultMode int    `json:"default_mode"`
-	Medium      string `json:"medium"`
+	Path        string `json:"path,omitempty"`
+	Name        string `json:"name,omitempty"`
+	DefaultMode int    `json:"default_mode,omitempty"`
+	Medium      string `json:"medium,omitempty"`
 }
 
 type StorageMounts struct {
 	Path     string `json:"path"`
 	SubPath  string `json:"sub_path"`
-	Readonly bool   `json:"readonly"`
+	Readonly bool   `json:"read_only"`
 }
 
 type Command struct {
@@ -204,12 +210,12 @@ type Command struct {
 
 type K8sBase struct {
 	// Enum: http or https
-	Type    string   `json:"type"`
-	Scheme  string   `json:"scheme"`
-	Host    string   `json:"host"`
-	Port    int      `json:"port"`
-	Path    string   `json:"path"`
-	Command []string `json:"command"`
+	Type    string    `json:"type"`
+	Scheme  string   `json:"scheme,omitempty"`
+	Host    string   `json:"host,omitempty"`
+	Port    int      `json:"port,omitempty"`
+	Path    string   `json:"path,omitempty"`
+	Command []string  `json:"command,omitempty"`
 }
 
 type K8sLifeCycle struct {
@@ -220,6 +226,9 @@ type K8sProbe struct {
 	K8sBase
 	Delay   int `json:"delay"`
 	Timeout int `json:"timeout"`
+	PeriodSeconds int `json:"period_seconds,omitempty"`
+	SuccessThreshold int `json:"success_Threshold,omitempty"`
+	FailureThreshold int `json:"failure_threshold,omitempty"`
 }
 
 type Mesher struct {
@@ -228,13 +237,14 @@ type Mesher struct {
 
 type DeployStrategy struct {
 	Type           string         `json:"type"`
-	RollingRelease RollingRelease `json:"rolling_release"`
+	RollingRelease *RollingRelease `json:"rolling_release,omitempty"`
+	GrayRelease    *GrayRelease    `json:"gray_release,omitempty"`
 }
 
 type RollingRelease struct {
 	Batches            int    `json:"batches"`
-	TerminationSeconds int    `json:"termination_seconds"`
-	FailStrategy       string `json:"fail_strategy"`
+	TerminationSeconds int    `json:"termination_seconds,omitempty"`
+	FailStrategy       string `json:"fail_strategy,omitempty"`
 }
 
 type GrayRelease struct {
@@ -245,7 +255,7 @@ type GrayRelease struct {
 	DeploymentMode    int               `json:"deployment_mode"`
 	ReplicaSurgeMode  string            `json:"replica_surge_mode"`
 	RuleMatchMode     string            `json:"rule_match_mode"`
-	Rules             []GrayReleaseRule `json:"rules"`
+	Rules             []*GrayReleaseRule `json:"rules"`
 }
 
 type GrayReleaseRule struct {
@@ -261,15 +271,15 @@ type HostAlias struct {
 }
 
 type DnsConfig struct {
-	Nameservers []string    `json:"nameservers"`
-	Searches    []string    `json:"searches"`
-	Options     []NameValue `json:"options"`
+	Nameservers []string     `json:"nameservers"`
+	Searches    []string     `json:"searches"`
+	Options     []*NameValue `json:"options,omitempty"`
 }
 
 type SecurityContext struct {
 	RunAsUser    int          `json:"run_as_user"`
 	RunAsGroup   int          `json:"run_as_group"`
-	Capabilities Capabilities `json:"capabilities"`
+	Capabilities *Capabilities `json:"capabilities"`
 }
 
 type Capabilities struct {
@@ -295,18 +305,25 @@ type CustomMetric struct {
 }
 
 type Affinity struct {
-	Kind             string            `json:"kind"`
-	Condition        string            `json:"condition"`
-	Weight           int               `json:"weight"`
-	MatchExpressions []MatchExpression `json:"match_expressions"`
+	AZ          []string             `json:"az"`
+	Node        []string             `json:"node"`
+	Component   []*AppInnerParameters `json:"component,omitempty"`
+}
+
+type AppInnerParameters struct {
+	DisplayName   string `json:"displayName"`
+	Name          string `json:"name"`
 }
 
 type Resource struct {
-	ID         string `json:"id"`
-	Type       string `json:"type"`
-	Parameters struct {
-		NameSpace string `json:"name_space,omitempty"`
-	} `json:"parameters"`
+	ID          string       `json:"id"`
+	Type        string       `json:"type"`
+	Parameters *ResourceParameters `json:"parameters,omitempty"`
+}
+
+type ResourceParameters struct {
+	NameSpace string `json:"namespace,omitempty"`
+	Type      string `json:"type,omitempty"`
 }
 
 type MatchExpression struct {

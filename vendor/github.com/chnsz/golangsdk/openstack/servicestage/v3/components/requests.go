@@ -24,30 +24,31 @@ type CreateOpts struct {
 	// Component builder.
 	Build           *Build           `json:"build,omitempty"`
 	Labels          []*KeyValue      `json:"labels,omitempty"`
-	PodLabels       []KeyValue       `json:"pod_labels,omitempty"`
+	PodLabels       []*KeyValue      `json:"pod_labels,omitempty"`
 	RuntimeStack    RuntimeStack     `json:"runtime_stack" required:"true"`
-	LimitCpu        int              `json:"limit_cpu,omitempty"`
-	LimitMemory     int              `json:"limit_memory,omitempty"`
-	RequestCpu      int              `json:"request_cpu,omitempty"`
-	RequestMemory   int              `json:"request_memory,omitempty"`
+	LimitCpu        float64              `json:"limit_cpu,omitempty"`
+	LimitMemory     float64              `json:"limit_memory,omitempty"`
+	RequestCpu      float64              `json:"request_cpu,omitempty"`
+	RequestMemory   float64              `json:"request_memory,omitempty"`
 	Replica         int              `json:"replica"`
 	Version         string           `json:"version" required:"true"`
-	Envs            []Env            `json:"envs,omitempty"`
-	Storages        []Storage        `json:"storages,omitempty"`
+	Envs            []*Env           `json:"envs,omitempty"`
+	Storages        []*Storage       `json:"storage,omitempty"`
 	DeployStrategy  *DeployStrategy  `json:"deploy_strategy,omitempty"`
 	Command         *Command         `json:"command,omitempty"`
 	PostStart       *K8sLifeCycle    `json:"post_start,omitempty"`
 	PreStop         *K8sLifeCycle    `json:"pre_stop,omitempty"`
 	Mesher          *Mesher          `json:"mesher,omitempty"`
+	EnableSermantInjection bool      `json:"enable_sermant_injection,omitempty"`
 	Timezone        string           `json:"timezone,omitempty"`
 	JvmOpts         string           `json:"jvm_opts,omitempty"`
-	TomcatOpts      TomcatOpts       `json:"tomcat_opts,omitempty"`
-	HostAliases     []HostAlias      `json:"host_aliases,omitempty"`
+	TomcatOpts      *TomcatOpts      `json:"tomcat_opts,omitempty"`
+	HostAliases     []*HostAlias     `json:"host_aliases,omitempty"`
 	DnsPolicy       string           `json:"dns_policy,omitempty"`
 	DnsConfig       *DnsConfig       `json:"dns_config,omitempty"`
 	SecurityContext *SecurityContext `json:"security_context,omitempty"`
 	WorkloadKind    string           `json:"workload_kind,omitempty"`
-	Logs            []Log            `json:"logs,omitempty"`
+	Logs            []*Log            `json:"logs,omitempty"`
 	CustomMetric    *CustomMetric    `json:"custom_metric,omitempty"`
 	Affinity        *Affinity        `json:"affinity,omitempty"`
 	AntiAffinity    *Affinity        `json:"anti_affinity,omitempty"`
@@ -63,13 +64,13 @@ type CreateOpts struct {
 }
 
 // Create is a method to create a component in the specified application using given parameters.
-func Create(c *golangsdk.ServiceClient, appId string, opts CreateOpts) (*Component, error) {
+func Create(c *golangsdk.ServiceClient, appId string, opts CreateOpts) (*JobResp, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
 	}
 
-	var r Component
+	var r JobResp
 	_, err = c.Post(rootURL(c, appId), b, &r, nil)
 	return &r, err
 }
