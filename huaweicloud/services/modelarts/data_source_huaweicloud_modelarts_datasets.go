@@ -3,14 +3,15 @@ package modelarts
 import (
 	"context"
 
-	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceDatasets() *schema.Resource {
@@ -156,11 +157,11 @@ func DataSourceDatasets() *schema.Resource {
 }
 
 func dataSourceDatasetsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating ModelArts v2 client, err=%s", err)
+		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
 
 	opts := dataset.ListOpts{
@@ -175,17 +176,17 @@ func dataSourceDatasetsRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	page, err := dataset.List(client, opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error querying ModelArts datasets: %s ", err)
+		return diag.Errorf("error querying ModelArts datasets: %s ", err)
 	}
 
 	p, err := page.AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Error querying ModelArts datasets: %s", err)
+		return diag.Errorf("error querying ModelArts datasets: %s", err)
 	}
 
 	datasets, err := dataset.ExtractDatasets(p)
 	if err != nil {
-		return fmtp.DiagErrorf("Error querying ModelArts datasets: %s", err)
+		return diag.Errorf("error querying ModelArts datasets: %s", err)
 	}
 
 	var rst []map[string]interface{}
@@ -210,7 +211,7 @@ func dataSourceDatasetsRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	err = d.Set("datasets", rst)
 	if err != nil {
-		return fmtp.DiagErrorf("set datasets err:%s", err)
+		return diag.Errorf("set datasets err:%s", err)
 	}
 
 	d.SetId(hashcode.Strings(ids))

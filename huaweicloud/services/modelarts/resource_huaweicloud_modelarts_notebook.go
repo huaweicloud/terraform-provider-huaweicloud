@@ -4,21 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNotebook() *schema.Resource {
@@ -194,9 +195,9 @@ func ResourceNotebook() *schema.Resource {
 }
 
 func resourceNotebookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
@@ -205,14 +206,14 @@ func resourceNotebookCreate(ctx context.Context, d *schema.ResourceData, meta in
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	LeaseHour := -1
+	leaseHour := -1
 	opts := notebook.CreateOpts{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Feature:     "NOTEBOOK",
 		Flavor:      d.Get("flavor_id").(string),
 		ImageId:     d.Get("image_id").(string),
-		Duration:    &LeaseHour,
+		Duration:    &leaseHour,
 		PoolId:      d.Get("pool_id").(string),
 		WorkspaceId: d.Get("workspace_id").(string),
 		Volume:      *volume,
@@ -221,7 +222,7 @@ func resourceNotebookCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	rs, err := notebook.Create(client, opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating ModelArts notebook: %s", err)
+		return diag.Errorf("error creating ModelArts notebook: %s", err)
 	}
 
 	d.SetId(rs.Id)
@@ -235,16 +236,16 @@ func resourceNotebookCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceNotebookRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
 
 	detail, err := notebook.Get(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseModlArtsErrorToError404(err), "Error retrieving ModelArts notebook")
+		return common.CheckDeletedDiag(d, parseModlArtsErrorToError404(err), "error retrieving ModelArts notebook")
 	}
 
 	keyPair, uri, ips := parseEndpoints(detail.Endpoints)
@@ -272,17 +273,13 @@ func resourceNotebookRead(_ context.Context, d *schema.ResourceData, meta interf
 		setMountStoragesToState(d, client),
 	)
 
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting ModelArts notebook fields: %s", mErr)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
@@ -297,12 +294,12 @@ func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 		_, err := notebook.Update(client, d.Id(), opts)
 		if err != nil {
-			return fmtp.DiagErrorf("Error update ModelArts notebook: %s", err)
+			return diag.Errorf("error update ModelArts notebook: %s", err)
 		}
 	}
 
 	if d.HasChanges("flavor_id", "image_id", "volume.0.size") {
-		//stop
+		// stop
 		status := d.Get("status").(string)
 		if status != notebook.StatusStopped {
 			_, err := notebook.Stop(client, d.Id())
@@ -316,7 +313,7 @@ func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			}
 		}
 
-		//change
+		// change
 		storageSize := d.Get("volume.0.size").(int)
 		opts := notebook.UpdateOpts{
 			Flavor:         d.Get("flavor_id").(string),
@@ -326,7 +323,7 @@ func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 		_, err := notebook.Update(client, d.Id(), opts)
 		if err != nil {
-			return fmtp.DiagErrorf("Error update ModelArts notebook: %s", err)
+			return diag.Errorf("error update ModelArts notebook: %s", err)
 		}
 
 		// start the instance
@@ -345,23 +342,22 @@ func resourceNotebookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceNotebookDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
 
 	_, err = notebook.Delete(client, d.Id())
 	if err != nil {
-		return fmtp.DiagErrorf("delete ModelArts notebook failed. %q:%s", d.Id(), err)
+		return diag.Errorf("delete ModelArts notebook failed. %q:%s", d.Id(), err)
 	}
 
 	err = waitingNotebookForDeleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId("")
 
 	return nil
 }
@@ -375,7 +371,7 @@ func buildVolumeParamter(d *schema.ResourceData) (*notebook.VolumeReq, error) {
 	if rst.Category == "EFS" && rst.Ownership == "DEDICATED" {
 		v, ok := d.GetOk("volume.0.uri")
 		if !ok {
-			return nil, fmtp.Errorf("uri is mandatory if the storage type is EFS and ownership is DEDICATED.")
+			return nil, fmt.Errorf("uri is mandatory if the storage type is EFS and ownership is DEDICATED")
 		}
 		rst.Uri = v.(string)
 	}
@@ -400,12 +396,12 @@ func buildEndpointsParamter(d *schema.ResourceData) []notebook.EndpointsReq {
 	return nil
 }
 
-func setVolumeToState(d *schema.ResourceData, config notebook.VolumeRes) error {
+func setVolumeToState(d *schema.ResourceData, volume notebook.VolumeRes) error {
 	result := make(map[string]interface{})
-	result["type"] = config.Category
-	result["ownership"] = config.Ownership
-	result["size"] = config.Capacity
-	result["mount_path"] = config.MountPath
+	result["type"] = volume.Category
+	result["ownership"] = volume.Ownership
+	result["size"] = volume.Capacity
+	result["mount_path"] = volume.MountPath
 	return d.Set("volume", []map[string]interface{}{result})
 }
 
@@ -421,7 +417,7 @@ func parseEndpoints(configs []notebook.Endpoints) (keyPair, uri string, ips []st
 func setMountStoragesToState(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	resp, err := notebook.ListMounts(client, d.Id())
 	if err != nil {
-		logp.Printf("[ERROR] Failed to query the mount storage of ModelArts notebook instance=%", d.Id())
+		log.Printf("[ERROR] Failed to query the mount storage of ModelArts notebook instance=%s", d.Id())
 		return nil
 	}
 	rst := make([]map[string]interface{}, len(resp.Data))
@@ -447,7 +443,7 @@ func waitingNotebookForRunning(ctx context.Context, client *golangsdk.ServiceCli
 				return nil, "failed", err
 			}
 			if resp.Status == notebook.StatusCreateFailed || resp.Status == notebook.StatusError {
-				return nil, "failed", fmtp.Errorf("error_code: %s, error_msg: %s", resp.Status, resp.FailReason)
+				return nil, "failed", fmt.Errorf("error_code: %s, error_msg: %s", resp.Status, resp.FailReason)
 			}
 			return resp, resp.Status, err
 		},
@@ -472,7 +468,7 @@ func waitingNotebookForStopped(ctx context.Context, client *golangsdk.ServiceCli
 				return nil, "failed", err
 			}
 			if resp.Status == notebook.StatusError {
-				return nil, "failed", fmtp.Errorf("error_code: %s, error_msg: %s", resp.Status, resp.FailReason)
+				return nil, "failed", fmt.Errorf("error_code: %s, error_msg: %s", resp.Status, resp.FailReason)
 			}
 			return resp, resp.Status, err
 		},
@@ -501,7 +497,7 @@ func waitingNotebookForDeleted(ctx context.Context, client *golangsdk.ServiceCli
 				return nil, "failed", err
 			}
 			if resp.Status == notebook.StatusError || resp.Status == notebook.StatusDeleteFailed {
-				return nil, "failed", fmtp.Errorf("error_code: %s, error_msg: %s", resp.Status, resp.FailReason)
+				return nil, "failed", fmt.Errorf("error_code: %s, error_msg: %s", resp.Status, resp.FailReason)
 			}
 			return resp, resp.Status, err
 		},

@@ -7,17 +7,18 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceDataset() *schema.Resource {
@@ -264,11 +265,11 @@ func dataSourceSchemaResource() *schema.Resource {
 }
 
 func resourceDatasetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating ModelArts v2 client, err=%s", err)
+		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
 
 	opts, err := buildCreateParamter(d)
@@ -277,7 +278,7 @@ func resourceDatasetCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 	rst, err := dataset.Create(client, *opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating ModelArts datasets: %s", err)
+		return diag.Errorf("error creating ModelArts datasets: %s", err)
 	}
 
 	d.SetId(rst.DatasetId)
@@ -290,16 +291,16 @@ func resourceDatasetCreate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceDatasetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating ModelArts v2 client, err=%s", err)
+		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
 
 	detail, err := dataset.Get(client, d.Id(), dataset.GetOpts{})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDatasetErrorToError404(err), "Error retrieving ModelArts dataset")
+		return common.CheckDeletedDiag(d, parseDatasetErrorToError404(err), "error retrieving ModelArts dataset")
 	}
 
 	mErr := multierror.Append(
@@ -317,24 +318,20 @@ func resourceDatasetRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("status", detail.Status),
 	)
 
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting ModelArts dataset fields: %s", mErr)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceDatasetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating ModelArts v2 client, err=%s", err)
+		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
 
 	_, err = dataset.Get(client, d.Id(), dataset.GetOpts{})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDatasetErrorToError404(err), "Error retrieving ModelArts dataset")
+		return common.CheckDeletedDiag(d, parseDatasetErrorToError404(err), "error retrieving ModelArts dataset")
 	}
 
 	desc := d.Get("description").(string)
@@ -351,26 +348,25 @@ func resourceDatasetUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	rst := dataset.Update(client, d.Id(), updateParams)
 	if rst.Err != nil {
-		return fmtp.DiagErrorf("Update ModelArts dataset=%s failed, error: %s", d.Id(), err)
+		return diag.Errorf("update ModelArts dataset=%s failed, error: %s", d.Id(), err)
 	}
 
 	return resourceDatasetRead(ctx, d, meta)
 }
 
-func resourceDatasetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+func resourceDatasetDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating ModelArts v2 client, err=%s", err)
+		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
 
 	dErr := dataset.Delete(client, d.Id())
 	if dErr.Err != nil {
-		return common.CheckDeletedDiag(d, parseDatasetErrorToError404(err), "Delete ModelArts dataset failed.")
+		return common.CheckDeletedDiag(d, parseDatasetErrorToError404(err), "Delete ModelArts dataset failed")
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -380,7 +376,6 @@ func waitingforDatasetCreated(ctx context.Context, client *golangsdk.ServiceClie
 		Pending: []string{"0", "5", "6", "7", "8"},
 		Target:  []string{"1"},
 		Refresh: func() (interface{}, string, error) {
-
 			resp, err := dataset.Get(client, id, dataset.GetOpts{})
 			if err != nil {
 				return nil, "", err
@@ -394,7 +389,7 @@ func waitingforDatasetCreated(ctx context.Context, client *golangsdk.ServiceClie
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error waiting for ModelArts dataset (%s) to be created: %s", id, err)
+		return fmt.Errorf("error waiting for ModelArts dataset (%s) to be created: %s", id, err)
 	}
 	return nil
 }
@@ -457,7 +452,7 @@ func buildDataSourceParamter(d *schema.ResourceData) (dataSources []dataset.Data
 	// OBS check
 	if dataType == 0 {
 		if path == "" {
-			err = fmtp.Errorf("When import data from OBS, path is required.")
+			err = fmt.Errorf("when import data from OBS, path is required")
 			return
 		}
 		dataSource.DataPath = path
@@ -472,8 +467,8 @@ func buildDataSourceParamter(d *schema.ResourceData) (dataSources []dataset.Data
 	// DWS check
 	if dataType == 1 {
 		if clusterId == "" || databaseName == "" || tableName == "" || userName == "" || password == "" {
-			err = fmtp.Errorf("When import data from DWS, cluster_id, database_name, table_name, user_name and" +
-				" password are required.")
+			err = fmt.Errorf("when import data from DWS, cluster_id, database_name, table_name, user_name and" +
+				" password are required")
 			return
 		}
 
@@ -489,7 +484,7 @@ func buildDataSourceParamter(d *schema.ResourceData) (dataSources []dataset.Data
 	// DLI check
 	if dataType == 2 {
 		if queueName == "" || databaseName == "" || tableName == "" {
-			err = fmtp.Errorf("When import data from DLI, queue_name, database_name and table_name are required.")
+			err = fmt.Errorf("when import data from DLI, queue_name, database_name and table_name are required")
 		}
 
 		dataSource.SourceInfo.QueueName = queueName
@@ -500,7 +495,7 @@ func buildDataSourceParamter(d *schema.ResourceData) (dataSources []dataset.Data
 	// MRS check
 	if dataType == 4 {
 		if clusterId == "" || path == "" {
-			err = fmtp.Errorf("When import data from MRS, cluster_id and path are required.")
+			err = fmt.Errorf("when import data from MRS, cluster_id and path are required")
 		}
 
 		dataSource.SourceInfo.ClusterId = clusterId
@@ -532,7 +527,7 @@ func buildSchemaParamter(v interface{}, dataType int) (schemas []dataset.Field, 
 	if v != nil && dataType == 400 {
 		configRaw := v.([]interface{})
 		if len(configRaw) == 0 {
-			err = fmtp.Errorf("The schema cannot be empty if type is 400(Table type)")
+			err = fmt.Errorf("the schema cannot be empty if type is 400(Table type)")
 			return
 		}
 		for i, item := range configRaw {

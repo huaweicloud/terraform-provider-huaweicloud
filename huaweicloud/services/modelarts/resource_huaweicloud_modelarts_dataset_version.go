@@ -8,14 +8,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
-	"github.com/chnsz/golangsdk/openstack/modelarts/v2/version"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
+	"github.com/chnsz/golangsdk/openstack/modelarts/v2/version"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -132,11 +134,11 @@ func ResourceDatasetVersion() *schema.Resource {
 }
 
 func ResourceDatasetVersionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating ModelArts v2 client, err=%s", err)
+		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
 
 	datasetId := d.Get("dataset_id").(string)
@@ -163,9 +165,9 @@ func ResourceDatasetVersionCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func ResourceDatasetVersionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
@@ -201,10 +203,10 @@ func ResourceDatasetVersionRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func ResourceDatasetVersionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+func ResourceDatasetVersionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}
@@ -216,7 +218,6 @@ func ResourceDatasetVersionDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error deleting ModelArts dataset version, ID= %s", d.Id())
 	}
 
-	d.SetId("")
 	return nil
 }
 

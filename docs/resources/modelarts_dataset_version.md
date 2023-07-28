@@ -89,7 +89,7 @@ This resource provides the following timeouts configuration options:
 
 The dataset versions can be imported by dataset ID and version ID, separated by a slash, e.g.
 
-```
+```bash
 terraform import huaweicloud_modelarts_dataset_version.test yiROKoTTjtwjvP71yLG/wieeeoTrtrtjvn67yLm
 ```
 
@@ -98,7 +98,7 @@ API response, security or some other reason. The missing attributes include: `ha
 recommended running `terraform plan` after importing a dataset. You can then decide if changes should be applied to the
 dataset, or the resource definition should be updated to align with the dataset. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_modelarts_dataset_version" "test" {
     ...
 

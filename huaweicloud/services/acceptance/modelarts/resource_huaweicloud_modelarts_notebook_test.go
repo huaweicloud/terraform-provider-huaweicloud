@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getNotebookResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.ModelArtsV1Client(acceptance.HW_REGION_NAME)
+func getNotebookResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ModelArtsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating ModelArts v1 client, err=%s", err)
+		return nil, fmt.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
 
 	return notebook.Get(client, state.Primary.ID)
