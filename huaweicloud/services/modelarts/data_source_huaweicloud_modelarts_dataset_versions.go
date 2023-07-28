@@ -5,10 +5,12 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/chnsz/golangsdk/openstack/modelarts/v2/version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/modelarts/v2/version"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -105,9 +107,9 @@ func DataSourceDatasetVerions() *schema.Resource {
 }
 
 func dataSourceDatasetVersionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v2 client, err=%s", err)
 	}

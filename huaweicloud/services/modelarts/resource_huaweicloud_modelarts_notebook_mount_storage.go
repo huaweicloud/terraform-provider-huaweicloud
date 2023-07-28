@@ -7,16 +7,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceNotebookMountStorage() *schema.Resource {
@@ -68,27 +69,27 @@ func ResourceNotebookMountStorage() *schema.Resource {
 }
 
 func resourceNotebookMountStorageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
 
 	notebookId := d.Get("notebook_id").(string)
 
-	//check the notebook instance
+	// check the notebook instance
 	notebookDetail, err := notebook.Get(client, notebookId)
 	if err != nil {
 		err = parseModlArtsErrorToError404(err)
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return fmtp.DiagErrorf("The nodebook id=%s is not exist.", notebookId)
+			return diag.Errorf("the nodebook id=%s is not exist", notebookId)
 		}
-		return fmtp.DiagErrorf("Error retrieving ModelArts notebook id=%s", notebookId)
+		return diag.Errorf("error retrieving ModelArts notebook id=%s", notebookId)
 	}
 
 	if notebookDetail.Status != notebook.StatusRunning {
-		return fmtp.DiagErrorf("The notebook id=%s must be running, now is =%s", notebookId, notebookDetail.Status)
+		return diag.Errorf("the notebook id=%s must be running, now is =%s", notebookId, notebookDetail.Status)
 	}
 
 	// mount storage
@@ -100,7 +101,7 @@ func resourceNotebookMountStorageCreate(ctx context.Context, d *schema.ResourceD
 
 	rs, err := notebook.Mount(client, notebookId, opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error mounting storage to ModelArts notebook id=%s: %s", notebookId, err)
+		return diag.Errorf("error mounting storage to ModelArts notebook id=%s: %s", notebookId, err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", notebookId, rs.Id))
@@ -115,9 +116,9 @@ func resourceNotebookMountStorageCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNotebookMountStorageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
@@ -142,17 +143,13 @@ func resourceNotebookMountStorageRead(_ context.Context, d *schema.ResourceData,
 		d.Set("status", detail.Status),
 	)
 
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting ModelArts notebook's mount storage fields: %s", mErr)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceNotebookMountStorageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
@@ -164,14 +161,13 @@ func resourceNotebookMountStorageDelete(ctx context.Context, d *schema.ResourceD
 
 	_, err = notebook.DeleteMount(client, notebookId, mountId)
 	if err != nil {
-		return fmtp.DiagErrorf("delete ModelArts notebook's mount storage failed. %q:%s", d.Id(), err)
+		return diag.Errorf("delete ModelArts notebook's mount storage failed: %q:%s", d.Id(), err)
 	}
 
 	err = waitingNotebookMountForDeleted(ctx, client, notebookId, mountId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.SetId("")
 
 	return nil
 }
@@ -187,7 +183,7 @@ func waitingNotebookForMount(ctx context.Context, client *golangsdk.ServiceClien
 				return nil, "failed", err
 			}
 			if resp.Status == "MOUNT_FAILED" {
-				return nil, "failed", fmtp.Errorf("failed to mount the storage,%s", err)
+				return nil, "failed", fmt.Errorf("failed to mount the storage,%s", err)
 			}
 			return resp, resp.Status, err
 		},
@@ -217,7 +213,7 @@ func waitingNotebookMountForDeleted(ctx context.Context, client *golangsdk.Servi
 				return nil, "failed", err
 			}
 			if resp.Status == "UNMOUNT_FAILED" {
-				return nil, "failed", fmtp.Errorf("failed to unmount storage, %s", err)
+				return nil, "failed", fmt.Errorf("failed to unmount storage, %s", err)
 			}
 			return resp, resp.Status, err
 		},
@@ -236,7 +232,7 @@ func waitingNotebookMountForDeleted(ctx context.Context, client *golangsdk.Servi
 func ParseMountFromId(id string) (notebookId, mountId string, err error) {
 	idArrays := strings.SplitN(id, "/", 2)
 	if len(idArrays) != 2 {
-		err = fmtp.Errorf("Invalid format specified for ID. Format must be <notebook_id>/<mount_id>")
+		err = fmt.Errorf("Invalid format specified for ID. Format must be <notebook_id>/<mount_id>")
 		return
 	}
 	notebookId = idArrays[0]

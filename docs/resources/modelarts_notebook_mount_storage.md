@@ -55,6 +55,6 @@ In addition to all arguments above, the following attributes are exported:
 The mount storage can be imported by `id`, It is composed of the ID of notebook and mount ID, separated by a slash.
  For example,
 
-```
+```bash
 terraform import huaweicloud_modelarts_notebook_mount_storage.test b11b407c-e604-4e8d-8bc4-92398320b847/4e206d3c-6831-4267-b93d-e236105cda38
 ```

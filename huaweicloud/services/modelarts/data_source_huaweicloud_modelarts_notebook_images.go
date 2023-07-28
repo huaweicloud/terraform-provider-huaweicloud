@@ -2,16 +2,17 @@ package modelarts
 
 import (
 	"context"
+	"log"
 
-	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/modelarts/v1/notebook"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceNotebookImages() *schema.Resource {
@@ -84,9 +85,9 @@ func DataSourceNotebookImages() *schema.Resource {
 }
 
 func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ModelArtsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ModelArtsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts v1 client, err=%s", err)
 	}
@@ -101,20 +102,20 @@ func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, met
 
 	page, err := notebook.ListImages(client, listOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve ModelArts notebook images: %s ", err)
+		return diag.Errorf("unable to retrieve ModelArts notebook images: %s ", err)
 	}
 
 	p, err := page.AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("error querying ModelArts notebook images: %s", err)
+		return diag.Errorf("error querying ModelArts notebook images: %s", err)
 	}
 	images, err := notebook.ExtractImages(p)
 	if err != nil {
-		return fmtp.DiagErrorf("error querying ModelArts notebook images: %s", err)
+		return diag.Errorf("error querying ModelArts notebook images: %s", err)
 	}
 
 	if len(images) == 0 {
-		return fmtp.DiagErrorf("No data found. Please change your search criteria and try again.")
+		return diag.Errorf("no data found. Please change your search criteria and try again")
 	}
 
 	filter := map[string]interface{}{
@@ -123,9 +124,9 @@ func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, met
 
 	filterImages, err := utils.FilterSliceWithField(images, filter)
 	if err != nil {
-		return fmtp.DiagErrorf("filter ModelArts notebook images failed: %s", err)
+		return diag.Errorf("filter ModelArts notebook images failed: %s", err)
 	}
-	logp.Printf("[DEBUG] filter %d ModelArts notebook images from %d through options %v", len(filterImages), len(images), filter)
+	log.Printf("[DEBUG] filter %d ModelArts notebook images from %d through options %v", len(filterImages), len(images), filter)
 
 	var rst []map[string]interface{}
 	var ids []string
@@ -145,7 +146,7 @@ func dataSourceNotebookImagesRead(_ context.Context, d *schema.ResourceData, met
 
 	err = d.Set("images", rst)
 	if err != nil {
-		return fmtp.DiagErrorf("set images err:%s", err)
+		return diag.Errorf("set images err:%s", err)
 	}
 
 	d.SetId(hashcode.Strings(ids))

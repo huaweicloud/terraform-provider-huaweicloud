@@ -178,7 +178,7 @@ This resource provides the following timeouts configuration options:
 
 The datasets can be imported by `id`.
 
-```
+```bash
 terraform import huaweicloud_modelarts_dataset.test yiROKoTTjtwjvP71yLG
 ```
 
@@ -189,7 +189,7 @@ API response, security or some other reason. The missing attributes include: `da
 importing a dataset. You can then decide if changes should be applied to the dataset, or the resource definition
 should be updated to align with the dataset. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_modelarts_dataset" "test" {
     ...
 

@@ -121,6 +121,6 @@ The `mount_storages` block contains:
 
 The notebook can be imported by `id`.
 
-```
+```bash
 terraform import huaweicloud_modelarts_notebook.test b11b407c-e604-4e8d-8bc4-92398320b847
 ```
