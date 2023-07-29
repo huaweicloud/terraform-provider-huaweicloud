@@ -97,8 +97,9 @@ func resourcePartitionCreate(ctx context.Context, d *schema.ResourceData, meta i
 	// wait for the cce cluster to become available
 	clusterid := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
-		Target:       []string{"Available"},
-		Refresh:      waitForClusterAvailable(cceClient, clusterid),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      clusterStateRefreshFunc(cceClient, clusterid, []string{"Available"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
