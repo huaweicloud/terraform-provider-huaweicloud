@@ -888,8 +888,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_password_policy":       iam.ResourceIdentityPasswordPolicy(),
 			"huaweicloud_identity_protection_policy":     iam.ResourceIdentityProtectionPolicy(),
 
-			"huaweicloud_identitycenter_user":           identitycenter.ResourceIdentityCenterUser(),
-			"huaweicloud_identitycenter_permission_set": identitycenter.ResourcePermissionSet(),
+			"huaweicloud_identitycenter_user":               identitycenter.ResourceIdentityCenterUser(),
+			"huaweicloud_identitycenter_permission_set":     identitycenter.ResourcePermissionSet(),
+			"huaweicloud_identitycenter_account_assignment": identitycenter.ResourceIdentityCenterAccountAssignment(),
 
 			"huaweicloud_iec_eip":                 resourceIecNetworkEip(),
 			"huaweicloud_iec_keypair":             resourceIecKeypair(),
