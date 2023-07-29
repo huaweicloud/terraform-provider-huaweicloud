@@ -34,9 +34,10 @@ The following arguments are supported:
 * `version` - (Optional, String) Specifies the version of the add-on.
 
 * `values` - (Optional, List) Specifies the add-on template installation parameters.
-  These parameters vary depending on the add-on. Structure is documented below.
+  These parameters vary depending on the add-on. The [structure](#cce_addon_values) is documented below.
 
-* The `values` block supports:
+<a name="cce_addon_values"></a>
+The `values` block supports:
 
 * `basic_json` - (Optional, String) Specifies the json string vary depending on the add-on.
 
@@ -72,14 +73,14 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `update` - Default is 10 minute.
-* `delete` - Default is 3 minute.
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 3 minutes.
 
 ## Import
 
 CCE add-on can be imported using the cluster ID and add-on ID separated by a slash, e.g.:
 
-```
-$ terraform import huaweicloud_cce_addon.my_addon bb6923e4-b16e-11eb-b0cd-0255ac101da1/c7ecb230-b16f-11eb-b3b6-0255ac1015a3
+```bash
+$ terraform import huaweicloud_cce_addon.my_addon <cluster_id>/<id>
 ```

@@ -759,7 +759,7 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	clusterid := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
-		Target:       []string{"Available"},
+		Target:       []string{"COMPLETED"},
 		Refresh:      clusterStateRefreshFunc(nodeClient, clusterid, []string{"Available"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,

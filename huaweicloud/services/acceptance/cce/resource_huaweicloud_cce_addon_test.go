@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -14,22 +13,37 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccAddon_basic(t *testing.T) {
-	var addon addons.Addon
+func getAddonFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.CceAddonV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CCE v3 client: %s", err)
+	}
+	return addons.Get(client, state.Primary.ID, state.Primary.Attributes["cluster_id"]).Extract()
+}
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_addon.test"
-	clusterName := "huaweicloud_cce_cluster.test"
+func TestAccAddon_basic(t *testing.T) {
+	var (
+		addon addons.Addon
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_addon.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&addon,
+			getAddonFunc,
+		)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckAddonDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAddon_basic(rName),
+				Config: testAccAddon_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAddonExists(resourceName, clusterName, &addon),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
 						"huaweicloud_cce_cluster.test", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
@@ -41,149 +55,38 @@ func TestAccAddon_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccAddonImportStateIdFunc(),
+				ImportStateIdFunc: testAccAddonImportStateIdFunc(resourceName),
 			},
 		},
 	})
 }
 
-func TestAccAddon_values(t *testing.T) {
-	var addon addons.Addon
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_addon.test"
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckProjectID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckAddonDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAddon_values(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAddonExists(resourceName, clusterName, &addon),
-					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
-						"huaweicloud_cce_cluster.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "version", "1.25.21"),
-					resource.TestCheckResourceAttr(resourceName, "template_name", "autoscaler"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-				),
-			},
-			{
-				Config: testAccAddon_values_update(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAddonExists(resourceName, clusterName, &addon),
-					// the values not set, only check if the updating request is successful
-					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
-						"huaweicloud_cce_cluster.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "version", "1.25.21"),
-					resource.TestCheckResourceAttr(resourceName, "template_name", "autoscaler"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckAddonDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	cceClient, err := cfg.CceAddonV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating CCE Addon client: %s", err)
-	}
-
-	var clusterId string
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "huaweicloud_cce_cluster" {
-			clusterId = rs.Primary.ID
-		}
-
-		if rs.Type != "huaweicloud_cce_addon" {
-			continue
-		}
-
-		if clusterId != "" {
-			_, err := addons.Get(cceClient, rs.Primary.ID, clusterId).Extract()
-			if err == nil {
-				return fmt.Errorf("addon still exists")
-			}
-		}
-	}
-	return nil
-}
-
-func testAccCheckAddonExists(n string, cluster string, addon *addons.Addon) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-		c, ok := s.RootModule().Resources[cluster]
-		if !ok {
-			return fmt.Errorf("cluster not found: %s", c)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-		if c.Primary.ID == "" {
-			return fmt.Errorf("cluster id is not set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		cceClient, err := cfg.CceAddonV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating CCE Addon client: %s", err)
-		}
-
-		found, err := addons.Get(cceClient, rs.Primary.ID, c.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Metadata.Id != rs.Primary.ID {
-			return fmt.Errorf("addon not found")
-		}
-
-		*addon = *found
-
-		return nil
-	}
-}
-
-func testAccAddonImportStateIdFunc() resource.ImportStateIdFunc {
+func testAccAddonImportStateIdFunc(resName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		var clusterID string
-		var addonID string
-		for _, rs := range s.RootModule().Resources {
-			if rs.Type == "huaweicloud_cce_cluster" {
-				clusterID = rs.Primary.ID
-			} else if rs.Type == "huaweicloud_cce_addon" {
-				addonID = rs.Primary.ID
-			}
+		var clusterId, addonId string
+		rs, ok := s.RootModule().Resources[resName]
+		if !ok {
+			return "", fmt.Errorf("the resource (%s) of CCE add-on is not found in the tfstate", resName)
 		}
-		if clusterID == "" || addonID == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", clusterID, addonID)
+		clusterId = rs.Primary.Attributes["cluster_id"]
+		addonId = rs.Primary.ID
+		if clusterId == "" || addonId == "" {
+			return "", fmt.Errorf("the CCE add-on ID is not exist or related CCE cluster ID is missing")
 		}
-		return fmt.Sprintf("%s/%s", clusterID, addonID), nil
+		return fmt.Sprintf("%s/%s", clusterId, addonId), nil
 	}
 }
 
 func testAccAddon_Base(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
-  name              = "%s"
+  name              = "%[2]s"
   flavor_id         = "c7.large.4"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  key_pair          = huaweicloud_compute_keypair.test.name
+  key_pair          = huaweicloud_kps_keypair.test.name
 
   root_volume {
     size       = 40
@@ -199,7 +102,7 @@ resource "huaweicloud_cce_node" "test" {
 
 func testAccAddon_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
@@ -209,18 +112,67 @@ resource "huaweicloud_cce_addon" "test" {
 `, testAccAddon_Base(rName))
 }
 
-func testAccAddon_values_base(rName string) string {
+func TestAccAddon_values(t *testing.T) {
+	var (
+		addon addons.Addon
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_addon.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&addon,
+			getAddonFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAddon_values_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
+						"huaweicloud_cce_cluster.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.25.21"),
+					resource.TestCheckResourceAttr(resourceName, "template_name", "autoscaler"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+				),
+			},
+			{
+				Config: testAccAddon_values_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					// the values not set, only check if the updating request is successful
+					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
+						"huaweicloud_cce_cluster.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.25.21"),
+					resource.TestCheckResourceAttr(resourceName, "template_name", "autoscaler"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAddon_values_base(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id         = huaweicloud_cce_cluster.test.id
-  name               = "%s"
+  name               = "%[2]s"
   os                 = "EulerOS 2.5"
   flavor_id          = "c7.large.4"
   initial_node_count = 4
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair.test.name
+  key_pair           = huaweicloud_kps_keypair.test.name
   scall_enable       = true
   min_node_count     = 2
   max_node_count     = 10
@@ -242,14 +194,18 @@ data "huaweicloud_cce_addon_template" "test" {
   name       = "autoscaler"
   version    = "1.25.21"
 }
-`, testAccNodePool_base(rName), rName)
+`, testAccNodePool_base(name), name)
 }
 
-func testAccAddon_values(rName string) string {
+func testAccAddon_values_step1(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_addon" "test" {
+  depends_on = [
+    huaweicloud_cce_node_pool.test,
+  ]
+
   cluster_id    = huaweicloud_cce_cluster.test.id
   template_name = "autoscaler"
   version       = "1.25.21"
@@ -260,25 +216,25 @@ resource "huaweicloud_cce_addon" "test" {
       jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.custom,
       {
         cluster_id = huaweicloud_cce_cluster.test.id
-        tenant_id  = "%s"
+        tenant_id  = "%[2]s"
         logLevel   = 3
       }
     ))
     flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor1)
   }
-  
+}
+`, testAccAddon_values_base(name), acceptance.HW_PROJECT_ID)
+}
+
+func testAccAddon_values_step2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_addon" "test" {
   depends_on = [
     huaweicloud_cce_node_pool.test,
   ]
-}
-`, testAccAddon_values_base(rName), acceptance.HW_PROJECT_ID)
-}
 
-func testAccAddon_values_update(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_cce_addon" "test" {
   cluster_id    = huaweicloud_cce_cluster.test.id
   template_name = "autoscaler"
   version       = "1.25.21"
@@ -289,16 +245,12 @@ resource "huaweicloud_cce_addon" "test" {
       jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.custom,
       {
         cluster_id = huaweicloud_cce_cluster.test.id
-        tenant_id  = "%s"
+        tenant_id  = "%[2]s"
         logLevel   = 4
       }
     ))
     flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor2)
   }
-  
-  depends_on = [
-    huaweicloud_cce_node_pool.test,
-  ]
 }
 `, testAccAddon_values_base(rName), acceptance.HW_PROJECT_ID)
 }
