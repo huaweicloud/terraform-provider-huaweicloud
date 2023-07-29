@@ -2,23 +2,24 @@ package iam
 
 import (
 	"context"
+	"log"
 
-	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceIdentityGroupV3() *schema.Resource {
+func ResourceIdentityGroup() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityGroupV3Create,
-		ReadContext:   resourceIdentityGroupV3Read,
-		UpdateContext: resourceIdentityGroupV3Update,
-		DeleteContext: resourceIdentityGroupV3Delete,
+		CreateContext: resourceIdentityGroupCreate,
+		ReadContext:   resourceIdentityGroupRead,
+		UpdateContext: resourceIdentityGroupUpdate,
+		DeleteContext: resourceIdentityGroupDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -37,11 +38,11 @@ func ResourceIdentityGroupV3() *schema.Resource {
 	}
 }
 
-func resourceIdentityGroupV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	createOpts := groups.CreateOpts{
@@ -49,48 +50,45 @@ func resourceIdentityGroupV3Create(ctx context.Context, d *schema.ResourceData, 
 		Description: d.Get("description").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	group, err := groups.Create(identityClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud Group: %s", err)
+		return diag.Errorf("error creating IAM group: %s", err)
 	}
 
 	d.SetId(group.ID)
-
-	return resourceIdentityGroupV3Read(ctx, d, meta)
+	return resourceIdentityGroupRead(ctx, d, meta)
 }
 
-func resourceIdentityGroupV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	group, err := groups.Get(identityClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "group")
+		return common.CheckDeletedDiag(d, err, "IAM group")
 	}
 
-	logp.Printf("[DEBUG] Retrieved HuaweiCloud Group: %#v", group)
-
+	log.Printf("[DEBUG] Retrieved IAM group: %#v", group)
 	mErr := multierror.Append(nil,
 		d.Set("name", group.Name),
 		d.Set("description", group.Description),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting identity group key fields: %s", err)
+		return diag.Errorf("error setting IAM group fields: %s", err)
 	}
 
 	return nil
 }
 
-func resourceIdentityGroupV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	var hasChange bool
@@ -107,29 +105,27 @@ func resourceIdentityGroupV3Update(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if hasChange {
-		logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
-	}
+		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
-	if hasChange {
 		_, err := groups.Update(identityClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating HuaweiCloud group: %s", err)
+			return diag.Errorf("error updating IAM group: %s", err)
 		}
 	}
 
-	return resourceIdentityGroupV3Read(ctx, d, meta)
+	return resourceIdentityGroupRead(ctx, d, meta)
 }
 
-func resourceIdentityGroupV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	err = groups.Delete(identityClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud group: %s", err)
+		return diag.Errorf("error deleting IAM group: %s", err)
 	}
 
 	return nil

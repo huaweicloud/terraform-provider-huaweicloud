@@ -2,25 +2,26 @@ package iam
 
 import (
 	"context"
+	"fmt"
+	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceIdentityGroupMembershipV3() *schema.Resource {
+func ResourceIdentityGroupMembership() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIdentityGroupMembershipV3Create,
-		ReadContext:   resourceIdentityGroupMembershipV3Read,
-		UpdateContext: resourceIdentityGroupMembershipV3Update,
-		DeleteContext: resourceIdentityGroupMembershipV3Delete,
+		CreateContext: resourceIdentityGroupMembershipCreate,
+		ReadContext:   resourceIdentityGroupMembershipRead,
+		UpdateContext: resourceIdentityGroupMembershipUpdate,
+		DeleteContext: resourceIdentityGroupMembershipDelete,
 
 		Schema: map[string]*schema.Schema{
 			"group": {
@@ -38,129 +39,115 @@ func ResourceIdentityGroupMembershipV3() *schema.Resource {
 	}
 }
 
-func resourceIdentityGroupMembershipV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupMembershipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	group := d.Get("group").(string)
+	groupID := d.Get("group").(string)
 	userList := utils.ExpandToStringList(d.Get("users").(*schema.Set).List())
 
-	if err := addUsersToGroup(identityClient, group, userList); err != nil {
-		return fmtp.DiagErrorf("Error adding users to identity group: %s", err)
+	if err := addUsersToGroup(identityClient, groupID, userList); err != nil {
+		return diag.FromErr(err)
 	}
 
-	//lintignore:R015
-	d.SetId(resource.UniqueId())
-
-	return resourceIdentityGroupMembershipV3Read(ctx, d, meta)
+	d.SetId(groupID)
+	return resourceIdentityGroupMembershipRead(ctx, d, meta)
 }
 
-func resourceIdentityGroupMembershipV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupMembershipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
-	group := d.Get("group").(string)
-	userList := d.Get("users").(*schema.Set)
-	var ul []string
 
-	allPages, err := users.ListInGroup(identityClient, group, users.ListOpts{}).AllPages()
+	groupID := d.Get("group").(string)
+	userList := d.Get("users").(*schema.Set)
+
+	allPages, err := users.ListInGroup(identityClient, groupID, nil).AllPages()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Unable to query groups")
+		return common.CheckDeletedDiag(d, err, "unable to query groups")
 	}
 
 	allUsers, err := users.ExtractUsers(allPages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve users: %s", err)
+		return diag.Errorf("unable to retrieve users: %s", err)
 	}
 
+	var ul []string
 	for _, u := range allUsers {
 		if userList.Contains(u.ID) {
 			ul = append(ul, u.ID)
 		}
 	}
 
-	if err := d.Set("users", ul); err != nil {
-		return fmtp.DiagErrorf("Error setting user list from IAM (%s), error: %s", group, err)
-	}
-
-	return nil
+	return diag.FromErr(d.Set("users", ul))
 }
 
-func resourceIdentityGroupMembershipV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupMembershipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
+	groupID := d.Get("group").(string)
 	if d.HasChange("users") {
-		group := d.Get("group").(string)
+		oldRaw, newRaw := d.GetChange("users")
+		rmSet := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+		addSet := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
 
-		o, n := d.GetChange("users")
-		if o == nil {
-			o = new(schema.Set)
-		}
-		if n == nil {
-			n = new(schema.Set)
-		}
-
-		os := o.(*schema.Set)
-		ns := n.(*schema.Set)
-		remove := utils.ExpandToStringList(os.Difference(ns).List())
-		add := utils.ExpandToStringList(ns.Difference(os).List())
-
-		if err := removeUsersFromGroup(identityClient, group, remove); err != nil {
-			return fmtp.DiagErrorf("Error update user-group-membership: %s", err)
+		removeList := utils.ExpandToStringListBySet(rmSet)
+		if err := removeUsersFromGroup(identityClient, groupID, removeList); err != nil {
+			return diag.Errorf("error updating membership: %s", err)
 		}
 
-		if err := addUsersToGroup(identityClient, group, add); err != nil {
-			return fmtp.DiagErrorf("Error update user-group-membership: %s", err)
+		addList := utils.ExpandToStringListBySet(addSet)
+		if err := addUsersToGroup(identityClient, groupID, addList); err != nil {
+			return diag.Errorf("error updating membership: %s", err)
 		}
 	}
 
-	return resourceIdentityGroupMembershipV3Read(ctx, d, meta)
+	return resourceIdentityGroupMembershipRead(ctx, d, meta)
 }
 
-func resourceIdentityGroupMembershipV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func resourceIdentityGroupMembershipDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	group := d.Get("group").(string)
-	users := utils.ExpandToStringList(d.Get("users").(*schema.Set).List())
+	groupID := d.Get("group").(string)
+	allUsers := utils.ExpandToStringList(d.Get("users").(*schema.Set).List())
 
-	if err := removeUsersFromGroup(identityClient, group, users); err != nil {
-		return fmtp.DiagErrorf("Error delete user-group-membership: %s", err)
+	if err := removeUsersFromGroup(identityClient, groupID, allUsers); err != nil {
+		return diag.FromErr(err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
-func addUsersToGroup(identityClient *golangsdk.ServiceClient, group string, userList []string) error {
+func addUsersToGroup(identityClient *golangsdk.ServiceClient, groupID string, userList []string) error {
 	for _, u := range userList {
-		if r := users.AddToGroup(identityClient, group, u).ExtractErr(); r != nil {
-			return fmtp.Errorf("Error add user %s to group %s: %s ", u, group, r)
+		if r := users.AddToGroup(identityClient, groupID, u).ExtractErr(); r != nil {
+			return fmt.Errorf("error adding user %s to group %s: %s ", u, groupID, r)
 		}
 	}
 	return nil
 }
 
-func removeUsersFromGroup(identityClient *golangsdk.ServiceClient, group string, userList []string) error {
+func removeUsersFromGroup(identityClient *golangsdk.ServiceClient, groupID string, userList []string) error {
 	for _, u := range userList {
-		if r := users.RemoveFromGroup(identityClient, group, u).ExtractErr(); r != nil {
+		if r := users.RemoveFromGroup(identityClient, groupID, u).ExtractErr(); r != nil {
 			if _, ok := r.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[WARN] the user %s is not exist, ignore to remove it from the group", u)
+				log.Printf("[WARN] the user %s is not exist, ignore to remove it from the group", u)
 				continue
 			}
-			return fmtp.Errorf("Error remove user %s from group %s: %s", u, group, r)
+			return fmt.Errorf("error removing user %s from group %s: %s", u, groupID, r)
 		}
 	}
 	return nil

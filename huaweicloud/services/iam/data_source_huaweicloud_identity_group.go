@@ -2,18 +2,21 @@ package iam
 
 import (
 	"context"
+	"log"
 
-	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceIdentityGroup() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: DataSourceIdentityGroupV3Read,
+		ReadContext: DataSourceIdentityGroupRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -39,11 +42,11 @@ func DataSourceIdentityGroup() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": {
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"id": {
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -74,11 +77,11 @@ func DataSourceIdentityGroup() *schema.Resource {
 	}
 }
 
-func DataSourceIdentityGroupV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
+func DataSourceIdentityGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	listOpts := groups.ListOpts{
@@ -87,17 +90,15 @@ func DataSourceIdentityGroupV3Read(_ context.Context, d *schema.ResourceData, me
 
 	allPages, err := groups.List(identityClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to query groups: %s", err)
+		return diag.Errorf("unable to query IAM groups: %s", err)
 	}
 
 	allGroups, err := groups.ExtractGroups(allPages)
-
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve groups: %s", err)
+		return diag.Errorf("unable to extract IAM groups: %s", err)
 	}
 
 	conditions := map[string]interface{}{}
-
 	if v, ok := d.GetOk("id"); ok {
 		conditions["id"] = v.(string)
 	}
@@ -106,57 +107,41 @@ func DataSourceIdentityGroupV3Read(_ context.Context, d *schema.ResourceData, me
 	}
 
 	var foundGroups []groups.Group
-
 	for _, group := range allGroups {
-		if groupsFilter(group, conditions) {
+		if filterGroups(group, conditions) {
 			foundGroups = append(foundGroups, group)
 		}
 	}
 
 	if len(foundGroups) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(foundGroups) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result. " +
+		return diag.Errorf("Your query returned more than one result. " +
 			"Please try a more specific search criteria.")
 	}
 
 	group := foundGroups[0]
+	log.Printf("[DEBUG] retrieve IAM group: %#v", group)
 
 	d.SetId(group.ID)
-
 	mErr := multierror.Append(nil,
 		d.Set("domain_id", group.DomainID),
 		d.Set("name", group.Name),
 		d.Set("description", group.Description),
+		d.Set("users", flattenUsersInGroup(identityClient, group.ID)),
 	)
+
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting identity group fields: %s", err)
-	}
-
-	// get users of this group
-	allUsers, err := groups.ListUsers(identityClient, d.Id()).Extract()
-
-	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve users: %s", err)
-	}
-
-	if len(allUsers) > 0 {
-		users := make([]map[string]interface{}, 0, len(allUsers))
-		for _, userInGroup := range allUsers {
-			user := setUserAttributes(userInGroup)
-			users = append(users, user)
-		}
-
-		d.Set("users", users)
+		return diag.Errorf("error setting IAM group fields: %s", err)
 	}
 
 	return nil
 }
 
-func groupsFilter(group groups.Group, conditions map[string]interface{}) bool {
+func filterGroups(group groups.Group, conditions map[string]interface{}) bool {
 	if v, ok := conditions["id"]; ok && v != group.ID {
 		return false
 	}
@@ -166,16 +151,29 @@ func groupsFilter(group groups.Group, conditions map[string]interface{}) bool {
 	return true
 }
 
-func setUserAttributes(userInGroup groups.User) map[string]interface{} {
-	user := make(map[string]interface{})
+func flattenUsersInGroup(client *golangsdk.ServiceClient, groupID string) []map[string]interface{} {
+	// get users in this group
+	allUsers, err := groups.ListUsers(client, groupID).Extract()
+	if err != nil {
+		log.Printf("[WARN] unable to retrieve users in group %s: %s", groupID, err)
+		return nil
+	}
 
-	user["name"] = userInGroup.Name
-	user["id"] = userInGroup.Id
-	user["description"] = userInGroup.Description
-	user["enabled"] = userInGroup.Enabled
-	user["password_expires_at"] = userInGroup.PasswordExpiresAt
-	user["password_status"] = userInGroup.PwdStatus
-	user["password_strength"] = userInGroup.PwdStrength
+	if len(allUsers) > 0 {
+		users := make([]map[string]interface{}, len(allUsers))
+		for i, userInGroup := range allUsers {
+			users[i] = map[string]interface{}{
+				"id":                  userInGroup.Id,
+				"name":                userInGroup.Name,
+				"description":         userInGroup.Description,
+				"enabled":             userInGroup.Enabled,
+				"password_expires_at": userInGroup.PasswordExpiresAt,
+				"password_status":     userInGroup.PwdStatus,
+				"password_strength":   userInGroup.PwdStrength,
+			}
+		}
+		return users
+	}
 
-	return user
+	return nil
 }

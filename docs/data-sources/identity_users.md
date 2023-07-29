@@ -6,7 +6,7 @@ subcategory: "Identity and Access Management (IAM)"
 
 Use this data source to query the IAM user list within HuaweiCloud.
 
-~> You *must* have IAM read privileges to use this data source.
+-> **NOTE:** You *must* have IAM read privileges to use this data source.
 
 ## Example Usage
 
@@ -43,7 +43,7 @@ The `users` block contains:
 * `groups` - Indicates the user groups to which an IAM user belongs.
 
 * `password_expires_at` - Indicates the time when the password will expire.
-  Null indicates that the password has unlimited validity.
+  If this value is not set, the password will not expire.
 
 * `password_status` - Indicates the password status. True means that the password needs to be changed,
   and false means that the password is normal.

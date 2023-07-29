@@ -4,27 +4,26 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getIdentityGroupResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 	return groups.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityV3Group_basic(t *testing.T) {
+func TestAccIdentityGroup_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = acceptance.RandomAccResourceName()
+	groupName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_group.group_1"
 
 	rc := acceptance.InitResourceCheck(
@@ -42,11 +41,11 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV3Group_basic(groupName),
+				Config: testAccIdentityGroup_basic(groupName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", groupName),
-					resource.TestCheckResourceAttr(resourceName, "description", "A ACC test group"),
+					resource.TestCheckResourceAttr(resourceName, "description", "An ACC test group"),
 				),
 			},
 			{
@@ -55,31 +54,31 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIdentityV3Group_update(groupName),
+				Config: testAccIdentityGroup_update(groupName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", groupName),
-					resource.TestCheckResourceAttr(resourceName, "description", "Some Group"),
+					resource.TestCheckResourceAttr(resourceName, "description", "An ACC update group"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIdentityV3Group_basic(groupName string) string {
+func testAccIdentityGroup_basic(groupName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name        = "%s"
-  description = "A ACC test group"
+  description = "An ACC test group"
 }
 `, groupName)
 }
 
-func testAccIdentityV3Group_update(groupName string) string {
+func testAccIdentityGroup_update(groupName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name        = "%s"
-  description = "Some Group"
+  description = "An ACC update group"
 }
 `, groupName)
 }

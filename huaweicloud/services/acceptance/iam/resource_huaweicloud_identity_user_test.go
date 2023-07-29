@@ -4,27 +4,28 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getIdentityUserResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 	return users.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityV3User_basic(t *testing.T) {
+func TestAccIdentityUser_basic(t *testing.T) {
 	var user users.User
-	var userName = acceptance.RandomAccResourceName()
+	userName := acceptance.RandomAccResourceName()
+	initPassword := acceptance.RandomPassword()
+	newPassword := acceptance.RandomPassword()
 	resourceName := "huaweicloud_identity_user.user_1"
 
 	rc := acceptance.InitResourceCheck(
@@ -42,7 +43,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV3User_basic(userName),
+				Config: testAccIdentityUser_basic(userName, initPassword),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
@@ -62,7 +63,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccIdentityV3User_update(userName),
+				Config: testAccIdentityUser_update(userName, newPassword),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
@@ -76,27 +77,27 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityV3User_basic(userName string) string {
+func testAccIdentityUser_basic(name, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
-  password    = "password123@!"
+  password    = "%s"
   enabled     = true
   email       = "user_1@abc.com"
   description = "tested by terraform"
 }
-`, userName)
+`, name, password)
 }
 
-func testAccIdentityV3User_update(userName string) string {
+func testAccIdentityUser_update(name, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
-  password    = "password123@!"
+  password    = "%s"
   pwd_reset   = false
   enabled     = false
   email       = "user_1@abcd.com"
   description = "updated by terraform"
 }
-`, userName)
+`, name, password)
 }
