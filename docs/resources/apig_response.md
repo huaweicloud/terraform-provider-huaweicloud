@@ -66,6 +66,9 @@ The `rule` block supports:
   + **UNAUTHORIZED**: (**401**) The app you are using has not been authorized to call the API.
   + **DEFAULT_4XX**: (**NONE**) Another 4XX error occurred.
   + **DEFAULT_5XX**: (**NONE**) Another 5XX error occurred.
+  + **THIRD_AUTH_CONF_FAILURE**: (**500**) Third-party authorizer configuration error.
+  + **THIRD_AUTH_FAILURE**: (**401**) Third-party authentication failed.
+  + **THIRD_AUTH_IDENTITIES_FAILURE**: (**401**) Identity source of the third-party authorizer is invalid.
 
 * `body` - (Required, String) Specifies the body template of the API response rule, e.g.
   `{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}`
