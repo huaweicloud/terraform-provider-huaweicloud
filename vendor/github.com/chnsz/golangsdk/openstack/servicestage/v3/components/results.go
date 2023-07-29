@@ -12,7 +12,7 @@ type JobResp struct {
 // Component is the structure that represents the detail of the application component.
 type Component struct {
 	// Source of the code or software package.
-	Source Source `json:"source"`
+	Source *Source `json:"source"`
 	// Application component ID.
 	ID string `json:"id"`
 	// Application component name.
@@ -20,11 +20,11 @@ type Component struct {
 	WorkloadName string `json:"workload_name"`
 	Description  string `json:"description"`
 	// Component Labels
-	Labels    []KeyValue `json:"labels"`
-	PodLabels []KeyValue `json:"pod_labels"`
-	Build     Build      `json:"build"`
+	Labels    []*KeyValue `json:"labels"`
+	PodLabels []*KeyValue `json:"pod_labels"`
+	Build     *Build      `json:"build"`
 	// Component RuntimeStack
-	RuntimeStack RuntimeStack `json:"runtime_stack"`
+	RuntimeStack *RuntimeStack `json:"runtime_stack"`
 	// Component external accessed
 	ExternalAccesses []ExternalAccess `json:"external_accesses"`
 	// Component Status
@@ -40,26 +40,26 @@ type Component struct {
 	// PlatformType, enum: cce or cci
 	PlatformType string `json:"platform_type"`
 	// Version
-	Version         string          `json:"version"`
-	LimitCpu        float64             `json:"limit_cpu"`
-	LimitMemory     float64             `json:"limit_memory"`
-	RequestCpu      float64             `json:"request_cpu"`
-	RequestMemory   float64             `json:"request_memory"`
-	Replica         float64             `json:"replica"`
+	Version         string           `json:"version"`
+	LimitCpu        float64          `json:"limit_cpu"`
+	LimitMemory     float64          `json:"limit_memory"`
+	RequestCpu      float64          `json:"request_cpu"`
+	RequestMemory   float64          `json:"request_memory"`
+	Replica         float64          `json:"replica"`
 	Envs            []*Env           `json:"envs"`
-	Storage        []*Storage       `json:"storage"`
+	Storage         []*Storage       `json:"storage"`
 	Command         *Command         `json:"command"`
 	PostStart       *K8sLifeCycle    `json:"post_start"`
 	PreStop         *K8sLifeCycle    `json:"pre_stop"`
-	Timezone        string          `json:"timezone"`
+	Timezone        string           `json:"timezone"`
 	Mesher          *Mesher          `json:"mesher"`
 	DeployStrategy  *DeployStrategy  `json:"deploy_strategy"`
 	HostAliases     []*HostAlias     `json:"host_aliases"`
-	DnsPolicy       string          `json:"dns_policy"`
+	DnsPolicy       string           `json:"dns_policy"`
 	DnsConfig       *DnsConfig       `json:"dns_config"`
 	SecurityContext *SecurityContext `json:"security_context"`
-	WorkloadKind    string          `json:"workload_kind"`
-	JvmOpts         string          `json:"jvm_opts"`
+	WorkloadKind    string           `json:"workload_kind"`
+	JvmOpts         string           `json:"jvm_opts"`
 	TomcatOpts      *TomcatOpts      `json:"tomcat_opts"`
 	Logs            []*Log           `json:"logs"`
 	CustomMetric    *CustomMetric    `json:"custom_metric"`
@@ -67,7 +67,7 @@ type Component struct {
 	AntiAffinity    *Affinity        `json:"anti_affinity"`
 	LivenessProbe   *K8sProbe        `json:"liveness_probe"`
 	ReadinessProbe  *K8sProbe        `json:"readiness_probe"`
-	ReferResources  []*Resource     `json:"refer_resources"`
+	ReferResources  []*Resource      `json:"refer_resources"`
 	// The enterprise project ID.
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
@@ -305,8 +305,8 @@ type CustomMetric struct {
 }
 
 type Affinity struct {
-	AZ          []string             `json:"az"`
-	Node        []string             `json:"node"`
+	AZ          []string             `json:"az,omitempty"`
+	Node        []string             `json:"node,omitempty"`
 	Component   []*AppInnerParameters `json:"component,omitempty"`
 }
 

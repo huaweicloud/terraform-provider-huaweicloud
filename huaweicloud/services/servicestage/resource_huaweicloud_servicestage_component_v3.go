@@ -1,25 +1,26 @@
 package servicestage
 
 import (
-"context"
-"fmt"
-"log"
-"regexp"
-"strings"
-"time"
+    "context"
+    "fmt"
+    "log"
+    "reflect"
+    "regexp"
+    "strings"
+    "time"
 
-"github.com/chnsz/golangsdk"
-"github.com/chnsz/golangsdk/openstack/servicestage/v3/jobs"
-"github.com/hashicorp/go-multierror"
-"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+    "github.com/chnsz/golangsdk"
+    "github.com/chnsz/golangsdk/openstack/servicestage/v3/jobs"
+    "github.com/hashicorp/go-multierror"
+    "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+    "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+    "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+    "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-"github.com/chnsz/golangsdk/openstack/servicestage/v3/components"
+    "github.com/chnsz/golangsdk/openstack/servicestage/v3/components"
 
-"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
-"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+    "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+    "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceComponentV3() *schema.Resource {
@@ -57,7 +58,7 @@ func ResourceComponentV3() *schema.Resource {
                 Computed: true,
             },
             "workload_kind": {
-                Type: schema.TypeString,
+                Type:     schema.TypeString,
                 Optional: true,
                 ValidateFunc: validation.StringInSlice([]string{
                     "deployment", "statefulset",
@@ -113,11 +114,11 @@ func ResourceComponentV3() *schema.Resource {
                 Optional: true,
             },
             "timezone": {
-                Type: schema.TypeString,
+                Type:     schema.TypeString,
                 Optional: true,
             },
             "jvm_opts": {
-                Type: schema.TypeString,
+                Type:     schema.TypeString,
                 Optional: true,
             },
             "runtime_stack": {
@@ -296,7 +297,7 @@ func ResourceComponentV3() *schema.Resource {
                             Optional: true,
                         },
                         "value_from": {
-                            Type: schema.TypeSet,
+                            Type:     schema.TypeSet,
                             Optional: true,
                             MaxItems: 1,
                             Elem: &schema.Resource{
@@ -317,7 +318,7 @@ func ResourceComponentV3() *schema.Resource {
                                         Optional: true,
                                     },
                                     "optional": {
-                                        Type: schema.TypeBool,
+                                        Type:     schema.TypeBool,
                                         Optional: true,
                                     },
                                 },
@@ -641,7 +642,7 @@ func ResourceComponentV3() *schema.Resource {
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "ip": {
-                            Type: schema.TypeString,
+                            Type:     schema.TypeString,
                             Optional: true,
                         },
                         "hostnames": {
@@ -676,16 +677,16 @@ func ResourceComponentV3() *schema.Resource {
                             Elem:     &schema.Schema{Type: schema.TypeString},
                         },
                         "options": {
-                            Type: schema.TypeList,
+                            Type:     schema.TypeList,
                             Optional: true,
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "name": {
-                                        Type: schema.TypeString,
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                     "value": {
-                                        Type: schema.TypeString,
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                 },
@@ -799,12 +800,12 @@ func ResourceComponentV3() *schema.Resource {
                             Optional: true,
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "displayName": {
-                                        Type: schema.TypeString,
+                                    "display_name": {
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                     "name": {
-                                        Type: schema.TypeString,
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                 },
@@ -834,12 +835,12 @@ func ResourceComponentV3() *schema.Resource {
                             Optional: true,
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "displayName": {
-                                        Type: schema.TypeString,
+                                    "display_name": {
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                     "name": {
-                                        Type: schema.TypeString,
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                 },
@@ -985,14 +986,14 @@ func ResourceComponentV3() *schema.Resource {
                             Type:     schema.TypeSet,
                             Optional: true,
                             MaxItems: 1,
-                            Elem:     &schema.Resource{
+                            Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "type": {
-                                        Type: schema.TypeString,
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                     "namespace": {
-                                        Type: schema.TypeString,
+                                        Type:     schema.TypeString,
                                         Optional: true,
                                     },
                                 },
@@ -1167,7 +1168,6 @@ func buildEnvsStructure(envs []interface{}) []*components.Env {
         e := env.(map[string]interface{})
         environmentLabel.Name = e["name"].(string)
         environmentLabel.Value = e["value"].(string)
-
 
         valueFromSet := e["value_from"].(*schema.Set)
         if valueFromSet.Len() == 1 {
@@ -1757,11 +1757,579 @@ func resourceComponentV3Read(_ context.Context, d *schema.ResourceData, meta int
     }
 
     mErr := multierror.Append(nil,
-        d.Set("region", region),
         d.Set("name", resp.Name),
+        d.Set("workload_name", resp.WorkloadName),
+        d.Set("description", resp.Description),
+        d.Set("labels", flattenComponentLabels(resp.Labels)),
+        d.Set("pod_labels", flattenComponentLabels(resp.PodLabels)),
+        d.Set("version", resp.Version),
+        d.Set("description", resp.Description),
+        d.Set("environment_id", resp.EnvironmentID),
+        d.Set("application_id", resp.ApplicationID),
+        d.Set("enterprise_project_id", resp.EnterpriseProjectId),
+        d.Set("limit_cpu", resp.LimitCpu),
+        d.Set("limit_memory", resp.LimitMemory),
+        d.Set("request_cpu", resp.RequestCpu),
+        d.Set("request_memory", resp.RequestMemory),
+        d.Set("replica", resp.Replica),
+        d.Set("timezone", resp.Timezone),
+        d.Set("jvm_opts", resp.JvmOpts),
+        d.Set("workload_kind", resp.WorkloadKind),
+        d.Set("runtime_stack", flattenComponentRuntimeStack(resp.RuntimeStack)),
+        d.Set("build", flattenComponentBuild(resp.Build)),
+        d.Set("source", flattenComponentSource(resp.Source)),
+        d.Set("envs", flattenComponentEnvs(resp.Envs)),
+        d.Set("storage", flattenComponentStorages(resp.Storage)),
+        d.Set("command", flattenComponentCommand(resp.Command)),
+        d.Set("post_start", flattenComponentK8sLifeCycle(resp.PostStart)),
+        d.Set("pre_stop", flattenComponentK8sLifeCycle(resp.PreStop)),
+        d.Set("mesher", flattenComponentMesher(resp.Mesher)),
+        d.Set("tomcat_opts", flattenComponentTomcatOpt(resp.TomcatOpts)),
+        d.Set("dns_policy", resp.DnsPolicy),
+        d.Set("dns_config", flattenComponentDnsConfig(resp.DnsConfig)),
+        d.Set("security_context", flattenComponentSecurityContext(resp.SecurityContext)),
+        d.Set("logs", flattenComponentLogs(resp.Logs)),
+        d.Set("custom_metric", flattenComponentCustomMetric(resp.CustomMetric)),
+        d.Set("affinity", flattenComponentAffinity(resp.Affinity)),
+        d.Set("anti_affinity", flattenComponentAffinity(resp.AntiAffinity)),
+        d.Set("liveness_probe", flattenComponentK8sProbe(resp.LivenessProbe)),
+        d.Set("readiness_probe", flattenComponentK8sProbe(resp.ReadinessProbe)),
+        d.Set("refer_resources", flattenComponentReferResource(resp.ReferResources)),
+
     )
 
     return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenComponentLabels(labels []*components.KeyValue) (result []map[string]interface{}) {
+    if len(labels) < 1 {
+        return nil
+    }
+
+    for _, val := range labels {
+        s := map[string]interface{}{
+            "key":   val.Key,
+            "value": val.Value,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The labels result is %#v", result)
+    return result
+}
+
+func flattenComponentRuntimeStack(runtimeStack *components.RuntimeStack) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(runtimeStack, components.RuntimeStack{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "name":        runtimeStack.Name,
+            "type":        runtimeStack.Type,
+            "version":     runtimeStack.Version,
+            "deploy_mode": runtimeStack.DeployMode,
+        },
+    }
+    log.Printf("[DEBUG] The runtimeStack result is %#v", result)
+    return result
+
+}
+
+func flattenComponentBuild(build *components.Build) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(build, components.Build{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "parameters": flattenComponentBuildParameters(build.Parameter),
+        },
+    }
+    log.Printf("[DEBUG] The build result is %#v", result)
+    return result
+
+}
+
+func flattenComponentBuildParameters(parameters components.Parameter) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(parameters, components.Parameter{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "build_cmd":           parameters.BuildCmd,
+            "dockerfile_path":     parameters.DockerfilePath,
+            "artifact_namespace":  parameters.ArtifactNamespace,
+            "cluster_id":          parameters.ClusterId,
+            "environment_id":      parameters.EnvironmentId,
+            "node_label_selector": parameters.NodeLabelSelector,
+        },
+    }
+    log.Printf("[DEBUG] The build.parameter result is %#v", result)
+    return result
+
+}
+
+func flattenComponentSource(source *components.Source) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(source, components.Source{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "kind":           source.Kind,
+            "version":        source.Version,
+            "url":            source.Url,
+            "storage":        source.Storage,
+            "auth":           source.Auth,
+            "repo_auth":      source.RepoAuth,
+            "repo_namespace": source.RepoNamespace,
+            "repo_ref":       source.RepoRef,
+            "web_url":        source.WebUrl,
+            "repo_url":       source.RepoUrl,
+        },
+    }
+    log.Printf("[DEBUG] The source result is %#v", result)
+    return result
+
+}
+
+func flattenComponentEnvs(envs []*components.Env) (result []map[string]interface{}) {
+    if len(envs) < 1 {
+        return nil
+    }
+
+    for _, val := range envs {
+        s := map[string]interface{}{
+            "name":       val.Name,
+            "value":      val.Value,
+            "value_from": val.EnvValueFrom,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The envs result is %#v", result)
+    return result
+}
+
+func flattenComponentStorages(storages []*components.Storage) (result []map[string]interface{}) {
+    if len(storages) < 1 {
+        return nil
+    }
+
+    for _, val := range storages {
+        s := map[string]interface{}{
+            "name":       val.Name,
+            "type":       val.Type,
+            "parameters": flattenComponentStoragesParameters(val.Parameters),
+            "mounts":     flattenComponentStoragesMounts(val.Mounts),
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The storages result is %#v", result)
+    return result
+}
+
+func flattenComponentStoragesParameters(parameters *components.StorageParameter) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(parameters, components.StorageParameter{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "path":         parameters.Path,
+            "name":         parameters.Name,
+            "default_mode": parameters.DefaultMode,
+            "medium":       parameters.Medium,
+        },
+    }
+    log.Printf("[DEBUG] The StoragesParameters result is %#v", result)
+    return result
+
+}
+
+func flattenComponentStoragesMounts(mounts []*components.StorageMounts) (result []map[string]interface{}) {
+    if len(mounts) < 1 {
+        return nil
+    }
+
+    for _, val := range mounts {
+        s := map[string]interface{}{
+            "path":      val.Path,
+            "sub_path":  val.SubPath,
+            "read_only": val.Readonly,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The StoragesMounts result is %#v", result)
+    return result
+}
+
+func flattenComponentCommand(command *components.Command) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(command, components.Command{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "command": command.Command,
+            "args":    command.Args,
+        },
+    }
+    log.Printf("[DEBUG] The command result is %#v", result)
+    return result
+
+}
+
+func flattenComponentK8sLifeCycle(k8sLifeCycle *components.K8sLifeCycle) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(k8sLifeCycle, components.K8sLifeCycle{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "command": k8sLifeCycle.Command,
+            "path":    k8sLifeCycle.Path,
+            "port":    k8sLifeCycle.Port,
+            "scheme":  k8sLifeCycle.Scheme,
+            "type":    k8sLifeCycle.Type,
+        },
+    }
+    log.Printf("[DEBUG] The k8sLifeCycle result is %#v", result)
+    return result
+}
+
+func flattenComponentMesher(mesher *components.Mesher) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(mesher, components.Mesher{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "port": mesher.Port,
+        },
+    }
+    log.Printf("[DEBUG] The k8sLifeCycle result is %#v", result)
+    return result
+}
+
+func flattenComponentTomcatOpt(tomcatOpts *components.TomcatOpts) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(tomcatOpts, components.TomcatOpts{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "server_xml": tomcatOpts.ServerXml,
+        },
+    }
+    log.Printf("[DEBUG] The tomcatOpts result is %#v", result)
+    return result
+}
+
+func flattenComponentHostAliases(hostAliases []*components.HostAlias) (result []map[string]interface{}) {
+    if len(hostAliases) < 1 {
+        return nil
+    }
+
+    for _, val := range hostAliases {
+        s := map[string]interface{}{
+            "ip":       val.IP,
+            "hostname": val.HostNames,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The hostAliases result is %#v", result)
+    return result
+}
+
+func flattenComponentDnsConfig(dnsConfig *components.DnsConfig) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(dnsConfig, components.DnsConfig{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "nameservers": dnsConfig.Nameservers,
+            "searches":    dnsConfig.Searches,
+            "options":     flattenComponentDnsConfigOption(dnsConfig.Options),
+        },
+    }
+    log.Printf("[DEBUG] The tomcatOpts result is %#v", result)
+    return result
+}
+
+func flattenComponentDnsConfigOption(dnsConfigOption []*components.NameValue) (result []map[string]interface{}) {
+    if len(dnsConfigOption) < 1 {
+        return nil
+    }
+
+    for _, val := range dnsConfigOption {
+        s := map[string]interface{}{
+            "name":  val.Name,
+            "value": val.Value,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The dnsConfigOption result is %#v", result)
+    return result
+}
+
+func flattenComponentSecurityContext(securityContext *components.SecurityContext) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(securityContext, components.SecurityContext{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "run_as_user":  securityContext.RunAsUser,
+            "run_as_group": securityContext.RunAsGroup,
+            "capabilities": flattenComponentCapabilities(securityContext.Capabilities),
+        },
+    }
+    log.Printf("[DEBUG] The securityContext result is %#v", result)
+    return result
+}
+
+func flattenComponentCapabilities(capabilities *components.Capabilities) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(capabilities, components.Capabilities{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "add":  capabilities.Add,
+            "drop": capabilities.Drop,
+        },
+    }
+    log.Printf("[DEBUG] The capabilities result is %#v", result)
+    return result
+}
+
+func flattenComponentLogs(Logs []*components.Log) (result []map[string]interface{}) {
+    if len(Logs) < 1 {
+        return nil
+    }
+
+    for _, val := range Logs {
+        s := map[string]interface{}{
+            "log_path":         val.LogPath,
+            "rotate":           val.Rotate,
+            "host_path":        val.HostPath,
+            "host_extend_path": val.HostExtendPath,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The logs result is %#v", result)
+    return result
+}
+
+func flattenComponentCustomMetric(customMetric *components.CustomMetric) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(customMetric, components.CustomMetric{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "path":       customMetric.Path,
+            "port":       customMetric.Port,
+            "dimensions": customMetric.Dimensions,
+        },
+    }
+    log.Printf("[DEBUG] The customMetric result is %#v", result)
+    return result
+}
+
+func flattenComponentAffinity(affinity *components.Affinity) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(affinity, components.Affinity{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "az":        affinity.AZ,
+            "node":      affinity.Node,
+            "component": flattenComponentAffinityComponent(affinity.Component),
+        },
+    }
+    log.Printf("[DEBUG] The affinity result is %#v", result)
+    return result
+}
+
+func flattenComponentAffinityComponent(affinityComponent []*components.AppInnerParameters) (result []map[string]interface{}) {
+    if len(affinityComponent) < 1 {
+        return nil
+    }
+
+    for _, val := range affinityComponent {
+        s := map[string]interface{}{
+            "display_name": val.DisplayName,
+            "name":         val.Name,
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The affinityComponent result is %#v", result)
+    return result
+}
+
+func flattenComponentK8sProbe(k8sProbe *components.K8sProbe) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(k8sProbe, components.K8sProbe{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "command":           k8sProbe.Command,
+            "path":              k8sProbe.Path,
+            "port":              k8sProbe.Port,
+            "host":              k8sProbe.Host,
+            "scheme":            k8sProbe.Scheme,
+            "type":              k8sProbe.Type,
+            "delay":             k8sProbe.Delay,
+            "timeout":           k8sProbe.Timeout,
+            "period_seconds":    k8sProbe.PeriodSeconds,
+            "success_threshold": k8sProbe.SuccessThreshold,
+            "failure_threshold": k8sProbe.FailureThreshold,
+        },
+    }
+    log.Printf("[DEBUG] The k8sProbe result is %#v", result)
+    return result
+}
+
+func flattenComponentReferResource(referResource []*components.Resource) (result []map[string]interface{}) {
+    if len(referResource) < 1 {
+        return nil
+    }
+
+    for _, val := range referResource {
+        s := map[string]interface{}{
+            "id":         val.ID,
+            "type":       val.Type,
+            "parameters": flattenComponentReferResourceParameter(val.Parameters),
+        }
+        result = append(result, s)
+    }
+
+    log.Printf("[DEBUG] The referResource result is %#v", result)
+    return result
+}
+
+func flattenComponentReferResourceParameter(referResourceParameter *components.ResourceParameters) (result []map[string]interface{}) {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Printf("[ERROR] Recover panic when flattening scheduler structure: %#v", r)
+        }
+    }()
+
+    if reflect.DeepEqual(referResourceParameter, components.ResourceParameters{}) {
+        return nil
+    }
+
+    result = []map[string]interface{}{
+        {
+            "type":      referResourceParameter.Type,
+            "namespace": referResourceParameter.NameSpace,
+        },
+    }
+    log.Printf("[DEBUG] The referResourceParameter result is %#v", result)
+    return result
 }
 
 func resourceComponentV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1775,9 +2343,46 @@ func resourceComponentV3Update(ctx context.Context, d *schema.ResourceData, meta
     // In normal changes, there is no situation in which source and builder are empty, so these two empty values are
     // ignored.
     opt := components.UpdateOpts{
-        Name:    d.Get("name").(string),
-        Builder: buildRepoBuildStructure(d.Get("build").(interface{})),
-        Source:  buildRepoSourceV3Structure(d.Get("source").([]interface{})),
+        Name:                   d.Get("name").(string),
+        WorkloadName:           d.Get("workload_name").(string),
+        Description:            d.Get("description").(string),
+        Labels:                 buildCompLabels(d.Get("labels").([]interface{})),
+        PodLabels:              buildCompLabels(d.Get("pod_labels").([]interface{})),
+        Version:                d.Get("version").(string),
+        EnvironmentID:          d.Get("environment_id").(string),
+        ApplicationID:          d.Get("application_id").(string),
+        EnterpriseProjectId:    d.Get("enterprise_project_id").(string),
+        LimitCpu:               d.Get("limit_cpu").(float64),
+        LimitMemory:            d.Get("limit_memory").(float64),
+        RequestCpu:             d.Get("request_cpu").(float64),
+        RequestMemory:          d.Get("request_memory").(float64),
+        Replica:                d.Get("replica").(int),
+        EnableSermantInjection: d.Get("enable_sermant_injection").(bool),
+        Timezone:               d.Get("timezone").(string),
+        JvmOpts:                d.Get("jvm_opts").(string),
+        WorkloadKind:           d.Get("workload_kind").(string),
+        RuntimeStack:           buildCompRuntimeStack(d.Get("runtime_stack").(interface{})),
+        Build:                  buildRepoBuildStructure(d.Get("build").(interface{})),
+        Source:                 buildRepoSourceV3Structure(d.Get("source").(interface{})),
+        Envs:                   buildEnvsStructure(d.Get("envs").([]interface{})),
+        Storages:               buildStoragesStructure(d.Get("storage").([]interface{})),
+        DeployStrategy:         buildDeployStrategyStructure(d.Get("deploy_strategy").(interface{})),
+        Command:                buildCommandStructure(d.Get("command").(interface{})),
+        PostStart:              buildComponentLifecycleStructure(d.Get("post_start").(interface{})),
+        PreStop:                buildComponentLifecycleStructure(d.Get("pre_stop").(interface{})),
+        Mesher:                 buildMesherStructure(d.Get("mesher").(interface{})),
+        TomcatOpts:             buildTomcatOptStructure(d.Get("tomcat_opts").(interface{})),
+        HostAliases:            buildHostAliasesStructure(d.Get("host_aliases").([]interface{})),
+        DnsPolicy:              d.Get("dns_policy").(string),
+        DnsConfig:              buildDnsConfigStructure(d.Get("dns_config").(interface{})),
+        SecurityContext:        buildSecurityContextStructure(d.Get("security_context").(interface{})),
+        Logs:                   buildLogsStructure(d.Get("logs").([]interface{})),
+        CustomMetric:           buildCustomMetricStructure(d.Get("custom_metric").(interface{})),
+        Affinity:               buildComponentAffinityStructure(d.Get("affinity").(interface{})),
+        AntiAffinity:           buildComponentAffinityStructure(d.Get("anti_affinity").(interface{})),
+        LivenessProbe:          buildComponentProbeStructure(d.Get("liveness_probe").(interface{})),
+        ReadinessProbe:         buildComponentProbeStructure(d.Get("readiness_probe").(interface{})),
+        ReferResources:         buildReferResourcesStructure(d.Get("refer_resources").([]interface{})),
     }
     _, err = components.Update(client, appId, d.Id(), opt)
     if err != nil {
@@ -1811,4 +2416,3 @@ func resourceComponentV3ImportState(_ context.Context, d *schema.ResourceData, _
     d.SetId(parts[1])
     return []*schema.ResourceData{d}, d.Set("application_id", parts[0])
 }
-

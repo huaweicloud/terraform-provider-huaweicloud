@@ -125,14 +125,53 @@ type UpdateOpts struct {
 	// Application component name.
 	// The value can contain 2 to 64 characters, including letters, digits, hyphens (-), and underscores (_).
 	// It must start with a letter and end with a letter or digit.
-	Name string `json:"name,omitempty"`
+	Name         string `json:"name" required:"true"`
+	WorkloadName string `json:"workload_name,omitempty"`
 	// Description.
 	// The value can contain up to 128 characters.
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description,omitempty"`
 	// Source of the code or software package.
-	Source *Source `json:"source,omitempty"`
-	// Component build.
-	Builder *Build `json:"build,omitempty"`
+	Source *Source `json:"source,omitempty" required:"true"`
+	// Component builder.
+	Build           *Build           `json:"build,omitempty"`
+	Labels          []*KeyValue      `json:"labels,omitempty"`
+	PodLabels       []*KeyValue      `json:"pod_labels,omitempty"`
+	RuntimeStack    RuntimeStack     `json:"runtime_stack" required:"true"`
+	LimitCpu        float64          `json:"limit_cpu,omitempty"`
+	LimitMemory     float64          `json:"limit_memory,omitempty"`
+	RequestCpu      float64          `json:"request_cpu,omitempty"`
+	RequestMemory   float64          `json:"request_memory,omitempty"`
+	Replica         int              `json:"replica"`
+	Version         string           `json:"version" required:"true"`
+	Envs            []*Env           `json:"envs,omitempty"`
+	Storages        []*Storage       `json:"storage,omitempty"`
+	DeployStrategy  *DeployStrategy  `json:"deploy_strategy,omitempty"`
+	Command         *Command         `json:"command,omitempty"`
+	PostStart       *K8sLifeCycle    `json:"post_start,omitempty"`
+	PreStop         *K8sLifeCycle    `json:"pre_stop,omitempty"`
+	Mesher          *Mesher          `json:"mesher,omitempty"`
+	EnableSermantInjection bool      `json:"enable_sermant_injection,omitempty"`
+	Timezone        string           `json:"timezone,omitempty"`
+	JvmOpts         string           `json:"jvm_opts,omitempty"`
+	TomcatOpts      *TomcatOpts      `json:"tomcat_opts,omitempty"`
+	HostAliases     []*HostAlias     `json:"host_aliases,omitempty"`
+	DnsPolicy       string           `json:"dns_policy,omitempty"`
+	DnsConfig       *DnsConfig       `json:"dns_config,omitempty"`
+	SecurityContext *SecurityContext `json:"security_context,omitempty"`
+	WorkloadKind    string           `json:"workload_kind,omitempty"`
+	Logs            []*Log            `json:"logs,omitempty"`
+	CustomMetric    *CustomMetric    `json:"custom_metric,omitempty"`
+	Affinity        *Affinity        `json:"affinity,omitempty"`
+	AntiAffinity    *Affinity        `json:"anti_affinity,omitempty"`
+	LivenessProbe   *K8sProbe        `json:"liveness_probe,omitempty"`
+	ReadinessProbe  *K8sProbe        `json:"readiness_probe,omitempty"`
+	ReferResources  []*Resource      `json:"refer_resources,omitempty"`
+	// Environment info
+	EnvironmentID string `json:"environment_id" required:"true"`
+	// Application info
+	ApplicationID string `json:"application_id" required:"true"`
+	// The enterprise project ID.
+	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 
 // Update is a method to update the component configuration, such as name, description, builder and code source.
