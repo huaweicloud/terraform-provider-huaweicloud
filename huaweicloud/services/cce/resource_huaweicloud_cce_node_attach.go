@@ -325,8 +325,9 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 	// wait for the cce cluster to become available
 	clusterID := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
-		Target:       []string{"Available"},
-		Refresh:      waitForClusterAvailable(nodeClient, clusterID),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      clusterStateRefreshFunc(nodeClient, clusterID, []string{"Available"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -390,9 +391,10 @@ func resourceCCENodeAttachV3Create(ctx context.Context, d *schema.ResourceData, 
 	d.SetId(nodeID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Build", "Installing"},
-		Target:       []string{"Active"},
-		Refresh:      nodeStateRefreshFunc(nodeClient, clusterID, nodeID),
+		// The statuses of pending phase includes "Build" and "Installing".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodeStateRefreshFunc(nodeClient, clusterID, nodeID, []string{"Active"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -467,9 +469,10 @@ func resourceCCENodeAttachV3Update(ctx context.Context, d *schema.ResourceData, 
 		d.SetId(nodeID)
 
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"Build", "Installing"},
-			Target:       []string{"Active"},
-			Refresh:      nodeStateRefreshFunc(nodeClient, clusterID, nodeID),
+			// The statuses of pending phase includes "Build" and "Installing".
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      nodeStateRefreshFunc(nodeClient, clusterID, nodeID, []string{"Active"}),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        20 * time.Second,
 			PollInterval: 20 * time.Second,
@@ -527,9 +530,10 @@ func resourceCCENodeAttachV3Delete(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Deleting"},
-		Target:       []string{"Deleted"},
-		Refresh:      nodeStateRefreshFunc(nodeClient, clusterID, d.Id()),
+		// The statuses of pending phase include "Deleting".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodeStateRefreshFunc(nodeClient, clusterID, d.Id(), nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,

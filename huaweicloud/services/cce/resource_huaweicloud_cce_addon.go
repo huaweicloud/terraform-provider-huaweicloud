@@ -217,9 +217,10 @@ func resourceAddonCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Waiting for CCEAddon (%s) to become available", create.Metadata.Id)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"installing", "abnormal"},
-		Target:       []string{"running", "available"},
-		Refresh:      waitForAddonActive(cceClient, create.Metadata.Id, clusterID),
+		// The statuses of pending phase includes "installing" and "abnormal".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      addonStateRefreshFunc(cceClient, create.Metadata.Id, clusterID, []string{"running", "available"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -303,9 +304,10 @@ func resourceAddonUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Waiting for CCEAddon (%s) to become available", update.Metadata.Id)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"installing", "abnormal"},
-		Target:       []string{"running", "available"},
-		Refresh:      waitForAddonActive(cceClient, update.Metadata.Id, clusterID),
+		// The statuses of pending phase includes "installing" and "abnormal".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      addonStateRefreshFunc(cceClient, update.Metadata.Id, clusterID, []string{"running", "available"}),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -333,9 +335,10 @@ func resourceAddonDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error deleting CCE Addon: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Deleting", "Available", "Unavailable"},
-		Target:       []string{"Deleted"},
-		Refresh:      waitForAddonDelete(cceClient, d.Id(), clusterID),
+		// The statuses of pending phase includes "Deleting", "Available" and "Unavailable".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      addonStateRefreshFunc(cceClient, d.Id(), clusterID, nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -351,36 +354,28 @@ func resourceAddonDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
-func waitForAddonActive(cceAddonClient *golangsdk.ServiceClient, id, clusterID string) resource.StateRefreshFunc {
+func addonStateRefreshFunc(cceClient *golangsdk.ServiceClient, addonId, clusterId string,
+	targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := addons.Get(cceAddonClient, id, clusterID).Extract()
-		if err != nil {
-			return nil, "", err
-		}
-
-		return n, n.Status.Status, nil
-	}
-}
-
-func waitForAddonDelete(cceClient *golangsdk.ServiceClient, id, clusterID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete CCE Addon %s.\n", id)
-
-		r, err := addons.Get(cceClient, id, clusterID).Extract()
-
+		log.Printf("[DEBUG] Expect the status of CCE add-on to be any one of the status list: %v.", targets)
+		resp, err := addons.Get(cceClient, addonId, clusterId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted CCE Addon %s", id)
-				return r, "Deleted", nil
+				log.Printf("[DEBUG] The add-on (%s) has been deleted", addonId)
+				return resp, "COMPLETED", nil
 			}
-			return nil, "Available", err
+			return nil, "ERROR", err
 		}
 
-		if r.Status.Status == "Deleting" {
-			return r, "Deleting", nil
+		invalidStatuses := []string{"installFailed", "upgradeFailed", "deleteFailed", "rollbackFailed", "unknown"}
+		if utils.IsStrContainsSliceElement(resp.Status.Status, invalidStatuses, true, true) {
+			return resp, "", fmt.Errorf("unexpect status (%s)", resp.Status.Status)
 		}
-		log.Printf("[DEBUG] CCE Addon %s still available.\n", id)
-		return r, "Available", nil
+
+		if utils.StrSliceContains(targets, resp.Status.Status) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
 	}
 }
 

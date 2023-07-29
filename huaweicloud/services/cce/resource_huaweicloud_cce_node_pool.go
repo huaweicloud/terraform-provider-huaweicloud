@@ -538,8 +538,9 @@ func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for the cce cluster to become available.
 	clusterId := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
-		Target:     []string{"Available"},
-		Refresh:    waitForClusterAvailable(cceClient, clusterId),
+		Pending:    []string{"PENDING"},
+		Target:     []string{"COMPLETED"},
+		Refresh:    clusterStateRefreshFunc(cceClient, clusterId, []string{"Available"}),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 5 * time.Second,
@@ -564,9 +565,10 @@ func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta in
 	d.SetId(resp.Metadata.Id)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Synchronizing", "Synchronized"},
-		Target:       []string{""},
-		Refresh:      waitForNodePoolActive(cceClient, clusterId, d.Id()),
+		// The statuses of pending phase includes "Synchronizing" and "Synchronized".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, d.Id(), []string{""}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        120 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -760,9 +762,10 @@ func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Synchronizing", "Synchronized"},
-		Target:       []string{""},
-		Refresh:      waitForNodePoolActive(cceClient, clusterId, nodePoolId),
+		// The statuses of pending phase includes "Synchronizing" and "Synchronized".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, []string{""}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        60 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -790,9 +793,10 @@ func resourceNodePoolDelete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Deleting"},
-		Target:       []string{"Deleted"},
-		Refresh:      waitForNodePoolDelete(cceClient, clusterId, nodePoolId),
+		// The statuses of pending phase include "Deleting".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodePoolStateRefreshFunc(cceClient, clusterId, nodePoolId, nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -804,30 +808,28 @@ func resourceNodePoolDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func waitForNodePoolActive(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
+func nodePoolStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string,
+	targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()
-		if err != nil {
-			return nil, "", err
-		}
-		return n, n.Status.Phase, nil
-	}
-}
-
-func waitForNodePoolDelete(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete CCE node pool (%s).", nodePoolId)
-		r, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()
+		log.Printf("[DEBUG] Expect the status of CCE add-on to be any one of the status list: %v.", targets)
+		resp, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted CCE node pool (%s)", nodePoolId)
-				return r, "Deleted", nil
+				log.Printf("[DEBUG] The node pool (%s) has been deleted", nodePoolId)
+				return resp, "COMPLETED", nil
 			}
-			return r, "Deleting", err
+			return nil, "ERROR", err
 		}
 
-		log.Printf("[DEBUG] CCE node pool (%s) is still available.", nodePoolId)
-		return r, r.Status.Phase, nil
+		invalidStatuses := []string{"Error", "Shelved", "Unknow"}
+		if utils.IsStrContainsSliceElement(resp.Status.Phase, invalidStatuses, true, true) {
+			return resp, "", fmt.Errorf("unexpect status (%s)", resp.Status.Phase)
+		}
+
+		if utils.StrSliceContains(targets, resp.Status.Phase) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
 	}
 }
 

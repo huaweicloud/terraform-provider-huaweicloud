@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
@@ -759,8 +758,9 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	// wait for the cce cluster to become available
 	clusterid := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
 		Target:       []string{"Available"},
-		Refresh:      waitForClusterAvailable(nodeClient, clusterid),
+		Refresh:      clusterStateRefreshFunc(nodeClient, clusterid, []string{"Available"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -847,9 +847,10 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Build", "Installing"},
-		Target:       []string{"Active"},
-		Refresh:      nodeStateRefreshFunc(nodeClient, clusterid, nodeID),
+		// The statuses of pending phase includes "Build" and "Installing".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodeStateRefreshFunc(nodeClient, clusterid, nodeID, []string{"Active"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -1072,9 +1073,10 @@ func resourceNodeDelete(ctx context.Context, d *schema.ResourceData, meta interf
 		}
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Deleting"},
-		Target:       []string{"Deleted"},
-		Refresh:      nodeStateRefreshFunc(nodeClient, clusterid, d.Id()),
+		// The statuses of pending phase include "Deleting".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      nodeStateRefreshFunc(nodeClient, clusterid, d.Id(), nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -1249,31 +1251,28 @@ func getResourceIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, 
 
 }
 
-func nodeStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodeId string) resource.StateRefreshFunc {
+func nodeStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodeId string,
+	targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := nodes.Get(cceClient, clusterId, nodeId).Extract()
+		log.Printf("[DEBUG] Expect the status of CCE node to be any one of the status list: %v", targets)
+		resp, err := nodes.Get(cceClient, clusterId, nodeId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted CCE Node %s", nodeId)
-				return n, "Deleted", nil
+				log.Printf("[DEBUG] The node (%s) has been deleted", clusterId)
+				return resp, "COMPLETED", nil
 			}
-			return nil, "", err
+			return nil, "ERROR", err
 		}
 
-		return n, n.Status.Phase, nil
-	}
-}
-
-func waitForClusterAvailable(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		log.Printf("[INFO] Waiting for CCE Cluster %s to be available", clusterId)
-		n, err := clusters.Get(cceClient, clusterId).Extract()
-
-		if err != nil {
-			return nil, "", err
+		invalidStatuses := []string{"Error", "Shelved", "Unknow"}
+		if utils.IsStrContainsSliceElement(resp.Status.Phase, invalidStatuses, true, true) {
+			return resp, "ERROR", fmt.Errorf("unexpected status: %s", resp.Status.Phase)
 		}
 
-		return n, n.Status.Phase, nil
+		if utils.StrSliceContains(targets, resp.Status.Phase) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
 	}
 }
 

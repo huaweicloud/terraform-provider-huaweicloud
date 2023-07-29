@@ -571,9 +571,10 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become available", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Creating"},
-		Target:       []string{"Available"},
-		Refresh:      waitForClusterActive(cceClient, d.Id()),
+		// The statuses of pending phase include "Creating".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      clusterStateRefreshFunc(cceClient, d.Id(), []string{"Available"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -848,9 +849,10 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Deleting", "Available", "Unavailable"},
-		Target:       []string{"Deleted"},
-		Refresh:      waitForClusterDelete(cceClient, d.Id()),
+		// The statuses of pending phase includes "Deleting", "Available" and "Unavailable".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      clusterStateRefreshFunc(cceClient, d.Id(), nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        60 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -866,35 +868,28 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 	return nil
 }
 
-func waitForClusterActive(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func clusterStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId string,
+	targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := clusters.Get(cceClient, clusterId).Extract()
-		if err != nil {
-			return nil, "", err
-		}
-
-		return n, n.Status.Phase, nil
-	}
-}
-
-func waitForClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete CCE cluster %s", clusterId)
-
-		r, err := clusters.Get(cceClient, clusterId).Extract()
-
+		log.Printf("[DEBUG] Expect the status of CCE cluster to be any one of the status list: %v", targets)
+		resp, err := clusters.Get(cceClient, clusterId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted CCE cluster %s", clusterId)
-				return r, "Deleted", nil
+				log.Printf("[DEBUG] The cluster (%s) has been deleted", clusterId)
+				return resp, "COMPLETED", nil
 			}
-			return nil, "", err
+			return nil, "ERROR", err
 		}
-		if r.Status.Phase == "Deleting" {
-			return r, "Deleting", nil
+
+		invalidStatuses := []string{"Error", "Shelved", "Unknow"}
+		if utils.IsStrContainsSliceElement(resp.Status.Phase, invalidStatuses, true, true) {
+			return resp, "ERROR", fmt.Errorf("unexpected status: %s", resp.Status.Phase)
 		}
-		log.Printf("[DEBUG] CCE cluster (%s) still available", clusterId)
-		return r, "Available", nil
+
+		if utils.StrSliceContains(targets, resp.Status.Phase) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
 	}
 }
 
@@ -936,9 +931,10 @@ func resourceClusterHibernate(ctx context.Context, d *schema.ResourceData, cceCl
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become hibernate", clusterID)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Available", "Hibernating"},
-		Target:       []string{"Hibernation"},
-		Refresh:      waitForClusterActive(cceClient, clusterID),
+		// The statuses of pending phase includes "Available" and "Hibernating".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      clusterStateRefreshFunc(cceClient, clusterID, []string{"Hibernation"}),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -960,9 +956,10 @@ func resourceClusterAwake(ctx context.Context, d *schema.ResourceData, cceClient
 
 	log.Printf("[DEBUG] Waiting for CCE cluster (%s) to become available", clusterID)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Awaking"},
-		Target:       []string{"Available"},
-		Refresh:      waitForClusterActive(cceClient, clusterID),
+		// The statuses of pending phase include "Awaking".
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      clusterStateRefreshFunc(cceClient, clusterID, []string{"Available"}),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        100 * time.Second,
 		PollInterval: 20 * time.Second,
