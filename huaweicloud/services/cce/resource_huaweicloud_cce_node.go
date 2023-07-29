@@ -1247,8 +1247,7 @@ func getResourceIDFromJob(ctx context.Context, client *golangsdk.ServiceClient, 
 		}
 	}
 
-	return "", fmt.Errorf("error fetching %s Job resource id", subJobType)
-
+	return "", fmt.Errorf("error fetching the resource ID from the specified job (type: %s)", subJobType)
 }
 
 func nodeStateRefreshFunc(cceClient *golangsdk.ServiceClient, clusterId, nodeId string,

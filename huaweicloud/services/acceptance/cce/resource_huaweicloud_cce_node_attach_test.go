@@ -4,54 +4,69 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccCCENodeAttachV3_basic(t *testing.T) {
-	var node nodes.Nodes
+func getAttachedNodeFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CCE v3 client: %s", err)
+	}
+	return nodes.Get(client, state.Primary.Attributes["cluster_id"], state.Primary.ID).Extract()
+}
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_attach.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
-	clusterName := "huaweicloud_cce_cluster.test"
+func TestAccNodeAttach_basic(t *testing.T) {
+	var (
+		node nodes.Nodes
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		updateName   = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_attach.test"
+
+		baseConfig = testAccNodeAttach_base(name)
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&node,
+			getAttachedNodeFunc,
+		)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckNodeDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeAttachV3_basic(rName),
+				Config: testAccNodeAttach_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNodeExists(resourceName, clusterName, &node),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.5"),
 				),
 			},
 			{
-				Config: testAccCCENodeAttachV3_update(rName, rNameUpdate),
+				Config: testAccNodeAttach_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNodeExists(resourceName, clusterName, &node),
-					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
-					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.5"),
 				),
 			},
 			{
-				Config: testAccCCENodeAttachV3_reset(rName, rNameUpdate),
+				Config: testAccNodeAttach_basic_step3(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNodeExists(resourceName, clusterName, &node),
-					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "os", "CentOS 7.6"),
 				),
 			},
@@ -59,38 +74,7 @@ func TestAccCCENodeAttachV3_basic(t *testing.T) {
 	})
 }
 
-func TestAccCCENodeAttachV3_prePaid(t *testing.T) {
-	var node nodes.Nodes
-
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_node_attach.test"
-	//clusterName here is used to provide the cluster id to fetch cce node.
-	clusterName := "huaweicloud_cce_cluster.test"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckChargingMode(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckNodeDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCCENodeAttachV3_prePaid(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNodeExists(resourceName, clusterName, &node),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.5"),
-					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCCENodeAttachV3_Base(rName string) string {
+func testAccNodeAttach_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -101,9 +85,8 @@ data "huaweicloud_images_image" "test" {
   most_recent = true
 }
 
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_kps_keypair" "test" {
   name = "%[2]s"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
 resource "huaweicloud_compute_instance" "test" {
@@ -111,7 +94,7 @@ resource "huaweicloud_compute_instance" "test" {
   image_id                    = data.huaweicloud_images_image.test.id
   flavor_id                   = "sn3.large.2"
   availability_zone           = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                    = huaweicloud_compute_keypair.test.name
+  key_pair                    = huaweicloud_kps_keypair.test.name
   delete_disks_on_termination = true
   
   system_disk_type = "SAS"
@@ -141,19 +124,19 @@ resource "huaweicloud_cce_cluster" "test" {
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
 }
-`, common.TestVpc(rName), rName)
+`, common.TestVpc(name), name)
 }
 
-func testAccCCENodeAttachV3_basic(rName string) string {
+func testAccNodeAttach_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
-  key_pair   = huaweicloud_compute_keypair.test.name
+  key_pair   = huaweicloud_kps_keypair.test.name
   os         = "EulerOS 2.5"
-  name       = "%s"
+  name       = "%[2]s"
 
   max_pods         = 20
   docker_base_size = 10
@@ -174,19 +157,19 @@ resource "huaweicloud_cce_node_attach" "test" {
     key = "value"
   }
 }
-`, testAccCCENodeAttachV3_Base(rName), rName)
+`, baseConfig, name)
 }
 
-func testAccCCENodeAttachV3_update(rName, rNameUpdate string) string {
+func testAccNodeAttach_basic_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
-  key_pair   = huaweicloud_compute_keypair.test.name
+  key_pair   = huaweicloud_kps_keypair.test.name
   os         = "EulerOS 2.5"
-  name       = "%s"
+  name       = "%[2]s"
 
   max_pods         = 20
   docker_base_size = 10
@@ -207,19 +190,19 @@ resource "huaweicloud_cce_node_attach" "test" {
     key_update = "value_update"
   }
 }
-`, testAccCCENodeAttachV3_Base(rName), rNameUpdate)
+`, baseConfig, name)
 }
 
-func testAccCCENodeAttachV3_reset(rName, rNameUpdate string) string {
+func testAccNodeAttach_basic_step3(baseConfig, name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
-  key_pair   = huaweicloud_compute_keypair.test.name
+  key_pair   = huaweicloud_kps_keypair.test.name
   os         = "CentOS 7.6"
-  name       = "%s"
+  name       = "%[2]s"
 
   max_pods         = 20
   docker_base_size = 10
@@ -240,10 +223,47 @@ resource "huaweicloud_cce_node_attach" "test" {
     key_update = "value_update"
   }
 }
-`, testAccCCENodeAttachV3_Base(rName), rNameUpdate)
+`, baseConfig, name)
 }
 
-func testAccCCENodeAttachV3_prePaidBase(rName string) string {
+func TestAccNodeAttach_prePaid(t *testing.T) {
+	var (
+		node nodes.Nodes
+
+		name         = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cce_node_attach.test"
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&node,
+			getAttachedNodeFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNodeAttach_prePaid(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.5"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+				),
+			},
+		},
+	})
+}
+
+func testAccNodeAttach_prePaidBase(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -293,24 +313,24 @@ resource "huaweicloud_cce_cluster" "test" {
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
 }
-`, common.TestVpc(rName), rName)
+`, common.TestVpc(name), name)
 }
 
-func testAccCCENodeAttachV3_prePaid(rName string) string {
+func testAccNodeAttach_prePaid(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
   password   = "Test@123"
   os         = "EulerOS 2.5"
-  name       = "%s"
+  name       = "%[2]s"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, testAccCCENodeAttachV3_prePaidBase(rName), rName)
+`, testAccNodeAttach_prePaidBase(name), name)
 }
