@@ -116,6 +116,26 @@ The following arguments are supported:
 * `memory_size` - (Required, Int) Specifies the memory size(MB) allocated to the function.
 
 * `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.
+  The valid values are as follows:
+  + **Java8**
+  + **Java11**
+  + **Node.js6.10**
+  + **Node.js8.10**
+  + **Node.js10.16**
+  + **Node.js12.13**
+  + **Node.js14.18**
+  + **Python2.7**
+  + **Python3.6**
+  + **Python3.9**
+  + **Go1.8**
+  + **Go1.x**
+  + **C#(.NET Core 2.0)**
+  + **C#(.NET Core 2.1)**
+  + **C#(.NET Core 3.1)**
+  + **PHP7.3**
+  + **Custom**
+  + **http**
+
   If the function is created using an SWR image, set this parameter to `Custom Image`.
   Changing this will create a new resource.
 

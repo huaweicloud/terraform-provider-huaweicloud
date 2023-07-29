@@ -38,9 +38,25 @@ resource "huaweicloud_fgs_dependency" "test" {
   If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `runtime` - (Required, String) Specifies the dependency package runtime.
-  The valid values are **Java8**, **Node.js6.10**, **Node.js8.10**, **Node.js10.16**, **Node.js12.13**, **Python2.7**,
-  **Python3.6**, **Go1.8**, **Go1.x**, **C#(.NET Core 2.0)**, **C#(.NET Core 2.1)**, **C#(.NET Core 3.1)** and
-  **PHP7.3**.
+  The valid values are as follows:
+  + **Java8**
+  + **Java11**
+  + **Node.js6.10**
+  + **Node.js8.10**
+  + **Node.js10.16**
+  + **Node.js12.13**
+  + **Node.js14.18**
+  + **Python2.7**
+  + **Python3.6**
+  + **Python3.9**
+  + **Go1.8**
+  + **Go1.x**
+  + **C#(.NET Core 2.0)**
+  + **C#(.NET Core 2.1)**
+  + **C#(.NET Core 3.1)**
+  + **PHP7.3**
+  + **Custom**
+  + **http**
 
 * `name` - (Required, String) Specifies the dependeny name.
   The name can contain a maximum of 96 characters and must start with a letter and end with a letter or digit.
