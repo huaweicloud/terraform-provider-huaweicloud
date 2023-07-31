@@ -118,6 +118,8 @@ var (
 	HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID = os.Getenv("HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID")
 	HW_ORGANIZATIONS_INVITATION_ID          = os.Getenv("HW_ORGANIZATIONS_INVITATION_ID")
 
+	HW_IDENTITY_CENTER_ACCOUNT_ID = os.Getenv("HW_IDENTITY_CENTER_ACCOUNT_ID")
+
 	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
 
 	// The OBS address where the HCL/JSON template archive (No variables) is located.
@@ -229,6 +231,13 @@ func TestAccPreCheckOrganizationsInvitationId(t *testing.T) {
 func TestAccPreCheckOrganizationsOrganizationalUnitId(t *testing.T) {
 	if HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID == "" {
 		t.Skip("HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckIdentityCenterAccountId(t *testing.T) {
+	if HW_IDENTITY_CENTER_ACCOUNT_ID == "" {
+		t.Skip("HW_IDENTITY_CENTER_ACCOUNT_ID must be set for acceptance tests")
 	}
 }
 
