@@ -888,9 +888,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_password_policy":       iam.ResourceIdentityPasswordPolicy(),
 			"huaweicloud_identity_protection_policy":     iam.ResourceIdentityProtectionPolicy(),
 
-			"huaweicloud_identitycenter_user":               identitycenter.ResourceIdentityCenterUser(),
-			"huaweicloud_identitycenter_permission_set":     identitycenter.ResourcePermissionSet(),
-			"huaweicloud_identitycenter_account_assignment": identitycenter.ResourceIdentityCenterAccountAssignment(),
+			"huaweicloud_identitycenter_user":                     identitycenter.ResourceIdentityCenterUser(),
+			"huaweicloud_identitycenter_permission_set":           identitycenter.ResourcePermissionSet(),
+			"huaweicloud_identitycenter_system_policy_attachment": identitycenter.ResourceSystemPolicyAttachment(),
+			"huaweicloud_identitycenter_account_assignment":       identitycenter.ResourceIdentityCenterAccountAssignment(),
 
 			"huaweicloud_iec_eip":                 resourceIecNetworkEip(),
 			"huaweicloud_iec_keypair":             resourceIecKeypair(),
@@ -1043,8 +1044,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_tms_tags": tms.ResourceTmsTag(),
 
-			"huaweicloud_ucs_policy": ucs.ResourcePolicy(),
-			"huaweicloud_ucs_fleet":  ucs.ResourceFleet(),
+			"huaweicloud_ucs_fleet":   ucs.ResourceFleet(),
+			"huaweicloud_ucs_cluster": ucs.ResourceCluster(),
+			"huaweicloud_ucs_policy":  ucs.ResourcePolicy(),
 
 			"huaweicloud_vod_media_asset":                vod.ResourceMediaAsset(),
 			"huaweicloud_vod_media_category":             vod.ResourceMediaCategory(),
@@ -1055,8 +1057,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_bandwidth_associate": eip.ResourceBandWidthAssociate(),
 			"huaweicloud_vpc_eip":                 eip.ResourceVpcEIPV1(),
 			"huaweicloud_vpc_eip_associate":       eip.ResourceEIPAssociate(),
-
-			"huaweicloud_ucs_cluster": ucs.ResourceCluster(),
 
 			"huaweicloud_vpc_peering_connection":          vpc.ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": vpc.ResourceVpcPeeringConnectionAccepterV2(),
