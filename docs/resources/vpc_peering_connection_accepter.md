@@ -73,7 +73,7 @@ corresponding `huaweicloud_vpc_peering_connection` resource from your configurat
 Removing a `huaweicloud_vpc_peering_connection_accepter` resource from your configuration will remove it from your
 state file and management, but will not destroy the VPC Peering Connection.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

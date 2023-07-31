@@ -155,7 +155,7 @@ The `scaling_policy_action` block supports:
 
 * `instance_number` - (Optional, Int) Specifies the number of instances to be operated. The default number is 1.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

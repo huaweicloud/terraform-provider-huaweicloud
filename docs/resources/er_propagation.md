@@ -38,7 +38,7 @@ The following arguments are supported:
 * `attachment_id` - (Required, String, ForceNew) Specifies the ID of the attachment corresponding to the propagation.  
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

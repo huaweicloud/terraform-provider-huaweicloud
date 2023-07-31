@@ -134,7 +134,7 @@ The `DataNode` block supports:
 
 * `admin_password` - (Required, String) Specifies the password for logging in to the associated RDS instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

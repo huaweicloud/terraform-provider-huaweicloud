@@ -21,7 +21,7 @@ data "huaweicloud_gaussdb_mysql_configuration" "this" {
 
 * `name` - (Optional, String) Specifies the name of the parameter template.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

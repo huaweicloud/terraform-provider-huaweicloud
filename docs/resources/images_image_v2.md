@@ -62,7 +62,7 @@ The following arguments are supported:
 Note: The `properties` attribute handling in the golangsdk library is currently buggy and needs to be fixed before being
 implemented in this resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

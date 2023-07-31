@@ -145,7 +145,7 @@ The `labels` block supports:
 
 * `property_shortcut` - (Optional, String) Specifies shortcut of label.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

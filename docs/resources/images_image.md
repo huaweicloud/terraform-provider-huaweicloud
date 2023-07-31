@@ -126,7 +126,7 @@ The following arguments are supported:
 * `vault_id` - (Optional, String, ForceNew) The ID of the vault to which an ECS is to be added or has been added.
   This parameter is mandatory when you create a private whole image from an ECS.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

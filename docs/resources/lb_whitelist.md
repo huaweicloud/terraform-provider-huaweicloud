@@ -38,7 +38,7 @@ The following arguments are supported:
 * `whitelist` - (Optional, String) Specifies the IP addresses in the whitelist. Use commas(,) to separate the multiple
   IP addresses.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

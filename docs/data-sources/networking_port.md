@@ -32,7 +32,7 @@ data "huaweicloud_networking_port" "port_1" {
 
 * `security_group_ids` - (Optional, List) The list of port security group IDs to filter.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

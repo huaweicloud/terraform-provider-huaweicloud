@@ -304,7 +304,7 @@ The `noncurrent_version_transition` object supports the following
 * `storage_class` - (Required, String) The class of storage used to store the object. Only `WARM` and `COLD` are
   supported.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

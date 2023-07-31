@@ -48,7 +48,7 @@ The following arguments are supported:
 * `cpu_architecture` - (Optional, String) The CPU architecture of cache instance.
   Valid values *x86_64* and *aarch64*.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

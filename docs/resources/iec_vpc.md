@@ -41,7 +41,7 @@ The following arguments are supported:
 * `mode` - (Optional, String, ForceNew) Specifies the mode of the IEC VPC. Possible values are "SYSTEM" and "CUSTOMER",
   defaults to "SYSTEM". Changing this creates a new IEC VPC.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

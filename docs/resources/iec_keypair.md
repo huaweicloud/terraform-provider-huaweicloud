@@ -28,7 +28,7 @@ The following arguments are supported:
 * `public_key` - (Optional, String, ForceNew) Specifies a pregenerated OpenSSH-formatted public key. Changing this
   parameter creates a new keypair resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

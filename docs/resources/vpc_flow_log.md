@@ -69,7 +69,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies description about the VPC flow log.
   The value can contain no more than 255 characters and cannot contain angle brackets (< or >).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

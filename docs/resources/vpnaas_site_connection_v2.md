@@ -84,7 +84,7 @@ The following arguments are supported:
 
 * `tags` - (Optional) The key/value pairs to associate with the connection.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -21,7 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of an available SDRS domain.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

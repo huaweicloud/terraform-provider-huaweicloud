@@ -52,7 +52,7 @@ The following arguments are supported:
   spelled backwards. Defaults to `true`, which indicates that the username or the inversion of username is not allowed to
   be used as a password.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

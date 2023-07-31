@@ -61,7 +61,7 @@ data "huaweicloud_dms_product" "product2" {
 
 * `node_num` - (Optional, String) Indicates the number of nodes in a cluster.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

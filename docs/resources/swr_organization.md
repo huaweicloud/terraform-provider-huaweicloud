@@ -24,7 +24,7 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) Specifies the name of the organization. The organization name must be globally
   unique.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

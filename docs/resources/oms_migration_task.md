@@ -212,7 +212,7 @@ The `smn_config` block supports:
 * `language` - (Optional, String, ForceNew) Specifies the SMN message language. The value can be **zh-cn** or
   **en-us**. Default value: **en-us**. Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -241,7 +241,7 @@ The `backup_strategy` block supports:
   + If this parameter is not transferred, the automated backup policy is enabled by default. Backup files are stored
       for seven days by default.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

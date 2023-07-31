@@ -78,7 +78,7 @@ The following arguments are supported:
 * `tags` - (Optional, Map, ForceNew) The key/value pairs to associate with the DataArts Studio instance.
   Changing this creates a new instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

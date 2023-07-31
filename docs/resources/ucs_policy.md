@@ -69,7 +69,7 @@ The `details` block supports:
 
 * `resources` - (Optional, List) Specifies the list of resources.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

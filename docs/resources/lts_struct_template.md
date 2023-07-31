@@ -52,7 +52,7 @@ The following arguments are supported:
 * `template_name` - (Optional, String) Specifies the system template name. The value can be **ELB**, **VPC**, **CTS**
   and **APIG**. This parameter is mandatory when using system templates.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

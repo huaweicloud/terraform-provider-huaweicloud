@@ -19,7 +19,7 @@ The following arguments are supported:
 
 * `root_tags` - (Optional, Map) Specifies the key/value to attach to the root.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

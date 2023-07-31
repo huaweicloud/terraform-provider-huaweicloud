@@ -87,7 +87,7 @@ The following arguments are supported:
         cannot revoke the group owner's permissions.
       * **SHOW_PRIVILEGES**: This permission allows user to view the group permissions of other users.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

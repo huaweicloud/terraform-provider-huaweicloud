@@ -63,7 +63,7 @@ The following arguments are supported:
   a security group rule, the address group and the associated security group rule will be deleted together.
   The default value is **false**.
   
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

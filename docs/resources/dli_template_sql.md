@@ -34,7 +34,7 @@ The following arguments are supported:
 
 * `group` - (Optional, String) The group of the SQL template.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

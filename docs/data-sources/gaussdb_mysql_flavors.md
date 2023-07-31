@@ -25,7 +25,7 @@ data "huaweicloud_gaussdb_mysql_flavors" "flavors" {
 * `availability_zone_mode` - (Optional, String) Specifies the availability zone mode. Currently support `single` and '
   multi'. Defaults to `single`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

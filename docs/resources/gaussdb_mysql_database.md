@@ -43,7 +43,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the database remarks. The value can consist of up to 512 characters,
   and cannot contain the carriage return characters or special characters (!<"='>&).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

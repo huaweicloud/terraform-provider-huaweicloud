@@ -27,7 +27,7 @@ The following arguments are supported:
 
 * `id` - (Required, String) Specifies the backup ID.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

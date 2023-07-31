@@ -77,7 +77,7 @@ The following arguments are supported:
    * `dli_sql_job_timeout` - (Optional, Int, ForceNew) Sets the job running timeout interval. If the timeout interval
     expires, the job is canceled. Unit: `ms`. Changing this parameter will create a new resource.
   
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

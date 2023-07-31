@@ -36,7 +36,7 @@ output "route_nexthop" {
 
 * `vpc_id` - (Required, String) The VPC ID that you want to filter from.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

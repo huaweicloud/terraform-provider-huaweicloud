@@ -27,7 +27,7 @@ The following arguments are supported:
 * `pool` - (Optional, String, ForceNew) The name of the pool from which to create the floating IP. Only
   admin_external_net is valid. Changing this creates a new floating IP.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

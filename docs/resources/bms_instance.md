@@ -202,7 +202,7 @@ The `data_disks` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768. Changing
   this creates a new instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -21,7 +21,7 @@ data "huaweicloud_gaussdb_mysql_dedicated_resource" "this" {
 
 * `resource_name` - (Optional, String) Specifies the dedicated resource name.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

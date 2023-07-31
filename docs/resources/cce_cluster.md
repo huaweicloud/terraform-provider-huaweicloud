@@ -271,7 +271,7 @@ The `masters` block supports:
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone of the master node.
   Changing this parameter will create a new cluster resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

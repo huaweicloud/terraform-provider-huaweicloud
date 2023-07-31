@@ -30,7 +30,7 @@ data "huaweicloud_identity_custom_role" "role" {
 
 * `references` - (Optional, Int) The number of citations for the custom policy.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -55,7 +55,7 @@ The `ip_ranges` block supports:
 
 ->**NOTE:** Up to 200 `ip_cidrs` and `ip_ranges` can be created in total for each access method.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

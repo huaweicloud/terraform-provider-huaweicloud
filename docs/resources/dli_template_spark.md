@@ -133,7 +133,7 @@ The `dependent_packages` block supports:
 * `resources` - (Optional, List) User group resource.
 The [resources](#SparkTemplate_Resources) structure is documented above.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

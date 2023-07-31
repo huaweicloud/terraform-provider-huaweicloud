@@ -51,7 +51,7 @@ The `Id` block supports:
 
 * `id` - (Required, String) Specifies the ID of the associated listener.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -55,7 +55,7 @@ The arguments of this data source act as filters for querying the available EIPs
   tag must be unique, use commas(,) to separate the multiple values. An empty for values indicates any value.
   The values are in the OR relationship.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

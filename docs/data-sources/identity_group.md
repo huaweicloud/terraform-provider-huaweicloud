@@ -24,7 +24,7 @@ data "huaweicloud_identity_group" "group" {
 
 * `description` - (Optional, String) Specifies the description of the identity group.
 
-## Attributes Reference
+## Attribute Reference
 
 * `domain_id` - Indicates the domain the group belongs to.
 

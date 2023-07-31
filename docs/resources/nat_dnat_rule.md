@@ -135,7 +135,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the DNAT rule.  
   The value is a string of no more than `255` characters, and angle brackets (<>) are not allowed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

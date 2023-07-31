@@ -27,7 +27,7 @@ The following arguments are supported:
 
   -> **NOTE:** The certificate name is not unique. Only returns the last created one when matched multiple certificates.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

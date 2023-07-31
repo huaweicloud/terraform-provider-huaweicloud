@@ -54,7 +54,7 @@ The following arguments are supported:
   The description must consist of a maximum of 256 characters and cannot contain the carriage
   return character or the following special characters: >!<"&'=.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

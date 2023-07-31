@@ -46,7 +46,7 @@ The following arguments are supported:
 * `token` - (Required, String, ForceNew) Specified the personal access token of the repository.
   Changing this parameter will create a new authorization.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

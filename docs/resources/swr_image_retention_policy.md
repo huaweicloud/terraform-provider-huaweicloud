@@ -66,7 +66,7 @@ The `TagSelector` block supports:
   + If kind is set to `label`, set this parameter to specific image tags.
   + If kind is set to `regexp`, set this parameter to a regular expression.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

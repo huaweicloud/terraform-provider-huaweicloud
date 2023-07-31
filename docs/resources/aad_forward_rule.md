@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `source_ip` - (Required, String) Specifies the source IP addresses, separated by commas (,).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

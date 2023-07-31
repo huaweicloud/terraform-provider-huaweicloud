@@ -93,7 +93,7 @@ The `rule_struct` block supports:
 * `history_enabled` - (Optional, Bool) Specifies cross-region replication history rule status. Defaults to `false`.
   If the value is `true`, historical objects meeting this rule are copied.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

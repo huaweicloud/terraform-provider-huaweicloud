@@ -30,7 +30,7 @@ The following arguments are supported:
 * `exact_match_name` - (Optional, String) Specifies whether to search for the instance that precisely matches a
   specified instance name. Value options: **true**, **false**. Defaults to **false**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

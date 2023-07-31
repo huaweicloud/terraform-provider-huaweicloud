@@ -45,7 +45,7 @@ The following arguments are supported:
 * `account_ids` - (Optional, List) Specifies the source account list being aggregated.
   This parameter is only valid in **ACCOUNT** type.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

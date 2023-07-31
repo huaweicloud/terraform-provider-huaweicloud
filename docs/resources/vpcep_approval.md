@@ -61,7 +61,7 @@ The following arguments are supported:
 * `endpoints` - (Required, List) Specifies the list of VPC endpoint IDs which accepted to connect to VPC endpoint
   service. The VPC endpoints will be rejected when the resource was destroyed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

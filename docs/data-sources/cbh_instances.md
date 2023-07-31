@@ -40,7 +40,7 @@ The following arguments are supported:
 
 * `version` - (Optional, String) Specifies the current version of the instance image
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -29,7 +29,7 @@ If omitted, the provider-level region will be used. Changing this parameter will
 Only letters, digits, hyphens (-), underscore (_) and the following special characters are allowed: `?'#().,&%@!`.
 Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -50,7 +50,7 @@ The following arguments are supported:
   consumed after the number of consumption attempts of this message reaches this value, DMS stores this message into the
   dead letter queue. The max_consume_count value range is 1–100.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

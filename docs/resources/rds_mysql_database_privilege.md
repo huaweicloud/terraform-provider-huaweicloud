@@ -54,7 +54,7 @@ The `users` block supports:
 
   The default value is **false**. Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

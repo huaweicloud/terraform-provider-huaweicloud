@@ -121,7 +121,7 @@ The following arguments are supported:
 
   ~> Exactly one of `domain_id`, `project_id` or `enterprise_project_id` must be specified.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

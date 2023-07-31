@@ -180,7 +180,7 @@ The `video` block supports:
   output_policy cannot be set to discard in video and audio parameters at the same time.
   If output_policy is set to transcode in video and video parameters at the same time, video and video are output.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

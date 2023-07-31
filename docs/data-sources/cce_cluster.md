@@ -34,7 +34,7 @@ The following arguments are supported:
 
 * `vpc_id` - (Optional, String) Specifies the VPC ID to which the cluster belongs.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

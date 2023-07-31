@@ -56,7 +56,7 @@ The following arguments are supported:
   + If the value is empty or `false`, the parameter `attachment_id` is required.
   + If the value is `true`, the parameter `attachment_id` must be empty.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -31,7 +31,7 @@ The following arguments are supported:
 
 -> The network segment of the next hop cannot overlap with the network segment of the APIG instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

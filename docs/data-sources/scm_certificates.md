@@ -45,7 +45,7 @@ The options are as follows:
 
 * `deploy_support` - (Optional, Bool) Whether to support deployment.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

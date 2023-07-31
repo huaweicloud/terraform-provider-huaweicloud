@@ -77,7 +77,7 @@ data "huaweicloud_images_image" "bms_image" {
 * `flavor_id` - (Optional, String) Specifies the ECS flavor ID used to filter out available images.
   You can specify only one flavor ID and only ECS flavor ID is valid, BMS flavor is not supported.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

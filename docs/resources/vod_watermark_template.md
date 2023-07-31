@@ -69,7 +69,7 @@ The following arguments are supported:
 * `timeline_duration` - (Optional, String) Specifies the watermark duration (Unit: second). The value is a digit
   greater than or equal to **0**. By default, the watermark lasts until the end of the video.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

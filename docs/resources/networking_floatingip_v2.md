@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -31,7 +31,7 @@ The following arguments are supported:
 * `protocol_port` - (Optional, String) The front-end listening port of the listener.  
   The valid value is range from `1` to `65535`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

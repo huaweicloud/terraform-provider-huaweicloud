@@ -50,7 +50,7 @@ The following arguments are supported:
 * `alarm_level` - (Optional, String) The level of alarm. separate multiple alarm levels with commas (,).
   The valid values are **urgent**, **important**, **minor**, and **prompt**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

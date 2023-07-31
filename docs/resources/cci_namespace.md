@@ -59,7 +59,7 @@ The following arguments are supported:
   After the RBAC permission is enabled, the user's use of resources under the namespace will be controlled by the RBAC
   permission. Changing this will create a new CCI namespace resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

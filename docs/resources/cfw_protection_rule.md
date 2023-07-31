@@ -180,7 +180,7 @@ The `destination` block supports:
 * `domain_address_name` - (Optional, String) The name of the domain name address.
   This parameter cannot be left empty for the domain name type, and is empty for the manual or automatic type.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

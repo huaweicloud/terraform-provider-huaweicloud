@@ -104,7 +104,7 @@ The `column` block supports:
   
   -> When creating a partition table, ensure that at least one column in the table is a non-partition column.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

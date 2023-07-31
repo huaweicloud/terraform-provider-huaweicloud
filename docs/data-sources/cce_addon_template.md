@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `version` - (Required, String) Specifies the add-on version.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

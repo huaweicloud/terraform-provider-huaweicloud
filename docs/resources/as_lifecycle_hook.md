@@ -52,7 +52,7 @@ The following arguments are supported:
 * `notification_message` - (Optional, String) Specifies a customized notification. This parameter can contains a maximum
   of 256 characters, which cannot contain the following characters: <>&'().
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

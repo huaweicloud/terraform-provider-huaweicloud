@@ -98,7 +98,7 @@ The following arguments are supported:
 * `bandwidth_size` - (Optional, Int) Specifies the size (Mbit/s) of the dedicated bandwidth used by the EIP that
   has been removed from a shared bandwidth. The default bandwidth size is 5 Mbit/s.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

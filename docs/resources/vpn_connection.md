@@ -177,7 +177,7 @@ The `policy_rules` block supports:
 
 * `source` - (Optional, String) The source CIDR.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

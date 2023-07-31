@@ -47,7 +47,7 @@ The following arguments are supported:
   should receive from the pool. For example, a member with a weight of 10 receives five times as much traffic as a
   member with a weight of 2.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

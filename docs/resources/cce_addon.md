@@ -61,7 +61,7 @@ Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_jso
 the add-on type and version. For more detailed description of add-ons
 see [add-ons description](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/cce-addon-templates.md)
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `users` - (Required, List) Specifies a list of IAM user IDs to associate to the group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

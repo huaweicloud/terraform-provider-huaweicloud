@@ -41,7 +41,7 @@ The following arguments are supported:
   group belongs.
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

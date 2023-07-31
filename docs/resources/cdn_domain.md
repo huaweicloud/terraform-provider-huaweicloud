@@ -304,7 +304,7 @@ The `rules` block support:
   A directory starts with a slash (/). Directories are separated by semicolons (;), for example,
   /test/folder01;/test/folder02.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -47,7 +47,7 @@ The following arguments are supported:
    + **iam_readOnlyAccess**: IAM ReadOnlyAccess permissions are required to obtain information about the
      IAM users who have never logged in to DLI.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

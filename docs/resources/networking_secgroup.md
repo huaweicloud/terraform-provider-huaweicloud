@@ -67,7 +67,7 @@ resource "huaweicloud_networking_secgroup_rule" "allow_ssh" {
 }
 ```
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

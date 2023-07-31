@@ -98,7 +98,7 @@ The following arguments are supported:
 * `security_group_ids` - (Optional, List) Specifies the list of security group IDs bound to the specified port.  
   Defaults to the default security group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

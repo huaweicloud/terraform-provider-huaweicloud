@@ -25,7 +25,7 @@ If omitted, the provider-level region will be used. Changing this parameter will
 Only letters, digits, hyphens (-), underscores (_), dots (.) and colons (:) are allowed.
 Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -68,7 +68,7 @@ The following arguments are supported:
 
 * `period` - (Optional, Int) Specifies the monitoring period in seconds.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -22,7 +22,7 @@ The following arguments are supported:
 
 * `image_id` - (Optional, String) Specifies the image ID.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

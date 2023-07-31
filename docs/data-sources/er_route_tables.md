@@ -51,7 +51,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs used to filter the route tables.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

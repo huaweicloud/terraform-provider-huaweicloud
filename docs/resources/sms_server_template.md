@@ -70,7 +70,7 @@ The following arguments are supported:
 * `bandwidth_size` - (Optional, Int) Specifies the bandwidth size in Mbit/s about the public IP address
   that will be used for migration.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

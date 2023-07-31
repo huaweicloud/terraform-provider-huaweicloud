@@ -64,7 +64,7 @@ The `persistence` argument supports:
   + When the protocol of the backend server group is TCP or UDP, the value ranges from 1 to 60.
   + When the protocol of the backend server group is HTTP or HTTPS, the value ranges from 1 to 1440.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

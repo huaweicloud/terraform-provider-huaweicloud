@@ -54,7 +54,7 @@ domain name to push streams to nearby CDN nodes.
 
   The default value is `on`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

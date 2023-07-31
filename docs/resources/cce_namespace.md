@@ -45,7 +45,7 @@ The following arguments are supported:
 * `labels` - (Optional, Map, ForceNew) Specifies the map of string keys and values for labels.
   Changing this will create a new namespace resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

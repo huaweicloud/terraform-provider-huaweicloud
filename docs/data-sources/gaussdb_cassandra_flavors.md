@@ -24,7 +24,7 @@ data "huaweicloud_gaussdb_cassandra_flavors" "flavors" {
 
 * `version` - (Optional, String) Specifies the engine version of the flavors.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

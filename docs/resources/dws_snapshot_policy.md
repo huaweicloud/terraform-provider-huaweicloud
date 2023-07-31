@@ -76,7 +76,7 @@ The following arguments are supported:
 
   -> Note: The UTC time is used by default. Set the policy based on the time zone and time difference as required.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

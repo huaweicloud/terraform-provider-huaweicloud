@@ -117,7 +117,7 @@ The following arguments are supported:
 
 * `keytab` - (Optional, String) The OBS path of the **keytab** configuration file.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

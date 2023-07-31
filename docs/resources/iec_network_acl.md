@@ -41,7 +41,7 @@ The `networks` block supports:
 
 * `subnet_id` - (Required, String) Specifies the id of the iec subnet.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

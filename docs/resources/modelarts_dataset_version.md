@@ -46,7 +46,7 @@ The following arguments are supported:
   use these attributes to optimize hard example filtering. Default value is `false`.
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

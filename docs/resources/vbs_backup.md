@@ -62,7 +62,7 @@ The following arguments are supported:
 
   + `value` - (Required, String, ForceNew) Specifies the tag value. Changing the parameter creates a new backup.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

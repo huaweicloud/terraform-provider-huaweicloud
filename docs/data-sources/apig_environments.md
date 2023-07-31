@@ -31,7 +31,7 @@ The following arguments are supported:
 * `name` - (Optional, String) Specifies the name of the API environment. The API environment name consists of 3 to 64
   characters, starting with a letter. Only letters, digits and underscores (_) are allowed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

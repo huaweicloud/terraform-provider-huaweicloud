@@ -42,7 +42,7 @@ The following arguments are supported:
 * `resource_type` - (Optional, String, ForceNew) Type of the target to which the backup is restored. The default value
   is **OS::Nova::Server** for an ECS. Changing this creates a new backup.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

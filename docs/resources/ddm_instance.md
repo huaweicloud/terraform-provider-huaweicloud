@@ -129,7 +129,7 @@ The following arguments are supported:
 
 * `delete_rds_data` - (Optional, String) Specifies whether data stored on the associated DB instances is deleted.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

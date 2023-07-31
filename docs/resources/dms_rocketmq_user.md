@@ -72,7 +72,7 @@ The `topic_perms` and `group_perms` block supports:
 * `perm` - (Optional, String) Indicates the permissions of the topic or consumer group.
   Value options: **PUB|SUB**, **PUB**, **SUB**, **DENY**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

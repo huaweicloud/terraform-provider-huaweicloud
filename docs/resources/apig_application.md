@@ -54,7 +54,7 @@ The following arguments are supported:
 
   -> The `secret_action` is a one-time action.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -93,7 +93,7 @@ The `conditions` block supports:
 * `value` - (Optional, List) Specifies the value list of the match condition.
   A maximum of 5 values are allowed. This should be empty when the value of operate is *EXIST**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

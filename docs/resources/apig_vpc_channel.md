@@ -108,7 +108,7 @@ The `members` block supports:
 * `weight` - (Optional, Int) Specifies the backend server weight.
   The valid value ranges from `1` to `100`, defaults to `1`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

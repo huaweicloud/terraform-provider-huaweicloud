@@ -81,7 +81,7 @@ The `remote` block supports:
 
 * `value` - (Optional, List) Specifies the rule is matched only if the specified strings appear in the attribute type.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

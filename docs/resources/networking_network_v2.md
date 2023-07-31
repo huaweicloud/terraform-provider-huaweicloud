@@ -86,7 +86,7 @@ The `segments` block supports:
 * `segmentation_id` - (Optional, Int, ForceNew) An isolated segment on the physical network.
 * `network_type` - (Optional, String, ForceNew) The type of physical network.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

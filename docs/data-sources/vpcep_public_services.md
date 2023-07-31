@@ -27,7 +27,7 @@ data "huaweicloud_vpcep_public_services" "dns_service" {
 
 * `service_id` - (Optional, String) Specifies the unique ID of the public VPC endpoint service.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -39,7 +39,7 @@ The following arguments are supported:
 * `vpc_cidr` - (Optional, String, ForceNew) Cluster VPC network segment. Changing this parameter will create a new
   resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

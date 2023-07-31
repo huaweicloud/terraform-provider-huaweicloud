@@ -63,7 +63,7 @@ The following arguments are supported:
 
 * `version_id` - (Optional, String) Specifies the version ID of the current publishment.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

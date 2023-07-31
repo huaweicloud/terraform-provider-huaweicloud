@@ -154,7 +154,7 @@ The `data_center` block supports:
 * `availability_zone` - (Required, String, ForceNew) Specifies the custom availability zone name of the data center.
   Changing this will create a new microservice instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

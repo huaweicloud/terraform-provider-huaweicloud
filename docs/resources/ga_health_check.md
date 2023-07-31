@@ -48,7 +48,7 @@ The following arguments are supported:
 * `protocol` - (Optional, String) Specifies the health check protocol.
   Only **TCP** supported for now. Defaults to **TCP**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -67,7 +67,7 @@ The following arguments are supported:
 * `port_id` - (Optional, String, ForceNew) Specifies an existing port ID to associate with the EIP.
   This parameter and `fixed_ip` are alternative. Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

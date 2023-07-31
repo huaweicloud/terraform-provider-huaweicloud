@@ -78,7 +78,7 @@ The `variable` block supports:
 
   -> **NOTE:** The variable value will be displayed in plain text on the console.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

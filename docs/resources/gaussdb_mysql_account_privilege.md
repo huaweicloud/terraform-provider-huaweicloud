@@ -55,7 +55,7 @@ The `Database` block supports:
 
 * `readonly` - (Required, Bool, ForceNew) Specifies whether the database permission is read-only.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

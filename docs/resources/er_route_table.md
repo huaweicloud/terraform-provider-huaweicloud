@@ -44,7 +44,7 @@ The following arguments are supported:
 * `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the route table.  
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -40,7 +40,7 @@ The following arguments are supported:
 
 * `listener_id` - (Optional, String) Specifies the listener ID of the ELB pool.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -119,7 +119,7 @@ The `Encryption` block supports:
 * `master_key_id` - (Optional, String) ID of the customer master key created by DEW in the project where
   the graph is created.  
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

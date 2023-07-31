@@ -59,7 +59,7 @@ The `BrokerRef` block supports:
 
 * `name` - (Optional, String) Indicates the name of the broker.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

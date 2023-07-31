@@ -27,7 +27,7 @@ The following arguments are supported:
 * `remove_account_on_destroy` - (Optional, Bool) Specifies whether to remove the invited account when delete the
   invitation (handshake). Defaults to false.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

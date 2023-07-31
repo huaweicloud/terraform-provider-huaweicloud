@@ -130,7 +130,7 @@ The `bandwidth_expack_product`, `domain_expack_product` or `rule_expack_product`
 
 -> The `resource_size` cannot be reduced below `1`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

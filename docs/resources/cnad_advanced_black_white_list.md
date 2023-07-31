@@ -43,7 +43,7 @@ The following arguments are supported:
   The total number of `black_ip_list` and `white_ip_list` cannot exceed the maximum allowed, the default maximum is 200.
   At least one of `black_ip_list` or `white_ip_list` must be configured.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

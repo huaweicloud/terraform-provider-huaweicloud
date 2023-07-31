@@ -98,7 +98,7 @@ security group you specified.
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.  
   The valid values are **true** and **false**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

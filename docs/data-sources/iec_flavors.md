@@ -37,7 +37,7 @@ The following arguments are supported:
 
 * `operator` - (Optional, String) Specifies the operator supported of the iec instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

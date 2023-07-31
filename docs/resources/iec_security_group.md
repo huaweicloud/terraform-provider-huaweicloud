@@ -28,7 +28,7 @@ The following arguments are supported:
   0 to 64 characters in length, and does not contain angle brackets (<) and (>). Changing this parameter will creates a
   new iec security group resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

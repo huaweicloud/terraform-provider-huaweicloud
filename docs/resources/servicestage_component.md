@@ -159,7 +159,7 @@ The `properties` block supports:
 
 * `key` - (Optional, String) Specifies the key of obs.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

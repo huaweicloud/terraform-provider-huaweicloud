@@ -38,7 +38,7 @@ The following arguments are supported:
 * `is_unbound` - (Optional, Bool) Specifies whether query protected objects which policies unbound.
   If the field is set to **true**, only protection objects that can bind policies will be returned.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

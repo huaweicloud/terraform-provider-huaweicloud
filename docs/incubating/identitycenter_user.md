@@ -51,7 +51,7 @@ The following arguments are supported:
 
 * `email` - (Required, String) Specifies the email of the user.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

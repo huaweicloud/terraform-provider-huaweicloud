@@ -69,7 +69,7 @@ The `basic_resources` and `optional_resources` block supports:
 
 -> All resources must under the same VPC as the environment.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `publish_ids` - (Required, List) Specifies the publish IDs corresponding to the APIs bound by the signature.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

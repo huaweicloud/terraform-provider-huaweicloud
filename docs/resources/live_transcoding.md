@@ -74,7 +74,7 @@ contains letters, digits and hyphens (-).
 * `frame_rate` - (Optional, Int) Specifies the frame rate of the transcoded video, in fps. Value range: 0 ~ 30.
 Value 0 indicates that the frame rate remains unchanged.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

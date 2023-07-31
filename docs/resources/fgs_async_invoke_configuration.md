@@ -83,7 +83,7 @@ The `on_success` and the `on_failure` blocks support:
 -> If you enable the destination function, you must be ensured that the agent contains the operation authority of the
    corresponding service.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

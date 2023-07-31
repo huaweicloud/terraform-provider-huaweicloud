@@ -98,7 +98,7 @@ data "huaweicloud_identity_role" "kms_adm" {
 * `name` - (Optional, String) Specifies the name of the role for internal use.
   Required if `display_name` is empty.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -66,7 +66,7 @@ The following arguments are supported:
 * `key` - (Optional, String, ForceNew) The key to use for the comparison. For example, the name of the cookie to
   evaluate. Valid when `type` is set to COOKIE or HEADER. Changing this creates a new L7 Rule.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

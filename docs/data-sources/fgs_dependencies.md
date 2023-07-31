@@ -45,7 +45,7 @@ data "huaweicloud_fgs_dependencies" "test" {
 
 * `name` - (Optional, String) Specifies the dependent package runtime to match.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

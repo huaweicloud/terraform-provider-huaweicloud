@@ -45,7 +45,7 @@ The following arguments are supported:
 * `cluster_id` - (Optional, Int) Specifies a cluster ID of the CPTS resource group. If the number of concurrent users
   is less than 1000, you can use a shared resource group for testing and do not have to create a resource group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

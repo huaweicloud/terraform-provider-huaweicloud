@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `vpc_id` - (Required, String) Specifies the VPC ID used as the query filter.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

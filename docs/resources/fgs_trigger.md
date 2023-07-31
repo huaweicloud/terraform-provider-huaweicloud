@@ -361,7 +361,7 @@ The `lts` block supports:
 * `log_topic_id` - (Required, String, ForceNew) Specifies the log stream ID.
   Changing this will create a new trigger resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

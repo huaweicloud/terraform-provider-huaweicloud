@@ -93,7 +93,7 @@ The following arguments are supported:
   This parameter is valid only when the enterprise project function is enabled.
   The value all indicates all projects. This parameter is mandatory when you use an IAM user.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

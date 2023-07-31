@@ -46,7 +46,7 @@ Changing this parameter will create a new resource.
   + **RECORD_OVER**: Recording completed.
   + **RECORD_FAILED**: Recording failed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

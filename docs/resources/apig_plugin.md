@@ -389,7 +389,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the plugin description.  
   The valid length is limited from `3` to `255` characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

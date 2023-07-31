@@ -162,7 +162,7 @@ The following arguments are supported:
 * `min_l7_flavor_id` - (Optional, String) Specifies the ID of the minimum Layer-7 flavor for elastic scaling.
   This parameter cannot be left blank if there are HTTP or HTTPS listeners.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

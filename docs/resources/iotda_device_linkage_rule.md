@@ -266,7 +266,7 @@ For example: `10:00`. If the end time is the same as the start time, the effecti
 * `days_of_week` - (Optional, String) Specifies a list of days of week, separated by commas. 1 represents Sunday,
 2 represents Monday, and so on. Defaults to `1,2,3,4,5,6,7` (every day).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

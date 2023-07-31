@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `capacity` - (Optional, Float) Specifies the cache capacity. Unit: GB.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -87,7 +87,7 @@ The following arguments are supported:
 * `expected_codes` - (Optional, String) Specifies the expected HTTP status code. Required for HTTP type.
   You can either specify a single status like "200", or a range like "200-202".
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -54,7 +54,7 @@ The following arguments are supported:
 * `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet. These DNS server address must be
   valid IP addresses.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

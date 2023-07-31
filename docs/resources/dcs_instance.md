@@ -244,7 +244,7 @@ The `backup_policy` block supports:
 * `begin_at` - (Required, String) Time at which backup starts.
   Format: `hh24:00-hh24:00`, "00:00-01:00" indicates that backup starts at 00:00:00.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

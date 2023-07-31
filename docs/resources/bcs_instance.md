@@ -293,7 +293,7 @@ The `kafka` block supports:
   + The minimum storage capacity of middle type is 2400GB.
   + The minimum storage capacity of high type is 4800GB.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

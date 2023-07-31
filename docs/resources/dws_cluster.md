@@ -132,7 +132,7 @@ The `Volume` block supports:
 
 * `capacity` - (Optional, String) The capacity size, in GB.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

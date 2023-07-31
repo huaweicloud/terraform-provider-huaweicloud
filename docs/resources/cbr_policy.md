@@ -128,7 +128,7 @@ The `long_term_retention` block supports:
   performed. The valid value ranges from `-1` to `100`.
   If `-1` is specified, full backup will not be performed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

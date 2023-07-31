@@ -128,7 +128,7 @@ The following arguments are supported:
 
 * `enabled` - (Optional, Bool) Specifies whether to enable the link. The default value is `true`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

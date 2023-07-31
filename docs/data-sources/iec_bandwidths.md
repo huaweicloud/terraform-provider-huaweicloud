@@ -22,7 +22,7 @@ The following arguments are supported:
 
 * `site_id` - (Required, String) Specifies the ID of the IEC site.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

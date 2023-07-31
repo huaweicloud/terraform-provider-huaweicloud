@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the included key/value pairs which associated with the desired disk.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -154,7 +154,7 @@ The `data_disks` block supports:
 * `size` - (Required, Int, ForceNew) Specifies the size of data disk for the IEC server binding. The value range is
   10 to 500 in GB. Changing this parameter creates a new IEC server resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

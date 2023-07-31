@@ -22,7 +22,7 @@ data "huaweicloud_rds_engine_versions" "test" {
 * `type` - (Optional, String) Specifies the RDS engine type.
   The valid values are **MySQL**, **PostgreSQL** and **SQLServer**, default to **MySQL**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

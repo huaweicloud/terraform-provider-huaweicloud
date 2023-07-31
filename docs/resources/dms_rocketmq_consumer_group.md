@@ -46,7 +46,7 @@ The following arguments are supported:
 
 * `broadcast` - (Optional, Bool) Specifies whether to broadcast of the consumer group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

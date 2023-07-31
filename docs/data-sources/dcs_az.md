@@ -24,7 +24,7 @@ data "huaweicloud_dcs_az" "az1" {
 
 * `code` - (Required, String) Specifies the code of an AZ, e.g. "cn-north-1a".
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

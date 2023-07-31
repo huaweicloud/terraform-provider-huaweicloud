@@ -51,7 +51,7 @@ must match exactly one VPC peering connection whose data will be exported as att
 * `peer_tenant_id` - (Optional, String) The Tenant ID of the accepter/peer VPC of the specific VPC Peering Connection to
   retrieve.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

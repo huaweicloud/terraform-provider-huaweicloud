@@ -144,7 +144,7 @@ The `thumbnail` block supports:
   The width dimension is calculated by scaling the dimension proportional to the original video pixels.
   Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -71,7 +71,7 @@ The `Route` block supports:
 
 * `cidr` - (Required, String) The CIDR of the route.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -128,7 +128,7 @@ The `dimensions` block supports:
   The value can be a string of 1 to 64 characters that must start with a letter or a number
   and contain only letters, digits, underscores (_), and hyphens (-).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -16,7 +16,7 @@ data "huaweicloud_identitycenter_instance" "system"{}
 
 There are no arguments available for this data source.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

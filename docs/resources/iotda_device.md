@@ -79,7 +79,7 @@ are allowed: `?'#().,&%@!`.
 
 * `frozen` - (Optional, Bool) Specifies whether to freeze the device. Defaults to `false`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

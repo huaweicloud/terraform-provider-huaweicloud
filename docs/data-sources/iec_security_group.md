@@ -22,7 +22,7 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the name of the security group with a maximum of 64 characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

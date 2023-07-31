@@ -22,7 +22,7 @@ data "huaweicloud_servicestage_component_runtimes" "test" {}
 
 * `default_port` - (Optional, Int) Specifies the default container port to use for filtering.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

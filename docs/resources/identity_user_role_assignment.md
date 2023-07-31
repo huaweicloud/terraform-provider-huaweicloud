@@ -46,7 +46,7 @@ The following arguments are supported:
 * `enterprise_project_id` - (Required, String, ForceNew) Specifies the ID of the enterprise project
   to assign the role in. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

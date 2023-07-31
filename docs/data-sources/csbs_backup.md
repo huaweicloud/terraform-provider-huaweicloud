@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `vm_ip` - (Optional, String) Specifies the ip of VM.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

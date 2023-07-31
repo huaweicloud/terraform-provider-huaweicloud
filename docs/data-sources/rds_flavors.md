@@ -60,7 +60,7 @@ SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>20
 
 * `availability_zone` - (Optional, String) Specifies the availability zone which the RDS flavor belongs to.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

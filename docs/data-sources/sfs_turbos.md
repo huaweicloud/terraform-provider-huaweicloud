@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) The enterprise project ID of the SFS turbo file system.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

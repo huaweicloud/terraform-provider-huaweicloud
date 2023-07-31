@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `value` - (Required, String) The value to use for the comparison.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

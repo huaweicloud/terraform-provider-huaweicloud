@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value to attach to the host group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -38,7 +38,7 @@ The following arguments are supported:
 * `lb_method` - (Optional, String) Specifies the method of the ELB pool. Must be one of ROUND_ROBIN, LEAST_CONNECTIONS,
   or SOURCE_IP.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

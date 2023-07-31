@@ -249,7 +249,7 @@ The `lbaas_listeners` block supports:
   compared to other backend ECSs added to the same listener. The value of this parameter ranges from 0 to 100. The
   default value is 1.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

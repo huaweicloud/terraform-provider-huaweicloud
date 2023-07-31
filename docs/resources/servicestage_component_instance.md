@@ -473,7 +473,7 @@ The `external_access` block supports:
 
 * `port` - (Optional, Int) Specifies the listening port of the application component process.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

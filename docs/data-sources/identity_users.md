@@ -24,7 +24,7 @@ data "huaweicloud_identity_users" "one" {
 
 * `enabled` - (Optional, Bool) Specifies the status of the IAM user, the default value is **true**.
 
-## Attributes Reference
+## Attribute Reference
 
 * `id` - The data source ID.
 

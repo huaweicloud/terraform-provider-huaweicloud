@@ -28,7 +28,7 @@ The following arguments are supported:
     - **MANAGED**: Public cluster.
     - **DEDICATED**: Dedicated cluster.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

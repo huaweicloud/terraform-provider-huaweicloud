@@ -88,7 +88,7 @@ The following arguments are supported:
 
   ~>**NOTE:** If the private key file already exists, it will be overwritten after a new keypair is created.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

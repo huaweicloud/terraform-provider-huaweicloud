@@ -49,7 +49,7 @@ The following arguments are supported:
   + **programmatic**: only support programmatic access.
   + **console**: only support management console access.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

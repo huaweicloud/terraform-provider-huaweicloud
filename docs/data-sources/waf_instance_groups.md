@@ -26,7 +26,7 @@ The following arguments are supported:
 
 * `vpc_id` - (Optional, String) The id of the VPC that the WAF dedicated instances belongs to.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

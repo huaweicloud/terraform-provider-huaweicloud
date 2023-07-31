@@ -122,7 +122,7 @@ and **str**.
 * `value` - (Optional, List) Specifies the application name, which is mandatory only when the value of
 `name_type` is **cmdLineHash**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -27,7 +27,7 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of RAM permission in which to query the data source.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

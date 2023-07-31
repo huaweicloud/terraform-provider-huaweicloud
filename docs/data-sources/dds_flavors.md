@@ -30,7 +30,7 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 * `memory` - (Optional, String) Specifies the ram of the dds flavor in GB.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -58,7 +58,7 @@ VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subne
     + 1 indicates Enabled.
     + 2 indicates Disabled.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

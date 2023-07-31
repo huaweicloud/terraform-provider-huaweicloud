@@ -40,7 +40,7 @@ The following arguments are supported:
 * `pgp_key` - (Optional, String, ForceNew) Either a base-64 encoded PGP public key, or a keybase username in the form
   `keybase:some_person_that_exists`. Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

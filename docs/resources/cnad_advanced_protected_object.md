@@ -52,7 +52,7 @@ The `Protected_Object` block supports:
   **CCI**, **EIP**, **ELB**, **REROUTING_IP**, **SubEni** and **NetInterFace**. You can find it through data source
   `huaweicloud_cnad_advanced_available_objects`. This field and `id` must belong to the same protected object.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

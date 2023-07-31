@@ -65,7 +65,7 @@ The `PortRange` block supports:
 
 * `to_port` - (Required, Int) Specifies the end port number.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

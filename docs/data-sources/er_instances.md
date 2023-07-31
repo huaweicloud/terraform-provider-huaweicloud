@@ -16,7 +16,7 @@ data "huaweicloud_er_instances" "test" {
 }
 ```
 
-## Arguments Reference
+## Argument Reference
 
 The following arguments are supported:
 
@@ -37,7 +37,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs used to filter the ER instances.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
