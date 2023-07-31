@@ -113,7 +113,7 @@ var (
 
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 
-	HW_ORGANIZATIONS_ENVIRONMENT            = os.Getenv("HW_ORGANIZATIONS_ENVIRONMENT")
+	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_INVITE_ACCOUNT_ID      = os.Getenv("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID")
 	HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID = os.Getenv("HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID")
 	HW_ORGANIZATIONS_INVITATION_ID          = os.Getenv("HW_ORGANIZATIONS_INVITATION_ID")
@@ -206,10 +206,11 @@ func preCheckRequiredEnvVars(t *testing.T) {
 	}
 }
 
+// use this function to precheck langding zone services, such as Organizations and Identity Center
 // lintignore:AT003
-func TestAccPreCheckOrganizations(t *testing.T) {
-	if HW_ORGANIZATIONS_ENVIRONMENT == "" {
-		t.Skip("This environment does not support Organizations tests")
+func TestAccPreCheckMultiAccount(t *testing.T) {
+	if HW_MULTI_ACCOUNT_ENVIRONMENT == "" {
+		t.Skip("This environment does not support multi-account tests")
 	}
 }
 

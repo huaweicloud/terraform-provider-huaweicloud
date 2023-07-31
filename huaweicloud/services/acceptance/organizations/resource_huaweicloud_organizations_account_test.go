@@ -54,7 +54,8 @@ func TestAccAccount_basic(t *testing.T) {
 	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			acceptance.TestAccPreCheckOrganizations(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMultiAccount(t)
 			acceptance.TestAccPreCheckOrganizationsOrganizationalUnitId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

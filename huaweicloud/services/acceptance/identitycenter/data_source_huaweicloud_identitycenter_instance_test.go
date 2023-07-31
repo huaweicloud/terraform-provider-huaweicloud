@@ -13,7 +13,10 @@ func TestAccDatasourceIdentityCenter_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMultiAccount(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
