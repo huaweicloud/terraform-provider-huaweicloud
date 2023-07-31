@@ -58,6 +58,15 @@
                 "type": "bool",
                 "computed": true
               },
+              "enabled_mechanisms": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "engine": {
                 "type": "string",
                 "computed": true
@@ -166,6 +175,12 @@
               "security_group_id": {
                 "type": "string",
                 "required": true
+              },
+              "security_protocol": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "ssl_enable": {
                 "type": "bool",

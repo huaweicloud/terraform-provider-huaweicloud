@@ -189,6 +189,40 @@
                   }
                 },
                 "nesting_mode": "list"
+              },
+              "versions": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The version name.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "aliases": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "description": "The description of the version alias.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the version alias.",
+                            "required": true
+                          }
+                        },
+                        "description": "The aliases management for specified version."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The versions management of the function."
+                },
+                "nesting_mode": "set"
               }
             }
           },

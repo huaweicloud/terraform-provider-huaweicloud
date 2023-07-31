@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mapreduce_data_connection": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The data connection name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "The type of data source.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The status of the data connection.",
+                "computed": true
+              },
+              "used_clusters": {
+                "type": "string",
+                "description": "Cluster IDs that use this data connection, separated by commas.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "source_info": {
+                "block": {
+                  "attributes": {
+                    "db_instance_id": {
+                      "type": "string",
+                      "description": "The instance ID of database.",
+                      "required": true
+                    },
+                    "db_name": {
+                      "type": "string",
+                      "description": "The name of database.",
+                      "required": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "description": "The password for logging in to the database.",
+                      "required": true,
+                      "sensitive": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "The user name for logging in to the database.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Analytics",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

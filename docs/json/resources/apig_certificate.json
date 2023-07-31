@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_certificate": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "The certificate content.",
+                "required": true,
+                "sensitive": true
+              },
+              "effected_at": {
+                "type": "string",
+                "description": "The effective time of the certificate.",
+                "computed": true
+              },
+              "expires_at": {
+                "type": "string",
+                "description": "The expiration time of the certificate.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The dedicated instance ID to which the certificate belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The certificate name.",
+                "required": true
+              },
+              "private_key": {
+                "type": "string",
+                "description": "The private key of the certificate.",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the certificate is located.",
+                "computed": true
+              },
+              "sans": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The SAN (Subject Alternative Names) of the certificate.",
+                "computed": true
+              },
+              "signature_algorithm": {
+                "type": "string",
+                "description": "What signature algorithm the certificate uses.",
+                "computed": true
+              },
+              "trusted_root_ca": {
+                "type": "string",
+                "description": "The trusted root CA certificate.",
+                "optional": true,
+                "sensitive": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The certificate type.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

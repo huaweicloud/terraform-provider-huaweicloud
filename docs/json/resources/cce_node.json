@@ -45,14 +45,6 @@
                 "optional": true,
                 "forcenew": true
               },
-              "extend_param": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "forcenew": true
-              },
               "fixed_ip": {
                 "type": "string",
                 "optional": true,
@@ -84,11 +76,6 @@
                 "optional": true,
                 "forcenew": true
               },
-              "max_pods": {
-                "type": "number",
-                "optional": true,
-                "forcenew": true
-              },
               "name": {
                 "type": "string",
                 "optional": true,
@@ -111,16 +98,6 @@
                 "forcenew": true
               },
               "period_unit": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
-              "postinstall": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
-              "preinstall": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
@@ -209,6 +186,65 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "min_items": 1
+              },
+              "extend_params": {
+                "block": {
+                  "attributes": {
+                    "agency_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "docker_base_size": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "kube_reserved_mem": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "max_pods": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "nic_threshold": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "node_image_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "node_multi_queue": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "postinstall": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "preinstall": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "system_reserved_mem": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
               },
               "root_volume": {
                 "block": {

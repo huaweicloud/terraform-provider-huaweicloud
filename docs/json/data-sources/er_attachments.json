@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_attachments": {
+          "block": {
+            "attributes": {
+              "attachment_id": {
+                "type": "string",
+                "description": "The specified attachment ID used to query.",
+                "optional": true
+              },
+              "attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "route_table_id": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All attachments that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ER instance ID to which the attachment belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name used to filter the attachments.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ER attachments are located."
+              },
+              "status": {
+                "type": "string",
+                "description": "The status used to filter the attachments.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs used to filter the attachments.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The resource type to be filtered.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

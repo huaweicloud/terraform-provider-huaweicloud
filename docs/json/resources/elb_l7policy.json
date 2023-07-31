@@ -29,6 +29,11 @@
                 "optional": true,
                 "computed": true
               },
+              "priority": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "redirect_listener_id": {
                 "type": "string",
                 "optional": true,
@@ -42,6 +47,102 @@
               "region": {
                 "type": "string",
                 "computed": true
+              }
+            },
+            "block_types": {
+              "fixed_response_config": {
+                "block": {
+                  "attributes": {
+                    "content_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "message_body": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "status_code": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "redirect_pools_extend_config": {
+                "block": {
+                  "attributes": {
+                    "rewrite_url_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "rewrite_url_config": {
+                      "block": {
+                        "attributes": {
+                          "host": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "path": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "query": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "redirect_url_config": {
+                "block": {
+                  "attributes": {
+                    "host": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "query": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "status_code": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

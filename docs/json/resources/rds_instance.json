@@ -224,6 +224,33 @@
                 },
                 "nesting_mode": "set"
               },
+              "restore": {
+                "block": {
+                  "attributes": {
+                    "backup_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "database_name": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "volume": {
                 "block": {
                   "attributes": {

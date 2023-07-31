@@ -53,6 +53,10 @@
                       "dumping": "bool",
                       "enable_auto_topic": "bool",
                       "enable_public_ip": "bool",
+                      "enabled_mechanisms": [
+                        "set",
+                        "string"
+                      ],
                       "engine_version": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
@@ -73,6 +77,7 @@
                       "resource_spec_code": "string",
                       "retention_policy": "string",
                       "security_group_id": "string",
+                      "security_protocol": "string",
                       "ssl_enable": "bool",
                       "status": "string",
                       "storage_space": "number",

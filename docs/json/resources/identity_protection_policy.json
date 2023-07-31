@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_protection_policy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "protection_enabled": {
+                "type": "bool",
+                "required": true
+              },
+              "self_verification": {
+                "type": "bool",
+                "computed": true
+              },
+              "verification_email": {
+                "type": "string",
+                "optional": true
+              },
+              "verification_mobile": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "self_management": {
+                "block": {
+                  "attributes": {
+                    "access_key": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "email": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "mobile": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "password": {
+                      "type": "bool",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

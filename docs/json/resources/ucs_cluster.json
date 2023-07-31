@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ucs_cluster": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the name of the cluster to register.",
+                "optional": true,
+                "forcenew": true
+              },
+              "category": {
+                "type": "string",
+                "description": "Specifies the category of the cloud.",
+                "required": true,
+                "forcenew": true
+              },
+              "city": {
+                "type": "string",
+                "description": "Specifies the city name.",
+                "optional": true,
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster id.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the labels of the cluster to register.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "description": "Specifies the name of the cluster to register.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_project_id": {
+                "type": "string",
+                "description": "Specifies the cluster project ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_region": {
+                "type": "string",
+                "description": "Specifies the cluster region.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "description": "Specifies the cluster type.",
+                "required": true,
+                "forcenew": true
+              },
+              "country": {
+                "type": "string",
+                "description": "Specifies the country name.",
+                "optional": true,
+                "computed": true
+              },
+              "fleet_id": {
+                "type": "string",
+                "description": "Specifies ID of the fleet to add the cluster into.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "manage_type": {
+                "type": "string",
+                "description": "Indicates the manage type.",
+                "computed": true
+              },
+              "service_provider": {
+                "type": "string",
+                "description": "Specifies the cloud service provider.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

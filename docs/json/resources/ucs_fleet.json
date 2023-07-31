@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ucs_fleet": {
+          "block": {
+            "attributes": {
+              "cluster_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the list of cluster IDs to add to the UCS fleet.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the UCS fleet.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the UCS fleet.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "permissions": {
+                "block": {
+                  "attributes": {
+                    "namespaces": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the namespaces.",
+                      "optional": true
+                    },
+                    "policy_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the policy IDs.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the permissions associated to the cluster."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

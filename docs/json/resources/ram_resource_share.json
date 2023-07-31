@@ -42,7 +42,7 @@
               },
               "owning_account_id": {
                 "type": "string",
-                "description": "The owning account id of the RAM share.",
+                "description": "The owning account ID of the RAM share.",
                 "computed": true
               },
               "permission_ids": {
@@ -51,9 +51,7 @@
                   "string"
                 ],
                 "description": "Specifies the list of RAM permissions associated with the resource share.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "optional": true
               },
               "principals": {
                 "type": [
@@ -61,8 +59,7 @@
                   "string"
                 ],
                 "description": "Specifies the list of one or more principals associated with the resource share.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "resource_urns": {
                 "type": [
@@ -70,8 +67,7 @@
                   "string"
                 ],
                 "description": "Specifies the list of URNs of one or more resources associated with the resource share.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "status": {
                 "type": "string",

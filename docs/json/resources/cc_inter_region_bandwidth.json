@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_inter_region_bandwidth": {
+          "block": {
+            "attributes": {
+              "bandwidth": {
+                "type": "number",
+                "description": "Inter-region bandwidth.",
+                "required": true
+              },
+              "bandwidth_package_id": {
+                "type": "string",
+                "description": "Bandwidth package ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Cloud connection ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inter_region_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Two regions to which bandwidth is allocated.",
+                "required": true,
+                "forcenew": true
+              },
+              "inter_regions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "local_region_id": "string",
+                      "project_id": "string",
+                      "remote_region_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

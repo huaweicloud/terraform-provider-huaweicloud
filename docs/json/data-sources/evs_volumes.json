@@ -64,6 +64,7 @@
                       "description": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
+                      "iops": "number",
                       "name": "string",
                       "service_type": "string",
                       "shareable": "bool",
@@ -73,7 +74,9 @@
                         "map",
                         "string"
                       ],
+                      "throughput": "number",
                       "update_at": "string",
+                      "volume_type": "string",
                       "wwn": "string"
                     }
                   ]

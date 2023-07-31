@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_service_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "billing_spec": "string",
+                      "description": "string",
+                      "extend_params": "number",
+                      "id": "string",
+                      "is_free": "bool",
+                      "is_open": "bool",
+                      "over_quota": "bool",
+                      "source_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "infer_type": {
+                "type": "string",
+                "description": "Inference mode.",
+                "optional": true
+              },
+              "is_free": {
+                "type": "bool",
+                "description": "Whether the flavor is free of charge.",
+                "optional": true
+              },
+              "is_open": {
+                "type": "bool",
+                "description": "Whether this flavor is open or not.",
+                "optional": true
+              },
+              "is_personal_cluster": {
+                "type": "bool",
+                "description": "Whether this flavors is supported by dedicated resource pool.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Flavor status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

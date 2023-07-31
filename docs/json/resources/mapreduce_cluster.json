@@ -367,6 +367,34 @@
                 "nesting_mode": "list",
                 "forcenew": true
               },
+              "external_datasources": {
+                "block": {
+                  "attributes": {
+                    "component_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "data_connection_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "role_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "source_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
               "master_nodes": {
                 "block": {
                   "attributes": {
