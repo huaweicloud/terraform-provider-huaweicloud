@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.53.0 (July 31, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_api_gateway_environment` [GH-3186]
+  + `huaweicloud_apig_certificate` [GH-3187]
+  + `huaweicloud_cc_bandwidth_package` [GH-3192]
+  + `huaweicloud_cc_inter_region_bandwidth` [GH-3203]
+  + `huaweicloud_ucs_policy` [GH-3126]
+  + `huaweicloud_ucs_fleet` [GH-3197]
+  + `huaweicloud_ucs_cluster` [GH-3213]
+  + `huaweicloud_mapreduce_data_connection` [GH-3215]
+  + `huaweicloud_identity_protection_policy` [GH-3219]
+  + `huaweicloud_waf_rule_geolocation_access_control` [GH-3226]
+  + `huaweicloud_waf_rule_known_attack_source` [GH-3227]
+  + `huaweicloud_lts_host_group` [GH-3229]
+
+* **New Data Source:**
+  + `huaweicloud_er_attachments` [GH-3208]
+  + `huaweicloud_modelarts_service_flavors` [GH-3232]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_mapreduce_cluster: Support external datasource configurations [GH-3138]
+* resource/huaweicloud_ram_resource_share: Support updating principals and resource_urns [GH-3207]
+* resource/huaweicloud_cce_node: Add `extend_params` block parameter [GH-3210]
+* resource/huaweicloud_elb_l7policy: Support redirect to URL and fixed response [GH-3212]
+* resource/huaweicloud_fgs_function: Support version aliases management [GH-3216]
+* resource/huaweicloud_evs_volume: Support GPSSD2 and ESSD2 volume type [GH-3217]
+* resource/huaweicloud_rds_instance: Support restore to a new instance using backup_id [GH-3218]
+* resource/huaweicloud_dms_kafka_instance: Support PLAIN and SCRAM-SHA-512 authentication mechanisms [GH-3234]
+
 ## 1.52.1 (July 18, 2023)
 
 ENHANCEMENTS:
