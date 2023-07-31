@@ -57,7 +57,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   flavor_id                = "s6.large.2"
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_compute_keypair.test.name
+  key_pair                 = huaweicloud_kps_keypair.test.name
   scall_enable             = false
   min_node_count           = 0
   max_node_count           = 0
