@@ -4,11 +4,15 @@ subcategory: "Cloud Container Engine (CCE)"
 
 # huaweicloud_cce_node_attach
 
-Add a node from an existing ecs server to a CCE cluster.
+Add a node from an existing ECS server to a CCE cluster.
 
 ## Basic Usage
 
 ```hcl
+variable "cluster_id" {}
+variable "server_id" {}
+variable "keypair_name" {}
+
 resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = var.cluster_id
   server_id  = var.server_id
@@ -116,6 +120,6 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 20 minute.
-* `update` - Default is 20 minute.
-* `delete` - Default is 20 minute.
+* `create` - Default is 20 minutes.
+* `update` - Default is 20 minutes.
+* `delete` - Default is 20 minutes.
