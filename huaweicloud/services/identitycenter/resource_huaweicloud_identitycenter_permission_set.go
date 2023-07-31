@@ -33,6 +33,7 @@ func ResourcePermissionSet() *schema.Resource {
 			StateContext: resourcePermissionSetImport,
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:     schema.TypeString,

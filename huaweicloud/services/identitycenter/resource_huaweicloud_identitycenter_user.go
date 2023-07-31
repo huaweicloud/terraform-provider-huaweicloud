@@ -33,6 +33,7 @@ func ResourceIdentityCenterUser() *schema.Resource {
 			StateContext: resourceIdentityCenterUserImportState,
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
