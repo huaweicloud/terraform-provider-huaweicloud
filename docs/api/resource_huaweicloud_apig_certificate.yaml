@@ -1,0 +1,24 @@
+info:
+  version: 
+  title: resource_huaweicloud_apig_certificate
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: APIG
+paths:
+  /v2/{project_id}/apigw/certificates/{certificateId}:
+    delete:
+      tag: APIG
+      operationId: Delete
+    get:
+      tag: APIG
+      operationId: Get
+    put:
+      tag: APIG
+      operationId: Update
+  /v2/{project_id}/apigw/certificates:
+    post:
+      tag: APIG
+      operationId: Create

@@ -20,6 +20,10 @@ paths:
     post:
       tag: DCS
       operationId: Delete
+  /v2/{project_id}/flavors:
+    get:
+      tag: DCS
+      operationId: List
   /v2/{project_id}/instance/{id}/whitelist:
     get:
       tag: DCS

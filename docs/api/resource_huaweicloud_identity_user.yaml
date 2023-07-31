@@ -23,13 +23,3 @@ paths:
     delete:
       tag: IAM
       operationId: Delete
-    get:
-      tag: IAM
-      operationId: Get
-    patch:
-      tag: IAM
-      operationId: Update
-  /v3.0/users:
-    post:
-      tag: IAM
-      operationId: Create

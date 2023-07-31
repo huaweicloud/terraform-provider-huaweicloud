@@ -42,10 +42,6 @@ paths:
     post:
       tag: CCE
       operationId: Create
-  /api/v3/projects/{project_id}/clusters/{id}:
-    get:
-      tag: CCE
-      operationId: Get
   /api/v3/projects/{project_id}/jobs/{jobid}:
     get:
       tag: CCE

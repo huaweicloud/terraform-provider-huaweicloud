@@ -8,6 +8,17 @@ host: huaweicloud.com
 tags:
   - name: FunctionGraph
 paths:
+  /v2/{project_id}/fgs/functions/{functionUrn}/aliases/{aliasName}:
+    delete:
+      tag: FunctionGraph
+      operationId: Delete
+  /v2/{project_id}/fgs/functions/{functionUrn}/aliases:
+    get:
+      tag: FunctionGraph
+      operationId: List
+    post:
+      tag: FunctionGraph
+      operationId: Create
   /v2/{project_id}/fgs/functions/{functionUrn}/code:
     put:
       tag: FunctionGraph
@@ -23,6 +34,10 @@ paths:
     put:
       tag: FunctionGraph
       operationId: UpdateMetadata
+  /v2/{project_id}/fgs/functions/{functionUrn}/versions:
+    get:
+      tag: FunctionGraph
+      operationId: List
   /v2/{project_id}/fgs/functions/{functionUrn}:
     delete:
       tag: FunctionGraph

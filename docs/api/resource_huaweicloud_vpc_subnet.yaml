@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: VPC
 paths:
+  /v2/nameservers:
+    get:
+      tag: DNS
+      operationId: List
   /v2.0/{project_id}/subnets/{id}/tags/action:
     post:
       tag: VPC

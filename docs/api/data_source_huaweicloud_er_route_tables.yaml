@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: ER
 paths:
+  /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes:
+    get:
+      tag: ER
+      operationId: List
   /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations:
     get:
       tag: ER

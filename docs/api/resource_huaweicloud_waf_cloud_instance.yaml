@@ -8,6 +8,13 @@ host: huaweicloud.com
 tags:
   - name: WAF
 paths:
+  /v1/{project_id}/waf/postpaid:
+    delete:
+      tag: WAF
+      operationId: DeletePostPaid
+    post:
+      tag: WAF
+      operationId: CreatePostPaid
   /v1/{project_id}/waf/subscription/batchalter/prepaid-cloud-waf:
     post:
       tag: WAF
@@ -19,4 +26,4 @@ paths:
   /v1/{project_id}/waf/subscription:
     get:
       tag: WAF
-      operationId: Get
+      operationId: GetWithEpsID
