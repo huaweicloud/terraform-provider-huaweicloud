@@ -22,6 +22,8 @@ import (
 func DataSourceIdentityCenter() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceIdentityCenterRead,
+
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"identity_store_id": {
 				Type:        schema.TypeString,

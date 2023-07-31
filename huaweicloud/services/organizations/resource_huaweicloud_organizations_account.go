@@ -39,6 +39,7 @@ func ResourceAccount() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,

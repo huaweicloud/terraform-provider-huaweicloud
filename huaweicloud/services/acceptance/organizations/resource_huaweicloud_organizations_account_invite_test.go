@@ -83,7 +83,8 @@ func TestAccAccountInvite_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			acceptance.TestAccPreCheckOrganizations(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMultiAccount(t)
 			acceptance.TestAccPreCheckOrganizationsInviteAccountId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
