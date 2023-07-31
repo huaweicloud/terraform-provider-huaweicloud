@@ -87,7 +87,7 @@ The `account_permission_struct` block supports:
 * `account_id` - (Required, String) Specifies the account id to authorize. The account id cannot be the bucket owner,
   and must be unique.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

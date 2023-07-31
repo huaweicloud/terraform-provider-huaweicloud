@@ -75,7 +75,7 @@ The following arguments are supported:
 * `route_table_id` - (Optional, String, ForceNew) Specifies the route table ID for which a route is to be added.
   If the value is not set, the route will be added to the *default* route table.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

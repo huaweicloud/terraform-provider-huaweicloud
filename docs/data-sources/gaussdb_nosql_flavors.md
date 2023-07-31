@@ -35,7 +35,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "flavors" {
 
 * `availability_zone` - (Optional, String) Specifies the availability zone (AZ) of the GaussDB specifications.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

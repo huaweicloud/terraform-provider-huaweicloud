@@ -59,7 +59,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the tags of the SMN topic, key/value pair format.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

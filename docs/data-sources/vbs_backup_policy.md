@@ -43,7 +43,7 @@ The `filter_tags` block supports:
 * `values` - (Required, List) Specifies the List of tag values. This list can have a maximum of 10 values and all be
   unique.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -90,7 +90,7 @@ The following arguments are supported:
   microservice engine belongs.  
   Changing this will create a new engine.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

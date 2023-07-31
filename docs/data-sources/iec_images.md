@@ -26,7 +26,7 @@ The following arguments are supported:
 * `os_type` - (Optional, String) Specifies the os type of the iec image.
   "Linux", "Windows" and "Other" are supported.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

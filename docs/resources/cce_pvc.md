@@ -103,7 +103,7 @@ The following arguments are supported:
 * `storage` - (Required, String, ForceNew) Specifies the minimum amount of storage resources required.
   Changing this creates a new PVC resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

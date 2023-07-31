@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `id` - (Optional, String) Specifies the ID of the route table.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

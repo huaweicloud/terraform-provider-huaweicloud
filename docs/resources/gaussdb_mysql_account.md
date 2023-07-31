@@ -49,7 +49,7 @@ The following arguments are supported:
   and cannot contain the carriage return characters or special characters (!<"='>&).This field is only suitable for
   instances 2.0.13.0 or later.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

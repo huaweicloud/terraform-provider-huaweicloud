@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `engine_version` - (Optional, String) Specifies the engine version.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

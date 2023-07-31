@@ -25,7 +25,7 @@ data "huaweicloud_gaussdb_cassandra_instance" "this" {
 
 * `subnet_id` - (Optional, String) Specifies the network ID of a subnet.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

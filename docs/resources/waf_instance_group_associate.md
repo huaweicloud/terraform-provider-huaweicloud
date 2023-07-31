@@ -31,7 +31,7 @@ The following arguments are supported:
 * `load_balancers` - (Required, List) Specifies the IDs of the ELB instances bound to the WAF instance group.
   This is an array of ELB instance ids.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

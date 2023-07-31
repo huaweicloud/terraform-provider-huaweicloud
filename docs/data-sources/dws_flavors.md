@@ -34,7 +34,7 @@ The following arguments are supported:
        in single-node or cluster mode.
     - **stream**: built-in time series operators; up to 40:1 compression ratio; applicable to IoT services.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

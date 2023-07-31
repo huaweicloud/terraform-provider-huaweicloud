@@ -32,7 +32,7 @@ The following arguments are supported:
 
 * `keywords` - (Optional, List) Specifies the keyword list used to query definition list.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

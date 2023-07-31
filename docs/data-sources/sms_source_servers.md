@@ -28,7 +28,7 @@ The following arguments are supported:
 
 * `ip` - (Optional, String) Specifies the IP address of the source server.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

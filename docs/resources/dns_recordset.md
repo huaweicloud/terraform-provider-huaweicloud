@@ -116,7 +116,7 @@ from [Resolution Lines](https://support.huaweicloud.com/intl/en-us/api-dns/en-us
 * `weight` - (Optional, Int) Specifies the weight of the record set.
   Only public zone support. The value range is 0–1000.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

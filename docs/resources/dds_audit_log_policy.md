@@ -54,7 +54,7 @@ The following arguments are supported:
     + **false**: indicates that existing historical audit logs are deleted when
       SQL audit is disabled.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

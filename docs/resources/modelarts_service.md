@@ -289,7 +289,7 @@ The `LogReportChannel` block supports:
   If not, the ModelArts log system will be used, which provides simple log query and caches runtime logs
    for a maximum of seven days.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

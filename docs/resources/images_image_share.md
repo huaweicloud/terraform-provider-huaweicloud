@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `target_project_ids` - (Required, List) Specifies the IDs of the target projects.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

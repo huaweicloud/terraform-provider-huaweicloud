@@ -55,7 +55,7 @@ The `SmnTopics` block supports:
 
 * `name` - (Optional, String) Specifies the SMN topic name.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

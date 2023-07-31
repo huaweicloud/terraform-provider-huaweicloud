@@ -79,7 +79,7 @@ The following arguments are supported:
 
   + `name` - (Required, String) Specifies backup object name.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

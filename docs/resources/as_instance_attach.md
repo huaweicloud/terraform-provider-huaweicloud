@@ -63,7 +63,7 @@ The following arguments are supported:
 * `append_instance` - (Optional, Bool) Specifies whether to add a new instance when the instance enter standby mode.
   This parameter takes effect only when `standby` is set to true.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

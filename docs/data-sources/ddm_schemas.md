@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `shard_mode` - (Optional, String) Specifies the sharding mode of the schema. Values option: **cluster**, **single**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

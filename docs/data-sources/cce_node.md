@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `status` - (Optional, String) Specifies the state of the node.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -36,7 +36,7 @@ data "huaweicloud_kms_data_key" "kms_datakey1" {
 * `datakey_length` - (Required, String) Number of bits in the length of a DEK (data encryption keys). The maximum number
   is 512. Changing this gets the new data encryption key.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

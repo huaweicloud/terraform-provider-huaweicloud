@@ -57,7 +57,7 @@ The following arguments are supported:
 * `next_hop` - (Required, String, ForceNew) IP address of the next hop gateway. Changing this creates a new routing
   entry.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

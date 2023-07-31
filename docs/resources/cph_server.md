@@ -159,7 +159,7 @@ The `ApplicationPort` block supports:
     + **true**: public network access is mapped.
     + **false**: no mapping is performed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

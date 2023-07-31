@@ -61,7 +61,7 @@ The `project_role` block supports:
 
 * `roles` - (Required, List) Specifies an array of role names.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

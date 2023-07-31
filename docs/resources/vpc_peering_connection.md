@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the VPC peering connection.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

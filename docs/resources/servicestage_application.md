@@ -65,7 +65,7 @@ The `variable` block supports:
 
 * `value` - (Required, String) Specifies the variable value. The value can contain a maximum of `2,048` characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

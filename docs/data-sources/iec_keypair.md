@@ -21,7 +21,7 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name for the keypair. This parameter can contain a maximum of 64
   characters, which may consist of letters, digits, underscores (_), and hyphens (-).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

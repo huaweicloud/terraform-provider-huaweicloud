@@ -78,7 +78,7 @@ The following arguments are supported:
 * `policy_format` - (Optional, String) Specifies the policy format, the supported values are *obs* and *s3*. Defaults
   to *obs* .
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

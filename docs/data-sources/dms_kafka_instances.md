@@ -48,7 +48,7 @@ data "huaweicloud_dms_kafka_instances" "test" {
 
 * `include_failure` - (Optional, Bool) Specifies whether the query results contain instances that failed to create.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

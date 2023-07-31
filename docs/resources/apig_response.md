@@ -75,7 +75,7 @@ The `rule` block supports:
 
 * `status_code` - (Optional, Int) Specifies the HTTP status code of the API response rule.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

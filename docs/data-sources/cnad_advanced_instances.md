@@ -39,7 +39,7 @@ The following arguments are supported:
   + **cnad_vic**: On demand Version.
   + **cnad_intl_ep**: International Station Platinum Edition.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

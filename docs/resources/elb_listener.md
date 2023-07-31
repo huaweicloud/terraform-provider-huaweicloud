@@ -91,7 +91,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the listener.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

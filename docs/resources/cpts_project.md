@@ -27,7 +27,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the project, which can contain a maximum of
  50 characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

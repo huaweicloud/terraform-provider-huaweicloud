@@ -38,7 +38,7 @@ The following arguments are supported:
 * `events` - (Required, List) Specifies the topic scene of AS group. The events include `SCALING_UP`,
   `SCALING_UP_FAIL`, `SCALING_DOWN`, `SCALING_DOWN_FAIL`, `SCALING_GROUP_ABNORMAL`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

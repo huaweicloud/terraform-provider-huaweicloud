@@ -27,7 +27,7 @@ data "huaweicloud_dcs_maintainwindow" "maintainwindow1" {
 
 * `default` - (Optional, Bool) Specifies whether a maintenance time window is set to the default time segment.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

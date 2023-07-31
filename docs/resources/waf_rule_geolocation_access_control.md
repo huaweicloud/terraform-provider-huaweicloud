@@ -73,7 +73,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of WAF geolocation access control rule.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

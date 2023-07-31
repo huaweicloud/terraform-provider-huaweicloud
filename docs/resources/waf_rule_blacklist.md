@@ -73,7 +73,7 @@ The following arguments are supported:
   + `1`: allow the request.
   + `2`: log the request only.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

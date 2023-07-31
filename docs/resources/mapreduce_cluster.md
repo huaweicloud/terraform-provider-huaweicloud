@@ -543,7 +543,7 @@ The `external_datasources` block supports:
   This parameter is mandatory if `source_type` is not **LOCAL_DB**.
   Changing this will create a new MapReduce cluster resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

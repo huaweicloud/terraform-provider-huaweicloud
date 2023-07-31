@@ -36,7 +36,7 @@ The following arguments are supported:
   Only the subdirectory of `/data/` can be mounted. The format is : `/data/dir1/`.
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

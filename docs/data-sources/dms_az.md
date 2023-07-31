@@ -26,7 +26,7 @@ data "huaweicloud_dms_az" "az1" {
 
 * `code` - (Optional, String) Specifies the code of an AZ.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

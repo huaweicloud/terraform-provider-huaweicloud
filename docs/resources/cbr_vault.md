@@ -231,7 +231,7 @@ The `resources` block supports:
 * `includes` - (Optional, List) Specifies the array of disk or SFS file system IDs which will be included in the backup.
   Only **disk** and **turbo** vault support this parameter.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

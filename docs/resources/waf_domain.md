@@ -97,7 +97,7 @@ The `server` block supports:
 
 * `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

@@ -206,7 +206,7 @@ The `fixed_response_config` block supports:
 
 * `message_body` - (Optional, String) The content of the response message body.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

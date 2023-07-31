@@ -46,7 +46,7 @@ The following arguments are supported:
 
 * `force` - (Optional, Bool) Specifies the flag for forcibly creating a snapshot. Default to false.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

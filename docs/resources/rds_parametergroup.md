@@ -52,7 +52,7 @@ The `datastore` block supports:
   + PostgreSQL databases support PostgreSQL 9.5 and 9.6. Example value: 9.5.
   + Microsoft SQL Server databases support 2014 SE, 2016 SE, and 2016 EE. Example value: 2014_SE.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

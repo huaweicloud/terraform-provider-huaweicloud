@@ -76,7 +76,7 @@ The following arguments are supported:
 * `phone_num` - (Optional, List, ForceNew) Specifies phone number for receiving notifications when a table/file
  migration job fails or an EIP exception occurs. The max number is 5. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

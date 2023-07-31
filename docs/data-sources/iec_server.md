@@ -26,7 +26,7 @@ The following arguments are supported:
 
 * `edgecloud_id` - (Optional, String) Specifies the ID of the edgecloud service.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

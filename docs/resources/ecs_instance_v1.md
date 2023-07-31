@@ -247,7 +247,7 @@ The `data_disks` block supports:
 * `snapshot_id` - (Optional, String, ForceNew) Specifies the snapshot ID or ID of the original data disk contained in
   the full-ECS image. Changing this creates a new server.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

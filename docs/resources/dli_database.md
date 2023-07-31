@@ -38,7 +38,7 @@ The following arguments are supported:
 * `owner` - (Optional, String) Specifies the name of the SQL database owner.
   The owner must be IAM user.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

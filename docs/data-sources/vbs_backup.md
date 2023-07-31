@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `status` - (Optional, String) The status of the VBS backup.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

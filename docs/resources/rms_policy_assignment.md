@@ -157,7 +157,7 @@ The `custom_policy` block supports:
 
 * `auth_value` - (Optional, Map) Specifies the authorization value of the custom policy.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

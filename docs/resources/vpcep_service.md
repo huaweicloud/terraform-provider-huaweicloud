@@ -73,7 +73,7 @@ The `port_mapping` block supports:
 
 * `protocol` - (Optional, String) Specifies the protocol used in port mappings. Only **TCP** is supported.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

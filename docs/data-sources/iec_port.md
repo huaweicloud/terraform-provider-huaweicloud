@@ -30,7 +30,7 @@ data "huaweicloud_iec_port" "port_1" {
 
 * `mac_address` - (Optional, String) The MAC address of the port.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

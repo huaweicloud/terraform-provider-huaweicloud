@@ -68,7 +68,7 @@ The `roles` block supports:
 * `db_name` - (Required, String, ForceNew) Specifies the database name to which this owned role belongs.
   Changing this parameter will create a new user.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

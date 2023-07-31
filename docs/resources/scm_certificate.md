@@ -99,7 +99,7 @@ The `target` block supports:
   can be pushed repeatedly to the same WAF or ELB service in the same `project`, but the CDN service can only be pushed
   once.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

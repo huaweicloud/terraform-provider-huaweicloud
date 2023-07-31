@@ -151,7 +151,7 @@ The `conditions` block supports:
 
   + If `field` is set to **url**, the parameter cannot be specified.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

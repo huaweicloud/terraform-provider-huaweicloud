@@ -30,7 +30,7 @@ The following arguments are supported:
 
 * `instance_mode` - (Optional, String) HA mode. The valid values are **single**, **ha**, **replica**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

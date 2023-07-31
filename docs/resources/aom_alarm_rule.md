@@ -93,7 +93,7 @@ The `dimensions` block supports:
 -> **NOTE:** You can get more information about `metric_name`, `namespace`, `unit` and `dimensions`
   from [Metric Overview](https://support.huaweicloud.com/intl/en-us/productdesc-aom/aom_06_0014.html).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

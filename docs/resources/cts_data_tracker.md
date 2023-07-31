@@ -52,7 +52,7 @@ The following arguments are supported:
 
 * `enabled` - (Optional, Bool) Specifies whether tracker is enabled.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

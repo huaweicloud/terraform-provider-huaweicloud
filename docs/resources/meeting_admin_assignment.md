@@ -47,7 +47,7 @@ The following arguments are supported:
   The value can contain **1** to **64** characters.
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

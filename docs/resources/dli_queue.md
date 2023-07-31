@@ -90,7 +90,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

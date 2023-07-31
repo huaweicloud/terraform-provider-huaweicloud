@@ -39,7 +39,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the DMS group resource. If omitted, the
   provider-level region will be used. Changing this creates a new DMS group resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

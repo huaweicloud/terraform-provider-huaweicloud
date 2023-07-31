@@ -228,7 +228,7 @@ The unit contains a maximum of 16 characters.
 
 * `enum_list` - (Optional, List) Specifies the list of enumerated values of the parameter.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

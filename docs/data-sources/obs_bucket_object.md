@@ -24,7 +24,7 @@ The following arguments are supported:
 
 * `key` - (Required, String) The name of the object once it is in the bucket.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

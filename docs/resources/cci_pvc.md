@@ -107,7 +107,7 @@ The following arguments are supported:
   Namespace. Required if `volume_type` is *nfs-rw*, *efs-standard* or *efs-performance*. Changing this will create a new
   PVC resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

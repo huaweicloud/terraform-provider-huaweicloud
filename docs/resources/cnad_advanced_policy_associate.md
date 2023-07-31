@@ -39,7 +39,7 @@ The following arguments are supported:
 * `protected_object_ids` - (Required, List) Specifies the protected object IDs to associate. The protected object must
   have no binding policy. You can find it through data source `huaweicloud_cnad_advanced_protected_objects`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `memory` - (Optional, Int) The ram of the CPH server in GB.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

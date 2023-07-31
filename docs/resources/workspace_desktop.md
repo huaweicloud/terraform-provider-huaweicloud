@@ -148,7 +148,7 @@ The `nic` block supports:
 * `network_id` - (Required, String, ForceNew) Specifies the network ID of subnet resource.
   Changing this will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

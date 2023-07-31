@@ -45,7 +45,7 @@ The following arguments are supported:
 * `weight` - (Optional, Int) Specifies the weight of the endpoint based on which the listener distributes traffic.
   The value ranges from **0** to **100**. Defaults to **1**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

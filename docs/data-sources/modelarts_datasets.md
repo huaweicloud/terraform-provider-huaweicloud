@@ -35,7 +35,7 @@ The arguments of this data source act as filters for querying the available data
   + **600**: Video, supported formats: `.mp4`
   + **900**: Free format.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

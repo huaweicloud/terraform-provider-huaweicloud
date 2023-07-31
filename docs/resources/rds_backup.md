@@ -52,7 +52,7 @@ The `BackupDatabase` block supports:
 
 * `name` - (Required, String, ForceNew) Database to be backed up for Microsoft SQL Server.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

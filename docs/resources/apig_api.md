@@ -376,7 +376,7 @@ The `conditions` block supports:
 * `type` - (Optional, String) Specifies the condition type of the backend policy.  
   The valid values are **Equal**, **Enumerated** and **Matching**, defaults to **Equal**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

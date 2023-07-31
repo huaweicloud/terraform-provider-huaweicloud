@@ -322,7 +322,7 @@ The `source_cdn` block supports:
 * `authentication_key` - (Optional, String, ForceNew) Specifies the CDN authentication key.
   Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

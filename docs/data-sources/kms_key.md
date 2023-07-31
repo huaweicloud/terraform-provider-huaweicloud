@@ -43,7 +43,7 @@ data "huaweicloud_kms_key" "key_1" {
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the kms key.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -316,7 +316,7 @@ The `cce_config` block supports:
 
 * `workload_name` - (Required, String) Specifies the workload name.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

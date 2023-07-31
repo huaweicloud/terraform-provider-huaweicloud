@@ -28,7 +28,7 @@ The following arguments are supported:
 
 * `parent_id` - (Required, String) Specifies the ID of root or organizational unit in which you want to move the account.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

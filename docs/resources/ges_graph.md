@@ -198,7 +198,7 @@ The `vertexIdType` block supports:
 * `id_length` - (Optional, Int) The length of ID.  
   This parameter is mandatory if **id_type** is **fixedLengthString**. The value ranges from 1 to 128.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

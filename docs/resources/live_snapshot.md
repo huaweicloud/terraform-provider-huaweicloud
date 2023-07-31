@@ -68,7 +68,7 @@ The following arguments are supported:
 * `call_back_auth_key` - (Optional, String) Specifies the callback authentication key value.
   Consists of 32 to 128 characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

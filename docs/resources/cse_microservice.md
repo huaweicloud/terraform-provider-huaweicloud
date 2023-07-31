@@ -88,7 +88,7 @@ The following arguments are supported:
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -238,7 +238,7 @@ the `ok_actions` block supports:
 * `notification_list` - (Required, List) specifies the list of objects to be notified if the alarm status changes, the
   maximum length is 5.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

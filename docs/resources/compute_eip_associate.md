@@ -119,7 +119,7 @@ The following arguments are supported:
   and must be a valid IPv6 address when you want to associate the ECS instance with a specified shared bandwidth.
   Changing this creates a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

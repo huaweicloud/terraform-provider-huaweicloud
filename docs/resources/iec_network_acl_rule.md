@@ -57,7 +57,7 @@ The following arguments are supported:
 
 * `enabled` - (Optional, Bool) Specifies the Enabled status for the iec network ACL rule. The default value is true.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

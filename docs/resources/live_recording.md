@@ -113,7 +113,7 @@ stream pause length exceeds the value of this parameter, a new recording is gene
 Value range: 0 ~ 300, unit: `second`.
 If the value is set to `0`, a new file will be generated once the stream is interrupted. Defaults to `0`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

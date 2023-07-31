@@ -63,7 +63,7 @@ The `self_management` block supports:
 
 * `mobile` - (Optional, Bool) Specifies whether to allow IAM users to change their mobile numbers.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

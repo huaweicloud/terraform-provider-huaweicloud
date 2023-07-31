@@ -393,7 +393,7 @@ The `scheduler_hints` block supports:
 * `deh_id` - (Optional, String, ForceNew) Specifies the ID of DeH.
   This parameter takes effect only when the value of tenancy is dedicated. Changing this creates a new instance.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

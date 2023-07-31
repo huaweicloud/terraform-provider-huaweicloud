@@ -62,7 +62,7 @@ The following arguments are supported:
 * `project_id` - (Optional, String, ForceNew) Specifies the project to assign the role in.
   Required if `domain_id` is empty. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

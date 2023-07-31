@@ -97,7 +97,7 @@ The `smn_channel` block supports:
 
 * `project_id` - (Optional, String) Specifies the project ID where this SMN topic is located.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

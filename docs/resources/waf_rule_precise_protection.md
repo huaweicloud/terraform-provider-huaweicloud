@@ -134,7 +134,7 @@ The `conditions` block supports:
 * `reference_table_id` - (Optional, String) Specifies the reference table id. It is required when the `logic`
   end with `any` or `all`. The type of reference table should be consistent with the type of `field`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

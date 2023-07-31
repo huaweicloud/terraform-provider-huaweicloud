@@ -47,7 +47,7 @@ The following arguments are supported:
 * `url_path` - (Optional, String) Required for HTTP(S) types. URI path that will be accessed if monitor type is HTTP or
   HTTPS.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -89,7 +89,7 @@ The `Policy` block supports:
   Value options: **0**, **300**, **600**, **900**, **1800**, **3600**, **10800**, **21600**,
   **43200**, **86400**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

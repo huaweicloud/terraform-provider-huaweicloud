@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `members` - (Optional, List) Specifies an array of one or more instance ID to attach server group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

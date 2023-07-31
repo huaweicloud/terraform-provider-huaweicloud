@@ -28,7 +28,7 @@ The following arguments are supported:
   + **0**: North-south firewall;
   + **1**: East-west firewall;
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

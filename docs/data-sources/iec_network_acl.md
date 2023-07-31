@@ -24,7 +24,7 @@ The following arguments are supported:
 
 * `id` - (Optional, String) Specifies the ID of the IEC network ACL to retrieve.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

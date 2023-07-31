@@ -308,7 +308,7 @@ The `backup_strategy` block supports:
   -> **NOTE:**  If the `bucket`, `backup_path`, and `agency` parameters are empty at the same time, the system will
   automatically create an OBS bucket and IAM agent, otherwise the configured parameter values will be used.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

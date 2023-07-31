@@ -223,7 +223,7 @@ The `cross_vpc_accesses` block supports:
 
 * `advertised_ip` - (Optional, String) The advertised IP Address or domain name.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

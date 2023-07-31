@@ -119,7 +119,7 @@ The `bandwidth` block supports:
 * `charge_mode` - (Optional, String, ForceNew) Specifies whether the bandwidth is billed by traffic or by bandwidth
   size. The value can be **traffic** or **bandwidth**. Changing this will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

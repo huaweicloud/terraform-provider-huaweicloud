@@ -332,7 +332,7 @@ The `parameters` block supports:
 
 * `value` - (Required, String) Specifies the parameter value.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -90,7 +90,7 @@ The following arguments are supported:
   update the device upon subsequent applying which will cause the volume to be detached and reattached indefinitely.
   Please use with caution.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

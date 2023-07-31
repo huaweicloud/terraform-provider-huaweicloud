@@ -157,7 +157,7 @@ The `scheduled_policy` block supports:
   When the scaling action is triggered periodically, the end time cannot be earlier than the current and start time.
   The time format is YYYY-MM-DDThh:mmZ.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

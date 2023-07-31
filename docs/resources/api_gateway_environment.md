@@ -30,7 +30,7 @@ The following arguments are supported:
   The value can contain a maximum of `255` characters.
   Chinese characters must be in **UTF-8** or **Unicode** format.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

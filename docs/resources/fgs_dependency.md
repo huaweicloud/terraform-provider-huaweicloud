@@ -70,7 +70,7 @@ resource "huaweicloud_fgs_dependency" "test" {
 * `description` - (Optional, String) Specifies the dependency description.
   The description can contain a maximum of 512 characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

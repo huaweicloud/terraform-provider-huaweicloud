@@ -79,7 +79,7 @@ resource "huaweicloud_apig_certificate" "test" {
 }
 ```
 
-## Arguments Reference
+## Argument Reference
 
 The following arguments are supported:
 
@@ -111,7 +111,7 @@ The following arguments are supported:
 -> Currently, the ROOT CA parameter only certificates of type `instance` are support.
    Read this documentation to learn [how to purchase a private ROOT CA certificate](https://support.huaweicloud.com/intl/en-us/tg-ccm/ccm_01_0016.html).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

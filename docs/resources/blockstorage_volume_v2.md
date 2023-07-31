@@ -56,7 +56,7 @@ The following arguments are supported:
 
 * `cascade` - (Optional, Bool) Default:false. Specifies to delete all snapshots associated with the EVS disk.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

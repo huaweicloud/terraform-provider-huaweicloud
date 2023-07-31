@@ -102,7 +102,7 @@ The `server` block supports:
 * `port` - (Required, Int, ForceNew) Port number used by the web server. The value ranges from 0 to 65535. Changing this
   creates a new service.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

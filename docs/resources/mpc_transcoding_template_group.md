@@ -185,7 +185,7 @@ The `videos` block supports:
   30,000. The default value is 0. The unit is kbit/s. If this parameter is set to 0, the average output bitrate is an
   adaptive value.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

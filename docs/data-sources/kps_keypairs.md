@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `is_managed` - (Optional, Bool) Specifies whether the private key is managed by HuaweiCloud.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

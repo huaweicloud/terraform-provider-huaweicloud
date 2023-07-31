@@ -43,7 +43,7 @@ The `ip_list` block supports:
 
 * `description` - (Optional, String) Human-readable description for the ip.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

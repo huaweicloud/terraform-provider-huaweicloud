@@ -117,7 +117,7 @@ The `access_config` block supports:
   Valid values is *form_post* and *fragment*, default value is *form_post*.
   This field is required only if the access type is set to `program_console`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

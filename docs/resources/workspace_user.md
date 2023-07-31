@@ -64,7 +64,7 @@ The following arguments are supported:
 * `disabled` - (Optional, Bool) Specifies whether the user is disabled.
   Defaults to **false**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

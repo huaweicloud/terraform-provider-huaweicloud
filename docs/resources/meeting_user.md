@@ -175,7 +175,7 @@ The following arguments are supported:
 
   -> Assign administrator role need to use the default administrator for authorization.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

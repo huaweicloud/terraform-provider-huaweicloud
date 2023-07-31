@@ -135,7 +135,7 @@ The `ad_domain` block supports:
 * `delete_computer_object` - (Optional, Bool) Specifies whether to delete the corresponding computer object on AD
   while deleting the desktop.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -97,7 +97,7 @@ The following arguments are supported:
 
 * `city` - (Optional, String) Specifies the city code.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

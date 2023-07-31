@@ -163,7 +163,7 @@ The `backend_parameter` object supports the following:
 * `description` - (Optional, String) Specifies the description of the parameter. The description cannot exceed 255
   characters.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

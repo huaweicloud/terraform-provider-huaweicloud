@@ -123,7 +123,7 @@ The `audio` block supports:
 * `bitrate` - (Optional, Int) Specifies the audio bitrate. The value can be **0** or range from
   **8** to **1000**. Defaults to: **0**. If set to **0**, the output audio will be produced at the recommended bitrate.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

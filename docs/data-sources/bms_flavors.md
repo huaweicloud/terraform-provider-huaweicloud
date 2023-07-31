@@ -36,7 +36,7 @@ resource "huaweicloud_bms_instance" "instance" {
 * `cpu_arch` - (Optional, String) Specifies the CPU architecture of the BMS flavor.
   The value can be x86_64 and aarch64, defaults to **x86_64**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

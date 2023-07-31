@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `sync_flushing` - (Optional, Bool) Whether or not to enable synchronous flushing.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

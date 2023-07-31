@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `memory` - (Optional, Int) Specifies the memory size. Unit GB.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -35,7 +35,7 @@ Changing this parameter will create a new resource.
 the validity of the device CA certificate after creation. Get the verification certificate,
 please following [reference](https://support.huaweicloud.com/usermanual-iothub/iot_01_0106.html)
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

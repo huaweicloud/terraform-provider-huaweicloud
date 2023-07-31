@@ -31,7 +31,7 @@ for example: "0.0,1.0".
 
 * `name` - (Optional, String) Specifies the name of the dataset version.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

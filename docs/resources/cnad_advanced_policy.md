@@ -34,7 +34,7 @@ The following arguments are supported:
 
 * `threshold` - (Optional, Int) Specifies the cleaning threshold, the value ranges from 100 Mbps to 1000 Mbps.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

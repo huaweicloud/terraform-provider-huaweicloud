@@ -72,7 +72,7 @@ The `host_routes` block supports:
 
 * `next_hop` - (Required, String) The next hop in the route.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

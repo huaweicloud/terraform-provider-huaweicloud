@@ -41,7 +41,7 @@ The following arguments are supported:
 
 -> Specifies at least one of `main_object`,`stop_object`,`synonym_object`
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

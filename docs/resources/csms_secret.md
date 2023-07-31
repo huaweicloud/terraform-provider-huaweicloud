@@ -54,7 +54,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The tags of a CSMS secrets, key/value pair format.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

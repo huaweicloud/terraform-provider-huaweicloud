@@ -79,7 +79,7 @@ The `operation_users` block supports:
 
 * `users` - (Required, List) Specifies an array of IAM users in the group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

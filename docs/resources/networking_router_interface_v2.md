@@ -50,7 +50,7 @@ The following arguments are supported:
 * `port_id` - (Optional, String, ForceNew) ID of the port this interface connects to. Changing this creates a new router
   interface.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

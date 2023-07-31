@@ -353,7 +353,7 @@ The `configuration` block supports:
 
 * `waiting_room_enabled` - (Optional, Bool) Specifies whether to open the waiting room (only valid for RTC enterprises).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

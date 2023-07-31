@@ -52,7 +52,7 @@ The `users` block supports:
 * `permission` - (Required, String) Specifies the permission of the existing HuaweiCloud user.
   The values can be **Manage**, **Write** and **Read**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

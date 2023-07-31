@@ -33,7 +33,7 @@ The following arguments are supported:
   bound to Elastic IP. Valid values are: **VPN**, **NAT**, **VIP**,**CCI**, **EIP**, **ELB**, **REROUTING_IP**,
   **SubEni** and **NetInterFace**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

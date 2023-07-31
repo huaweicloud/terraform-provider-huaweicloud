@@ -59,7 +59,7 @@ The following arguments are supported:
 
 * `subnets` - (Optional, List) A list of the IDs of networks associated with the network ACL.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

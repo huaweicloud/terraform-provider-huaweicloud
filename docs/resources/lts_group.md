@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `ttl_in_days` - (Required, Int) Specifies the log expiration time(days), value range: 1-30.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

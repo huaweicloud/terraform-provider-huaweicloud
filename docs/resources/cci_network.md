@@ -52,7 +52,7 @@ The following arguments are supported:
   namespaces created may not work correctly for permission reasons.
   And if too few IP addresses are available, the workloads may fail to function properly.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

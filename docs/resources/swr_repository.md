@@ -40,7 +40,7 @@ The following arguments are supported:
 * `category` - (Optional, String) Specifies the category of the repository.
   The value can be `app_server`, `linux`, `framework_app`, `database`, `lang`, `other`, `windows`, `arm`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

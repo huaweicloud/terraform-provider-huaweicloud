@@ -20,7 +20,7 @@ data "huaweicloud_er_attachments" "test" {
 }
 ```
 
-## Arguments Reference
+## Argument Reference
 
 The following arguments are supported:
 
@@ -50,7 +50,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs used to filter the attachments.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

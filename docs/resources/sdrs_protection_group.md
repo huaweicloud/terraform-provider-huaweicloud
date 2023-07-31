@@ -69,7 +69,7 @@ The following arguments are supported:
 * `enable` - (Optional, Bool) Specifies whether enable the protection group start protecting.
   The default value is **false**. It can only be set to true when there's replication pairs within the protection group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

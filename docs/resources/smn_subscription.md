@@ -54,7 +54,7 @@ The following arguments are supported:
 * `remark` - (Optional, String, ForceNew) Remark information. The remarks must be a UTF-8-coded character string
   containing 128 bytes. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

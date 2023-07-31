@@ -48,7 +48,7 @@ The following arguments are supported:
   The fields within "{}" can be replaced based on the actual situation
   when you use the template.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

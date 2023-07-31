@@ -197,7 +197,7 @@ The `add_jobs` block supports:
   Contains a maximum of 1023 characters, excluding special characters such as ;|&><'$. The address cannot be empty or
   full of spaces. Starts with / or s3a://. Ends with .sql. sql is case-insensitive.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -40,7 +40,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the custom line description. A maximum of 255 characters are allowed.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

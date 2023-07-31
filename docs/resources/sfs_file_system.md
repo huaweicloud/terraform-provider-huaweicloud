@@ -131,7 +131,7 @@ The following arguments are supported:
 -> **NOTE:** If you want to create more access rules, please using
   [huaweicloud_sfs_access_rule](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/resources/sfs_access_rule).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

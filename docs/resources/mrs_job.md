@@ -70,7 +70,7 @@ The following arguments are supported:
 
 * `is_public` - (Optional, Bool) Whether a job is public true false The current version does not support this function.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

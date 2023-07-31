@@ -168,7 +168,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 
   ~> You need to remove all nodes in the node pool on the console, before deleting a prepaid node pool.
 
-## Arguments Reference
+## Argument Reference
 
 The following arguments are supported:
 
@@ -387,7 +387,7 @@ The `groups` block supports:
   + `runtime_lv_type` - (Optional, String, ForceNew) Specifies the LVM write mode, values can be **linear** and **striped**.
     This parameter takes effect only in **runtime** configuration. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -106,7 +106,7 @@ The following arguments are supported:
   This parameter is not used with `port_range_min` and `port_range_max`.
   Changing this creates a new security group rule.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

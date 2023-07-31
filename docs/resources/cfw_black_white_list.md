@@ -62,7 +62,7 @@ The following arguments are supported:
 
 * `address` - (Required, String) Specifies the address.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

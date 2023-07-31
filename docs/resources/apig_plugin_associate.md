@@ -46,7 +46,7 @@ The following arguments are supported:
 
 * `api_ids` - (Required, List) Specifies the API IDs bound by the plugin.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -60,7 +60,7 @@ The `source_info` block supports:
 
 * `password` - (Required, String) The password for logging in to the database.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

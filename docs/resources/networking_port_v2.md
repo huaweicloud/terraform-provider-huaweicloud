@@ -82,7 +82,7 @@ The `extra_dhcp_option` block supports:
 
 * `ip_version` - (Optional, Int) IP protocol version. Defaults to 4.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

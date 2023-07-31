@@ -140,7 +140,7 @@ The `packages` block supports:
 * `package_name` - (Required, String, ForceNew) Specifies the resource name of the package.
   Changing this parameter will submit a new spark job.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

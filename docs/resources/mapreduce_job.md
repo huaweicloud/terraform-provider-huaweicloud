@@ -85,7 +85,7 @@ The following arguments are supported:
 * `sql` - (Optional, String, ForceNew) Specifies the SQL command or file path. Only required if `type` is **HiveSql**
   or **SparkSql**. Changing this will create a new MapReduce job resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

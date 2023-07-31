@@ -38,7 +38,7 @@ The following arguments are supported:
 * `parameter_values` - (Optional, Map) Specifies the mapping between parameter names and parameter values.
   You can specify parameter values based on a default parameter template.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

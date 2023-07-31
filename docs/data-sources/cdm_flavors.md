@@ -19,7 +19,7 @@ The following arguments are supported:
 * `region` - (Optional, String) The region in which to obtain the CDM flavors.
   If omitted, the provider-level region will be used.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

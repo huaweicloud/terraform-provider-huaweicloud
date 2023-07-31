@@ -24,7 +24,7 @@ The following arguments are supported:
 
 * `city` - (Optional, String) Specifies the city of the IEC sites located.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

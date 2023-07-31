@@ -188,7 +188,7 @@ Exactly one of `ip` or `domain` must be provided.
 * `domain` - (Optional, String) Specifies the domain of the connected service address.
 Exactly one of `ip` or `domain` must be provided.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

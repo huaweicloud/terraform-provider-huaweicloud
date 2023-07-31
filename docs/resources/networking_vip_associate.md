@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `port_ids` - (Required, List) An array of one or more IDs of the ports to attach the vip to.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

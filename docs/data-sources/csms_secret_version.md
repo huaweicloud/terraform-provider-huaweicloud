@@ -26,7 +26,7 @@ The following arguments are supported:
 * `version` - (Optional, String) The version ID of the CSMS secret version to query.
   If omitted, the latest version will be used.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

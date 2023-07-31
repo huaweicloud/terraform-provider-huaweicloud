@@ -40,7 +40,7 @@ The following arguments are supported:
 * `image_label` - (Optional, String) The label of image.
   The valid values are **cloud_phone**, **cloud_game**, **qemu_phone**, **cloud_phone_1620**, and **cloud_game_1620**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

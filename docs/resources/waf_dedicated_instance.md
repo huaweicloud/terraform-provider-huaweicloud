@@ -73,7 +73,7 @@ The following arguments are supported:
 * `group_id` - (Optional, String, ForceNew) The instance group ID used by the WAF dedicated instance in ELB mode.
   Changing this will create a new instance.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

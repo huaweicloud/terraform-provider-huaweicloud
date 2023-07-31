@@ -27,7 +27,7 @@ The following arguments are supported:
 * `leave_organization_on_destroy` - (Optional, Bool) Specifies whether to leave the organization when delete the
   invitation (handshake). Defaults to false.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

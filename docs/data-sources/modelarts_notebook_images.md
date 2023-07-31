@@ -40,7 +40,7 @@ The arguments of this data source act as filters for querying the available imag
 
 * `workspace_id` - (Optional, String) Specifies the workspace ID which image belongs to.
 
-## Attributes Reference
+## Attribute Reference
 
 The following attributes are exported:
 

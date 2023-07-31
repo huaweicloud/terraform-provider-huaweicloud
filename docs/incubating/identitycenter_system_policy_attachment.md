@@ -36,7 +36,7 @@ The following arguments are supported:
 * `policy_ids` - (Required, String) Specifies an array of IAM managed system policies/roles to be attached to
   the permission set.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

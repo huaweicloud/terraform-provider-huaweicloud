@@ -38,7 +38,7 @@ The following arguments are supported:
 * `description` - (Optional, String, ForceNew) Specifies the description of a snapshot. The value contains 0 to 256
   characters, and angle brackets (<) and (>) are not allowed. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

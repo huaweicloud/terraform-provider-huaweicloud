@@ -50,7 +50,7 @@ The following arguments are supported:
 * `max_concurrency` - (Required, Int) Specifies the maximum number of concurrent SQL statements.
   Value: a non-negative integer.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

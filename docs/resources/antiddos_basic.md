@@ -32,7 +32,7 @@ The following arguments are supported:
 * `traffic_threshold` - (Required, Int) Specifies the traffic cleaning threshold in Mbps.
   The value can be 10, 30, 50, 70, 100, 120, 150, 200, 250, 300, 1000 Mbps.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

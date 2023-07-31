@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the instance group.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -190,7 +190,7 @@ The `master_eip` or `slave_eip` block supports:
   ~> You can use `id` to specify an existing EIP or use `type`, `bandwidth_name`, `bandwidth_size` and `charge_mode` to
     create a new EIP.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

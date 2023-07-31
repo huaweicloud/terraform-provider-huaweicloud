@@ -104,7 +104,7 @@ The `route` block supports:
 * `description` - (Optional, String) Specifies the supplementary information about the route.
   The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

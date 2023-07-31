@@ -208,7 +208,7 @@ The `config` block supports:
     massive one-time jobs.
   + **DELETE**: Thejob will be deleted after it is executed, regardless of the execution result.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

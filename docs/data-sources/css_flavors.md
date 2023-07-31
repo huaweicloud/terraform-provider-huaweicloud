@@ -34,7 +34,7 @@ data "huaweicloud_css_flavors" "test" {
 
 * `memory` - (Optional, Int) Specifies the memory size(GB) in the CSS flavor.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

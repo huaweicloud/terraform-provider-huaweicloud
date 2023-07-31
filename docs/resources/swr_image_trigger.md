@@ -96,7 +96,7 @@ The following arguments are supported:
 * `enabled` - (Optional, String) Specifies whether to enable the trigger.
   Value options **true**, **false**. Default to **true**
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

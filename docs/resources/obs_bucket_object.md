@@ -76,7 +76,7 @@ The following arguments are supported:
 
 Either `source` or `content` must be provided to specify the bucket content. These two arguments are mutually-exclusive.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

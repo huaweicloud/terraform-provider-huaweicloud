@@ -73,7 +73,7 @@ The `identity` block supports:
   If omitted, the custom authorizer will not perform verification.
   The valid value is range form `1` to `2,048`.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

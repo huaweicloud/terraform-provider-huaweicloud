@@ -113,7 +113,7 @@ The `user_throttles` and `user_throttles` blocks support:
 
 * `throttling_object_id` - (Required, String) Specifies the object ID which the special throttling policy belongs.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

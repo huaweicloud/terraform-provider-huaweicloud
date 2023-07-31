@@ -211,7 +211,7 @@ is two digits, for example: 01:00. Changing this parameter will create a new res
 * `end_time` - (Required, String, ForceNew) Specifies the time to end speed limit, this time is UTC time. The input must
  end at 59 minutes, the format is `hh:mm`, for example: 15:59. Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

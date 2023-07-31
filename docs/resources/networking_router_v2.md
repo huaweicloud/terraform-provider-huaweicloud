@@ -55,7 +55,7 @@ The `external_fixed_ip` block supports:
 
 * `ip_address` - (Optional, String) The IP address to set on the router.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

@@ -58,7 +58,7 @@ data "huaweicloud_dms_kafka_flavors" "test" {
 * `charging_mode` - (Optional, String) Specifies the flavor billing mode.
   The valid valus are **prePaid** and **postPaid**.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

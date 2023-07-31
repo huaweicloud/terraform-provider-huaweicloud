@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `status` - (Optional, String) The status of the shared file system.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

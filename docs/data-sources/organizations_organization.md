@@ -17,7 +17,7 @@ data "huaweicloud_organizations_organization" "test"{
 
 There are no arguments available for this data source.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

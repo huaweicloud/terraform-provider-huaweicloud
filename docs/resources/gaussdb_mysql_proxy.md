@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `node_num` - (Required, Int) Specifies the node count of the proxy.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 

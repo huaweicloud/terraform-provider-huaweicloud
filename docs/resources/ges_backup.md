@@ -26,7 +26,7 @@ The following arguments are supported:
 * `graph_id` - (Required, String, ForceNew) The ID of the graph that created the backup.
   Changing this parameter will create a new resource.
 
-## Attributes Reference
+## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
