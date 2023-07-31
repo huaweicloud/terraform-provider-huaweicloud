@@ -113,6 +113,12 @@ type CreateOps struct {
 	// Indicates whether to enable SSL-encrypted access.
 	SslEnable bool `json:"ssl_enable,omitempty"`
 
+	// Indicates the protocol to use after SASL is enabled.
+	KafkaSecurityProtocol string `json:"kafka_security_protocol,omitempty"`
+
+	// Indicates the authentication mechanisms to use after SASL is enabled.
+	SaslEnabledMechanisms []string `json:"sasl_enabled_mechanisms,omitempty"`
+
 	// Indicates the action to be taken when the memory usage reaches the disk capacity threshold. Options:
 	// time_base: Automatically delete the earliest messages.
 	// produce_reject: Stop producing new messages.

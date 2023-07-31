@@ -156,6 +156,19 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"security_protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"enabled_mechanisms": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"retention_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -486,9 +499,10 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		createOpts.PublicIpID = strings.Join(utils.ExpandToStringList(ids.([]interface{})), ",")
 	}
 
-	createOpts.SslEnable = false
 	if d.Get("access_user").(string) != "" && d.Get("password").(string) != "" {
 		createOpts.SslEnable = true
+		createOpts.KafkaSecurityProtocol = d.Get("security_protocol").(string)
+		createOpts.SaslEnabledMechanisms = utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List())
 	}
 
 	var availableZones []string
@@ -570,11 +584,6 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 			"product capacity is %v, got: %v", defaultStorageSpace, storageSpace)
 	}
 
-	sslEnable := false
-	if d.Get("access_user").(string) != "" && d.Get("password").(string) != "" {
-		sslEnable = true
-	}
-
 	var availableZones []string
 	if zoneIDs, ok := d.GetOk("available_zones"); ok {
 		availableZones = utils.ExpandToStringList(zoneIDs.([]interface{}))
@@ -604,7 +613,6 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		KafkaManagerUser:    d.Get("manager_user").(string),
 		MaintainBegin:       d.Get("maintain_begin").(string),
 		MaintainEnd:         d.Get("maintain_end").(string),
-		SslEnable:           sslEnable,
 		RetentionPolicy:     d.Get("retention_policy").(string),
 		ConnectorEnalbe:     d.Get("dumping").(bool),
 		EnableAutoTopic:     d.Get("enable_auto_topic").(bool),
@@ -634,6 +642,12 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		}
 		createOpts.EnablePublicIP = true
 		createOpts.PublicIpID = publicIpIDs
+	}
+
+	if d.Get("access_user").(string) != "" && d.Get("password").(string) != "" {
+		createOpts.SslEnable = true
+		createOpts.KafkaSecurityProtocol = d.Get("security_protocol").(string)
+		createOpts.SaslEnabledMechanisms = utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List())
 	}
 
 	// set tags
@@ -862,6 +876,8 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("maintain_end", v.MaintainEnd),
 		d.Set("enable_public_ip", v.EnablePublicIP),
 		d.Set("ssl_enable", v.SslEnable),
+		d.Set("security_protocol", v.KafkaSecurityProtocol),
+		d.Set("enabled_mechanisms", v.SaslEnabledMechanisms),
 		d.Set("retention_policy", v.RetentionPolicy),
 		d.Set("dumping", v.ConnectorEnalbe),
 		d.Set("enable_auto_topic", v.EnableAutoTopic),
