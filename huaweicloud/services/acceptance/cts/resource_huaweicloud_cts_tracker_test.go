@@ -68,11 +68,6 @@ func testAccCTSTrackerImportState(name string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccCheckCTSTrackerDestroy(_ *terraform.State) error {
-	// the system tracker always exists
-	return nil
-}
-
 func testAccCheckCTSTrackerExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -106,6 +101,44 @@ func testAccCheckCTSTrackerExists(n string) resource.TestCheckFunc {
 
 		return nil
 	}
+}
+
+func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	ctsClient, err := cfg.HcCtsV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return fmt.Errorf("error creating CTS client: %s", err)
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "huaweicloud_cts_tracker" {
+			continue
+		}
+
+		name := rs.Primary.Attributes["name"]
+		listOpts := &cts.ListTrackersRequest{
+			TrackerName: &name,
+		}
+
+		response, err := ctsClient.ListTrackers(listOpts)
+		if err != nil {
+			return fmt.Errorf("error retrieving CTS tracker: %s", err)
+		}
+
+		if response.Trackers == nil || len(*response.Trackers) == 0 {
+			return fmt.Errorf("can not find the CTS tracker %s", name)
+		}
+
+		allTrackers := *response.Trackers
+		ctsTracker := allTrackers[0]
+		if ctsTracker.Status != nil {
+			if ctsTracker.Status.Value() != "disabled" {
+				return fmt.Errorf("can not disable the CTS tracker %s", name)
+			}
+		}
+	}
+
+	return nil
 }
 
 func testAccCTSTracker_basic(rName string) string {

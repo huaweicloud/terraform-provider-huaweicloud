@@ -107,45 +107,49 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// update status firstly
-	status := "enabled"
-	if enabled := d.Get("enabled").(bool); !enabled {
-		status = "disabled"
-	}
+	if d.IsNewResource() || d.HasChange("enabled") {
+		status := "enabled"
+		if enabled := d.Get("enabled").(bool); !enabled {
+			status = "disabled"
+		}
 
-	if err := updateSystemTrackerStatus(ctsClient, status); err != nil {
-		return diag.Errorf("error updating CTS tracker status: %s", err)
+		if err := updateSystemTrackerStatus(ctsClient, status); err != nil {
+			return diag.Errorf("error updating CTS tracker status: %s", err)
+		}
 	}
 
 	// update other configurations
-	obsInfo := cts.TrackerObsInfo{
-		BucketName:     utils.String(d.Get("bucket_name").(string)),
-		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
-	}
+	if d.IsNewResource() || d.HasChangeExcept("enabled") {
+		obsInfo := cts.TrackerObsInfo{
+			BucketName:     utils.String(d.Get("bucket_name").(string)),
+			FilePrefixName: utils.String(d.Get("file_prefix").(string)),
+		}
 
-	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
-	updateBody := cts.UpdateTrackerRequestBody{
-		TrackerName:       "system",
-		TrackerType:       trackerType,
-		IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
-		IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
-		ObsInfo:           &obsInfo,
-	}
+		trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
+		updateBody := cts.UpdateTrackerRequestBody{
+			TrackerName:       "system",
+			TrackerType:       trackerType,
+			IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
+			IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
+			ObsInfo:           &obsInfo,
+		}
 
-	var encryption bool
-	if v, ok := d.GetOk("kms_id"); ok {
-		encryption = true
-		updateBody.KmsId = utils.String(v.(string))
-	}
-	updateBody.IsSupportTraceFilesEncryption = &encryption
+		var encryption bool
+		if v, ok := d.GetOk("kms_id"); ok {
+			encryption = true
+			updateBody.KmsId = utils.String(v.(string))
+		}
+		updateBody.IsSupportTraceFilesEncryption = &encryption
 
-	log.Printf("[DEBUG] updating CTS tracker options: %#v", updateBody)
-	updateOpts := cts.UpdateTrackerRequest{
-		Body: &updateBody,
-	}
+		log.Printf("[DEBUG] updating CTS tracker options: %#v", updateBody)
+		updateOpts := cts.UpdateTrackerRequest{
+			Body: &updateBody,
+		}
 
-	_, err = ctsClient.UpdateTracker(&updateOpts)
-	if err != nil {
-		return diag.Errorf("error updating CTS tracker: %s", err)
+		_, err = ctsClient.UpdateTracker(&updateOpts)
+		if err != nil {
+			return diag.Errorf("error updating CTS tracker: %s", err)
+		}
 	}
 
 	return resourceCTSTrackerRead(ctx, d, meta)
@@ -206,6 +210,10 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
+	if err := updateSystemTrackerStatus(ctsClient, "disabled"); err != nil {
+		return diag.Errorf("failed to disable CTS system tracker: %s", err)
+	}
+
 	obsInfo := cts.TrackerObsInfo{
 		BucketName:     utils.String(""),
 		FilePrefixName: utils.String(""),
@@ -228,7 +236,7 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 
 	_, err = ctsClient.UpdateTracker(&updateOpts)
 	if err != nil {
-		return diag.Errorf("error updating CTS tracker: %s", err)
+		return diag.Errorf("falied to reset CTS system tracker: %s", err)
 	}
 
 	return nil
