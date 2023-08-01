@@ -131,10 +131,8 @@ func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
 
 		allTrackers := *response.Trackers
 		ctsTracker := allTrackers[0]
-		if ctsTracker.Status != nil {
-			if ctsTracker.Status.Value() != "disabled" {
-				return fmt.Errorf("can not disable the CTS tracker %s", name)
-			}
+		if ctsTracker.Status != nil && ctsTracker.Status.Value() != "disabled" {
+			return fmt.Errorf("can not disable the CTS tracker %s", name)
 		}
 	}
 

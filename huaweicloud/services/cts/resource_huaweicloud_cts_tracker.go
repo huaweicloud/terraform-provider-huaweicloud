@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
 
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
@@ -24,7 +25,7 @@ import (
 
 func ResourceCTSTracker() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCTSTrackerUpdate,
+		CreateContext: resourceCTSTrackerCreate,
 		ReadContext:   resourceCTSTrackerRead,
 		UpdateContext: resourceCTSTrackerUpdate,
 		DeleteContext: resourceCTSTrackerDelete,
@@ -97,6 +98,45 @@ func ResourceCTSTracker() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceCTSTrackerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating CTS client: %s", err)
+	}
+
+	resourceID := "system"
+	tracker, err := getSystemTracker(ctsClient)
+	if err == nil && tracker != nil {
+		log.Print("[DEBUG] the system tracker already exists, update the configuration")
+		if tracker.Id != nil {
+			resourceID = *tracker.Id
+		}
+
+		d.SetId(resourceID)
+		return resourceCTSTrackerUpdate(ctx, d, meta)
+	}
+
+	// return the error with non-404 code
+	if _, ok := err.(golangsdk.ErrDefault404); !ok {
+		return diag.Errorf("error retrieving CTS tracker: %s", err)
+	}
+
+	if err := createSystemTracker(d, ctsClient); err != nil {
+		return diag.Errorf("error creating system CTS tracker: %s", err)
+	}
+
+	d.SetId(resourceID)
+
+	// disable status if necessary
+	if enabled := d.Get("enabled").(bool); !enabled {
+		if err := updateSystemTrackerStatus(ctsClient, "disabled"); err != nil {
+			return diag.Errorf("failed to disable CTS system tracker: %s", err)
+		}
+	}
+	return nil
 }
 
 func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -256,6 +296,36 @@ func formatValue(i interface{}) string {
 	}
 
 	return strings.Trim(string(jsonRaw), `"`)
+}
+
+func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) error {
+	obsInfo := cts.TrackerObsInfo{
+		BucketName:     utils.String(d.Get("bucket_name").(string)),
+		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
+	}
+
+	trackerType := cts.GetCreateTrackerRequestBodyTrackerTypeEnum().SYSTEM
+	reqBody := cts.CreateTrackerRequestBody{
+		TrackerName:       "system",
+		TrackerType:       trackerType,
+		IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
+		IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
+		ObsInfo:           &obsInfo,
+	}
+
+	if v, ok := d.GetOk("kms_id"); ok {
+		encryption := true
+		reqBody.KmsId = utils.String(v.(string))
+		reqBody.IsSupportTraceFilesEncryption = &encryption
+	}
+
+	log.Printf("[DEBUG] creating system CTS tracker options: %#v", reqBody)
+	createOpts := cts.CreateTrackerRequest{
+		Body: &reqBody,
+	}
+
+	_, err := ctsClient.CreateTracker(&createOpts)
+	return err
 }
 
 func getSystemTracker(ctsClient *client.CtsClient) (*cts.TrackerResponseBody, error) {
