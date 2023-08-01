@@ -3,19 +3,23 @@ package cts
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCTSTracker() *schema.Resource {
@@ -93,7 +97,6 @@ func ResourceCTSTracker() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -109,23 +112,7 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		status = "disabled"
 	}
 
-	enabledStatus := new(cts.UpdateTrackerRequestBodyStatus)
-	if err := enabledStatus.UnmarshalJSON([]byte(status)); err != nil {
-		return diag.Errorf("failed to parse status %s: %s", status, err)
-	}
-
-	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
-	statusOpts := cts.UpdateTrackerRequestBody{
-		TrackerName: "system",
-		TrackerType: trackerType,
-		Status:      enabledStatus,
-	}
-	statusReq := cts.UpdateTrackerRequest{
-		Body: &statusOpts,
-	}
-
-	_, err = ctsClient.UpdateTracker(&statusReq)
-	if err != nil {
+	if err := updateSystemTrackerStatus(ctsClient, status); err != nil {
 		return diag.Errorf("error updating CTS tracker status: %s", err)
 	}
 
@@ -135,6 +122,7 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
 	}
 
+	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
 	updateBody := cts.UpdateTrackerRequestBody{
 		TrackerName:       "system",
 		TrackerType:       trackerType,
@@ -150,7 +138,7 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	updateBody.IsSupportTraceFilesEncryption = &encryption
 
-	logp.Printf("[DEBUG] updating CTS tracker options: %#v", updateBody)
+	log.Printf("[DEBUG] updating CTS tracker options: %#v", updateBody)
 	updateOpts := cts.UpdateTrackerRequest{
 		Body: &updateBody,
 	}
@@ -160,7 +148,6 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error updating CTS tracker: %s", err)
 	}
 
-	d.Set("name", "system")
 	return resourceCTSTrackerRead(ctx, d, meta)
 }
 
@@ -172,28 +159,15 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	name := d.Get("name").(string)
-	listOpts := &cts.ListTrackersRequest{
-		TrackerName: &name,
-	}
-
-	response, err := ctsClient.ListTrackers(listOpts)
+	ctsTracker, err := getSystemTracker(ctsClient)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CTS tracker")
 	}
 
-	if response.Trackers == nil || len(*response.Trackers) == 0 {
-		d.SetId("")
-		return nil
-	}
-
-	allTrackers := *response.Trackers
-	ctsTracker := allTrackers[0]
-
 	if ctsTracker.Id != nil {
 		d.SetId(*ctsTracker.Id)
 	} else {
-		d.SetId(name)
+		d.SetId("system")
 	}
 
 	d.Set("region", region)
@@ -247,7 +221,7 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 		ObsInfo:                       &obsInfo,
 	}
 
-	logp.Printf("[DEBUG] updating CTS tracker to default configuration: %#v", updateBody)
+	log.Printf("[DEBUG] updating CTS tracker to default configuration: %#v", updateBody)
 	updateOpts := cts.UpdateTrackerRequest{
 		Body: &updateBody,
 	}
@@ -260,7 +234,7 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceCTSTrackerImportState(_ context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func resourceCTSTrackerImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	name := d.Id()
 	d.Set("name", name)
 	return []*schema.ResourceData{d}, nil
@@ -269,9 +243,48 @@ func resourceCTSTrackerImportState(_ context.Context, d *schema.ResourceData, m 
 func formatValue(i interface{}) string {
 	jsonRaw, err := json.Marshal(i)
 	if err != nil {
-		logp.Printf("[WARN] failed to marshal %#v: %s", i, err)
+		log.Printf("[WARN] failed to marshal %#v: %s", i, err)
 		return ""
 	}
 
 	return strings.Trim(string(jsonRaw), `"`)
+}
+
+func getSystemTracker(ctsClient *client.CtsClient) (*cts.TrackerResponseBody, error) {
+	name := "system"
+	listOpts := &cts.ListTrackersRequest{
+		TrackerName: &name,
+	}
+
+	response, err := ctsClient.ListTrackers(listOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Trackers == nil || len(*response.Trackers) == 0 {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	allTrackers := *response.Trackers
+	return &allTrackers[0], nil
+}
+
+func updateSystemTrackerStatus(c *client.CtsClient, status string) error {
+	enabledStatus := new(cts.UpdateTrackerRequestBodyStatus)
+	if err := enabledStatus.UnmarshalJSON([]byte(status)); err != nil {
+		return fmt.Errorf("failed to parse status %s: %s", status, err)
+	}
+
+	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
+	statusOpts := cts.UpdateTrackerRequestBody{
+		TrackerName: "system",
+		TrackerType: trackerType,
+		Status:      enabledStatus,
+	}
+	statusReq := cts.UpdateTrackerRequest{
+		Body: &statusOpts,
+	}
+
+	_, err := c.UpdateTracker(&statusReq)
+	return err
 }

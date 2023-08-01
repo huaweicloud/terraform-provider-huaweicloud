@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -67,7 +68,7 @@ func testAccCTSTrackerImportState(name string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
+func testAccCheckCTSTrackerDestroy(_ *terraform.State) error {
 	// the system tracker always exists
 	return nil
 }
