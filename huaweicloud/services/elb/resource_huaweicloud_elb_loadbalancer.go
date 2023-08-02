@@ -127,9 +127,9 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 				RequiredWith: []string{
-					"iptype", "bandwidth_charge_mode", "bandwidth_size",
+					"iptype",
 				},
-				ConflictsWith: []string{"ipv4_eip_id", "bandwidth_id"},
+				ConflictsWith: []string{"ipv4_eip_id"},
 			},
 
 			"bandwidth_size": {
@@ -151,7 +151,7 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				RequiredWith: []string{
 					"iptype",
 				},
-				ConflictsWith: []string{"ipv4_eip_id", "bandwidth_size", "bandwidth_charge_mode", "sharetype"},
+				ConflictsWith: []string{"ipv4_eip_id", "bandwidth_size", "bandwidth_charge_mode"},
 			},
 
 			"l4_flavor_id": {
@@ -192,7 +192,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			"protection_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 
 			"tags": common.TagsSchema(),
@@ -268,6 +267,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
+	protectionReason := d.Get("protection_reason").(string)
 	createOpts := loadbalancers.CreateOpts{
 		AvailabilityZoneList: resourceElbV3AvailabilityZone(d),
 		IPTargetEnable:       &iPTargetEnable,
@@ -278,7 +278,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		L4Flavor:             d.Get("l4_flavor_id").(string),
 		L7Flavor:             d.Get("l7_flavor_id").(string),
 		ProtectionStatus:     d.Get("protection_status").(string),
-		ProtectionReason:     d.Get("protection_reason").(string),
+		ProtectionReason:     &protectionReason,
 		Name:                 d.Get("name").(string),
 		Description:          d.Get("description").(string),
 		EnterpriseProjectID:  common.GetEnterpriseProjectID(d, cfg),
@@ -485,12 +485,10 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		}
 		// if the value of vip_subnet_cidr_id and ipv6_vip_virsubnet_id are null, then they will be unbound
 		if v, ok := d.GetOk("ipv4_subnet_id"); ok {
-			vipSubnetID := v.(string)
-			updateOpts.VipSubnetID = &vipSubnetID
+			updateOpts.VipSubnetID = utils.String(v.(string))
 		}
 		if v, ok := d.GetOk("ipv6_network_id"); ok {
-			v6SubnetID := v.(string)
-			updateOpts.IpV6VipSubnetID = &v6SubnetID
+			updateOpts.IpV6VipSubnetID = utils.String(v.(string))
 		}
 		_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -563,7 +561,8 @@ func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.Upd
 		updateOpts.ProtectionStatus = d.Get("protection_status").(string)
 	}
 	if d.HasChange("protection_reason") {
-		updateOpts.ProtectionReason = d.Get("protection_reason").(string)
+		protectionReason := d.Get("protection_reason").(string)
+		updateOpts.ProtectionReason = &protectionReason
 	}
 
 	// always with below values as null is meaningful

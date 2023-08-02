@@ -119,41 +119,54 @@ The following arguments are supported:
 
 * `ipv4_eip_id` - (Optional, String, ForceNew) The ID of the EIP. Changing this parameter will create a new resource.
 
--> **NOTE:** If the ipv4_eip_id parameter is configured, you do not need to configure the bandwidth parameters:
-`iptype`, `bandwidth_charge_mode`, `bandwidth_size` and `share_type`.
+  -> **NOTE:** If the ipv4_eip_id parameter is configured, you do not need to configure the bandwidth parameters:
+  `iptype`, `bandwidth_charge_mode`, `bandwidth_size`, `share_type` and `bandwidth_id`.
 
 * `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this parameter will create a new resource.
 
-* `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Changing this parameter will create a
-  new resource.
+* `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Value options:
+  + **bandwidth**: Billed by bandwidth.
+  + **traffic**: Billed by traffic.
+  
+  It is mandatory when `iptype` is set and `bandwidth_id` is empty.
+  Changing this parameter will create a new resource.
 
-* `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Changing this parameter will create a new resource.
+* `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Value options:
+  + **PER**: Billed by bandwidth.
+  + **WHOLE**: Billed by traffic.
+  
+  It is mandatory when `iptype` is set and `bandwidth_id` is empty.
+  Changing this parameter will create a new resource.
 
-* `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. Changing this parameter will create a new resource.
+* `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. It is mandatory when `iptype` is set and `bandwidth_id`
+  is empty. Changing this parameter will create a new resource.
 
-* `bandwidth_id` - (Optional, String, ForceNew) Bandwidth ID of the shared bandwidth. Changing this parameter will
-  create a new resource.
+* `bandwidth_id` - (Optional, String, ForceNew) Bandwidth ID of the shared bandwidth. It is mandatory when `sharetype`
+  is **WHOLE**. Changing this parameter will create a new resource.
+
+  -> **NOTE:** If the `bandwidth_id` parameter is configured, you can not configure the parameters:
+  `bandwidth_charge_mode`, `bandwidth_size`.
 
 * `l4_flavor_id` - (Optional, String) The L4 flavor id of the load balancer.
 
 * `l7_flavor_id` - (Optional, String) The L7 flavor id of the load balancer.
 
-* `backend_subnets` - (Optional, String) The IDs of subnets on the downstream plane.
-    If this parameter is not specified, select subnets as follows:
-      If IPv6 is enabled for a load balancer, the ID of subnet specified in ipv6_vip_virsubnet_id will be used.
-      If IPv4 is enabled for a load balancer, the ID of subnet specified in vip_subnet_cidr_id will be used.
-      If only pubilc network is available for a load balancer, the ID of any subnet in the VPC where the load balancer
-      resides will be used. Subnets with more IP addresses are preferred.
-      If there is more than one subnet, the first subnet in the list will be used, and the subnets must be in the VPC
-      where the load balancer resides.
+* `backend_subnets` - (Optional, List) The IDs of subnets on the downstream plane.
+  + If this parameter is not specified, select subnets as follows:
+      - If IPv6 is enabled for a load balancer, the ID of subnet specified in `ipv6_network_id` will be used.
+      - If IPv4 is enabled for a load balancer, the ID of subnet specified in `ipv4_subnet_id` will be used.
+      - If only public network is available for a load balancer, the ID of any subnet in the VPC where the load balancer
+        resides will be used. Subnets with more IP addresses are preferred.
+  + If there is more than one subnet, the first subnet in the list will be used, and the subnets must be in the VPC
+    where the load balancer resides.
 
-* `protection_status` - (Optional, String) The protection status for update. Value options: 
-    + **nonProtection**: No protection.
-    + **consoleProtection**: Console modification protection.
-  
+* `protection_status` - (Optional, String) The protection status for update. Value options:
+  + **nonProtection**: No protection.
+  + **consoleProtection**: Console modification protection.
+
   Defaults to **nonProtection**.
 
-* `protection_reason` - (Optional, String) The region for update protection. Only valid when `protection_status` is
+* `protection_reason` - (Optional, String) The reason for update protection. Only valid when `protection_status` is
   **consoleProtection**.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the loadbalancer.
@@ -187,7 +200,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `ipv4_port_id` - The ID of the port bound to the private IPv4 address of the load balancer.
+* `ipv4_port_id` - The ID of the port bound to the private IPv4 address of the loadbalancer.
 * `ipv4_eip` - The ipv4 eip address of the Load Balancer.
 * `ipv6_eip` - The ipv6 eip address of the Load Balancer.
 * `ipv6_eip_id` - The ipv6 eip id of the Load Balancer.

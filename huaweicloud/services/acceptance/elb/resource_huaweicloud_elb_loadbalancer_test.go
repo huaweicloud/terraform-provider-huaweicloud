@@ -371,6 +371,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   ]
 
   iptype       = "5_bgp"
+  sharetype    = "WHOLE"
   bandwidth_id = huaweicloud_vpc_bandwidth.test.id
 }
 `, rName)
