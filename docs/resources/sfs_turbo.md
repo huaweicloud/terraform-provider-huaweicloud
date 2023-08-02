@@ -8,13 +8,15 @@ Provides an Shared File System (SFS) Turbo resource.
 
 ## Example Usage
 
+### Create a STANDARD Shared File System (SFS) Turbo
+
 ```hcl
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "secgroup_id" {}
 variable "test_az" {}
 
-resource "huaweicloud_sfs_turbo" "sfs-turbo-1" {
+resource "huaweicloud_sfs_turbo" "test" {
   name              = "sfs-turbo-1"
   size              = 500
   share_proto       = "NFS"
@@ -30,6 +32,48 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo-1" {
 }
 ```
 
+### Create an HPC Shared File System (SFS) Turbo
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+variable "test_az" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  name              = "sfs-turbo-1"
+  size              = 3686
+  share_proto       = "NFS"
+  share_type        = "HPC"
+  hpc_bandwidth     = "40M"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.secgroup_id
+  availability_zone = var.test_az
+}
+```
+
+### Create an HPC CACHE Shared File System (SFS) Turbo
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "secgroup_id" {}
+variable "test_az" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  name                = "sfs-turbo-1"
+  size                = 4096
+  share_proto         = "NFS"
+  share_type          = "HPC_CACHE"
+  hpc_cache_bandwidth = "2G"
+  vpc_id              = var.vpc_id
+  subnet_id           = var.subnet_id
+  security_group_id   = var.secgroup_id
+  availability_zone   = var.test_az
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -40,14 +84,30 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) Specifies the name of an SFS Turbo file system. The value contains 4 to 64
   characters and must start with a letter. Changing this will create a new resource.
 
-* `size` - (Required, Int) Specifies the capacity of a common file system, in GB. The value ranges from 500 to 32768,
-  and must be large than 10240 for an enhanced file system.
+* `size` - (Required, Int) Specifies the capacity of a sharing file system, in GB.
+  + If `share_type` is set to **STANDARD** or **PERFORMANCE**, the value ranges from 500 to 32768, and ranges from
+  10240 to 327680 for an enhanced file system.
+
+  + If `share_type` is set to **HPC**, the value ranges from 3686 to 1048576 when `hpc_bandwidth` is set to **20M**,
+  and ranges from 1228 to 1048576 when `hpc_bandwidth` is set to **40M**, **125M**, **250M**, **500M** or **1000M**.
+  The capacity must be a multiple of 1.2TiB, which needs to be rounded down after converting to GiB.
+  Such as 3.6TiB->3686GiB, 4.8TiB->4915GiB, 8.4TiB->8601GiB.
+
+  + If `share_type` is set to **HPC_CACHE**, the value ranges from 4096 to 1048576, and the step size is 1024.
+  The minimum capacity(GB) should be equal to 2048 multiplying the HPC cache bandwidth size(GB/s).
+  Such as the minimum capacity is 4096 when `hpc_cache_bandwidth` is set to **2G**, the minimum capacity is 8192 when
+  `hpc_cache_bandwidth` is set to **4G**, the minimum capacity is 16384 when `hpc_cache_bandwidth` is set to **8G**.
+
+  -> The file system capacity can only be expanded, not reduced.
 
 * `share_proto` - (Optional, String, ForceNew) Specifies the protocol for sharing file systems. The valid value is NFS.
   Changing this will create a new resource.
 
-* `share_type` - (Optional, String, ForceNew) Specifies the file system type. The valid values are STANDARD and
-  PERFORMANCE Changing this will create a new resource.
+* `share_type` - (Optional, String, ForceNew) Specifies the file system type. Changing this will create a new resource.
+  Valid values are **STANDARD**, **PERFORMANCE**, **HPC** and **HPC_CACHE**.
+  Defaults to **STANDARD**.
+
+  -> The share type **HPC_CACHE** only support in postpaid charging mode.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone where the file system is located.
   Changing this will create a new resource.
@@ -62,6 +122,16 @@ The following arguments are supported:
 
 * `enhanced` - (Optional, Bool, ForceNew) Specifies whether the file system is enhanced or not. Changing this will
   create a new resource.
+
+  This parameter is valid only when `share_type` is set to **STANDARD** or **PERFORMANCE**.
+
+* `hpc_bandwidth` - (Optional, String, ForceNew) Specifies the HPC bandwidth. Changing this will create a new resource.
+  This parameter is valid and required when `share_type` is set to **HPC**.
+  Valid values are: **20M**, **40M**, **125M**, **250M**, **500M** and **1000M**.
+
+* `hpc_cache_bandwidth` - (Optional, String) Specifies the HPC cache bandwidth(GB/s).
+  This parameter is valid and required when `share_type` is set to **HPC_CACHE**.
+  Valid values are: **2G**, **4G**, **8G**, **16G**, **24G**, **32G** and **48G**.
 
 * `crypt_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key to encrypt the file system. Changing this
   will create a new resource.
@@ -118,8 +188,8 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minutes.
-* `update` - Default is 15 minutes.
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
 * `delete` - Default is 10 minutes.
 
 ## Import

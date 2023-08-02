@@ -2,7 +2,9 @@ package huaweicloud
 
 import (
 	"context"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -25,6 +27,11 @@ const (
 
 	autoRenewDisabled int = 0
 	autoRenewEnabled  int = 1
+
+	shareTypeStandard    = "STANDARD"
+	shareTypePerformance = "PERFORMANCE"
+	shareTypeHpc         = "HPC"
+	shareTypeHpcCache    = "HPC_CACHE"
 )
 
 func ResourceSFSTurbo() *schema.Resource {
@@ -39,8 +46,8 @@ func ResourceSFSTurbo() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(15 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -72,7 +79,10 @@ func ResourceSFSTurbo() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "STANDARD",
+				ValidateFunc: validation.StringInSlice([]string{
+					shareTypeStandard, shareTypePerformance, shareTypeHpc, shareTypeHpcCache,
+				}, false),
+				Default: shareTypeStandard,
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
@@ -104,6 +114,19 @@ func ResourceSFSTurbo() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"hpc_bandwidth": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"enhanced", "hpc_cache_bandwidth"},
+			},
+			"hpc_cache_bandwidth": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"enhanced", "hpc_bandwidth"},
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -146,13 +169,10 @@ func ResourceSFSTurbo() *schema.Resource {
 	}
 }
 
-func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.CreateOpts {
+func buildTurboMetadataOpts(d *schema.ResourceData) shares.Metadata {
 	metaOpts := shares.Metadata{}
 	if v, ok := d.GetOk("crypt_key_id"); ok {
 		metaOpts.CryptKeyID = v.(string)
-	}
-	if _, ok := d.GetOk("enhanced"); ok {
-		metaOpts.ExpandType = "bandwidth"
 	}
 	if v, ok := d.GetOk("dedicated_flavor"); ok {
 		metaOpts.DedicatedFlavor = v.(string)
@@ -161,18 +181,44 @@ func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.Cre
 		metaOpts.DedicatedStorageID = v.(string)
 	}
 
+	switch d.Get("share_type").(string) {
+	case shareTypeHpc:
+		metaOpts.ExpandType = "hpc"
+		metaOpts.HpcBw = d.Get("hpc_bandwidth").(string)
+	case shareTypeHpcCache:
+		metaOpts.ExpandType = "hpc_cache"
+		metaOpts.HpcBw = d.Get("hpc_cache_bandwidth").(string)
+	default:
+		if _, ok := d.GetOk("enhanced"); ok {
+			metaOpts.ExpandType = "bandwidth"
+		}
+	}
+	return metaOpts
+}
+
+func convertShareType(d *schema.ResourceData) string {
+	shareType := d.Get("share_type").(string)
+	if shareType == shareTypeStandard || shareType == shareTypePerformance {
+		return shareType
+	}
+	// For `HPC` and `HPC_CACHE` types, create API does not validate the share type.
+	// We can fill in `STANDARD` or `PERFORMANCE`.
+	return shareTypeStandard
+}
+
+func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.CreateOpts {
 	result := shares.CreateOpts{
 		Share: shares.Share{
 			Name:                d.Get("name").(string),
 			Size:                d.Get("size").(int),
 			ShareProto:          d.Get("share_proto").(string),
-			ShareType:           d.Get("share_type").(string),
 			VpcID:               d.Get("vpc_id").(string),
 			SubnetID:            d.Get("subnet_id").(string),
 			SecurityGroupID:     d.Get("security_group_id").(string),
 			AvailabilityZone:    d.Get("availability_zone").(string),
+			ShareType:           convertShareType(d),
 			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-			Metadata:            metaOpts,
+			Metadata:            buildTurboMetadataOpts(d),
 		},
 	}
 	if d.Get("charging_mode") == "prePaid" {
@@ -195,11 +241,39 @@ func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.Cre
 	return result
 }
 
+func validateParameter(d *schema.ResourceData) error {
+	_, isHpcBandwidthSet := d.GetOk("hpc_bandwidth")
+	_, isHpcCacheBandwidthSet := d.GetOk("hpc_cache_bandwidth")
+	switch d.Get("share_type").(string) {
+	case shareTypeHpc:
+		if !isHpcBandwidthSet {
+			return fmt.Errorf("`hpc_bandwidth` is required when share type is HPC")
+		}
+	case shareTypeHpcCache:
+		if !isHpcCacheBandwidthSet {
+			return fmt.Errorf("`hpc_cache_bandwidth` is required when share type is HPC_CACHE")
+		}
+		if d.Get("charging_mode").(string) == "prePaid" {
+			return fmt.Errorf("HPC_CACHE share type only support in postpaid charging mode")
+		}
+	default:
+		if isHpcBandwidthSet || isHpcCacheBandwidthSet {
+			return fmt.Errorf("`hpc_bandwidth` and `hpc_cache_bandwidth` cannot be set when share type is" +
+				" STANDARD or PERFORMANCE")
+		}
+	}
+	return nil
+}
+
 func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	sfsClient, err := cfg.SfsV1Client(GetRegion(d, cfg))
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
+	}
+
+	if err := validateParameter(d); err != nil {
+		return diag.FromErr(err)
 	}
 
 	createOpts := buildTurboCreateOpts(cfg, d)
@@ -266,7 +340,6 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	d.Set("name", n.Name)
 	d.Set("share_proto", n.ShareProto)
-	d.Set("share_type", n.ShareType)
 	d.Set("vpc_id", n.VpcID)
 	d.Set("subnet_id", n.SubnetID)
 	d.Set("security_group_id", n.SecurityGroupID)
@@ -286,10 +359,21 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 		}
 	}
 
-	if n.ExpandType == "bandwidth" {
-		d.Set("enhanced", true)
-	} else {
-		d.Set("enhanced", false)
+	// `HPC` and `HPC_CACHE` are custom types. `STANDARD` and `PERFORMANCE` are system types.
+	switch n.ExpandType {
+	case "hpc":
+		d.Set("share_type", shareTypeHpc)
+		d.Set("hpc_bandwidth", n.HpcBw)
+	case "hpc_cache":
+		d.Set("share_type", shareTypeHpcCache)
+		d.Set("hpc_cache_bandwidth", n.HpcBw)
+	default:
+		d.Set("share_type", n.ShareType)
+		if n.ExpandType == "bandwidth" {
+			d.Set("enhanced", true)
+		} else {
+			d.Set("enhanced", false)
+		}
 	}
 
 	var status string
@@ -308,9 +392,10 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func buildTurboUpdateOpts(newSize int, isPrePaid bool) shares.ExpandOpts {
+func buildTurboUpdateOpts(newSize, hpcCacheBandwidth int, isPrePaid bool) shares.ExpandOpts {
 	expandOpts := shares.ExtendOpts{
-		NewSize: newSize,
+		NewSize:      newSize,
+		NewBandwidth: hpcCacheBandwidth,
 	}
 	if isPrePaid {
 		expandOpts.BssParam = &shares.BssParamExtend{
@@ -322,6 +407,23 @@ func buildTurboUpdateOpts(newSize int, isPrePaid bool) shares.ExpandOpts {
 	}
 }
 
+func convertHpcCacheBandwidth(d *schema.ResourceData) (int, error) {
+	if d.Get("share_type") == shareTypeHpcCache {
+		hpcCacheBandwidth := d.Get("hpc_cache_bandwidth").(string)
+		if !strings.HasSuffix(hpcCacheBandwidth, "G") {
+			return 0, fmt.Errorf("the unit of HPC cache bandwidth is missing or invalid, want 'xG',"+
+				" but got '%s'", hpcCacheBandwidth)
+		}
+		bandwidth, err := strconv.Atoi(strings.TrimRight(hpcCacheBandwidth, "G"))
+		if err != nil {
+			return 0, fmt.Errorf("failed to convert HPC cache bandwidth (%s) to int value: %s",
+				hpcCacheBandwidth, err)
+		}
+		return bandwidth, nil
+	}
+	return 0, nil
+}
+
 func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := GetRegion(d, cfg)
@@ -331,14 +433,23 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	resourceId := d.Id()
-	if d.HasChange("size") {
+	if d.HasChanges("size", "hpc_cache_bandwidth") {
 		old, newSize := d.GetChange("size")
 		if old.(int) > newSize.(int) {
 			return diag.Errorf("shrinking SFS Turbo size is not supported")
 		}
 
+		if d.Get("share_type") != shareTypeHpcCache && d.HasChange("hpc_cache_bandwidth") {
+			return diag.Errorf("only `HPC_CACHE` share type support updating HPC cache bandwidth")
+		}
+
+		hpcCacheBandwidth, err := convertHpcCacheBandwidth(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
 		isPrePaid := d.Get("charging_mode").(string) == "prePaid"
-		updateOpts := buildTurboUpdateOpts(newSize.(int), isPrePaid)
+		updateOpts := buildTurboUpdateOpts(newSize.(int), hpcCacheBandwidth, isPrePaid)
 		resp, err := shares.Expand(sfsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error expanding SFS Turbo size: %s", err)

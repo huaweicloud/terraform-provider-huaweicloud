@@ -60,6 +60,7 @@ type Metadata struct {
 	MasterDedicatedHostID string `json:"master_dedicated_host_id,omitempty"`
 	SlaveDedicatedHostID  string `json:"slave_dedicated_host_id,omitempty"`
 	DedicatedStorageID    string `json:"dedicated_storage_id,omitempty"`
+	HpcBw                 string `json:"hpc_bw,omitempty"`
 }
 
 // BssParam is an object that represents the prepaid configuration.
@@ -199,6 +200,8 @@ type BssParamExtend struct {
 type ExtendOpts struct {
 	// Specifies the post-expansion capacity (GB) of the shared file system.
 	NewSize int `json:"new_size" required:"true"`
+	// New bandwidth of the file system, in GB/s. This parameter is only supported for HPC Cache file systems.
+	NewBandwidth int `json:"new_bandwidth,omitempty"`
 	// The configuration of pre-paid billing mode.
 	BssParam *BssParamExtend `json:"bss_param,omitempty"`
 }
