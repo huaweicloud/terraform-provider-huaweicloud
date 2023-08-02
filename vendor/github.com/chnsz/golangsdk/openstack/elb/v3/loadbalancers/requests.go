@@ -76,6 +76,12 @@ type CreateOpts struct {
 
 	// Autoscaling configuration
 	AutoScaling *AutoScaling `json:"autoscaling,omitempty"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
 }
 
 // BandwidthRef
@@ -110,17 +116,20 @@ type PublicIP struct {
 
 // Bandwidth
 type Bandwidth struct {
+	// ID
+	Id string `json:"id,omitempty"`
+
 	// Name
-	Name string `json:"name" required:"true"`
+	Name string `json:"name,omitempty"`
 
 	// Size
-	Size int `json:"size" required:"true"`
+	Size int `json:"size,omitempty"`
 
 	// Charge Mode
-	ChargeMode string `json:"charge_mode" required:"true"`
+	ChargeMode string `json:"charge_mode,omitempty"`
 
 	// Share Type
-	ShareType string `json:"share_type" required:"true"`
+	ShareType string `json:"share_type,omitempty"`
 
 	// Billing Info.
 	BillingInfo string `json:"billing_info,omitempty"`
@@ -224,6 +233,12 @@ type UpdateOpts struct {
 
 	// Autoscaling configuration
 	AutoScaling *AutoScaling `json:"autoscaling,omitempty"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
 }
 
 // ToLoadBalancerUpdateMap builds a request body from UpdateOpts.
