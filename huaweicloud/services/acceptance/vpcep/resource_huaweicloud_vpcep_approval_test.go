@@ -59,27 +59,11 @@ func testAccVPCEndpointApproval_Base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpcep_service" "test" {
-  name        = "%s"
-  server_type = "VM"
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  port_id     = huaweicloud_compute_instance.ecs.network[0].port
-  approval    = true
-
-  port_mapping {
-    service_port  = 8080
-    terminal_port = 80
-  }
-  tags = {
-    owner = "tf-acc"
-  }
-}
-
 resource "huaweicloud_vpcep_endpoint" "test" {
-  service_id  = huaweicloud_vpcep_service.test.id
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  network_id  = data.huaweicloud_vpc_subnet.test.id
-  enable_dns  = true
+  service_id = huaweicloud_vpcep_service.test.id
+  vpc_id     = data.huaweicloud_vpc.myvpc.id
+  network_id = data.huaweicloud_vpc_subnet.test.id
+  enable_dns = true
 
   tags = {
     owner = "tf-acc"
@@ -88,7 +72,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
     ignore_changes = [enable_dns]
   }
 }
-`, testAccVPCEndpoint_Precondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName))
 }
 
 func testAccVPCEndpointApproval_Basic(rName string) string {
