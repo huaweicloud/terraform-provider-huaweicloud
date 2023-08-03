@@ -87,6 +87,27 @@ type CreateOpts struct {
 
 	// Enhance L7policy enable
 	EnhanceL7policy *bool `json:"enhance_l7policy_enable,omitempty"`
+
+	// The port range of the current listener
+	PortRanges []PortRange `json:"port_ranges,omitempty"`
+
+	// ELB gzip enable
+	GzipEnable *bool `json:"gzip_enable,omitempty"`
+
+	// The QUIC configuration for the current listener
+	QuicConfig *QuicConfig `json:"quic_config,omitempty"`
+
+	// Security Policy ID
+	SecurityPolicyId *string `json:"security_policy_id,omitempty"`
+
+	// The SNI certificates used by the listener.
+	SniMatchAlgo *string `json:"sni_match_algo,omitempty"`
+
+	// Update protection status
+	ProtectionStatus *string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
 }
 
 type IpGroup struct {
@@ -95,11 +116,21 @@ type IpGroup struct {
 	Type      string `json:"type" required:"true"`
 }
 
+type PortRange struct {
+	StartPort int `json:"start_port,omitempty"`
+	EndPort   int `json:"end_port,omitempty"`
+}
+
+type QuicConfig struct {
+	QuicListenerId    string `json:"quic_listener_id" required:"true"`
+	EnableQuicUpgrade bool   `json:"enable_quic_upgrade,omitempty"`
+}
+
 type InsertHeaders struct {
 	ForwardedELBIP   *bool `json:"X-Forwarded-ELB-IP,omitempty"`
 	ForwardedPort    *bool `json:"X-Forwarded-Port,omitempty"`
 	ForwardedForPort *bool `json:"X-Forwarded-For-Port,omitempty"`
-	ForwardedHost    *bool `json:"X-Forwarded-Host" required:"true"`
+	ForwardedHost    *bool `json:"X-Forwarded-Host,omitempty"`
 }
 
 // ToListenerCreateMap builds a request body from CreateOpts.
@@ -194,6 +225,24 @@ type UpdateOpts struct {
 
 	// Enhance L7policy enable
 	EnhanceL7policy *bool `json:"enhance_l7policy_enable,omitempty"`
+
+	// ELB gzip enable
+	GzipEnable *bool `json:"gzip_enable,omitempty"`
+
+	// The QUIC configuration for the current listener
+	QuicConfig *QuicConfig `json:"quic_config,omitempty"`
+
+	// Security Policy ID
+	SecurityPolicyId *string `json:"security_policy_id,omitempty"`
+
+	// The SNI certificates used by the listener.
+	SniMatchAlgo *string `json:"sni_match_algo,omitempty"`
+
+	// Update protection status
+	ProtectionStatus *string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
 }
 
 // ToListenerUpdateMap builds a request body from UpdateOpts.

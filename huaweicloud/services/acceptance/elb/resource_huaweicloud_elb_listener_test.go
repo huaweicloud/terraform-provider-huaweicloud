@@ -43,20 +43,29 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "forward_eip", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_eip", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_port", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_request_port", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_host", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 				),
 			},
 			{
 				Config: testAccElbV3ListenerConfig_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
-					resource.TestCheckResourceAttr(resourceName, "forward_eip", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_eip", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_port", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_request_port", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_host", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 				),
 			},
 			{
@@ -98,8 +107,6 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = false
-
-  forward_eip = true
 
   idle_timeout = 62
   request_timeout = 63
@@ -148,6 +155,14 @@ resource "huaweicloud_elb_listener" "test" {
   idle_timeout = 62
   request_timeout = 63
   response_timeout = 64
+
+  forward_eip          = true
+  forward_port         = true
+  forward_request_port = true
+  forward_host         = false
+
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
 
   tags = {
     key1  = "value1"

@@ -47,6 +47,20 @@ func (r UpdateResult) Extract() (PostPaid, error) {
 	return s.Bandwidth, err
 }
 
+type ChangeResult struct {
+	golangsdk.Result
+}
+
+func (r ChangeResult) Extract() (string, error) {
+	var s struct {
+		BandwidthIDs []string `json:"bandwidth_ids"`
+		OrderID      string   `json:"order_id"`
+		RequestID    string   `json:"request_id"`
+	}
+	err := r.ExtractInto(&s)
+	return s.OrderID, err
+}
+
 type CreateResult struct {
 	golangsdk.Result
 }

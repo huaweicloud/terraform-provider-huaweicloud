@@ -9,16 +9,14 @@ Manages an ELB listener resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_elb_loadbalancer" "test" {
-  ...
-}
+variable "loadbalancer_id" {}
 
 resource "huaweicloud_elb_listener" "basic" {
   name            = "basic"
   description     = "basic description"
   protocol        = "HTTP"
   protocol_port   = 8080
-  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  loadbalancer_id = var.loadbalancer_id
 
   idle_timeout     = 60
   request_timeout  = 60
@@ -60,6 +58,19 @@ The following arguments are supported:
   backend servers. The default value is false. This parameter is valid only when the protocol is set to *HTTP* or
   *HTTPS*.
 
+* `forward_port` - (Optional, Bool) Specifies whether transfer the listening port of the load balancer in the
+  X-Forwarded-Port header to backend servers. The default value is false. This parameter is valid only when the
+  protocol is set to *HTTP* or *HTTPS*.
+
+* `forward_request_port` - (Optional, Bool) Specifies whether transfer the source port of the client in the
+  X-Forwarded-For-Port header to backend servers. The default value is false. This parameter is valid only when the
+  protocol is set to *HTTP* or *HTTPS*.
+
+* `forward_host` - (Optional, Bool) Specifies whether to rewrite the X-Forwarded-Host header. If X-Forwarded-Host is
+  set to true, X-Forwarded-Host in the request header from the clients can be set to Host in the request header sent
+  from the load balancer to backend servers. The default value is true. This parameter is valid only when the protocol
+  is set to *HTTP* or *HTTPS*.
+
 * `access_policy` - (Optional, String) Specifies the access policy for the listener. Valid options are *white* and
   *black*.
 
@@ -88,6 +99,15 @@ The following arguments are supported:
 
 * `advanced_forwarding_enabled` - (Optional, Bool) Specifies whether to enable advanced forwarding.
   If advanced forwarding is enabled, more flexible forwarding policies and rules are supported.
+
+* `protection_status` - (Optional, String) The protection status for update. Value options:
+  + **nonProtection**: No protection.
+  + **consoleProtection**: Console modification protection.
+
+  Defaults to **nonProtection**.
+
+* `protection_reason` - (Optional, String) The reason for update protection. Only valid when `protection_status` is
+  **consoleProtection**.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the listener.
 
