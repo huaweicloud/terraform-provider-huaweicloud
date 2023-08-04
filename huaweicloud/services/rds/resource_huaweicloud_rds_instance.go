@@ -936,10 +936,7 @@ func GetRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*in
 }
 
 func buildRdsInstanceAvailabilityZone(d *schema.ResourceData) string {
-	azList := make([]string, len(d.Get("availability_zone").([]interface{})))
-	for i, az := range d.Get("availability_zone").([]interface{}) {
-		azList[i] = az.(string)
-	}
+	azList := utils.ExpandToStringList(d.Get("availability_zone").([]interface{}))
 	return strings.Join(azList, ",")
 }
 
