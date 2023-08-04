@@ -139,23 +139,15 @@ func Delete(client *golangsdk.ServiceClient, bandwidthID string) (r DeleteResult
 	return
 }
 
-func Update(c *golangsdk.ServiceClient, bandwidthID string, opts UpdateOpts) (interface{}, error) {
-	var r UpdateResult
+func Update(c *golangsdk.ServiceClient, bandwidthID string, opts UpdateOpts) (r UpdateResult) {
 	body, err := opts.ToBandWidthUpdateMap()
 	if err != nil {
-		return nil, err
+		r.Err = err
+		return
 	}
 
-	_, r.Err = c.Put(UpdateURL(c, bandwidthID), body, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
-
-	onDemandData, onDemandErr := r.Extract()
-	orderData, orderErr := r.ExtractOrderID()
-
-	if orderData.OrderID != "" {
-		return orderData, orderErr
-	}
-
-	return onDemandData, onDemandErr
+	_, r.Err = c.Put(UpdateURL(c, bandwidthID), body, &r.Body, nil)
+	return
 }
 
 type ChangeToPeriodOpts struct {

@@ -222,6 +222,12 @@ func TestAccVpcEip_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"charging_mode", "period", "period_unit", "auto_renew"},
+			},
 		},
 	})
 }
