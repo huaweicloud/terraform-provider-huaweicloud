@@ -9,7 +9,7 @@ Use this data source to get available flavors of ModelArts notebook.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_cph_notebook_flavors" "flavors" {
+data "huaweicloud_modelarts_notebook_flavors" "flavors" {
   category = "CPU"
 }
 ```
