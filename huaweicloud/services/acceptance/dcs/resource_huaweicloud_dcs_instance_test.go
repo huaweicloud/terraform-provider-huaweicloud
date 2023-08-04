@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getDcsResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -941,9 +940,15 @@ func TestAccDcsInstances_prePaid(t *testing.T) {
 
 func testAccDcsV1Instance_basic(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode     = "ha"
@@ -958,8 +963,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6388
   capacity           = 0.125
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
@@ -985,14 +990,20 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     key   = "value"
     owner = "terraform"
   }
-}`, common.TestVpc(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_updated(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode     = "ha"
@@ -1007,8 +1018,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 1
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
@@ -1034,14 +1045,20 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     key   = "value_update"
     owner = "terraform_update"
   }
-}`, common.TestVpc(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_ha(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1057,20 +1074,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6388
   capacity           = 1
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
   maintain_end       = "02:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_ha_expand_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1086,20 +1109,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_ha_reduce_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1115,20 +1144,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 1
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_ha_expand_replica(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1144,20 +1179,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 1
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_ha_to_proxy(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1173,20 +1214,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_rw(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1202,20 +1249,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6388
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
   maintain_end       = "02:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_rw_expand_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1231,20 +1284,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 16
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_rw_reduce_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1260,20 +1319,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_rw_expand_replica(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1289,20 +1354,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_rw_to_proxy(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1318,20 +1389,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_proxy(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1347,20 +1424,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6388
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
   maintain_end       = "02:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_proxy_expand_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1376,20 +1459,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 16
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_proxy_reduce_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1405,20 +1494,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_proxy_to_ha(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1434,20 +1529,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_proxy_to_rw(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1463,20 +1564,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_cluster(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1492,20 +1599,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6388
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
   maintain_end       = "02:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_cluster_expand_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1521,20 +1634,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 8
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_cluster_reduce_capacity(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1550,20 +1669,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_cluster_expand_replica(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   engine         = "Redis"
@@ -1579,20 +1704,26 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   port               = 6389
   capacity           = 4
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
-}`, common.TestBaseNetwork(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_epsId(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
@@ -1605,8 +1736,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   capacity           = 0.125
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
 
@@ -1618,14 +1749,20 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     save_days   = 1
   }
   enterprise_project_id = "%s"
-}`, common.TestVpc(instanceName), instanceName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}`, instanceName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
@@ -1638,8 +1775,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   capacity           = 0.125
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   
@@ -1650,14 +1787,20 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     backup_at   = [1]
     save_days   = 1
   }
-}`, common.TestVpc(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_single(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "single"
@@ -1670,18 +1813,24 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   capacity           = 2
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-}`, common.TestVpc(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_whitelists(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
@@ -1694,8 +1843,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   capacity           = 2
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   
@@ -1711,14 +1860,20 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     group_name = "test-group1"
     ip_address = ["192.168.10.100", "192.168.0.0/24"]
   }
-}`, common.TestVpc(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsV1Instance_whitelists_update(instanceName string) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
@@ -1731,8 +1886,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   capacity           = 2
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   
@@ -1748,14 +1903,20 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     group_name = "test-group2"
     ip_address = ["172.16.10.100", "172.16.0.0/24"]
   }
-}`, common.TestVpc(instanceName), instanceName)
+}`, instanceName)
 }
 
 func testAccDcsInstance_prePaid(instanceName string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
@@ -1763,8 +1924,8 @@ data "huaweicloud_dcs_flavors" "test" {
 }
 
 resource "huaweicloud_dcs_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), [])
   name               = "%s"
   engine             = "Redis"
@@ -1777,5 +1938,5 @@ resource "huaweicloud_dcs_instance" "test" {
   period_unit   = "month"
   period        = 1
   auto_renew    = "%v"
-}`, common.TestVpc(instanceName), instanceName, isAutoRenew)
+}`, instanceName, isAutoRenew)
 }
