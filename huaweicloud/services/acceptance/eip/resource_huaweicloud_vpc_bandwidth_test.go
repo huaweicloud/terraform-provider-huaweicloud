@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -15,7 +16,7 @@ import (
 func getBandwidthResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud Network client: %s", err)
+		return nil, fmt.Errorf("error creating bandwidth v1 client: %s", err)
 	}
 	return bandwidths.Get(c, state.Primary.ID).Extract()
 }

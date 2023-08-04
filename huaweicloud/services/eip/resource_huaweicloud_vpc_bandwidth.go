@@ -2,21 +2,20 @@ package eip
 
 import (
 	"context"
+	"log"
 	"time"
-
-	"github.com/chnsz/golangsdk"
-	bandwidthsv1 "github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	bandwidthsv1 "github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceVpcBandWidthV2() *schema.Resource {
@@ -47,18 +46,14 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 				Required: true,
 			},
 			"size": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(5, 2000),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"charge_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"bandwidth", "95peak_plus",
-				}, false),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -112,11 +107,17 @@ func publicIPListComputedSchema() *schema.Schema {
 }
 
 func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
-	NetworkingV1Client, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
+	}
+
+	bwClient, err := cfg.NetworkingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating bandwidth v1 client: %s", err)
 	}
 
 	size := d.Get("size").(int)
@@ -126,22 +127,24 @@ func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, m
 		Size:       &size,
 	}
 
-	epsID := config.GetEnterpriseProjectID(d)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	if epsID != "" {
 		createOpts.EnterpriseProjectId = epsID
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	b, err := bandwidths.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Bandwidth: %s", err)
+		return diag.Errorf("error creating bandwidth: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Waiting for Bandwidth (%s) to become available.", b.ID)
+	d.SetId(b.ID)
+
+	log.Printf("[DEBUG] Waiting for bandwidth (%s) to become available.", b.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"NORMAL"},
 		Pending:    []string{"CREATING"},
-		Refresh:    waitForBandwidth(NetworkingV1Client, b.ID),
+		Refresh:    waitForBandwidth(bwClient, b.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      3 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -149,22 +152,22 @@ func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
-			"Error waiting for Bandwidth (%s) to become ACTIVE for creation: %s",
+		return diag.Errorf("error waiting for bandwidth (%s) to become ACTIVE: %s",
 			b.ID, err)
 	}
-	d.SetId(b.ID)
 
 	return resourceVpcBandWidthV2Read(ctx, d, meta)
 }
 
 func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
+	bwID := d.Id()
 	if d.HasChanges("name", "size") {
 		updateOpts := bandwidths.UpdateOpts{
 			Bandwidth: bandwidths.Bandwidth{
@@ -172,9 +175,9 @@ func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, m
 				Size: d.Get("size").(int),
 			},
 		}
-		_, err := bandwidths.Update(networkingClient, d.Id(), updateOpts)
+		_, err := bandwidths.Update(networkingClient, bwID, updateOpts)
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating HuaweiCloud BandWidth (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating bandwidth (%s): %s", bwID, err)
 		}
 	}
 
@@ -182,13 +185,14 @@ func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceVpcBandWidthV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	bwClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating networking client: %s", err)
+		return diag.Errorf("error creating bandwidth v1 client: %s", err)
 	}
 
-	b, err := bandwidthsv1.Get(networkingClient, d.Id()).Extract()
+	b, err := bandwidthsv1.Get(bwClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "bandwidth")
 	}
@@ -205,29 +209,36 @@ func resourceVpcBandWidthV2Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("publicips", flattenPublicIPs(b)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting bandwidth fields: %s", err)
+		return diag.Errorf("error setting bandwidth fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceVpcBandWidthV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
-	NetworkingV1Client, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating networking client: %s", err)
+		return diag.Errorf("error creating networking client: %s", err)
 	}
 
-	err = bandwidths.Delete(networkingClient, d.Id()).ExtractErr()
+	bwClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud Bandwidth: %s", err)
+		return diag.Errorf("error creating bandwidth v1 client: %s", err)
+	}
+
+	bwID := d.Id()
+	err = bandwidths.Delete(networkingClient, bwID).ExtractErr()
+	if err != nil {
+		return diag.Errorf("error deleting bandwidth: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"NORMAL"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForBandwidth(NetworkingV1Client, d.Id()),
+		Refresh:    waitForBandwidth(bwClient, bwID),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      3 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -235,16 +246,16 @@ func resourceVpcBandWidthV2Delete(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting Bandwidth: %s", err)
+		return diag.Errorf("error waiting for bandwidth (%s) to become DELETED: %s",
+			bwID, err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
-func waitForBandwidth(networkingClient *golangsdk.ServiceClient, Id string) resource.StateRefreshFunc {
+func waitForBandwidth(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		b, err := bandwidthsv1.Get(networkingClient, Id).Extract()
+		b, err := bandwidthsv1.Get(client, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return b, "DELETED", nil
@@ -252,7 +263,7 @@ func waitForBandwidth(networkingClient *golangsdk.ServiceClient, Id string) reso
 			return nil, "", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Bandwidth (%s) current status: %s", b.ID, b.Status)
+		log.Printf("[DEBUG] the current status of bandwidth (%s) is %s", b.ID, b.Status)
 		return b, b.Status, nil
 	}
 }
@@ -271,7 +282,6 @@ func flattenPublicIPs(band bandwidthsv1.BandWidth) []map[string]interface{} {
 			"ip_version": ipInfo.IPVersion,
 			"ip_address": address,
 		}
-
 	}
 
 	return allIPs
