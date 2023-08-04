@@ -689,12 +689,13 @@ func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *conf
 func waitForDcsInstanceCompleted(ctx context.Context, c *golangsdk.ServiceClient, id string, timeout time.Duration,
 	padding []string, target []string) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      padding,
-		Target:       target,
-		Refresh:      refreshDcsInstanceState(c, id),
-		Timeout:      timeout,
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
+		Pending:                   padding,
+		Target:                    target,
+		Refresh:                   refreshDcsInstanceState(c, id),
+		Timeout:                   timeout,
+		Delay:                     10 * time.Second,
+		PollInterval:              10 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
@@ -1038,7 +1039,7 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 
 		// wait for dcs instance change
 		err = waitForDcsInstanceCompleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate),
-			[]string{"EXTENDING"}, []string{"RUNNING"})
+			[]string{"EXTENDING", "RESTARTING"}, []string{"RUNNING"})
 		if err != nil {
 			return err
 		}
