@@ -13,6 +13,10 @@ func UpdateURL(c *golangsdk.ServiceClient, ID string) string {
 	return c.ServiceURL(c.ProjectID, "bandwidths", ID)
 }
 
+func changeToPeriodURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL(c.ProjectID, "bandwidths", "change-to-period")
+}
+
 func DeleteURL(c *golangsdk.ServiceClient, ID string) string {
 	return c.ServiceURL(c.ProjectID, "bandwidths", ID)
 }

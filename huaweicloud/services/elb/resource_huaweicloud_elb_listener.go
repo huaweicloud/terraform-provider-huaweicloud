@@ -92,7 +92,25 @@ func ResourceListenerV3() *schema.Resource {
 			"forward_eip": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Computed: true,
+			},
+
+			"forward_port": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_request_port": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_host": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 
 			"access_policy": {
@@ -156,6 +174,17 @@ func ResourceListenerV3() *schema.Resource {
 				Computed: true,
 			},
 
+			"protection_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"protection_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"tags": common.TagsSchema(),
 		},
 	}
@@ -210,14 +239,23 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 			IpGroupId: d.Get("ip_group").(string),
 		}
 	}
-	if v, ok := d.GetOk("forward_eip"); ok {
-		fEip := v.(bool)
-		// X-Forwarded-Host defaults to true
-		fHost := true
-		createOpts.InsertHeaders = &listeners.InsertHeaders{
-			ForwardedELBIP: &fEip,
-			ForwardedHost:  &fHost,
-		}
+	forwardEip := d.Get("forward_eip").(bool)
+	forwardPort := d.Get("forward_port").(bool)
+	forwardRequestPort := d.Get("forward_request_port").(bool)
+	forwardHost := d.Get("forward_host").(bool)
+	createOpts.InsertHeaders = &listeners.InsertHeaders{
+		ForwardedELBIP:   &forwardEip,
+		ForwardedPort:    &forwardPort,
+		ForwardedForPort: &forwardRequestPort,
+		ForwardedHost:    &forwardHost,
+	}
+	if v, ok := d.GetOk("protection_status"); ok {
+		protectionStatus := v.(string)
+		createOpts.ProtectionStatus = &protectionStatus
+	}
+	if v, ok := d.GetOk("protection_reason"); ok {
+		protectionReason := v.(string)
+		createOpts.ProtectionReason = &protectionReason
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -289,6 +327,9 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("default_pool_id", listener.DefaultPoolID),
 		d.Set("http2_enable", listener.Http2Enable),
 		d.Set("forward_eip", listener.InsertHeaders.ForwardedELBIP),
+		d.Set("forward_port", listener.InsertHeaders.ForwardedPort),
+		d.Set("forward_request_port", listener.InsertHeaders.ForwardedForPort),
+		d.Set("forward_host", listener.InsertHeaders.ForwardedHost),
 		d.Set("sni_certificate", listener.SniContainerRefs),
 		d.Set("server_certificate", listener.DefaultTlsContainerRef),
 		d.Set("ca_certificate", listener.CAContainerRef),
@@ -298,6 +339,8 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("response_timeout", listener.MemberTimeout),
 		d.Set("loadbalancer_id", listener.Loadbalancers[0].ID),
 		d.Set("advanced_forwarding_enabled", listener.EnhanceL7policy),
+		d.Set("protection_status", listener.ProtectionStatus),
+		d.Set("protection_reason", listener.ProtectionReason),
 	)
 
 	if listener.IpGroup != (listeners.IpGroup{}) {
@@ -334,11 +377,11 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	// lintignore:R019
-	if d.HasChanges("name", "description", "ca_certificate", "default_pool_id",
-		"idle_timeout", "request_timeout", "response_timeout", "server_certificate",
-		"access_policy", "ip_group", "forward_eip", "tls_ciphers_policy",
-		"sni_certificate", "http2_enable", "advanced_forwarding_enabled") {
+	updateListenerChanges := []string{"name", "description", "ca_certificate", "default_pool_id", "idle_timeout",
+		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "forward_eip",
+		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
+		"http2_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason"}
+	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
 		if err != nil {
 			return err
@@ -390,13 +433,16 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 			IpGroupId: d.Get("ip_group").(string),
 		}
 	}
-	if d.HasChange("forward_eip") {
-		fEip := d.Get("forward_eip").(bool)
-		// X-Forwarded-Host defaults to true
-		fHost := true
+	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host") {
+		forwardEip := d.Get("forward_eip").(bool)
+		forwardPort := d.Get("forward_port").(bool)
+		forwardRequestPort := d.Get("forward_request_port").(bool)
+		forwardHost := d.Get("forward_host").(bool)
 		updateOpts.InsertHeaders = &listeners.InsertHeaders{
-			ForwardedELBIP: &fEip,
-			ForwardedHost:  &fHost,
+			ForwardedELBIP:   &forwardEip,
+			ForwardedPort:    &forwardPort,
+			ForwardedForPort: &forwardRequestPort,
+			ForwardedHost:    &forwardHost,
 		}
 	}
 	if d.HasChange("ca_certificate") {
@@ -427,6 +473,14 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("advanced_forwarding_enabled") {
 		enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
 		updateOpts.EnhanceL7policy = &enhanceL7policy
+	}
+	if d.HasChange("protection_status") {
+		protectionStatus := d.Get("protection_status").(string)
+		updateOpts.ProtectionStatus = &protectionStatus
+	}
+	if d.HasChange("protection_reason") {
+		protectionReason := d.Get("protection_reason").(string)
+		updateOpts.ProtectionReason = &protectionReason
 	}
 
 	// Wait for LoadBalancer to become active before continuing

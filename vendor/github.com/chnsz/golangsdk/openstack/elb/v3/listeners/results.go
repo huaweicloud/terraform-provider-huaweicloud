@@ -72,20 +72,37 @@ type Listener struct {
 	IpGroup IpGroup `json:"ipgroup"`
 
 	// The http insert headers of the Listener.
-	InsertHeaders InsertHeadersInfo `json:"insert_headers"`
+	InsertHeaders InsertHeaders `json:"insert_headers"`
 
 	// Transparent client ip enable
 	TransparentClientIP bool `json:"transparent_client_ip_enable"`
 
+	// The creation time of the current listener
+	CreatedAt string `json:"created_at"`
+
+	// The port range of the current listener
+	PortRanges []PortRange `json:"port_ranges"`
+
+	// ELB gzip enable
+	GzipEnable bool `json:"gzip_enable"`
+
+	// The QUIC configuration for the current listener
+	QuicConfig QuicConfig `json:"quic_config"`
+
+	// Security Policy ID
+	SecurityPolicyId string `json:"security_policy_id"`
+
+	// The SNI certificates used by the listener.
+	SniMatchAlgo string `json:"sni_match_algo"`
+
 	// Enhance L7policy enable
 	EnhanceL7policy bool `json:"enhance_l7policy_enable"`
-}
 
-type InsertHeadersInfo struct {
-	ForwardedELBIP   bool `json:"X-Forwarded-ELB-IP,omitempty"`
-	ForwardedPort    bool `json:"X-Forwarded-Port,omitempty"`
-	ForwardedForPort bool `json:"X-Forwarded-For-Port,omitempty"`
-	ForwardedHost    bool `json:"X-Forwarded-Host" required:"true"`
+	// Update protection status
+	ProtectionStatus string `json:"protection_status"`
+
+	// Update protection reason
+	ProtectionReason string `json:"protection_reason"`
 }
 
 type commonResult struct {

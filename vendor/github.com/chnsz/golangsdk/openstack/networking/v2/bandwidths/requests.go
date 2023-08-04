@@ -2,6 +2,7 @@ package bandwidths
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/structs"
 )
 
 type UpdateOpts struct {
@@ -155,5 +156,21 @@ func Update(c *golangsdk.ServiceClient, bandwidthID string, opts UpdateOpts) (in
 	}
 
 	return onDemandData, onDemandErr
+}
 
+type ChangeToPeriodOpts struct {
+	BandwidthIDs []string           `json:"bandwidth_ids" required:"true"`
+	ExtendParam  structs.ChargeInfo `json:"extendParam" required:"true"`
+}
+
+// ChangeToPeriod is is used to change the bandwidth to prePaid billing mode
+func ChangeToPeriod(c *golangsdk.ServiceClient, opts ChangeToPeriodOpts) (r ChangeResult) {
+	body, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Post(changeToPeriodURL(c), body, &r.Body, nil)
+	return
 }
