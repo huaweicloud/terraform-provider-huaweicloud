@@ -175,7 +175,7 @@ func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, m
 				Size: d.Get("size").(int),
 			},
 		}
-		_, err := bandwidths.Update(networkingClient, bwID, updateOpts)
+		_, err := bandwidths.Update(networkingClient, bwID, updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating bandwidth (%s): %s", bwID, err)
 		}

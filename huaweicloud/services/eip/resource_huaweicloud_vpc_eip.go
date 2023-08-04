@@ -143,30 +143,23 @@ func ResourceVpcEIPV1() *schema.Resource {
 							Description:  `The shared bandwidth ID.`,
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w-.]*$"),
-									"The name can only contain letters, digits, underscores (_), hyphens (-), and periods (.)."),
-								validation.StringLenBetween(1, 64),
-							),
-							Description: `The bandwidth name.`,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							RequiredWith: []string{"bandwidth.0.size"},
+							Description:  `The dedicated bandwidth name.`,
 						},
 						"size": {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Computed:    true,
-							Description: `The bandwidth size.`,
+							Description: `The dedicated bandwidth size.`,
 						},
 						"charge_mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(ChargeModeTraffic), string(ChargeModeBandwidth),
-							}, false),
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
 							Description: `Whether the bandwidth is billed by traffic or by bandwidth size.`,
 						},
 					},
@@ -558,23 +551,23 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, config *config.Con
 		}
 		log.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)
 
-		order, err := bandwidthsv2.Update(vpcV2Client, bandwidthId, updateOpts)
+		resp, err := bandwidthsv2.Update(vpcV2Client, bandwidthId, updateOpts).Extract()
 		if err != nil {
 			return fmt.Errorf("error updating bandwidth: %s", err)
 		}
 
-		if orderData, ok := order.(bandwidthsv2.PrePaid); ok {
-			log.Printf("[DEBUG] The orderData is: %#v", orderData)
+		if resp.OrderID != "" {
+			log.Printf("[DEBUG] The order ID of updating bandwidth is: %s", resp.OrderID)
 			// Wait for order success.
 			bssClient, err := config.BssV2Client(config.GetRegion(d))
 			if err != nil {
 				return fmt.Errorf("error creating BSS v2 client: %s", err)
 			}
-			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), orderData.OrderID); err != nil {
+			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), resp.OrderID); err != nil {
 				return err
 			}
 		} else if d.HasChange("bandwidth.0.size") {
-			return fmt.Errorf("unable to find order structure in API response: %#v", order)
+			return fmt.Errorf("unable to find order ID in API response: %#v", resp)
 		}
 		return nil
 	}
