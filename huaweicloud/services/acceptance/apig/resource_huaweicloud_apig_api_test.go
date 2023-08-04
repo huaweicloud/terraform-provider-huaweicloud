@@ -72,7 +72,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "0"),
 					resource.TestCheckResourceAttrPair(rName, "web.0.authorizer_id",
 						"huaweicloud_apig_custom_authorizer.test", "id"),
-					resource.TestCheckOutput("policy_backend_params", "3"),
+					resource.TestCheckResourceAttr(rName, "web_policy.0.backend_params.#", "3"),
 				),
 			},
 			{
@@ -100,7 +100,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
 					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
 					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "0"),
-					resource.TestCheckOutput("policy_backend_params", "3"),
+					resource.TestCheckResourceAttr(rName, "web_policy.0.backend_params.#", "3"),
 				),
 			},
 			{
@@ -311,10 +311,6 @@ resource "huaweicloud_apig_api" "test" {
     }
   }
 }
-
-output "policy_backend_params" {
-  value = length(tolist(huaweicloud_apig_api.test.web_policy)[0].backend_params)
-}
 `, relatedConfig, name)
 }
 
@@ -413,10 +409,6 @@ resource "huaweicloud_apig_api" "test" {
       value      = "Administrator"
     }
   }
-}
-
-output "policy_backend_params" {
-  value = length(tolist(huaweicloud_apig_api.test.web_policy)[0].backend_params)
 }
 `, relatedConfig, name)
 }
