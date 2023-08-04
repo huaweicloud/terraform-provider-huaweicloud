@@ -4,23 +4,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings"
-	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings"
+	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 )
 
 func getProviderConversionFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMNoVersionClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud IAM without version: %s", err)
+		return nil, fmt.Errorf("error creating IAM client without version: %s", err)
 	}
 	providerID := state.Primary.Attributes["provider_id"]
-	conversionID := iam.MappingIDPrefix + providerID
+	conversionID := "mapping_" + providerID
 	return mappings.Get(client, conversionID)
 }
 

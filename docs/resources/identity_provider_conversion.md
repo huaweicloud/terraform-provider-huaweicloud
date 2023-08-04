@@ -42,7 +42,7 @@ resource "huaweicloud_identity_provider_conversion" "conversion" {
 
 The following arguments are supported:
 
-* `provider_id` - (Required, String, ForceNew) The ID of the identity provider used to manage the conversion rules.
+* `provider_id` - (Required, String, ForceNew) Specifies the ID of the identity provider used to manage the conversion rules.
   Changing this parameter will create a new resource.
 
 * `conversion_rules` - (Required, List) Specifies the identity conversion rules of the identity provider.
@@ -57,9 +57,9 @@ The `conversion_rules` block supports:
 
 * `remote` - (Required, List) Specifies Federated user information in the IDP system.
 
--> **NOTE:** If the protocol of identity provider is SAML, this field is an expression consisting of assertion
-attributes and operators.
-If the protocol of identity provider is OIDC, the value of this field is determined by the ID token.
+  -> **NOTE:** If the protocol of identity provider is SAML, this field is an expression consisting of assertion
+  attributes and operators.
+  If the protocol of identity provider is OIDC, the value of this field is determined by the ID token.
 
 The `local` block supports:
 
@@ -76,8 +76,8 @@ The `remote` block supports:
   + `any_one_of`: The rule is matched only if the specified strings appear in the attribute type.
   + `not_any_of`: The rule is matched only if the specified strings do not appear in the attribute type.
 
--> **NOTE:** 1. The condition result is Boolean rather than the argument that is passed as input.
-<br/>2. In a remote array, `any_one_of` and `not_any_of` are mutually exclusive and cannot be set at the same time.
+  -> **NOTE:** 1. The condition result is Boolean rather than the argument that is passed as input.
+  <br/>2. In a remote array, `any_one_of` and `not_any_of` are mutually exclusive and cannot be set at the same time.
 
 * `value` - (Optional, List) Specifies the rule is matched only if the specified strings appear in the attribute type.
 

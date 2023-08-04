@@ -16,6 +16,7 @@ Manages the identity providers within HuaweiCloud IAM service.
 resource "huaweicloud_identity_provider" "provider_1" {
   name     = "example_com_provider_saml"
   protocol = "saml"
+  metadata = file("/usr/local/data/files/metadata.txt")
 }
 ```
 
@@ -75,11 +76,11 @@ The following arguments are supported:
   This field is required only if the protocol is set to *saml*.
   The maximum length is 30,000 characters and it stores in the state with SHA1 algorithm.
 
--> **NOTE:**
-The metadata file specifies API addresses and certificate information in compliance with the SAML 2.0 standard.
-It is usually stored in a file. In the TF script, you can import the metafile through the `file` function,
-for example:
-<br/>`metadata = file("/usr/local/data/files/metadata.txt")`
+  -> **NOTE:**
+  The metadata file specifies API addresses and certificate information in compliance with the SAML 2.0 standard.
+  It is usually stored in a file. In the TF script, you can import the metafile through the `file` function,
+  for example:
+  <br/>`metadata = file("/usr/local/data/files/metadata.txt")`
 
 * `access_config` - (Optional, List) Specifies the description of the identity provider.
   This field is required only if the protocol is set to *oidc*.
@@ -88,8 +89,8 @@ The `access_config` block supports:
 
 * `access_type` - (Required, String) Specifies the access type of the identity provider.
   Available options are:
-  + `program`: programmatic access only.
-  + `program_console`: programmatic access and management console access.
+  + **program**: programmatic access only.
+  + **program_console**: programmatic access and management console access.
 
 * `provider_url` - (Required, String) Specifies the URL of the identity provider.
   This field corresponds to the iss field in the ID token.
@@ -106,9 +107,9 @@ The `access_config` block supports:
   Valid values are *openid*, *email*, *profile* and other values defined by you.
   This field is required only if the access type is set to `program_console`.
 
--> **NOTE:** 1. *openid* must be specified for this field.
-<br/>2. A maximum of 10 values can be specified, and they must be separated with spaces.
-<br/>Example: openid email host.
+  -> **NOTE:** 1. *openid* must be specified for this field.
+  <br/>2. A maximum of 10 values can be specified, and they must be separated with spaces.
+  <br/>Example: openid email host.
 
 * `response_type` - (Optional, String) Response type. Valid values is *id_token*, default value is *id_token*.
   This field is required only if the access type is set to `program_console`.
@@ -121,7 +122,7 @@ The `access_config` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - A resource ID in UUID format.
+* `id` - A resource ID which equals the identity provider name.
 
 * `login_link` - The login link of the identity provider.
 

@@ -5,22 +5,19 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings"
-	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings"
+	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
-
-const MappingIDPrefix = "mapping_"
 
 func ResourceIAMProviderConversion() *schema.Resource {
 	return &schema.Resource{
@@ -94,43 +91,43 @@ func resourceIAMProviderConversionCreate(ctx context.Context, d *schema.Resource
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud IAM without version client: %s", err)
+		return diag.Errorf("error creating IAM client without version: %s", err)
 	}
 	providerID := d.Get("provider_id").(string)
-	conversionID := MappingIDPrefix + providerID
+	mappingID := generateMappingID(providerID)
 
 	// Check if the mappingID exists, update if it exists, otherwise create it.
 	r, err := mappings.List(client).AllPages()
 	err404 := golangsdk.ErrDefault404{}
 	if err != nil && !errors.As(err, &err404) {
-		return fmtp.DiagErrorf("error in querying or extract conversions: %s", err)
+		return diag.Errorf("error in querying or extract conversions: %s", err)
 	}
 
 	conversions, err := mappings.ExtractMappings(r)
 	if err != nil {
-		return fmtp.DiagErrorf("error in extracting provider conversions: %s", err)
+		return diag.Errorf("error in extracting provider conversions: %s", err)
 	}
 
 	filterData, err := utils.FilterSliceWithField(conversions, map[string]interface{}{
-		"ID": conversionID,
+		"ID": mappingID,
 	})
 	if err != nil {
-		return fmtp.DiagErrorf("error in filtering conversions: %s", err)
+		return diag.Errorf("error in filtering conversions: %s", err)
 	}
 
 	conversionRules := d.Get("conversion_rules").([]interface{})
 	mappingOpts := buildConversionRules(conversionRules)
 	// Create the mapping if it does not exist, otherwise update it.
 	if len(filterData) == 0 {
-		_, err = mappings.Create(client, conversionID, mappingOpts)
+		_, err = mappings.Create(client, mappingID, mappingOpts)
 	} else {
-		_, err = mappings.Update(client, conversionID, mappingOpts)
+		_, err = mappings.Update(client, mappingID, mappingOpts)
 	}
 	if err != nil {
-		return fmtp.DiagErrorf("error in creating/updating mapping: %s", err)
+		return diag.Errorf("error in creating/updating mapping: %s", err)
 	}
-	d.SetId(conversionID)
 
+	d.SetId(mappingID)
 	return resourceIAMProviderConversionRead(ctx, d, meta)
 }
 
@@ -158,6 +155,7 @@ func buildConversionRules(conversionRules []interface{}) mappings.MappingOption 
 			}
 			localRules = append(localRules, r)
 		}
+
 		// build remote rule
 		remote := convRule["remote"].([]interface{})
 		remoteRules := make([]mappings.RemoteRule, 0, len(remote))
@@ -193,7 +191,7 @@ func resourceIAMProviderConversionRead(_ context.Context, d *schema.ResourceData
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud IAM client without version number: %s", err)
+		return diag.Errorf("error creating IAM client without version: %s", err)
 	}
 
 	conversionID := d.Id()
@@ -202,16 +200,15 @@ func resourceIAMProviderConversionRead(_ context.Context, d *schema.ResourceData
 		return common.CheckDeletedDiag(d, err, "error in querying conversion rules")
 	}
 
-	conversionRules := buildConversionRulesAttr(conversions)
-	providerID := strings.Replace(conversionID, MappingIDPrefix, "", -1)
+	conversionRules := flattenConversionRulesAttr(conversions)
+	providerID := strings.ReplaceAll(conversionID, "mapping_", "")
 	mErr := multierror.Append(
 		d.Set("provider_id", providerID),
 		d.Set("conversion_rules", conversionRules),
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		logp.Printf("[ERROR] Error setting identity provider attributes %s: %s", d.Id(), mErr, conversionID)
-		return fmtp.DiagErrorf("Error setting identity provider conversion rules: %s", mErr)
+		return diag.Errorf("error setting identity provider conversion rules: %s", mErr)
 	}
 	return nil
 }
@@ -220,7 +217,7 @@ func resourceIAMProviderConversionUpdate(ctx context.Context, d *schema.Resource
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud IAM client without version number: %s", err)
+		return diag.Errorf("error creating IAM client without version: %s", err)
 	}
 
 	conversionRules := d.Get("conversion_rules").([]interface{})
@@ -228,7 +225,7 @@ func resourceIAMProviderConversionUpdate(ctx context.Context, d *schema.Resource
 	conversionID := d.Id()
 	_, err = mappings.Update(client, conversionID, conversionRuleOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Failed to update the provider conversion rules: %s", err)
+		return diag.Errorf("failed to update the provider conversion rules: %s", err)
 	}
 
 	return resourceIAMProviderConversionRead(ctx, d, meta)
@@ -238,7 +235,7 @@ func resourceIAMProviderConversionDelete(_ context.Context, d *schema.ResourceDa
 	conf := meta.(*config.Config)
 	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud IAM client without version number: %s", err)
+		return diag.Errorf("error creating IAM client without version: %s", err)
 	}
 
 	providerID := d.Get("provider_id").(string)
@@ -253,9 +250,9 @@ func resourceIAMProviderConversionDelete(_ context.Context, d *schema.ResourceDa
 	_, err = mappings.Update(client, conversionID, *opts)
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error resetting provider conversion rules to default value" +
+		return diag.Errorf("error resetting provider conversion rules to default value" +
 			"(the conversion rules can not be deleted, it can be reset to default value).")
 	}
-	d.SetId("")
+
 	return nil
 }
