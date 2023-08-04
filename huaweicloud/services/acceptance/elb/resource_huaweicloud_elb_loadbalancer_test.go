@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -59,15 +60,22 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
+					resource.TestCheckResourceAttr(resourceName, "backend_subnets.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "backend_subnets.0",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 			{
-				Config: testAccElbV3LoadBalancerConfig_update(rNameUpdate),
+				Config: testAccElbV3LoadBalancerConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "true"),
+					resource.TestCheckResourceAttr(resourceName, "backend_subnets.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
@@ -138,6 +146,35 @@ func TestAccElbV3LoadBalancer_withEIP(t *testing.T) {
 	})
 }
 
+func TestAccElbV3LoadBalancer_withEIP_Bandwidth_Id(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_withEIP_Bandwidth_Id(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "iptype", "5_bgp"),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv4_eip_id"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 	rName := acceptance.RandomAccResourceNameWithDash()
@@ -190,53 +227,77 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+resource "huaweicloud_vpc_subnet" "test_1" {
+  name       = "%[2]s_1"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+}
 
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name           = "%[2]s"
+  vpc_id         = huaweicloud_vpc.test.id
+  ipv4_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+	
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  backend_subnets = [
+    huaweicloud_vpc_subnet.test.id
+  ]
+
+  protection_status = "nonProtection"
 
   tags = {
     key   = "value"
     owner = "terraform"
   }
 }
-`, rName)
+`, common.TestVpc(rName), rName)
 }
 
-func testAccElbV3LoadBalancerConfig_update(rNameUpdate string) string {
+func testAccElbV3LoadBalancerConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
+resource "huaweicloud_vpc_subnet" "test_1" {
+  name       = "%[2]s_1"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+}
+
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name              = "%s"
+  name              = "%[3]s"
   cross_vpc_backend = true
-  ipv4_subnet_id    = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id   = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  backend_subnets = [
+    huaweicloud_vpc_subnet.test.id,
+    huaweicloud_vpc_subnet.test_1.id,
+  ]
+
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
 
   tags = {
     key1  = "value1"
     owner = "terraform_update"
   }
 }
-`, rNameUpdate)
+`, common.TestVpc(rName), rName, rNameUpdate)
 }
 
 func testAccElbV3LoadBalancerConfig_withEpsId(rName string) string {
@@ -284,6 +345,34 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   bandwidth_charge_mode = "traffic"
   sharetype             = "PER"
   bandwidth_size        = 5
+}
+`, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_withEIP_Bandwidth_Id(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc_bandwidth" "test" {
+  name = "%[1]s"
+  size = 5
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name           = "%[1]s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  iptype       = "5_bgp"
+  sharetype    = "WHOLE"
+  bandwidth_id = huaweicloud_vpc_bandwidth.test.id
 }
 `, rName)
 }

@@ -110,6 +110,12 @@ type LoadBalancer struct {
 	// Ipv6 Bandwidth.
 	IPV6Bandwidth BandwidthRef `json:"ipv6_bandwidth"`
 
+	// Update protection status
+	ProtectionStatus string `json:"protection_status"`
+
+	// Update protection reason
+	ProtectionReason string `json:"protection_reason"`
+
 	// Deletion Protection Enable.
 	DeletionProtectionEnable bool `json:"deletion_protection_enable"`
 
