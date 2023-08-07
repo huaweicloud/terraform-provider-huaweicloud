@@ -75,6 +75,22 @@ type Volume struct {
 	ConsistencyGroupID string `json:"consistencygroup_id"`
 	// Multiattach denotes if the volume is multi-attach capable.
 	Multiattach bool `json:"multiattach"`
+	// The IOPS of the volume. Only exist when volume_type is `ESSD2` or `GPSSD2`
+	IOPS IOPSAndThroughput `json:"iops"`
+	// The throughput of the volume. Only exist when volume_type is `GPSSD2`
+	Throughput IOPSAndThroughput `json:"throughput"`
+}
+
+// IOPSAndThroughput is the struct of IOPS and throughput
+type IOPSAndThroughput struct {
+	// The frozened mark
+	Frozened bool `json:"frozened"`
+	// The iops or throughput id
+	ID string `json:"id"`
+	// The iops or throughput value
+	TotalVal int `json:"total_val"`
+	// The volume ID
+	VolumeId string `json:"volume_id"`
 }
 
 func (r *Volume) UnmarshalJSON(b []byte) error {

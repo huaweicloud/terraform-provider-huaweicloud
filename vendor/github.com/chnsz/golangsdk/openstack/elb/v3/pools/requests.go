@@ -77,12 +77,10 @@ type CreateOpts struct {
 	Protocol string `json:"protocol" required:"true"`
 
 	// The Loadbalancer on which the members of the pool will be associated with.
-	// Note: one of LoadbalancerID or ListenerID must be provided.
-	LoadbalancerID string `json:"loadbalancer_id,omitempty" xor:"ListenerID"`
+	LoadbalancerID string `json:"loadbalancer_id,omitempty"`
 
 	// The Listener on which the members of the pool will be associated with.
-	// Note: one of LoadbalancerID or ListenerID must be provided.
-	ListenerID string `json:"listener_id,omitempty" xor:"LoadbalancerID"`
+	ListenerID string `json:"listener_id,omitempty"`
 
 	// ProjectID is the UUID of the project who owns the Pool.
 	// Only administrative users can specify a project UUID other than their own.
@@ -101,6 +99,32 @@ type CreateOpts struct {
 	// The administrative state of the Pool. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// Whether enable port transparent transmission.
+	AnyPortEnable *bool `json:"any_port_enable,omitempty"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
+
+	// Slow start.
+	SlowStart *SlowStart `json:"slow_start,omitempty"`
+
+	// The type of the backend server group
+	Type string `json:"type,omitempty"`
+
+	// The ID of the VPC where the backend server group works
+	VpcId string `json:"vpc_id,omitempty"`
+}
+
+type SlowStart struct {
+	// Whether to enable slow start.
+	Enable bool `json:"enable,omitempty"`
+
+	// Slow start duration, in seconds.
+	Duration int `json:"duration,omitempty"`
 }
 
 // ToPoolCreateMap builds a request body from CreateOpts.
@@ -153,6 +177,21 @@ type UpdateOpts struct {
 	// The administrative state of the Pool. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
+
+	// Slow start.
+	SlowStart *SlowStart `json:"slow_start,omitempty"`
+
+	// The type of the backend server group
+	Type string `json:"type,omitempty"`
+
+	// The ID of the VPC where the backend server group works
+	VpcId string `json:"vpc_id,omitempty"`
 }
 
 // ToPoolUpdateMap builds a request body from UpdateOpts.

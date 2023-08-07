@@ -90,6 +90,33 @@ type Pool struct {
 	// The provisioning status of the pool.
 	// This value is ACTIVE, PENDING_* or ERROR.
 	ProvisioningStatus string `json:"provisioning_status"`
+
+	// The IP address version.
+	IpVersion string `json:"ip_version"`
+
+	// Whether enable port transparent transmission.
+	AnyPortEnable bool `json:"any_port_enable"`
+
+	// Update protection status
+	ProtectionStatus *string `json:"protection_status"`
+
+	// Update protection reason
+	ProtectionReason string `json:"protection_reason"`
+
+	// Slow start.
+	SlowStart SlowStart `json:"slow_start"`
+
+	// The type of the backend server group.
+	Type string `json:"type"`
+
+	// The ID of the VPC where the backend server group works.
+	VpcId string `json:"vpc_id"`
+
+	// The creation time.
+	CreatedAt string `json:"created_at"`
+
+	// The updated time.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // PoolPage is the page returned by a pager when traversing over a
