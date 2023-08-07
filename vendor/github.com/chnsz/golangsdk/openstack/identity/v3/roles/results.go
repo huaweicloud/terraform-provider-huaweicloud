@@ -22,13 +22,14 @@ type Role struct {
 	// Links contains referencing links to the role.
 	Links map[string]interface{} `json:"links"`
 
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	DisplayName string `json:"display_name"`
-	Flag        string `json:"flag"`
-	Catalog     string `json:"catalog"`
-	Type        string `json:"type"`
-	Policy      Policy `json:"policy"`
+	Name          string `json:"name"`
+	DisplayName   string `json:"display_name"`
+	Description   string `json:"description"`
+	DescriptionCN string `json:"description_cn"`
+	Flag          string `json:"flag"`
+	Catalog       string `json:"catalog"`
+	Type          string `json:"type"`
+	Policy        Policy `json:"policy"`
 
 	// Extra is a collection of miscellaneous key/values.
 	Extra map[string]interface{} `json:"-"`
@@ -181,13 +182,14 @@ func ExtractOffsetRoles(r pagination.Page) ([]Role, error) {
 
 // RoleAssignment is the result of a role assignments query.
 type RoleAssignment struct {
-	Catalog     string `json:"catalog"`
-	Description string `json:"description"`
-	DisplayName string `json:"display_name"`
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	Policy      Policy `json:"policy"`
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	DisplayName   string `json:"display_name"`
+	Description   string `json:"description"`
+	DescriptionCN string `json:"description_cn"`
+	Catalog       string `json:"catalog"`
+	Type          string `json:"type"`
+	Policy        Policy `json:"policy"`
 }
 
 type Policy struct {

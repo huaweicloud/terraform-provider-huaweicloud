@@ -51,6 +51,9 @@ func (opts ListOpts) ToRoleListQuery() (string, error) {
 }
 
 // List enumerates the roles to which the current token has access.
+//
+// Deprecated: AllPages will not work due to the links.next field is always null in API response.
+// please use ListWithPages instead.
 func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 	url := listURL(client)
 	if opts != nil {

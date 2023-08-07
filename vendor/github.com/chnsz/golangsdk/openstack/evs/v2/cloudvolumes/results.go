@@ -67,6 +67,8 @@ type IOPSAndThroughput struct {
 	ID string `json:"id"`
 	// The iops or throughput value
 	TotalVal int `json:"total_val"`
+	// The volume ID
+	VolumeId string `json:"volume_id"`
 }
 
 // Link is an object that represents a link to which the disk belongs.
