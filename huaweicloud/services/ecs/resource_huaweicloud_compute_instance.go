@@ -210,6 +210,18 @@ func ResourceComputeInstance() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"system_disk_iops": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"system_disk_throughput": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"data_disks": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -234,6 +246,16 @@ func ResourceComputeInstance() *schema.Resource {
 						},
 						"kms_key_id": {
 							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"iops": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+						"throughput": {
+							Type:     schema.TypeInt,
 							Optional: true,
 							ForceNew: true,
 						},
@@ -840,6 +862,8 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 				d.Set("system_disk_size", volumeInfo.Size)
 				d.Set("system_disk_type", volumeInfo.VolumeType)
 				d.Set("system_disk_kms_key_id", volumeInfo.Metadata.SystemCmkID)
+				d.Set("system_disk_iops", volumeInfo.IOPS.TotalVal)
+				d.Set("system_disk_throughput", volumeInfo.Throughput.TotalVal)
 			}
 		}
 		d.Set("volume_attached", bds)
@@ -1662,6 +1686,8 @@ func buildInstanceRootVolume(d *schema.ResourceData) cloudservers.RootVolume {
 	volRequest := cloudservers.RootVolume{
 		VolumeType: diskType,
 		Size:       d.Get("system_disk_size").(int),
+		IOPS:       d.Get("system_disk_iops").(int),
+		Throughput: d.Get("system_disk_throughput").(int),
 	}
 
 	if v, ok := d.GetOk("system_disk_kms_key_id"); ok {
@@ -1684,7 +1710,10 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 		volRequest := cloudservers.DataVolume{
 			VolumeType: vol["type"].(string),
 			Size:       vol["size"].(int),
+			IOPS:       vol["iops"].(int),
+			Throughput: vol["throughput"].(int),
 		}
+
 		if vol["snapshot_id"] != "" {
 			extendparam := cloudservers.VolumeExtendParam{
 				SnapshotId: vol["snapshot_id"].(string),

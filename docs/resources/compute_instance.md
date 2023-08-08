@@ -234,10 +234,15 @@ The following arguments are supported:
   For details about disk types, see
   [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html).
   Available options are:
-  + `SAS`: high I/O disk type.
-  + `SSD`: ultra-high I/O disk type.
-  + `GPSSD`: general purpose SSD disk type.
+  + `SAS`: High I/O disk type.
+  + `SSD`: Ultra-high I/O disk type.
+  + `GPSSD`: General purpose SSD disk type.
   + `ESSD`: Extreme SSD type.
+  + `GPSSD2`: General purpose SSD V2 type.
+  + `ESSD2`: Extreme SSD V2 type.
+
+  -> If the specified disk type is not available in the AZ, the disk will fail to create.
+  The disk type **ESSD2** only support in postpaid charging mode.
 
 * `system_disk_size` - (Optional, Int) Specifies the system disk size in GB, The value range is 1 to 1024.
   Shrinking the disk is not supported.
@@ -247,6 +252,25 @@ The following arguments are supported:
 
   -> **NOTE:** This parameter is only supported in some regions, such as ap-southeast-3.
     If not supported, please contact technical support.
+
+* `system_disk_iops` - (Optional, Int, ForceNew) Specifies the IOPS(Input/Output Operations Per Second) for the disk.
+  The field is valid and required when `system_disk_type` is set to **GPSSD2** or **ESSD2**.
+
+  + If `system_disk_type` is set to **GPSSD2**. The field `system_disk_iops` ranging from 3,000 to 128,000.
+    This IOPS must also be less than or equal to 500 multiplying the capacity.
+
+  + If `system_disk_type` is set to **ESSD2**. The field `system_disk_iops` ranging from 100 to 256,000.
+    This IOPS must also be less than or equal to 1000 multiplying the capacity.
+
+  Changing this creates a new instance.
+
+* `system_disk_throughput` - (Optional, Int, ForceNew) Specifies the throughput for the disk. The Unit is MiB/s.
+  The field is valid and required when `system_disk_type` is set to **GPSSD2**.
+
+  + If `system_disk_type` is set to **GPSSD2**. The field `system_disk_throughput` ranging from 125 to 1,000.
+    This throughput must also be less than or equal to the IOPS divided by 4.
+
+  Changing this creates a new instance.
 
 * `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
@@ -353,8 +377,20 @@ The `network` block supports:
 
 The `data_disks` block supports:
 
-* `type` - (Required, String, ForceNew) Specifies the ECS data disk type, which must be one of available disk types,
-  contains of *SSD*, *GPSSD* and *SAS*. Changing this creates a new instance.
+* `type` - (Required, String, ForceNew) Specifies the ECS data disk type. Changing this creates a new instance.
+
+  For details about disk types, see
+  [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html).
+  Available options are:
+  + `SAS`: High I/O disk type.
+  + `SSD`: Ultra-high I/O disk type.
+  + `GPSSD`: General purpose SSD disk type.
+  + `ESSD`: Extreme SSD type.
+  + `GPSSD2`: General purpose SSD V2 type.
+  + `ESSD2`: Extreme SSD V2 type.
+
+  -> If the specified disk type is not available in the AZ, the disk will fail to create.
+  The disk type **ESSD2** only support in postpaid charging mode.
 
 * `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768.
   Changing this creates a new instance.
@@ -363,6 +399,25 @@ The `data_disks` block supports:
   the full-ECS image. Changing this creates a new instance.
 
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the disk.
+  Changing this creates a new instance.
+
+* `iops` - (Optional, Int, ForceNew) Specifies the IOPS(Input/Output Operations Per Second) for the disk.
+  The field is valid and required when `type` is set to **GPSSD2** or **ESSD2**.
+
+  + If `type` is set to **GPSSD2**. The field `iops` ranging from 3,000 to 128,000.
+    This IOPS must also be less than or equal to 500 multiplying the capacity.
+
+  + If `type` is set to **ESSD2**. The field `iops` ranging from 100 to 256,000.
+    This IOPS must also be less than or equal to 1000 multiplying the capacity.
+
+  Changing this creates a new instance.
+
+* `throughput` - (Optional, Int, ForceNew) Specifies the throughput for the disk. The Unit is MiB/s.
+  The field is valid and required when `type` is set to **GPSSD2**.
+
+  + If `type` is set to **GPSSD2**. The field `throughput` ranging from 125 to 1,000.
+    This throughput must also be less than or equal to the IOPS divided by 4.
+
   Changing this creates a new instance.
 
 The `bandwidth` block supports:
