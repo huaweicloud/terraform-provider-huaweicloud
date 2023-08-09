@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
-	resourceName := "data.huaweicloud_identity_custom_role.role_1"
+	dataSourceName := "data.huaweicloud_identity_custom_role.role_1"
 	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(resourceName)
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -25,8 +25,7 @@ func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
 				Config: testAccIdentityCustomRoleDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_identity_custom_role.role_1", "name", rName),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
 				),
 			},
 		},

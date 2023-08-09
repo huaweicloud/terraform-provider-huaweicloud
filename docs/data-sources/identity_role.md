@@ -4,9 +4,9 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_role
 
-Use this data source to get the ID of an IAM **system-defined** role or policy.
+Use this data source to get details of the specified IAM **system-defined** role or policy.
 
-~> You *must* have IAM read privileges to use this data source.
+-> **NOTE:** You *must* have IAM read privileges to use this data source.
 
 The Role in Terraform is the same as Policy. We can get all **System-Defined Policies** form
 [HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
@@ -93,10 +93,10 @@ data "huaweicloud_identity_role" "kms_adm" {
 ## Argument Reference
 
 * `display_name` - (Optional, String) Specifies the display name of the role displayed on the console.
-  Required if `name` is empty.
+  It is recommended to use this parameter instead of `name` and required if `name` is not specified.
 
 * `name` - (Optional, String) Specifies the name of the role for internal use.
-  Required if `display_name` is empty.
+  It's required if `display_name` is not specified.
 
 ## Attribute Reference
 
