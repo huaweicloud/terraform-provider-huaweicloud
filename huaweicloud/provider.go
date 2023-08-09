@@ -720,12 +720,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 			"huaweicloud_ces_alarm_template": ces.ResourceCesAlarmTemplate(),
 
-			"huaweicloud_cfw_protection_rule":      cfw.ResourceProtectionRule(),
 			"huaweicloud_cfw_address_group":        cfw.ResourceAddressGroup(),
 			"huaweicloud_cfw_address_group_member": cfw.ResourceAddressGroupMember(),
+			"huaweicloud_cfw_black_white_list":     cfw.ResourceBlackWhiteList(),
+			"huaweicloud_cfw_eip_protection":       cfw.ResourceEipProtection(),
+			"huaweicloud_cfw_protection_rule":      cfw.ResourceProtectionRule(),
 			"huaweicloud_cfw_service_group":        cfw.ResourceServiceGroup(),
 			"huaweicloud_cfw_service_group_member": cfw.ResourceServiceGroupMember(),
-			"huaweicloud_cfw_black_white_list":     cfw.ResourceBlackWhiteList(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 

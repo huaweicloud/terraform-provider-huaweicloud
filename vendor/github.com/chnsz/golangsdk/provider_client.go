@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/chnsz/golangsdk/auth"
 )
 
 // DefaultUserAgent is the default User-Agent string set in the request header.
@@ -310,15 +312,9 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 	prereqtok := req.Header.Get("X-Auth-Token")
 
 	if client.AKSKAuthOptions.AccessKey != "" {
-		signOpts := SignOptions{
-			AccessKey: client.AKSKAuthOptions.AccessKey,
-			SecretKey: client.AKSKAuthOptions.SecretKey,
+		if err := auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey); err != nil {
+			return nil, err
 		}
-		// get region from request headers
-		if region, ok := options.MoreHeaders["region"]; ok {
-			signOpts.RegionName = region
-		}
-		Sign(req, signOpts)
 		if client.AKSKAuthOptions.ProjectId != "" {
 			req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
 		}
