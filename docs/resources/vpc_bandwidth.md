@@ -35,6 +35,22 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the Shared Bandwidth.
   Changing this creates a new bandwidth.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the Shared Bandwidth.
+  The valid values are **prePaid** and **postPaid**, defaults to **postPaid**. Changing this will create a new bandwidth.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the Shared Bandwidth.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new bandwidth.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the Shared Bandwidth.
+  + If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  + If `period_unit` is set to **year**, the value ranges from `1` to `3`.
+
+  This parameter is mandatory if `charging_mode` is set to **prePaid**. Changing this will create a new bandwidth.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+  Valid values are **true** and **false**. Defaults to **false**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -57,9 +73,9 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `update` - Default is 10 minute.
-* `delete` - Default is 10 minute.
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
 
 ## Import
 
@@ -67,4 +83,22 @@ Shared Bandwidths can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_vpc_bandwidth.bandwidth_1 7117d38e-4c8f-4624-a505-bd96b97d024c
+```
+
+Note that the imported state may not be identical to your resource definition, due to payment attributes missing from
+the API response.
+The missing attributes include: `period_unit`, `period`, `auto_renew`.
+It is generally recommended running `terraform plan` after importing a Shared Bandwidth.
+You can ignore changes as below.
+
+```hcl
+resource "huaweicloud_vpc_bandwidth" "bandwidth_1" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      period_unit, period, auto_renew,
+    ]
+  }
+}
 ```
