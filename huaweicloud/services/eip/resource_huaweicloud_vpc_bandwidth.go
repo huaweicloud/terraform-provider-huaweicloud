@@ -334,11 +334,10 @@ func waitForBandwidth(client *golangsdk.ServiceClient, id string) resource.State
 }
 
 func normalizeChargingMode(billing string) string {
-	mode := "postPaid"
 	if billing != "" {
-		mode = "prePaid"
+		return "prePaid"
 	}
-	return mode
+	return "postPaid"
 }
 
 func flattenPublicIPs(band bandwidthsv1.BandWidth) []map[string]interface{} {
