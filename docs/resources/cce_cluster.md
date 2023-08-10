@@ -6,7 +6,9 @@ subcategory: "Cloud Container Engine (CCE)"
 
 Provides a CCE cluster resource.
 
-## Basic Usage
+## Example Usage
+
+### Basic Usage
 
 ```hcl
 resource "huaweicloud_vpc" "myvpc" {
@@ -34,7 +36,7 @@ resource "huaweicloud_cce_cluster" "cluster" {
 }
 ```
 
-## Cluster With Eip
+### Cluster With EIP
 
 ```hcl
 resource "huaweicloud_vpc" "myvpc" {
@@ -77,7 +79,7 @@ resource "huaweicloud_cce_cluster" "cluster" {
 }
 ```
 
-## CCE Turbo Cluster
+### CCE Turbo Cluster
 
 ```hcl
 resource "huaweicloud_vpc" "myvpc" {
@@ -120,6 +122,31 @@ resource "huaweicloud_cce_cluster" "test" {
     huaweicloud_vpc_subnet.eni_test_1.ipv4_subnet_id,
     huaweicloud_vpc_subnet.eni_test_2.ipv4_subnet_id,
   ])
+}
+```
+
+### CCE HA Cluster
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+
+resource "huaweicloud_cce_cluster" "cluster" {
+  name                   = "cluster"
+  flavor_id              = "cce.s2.small"
+  vpc_id                 = var.vpc_id
+  subnet_id              = var.subnet_id
+  container_network_type = "overlay_l2"
+
+  masters {
+    availability_zone = "cn-north-4a"
+  }
+  masters {
+    availability_zone = "cn-north-4b"
+  }
+  masters {
+    availability_zone = "cn-north-4c"
+  }
 }
 ```
 
