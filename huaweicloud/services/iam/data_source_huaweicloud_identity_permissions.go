@@ -83,7 +83,7 @@ func dataSourceIdentityPermissionsRead(_ context.Context, d *schema.ResourceData
 	cfg := meta.(*config.Config)
 	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating identity client: %s", err)
+		return diag.Errorf("error creating identity client: %s", err)
 	}
 
 	listOpts := roles.ListOpts{
