@@ -107,6 +107,10 @@ type CreateOpts struct {
 	// status to INACTIVE. Must be a number between 1 and 10.
 	MaxRetries int `json:"max_retries" required:"true"`
 
+	// Number of permissible ping success before changing the member's
+	// status to ACTIVE. Must be a number between 1 and 10.
+	MaxRetriesDown int `json:"max_retries_down,omitempty"`
+
 	// URI path that will be accessed if Monitor type is HTTP or HTTPS.
 	// Required for HTTP(S) types.
 	URLPath string `json:"url_path,omitempty"`
@@ -208,6 +212,10 @@ type UpdateOpts struct {
 	// status to INACTIVE. Must be a number between 1 and 10.
 	MaxRetries int `json:"max_retries,omitempty"`
 
+	// Number of permissible ping success before changing the member's
+	// status to ACTIVE. Must be a number between 1 and 10.
+	MaxRetriesDown int `json:"max_retries_down,omitempty"`
+
 	// URI path that will be accessed if Monitor type is HTTP or HTTPS.
 	// Required for HTTP(S) types.
 	URLPath string `json:"url_path,omitempty"`
@@ -233,6 +241,10 @@ type UpdateOpts struct {
 
 	// The Port of the Monitor.
 	MonitorPort int `json:"monitor_port,omitempty"`
+
+	// The type of probe, which is PING, TCP, HTTP, or HTTPS, that is
+	// sent by the load balancer to verify the member state.
+	Type string `json:"type,omitempty"`
 }
 
 // ToMonitorUpdateMap builds a request body from UpdateOpts.

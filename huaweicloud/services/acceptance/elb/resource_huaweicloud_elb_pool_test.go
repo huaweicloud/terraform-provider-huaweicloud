@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -12,32 +11,67 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
+
+func getELBPoolResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
+	}
+	return pools.Get(elbClient, state.Primary.ID).Extract()
+}
 
 func TestAccElbV3Pool_basic(t *testing.T) {
 	var pool pools.Pool
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_elb_pool.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckElbV3PoolDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3PoolConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3PoolExists(resourceName, &pool),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttr(resourceName, "type", "instance"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 				),
 			},
 			{
 				Config: testAccElbV3PoolConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
+					resource.TestCheckResourceAttr(resourceName, "type", "instance"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_duration", "100"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason",
+						"test protection reason"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 				),
 			},
 			{
@@ -49,145 +83,307 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckElbV3PoolDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating ELB client: %s", err)
-	}
+func TestAccElbV3Pool_basic_with_loadbalancer(t *testing.T) {
+	var pool pools.Pool
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_pool.test"
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_pool" {
-			continue
-		}
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
 
-		_, err := pools.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("pool still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3PoolConfig_basic_with_loadbalancer(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttrPair(resourceName, "loadbalancer_id",
+						"huaweicloud_elb_loadbalancer.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+				),
+			},
+			{
+				Config: testAccElbV3PoolConfig_update_with_loadbalancer(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
+					resource.TestCheckResourceAttrPair(resourceName, "loadbalancer_id",
+						"huaweicloud_elb_loadbalancer.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "type", "instance"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_duration", "100"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
-func testAccCheckElbV3PoolExists(n string, pool *pools.Pool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
+func TestAccElbV3Pool_basic_with_listener(t *testing.T) {
+	var pool pools.Pool
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_pool.test"
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
 
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating ELB client: %s", err)
-		}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3PoolConfig_basic_with_listener(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttrPair(resourceName, "listener_id",
+						"huaweicloud_elb_listener.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+				),
+			},
+			{
+				Config: testAccElbV3PoolConfig_update_with_listener(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
+					resource.TestCheckResourceAttrPair(resourceName, "listener_id",
+						"huaweicloud_elb_listener.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_duration", "100"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
 
-		found, err := pools.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
+func TestAccElbV3Pool_basic_with_type_ip(t *testing.T) {
+	var pool pools.Pool
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_pool.test"
 
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("member not found")
-		}
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
 
-		*pool = *found
-
-		return nil
-	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3PoolConfig_basic_with_type_ip(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttr(resourceName, "type", "ip"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+				),
+			},
+			{
+				Config: testAccElbV3PoolConfig_update_with_type_ip(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
+					resource.TestCheckResourceAttr(resourceName, "type", "ip"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "slow_start_duration", "100"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccElbV3PoolConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
+%s
+
+resource "huaweicloud_elb_pool" "test" {
+  name      = "%s"
+  protocol  = "HTTP"
+  lb_method = "ROUND_ROBIN"
+  type      = "instance"
+  vpc_id    = huaweicloud_vpc.test.id
+
+  persistence {
+    type        = "APP_COOKIE"
+    cookie_name = "testCookie"
+  }
+}
+`, common.TestVpc(rName), rName)
 }
 
-data "huaweicloud_availability_zones" "test" {}
+func testAccElbV3PoolConfig_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
 
-resource "huaweicloud_elb_loadbalancer" "test" {
+resource "huaweicloud_elb_pool" "test" {
+  name      = "%s"
+  protocol  = "HTTP"
+  lb_method = "LEAST_CONNECTIONS"
+  type      = "instance"
+  vpc_id    = huaweicloud_vpc.test.id
+
+  slow_start_enabled  = true
+  slow_start_duration = 100
+
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
+
+  persistence {
+    type        = "APP_COOKIE"
+    cookie_name = "testCookie"
+  }
+}
+`, common.TestVpc(rName), rNameUpdate)
+}
+
+func testAccElbV3PoolConfig_basic_with_loadbalancer(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_pool" "test" {
   name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
+  protocol        = "HTTP"
+  lb_method       = "ROUND_ROBIN"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+}
+`, testAccElbV3LoadBalancerConfig_basic(rName), rName)
 }
 
-resource "huaweicloud_elb_listener" "test" {
-  name             = "%s"
-  description      = "test description"
-  protocol         = "HTTP"
-  protocol_port    = 8080
-  loadbalancer_id  = huaweicloud_elb_loadbalancer.test.id
-  forward_eip      = true
-  idle_timeout     = 60
-  request_timeout  = 60
-  response_timeout = 60
+func testAccElbV3PoolConfig_update_with_loadbalancer(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%s"
+  protocol        = "HTTP"
+  lb_method       = "LEAST_CONNECTIONS"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  type            = "instance"
+  vpc_id          = huaweicloud_vpc.test.id
+
+  slow_start_enabled  = true
+  slow_start_duration = 100
+
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
 }
+`, testAccElbV3LoadBalancerConfig_basic(rName), rNameUpdate)
+}
+
+func testAccElbV3PoolConfig_basic_with_listener(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_elb_pool" "test" {
   name        = "%s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_elb_listener.test.id
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
 }
-`, rName, rName, rName)
+`, testAccElbV3ListenerConfig_basic(rName), rName)
 }
 
-func testAccElbV3PoolConfig_update(rName, rNameUpdate string) string {
+func testAccElbV3PoolConfig_update_with_listener(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
-}
-
-resource "huaweicloud_elb_listener" "test" {
-  name             = "%s"
-  description      = "test description"
-  protocol         = "HTTP"
-  protocol_port    = 8080
-  loadbalancer_id  = huaweicloud_elb_loadbalancer.test.id
-  forward_eip      = true
-  idle_timeout     = 60
-  request_timeout  = 60
-  response_timeout = 60
-}
+%s
 
 resource "huaweicloud_elb_pool" "test" {
-  name           = "%s"
-  protocol       = "HTTP"
-  lb_method      = "LEAST_CONNECTIONS"
-  listener_id    = huaweicloud_elb_listener.test.id
+  name        = "%s"
+  protocol    = "HTTP"
+  lb_method   = "LEAST_CONNECTIONS"
+  listener_id = huaweicloud_elb_listener.test.id
 
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
+  slow_start_enabled  = true
+  slow_start_duration = 100
+
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
 }
-`, rName, rName, rNameUpdate)
+`, testAccElbV3ListenerConfig_basic(rName), rNameUpdate)
+}
+
+func testAccElbV3PoolConfig_basic_with_type_ip(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_pool" "test" {
+  name      = "%s"
+  protocol  = "HTTP"
+  lb_method = "ROUND_ROBIN"
+  type      = "ip"
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3PoolConfig_update_with_type_ip(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_pool" "test" {
+  name      = "%s"
+  protocol  = "HTTP"
+  lb_method = "LEAST_CONNECTIONS"
+  type      = "ip"
+
+  slow_start_enabled  = true
+  slow_start_duration = 100
+
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
+}
+`, common.TestVpc(rName), rNameUpdate)
 }

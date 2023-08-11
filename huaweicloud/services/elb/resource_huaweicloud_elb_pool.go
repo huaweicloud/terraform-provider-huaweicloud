@@ -42,17 +42,6 @@ func ResourcePoolV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -61,25 +50,26 @@ func ResourcePoolV3() *schema.Resource {
 					"TCP", "UDP", "HTTP", "HTTPS", "QUIC",
 				}, false),
 			},
-
-			// One of loadbalancer_id or listener_id must be provided
 			"loadbalancer_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"loadbalancer_id", "listener_id"},
+				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
 			},
-
-			// One of loadbalancer_id or listener_id must be provided
 			"listener_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				Computed:     true,
-				AtLeastOneOf: []string{"loadbalancer_id", "listener_id"},
+				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
 			},
-
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
+			},
 			"lb_method": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -87,7 +77,6 @@ func ResourcePoolV3() *schema.Resource {
 					"ROUND_ROBIN", "LEAST_CONNECTIONS", "SOURCE_IP", "QUIC_CID",
 				}, false),
 			},
-
 			"persistence": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -102,13 +91,11 @@ func ResourcePoolV3() *schema.Resource {
 								"SOURCE_IP", "HTTP_COOKIE", "APP_COOKIE",
 							}, false),
 						},
-
 						"cookie_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -117,6 +104,43 @@ func ResourcePoolV3() *schema.Resource {
 						},
 					},
 				},
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"protection_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"protection_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"slow_start_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"slow_start_duration": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"slow_start_enabled"},
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -137,13 +161,25 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	protectionReason := d.Get("protection_reason").(string)
 	createOpts := pools.CreateOpts{
-		Name:           d.Get("name").(string),
-		Description:    d.Get("description").(string),
-		Protocol:       d.Get("protocol").(string),
-		LoadbalancerID: d.Get("loadbalancer_id").(string),
-		ListenerID:     d.Get("listener_id").(string),
-		LBMethod:       d.Get("lb_method").(string),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		Protocol:         d.Get("protocol").(string),
+		LoadbalancerID:   d.Get("loadbalancer_id").(string),
+		ListenerID:       d.Get("listener_id").(string),
+		LBMethod:         d.Get("lb_method").(string),
+		ProtectionStatus: d.Get("protection_status").(string),
+		ProtectionReason: &protectionReason,
+		Type:             d.Get("type").(string),
+		VpcId:            d.Get("vpc_id").(string),
+	}
+
+	if v, ok := d.GetOk("slow_start_enabled"); ok {
+		createOpts.SlowStart = &pools.SlowStart{
+			Enable:   v.(bool),
+			Duration: d.Get("slow_start_duration").(int),
+		}
 	}
 
 	// Must omit if not set
@@ -170,7 +206,8 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	elbClient, err := cfg.ElbV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
@@ -183,11 +220,18 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("lb_method", pool.LBMethod),
 		d.Set("protocol", pool.Protocol),
 		d.Set("description", pool.Description),
 		d.Set("name", pool.Name),
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("type", pool.Type),
+		d.Set("vpc_id", pool.VpcId),
+		d.Set("protection_status", pool.ProtectionStatus),
+		d.Set("protection_reason", pool.ProtectionReason),
+		d.Set("slow_start_enabled", pool.SlowStart.Enable),
+		d.Set("slow_start_duration", pool.SlowStart.Duration),
+		d.Set("ip_version", pool.IpVersion),
 	)
 
 	if len(pool.Loadbalancers) != 0 {
@@ -248,6 +292,25 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.FromErr(err)
 		}
 		updateOpts.Persistence = &persistence
+	}
+	if d.HasChange("protection_status") {
+		updateOpts.ProtectionStatus = d.Get("protection_status").(string)
+	}
+	if d.HasChange("protection_reason") {
+		protectionReason := d.Get("protection_reason").(string)
+		updateOpts.ProtectionReason = &protectionReason
+	}
+	if d.HasChange("type") {
+		updateOpts.Type = d.Get("type").(string)
+	}
+	if d.HasChange("vpc_id") {
+		updateOpts.VpcId = d.Get("vpc_id").(string)
+	}
+	if d.HasChanges("slow_start_enabled", "slow_start_duration") {
+		updateOpts.SlowStart = &pools.SlowStart{
+			Enable:   d.Get("slow_start_enabled").(bool),
+			Duration: d.Get("slow_start_duration").(int),
+		}
 	}
 
 	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
