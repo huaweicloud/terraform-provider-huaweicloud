@@ -239,6 +239,39 @@ func TestAccComputeInstance_disk_encryption(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_diskIopsThroughput(t *testing.T) {
+	var instance cloudservers.CloudServer
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_diskIopsThroughput(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_iops", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "system_disk_throughput", "125"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.0.type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.0.iops", "4000"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.0.throughput", "200"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.1.type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.1.iops", "5000"),
+					resource.TestCheckResourceAttr(resourceName, "data_disks.1.throughput", "300"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_withEPS(t *testing.T) {
 	var instance cloudservers.CloudServer
 
@@ -593,4 +626,41 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 `, testAccCompute_data, rName, epsID)
+}
+
+func testAccComputeInstance_diskIopsThroughput(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                = "%s"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+
+  system_disk_type       = "GPSSD2"
+  system_disk_size       = 50
+  system_disk_iops       = 3000
+  system_disk_throughput = 125
+
+  data_disks {
+    type       = "GPSSD2"
+    size       = "50"
+    iops       = 4000
+    throughput = 200
+  }
+  data_disks {
+    type       = "GPSSD2"
+    size       = "50"
+    iops       = 5000
+    throughput = 300
+  }
+}
+`, testAccCompute_data, rName)
 }

@@ -293,14 +293,14 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 // CreateRuleOpts is the common options struct used in this package's CreateRule
 // operation.
 type CreateRuleOpts struct {
-	// The L7 rule type. One of COOKIE, FILE_TYPE, HEADER, HOST_NAME, or PATH.
+	// The L7 rule type. One of HOST_NAME, PATH, METHOD, HEADER, QUERY_STRING, or SOURCE_IP.
 	RuleType RuleType `json:"type" required:"true"`
 
-	// The comparison type for the L7 rule. One of CONTAINS, ENDS_WITH, EQUAL_TO, REGEX, or STARTS_WITH.
+	// The comparison type for the L7 rule. One of EQUAL_TO, REGEX, or STARTS_WITH.
 	CompareType CompareType `json:"compare_type" required:"true"`
 
-	// The value to use for the comparison. For example, the file type to compare.
-	Value string `json:"value" required:"true"`
+	// The value to use for the comparison.
+	Value string `json:"value,omitempty"`
 
 	// TenantID is the UUID of the tenant who owns the rule in octavia.
 	// Only administrative users can specify a project UUID other than their own.
@@ -316,6 +316,18 @@ type CreateRuleOpts struct {
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// The matching conditions of the forwarding rule.
+	// This parameter is available only when enhance_l7policy_enable of the listener is set to true.
+	Conditions []Condition `json:"conditions,omitempty"`
+}
+
+type Condition struct {
+	// The key of the match item.
+	Key string `json:"key,omitempty"`
+
+	// The value of the match item.
+	Value string `json:"value" required:"true"`
 }
 
 // ToRuleCreateMap builds a request body from CreateRuleOpts.
@@ -403,13 +415,13 @@ type UpdateRuleOptsBuilder interface {
 // UpdateRuleOpts is the common options struct used in this package's Update
 // operation.
 type UpdateRuleOpts struct {
-	// The L7 rule type. One of COOKIE, FILE_TYPE, HEADER, HOST_NAME, or PATH.
+	// The L7 rule type. One of HOST_NAME, PATH, METHOD, HEADER, QUERY_STRING, or SOURCE_IP.
 	RuleType RuleType `json:"type,omitempty"`
 
-	// The comparison type for the L7 rule. One of CONTAINS, ENDS_WITH, EQUAL_TO, REGEX, or STARTS_WITH.
+	// The comparison type for the L7 rule. One of EQUAL_TO, REGEX, or STARTS_WITH.
 	CompareType CompareType `json:"compare_type,omitempty"`
 
-	// The value to use for the comparison. For example, the file type to compare.
+	// The value to use for the comparison.
 	Value string `json:"value,omitempty"`
 
 	// The key to use for the comparison. For example, the name of the cookie to evaluate.
@@ -422,6 +434,10 @@ type UpdateRuleOpts struct {
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// The matching conditions of the forwarding rule.
+	// This parameter is available only when enhance_l7policy_enable of the listener is set to true.
+	Conditions []Condition `json:"conditions,omitempty"`
 }
 
 // ToRuleUpdateMap builds a request body from UpdateRuleOpts.
