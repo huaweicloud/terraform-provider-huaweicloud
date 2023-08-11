@@ -17,7 +17,7 @@ import (
 func getIdentityUserRoleAssignmentResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating IAM v3.0 client: %s", err)
+		return nil, fmt.Errorf("error creating IAM v3.0 client: %s", err)
 	}
 
 	userID := state.Primary.Attributes["user_id"]

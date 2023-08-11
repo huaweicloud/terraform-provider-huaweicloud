@@ -63,12 +63,13 @@ func ResourceIdentityGroupRoleAssignment() *schema.Resource {
 
 func resourceIdentityGroupRoleAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	identityClient, err := conf.IdentityV3Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	identityClient, err := conf.IdentityV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3 client: %s", err)
 	}
 
-	iamClient, err := conf.IAMV3Client(conf.GetRegion(d))
+	iamClient, err := conf.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3.0 client: %s", err)
 	}
@@ -125,12 +126,13 @@ func resourceIdentityGroupRoleAssignmentCreate(ctx context.Context, d *schema.Re
 
 func resourceIdentityGroupRoleAssignmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	identityClient, err := conf.IdentityV3Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	identityClient, err := conf.IdentityV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3 client: %s", err)
 	}
 
-	iamClient, err := conf.IAMV3Client(conf.GetRegion(d))
+	iamClient, err := conf.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3.0 client: %s", err)
 	}
@@ -273,12 +275,13 @@ func GetGroupRoleAssignmentWithEpsID(iamClient *golangsdk.ServiceClient, groupID
 
 func resourceIdentityGroupRoleAssignmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	identityClient, err := conf.IdentityV3Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	identityClient, err := conf.IdentityV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3 client: %s", err)
 	}
 
-	iamClient, err := conf.IAMV3Client(conf.GetRegion(d))
+	iamClient, err := conf.IAMV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating IAM v3.0 client: %s", err)
 	}
@@ -327,12 +330,13 @@ func resourceIdentityGroupRoleAssignmentDelete(_ context.Context, d *schema.Reso
 
 func resourceIdentityGroupRoleAssignmentImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	conf := meta.(*config.Config)
-	identityClient, err := conf.IdentityV3Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	identityClient, err := conf.IdentityV3Client(region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM v3 client: %s", err)
 	}
 
-	iamClient, err := conf.IAMV3Client(conf.GetRegion(d))
+	iamClient, err := conf.IAMV3Client(region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM v3.0 client: %s", err)
 	}

@@ -137,7 +137,7 @@ func resourceIdentityUserRoleAssignmentDelete(_ context.Context, d *schema.Resou
 }
 
 func resourceIdentityUserRoleAssignmentImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 3)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("invalid format specified for import id," +
 			" must be <user_id>/<role_id>/<enterprise_project_id>")
