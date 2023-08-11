@@ -6,6 +6,9 @@ subcategory: "IAM Identity Center"
 
 Manages an Identity Center system policy attachment resource within HuaweiCloud.  
 
+-> **NOTE:** Creating this resource will automatically Provision the Permission Set to apply the corresponding updates
+  to all assigned accounts.
+
 ## Example Usage
 
 ```hcl
