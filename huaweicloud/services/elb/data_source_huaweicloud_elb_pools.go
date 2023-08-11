@@ -74,6 +74,21 @@ func DataSourcePools() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the listener ID of the ELB pool.`,
 			},
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the type of the backend server group.`,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the ID of the VPC where the backend server group works.`,
+			},
+			"protection_status": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the protection status for update.`,
+			},
 			"pools": {
 				Type:        schema.TypeList,
 				Elem:        poolsPoolsSchema(),
@@ -117,10 +132,40 @@ func poolsPoolsSchema() *schema.Resource {
 				Computed:    true,
 				Description: `The method of the ELB pool.`,
 			},
+			"type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The type of the backend server group.`,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the VPC where the backend server group works.`,
+			},
+			"protection_status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The protection status for update.`,
+			},
+			"protection_reason": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The reason for update protection.`,
+			},
+			"slow_start_enabled": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether to enable slow start.`,
+			},
+			"slow_start_duration": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The slow start duration, in seconds.`,
+			},
 			"healthmonitor_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Specifies the health monitor ID of the ELB pool.`,
+				Description: `The health monitor ID of the ELB pool.`,
 			},
 			"listeners": {
 				Type:        schema.TypeList,
@@ -141,9 +186,10 @@ func poolsPoolsSchema() *schema.Resource {
 				Description: `Loadbalancer list. For details, see Data structure of the members field.`,
 			},
 			"persistence": {
-				Type:     schema.TypeList,
-				Elem:     poolsPoolPersistenceSchema(),
-				Computed: true,
+				Type:        schema.TypeList,
+				Elem:        poolsPoolPersistenceSchema(),
+				Computed:    true,
+				Description: `Whether connections in the same session will be processed by the same pool member or not.`,
 			},
 		},
 	}
@@ -276,17 +322,23 @@ func flattenListPoolsBodyPools(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":               utils.PathSearch("id", v, nil),
-			"name":             utils.PathSearch("name", v, nil),
-			"description":      utils.PathSearch("description", v, nil),
-			"protocol":         utils.PathSearch("protocol", v, nil),
-			"ip_version":       utils.PathSearch("ip_version", v, nil),
-			"lb_method":        utils.PathSearch("lb_algorithm", v, nil),
-			"healthmonitor_id": utils.PathSearch("healthmonitor_id", v, nil),
-			"listeners":        flattenPoolListeners(v),
-			"loadbalancers":    flattenPoolLoadBalancers(v),
-			"members":          flattenPoolMembers(v),
-			"persistence":      flattenPoolPersistence(v),
+			"id":                  utils.PathSearch("id", v, nil),
+			"name":                utils.PathSearch("name", v, nil),
+			"description":         utils.PathSearch("description", v, nil),
+			"protocol":            utils.PathSearch("protocol", v, nil),
+			"ip_version":          utils.PathSearch("ip_version", v, nil),
+			"lb_method":           utils.PathSearch("lb_algorithm", v, nil),
+			"healthmonitor_id":    utils.PathSearch("healthmonitor_id", v, nil),
+			"type":                utils.PathSearch("type", v, nil),
+			"vpc_id":              utils.PathSearch("vpc_id", v, nil),
+			"protection_status":   utils.PathSearch("protection_status", v, nil),
+			"protection_reason":   utils.PathSearch("protection_reason", v, nil),
+			"slow_start_enabled":  utils.PathSearch("slow_start.enable", v, nil),
+			"slow_start_duration": utils.PathSearch("slow_start.duration", v, nil),
+			"listeners":           flattenPoolListeners(v),
+			"loadbalancers":       flattenPoolLoadBalancers(v),
+			"members":             flattenPoolMembers(v),
+			"persistence":         flattenPoolPersistence(v),
 		})
 	}
 	return rst
@@ -391,6 +443,15 @@ func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("listener_id"); ok {
 		res = fmt.Sprintf("%s&listener_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("type"); ok {
+		res = fmt.Sprintf("%s&type=%v", res, v)
+	}
+	if v, ok := d.GetOk("vpc_id"); ok {
+		res = fmt.Sprintf("%s&vpc_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("protection_status"); ok {
+		res = fmt.Sprintf("%s&protection_status=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]
