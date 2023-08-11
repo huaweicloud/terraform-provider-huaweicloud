@@ -9,14 +9,18 @@ Manages an ELB monitor resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "pool_id" {}
+
 resource "huaweicloud_elb_monitor" "monitor_1" {
-  protocol    = "HTTP"
+  pool_id     = var.pool_id
+  protocol    = "HTTPS"
   interval    = 30
-  timeout     = 15
-  max_retries = 10
-  url_path    = "/api"
+  timeout     = 20
+  max_retries = 8
+  url_path    = "/bb"
+  domain_name = "www.bb.com"
   port        = 8888
-  pool_id     = huaweicloud_elb_pool.test.id
+  status_code = "200,301,404-500,504"
 }
 ```
 
@@ -27,25 +31,48 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the ELB monitor resource. If omitted, the
   provider-level region will be used. Changing this creates a new monitor.
 
-* `pool_id` - (Required, String, ForceNew) The id of the pool that this monitor will be assigned to.
+* `pool_id` - (Required, String, ForceNew) Specifies the ID of the backend server group for which the health check is
+  configured. Changing this creates a new monitor.
 
-* `protocol` - (Required, String, ForceNew) The type of probe, which is TCP, HTTP, or HTTPS, that is sent by the load
-  balancer to verify the member state. Changing this creates a new monitor.
+* `protocol` - (Required, String) Specifies the health check protocol. Value options: **TCP**, **UDP_CONNECT**,
+  **HTTP**, or **HTTPS**.
+  + If the protocol of the backend server is **QUIC**, the value can only be **UDP_CONNECT**.
+  + If the protocol of the backend server is **UDP**, the value can only be **UDP_CONNECT**.
+  + If the protocol of the backend server is **TCP**, the value can only be **TCP**, **HTTP**, or **HTTPS**.
+  + If the protocol of the backend server is **HTTP**, the value can only be **TCP**, **HTTP**, or **HTTPS**.
+  + If the protocol of the backend server is **HTTPS**, the value can only be **TCP**, **HTTP**, or **HTTPS**.
 
-* `domain_name` - (Optional, String) The Domain Name of the Monitor.
+* `interval` - (Required, Int) Specifies the interval between health checks, in seconds.
+  Value ranges from **1** to **50**.
 
-* `port` - (Optional, Int) Specifies the health check port. The value ranges from 1 to 65535.
+* `timeout` - (Required, Int) Specifies the maximum time required for waiting for a response from the health check,
+  in seconds. Value ranges from **1** to **50**. It is recommended that you set the value less than that of
+  parameter `interval`.
 
-* `interval` - (Required, Int) The time, in seconds, between sending probes to members.
+* `max_retries` - (Required, Int) Specifies the number of consecutive health checks when the health check result of
+  a backend server changes from OFFLINE to ONLINE. Value ranges from **1** to **50**.
 
-* `timeout` - (Required, Int) Maximum number of seconds for a monitor to wait for a ping reply before it times out. The
-  value must be less than the delay value.
+* `domain_name` - (Optional, String) Specifies the domain name that HTTP requests are sent to during the health check.
+  The domain name consists of 1 to 100 characters, can contain only digits, letters, hyphens (-), and periods (.) and
+  must start with a digit or letter. The value is left blank by default, indicating that the virtual IP address of the
+  load balancer is used as the destination address of HTTP requests. This parameter is available only when `protocol`
+  is set to **HTTP** or **HTTPS**.
 
-* `max_retries` - (Required, Int) Number of permissible ping failures before changing the member's status to INACTIVE.
-  Must be a number between 1 and 10.
+* `port` - (Optional, Int) Specifies the port used for the health check. If this parameter is left blank, a port of
+  the backend server will be used by default.  Value ranges from **1** to **65535**.
 
-* `url_path` - (Optional, String) Required for HTTP(S) types. URI path that will be accessed if monitor type is HTTP or
-  HTTPS.
+* `url_path` - (Optional, String) Specifies the HTTP request path for the health check. The value must start with a
+  slash (/), can contain letters, digits, hyphens (-), slash (/), periods (.), percent signs (%), hashes(#), and(&)
+  and the special characters: `~!()*[]@$^:',+`, and the default value is **/**. This parameter is available only when
+  `protocol` is set to **HTTP** or **HTTPS**.
+
+* `status_code` - (Optional, String) Specifies the expected HTTP status code. This parameter will take effect only when
+  `protocol` is set to **HTTP** or **HTTPS**. Value options are as follows:
+  + A specific value, for example: **200**.
+  + A list of values that are separated with commas (,), for example: **200,202**.
+  + A value range, for example: **200-204**.
+
+  Defaults to **200**.
 
 ## Attribute Reference
 
@@ -55,8 +82,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-ELB monitor can be imported using the monitor ID, e.g.
+ELB monitor can be imported using the monitor `id`, e.g.
 
-```
-$ terraform import huaweicloud_elb_monitor.monitor_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```bash
+$ terraform import huaweicloud_elb_monitor.test <id>
 ```

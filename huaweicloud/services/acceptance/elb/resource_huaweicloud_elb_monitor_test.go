@@ -14,36 +14,56 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getELBMonitorResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
+	}
+	return monitors.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccElbV3Monitor_basic(t *testing.T) {
 	var monitor monitors.Monitor
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_monitor.monitor_1"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&monitor,
+		getELBMonitorResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckElbV3MonitorDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3MonitorConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3MonitorExists(resourceName, &monitor),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "interval", "20"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
 					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
 					resource.TestCheckResourceAttr(resourceName, "url_path", "/aa"),
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.aa.com"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8000"),
+					resource.TestCheckResourceAttr(resourceName, "status_code", "200,401-500,502"),
 				),
 			},
 			{
 				Config: testAccElbV3MonitorConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "interval", "30"),
-					resource.TestCheckResourceAttr(resourceName, "timeout", "15"),
-					resource.TestCheckResourceAttr(resourceName, "max_retries", "10"),
-					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "20"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "8"),
 					resource.TestCheckResourceAttr(resourceName, "url_path", "/bb"),
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.bb.com"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "status_code", "200,301,404-500,504"),
 				),
 			},
 			{
@@ -55,100 +75,22 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckElbV3MonitorDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating ELB client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_monitor" {
-			continue
-		}
-
-		_, err := monitors.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("monitor still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckElbV3MonitorExists(n string, monitor *monitors.Monitor) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating ELB client: %s", err)
-		}
-
-		found, err := monitors.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("monitor not found")
-		}
-
-		*monitor = *found
-
-		return nil
-	}
-}
-
-func testAccCheckElbV3MonitorConfig(rName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
-}
-
-resource "huaweicloud_elb_pool" "test" {
-  name            = "%s"
-  protocol        = "HTTP"
-  lb_method       = "LEAST_CONNECTIONS"
-  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
-}
-`, rName, rName)
-}
-
 func testAccElbV3MonitorConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_elb_monitor" "monitor_1" {
+  pool_id     = huaweicloud_elb_pool.test.id
   protocol    = "HTTP"
   interval    = 20
   timeout     = 10
   max_retries = 5
   url_path    = "/aa"
   domain_name = "www.aa.com"
-  pool_id     = huaweicloud_elb_pool.test.id
+  port        = "8000"
+  status_code = "200,401-500,502"
 }
-`, testAccCheckElbV3MonitorConfig(rName))
+`, testAccElbV3PoolConfig_basic(rName))
 }
 
 func testAccElbV3MonitorConfig_update(rName string) string {
@@ -156,14 +98,15 @@ func testAccElbV3MonitorConfig_update(rName string) string {
 %s
 
 resource "huaweicloud_elb_monitor" "monitor_1" {
-  protocol    = "HTTP"
+  pool_id     = huaweicloud_elb_pool.test.id
+  protocol    = "HTTPS"
   interval    = 30
-  timeout     = 15
-  max_retries = 10
+  timeout     = 20
+  max_retries = 8
   url_path    = "/bb"
   domain_name = "www.bb.com"
   port        = 8888
-  pool_id     = huaweicloud_elb_pool.test.id
+  status_code = "200,301,404-500,504"
 }
-`, testAccCheckElbV3MonitorConfig(rName))
+`, testAccElbV3PoolConfig_basic(rName))
 }

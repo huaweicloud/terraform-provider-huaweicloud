@@ -31,45 +31,43 @@ func ResourceMonitorV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
-			"domain_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
 			"pool_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
-
 			"interval": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-
 			"timeout": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-
 			"max_retries": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-
+			"domain_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"port": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
-
 			"url_path": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"status_code": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -86,14 +84,15 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	createOpts := monitors.CreateOpts{
-		PoolID:      d.Get("pool_id").(string),
-		Type:        d.Get("protocol").(string),
-		Delay:       d.Get("interval").(int),
-		Timeout:     d.Get("timeout").(int),
-		MaxRetries:  d.Get("max_retries").(int),
-		URLPath:     d.Get("url_path").(string),
-		DomainName:  d.Get("domain_name").(string),
-		MonitorPort: d.Get("port").(int),
+		PoolID:        d.Get("pool_id").(string),
+		Type:          d.Get("protocol").(string),
+		Delay:         d.Get("interval").(int),
+		Timeout:       d.Get("timeout").(int),
+		MaxRetries:    d.Get("max_retries").(int),
+		URLPath:       d.Get("url_path").(string),
+		DomainName:    d.Get("domain_name").(string),
+		MonitorPort:   d.Get("port").(int),
+		ExpectedCodes: d.Get("status_code").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -122,13 +121,14 @@ func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta inter
 	log.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
 
 	mErr := multierror.Append(nil,
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("protocol", monitor.Type),
 		d.Set("interval", monitor.Delay),
 		d.Set("timeout", monitor.Timeout),
 		d.Set("max_retries", monitor.MaxRetries),
 		d.Set("url_path", monitor.URLPath),
 		d.Set("domain_name", monitor.DomainName),
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("status_code", monitor.ExpectedCodes),
 	)
 
 	if len(monitor.Pools) != 0 {
@@ -171,6 +171,12 @@ func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	if d.HasChange("port") {
 		updateOpts.MonitorPort = d.Get("port").(int)
+	}
+	if d.HasChange("status_code") {
+		updateOpts.ExpectedCodes = d.Get("status_code").(string)
+	}
+	if d.HasChange("protocol") {
+		updateOpts.Type = d.Get("protocol").(string)
 	}
 
 	log.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)

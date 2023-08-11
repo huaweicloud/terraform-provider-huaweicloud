@@ -76,10 +76,10 @@ type Rule struct {
 	// The unique ID for the L7 rule.
 	ID string `json:"id"`
 
-	// The L7 rule type. One of COOKIE, FILE_TYPE, HEADER, HOST_NAME, or PATH.
+	// The L7 rule type. One of HOST_NAME, PATH, METHOD, HEADER, QUERY_STRING, or SOURCE_IP.
 	RuleType string `json:"type"`
 
-	// The comparison type for the L7 rule. One of CONTAINS, ENDS_WITH, EQUAL_TO, REGEX, or STARTS_WITH.
+	// The comparison type for the L7 rule. One of EQUAL_TO, REGEX, or STARTS_WITH.
 	CompareType string `json:"compare_type"`
 
 	// The value to use for the comparison. For example, the file type to compare.
@@ -109,6 +109,16 @@ type Rule struct {
 	// This field seems to only be returned during a call to a load balancer's /status
 	// see: https://github.com/gophercloud/gophercloud/issues/1362
 	OperatingStatus string `json:"operating_status"`
+
+	// The matching conditions of the forwarding rule.
+	// This parameter is available only when enhance_l7policy_enable of the listener is set to true.
+	Conditions []Condition `json:"conditions"`
+
+	// The creation time.
+	CreatedAt string `json:"created_at"`
+
+	// The updated time.
+	UpdatedAt string `json:"updated_at"`
 }
 
 type commonResult struct {
