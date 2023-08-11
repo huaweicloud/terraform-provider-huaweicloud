@@ -175,6 +175,8 @@ The following arguments are supported:
 * `backup_policy` - (Optional, List) Specifies the backup configuration to be used with the instance.
   The structure is described below.
 
+  -> **NOTE:** This parameter is not supported when the instance type is single.
+
 * `rename_commands` - (Optional, Map) Critical command renaming, which is supported only by Redis 4.0 and
   Redis 5.0 instances but not by Redis 3.0 instance.
   The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall** and **hgetall**.

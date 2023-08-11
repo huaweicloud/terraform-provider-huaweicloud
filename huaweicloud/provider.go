@@ -1402,11 +1402,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		identityEndpoint = v.(string)
 	} else {
 		// use cloud as basis for identityEndpoint
-		if isGlobalIamEndpoint(cloud, region, isRegional) {
-			identityEndpoint = fmt.Sprintf("https://iam.%s:443/v3", cloud)
-		} else {
-			identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
-		}
+		identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
 	}
 
 	config := config.Config{
@@ -1513,12 +1509,4 @@ func getCloudDomain(cloud, region string) string {
 		return defaultEuropeCloud
 	}
 	return defaultCloud
-}
-
-func isGlobalIamEndpoint(domain, region string, isRegional bool) bool {
-	if !isRegional && domain == defaultCloud && !strings.HasPrefix(region, "eu-west-1") {
-		return true
-	}
-
-	return false
 }
