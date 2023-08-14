@@ -324,6 +324,10 @@ The following arguments are supported:
 * `fixed_ip` - (Optional, String, ForceNew) Specifies the fixed IP of the NIC.
   Changing this parameter will create a new resource.
 
+* `extension_nics` - (Optional, List, ForceNew) Specifies extension NICs of the node.
+  The [object](#extension_nics) structure is documented below.
+  Changing this parameter will create a new resource.
+
 * `eip_id` - (Optional, String, ForceNew) Specifies the ID of the EIP.
   Changing this parameter will create a new resource.
 
@@ -381,6 +385,12 @@ The following arguments are supported:
     create a new resource.
   + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
     Changing this parameter will create a new resource.
+
+<a name="extension_nics"></a>
+The `extension_nics` block supports:
+
+* `subnet_id` - (Required, String, ForceNew) Specifies the ID of the subnet to which the NIC belongs.
+  Changing this parameter will create a new resource.
 
 <a name="extend_params"></a>
 The `extend_params` block supports:
