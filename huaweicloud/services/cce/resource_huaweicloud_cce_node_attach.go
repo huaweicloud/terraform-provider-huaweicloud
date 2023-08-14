@@ -173,6 +173,10 @@ func ResourceNodeAttach() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"dss_pool_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 
 						// Internal parameters
 						"hw_passthrough": {
@@ -209,6 +213,10 @@ func ResourceNodeAttach() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"kms_key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"dss_pool_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},

@@ -19,8 +19,8 @@ github.com/apparentlymart/go-textseg/v12 v12.0.0/go.mod h1:S/4uRK2UtaQttw1GenVJE
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
-github.com/chnsz/golangsdk v0.0.0-20230810012948-bfb45ca78484 h1:GHN0aiLGYzKSx/TSv0E3tB0fO7ZRZR/2PgmSnlcJALg=
-github.com/chnsz/golangsdk v0.0.0-20230810012948-bfb45ca78484/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
+github.com/chnsz/golangsdk v0.0.0-20230814081744-3806407985e3 h1:Wi15UKkALfs3ibogGW5BKT2/h87MOuuAFV0LyNB55Wc=
+github.com/chnsz/golangsdk v0.0.0-20230814081744-3806407985e3/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

@@ -287,6 +287,8 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
   + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
     Changing this parameter will create a new resource.
+  + `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for
+    dedicated storage. Changing this parameter will create a new resource.
 
 * `data_volumes` - (Required, List, ForceNew) Specifies the configurations of the data disk.
   Changing this parameter will create a new resource.
@@ -299,6 +301,8 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
   + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key. This is used to encrypt the volume.
     Changing this parameter will create a new resource.
+  + `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for
+    dedicated storage. Changing this parameter will create a new resource.
 
     -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first
     time ever.

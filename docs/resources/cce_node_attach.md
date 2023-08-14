@@ -109,12 +109,14 @@ In addition to all arguments above, the following attributes are exported:
   + `volumetype` - The disk type.
   + `extend_params` - The disk expansion parameters.
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
+  + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
 
 * `data_volumes` - The configurations of the data disk.
   + `size` - The disk size in GB.
   + `volumetype` - The disk type.
   + `extend_params` - The disk expansion parameters.
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
+  + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
 
 ## Timeouts
 
