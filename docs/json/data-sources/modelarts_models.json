@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_models": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the model. Fuzzy match is supported.",
+                "optional": true
+              },
+              "exact_match": {
+                "type": "string",
+                "description": "Whether to use exact match.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "model_type": {
+                "type": "string",
+                "description": "Model type, which is used for obtaining models of this type.",
+                "optional": true
+              },
+              "models": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "extra": "string",
+                      "id": "string",
+                      "install_type": [
+                        "list",
+                        "string"
+                      ],
+                      "market_flag": "bool",
+                      "model_source": "string",
+                      "model_type": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "publishable_flag": "bool",
+                      "size": "number",
+                      "source_type": "string",
+                      "specification": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "min_ascend": "string",
+                            "min_cpu": "string",
+                            "min_gpu": "string",
+                            "min_memory": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "subscription_id": "string",
+                      "tunable": "bool",
+                      "version": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of models.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Model name. Fuzzy match is supported. Set **exact_match** to **true** to use exact match.",
+                "optional": true
+              },
+              "not_model_type": {
+                "type": "string",
+                "description": "Model type, which is used for obtaining models of types except for this type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Model status.",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Model version.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Workspace ID, which defaults to 0.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

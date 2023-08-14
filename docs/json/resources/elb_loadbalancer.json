@@ -22,7 +22,21 @@
                 "required": true,
                 "forcenew": true
               },
+              "backend_subnets": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "bandwidth_charge_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "bandwidth_id": {
                 "type": "string",
                 "optional": true,
                 "computed": true,
@@ -80,6 +94,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "ipv4_port_id": {
+                "type": "string",
+                "computed": true
+              },
               "ipv4_subnet_id": {
                 "type": "string",
                 "description": "the IPv4 subnet ID of the subnet where the load balancer resides",
@@ -134,6 +152,15 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",

@@ -30,7 +30,22 @@
               "forward_eip": {
                 "type": "bool",
                 "optional": true,
-                "default": false
+                "computed": true
+              },
+              "forward_host": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "forward_port": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_request_port": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "http2_enable": {
                 "type": "bool",
@@ -56,6 +71,15 @@
                 "forcenew": true
               },
               "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
                 "type": "string",
                 "optional": true,
                 "computed": true

@@ -55,6 +55,17 @@
                 "type": "string",
                 "computed": true
               },
+              "hpc_bandwidth": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "hpc_cache_bandwidth": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

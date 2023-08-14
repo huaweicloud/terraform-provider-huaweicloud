@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_rule_information_leakage_prevention": {
+          "block": {
+            "attributes": {
+              "contents": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the rule contents.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the rule description.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "path": {
+                "type": "string",
+                "description": "Specifies the path to which the rule applies.",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the policy ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "protective_action": {
+                "type": "string",
+                "description": "Specifies the protective action.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The rule status.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of WAF information leakage prevention rule.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

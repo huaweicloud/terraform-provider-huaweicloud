@@ -13,6 +13,10 @@
                 "type": "string",
                 "computed": true
               },
+              "ip_version": {
+                "type": "string",
+                "computed": true
+              },
               "lb_method": {
                 "type": "string",
                 "required": true
@@ -33,6 +37,15 @@
                 "type": "string",
                 "optional": true
               },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "protocol": {
                 "type": "string",
                 "required": true,
@@ -40,6 +53,26 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "slow_start_duration": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "slow_start_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               }
             },

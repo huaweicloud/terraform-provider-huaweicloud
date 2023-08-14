@@ -184,6 +184,12 @@
                 "type": "string",
                 "computed": true
               },
+              "system_disk_iops": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "system_disk_kms_key_id": {
                 "type": "string",
                 "optional": true,
@@ -194,6 +200,12 @@
                 "type": "number",
                 "optional": true,
                 "computed": true
+              },
+              "system_disk_throughput": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "system_disk_type": {
                 "type": "string",
@@ -273,6 +285,11 @@
               "data_disks": {
                 "block": {
                   "attributes": {
+                    "iops": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
@@ -285,6 +302,11 @@
                     },
                     "snapshot_id": {
                       "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "throughput": {
+                      "type": "number",
                       "optional": true,
                       "forcenew": true
                     },

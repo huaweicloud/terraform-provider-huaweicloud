@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_workspace": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "description": "Inference mode.",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the worksapce.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project id of the worksapce.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Workspace name, which consists of 4 to 64 characters.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Workspace status.",
+                "computed": true
+              },
+              "status_info": {
+                "type": "string",
+                "description": "Status details.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "grants": {
+                "block": {
+                  "attributes": {
+                    "user_id": {
+                      "type": "string",
+                      "description": "IAM user ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "IAM username.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "List of authorized users."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}
