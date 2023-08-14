@@ -46,7 +46,7 @@ func resourceNodeExtendParamsSchema(conflictList []string) *schema.Schema {
 					Optional: true,
 					ForceNew: true,
 				},
-				"node_multi_queue": {
+				"nic_multi_queue": {
 					Type:     schema.TypeString,
 					Optional: true,
 					ForceNew: true,
@@ -128,7 +128,7 @@ func buildResourceNodeExtendParams(extendParamsRaw []interface{}) map[string]int
 			"alpha.cce/preInstall":  utils.ValueIngoreEmpty(utils.TryBase64EncodeString(extendParams["preinstall"].(string))),
 			"alpha.cce/postInstall": utils.ValueIngoreEmpty(utils.TryBase64EncodeString(extendParams["postinstall"].(string))),
 			"alpha.cce/NodeImageID": utils.ValueIngoreEmpty(extendParams["node_image_id"]),
-			"nicMultiqueue":         utils.ValueIngoreEmpty(extendParams["node_multi_queue"]),
+			"nicMultiqueue":         utils.ValueIngoreEmpty(extendParams["nic_multi_queue"]),
 			"nicThreshold":          utils.ValueIngoreEmpty(extendParams["nic_threshold"]),
 			"agency_name":           utils.ValueIngoreEmpty(extendParams["agency_name"]),
 			"kube-reserved-mem":     utils.ValueIngoreEmpty(extendParams["kube_reserved_mem"]),
