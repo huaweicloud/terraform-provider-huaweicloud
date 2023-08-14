@@ -327,7 +327,7 @@ The `extend_params` block supports:
 * `node_image_id` - (Optional, String, ForceNew) Specifies the image ID to create the node.
   Changing this parameter will create a new resource.
 
-* `nic_multi_queue` - (Optional, String, ForceNew) Specifies the number of ENI queues.
+* `node_multi_queue` - (Optional, String, ForceNew) Specifies the number of ENI queues.
   Example setting: **"[{\"queue\":4}]"**. Changing this parameter will create a new resource.
 
 * `nic_threshold` - (Optional, String, ForceNew) Specifies the ENI pre-binding thresholds.
