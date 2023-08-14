@@ -46,6 +46,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - The date the permission set was created in RFC3339 format.
 
+* `account_ids` - The array of one or more account IDs bound to the permission set.
+
 ## Import
 
 The Identity Center permission set can be imported using the `instance_id` and `id` separated by a slash, e.g.

@@ -8,6 +8,7 @@ package identitycenter
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -65,6 +66,11 @@ func ResourcePermissionSet() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"account_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -132,9 +138,11 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating Identity Center client: %s", err)
 	}
 
+	instanceID := d.Get("instance_id").(string)
+	psID := d.Id()
 	getPermissionSetPath := getPermissionSetClient.Endpoint + getPermissionSetHttpUrl
-	getPermissionSetPath = strings.ReplaceAll(getPermissionSetPath, "{instance_id}", d.Get("instance_id").(string))
-	getPermissionSetPath = strings.ReplaceAll(getPermissionSetPath, "{id}", d.Id())
+	getPermissionSetPath = strings.ReplaceAll(getPermissionSetPath, "{instance_id}", instanceID)
+	getPermissionSetPath = strings.ReplaceAll(getPermissionSetPath, "{id}", psID)
 
 	getPermissionSetOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -149,6 +157,11 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
+	accountIDs, err := getAssignededAccounts(getPermissionSetClient, instanceID, psID)
+	if err != nil {
+		log.Printf("[WARN] failed to get accounts assigned to the permission set %s: %s", psID, err)
+	}
+
 	timeStamp := utils.PathSearch("permission_set.created_date", getPermissionSetRespBody, 0).(float64)
 	mErr := multierror.Append(nil,
 		d.Set("name", utils.PathSearch("permission_set.name", getPermissionSetRespBody, nil)),
@@ -157,9 +170,33 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("description", utils.PathSearch("permission_set.description", getPermissionSetRespBody, nil)),
 		d.Set("urn", utils.PathSearch("permission_set.permission_urn", getPermissionSetRespBody, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(timeStamp)/1000, false)),
+		d.Set("account_ids", accountIDs),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getAssignededAccounts(client *golangsdk.ServiceClient, instanceID, psID string) ([]string, error) {
+	requestURI := fmt.Sprintf("v1/instances/%s/permission-sets/%s/accounts",
+		instanceID, psID)
+	requestPath := client.Endpoint + requestURI
+
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	response, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(response)
+	if err != nil {
+		return nil, err
+	}
+
+	accountsRaw := utils.PathSearch("account_ids", respBody, make([]interface{}, 0))
+	return utils.ExpandToStringList(accountsRaw.([]interface{})), nil
 }
 
 func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
