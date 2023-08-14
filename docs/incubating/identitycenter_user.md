@@ -66,10 +66,10 @@ $ terraform import huaweicloud_identitycenter_user.test <identity_store_id>/<id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `identity_store_id` and `password_mode`.
-It is generally recommended running `terraform plan` after importing an IdentityCenter user. You can then decide if
-changes should be applied to the IdentityCenter user, or the resource definition should be updated to align with the
-instance. Also, you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `password_mode`. It is generally
+recommended running `terraform plan` after importing an IdentityCenter user. You can then decide if changes should be
+applied to the IdentityCenter user, or the resource definition should be updated to align with the instance. Also, you
+can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_identitycenter_user" "user" {
@@ -77,7 +77,7 @@ resource "huaweicloud_identitycenter_user" "user" {
 
   lifecycle {
     ignore_changes = [
-      identity_store_id, password_mode,
+      password_mode,
     ]
   }
 }

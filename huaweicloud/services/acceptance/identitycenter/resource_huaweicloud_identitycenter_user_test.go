@@ -94,7 +94,7 @@ func TestAccIdentityCenterUser_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateIdFunc:       testIdentityCenterUserImportState(rName),
-				ImportStateVerifyIgnore: []string{"identity_store_id", "password_mode"},
+				ImportStateVerifyIgnore: []string{"password_mode"},
 			},
 		},
 	})
