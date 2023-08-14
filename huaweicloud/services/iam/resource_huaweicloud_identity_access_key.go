@@ -4,20 +4,20 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
-	"time"
 
-	"github.com/chnsz/golangsdk/openstack/identity/v3.0/credentials"
-	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/identity/v3.0/credentials"
+	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/encryption"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIdentityKey() *schema.Resource {
@@ -26,12 +26,6 @@ func ResourceIdentityKey() *schema.Resource {
 		ReadContext:   resourceIdentityKeyRead,
 		UpdateContext: resourceIdentityKeyUpdate,
 		DeleteContext: resourceIdentityKeyDelete,
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
-		},
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
@@ -87,19 +81,19 @@ func ResourceIdentityKey() *schema.Resource {
 }
 
 func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	userID := d.Get("user_id").(string)
 	userInfo, err := users.Get(iamClient, userID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error fetching iam user %s: %s", userID, err)
+		return diag.Errorf("error fetching IAM user %s: %s", userID, err)
 	}
 	userName := userInfo.Name
-	logp.Printf("[DEBUG] Create an access key for user %s", userName)
+	log.Printf("[DEBUG] Create an access key for user %s", userName)
 
 	opts := credentials.CreateOpts{
 		UserID:      userID,
@@ -107,7 +101,7 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	accessKey, err := credentials.Create(iamClient, opts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating access key: %s", err)
+		return diag.Errorf("error creating access key: %s", err)
 	}
 
 	d.SetId(accessKey.AccessKey)
@@ -136,11 +130,11 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 		pgpKey := v.(string)
 		encryptionKey, err := encryption.RetrieveGPGKey(pgpKey)
 		if err != nil {
-			return fmtp.DiagErrorf("Error retrieving PGP key: %s", err)
+			return diag.Errorf("error retrieving PGP key: %s", err)
 		}
 		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, accessKey.SecretKey, "IAM Access Key Secret")
 		if err != nil {
-			return fmtp.DiagErrorf("Error encrypting access key: %s", err)
+			return diag.Errorf("error encrypting access key: %s", err)
 		}
 
 		mErr := multierror.Append(nil,
@@ -148,7 +142,7 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 			d.Set("encrypted_secret", encrypted),
 		)
 		if err = mErr.ErrorOrNil(); err != nil {
-			return fmtp.DiagErrorf("error setting identity access key fields: %s", err)
+			return diag.Errorf("error setting identity access key fields: %s", err)
 		}
 	}
 
@@ -157,10 +151,10 @@ func resourceIdentityKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceIdentityKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	accessKey, err := credentials.Get(iamClient, d.Id()).Extract()
@@ -173,17 +167,17 @@ func resourceIdentityKeyRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("create_time", accessKey.CreateTime),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting identity access key fields: %s", err)
+		return diag.Errorf("error setting identity access key fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceIdentityKeyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	id := d.Id()
@@ -194,7 +188,7 @@ func resourceIdentityKeyUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 		_, err := credentials.Update(iamClient, id, opts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating HuaweiCloud iam access key: %s", err)
+			return diag.Errorf("error updating IAM access key: %s", err)
 		}
 	}
 
@@ -202,17 +196,16 @@ func resourceIdentityKeyUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceIdentityKeyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	iamClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud iam client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	if err := credentials.Delete(iamClient, d.Id()).ExtractErr(); err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud iam access key: %s", err)
+		return diag.Errorf("error deleting IAM access key: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 

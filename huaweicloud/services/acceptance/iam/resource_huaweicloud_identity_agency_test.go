@@ -22,13 +22,13 @@ func getIdentityAgencyResourceFunc(c *config.Config, state *terraform.ResourceSt
 }
 
 func TestAccIdentityAgency_basic(t *testing.T) {
-	var agency agency.Agency
+	var object agency.Agency
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_agency.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&agency,
+		&object,
 		getIdentityAgencyResourceFunc,
 	)
 
