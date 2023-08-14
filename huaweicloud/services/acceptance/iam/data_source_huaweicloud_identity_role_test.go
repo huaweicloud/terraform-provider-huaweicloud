@@ -3,14 +3,14 @@ package iam
 import (
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIdentityRoleDataSource_basic(t *testing.T) {
-	resourceName := "data.huaweicloud_identity_role.role_1"
-	dc := acceptance.InitDataSourceCheck(resourceName)
+	dataSourceName := "data.huaweicloud_identity_role.role_1"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -23,16 +23,16 @@ func TestAccIdentityRoleDataSource_basic(t *testing.T) {
 				Config: testAccIdentityRoleDataSource_by_name,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", "system_all_64"),
-					resource.TestCheckResourceAttr(resourceName, "display_name", "OBS ReadOnlyAccess"),
+					resource.TestCheckResourceAttr(dataSourceName, "name", "system_all_64"),
+					resource.TestCheckResourceAttr(dataSourceName, "display_name", "OBS ReadOnlyAccess"),
 				),
 			},
 			{
 				Config: testAccIdentityRoleDataSource_by_displayname,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", "kms_adm"),
-					resource.TestCheckResourceAttr(resourceName, "display_name", "KMS Administrator"),
+					resource.TestCheckResourceAttr(dataSourceName, "name", "kms_adm"),
+					resource.TestCheckResourceAttr(dataSourceName, "display_name", "KMS Administrator"),
 				),
 			},
 		},

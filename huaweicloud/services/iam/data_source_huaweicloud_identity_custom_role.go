@@ -3,15 +3,16 @@ package iam
 import (
 	"context"
 	"encoding/json"
+	"log"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/chnsz/golangsdk/openstack/identity/v3.0/policies"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/identity/v3.0/policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceIdentityCustomRole() *schema.Resource {
@@ -63,78 +64,55 @@ func DataSourceIdentityCustomRole() *schema.Resource {
 	}
 }
 
-func dataSourceIdentityCustomRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	identityClient, err := config.IAMV3Client(config.GetRegion(d))
+func dataSourceIdentityCustomRoleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	identityClient, err := cfg.IAMV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
+		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
 	allPages, err := policies.List(identityClient).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to query roles: %s", err)
+		return diag.Errorf("unable to query IAM custom policies: %s", err)
 	}
 
-	roles, err := policies.ExtractPageRoles(allPages)
+	allPolicies, err := policies.ExtractPageRoles(allPages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve roles: %s", err)
+		return diag.Errorf("unable to extract IAM custom policies: %s", err)
 	}
 
-	conditions := map[string]interface{}{}
-
-	if v, ok := d.GetOk("name"); ok {
-		conditions["name"] = v.(string)
-	}
-	if v, ok := d.GetOk("id"); ok {
-		conditions["id"] = v.(string)
-	}
-	if v, ok := d.GetOk("domain_id"); ok {
-		conditions["domain_id"] = v.(string)
-	}
-	if v, ok := d.GetOk("references"); ok {
-		conditions["references"] = v.(int)
-	}
-	if v, ok := d.GetOk("description"); ok {
-		conditions["description"] = v.(string)
-	}
-	if v, ok := d.GetOk("type"); ok {
-		conditions["type"] = v.(string)
+	conditions := map[string]interface{}{
+		"ID":          d.Get("id").(string),
+		"Name":        d.Get("name").(string),
+		"Type":        d.Get("type").(string),
+		"Description": d.Get("description").(string),
+		"DomainId":    d.Get("domain_id").(string),
+		"References":  d.Get("references").(int),
 	}
 
-	var allRoles []policies.Role
-
-	for _, role := range roles {
-		if rolesFilter(role, conditions) {
-			allRoles = append(allRoles, role)
-		}
+	filterPolicies, err := utils.FilterSliceWithField(allPolicies, conditions)
+	if err != nil {
+		return diag.Errorf("filter IAM custom policies failed: %s", err)
 	}
 
-	if len(allRoles) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+	if len(filterPolicies) < 1 {
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
-
-	if len(allRoles) > 1 {
-		logp.Printf("[DEBUG] Multiple results found: %#v", allRoles)
-		return fmtp.DiagErrorf("Your query returned more than one result. " +
+	if len(filterPolicies) > 1 {
+		return diag.Errorf("your query returned more than one result. " +
 			"Please try a more specific search criteria.")
 	}
-	role := allRoles[0]
 
-	return dataSourceIdentityCustomRoleAttributes(ctx, d, config, &role)
-}
-
-// dataSourceIdentityRoleV3Attributes populates the fields of an Role resource.
-func dataSourceIdentityCustomRoleAttributes(_ context.Context, d *schema.ResourceData, config *config.Config, role *policies.Role) diag.Diagnostics {
-	logp.Printf("[DEBUG] huaweicloud_identity_role details: %#v", role)
-
-	d.SetId(role.ID)
+	role := filterPolicies[0].(policies.Role)
+	log.Printf("[DEBUG] retrieve IAM custom policy: %#v", role)
 
 	policy, err := json.Marshal(role.Policy)
 	if err != nil {
-		return fmtp.DiagErrorf("Error marshaling policy: %s", err)
+		return diag.Errorf("error marshaling the policy of IAM custom policy: %s", err)
 	}
 
+	d.SetId(role.ID)
 	mErr := multierror.Append(nil,
 		d.Set("name", role.Name),
 		d.Set("domain_id", role.DomainId),
@@ -144,31 +122,9 @@ func dataSourceIdentityCustomRoleAttributes(_ context.Context, d *schema.Resourc
 		d.Set("type", role.Type),
 		d.Set("policy", string(policy)),
 	)
+
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting identity custom role fields: %s", err)
+		return diag.Errorf("error setting IAM custom policy fields: %s", err)
 	}
-
 	return nil
-}
-
-func rolesFilter(role policies.Role, conditions map[string]interface{}) bool {
-	if v, ok := conditions["name"]; ok && v != role.Name {
-		return false
-	}
-	if v, ok := conditions["id"]; ok && v != role.ID {
-		return false
-	}
-	if v, ok := conditions["domain_id"]; ok && v != role.DomainId {
-		return false
-	}
-	if v, ok := conditions["references"]; ok && v != role.References {
-		return false
-	}
-	if v, ok := conditions["description"]; ok && v != role.Description {
-		return false
-	}
-	if v, ok := conditions["type"]; ok && v != role.Type {
-		return false
-	}
-	return true
 }

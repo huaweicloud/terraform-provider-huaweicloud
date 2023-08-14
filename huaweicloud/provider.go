@@ -472,7 +472,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_redis_instance":               gaussdb.DataSourceGaussRedisInstance(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
-			"huaweicloud_identity_role":        iam.DataSourceIdentityRoleV3(),
+			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
 			"huaweicloud_identity_custom_role": iam.DataSourceIdentityCustomRole(),
 			"huaweicloud_identity_group":       iam.DataSourceIdentityGroup(),
 			"huaweicloud_identity_projects":    iam.DataSourceIdentityProjects(),
@@ -598,7 +598,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_maintainwindow_v1": dcs.DataSourceDcsMaintainWindow(),
 
 			"huaweicloud_dds_flavors_v3":   dds.DataSourceDDSFlavorV3(),
-			"huaweicloud_identity_role_v3": iam.DataSourceIdentityRoleV3(),
+			"huaweicloud_identity_role_v3": iam.DataSourceIdentityRole(),
 			"huaweicloud_cdm_flavors_v1":   DataSourceCdmFlavorV1(),
 
 			"huaweicloud_ddm_engines":        ddm.DataSourceDdmEngines(),

@@ -7,9 +7,8 @@ subcategory: "Identity and Access Management (IAM)"
 Manages an IAM user group role assignment within HuaweiCloud IAM Service.
 This is an alternative to `huaweicloud_identity_role_assignment`
 
-~> You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
-
-~> When the resource is created, the permissions will take effect after 15 to 30 minutes.
+-> **NOTE:** 1. You *must* have admin privileges to use this resource.
+  <br/>2. When the resource is created, the permissions will take effect after 15 to 30 minutes.
 
 ## Example Usage
 

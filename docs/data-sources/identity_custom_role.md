@@ -4,36 +4,38 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_custom_role
 
-Use this data source to get the ID of an IAM **custom policy**.
+Use this data source to get details of the specified IAM **custom policy**.
 
-~> You *must* have IAM read privileges to use this data source.
+-> **NOTE:** You *must* have IAM read privileges to use this data source.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_identity_custom_role" "role" {
-  name = "custom_role"
+data "huaweicloud_identity_custom_role" "policy" {
+  name = "custom_policy"
 }
 ```
 
 ## Argument Reference
 
-* `name` - (Optional, String) Name of the custom policy.
+* `name` - (Optional, String) Specifies the name of the custom policy. It's required if `id` is not specified.
 
-* `id` - (Optional, String) ID of the custom policy.
+* `id` - (Optional, String) Specifies the ID of the custom policy. It's required if `name` is not specified.
 
-* `domain_id` - (Optional, String) The domain the policy belongs to.
+* `description` - (Optional, String) Specifies the description of the custom policy.
 
-* `description` - (Optional, String) Description of the custom policy.
+* `type` - (Optional, String) Specifies the display mode of the custom policy. Valid options are as follows:
+  + **AX**: the global service project.
+  + **XA**: region-specific projects.
 
-* `type` - (Optional, String) Display mode. Valid options are *AX*: Account level and *XA*: Project level.
+* `domain_id` - (Optional, String) Specifies the domain the policy belongs to.
 
-* `references` - (Optional, Int) The number of citations for the custom policy.
+* `references` - (Optional, Int) Specifies the number of citations for the custom policy.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `policy` - Document of the custom policy.
+* `policy` - The content of the custom policy in JSON format.
 
-* `catalog` - The catalog of the custom policy.
+* `catalog` - The catalog of the custom policy. The value is **CUSTOMED**.

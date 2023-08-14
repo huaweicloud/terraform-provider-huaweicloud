@@ -6,9 +6,8 @@ subcategory: "Identity and Access Management (IAM)"
 
 Manages an IAM user role assignment within HuaweiCloud IAM.
 
-~> You *must* have admin privileges in your HuaweiCloud cloud to use this resource.
-
-~> When the resource is created, the permissions will take effect after 15 to 30 minutes.
+-> **NOTE:** 1. You *must* have admin privileges to use this resource.
+  <br/>2. When the resource is created, the permissions will take effect after 15 to 30 minutes.
 
 ## Example Usage
 
@@ -16,8 +15,7 @@ Manages an IAM user role assignment within HuaweiCloud IAM.
 variable "enterprise_project_id" {}
 
 data "huaweicloud_identity_role" "test" {
-  # Security Administrator
-  name = "secu_admin"
+  display_name = "ECS FullAccess"
 }
 
 resource "huaweicloud_identity_user" "test" {
