@@ -8,6 +8,7 @@ package identitycenter
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -90,6 +91,11 @@ func resourceSystemPolicyAttachmentCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	d.SetId(psID)
+
+	if diagErr := provisionPermissionSet(attachClient, instanceID, psID); diagErr != nil {
+		return diagErr
+	}
+
 	return resourceSystemPolicyAttachmentRead(ctx, d, meta)
 }
 
@@ -184,6 +190,10 @@ func resourceSystemPolicyAttachmentUpdate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error updating system policy attachment: %s", err)
 	}
 
+	if diagErr := provisionPermissionSet(updateClient, instanceID, psID); diagErr != nil {
+		return diagErr
+	}
+
 	return resourceSystemPolicyAttachmentRead(ctx, d, meta)
 }
 
@@ -201,6 +211,11 @@ func resourceSystemPolicyAttachmentDelete(_ context.Context, d *schema.ResourceD
 
 	if err := detachSystemPolicies(detachClient, instanceID, psID, policyList); err != nil {
 		return diag.FromErr(err)
+	}
+
+	//nolint:revive
+	if diagErr := provisionPermissionSet(detachClient, instanceID, psID); diagErr != nil {
+		return diagErr
 	}
 
 	return nil
@@ -250,4 +265,44 @@ func requestSystemPolicies(client *golangsdk.ServiceClient, action, instanceID, 
 	}
 
 	return nil
+}
+
+// provisionPermissionSet: Provision the Permission Set to apply the corresponding updates to all assigned accounts
+func provisionPermissionSet(client *golangsdk.ServiceClient, instanceID, psID string) diag.Diagnostics {
+	accountDIs, err := getAssignededAccounts(client, instanceID, psID)
+	if err != nil {
+		return diag.Errorf("failed to get not provisioned accounts: %s", err)
+	}
+
+	log.Printf("[DEBUG] the following accounts need to provision: %v", accountDIs)
+	if len(accountDIs) == 0 {
+		return nil
+	}
+
+	requestURI := fmt.Sprintf("v1/instances/%s/permission-sets/%s/provision", instanceID, psID)
+	requestPath := client.Endpoint + requestURI
+
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	var diags diag.Diagnostics
+	for _, account := range accountDIs {
+		requestOpt.JSONBody = map[string]interface{}{
+			"target_type": "ACCOUNT",
+			"target_id":   account,
+		}
+
+		_, err = client.Request("POST", requestPath, &requestOpt)
+		if err != nil {
+			diagIcagent := diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "failed to provision permission set",
+				Detail:   fmt.Sprintf("failed to provision account %s with permission set %s: %s", account, psID, err),
+			}
+			diags = append(diags, diagIcagent)
+		}
+	}
+
+	return diags
 }
