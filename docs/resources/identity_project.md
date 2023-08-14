@@ -4,9 +4,9 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_project
 
-Manages a Project resource within HuaweiCloud Identity And Access Management service.
+Manages an IAM project resource within HuaweiCloud.
 
--> You *must* have security admin privileges in your HuaweiCloud cloud to use this resource.
+-> **NOTE:** You *must* have admin privileges to use this resource.
 
 !>  Deleting projects is not supported. The project is only removed from the state, but it remains in the cloud.
 
@@ -34,13 +34,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
 
-* `parent_id` - The parent of this project.
+* `parent_id` - The parent of the IAM project.
 
-* `enabled` - Enabling status of this project.
+* `enabled` - Whether the IAM project is enabled.
 
 ## Import
 
-Projects can be imported using the `id`, e.g.
+IAM projects can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_identity_project.project_1 89c60255-9bd6-460c-822a-e2b959ede9d2

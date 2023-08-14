@@ -3,9 +3,11 @@ package iam
 import (
 	"context"
 
-	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
@@ -62,8 +64,8 @@ func flattenProjectList(projectList []projects.Project) ([]map[string]interface{
 }
 
 func dataSourceIdentityProjectsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.IdentityV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM v3 client: %s", err)
 	}
@@ -73,11 +75,11 @@ func dataSourceIdentityProjectsRead(_ context.Context, d *schema.ResourceData, m
 	}
 	pages, err := projects.List(client, listOpts).AllPages()
 	if err != nil {
-		return diag.Errorf("error retrieving project list: %v", err)
+		return diag.Errorf("error retrieving IAM project list: %v", err)
 	}
 	projectList, err := projects.ExtractProjects(pages)
 	if err != nil {
-		return diag.Errorf("error fetching project objects: %v", err)
+		return diag.Errorf("error fetching IAM project objects: %v", err)
 	}
 
 	result, ids := flattenProjectList(projectList)

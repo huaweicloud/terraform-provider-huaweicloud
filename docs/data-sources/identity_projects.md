@@ -4,9 +4,9 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_projects
 
-Use this data source to query the project list within HuaweiCloud.
+Use this data source to query the IAM project list within HuaweiCloud.
 
-~> You *must* have IAM read privileges to use this data source.
+-> **NOTE:** You *must* have IAM read privileges to use this data source.
 
 ## Example Usage
 
@@ -30,7 +30,7 @@ data "huaweicloud_identity_projects" "test" {
 
 The following arguments are supported:
 
-* `name` - (Optional, String) Specifies the project name to query.
+* `name` - (Optional, String) Specifies the IAM project name to query.
 
 ## Attribute Reference
 
@@ -42,8 +42,8 @@ In addition to all arguments above, the following attributes are exported:
 
 The `projects` block supports:
 
-* `id` - The project ID.
+* `id` - The IAM project ID.
 
-* `name` - The project name.
+* `name` - The IAM project name.
 
-* `enabled` - Whether project is enabled.
+* `enabled` - Whether the IAM project is enabled.

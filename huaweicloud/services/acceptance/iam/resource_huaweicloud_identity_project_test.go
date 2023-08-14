@@ -4,25 +4,24 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getIdentityProjectResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 	return projects.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccIdentityV3Project_basic(t *testing.T) {
+func TestAccIdentityProject_basic(t *testing.T) {
 	var project projects.Project
 	var projectName = acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_project.project_1"
@@ -43,7 +42,7 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV3Project_basic(projectName),
+				Config: testAccIdentityProject_basic(projectName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
@@ -58,7 +57,7 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIdentityV3Project_update(projectName),
+				Config: testAccIdentityProject_update(projectName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
@@ -71,7 +70,7 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 	})
 }
 
-func testAccIdentityV3Project_basic(projectName string) string {
+func testAccIdentityProject_basic(projectName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
@@ -80,7 +79,7 @@ resource "huaweicloud_identity_project" "project_1" {
 `, acceptance.HW_REGION_NAME, projectName)
 }
 
-func testAccIdentityV3Project_update(projectName string) string {
+func testAccIdentityProject_update(projectName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
