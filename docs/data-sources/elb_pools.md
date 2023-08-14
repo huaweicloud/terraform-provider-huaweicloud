@@ -33,12 +33,20 @@ The following arguments are supported:
 
 * `healthmonitor_id` - (Optional, String) Specifies the health monitor ID of the ELB pool.
 
-* `protocol` - (Optional, String) Specifies the protocol of the ELB pool. This can either be TCP, UDP or HTTP.
+* `protocol` - (Optional, String) Specifies the protocol of the ELB pool. Value options: **TCP**, **UDP**, **HTTP**,
+  **HTTPS** or **QUIC**.
 
-* `lb_method` - (Optional, String) Specifies the method of the ELB pool. Must be one of ROUND_ROBIN, LEAST_CONNECTIONS,
-  or SOURCE_IP.
+* `lb_method` - (Optional, String) Specifies the method of the ELB pool. Value options: **ROUND_ROBIN**,
+  **LEAST_CONNECTIONS**, **SOURCE_IP** or **QUIC_CID**.
 
 * `listener_id` - (Optional, String) Specifies the listener ID of the ELB pool.
+
+* `type` - (Optional, String) Specifies the type of the backend server group. Value options: **instance**, **ip**.
+
+* `vpc_id` - (Optional, String) Specifies the ID of the VPC where the backend server group works.
+
+* `protection_status` - (Optional, String) Specifies the protection status for update.
+  Value options: **nonProtection**, **consoleProtection**.
 
 ## Attribute Reference
 
@@ -65,6 +73,18 @@ The `pools` block supports:
 * `healthmonitor_id` - The health monitor ID of the LB pool.
 
 * `ip_version` - The IP version of the LB pool.
+
+* `type` - The type of the backend server group.
+
+* `vpc_id` - The ID of the VPC where the backend server group works.
+
+* `protection_status` - The protection status for update.
+
+* `protection_reason` - The reason for update protection.
+
+* `slow_start_enabled` - Whether to enable slow start.
+
+* `slow_start_duration` - The slow start duration, in seconds.
 
 * `listeners` - The listener list. The [object](#elem_object) structure is documented below.
 
