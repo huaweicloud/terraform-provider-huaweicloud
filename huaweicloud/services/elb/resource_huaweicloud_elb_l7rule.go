@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
@@ -42,42 +41,50 @@ func ResourceL7RuleV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
-			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"HOST_NAME", "PATH",
-				}, true),
-			},
-
-			"compare_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"STARTS_WITH", "EQUAL_TO", "REGEX",
-				}, true),
-			},
-
 			"l7policy_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
-			"value": {
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					if len(v.(string)) == 0 {
-						errors = append(errors, fmt.Errorf("'value' field should not be empty"))
-					}
-					return
-				},
+				ForceNew: true,
+			},
+			"compare_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"value", "conditions"},
+			},
+			"conditions": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem:     l7RuleConditionSchema(),
 			},
 		},
 	}
+}
+
+func l7RuleConditionSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -95,6 +102,7 @@ func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta in
 		RuleType:    l7policies.RuleType(ruleType),
 		CompareType: l7policies.CompareType(compareType),
 		Value:       d.Get("value").(string),
+		Conditions:  buildConditions(d.Get("conditions").(*schema.Set).List()),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -113,6 +121,22 @@ func resourceL7RuleV3Create(ctx context.Context, d *schema.ResourceData, meta in
 	d.SetId(l7Rule.ID)
 
 	return resourceL7RuleV3Read(ctx, d, meta)
+}
+
+func buildConditions(rawConditions []interface{}) []l7policies.Condition {
+	if len(rawConditions) == 0 {
+		return nil
+	}
+	conditions := make([]l7policies.Condition, 0)
+	for _, rawCondition := range rawConditions {
+		if condition, ok := rawCondition.(map[string]interface{}); ok {
+			conditions = append(conditions, l7policies.Condition{
+				Key:   condition["key"].(string),
+				Value: condition["value"].(string),
+			})
+		}
+	}
+	return conditions
 }
 
 func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -137,7 +161,17 @@ func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("compare_type", l7Rule.CompareType),
 		d.Set("value", l7Rule.Value),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
+
+	var conditions []map[string]interface{}
+	for _, v := range l7Rule.Conditions {
+		conditions = append(conditions, map[string]interface{}{
+			"key":   v.Key,
+			"value": v.Value,
+		})
+	}
+	mErr = multierror.Append(mErr, d.Set("conditions", conditions))
+
+	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting Dedicated ELB l7rule fields: %s", err)
 	}
 
@@ -159,6 +193,9 @@ func resourceL7RuleV3Update(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	if d.HasChange("value") {
 		updateOpts.Value = d.Get("value").(string)
+	}
+	if d.HasChange("conditions") {
+		updateOpts.Conditions = buildConditions(d.Get("conditions").(*schema.Set).List())
 	}
 
 	log.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)

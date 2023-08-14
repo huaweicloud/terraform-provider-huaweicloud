@@ -2,10 +2,8 @@ package elb
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,31 +13,47 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getELBl7RuleResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	lbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating ELB client: %s", err)
+	}
+
+	l7policyID := state.Primary.Attributes["l7policy_id"]
+	return l7policies.GetRule(lbClient, l7policyID, state.Primary.ID).Extract()
+}
+
 func TestAccElbV3L7Rule_basic(t *testing.T) {
 	var l7rule l7policies.Rule
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_elb_l7rule.l7rule_1"
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_elb_l7rule.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&l7rule,
+		getELBl7RuleResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckElbV3L7RuleDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckElbV3L7RuleConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3L7RuleExists(resourceName, &l7rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
 					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
 					resource.TestCheckResourceAttr(resourceName, "value", "/api"),
-					resource.TestMatchResourceAttr(resourceName, "l7policy_id",
-						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
+					resource.TestCheckResourceAttrPair(resourceName, "l7policy_id",
+						"huaweicloud_elb_l7policy.test", "id"),
 				),
 			},
 			{
 				Config: testAccCheckElbV3L7RuleConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3L7RuleExists(resourceName, &l7rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
 					resource.TestCheckResourceAttr(resourceName, "compare_type", "STARTS_WITH"),
 					resource.TestCheckResourceAttr(resourceName, "value", "/images"),
@@ -49,174 +63,135 @@ func TestAccElbV3L7Rule_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccELBL7RuleImportStateIdFunc(),
+				ImportStateIdFunc: testAccELBL7RuleImportStateIdFunc(resourceName),
 			},
 		},
 	})
 }
 
-func testAccCheckElbV3L7RuleDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating ELB client: %s", err)
-	}
+func TestAccElbV3L7Rule_basic_with_conditions(t *testing.T) {
+	var l7rule l7policies.Rule
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_elb_l7rule.test"
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_l7rule" {
-			continue
-		}
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&l7rule,
+		getELBl7RuleResourceFunc,
+	)
 
-		l7policyID := ""
-		for k, v := range rs.Primary.Attributes {
-			if k == "l7policy_id" {
-				l7policyID = v
-				break
-			}
-		}
-
-		if l7policyID == "" {
-			return fmt.Errorf("unable to find l7policy_id")
-		}
-
-		_, err := l7policies.GetRule(elbClient, l7policyID, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("the L7 Rule still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckElbV3L7RuleConfig_basic_with_conditions(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "type", "QUERY_STRING"),
+					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
+					resource.TestCheckResourceAttrPair(resourceName, "l7policy_id",
+						"huaweicloud_elb_l7policy.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "conditions.0.key", "key"),
+					resource.TestCheckResourceAttr(resourceName, "conditions.0.value", "value"),
+				),
+			},
+			{
+				Config: testAccCheckElbV3L7RuleConfig_update_with_conditions(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "type", "QUERY_STRING"),
+					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
+					resource.TestCheckResourceAttr(resourceName, "conditions.#", "2"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccELBL7RuleImportStateIdFunc(resourceName),
+			},
+		},
+	})
 }
 
-func testAccCheckElbV3L7RuleExists(n string, l7rule *l7policies.Rule) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating ELB client: %s", err)
-		}
-
-		l7policyID := ""
-		for k, v := range rs.Primary.Attributes {
-			if k == "l7policy_id" {
-				l7policyID = v
-				break
-			}
-		}
-
-		if l7policyID == "" {
-			return fmt.Errorf("unable to find l7policy_id")
-		}
-
-		found, err := l7policies.GetRule(elbClient, l7policyID, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("policy not found")
-		}
-
-		*l7rule = *found
-
-		return nil
-	}
-}
-
-func testAccELBL7RuleImportStateIdFunc() resource.ImportStateIdFunc {
+func testAccELBL7RuleImportStateIdFunc(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		policy, ok := s.RootModule().Resources["huaweicloud_elb_l7policy.test"]
+		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return "", fmt.Errorf("policy not found: %s", policy)
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
-		rule, ok := s.RootModule().Resources["huaweicloud_elb_l7rule.l7rule_1"]
-		if !ok {
-			return "", fmt.Errorf("rule not found: %s", rule)
+		l7PolicyID := rs.Primary.Attributes["l7policy_id"]
+		if l7PolicyID == "" {
+			return "", fmt.Errorf("attribute (l7policy_id) of Resource (%s) not found: %s", name, rs)
 		}
-		if policy.Primary.ID == "" || rule.Primary.ID == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", policy.Primary.ID, rule.Primary.ID)
-		}
-		return fmt.Sprintf("%s/%s", policy.Primary.ID, rule.Primary.ID), nil
+		return fmt.Sprintf("%s/%s", l7PolicyID, rs.Primary.ID), nil
 	}
-}
-
-func testAccCheckElbV3L7RuleConfig(rName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_elb_loadbalancer" "test" {
-  name            = "%s"
-  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
-}
-
-resource "huaweicloud_elb_listener" "test" {
-  name             = "%s"
-  description      = "test description"
-  protocol         = "HTTP"
-  protocol_port    = 8080
-  loadbalancer_id  = huaweicloud_elb_loadbalancer.test.id
-  forward_eip      = true
-  idle_timeout     = 60
-  request_timeout  = 60
-  response_timeout = 60
-}
-
-resource "huaweicloud_elb_pool" "test" {
-  name            = "%s"
-  protocol        = "HTTP"
-  lb_method       = "LEAST_CONNECTIONS"
-  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
-}
-
-resource "huaweicloud_elb_l7policy" "test" {
-  name             = "%s"
-  description      = "test description"
-  listener_id      = huaweicloud_elb_listener.test.id
-  redirect_pool_id = huaweicloud_elb_pool.test.id
-}
-`, rName, rName, rName, rName)
 }
 
 func testAccCheckElbV3L7RuleConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_elb_l7rule" "l7rule_1" {
+resource "huaweicloud_elb_l7rule" "test" {
   l7policy_id  = huaweicloud_elb_l7policy.test.id
   type         = "PATH"
   compare_type = "EQUAL_TO"
   value        = "/api"
 }
-`, testAccCheckElbV3L7RuleConfig(rName))
+`, testAccCheckElbV3L7PolicyConfig_basic(rName))
 }
 
 func testAccCheckElbV3L7RuleConfig_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_elb_l7rule" "l7rule_1" {
+resource "huaweicloud_elb_l7rule" "test" {
   l7policy_id  = huaweicloud_elb_l7policy.test.id
   type         = "PATH"
   compare_type = "STARTS_WITH"
   value        = "/images"
 }
-`, testAccCheckElbV3L7RuleConfig(rName))
+`, testAccCheckElbV3L7PolicyConfig_basic(rName))
+}
+
+func testAccCheckElbV3L7RuleConfig_basic_with_conditions(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_l7rule" "test" {
+  l7policy_id  = huaweicloud_elb_l7policy.test.id
+  type         = "QUERY_STRING"
+  compare_type = "EQUAL_TO"
+
+  conditions {
+    key   = "key"
+    value = "value"
+  }
+}
+`, testAccCheckElbV3L7PolicyConfig_basic(rName))
+}
+
+func testAccCheckElbV3L7RuleConfig_update_with_conditions(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_l7rule" "test" {
+  l7policy_id  = huaweicloud_elb_l7policy.test.id
+  type         = "QUERY_STRING"
+  compare_type = "EQUAL_TO"
+
+  conditions {
+    key   = "key_update"
+    value = "value_update1"
+  }
+
+  conditions {
+    key   = "key_update"
+    value = "value_update2"
+  }
+}
+`, testAccCheckElbV3L7PolicyConfig_basic(rName))
 }
