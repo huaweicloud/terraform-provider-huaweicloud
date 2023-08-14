@@ -15,8 +15,10 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
-	"github.com/chnsz/golangsdk/openstack/ecs/v1/jobs"
+	ecsjobs "github.com/chnsz/golangsdk/openstack/ecs/v1/jobs"
+	"github.com/chnsz/golangsdk/openstack/evs/v1/jobs"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
@@ -289,6 +291,19 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	// If charging mode is postPaid, wait for the job status to SUCCESS
+	if jobId := job.JobID; jobId != "" {
+		// The v1 client is used to query the EVS job detail.
+		evsV1Client, err := config.BlockStorageV1Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating EVS v1 client: %s", err)
+		}
+		if err = waitEvsJobSuccess(ctx, evsV1Client, jobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("the job (%s) is not SUCCESS while creating EVS volume (%s): %s", jobId,
+				d.Id(), err)
+		}
+	}
+
 	logp.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:                   []string{"creating"},
@@ -305,6 +320,39 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	return resourceEvsVolumeRead(ctx, d, meta)
+}
+
+func waitEvsJobSuccess(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      evsJobRefreshFunc(client, jobId),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func evsJobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := jobs.GetJobDetails(c, jobId).ExtractJob()
+		if err != nil {
+			// there has no special code here
+			return resp, "ERROR", err
+		}
+		status := resp.Status
+		if status == "SUCCESS" {
+			return resp, status, nil
+		}
+		if status == "FAIL" {
+			return resp, status, fmt.Errorf("the EVS job (%s) status is FAIL, the fail reason is: %s",
+				jobId, resp.FailReason)
+		}
+		return resp, "PENDING", nil
+	}
 }
 
 func setEvsVolumeDeviceType(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
@@ -442,6 +490,18 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			}
 		}
 
+		if jobId := resp.JobID; jobId != "" {
+			// The v1 client is used to query the EVS job detail.
+			evsV1Client, err := config.BlockStorageV1Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating EVS v1 client: %s", err)
+			}
+			if err = waitEvsJobSuccess(ctx, evsV1Client, jobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+				return diag.Errorf("the job (%s) is not SUCCESS while extending EVS volume (%s) size: %s", jobId,
+					d.Id(), err)
+			}
+		}
+
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"extending"},
 			Target:     []string{"available", "in-use"},
@@ -563,7 +623,7 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 func AttachmentJobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := jobs.Get(c, jobId)
+		resp, err := ecsjobs.Get(c, jobId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return resp, "NOTFOUND", nil

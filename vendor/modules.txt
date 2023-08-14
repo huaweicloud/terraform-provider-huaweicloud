@@ -164,6 +164,7 @@ github.com/chnsz/golangsdk/openstack/er/v3/propagations
 github.com/chnsz/golangsdk/openstack/er/v3/routes
 github.com/chnsz/golangsdk/openstack/er/v3/routetables
 github.com/chnsz/golangsdk/openstack/er/v3/vpcattachments
+github.com/chnsz/golangsdk/openstack/evs/v1/jobs
 github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes
 github.com/chnsz/golangsdk/openstack/evs/v2/snapshots
 github.com/chnsz/golangsdk/openstack/fgs/v2/aliases

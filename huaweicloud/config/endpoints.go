@@ -23,7 +23,7 @@ var multiCatalogKeys = map[string][]string{
 	"iam":          {"identity", "iam_no_version"},
 	"bss":          {"bssv2"},
 	"ecs":          {"ecsv21", "ecsv11"},
-	"evs":          {"evsv21"},
+	"evs":          {"evsv21", "evsv1"},
 	"cce":          {"ccev1", "cce_addon"},
 	"cci":          {"cciv1_bata"},
 	"vpc":          {"networkv2", "vpcv3", "fwv2"},
@@ -222,6 +222,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// ******* catalog for storage ******
+	"evsv1": {
+		Name:    "evs",
+		Version: "v1",
+		Product: "EVS",
+	},
 	"evs": {
 		Name:    "evs",
 		Version: "v2",
