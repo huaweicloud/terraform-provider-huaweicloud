@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/identity/v3.0/acl"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/identity/v3.0/acl"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
 	switch state.Primary.Attributes["type"] {
@@ -27,7 +27,7 @@ func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState)
 		}
 		if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
 			v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
-			return nil, fmtp.Errorf("Identity ACL for console access <%s> not exists", state.Primary.ID)
+			return nil, fmt.Errorf("identity ACL for console access <%s> not exists", state.Primary.ID)
 		}
 		return v, nil
 	case "api":
@@ -37,7 +37,7 @@ func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState)
 		}
 		if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
 			v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
-			return nil, fmtp.Errorf("Identity ACL for console access <%s> not exists", state.Primary.ID)
+			return nil, fmt.Errorf("identity ACL for console access <%s> not exists", state.Primary.ID)
 		}
 		return v, nil
 	}
@@ -45,12 +45,12 @@ func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState)
 }
 
 func TestAccIdentitACL_basic(t *testing.T) {
-	var acl acl.ACLPolicy
+	var object acl.ACLPolicy
 	resourceName := "huaweicloud_identity_acl.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&acl,
+		&object,
 		getIdentitACLResourceFunc,
 	)
 
@@ -63,7 +63,7 @@ func TestAccIdentitACL_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityACL_basic(),
+				Config: testAccIdentityACL_basic("console"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "console"),
@@ -72,7 +72,7 @@ func TestAccIdentitACL_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccIdentityACL_update(),
+				Config: testAccIdentityACL_update("console"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "console"),
@@ -85,12 +85,12 @@ func TestAccIdentitACL_basic(t *testing.T) {
 }
 
 func TestAccIdentitACL_apiAccess(t *testing.T) {
-	var acl acl.ACLPolicy
+	var object acl.ACLPolicy
 	resourceName := "huaweicloud_identity_acl.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&acl,
+		&object,
 		getIdentitACLResourceFunc,
 	)
 
@@ -103,7 +103,7 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityACL_apiAccess(),
+				Config: testAccIdentityACL_basic("api"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "api"),
@@ -112,7 +112,7 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccIdentityACL_apiUpdate(),
+				Config: testAccIdentityACL_update("api"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "api"),
@@ -124,90 +124,46 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 	})
 }
 
-func testAccIdentityACL_basic() string {
+func testAccIdentityACL_basic(aclType string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
-  type = "console"
+  type = "%[1]s"
 
   ip_ranges {
     range       = "172.16.0.0-172.16.255.255"
-    description = "This is a basic ip range 1 for console access"
+    description = "This is a basic ip range 1 for %[1]s access"
   }
 
   ip_cidrs {
     cidr        = "159.138.32.195/32"
-    description = "This is a basic ip address 1 for console access"
+    description = "This is a basic ip address 1 for %[1]s access"
   }
 }
-`)
+`, aclType)
 }
 
-func testAccIdentityACL_update() string {
+func testAccIdentityACL_update(aclType string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
-  type = "console"
+  type = "%[1]s"
 
   ip_ranges {
     range       = "172.16.0.0-172.16.255.255"
-    description = "This is a update ip range 1 for console access"
+    description = "This is a update ip range 1 for %[1]s access"
   }
   ip_ranges {
     range       = "192.168.0.0-192.168.255.255"
-    description = "This is a update ip range 2 for console access"
+    description = "This is a update ip range 2 for %[1]s access"
   }
 
   ip_cidrs {
     cidr        = "159.138.32.195/32"
-    description = "This is a update ip address 1 for console access"
+    description = "This is a update ip address 1 for %[1]s access"
   }
   ip_cidrs {
     cidr        = "159.138.32.196/32"
-    description = "This is a update ip address 2 for console access"
+    description = "This is a update ip address 2 for %[1]s access"
   }
 }
-`)
-}
-
-func testAccIdentityACL_apiAccess() string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_acl" "test" {
-  type = "api"
-
-  ip_ranges {
-    range       = "172.16.0.0-172.16.255.255"
-    description = "This is a basic ip range 1 for api access"
-  }
-
-  ip_cidrs {
-    cidr        = "159.138.32.195/32"
-    description = "This is a basic ip address 1 for api access"
-  }
-}
-`)
-}
-
-func testAccIdentityACL_apiUpdate() string {
-	return fmt.Sprintf(`
-resource "huaweicloud_identity_acl" "test" {
-  type = "api"
-
-  ip_ranges {
-    range       = "172.16.0.0-172.16.255.255"
-    description = "This is a update ip range 1 for api access"
-  }
-  ip_ranges {
-    range       = "192.168.0.0-192.168.255.255"
-    description = "This is a update ip range 2 for api access"
-  }
-
-  ip_cidrs {
-    cidr        = "159.138.32.195/32"
-    description = "This is a update ip address 1 for api access"
-  }
-  ip_cidrs {
-    cidr        = "159.138.32.196/32"
-    description = "This is a update ip address 2 for api access"
-  }
-}
-`)
+`, aclType)
 }

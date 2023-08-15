@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/credentials"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getIdentityAccessKeyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	iamClient, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
 	found, err := credentials.Get(iamClient, state.Primary.ID).Extract()
@@ -26,7 +25,7 @@ func getIdentityAccessKeyResourceFunc(c *config.Config, state *terraform.Resourc
 	}
 
 	if found.AccessKey != state.Primary.ID {
-		return nil, fmtp.Errorf("Access Key not found")
+		return nil, fmt.Errorf("Access Key not found")
 	}
 	return found, nil
 }
