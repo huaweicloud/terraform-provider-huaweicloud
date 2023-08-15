@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 1.54.0 (August 15, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_modelarts_workspace` [GH-3241]
+  + `huaweicloud_waf_rule_information_leakage_prevention` [GH-3278]
+  + `huaweicloud_waf_rule_anti_crawler` [GH-3286]
+  + `huaweicloud_cfw_eip_protection` [GH-3281]
+
+* **New Data Source:**
+  + `huaweicloud_modelarts_models` [GH-3253]
+  + `huaweicloud_identity_permissions` [GH-3277]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_sfs_turbo: Support HPC and HPC cache share type [GH-3244]
+* resource/huaweicloud_elb_loadbalancer: Add `backend_subnets`, `protection_status` and `protection_reason` params [GH-3254]
+* resource/huaweicloud_elb_listener: Add `forward_port`, `forward_request_port` and `forward_host` params [GH-3259]
+* resource/huaweicloud_elb_pool: Add `type`, `protection_status`, `protection_reason` and `slow_start_enabled` params [GH-3274]
+* resource/huaweicloud_elb_monitor: Support checking healthy by HTTP or HTTPs status code [GH-3275]
+* resource/huaweicloud_elb_l7rule: Add `condition` block param [GH-3279]
+* resource/huaweicloud_vpc_bandwidth: Support pre-paid charging mode [GH-3265]
+* resource/huaweicloud_compute_instance: Add iops and throughput to disk [GH-3282]
+* resource/huaweicloud_cce_node: Support dss in node and node pool [GH-3296]
+
+BUG FIXES:
+
+* resource/huaweicloud_cts_tracker: Create system tracker if it does not exist [GH-3251]
+* resource/huaweicloud_rds_instance: Fix panic when availability_zone is an empty list [GH-3258]
+
 ## 1.53.0 (July 31, 2023)
 
 * **New Resurce:**
