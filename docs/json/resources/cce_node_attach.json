@@ -24,6 +24,7 @@
                   [
                     "object",
                     {
+                      "dss_pool_id": "string",
                       "extend_params": [
                         "map",
                         "string"
@@ -117,6 +118,7 @@
                   [
                     "object",
                     {
+                      "dss_pool_id": "string",
                       "extend_params": [
                         "map",
                         "string"

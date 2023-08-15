@@ -165,6 +165,12 @@
               "data_volumes": {
                 "block": {
                   "attributes": {
+                    "dss_pool_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "extend_params": {
                       "type": [
                         "map",
@@ -257,6 +263,12 @@
               "root_volume": {
                 "block": {
                   "attributes": {
+                    "dss_pool_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "extend_params": {
                       "type": [
                         "map",

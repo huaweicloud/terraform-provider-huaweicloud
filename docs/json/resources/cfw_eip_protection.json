@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_eip_protection": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "The protected object ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "protected_eip": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the protected EIP.",
+                      "required": true
+                    },
+                    "public_ipv4": {
+                      "type": "string",
+                      "description": "The IPv4 address of the protected EIP.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "public_ipv6": {
+                      "type": "string",
+                      "description": "The IPv6 address of the protected EIP.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The protected EIP configurations."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

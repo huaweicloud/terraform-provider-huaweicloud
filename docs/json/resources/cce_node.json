@@ -156,13 +156,18 @@
               "data_volumes": {
                 "block": {
                   "attributes": {
+                    "dss_pool_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "extend_params": {
                       "type": [
                         "map",
                         "string"
                       ],
                       "optional": true,
-                      "computed": true,
                       "forcenew": true
                     },
                     "kms_key_id": {
@@ -249,13 +254,18 @@
               "root_volume": {
                 "block": {
                   "attributes": {
+                    "dss_pool_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "extend_params": {
                       "type": [
                         "map",
                         "string"
                       ],
                       "optional": true,
-                      "computed": true,
                       "forcenew": true
                     },
                     "kms_key_id": {

@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_group_membership": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the user group.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_id": {
+                "type": "string",
+                "description": "Specifies the ID of the identity store.",
+                "required": true,
+                "forcenew": true
+              },
+              "member_id": {
+                "type": "string",
+                "description": "Specifies the ID of the user.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

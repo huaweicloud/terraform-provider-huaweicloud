@@ -93,12 +93,23 @@
                           }
                         ]
                       ],
-                      "protocol": "string"
+                      "protection_reason": "string",
+                      "protection_status": "string",
+                      "protocol": "string",
+                      "slow_start_duration": "number",
+                      "slow_start_enabled": "bool",
+                      "type": "string",
+                      "vpc_id": "string"
                     }
                   ]
                 ],
                 "description": "Pool list. For details, see Data structure of the Pool field.",
                 "computed": true
+              },
+              "protection_status": {
+                "type": "string",
+                "description": "Specifies the protection status for update.",
+                "optional": true
               },
               "protocol": {
                 "type": "string",
@@ -108,6 +119,16 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the backend server group.",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC where the backend server group works.",
+                "optional": true
               }
             }
           },

@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_rule_anti_crawler": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Specifies the rule description.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the policy ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "Specifies the priority.",
+                "required": true
+              },
+              "protection_mode": {
+                "type": "string",
+                "description": "Specifies the protection mode of WAF anti crawler rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The rule status.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the content of the condition.",
+                      "optional": true
+                    },
+                    "field": {
+                      "type": "string",
+                      "description": "Specifies the field type.",
+                      "required": true
+                    },
+                    "logic": {
+                      "type": "string",
+                      "description": "Specifies the logic for matching the condition.",
+                      "required": true
+                    },
+                    "reference_table_id": {
+                      "type": "string",
+                      "description": "Specifies the reference table ID.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the match condition list."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

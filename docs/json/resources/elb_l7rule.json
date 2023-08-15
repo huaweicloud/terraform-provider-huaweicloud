@@ -29,7 +29,25 @@
               },
               "value": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },
