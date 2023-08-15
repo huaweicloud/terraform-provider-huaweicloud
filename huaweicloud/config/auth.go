@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/auth"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
+
 	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	"github.com/jmespath/go-jmespath"
 	"github.com/mitchellh/go-homedir"
@@ -128,11 +130,10 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if client.AKSKAuthOptions.AccessKey != "" {
-				golangsdk.ReSign(req, golangsdk.SignOptions{
-					AccessKey:  client.AKSKAuthOptions.AccessKey,
-					SecretKey:  client.AKSKAuthOptions.SecretKey,
-					RegionName: client.AKSKAuthOptions.Region,
-				})
+				err := auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		},
