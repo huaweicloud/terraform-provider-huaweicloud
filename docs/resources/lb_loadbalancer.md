@@ -28,7 +28,7 @@ resource "huaweicloud_lb_loadbalancer" "lb_1" {
 variable "ipv4_subnet_id" {}
 
 resource "huaweicloud_lb_loadbalancer" "lb_1" {
-  vip_subnet_id = ipv4_subnet_id
+  vip_subnet_id = var.ipv4_subnet_id
 }
 
 resource "huaweicloud_vpc_eip_associate" "eip_1" {
