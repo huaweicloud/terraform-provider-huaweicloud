@@ -6,6 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -184,4 +186,213 @@ func buildExtendParams(d *schema.ResourceData) map[string]interface{} {
 	}
 
 	return utils.RemoveNil(res)
+}
+
+func resourceNodeRootVolume() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Required: true,
+		ForceNew: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"size": {
+					Type:     schema.TypeInt,
+					Required: true,
+					ForceNew: true,
+				},
+				"volumetype": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"extend_params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+				"kms_key_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+				"dss_pool_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+
+				// Internal parameters
+				"hw_passthrough": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					ForceNew:    true,
+					Description: "schema: Internal",
+				},
+
+				// Deprecated parameters
+				"extend_param": {
+					Type:       schema.TypeString,
+					Optional:   true,
+					ForceNew:   true,
+					Deprecated: "use extend_params instead",
+				},
+			},
+		},
+	}
+}
+
+func resourceNodeDataVolume() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Required: true,
+		ForceNew: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"size": {
+					Type:     schema.TypeInt,
+					Required: true,
+					ForceNew: true,
+				},
+				"volumetype": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"extend_params": {
+					Type:     schema.TypeMap,
+					Optional: true,
+					ForceNew: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+				"kms_key_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+				"dss_pool_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+
+				// Internal parameters
+				"hw_passthrough": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					ForceNew:    true,
+					Description: "schema: Internal",
+				},
+
+				// Deprecated parameters
+				"extend_param": {
+					Type:       schema.TypeString,
+					Optional:   true,
+					ForceNew:   true,
+					Deprecated: "use extend_params instead",
+				},
+			},
+		},
+	}
+}
+
+func buildResourceNodeRootVolume(d *schema.ResourceData) nodes.VolumeSpec {
+	var root nodes.VolumeSpec
+	volumeRaw := d.Get("root_volume").([]interface{})
+	if len(volumeRaw) == 1 {
+		rawMap := volumeRaw[0].(map[string]interface{})
+		root.Size = rawMap["size"].(int)
+		root.VolumeType = rawMap["volumetype"].(string)
+		root.HwPassthrough = rawMap["hw_passthrough"].(bool)
+		root.ExtendParam = rawMap["extend_params"].(map[string]interface{})
+
+		if rawMap["kms_key_id"].(string) != "" {
+			metadata := nodes.VolumeMetadata{
+				SystemEncrypted: "1",
+				SystemCmkid:     rawMap["kms_key_id"].(string),
+			}
+			root.Metadata = &metadata
+		}
+
+		if rawMap["dss_pool_id"].(string) != "" {
+			root.ClusterID = rawMap["dss_pool_id"].(string)
+			root.ClusterType = "dss"
+		}
+	}
+
+	return root
+}
+
+func buildResourceNodeDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
+	volumeRaw := d.Get("data_volumes").([]interface{})
+	volumes := make([]nodes.VolumeSpec, len(volumeRaw))
+	for i, raw := range volumeRaw {
+		rawMap := raw.(map[string]interface{})
+		volumes[i] = nodes.VolumeSpec{
+			Size:          rawMap["size"].(int),
+			VolumeType:    rawMap["volumetype"].(string),
+			HwPassthrough: rawMap["hw_passthrough"].(bool),
+			ExtendParam:   rawMap["extend_params"].(map[string]interface{}),
+		}
+		if rawMap["kms_key_id"].(string) != "" {
+			metadata := nodes.VolumeMetadata{
+				SystemEncrypted: "1",
+				SystemCmkid:     rawMap["kms_key_id"].(string),
+			}
+			volumes[i].Metadata = &metadata
+		}
+
+		if rawMap["dss_pool_id"].(string) != "" {
+			volumes[i].ClusterID = rawMap["dss_pool_id"].(string)
+			volumes[i].ClusterType = "dss"
+		}
+	}
+	return volumes
+}
+
+func flattenResourceNodeRootVolume(rootVolume nodes.VolumeSpec) []map[string]interface{} {
+	res := []map[string]interface{}{
+		{
+			"size":           rootVolume.Size,
+			"volumetype":     rootVolume.VolumeType,
+			"hw_passthrough": rootVolume.HwPassthrough,
+			"extend_params":  rootVolume.ExtendParam,
+			"extend_param":   "",
+			"dss_pool_id":    rootVolume.ClusterID,
+		},
+	}
+	if rootVolume.Metadata != nil {
+		res[0]["kms_key_id"] = rootVolume.Metadata.SystemCmkid
+	}
+
+	return res
+}
+
+func flattenResourceNodeDataVolume(dataVolumes []nodes.VolumeSpec) []map[string]interface{} {
+	if len(dataVolumes) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(dataVolumes))
+	for i, v := range dataVolumes {
+		res[i] = map[string]interface{}{
+			"size":           v.Size,
+			"volumetype":     v.VolumeType,
+			"hw_passthrough": v.HwPassthrough,
+			"extend_params":  v.ExtendParam,
+			"extend_param":   "",
+			"dss_pool_id":    v.ClusterID,
+		}
+
+		if v.Metadata != nil {
+			res[i]["kms_key_id"] = v.Metadata.SystemCmkid
+		}
+	}
+
+	return res
 }

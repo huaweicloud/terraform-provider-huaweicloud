@@ -149,6 +149,10 @@ type VolumeSpec struct {
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 	// Disk encryption information.
 	Metadata *VolumeMetadata `json:"metadata,omitempty"`
+	// DSS pool ID
+	ClusterID string `json:"cluster_id,omitempty"`
+	// DSS pool type, fixed to dss
+	ClusterType string `json:"cluster_type,omitempty"`
 }
 
 type VolumeMetadata struct {
