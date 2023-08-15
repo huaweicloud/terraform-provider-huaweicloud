@@ -629,9 +629,12 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 
 	schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
 	if len(schedulerHintsRaw) > 0 {
-		log.Printf("[DEBUG] schedulerhints: %+v", schedulerHintsRaw)
-		schedulerHints := buildInstanceSchedulerHints(schedulerHintsRaw[0].(map[string]interface{}))
-		createOpts.SchedulerHints = &schedulerHints
+		if m, ok := schedulerHintsRaw[0].(map[string]interface{}); ok {
+			schedulerHints := buildInstanceSchedulerHints(m)
+			createOpts.SchedulerHints = &schedulerHints
+		} else {
+			log.Printf("[WARN] can not build scheduler hints: %+v", schedulerHintsRaw[0])
+		}
 	}
 
 	log.Printf("[DEBUG] ECS create options: %#v", createOpts)
@@ -1507,7 +1510,10 @@ func getVpcID(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, 
 
 func resourceComputeSchedulerHintsHash(v interface{}) int {
 	var buf bytes.Buffer
-	m := v.(map[string]interface{})
+	m, ok := v.(map[string]interface{})
+	if !ok {
+		return 0
+	}
 
 	if m["group"] != nil {
 		buf.WriteString(fmt.Sprintf("%s-", m["group"].(string)))
