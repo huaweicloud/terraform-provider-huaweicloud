@@ -38,3 +38,7 @@ paths:
     get:
       tag: ECS
       operationId: Get
+  /v1/{project_id}/jobs/{jobID}:
+    get:
+      tag: EVS
+      operationId: GetJobDetails

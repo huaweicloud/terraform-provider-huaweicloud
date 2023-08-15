@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_identitycenter_instance
+    description: Use this data source to get the Identity Center instance info.
+host: myhuaweicloud.com
+tags:
+    - name: IdentityCenter
+servers:
+    - url: https://identitycenter.myhuaweicloud.com
+paths:
+    /v1/instances:
+        GET:
+            tag: IdentityCenter
+            operationId: GetIdentityCenterInstance
+            x-ref-api: GET /v1/instances

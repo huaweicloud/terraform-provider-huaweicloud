@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: EIP
 paths:
+  /v2.0/{project_id}/bandwidths/change-to-period:
+    post:
+      tag: EIP
+      operationId: ChangeToPeriod
   /v2.0/{project_id}/bandwidths/{ID}:
     delete:
       tag: EIP

@@ -9,6 +9,9 @@ tags:
   - name: CTS
 paths:
   /v3/{project_id}/tracker:
+    post:
+      tag: CTS
+      operationId: CreateTracker
     put:
       tag: CTS
       operationId: UpdateTracker
