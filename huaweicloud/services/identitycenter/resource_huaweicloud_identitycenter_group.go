@@ -32,6 +32,7 @@ func ResourceIdentityCenterGroup() *schema.Resource {
 			StateContext: resourceIdentityCenterGroupImportState,
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
