@@ -31,6 +31,7 @@ func ResourceGroupMembership() *schema.Resource {
 			StateContext: resourceGroupMembershipImportState,
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
