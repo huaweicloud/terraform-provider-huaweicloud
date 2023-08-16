@@ -12,7 +12,7 @@ type BaseError struct {
 }
 
 func (e BaseError) Error() string {
-	e.DefaultErrString = "An error occurred while executing a Gophercloud request."
+	e.DefaultErrString = "An error occurred while executing HTTP request."
 	return e.choseErrString()
 }
 
@@ -35,7 +35,7 @@ func (e ErrMissingInput) Error() string {
 	return e.choseErrString()
 }
 
-// ErrInvalidInput is an error type used for most non-HTTP Gophercloud errors.
+// ErrInvalidInput is an error type used for most non-HTTP errors.
 type ErrInvalidInput struct {
 	ErrMissingInput
 	Value interface{}
@@ -50,17 +50,18 @@ func (e ErrInvalidInput) Error() string {
 // those listed in OkCodes is encountered.
 type ErrUnexpectedResponseCode struct {
 	BaseError
-	URL      string
-	Method   string
-	Expected []int
-	Actual   int
-	Body     []byte
+	URL       string
+	Method    string
+	RequestId string
+	Expected  []int
+	Actual    int
+	Body      []byte
 }
 
 func (e ErrUnexpectedResponseCode) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
-		"Expected HTTP response code %v when accessing [%s %s], but got %d instead\n%s",
-		e.Expected, e.Method, e.URL, e.Actual, e.Body,
+		"Expected HTTP response code %v when accessing [%s %s], but got %d instead.\nrequest_id: %s, error message: %s",
+		e.Expected, e.Method, e.URL, e.Actual, e.RequestId, e.Body,
 	)
 	return e.choseErrString()
 }
@@ -112,8 +113,8 @@ type ErrDefault503 struct {
 
 func (e ErrDefault400) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
-		"Bad request with: [%s %s], error message: %s",
-		e.Method, e.URL, e.Body,
+		"Bad request with: [%s %s], request_id: %s, error message: %s",
+		e.Method, e.URL, e.RequestId, e.Body,
 	)
 	return e.choseErrString()
 }
@@ -134,15 +135,15 @@ func (e ErrDefault403) Error() string {
 	}
 
 	e.DefaultErrString = fmt.Sprintf(
-		"Action forbidden: [%s %s], error message: %s",
-		e.Method, e.URL, messageBody,
+		"Action forbidden: [%s %s], request_id: %s, error message: %s",
+		e.Method, e.URL, e.RequestId, messageBody,
 	)
 	return e.choseErrString()
 }
 func (e ErrDefault404) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
-		"Resource not found: [%s %s], error message: %s",
-		e.Method, e.URL, e.Body,
+		"Resource not found: [%s %s], request_id: %s, error message: %s",
+		e.Method, e.URL, e.RequestId, e.Body,
 	)
 	return e.choseErrString()
 }
@@ -154,15 +155,15 @@ func (e ErrDefault408) Error() string {
 }
 func (e ErrDefault429) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
-		"Too many requests: [%s %s], error message: %s",
-		e.Method, e.URL, e.Body,
+		"Too many requests: [%s %s], request_id: %s, error message: %s",
+		e.Method, e.URL, e.RequestId, e.Body,
 	)
 	return e.choseErrString()
 }
 func (e ErrDefault500) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
-		"Internal Server Error: [%s %s], error message: %s",
-		e.Method, e.URL, e.Body,
+		"Internal Server Error: [%s %s], request_id: %s, error message: %s",
+		e.Method, e.URL, e.RequestId, e.Body,
 	)
 	return e.choseErrString()
 }

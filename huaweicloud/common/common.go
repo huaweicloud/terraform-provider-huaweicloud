@@ -199,7 +199,7 @@ func WaitOrderComplete(ctx context.Context, client *golangsdk.ServiceClient, ord
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for the order (%s) to complete payment: %#v", orderId, err)
+		return fmt.Errorf("error waiting for the order (%s) to complete payment: %s", orderId, err)
 	}
 	return nil
 }
@@ -229,7 +229,7 @@ func WaitOrderResourceComplete(ctx context.Context, client *golangsdk.ServiceCli
 	}
 	res, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return "", fmt.Errorf("error while waiting for the order (%s) to complete: %#v", orderId, err)
+		return "", fmt.Errorf("error while waiting for the order (%s) to complete: %s", orderId, err)
 	}
 
 	r := res.(resources.Resource)
@@ -244,7 +244,7 @@ func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId str
 		}
 		resp, err := resources.List(client, listOpts)
 		if err != nil || resp == nil {
-			return nil, "ERROR", fmt.Errorf("error waiting for the order (%s) to complete: %#v", orderId, err)
+			return nil, "ERROR", fmt.Errorf("error waiting for the order (%s) to complete: %s", orderId, err)
 		}
 		if resp.TotalCount < 1 {
 			return nil, "PENDING", nil
