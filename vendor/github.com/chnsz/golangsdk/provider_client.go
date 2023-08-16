@@ -351,11 +351,12 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 		body, _ := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		respErr := ErrUnexpectedResponseCode{
-			URL:      url,
-			Method:   method,
-			Expected: okc,
-			Actual:   resp.StatusCode,
-			Body:     body,
+			URL:       url,
+			Method:    method,
+			Expected:  okc,
+			Actual:    resp.StatusCode,
+			RequestId: resp.Header.Get("X-Request-Id"),
+			Body:      body,
 		}
 
 		errType := options.ErrorContext
