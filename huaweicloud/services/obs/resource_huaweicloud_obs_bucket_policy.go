@@ -10,7 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -109,12 +111,14 @@ func resourceObsBucketPolicyRead(_ context.Context, d *schema.ResourceData, meta
 
 	log.Printf("[DEBUG] read policy for obs bucket: %s", d.Id())
 	output, err := obsClient.GetBucketPolicy(d.Id())
-
-	var pol string
-	if err == nil && output.Policy != "" {
-		pol = output.Policy
+	if err != nil {
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS policy")
+		}
+		return diag.FromErr(err)
 	}
-	if err := d.Set("policy", pol); err != nil {
+
+	if err := d.Set("policy", output.Policy); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -141,7 +145,10 @@ func resourceObsBucketPolicyDelete(_ context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 	_, err = obsClient.DeleteBucketPolicy(bucket)
 	if err != nil {
-		return diag.FromErr(getObsError("Error deleting policy of OBS bucket", bucket, err))
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS policy")
+		}
+		return diag.Errorf("Error deleting policy of OBS bucket (%s): %s", bucket, err)
 	}
 
 	return nil
