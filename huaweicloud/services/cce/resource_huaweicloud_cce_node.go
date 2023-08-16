@@ -364,6 +364,20 @@ func ResourceNode() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"extension_nics": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			"keep_ecs": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -580,6 +594,19 @@ func buildResourceNodeNicSpec(d *schema.ResourceData) nodes.NodeNicSpec {
 
 	if v, ok := d.GetOk("fixed_ip"); ok {
 		res.PrimaryNic.FixedIps = []string{v.(string)}
+	}
+
+	if v, ok := d.GetOk("extension_nics"); ok {
+		nicsRaw := v.([]interface{})
+		extNics := make([]nodes.ExtNic, len(nicsRaw))
+		for i, v := range nicsRaw {
+			nic := v.(map[string]interface{})
+			extNics[i] = nodes.ExtNic{
+				SubnetId: nic["subnet_id"].(string),
+			}
+		}
+
+		res.ExtNics = extNics
 	}
 
 	return res
