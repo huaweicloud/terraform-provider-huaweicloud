@@ -11,10 +11,13 @@ Manage a log structuring template resource within HuaweiCloud.
 ### create with system template
 
 ```hcl
+variable "group_id" {}
+variable "stream_id" {}
+
 resource "huaweicloud_lts_struct_template" "template_1" {
   log_group_id  = var.group_id
   log_stream_id = var.stream_id
-  template_type = "built-in"
+  template_type = "built_in"
   template_name = "ELB"
 }
 ```
@@ -49,8 +52,8 @@ The following arguments are supported:
   **built_in** (system templates) or **custom** (custom templates).
   Changing this parameter will create a new resource.
 
-* `template_name` - (Optional, String) Specifies the system template name. The value can be **ELB**, **VPC**, **CTS**
-  and **APIG**. This parameter is mandatory when using system templates.
+* `template_name` - (Optional, String) Specifies the system template name. The value can be **ELB**, **VPC**, **CTS**,
+  **APIG**, **DDS_AUDIT**, **CDN**, and **SMN**. This parameter is mandatory when using system templates.
 
 ## Attribute Reference
 

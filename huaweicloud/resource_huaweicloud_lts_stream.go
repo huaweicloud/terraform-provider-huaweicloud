@@ -78,6 +78,12 @@ func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 	groupID := d.Get("group_id").(string)
 	streams, err := logstreams.List(client, groupID).Extract()
 	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			logp.Printf("[WARN] log group stream %s: the log group %s is gone", streamID, groupID)
+			d.SetId("")
+			return nil
+		}
+
 		if apiError, ok := err.(golangsdk.ErrDefault400); ok {
 			// "LTS.0201" indicates the log group is not exist
 			if resp, pErr := common.ParseErrorMsg(apiError.Body); pErr == nil && resp.ErrorCode == "LTS.0201" {
