@@ -577,7 +577,13 @@ func resourceObsBucketDelete(ctx context.Context, d *schema.ResourceData, meta i
 	_, err = obsClient.DeleteBucket(bucket)
 	if err != nil {
 		obsError, ok := err.(obs.ObsError)
-		if ok && obsError.Code == "BucketNotEmpty" {
+		if !ok {
+			return diag.Errorf("Error deleting OBS bucket %s, %s", bucket, err)
+		}
+		if obsError.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket")
+		}
+		if obsError.Code == "BucketNotEmpty" {
 			log.Printf("[WARN] OBS bucket: %s is not empty", bucket)
 			if d.Get("force_destroy").(bool) {
 				err = deleteAllBucketObjects(obsClient, bucket)
@@ -588,7 +594,6 @@ func resourceObsBucketDelete(ctx context.Context, d *schema.ResourceData, meta i
 			}
 			return diag.FromErr(err)
 		}
-		return diag.Errorf("Error deleting OBS bucket %s, %s", bucket, err)
 	}
 	return nil
 }
