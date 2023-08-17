@@ -82,6 +82,9 @@ type Config struct {
 	AgencyName       string
 	AgencyDomainName string
 	DelegatedProject string
+
+	// Metadata is used for extend
+	Metadata any
 }
 
 func (c *Config) LoadAndValidate() error {
