@@ -49,21 +49,21 @@ resource "huaweicloud_vpc_subnet" "subnet_with_dhcp" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies tThe region in which to create the vpc subnet. If omitted, the
-  provider-level region will be used. Changing this creates a new Subnet.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the vpc subnet. If omitted, the
+  provider-level region will be used. Changing this creates a new subnet.
 
 * `name` - (Required, String) Specifies the subnet name. The value is a string of 1 to 64 characters that can contain
   letters, digits, underscores (_), and hyphens (-).
 
 * `cidr` - (Required, String, ForceNew) Specifies the network segment on which the subnet resides. The value must be in
   CIDR format and within the CIDR block of the VPC. The subnet mask cannot be greater than 28. Changing this creates a
-  new Subnet.
+  new subnet.
 
 * `gateway_ip` - (Required, String, ForceNew) Specifies the gateway of the subnet. The value must be a valid IP address
-  in the subnet segment. Changing this creates a new Subnet.
+  in the subnet segment. Changing this creates a new subnet.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the subnet belongs. Changing this creates
-  a new Subnet.
+  a new subnet.
 
 * `description` - (Optional, String) Specifies supplementary information about the subnet. The value is a string of
   no more than 255 characters and cannot contain angle brackets (< or >).
@@ -91,7 +91,7 @@ The following arguments are supported:
   address 2.
 
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
-  The value must be an existing AZ in the system. Changing this creates a new Subnet.
+  The value must be an existing AZ in the system. Changing this creates a new subnet.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the subnet.
 
@@ -111,6 +111,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `ipv6_gateway` - The IPv6 subnet gateway.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
 Subnets can be imported using the subnet `Network ID`, e.g.
@@ -118,10 +125,3 @@ Subnets can be imported using the subnet `Network ID`, e.g.
 ```
 $ terraform import huaweicloud_vpc_subnet 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```
-
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 5 minute.
-* `delete` - Default is 10 minute.

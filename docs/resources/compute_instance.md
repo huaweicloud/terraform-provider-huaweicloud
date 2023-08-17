@@ -4,7 +4,7 @@ subcategory: "Elastic Cloud Server (ECS)"
 
 # huaweicloud_compute_instance
 
-Manages a ECS VM instance resource within HuaweiCloud.
+Manages an ECS VM instance resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -487,6 +487,14 @@ The `volume_attached` block supports:
 * `type` - The volume type on that attachment.
 * `pci_address` - The volume pci address on that attachment.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
+
 ## Import
 
 Instances can be imported by their `id`. For example,
@@ -515,11 +523,3 @@ resource "huaweicloud_compute_instance" "myinstance" {
   }
 }
 ```
-
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 30 minute.
-* `update` - Default is 30 minute.
-* `delete` - Default is 30 minute.
