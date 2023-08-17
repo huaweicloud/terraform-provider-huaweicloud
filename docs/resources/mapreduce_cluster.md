@@ -437,6 +437,14 @@ The EIP must have been created and must be in the same region as the cluster.
 
   -> Currently, this is supported only if the cluster version is **MRS 1.9.2**.
 
+* `bootstrap_scripts` - (Optional, List, ForceNew) Specifies the bootstrap action scripts.
+  Bootstrap action scripts will be executed on specified cluster nodes before or after big data components are
+  started. You can execute bootstrap actions to install third-party software, modify the cluster running environment,
+  and customize cluster configuration. [Learn more](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0414.html)
+
+  The [object](#BootstrapScripts) structure is documented below.
+  Changing this will create a new MapReduce cluster resource.
+
 The `nodes` block supports:
 
 * `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.
@@ -543,6 +551,49 @@ The `external_datasources` block supports:
   This parameter is mandatory if `source_type` is not **LOCAL_DB**.
   Changing this will create a new MapReduce cluster resource.
 
+<a name="BootstrapScripts"></a>
+The `bootstrap_scripts` block supports:
+
+* `name` - (Required, String, ForceNew) Specifies the name of a bootstrap action script.
+  Changing this will create a new MapReduce cluster resource.
+
+* `uri` - (Required, String, ForceNew) Specifies the path of a bootstrap action script.
+  Set this parameter to an OBS bucket path or a local VM path.
+    + **OBS bucket path**: The path of an OBS file system starts with *s3a://* or *obs://* and end with *.sh*.
+    + **Local VM path**: The script path must start with a slash (/) and end with *.sh*.
+  
+  Changing this will create a new MapReduce cluster resource.
+
+* `nodes` - (Required, List, ForceNew) Specifies names of the node group where the bootstrap action script is executed.
+
+* `fail_action` - (Required, String, ForceNew) Specifies the action after the bootstrap action script fails to be executed.
+  The options are as follows:
+    + **continue**: Continue to execute subsequent scripts.
+    + **errorout**: Stop the action.
+  
+  The default value is **errorout**, indicating that the action is stopped.
+  Changing this will create a new MapReduce cluster resource.
+
+  -> You are advised to set this parameter to continue in the commissioning phase so that the cluster can
+     continue to be installed and started no matter whether the bootstrap action is successful.
+
+* `parameters` - (Optional, String, ForceNew) Specifies bootstrap action script parameters.
+
+* `active_master` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script runs only on active master nodes.
+  The default value is **false**, indicating that the bootstrap action script can run on all master nodes.
+
+* `before_component_start` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script is executed
+  before component start.
+  The options are as follows:
+    + **false**: After component start. The default value is **false**.
+    + **true**: Before component start.
+  
+  Changing this will create a new MapReduce cluster resource.
+
+* `execute_need_sudo_root` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script involves root user
+  operations.
+  Changing this will create a new MapReduce cluster resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -558,6 +609,9 @@ In addition to all arguments above, the following attributes are exported:
 * `node` - all the nodes attributes: master_nodes/analysis_core_nodes/streaming_core_nodes/analysis_task_nodes
   /streaming_task_nodes.
   + `host_ips` - The host list of this nodes group in the cluster.
+* `bootstrap_scripts/start_time` - The execution time of one bootstrap action script, in RFC-3339 format.
+* `bootstrap_scripts/state` - The status of one bootstrap action script.
+    The valid value are **PENDING**, **IN_PROGRESS**, **SUCCESS**, and **FAILURE**.
 
 ## Timeouts
 

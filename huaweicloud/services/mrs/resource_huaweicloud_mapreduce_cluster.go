@@ -233,6 +233,12 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Elem:     externalDatasourceSchema(),
 				ForceNew: true,
 			},
+			"bootstrap_scripts": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     bootstrapScriptsSchema(),
+				ForceNew: true,
+			},
 			"total_node_number": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -410,6 +416,75 @@ func externalDatasourceSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+		},
+	}
+}
+
+func bootstrapScriptsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Name of a bootstrap action script.`,
+			},
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Path of a bootstrap action script. Set this parameter to an OBS bucket path or a local VM path.`,
+			},
+			"nodes": {
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Required:    true,
+				ForceNew:    true,
+				Description: `Name of the node group where the bootstrap action script is executed.`,
+			},
+			"fail_action": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The action after the bootstrap action script fails to be executed.`,
+			},
+			"parameters": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Bootstrap action script parameters.`,
+			},
+			"active_master": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Whether the bootstrap action script runs only on active master nodes.`,
+			},
+			"before_component_start": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Whether the bootstrap action script is executed before component start.`,
+			},
+			"execute_need_sudo_root": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Whether the bootstrap action script involves root user operations.`,
+			},
+			"start_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The execution time of one bootstrap action script, in RFC-3339 format.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of one bootstrap action script.`,
 			},
 		},
 	}
@@ -617,6 +692,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		TemplateId:           d.Get("template_id").(string),
 		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		ExternalDatasources:  buildClusterExternalDatasources(d.Get("external_datasources")),
+		BootstrapScripts:     buildBootstrapScripts(d.Get("bootstrap_scripts").(*schema.Set)),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -667,6 +743,30 @@ func buildClusterExternalDatasources(rawParams interface{}) []clusterV2.External
 		return params
 	}
 	return nil
+}
+
+func buildBootstrapScripts(rawParams *schema.Set) []clusterV2.ScriptOpts {
+	if rawParams.Len() < 1 {
+		return nil
+	}
+
+	params := make([]clusterV2.ScriptOpts, 0)
+	for _, raw := range rawParams.List() {
+		if item, ok := raw.(map[string]interface{}); ok {
+			param := clusterV2.ScriptOpts{
+				Name:                 item["name"].(string),
+				URI:                  item["uri"].(string),
+				Parameters:           item["parameters"].(string),
+				Nodes:                utils.ExpandToStringList(item["nodes"].([]interface{})),
+				ActiveMaster:         utils.Bool(item["active_master"].(bool)),
+				BeforeComponentStart: utils.Bool(item["before_component_start"].(bool)),
+				FailAction:           item["fail_action"].(string),
+				ExecuteNeedSudoRoot:  utils.Bool(item["execute_need_sudo_root"].(bool)),
+			}
+			params = append(params, param)
+		}
+	}
+	return params
 }
 
 func queryEipInfo(client *golangsdk.ServiceClient, eipId, publicIp, epsID string) (eipID string, publicIP string, err error) {
@@ -841,6 +941,28 @@ func flattenTags(tagsString string) map[string]string {
 	return result
 }
 
+func flattenBootstrapScripts(bootstrapScripts []cluster.BootStrapScript) []map[string]interface{} {
+	if size := len(bootstrapScripts); size > 0 {
+		result := make([]map[string]interface{}, 0, size)
+		for _, v := range bootstrapScripts {
+			result = append(result, map[string]interface{}{
+				"name":                   v.Name,
+				"uri":                    v.URI,
+				"nodes":                  v.Nodes,
+				"fail_action":            v.FailAction,
+				"parameters":             v.Parameters,
+				"active_master":          v.ActiveMaster,
+				"before_component_start": v.BeforeComponentStart,
+				"execute_need_sudo_root": v.ExecuteNeedSudoRoot,
+				"start_time":             utils.FormatTimeStampRFC3339(int64(v.StartTime), false),
+				"state":                  v.State,
+			})
+		}
+		return result
+	}
+	return nil
+}
+
 func getMrsClusterFromServer(client *golangsdk.ServiceClient, clusterID string) (*cluster.Cluster, error) {
 	resp, err := cluster.Get(client, clusterID).Extract()
 	if err != nil {
@@ -893,6 +1015,7 @@ func resourceMRSClusterV2Read(_ context.Context, d *schema.ResourceData, meta in
 		setMrsClsuterChargingTimestamp(d, resp),
 		setMrsClusterNodeGroups(d, client, resp),
 		d.Set("tags", flattenTags(resp.Tags)),
+		d.Set("bootstrap_scripts", flattenBootstrapScripts(resp.BootstrapScripts)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

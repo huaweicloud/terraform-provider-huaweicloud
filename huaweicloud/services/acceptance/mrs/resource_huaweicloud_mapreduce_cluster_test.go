@@ -1368,3 +1368,133 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   }
 }`, testAccMrsMapReduceClusterConfig_base(rName), bName, rName, pwd, pwd)
 }
+
+func TestAccMrsMapReduceCluster_bootstrap(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMrsBootstrapScript(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsMapReduceClusterConfig_bootstrap(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
+					resource.TestCheckResourceAttr(resourceName, "safe_mode", "false"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.name", "bootstrap_0"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.uri",
+						acceptance.HW_MAPREDUCE_BOOTSTRAP_SCRIPT),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.parameters", "a"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.before_component_start", "false"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.execute_need_sudo_root", "true"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.fail_action", "continue"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.active_master", "false"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.nodes.0", "master_node_default_group"),
+					resource.TestCheckResourceAttr(resourceName, "bootstrap_scripts.0.nodes.1", "node_group_1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"manager_admin_pass",
+					"node_admin_pass",
+					"template_id",
+				},
+			},
+		},
+	})
+}
+
+func testAccMrsMapReduceClusterConfig_bootstrap(rName, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%[2]s"
+  version            = "MRS 3.1.5"
+  type               = "CUSTOM"
+  safe_mode          = false
+  manager_admin_pass = "%[3]s"
+  node_admin_pass    = "%[3]s"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  template_id        = "mgmt_control_combined_v4.1"
+  component_list     = ["DBService", "Hadoop", "ZooKeeper", "Ranger"]
+
+  master_nodes {
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 100
+    data_volume_type  = "SAS"
+    data_volume_size  = 200
+    data_volume_count = 1
+    assigned_roles = [
+      "OMSServer:1,2",
+      "SlapdServer:1,2",
+      "KerberosServer:1,2",
+      "KerberosAdmin:1,2",
+      "quorumpeer:1,2,3",
+      "NameNode:2,3",
+      "Zkfc:2,3",
+      "JournalNode:1,2,3",
+      "ResourceManager:2,3",
+      "JobHistoryServer:2,3",
+      "DBServer:1,3",
+      "HttpFS:1,3",
+      "TimelineServer:3",
+      "RangerAdmin:1,2",
+      "UserSync:2",
+      "TagSync:2",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
+  }
+
+  custom_nodes {
+    group_name        = "node_group_1"
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 100
+    data_volume_type  = "SAS"
+    data_volume_size  = 200
+    data_volume_count = 1
+    assigned_roles = [
+      "DataNode",
+      "NodeManager",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
+  }
+
+  bootstrap_scripts {
+    name                   = "bootstrap_0"
+    uri                    = "%[4]s"
+    parameters             = "a"
+    before_component_start = false
+    execute_need_sudo_root = true
+    fail_action            = "continue"
+    active_master          = false
+    nodes = [
+      "master_node_default_group",
+      "node_group_1"
+    ]
+  }
+}
+`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, acceptance.HW_MAPREDUCE_BOOTSTRAP_SCRIPT)
+}
