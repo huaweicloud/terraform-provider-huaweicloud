@@ -23,13 +23,14 @@ func yellow(str interface{}) string {
 func TestAccFunction_RemoveNil(t *testing.T) {
 	var (
 		testInput = map[string]interface{}{
-			"level_one_index_zero": nil,
+			"level_one_index_zero": map[string]interface{}{},
 			"level_one_index_one": []map[string]interface{}{
 				{
 					"level_two_index_zero": nil,
 				},
 				{
 					"level_two_index_one": "192.168.0.1",
+					"level_two_index_two": nil,
 				},
 			},
 			"level_one_index_two": []map[string]interface{}{
@@ -50,8 +51,9 @@ func TestAccFunction_RemoveNil(t *testing.T) {
 		}
 	)
 
-	if !reflect.DeepEqual(RemoveNil(testInput), expected) {
-		t.Fatalf("The processing result of RemoveNil method is not as expected, want %s, but %s", green(expected), yellow(testInput))
+	testOutput := RemoveNil(testInput)
+	if !reflect.DeepEqual(testOutput, expected) {
+		t.Fatalf("The processing result of RemoveNil method is not as expected, want %s, but %s", green(expected), yellow(testOutput))
 	}
 	t.Logf("The processing result of RemoveNil method meets expectation: %s", green(expected))
 }
@@ -80,4 +82,21 @@ func TestAccFunction_jsonStringsEqual(t *testing.T) {
 			"but got '%v'", green(true), yellow(false))
 	}
 	t.Logf("The processing result of function 'JSONStringsEqual' meets expectation: %s", green(true))
+}
+
+func TestAccFunction_PasswordEncrypt(t *testing.T) {
+	var password = "Test@123!"
+	encrypted, err := PasswordEncrypt(password)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("The encrypted string of %s is %s", password, green(encrypted))
+
+	newEncrypted, err := TryPasswordEncrypt(encrypted)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if newEncrypted != encrypted {
+		t.Fatalf("The encrypted string is not as expected, want %s, but %s", green(encrypted), yellow(newEncrypted))
+	}
 }
