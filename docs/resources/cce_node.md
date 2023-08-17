@@ -369,6 +369,12 @@ The following arguments are supported:
   The [object](#extend_params) structure is documented below.
   Changing this parameter will create a new resource.
 
+* `dedicated_host_id` - (Optional, String, ForceNew) Specifies the ID of the DeH to which the node is scheduled.
+  Changing this parameter will create a new resource.
+
+* `initialized_conditions` - (Optional, List, ForceNew) Specifies the custom initialization flags.
+  Changing this parameter will create a new resource.
+
 * `labels` - (Optional, Map, ForceNew) Specifies the tags of a Kubernetes node, key/value pair format.
   Changing this parameter will create a new resource.
 

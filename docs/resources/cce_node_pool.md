@@ -231,6 +231,8 @@ The following arguments are supported:
 * `pod_security_groups` - (Optional, List, ForceNew) Specifies the list of security group IDs for the pod.
   Only supported in CCE Turbo clusters of v1.19 and above. Changing this parameter will create a new resource.
 
+* `initialized_conditions` - (Optional, List) Specifies the custom initialization flags.
+
 * `labels` - (Optional, Map) Specifies the tags of a Kubernetes node, key/value pair format.
 
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
