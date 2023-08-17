@@ -53,6 +53,14 @@
                 "type": "number",
                 "required": true
               },
+              "initialized_conditions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "key_pair": {
                 "type": "string",
                 "optional": true,

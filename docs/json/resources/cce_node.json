@@ -35,6 +35,11 @@
                 "required": true,
                 "forcenew": true
               },
+              "dedicated_host_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "ecs_group_id": {
                 "type": "string",
                 "optional": true,
@@ -58,6 +63,15 @@
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "initialized_conditions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "iptype": {
                 "type": "string",
@@ -250,6 +264,19 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "max_items": 1
+              },
+              "extension_nics": {
+                "block": {
+                  "attributes": {
+                    "subnet_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
               },
               "root_volume": {
                 "block": {
