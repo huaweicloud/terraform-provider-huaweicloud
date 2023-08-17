@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 1.54.1 (August 17, 2023)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node: Support extension nics param [GH-3303]
+* resource/huaweicloud_cce_node: Support dedicated_host_id and initialized_conditions params [GH-3307]
+
+BUG FIXES:
+
+* resource/huaweicloud_obs_bucket_policy: Add checkDeleted in read function [GH-3306]
+* resource/huaweicloud_lts_stream: Add checkDeleted in read function [GH-3311]
+
 ## 1.54.0 (August 15, 2023)
 
 * **New Resurce:**
