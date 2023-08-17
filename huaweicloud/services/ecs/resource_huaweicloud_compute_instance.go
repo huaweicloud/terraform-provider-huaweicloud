@@ -38,6 +38,7 @@ var (
 		"OFF":    "os-stop",
 		"REBOOT": "reboot",
 	}
+	SystemDiskType = "GPSSD"
 )
 
 func ResourceComputeInstance() *schema.Resource {
@@ -1687,7 +1688,7 @@ func flattenTagsToMap(tags []string) map[string]string {
 func buildInstanceRootVolume(d *schema.ResourceData) cloudservers.RootVolume {
 	diskType := d.Get("system_disk_type").(string)
 	if diskType == "" {
-		diskType = "GPSSD"
+		diskType = SystemDiskType
 	}
 	volRequest := cloudservers.RootVolume{
 		VolumeType: diskType,
