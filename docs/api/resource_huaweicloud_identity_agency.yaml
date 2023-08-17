@@ -22,23 +22,39 @@ paths:
     post:
       tag: IAM
       operationId: Create
-  /v3.0/OS-AGENCY/{resource}/{resourceID}/agencies/{agencyID}/roles/{roleID}:
+  /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles/{roleID}:
     delete:
       tag: IAM
       operationId: DetachRoleByDomain
+    put:
+      tag: IAM
+      operationId: AttachRoleByDomain
+  /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles/{roleID}:
     delete:
       tag: IAM
       operationId: DetachRoleByProject
     put:
       tag: IAM
-      operationId: AttachRoleByDomain
+      operationId: AttachRoleByProject
+  /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/{roleID}/inherited_to_projects:
+    delete:
+      tag: IAM
+      operationId: DetachRoleWithAllProjects
     put:
       tag: IAM
-      operationId: AttachRoleByProject
-  /v3.0/OS-AGENCY/{resource}/{resourceID}/agencies/{agencyID}/roles:
+      operationId: AttachRoleWithAllProjects
+  /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles:
+    get:
+      tag: IAM
+      operationId: ListRolesAttachedOnDomain
+  /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles:
     get:
       tag: IAM
       operationId: ListRolesAttachedOnProject
+  /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/inherited_to_projects:
+    get:
+      tag: IAM
+      operationId: ListRolesAttachedOnAllProjects
   /v3/projects:
     get:
       tag: IAM
