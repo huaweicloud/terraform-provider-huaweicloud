@@ -1,5 +1,5 @@
 ---
-subcategory: "GaussDB(for openGauss)"
+subcategory: "GaussDB"
 ---
 
 # huaweicloud\_gaussdb\_opengauss\_instance
