@@ -73,6 +73,7 @@ func ResourceApigApplicationV2() *schema.Resource {
 			"app_codes": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
