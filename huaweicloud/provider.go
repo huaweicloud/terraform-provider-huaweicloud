@@ -448,6 +448,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_broker":    dms.DataSourceDmsRocketMQBroker(),
 			"huaweicloud_dms_rocketmq_instances": dms.DataSourceDmsRocketMQInstances(),
 
+			"huaweicloud_dns_zones": dns.DataSourceZones(),
+
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
 			"huaweicloud_er_attachments":  er.DataSourceAttachments(),
