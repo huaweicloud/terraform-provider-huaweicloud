@@ -56,6 +56,12 @@ func ResourceIdentityProvider() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{protocolSAML, protocolOIDC}, false),
 			},
+			"sso_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -168,10 +174,6 @@ func ResourceIdentityProvider() *schema.Resource {
 					},
 				},
 			},
-			"sso_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"login_link": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -191,6 +193,7 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 	opts := providers.CreateProviderOpts{
 		Enabled:     d.Get("status").(bool),
 		Description: d.Get("description").(string),
+		SsoType:     d.Get("sso_type").(string),
 	}
 	name := d.Get("name").(string)
 	log.Printf("[DEBUG] Create identity options %s : %#v", name, opts)

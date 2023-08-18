@@ -6,7 +6,8 @@ subcategory: "Identity and Access Management (IAM)"
 
 Manages the identity providers within HuaweiCloud IAM service.
 
--> **NOTE:** You can create up to 10 identity providers.
+-> **NOTE:** 1. You *must* have admin privileges to use this resource.
+  <br/>2. You can create up to 10 identity providers.
 
 ## Example Usage
 
@@ -63,12 +64,29 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `protocol` - (Required, String, ForceNew) Specifies the protocol of the identity provider.
-  Valid values are *saml* and *oidc*.
-  Changing this creates a new resource.
+  Valid values are **saml** and **oidc**. Changing this creates a new resource.
 
 * `status` - (Optional, Bool) Enabled status for the identity provider. Defaults to true.
 
 * `description` - (Optional, String) Specifies the description of the identity provider.
+
+* `sso_type` - (Optional, String, ForceNew) Specifies the single sign-on type of the identity provider.
+  Valid values are as follows:
+  + **virtual_user_sso**: After a federated user logs in to HuaweiCloud, the system automatically creates a virtual user
+    and assigns permissions to the user based on identity conversion rules.
+  + **iam_user_sso**: After a federated user logs in to HuaweiCloud, the system automatically maps the external identity
+    ID to an IAM user so that the federated user has the permissions of the mapped IAM user.
+
+  The default value is **virtual_user_sso**. For details about how to choose an SSO type,
+  see [Application Scenarios of Virtual User SSO and IAM User SSO](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_08_0251.html).
+  Changing this creates a new resource.
+
+  -> **NOTE:** 1. Only one SSO type of identity provider can be created under an account.
+    <br/>2. The identity provider with OIDC protocol only supports virtual user SSO type.
+    <br/>3. An account can create multiple identity providers with virtual user SSO type.
+    <br/>4. An account can create only one identity provider with IAM user SSO type.
+    <br/>5. When you use IAM user SSO type, make sure that you have set **IAM_SAML_Attributes_xUserId** in the IDP
+      and External Identity ID in the SP to the same value.
 
 * `metadata` - (Optional, String) Specifies the metadata of the IDP(Identity Provider) server.
   To obtain the metadata file of your enterprise IDP, contact the enterprise administrator.
@@ -125,8 +143,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - A resource ID which equals the identity provider name.
 
 * `login_link` - The login link of the identity provider.
-
-* `sso_type` - The single sign-on type of the identity provider.
 
 * `conversion_rules` - The identity conversion rules of the identity provider.
   The [object](#conversion_rules) structure is documented below
