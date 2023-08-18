@@ -77,7 +77,7 @@ The following arguments are supported:
   + **iam_user_sso**: After a federated user logs in to HuaweiCloud, the system automatically maps the external identity
     ID to an IAM user so that the federated user has the permissions of the mapped IAM user.
 
-  The default value is virtual_user_sso. For details about how to choose an SSO type,
+  The default value is **virtual_user_sso**. For details about how to choose an SSO type,
   see [Application Scenarios of Virtual User SSO and IAM User SSO](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_08_0251.html).
   Changing this creates a new resource.
 
