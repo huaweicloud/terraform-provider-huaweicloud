@@ -1,9 +1,12 @@
 package waf
 
 import (
+	"context"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -12,21 +15,19 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
-	PROTECTION_MODE_LOG   = "log"
-	PROTECTION_MODE_BLOCK = "block"
+	ProtectionModeLog   = "log"
+	ProtectionModeBlock = "block"
 )
 
 func ResourceWafPolicyV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafPolicyV1Create,
-		Read:   resourceWafPolicyV1Read,
-		Update: resourceWafPolicyV1Update,
-		Delete: resourceWafPolicyV1Delete,
+		CreateContext: resourceWafPolicyV1Create,
+		ReadContext:   resourceWafPolicyV1Read,
+		UpdateContext: resourceWafPolicyV1Update,
+		DeleteContext: resourceWafPolicyV1Delete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -52,7 +53,7 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Computed: true,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					PROTECTION_MODE_LOG, PROTECTION_MODE_BLOCK,
+					ProtectionModeLog, ProtectionModeBlock,
 				}, false),
 			},
 			"level": {
@@ -138,23 +139,21 @@ func ResourceWafPolicyV1() *schema.Resource {
 	}
 }
 
-func resourceWafPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	createOpts := policies.CreateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 	policy, err := policies.Create(wafClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating waf policy: %s", err)
+		return diag.Errorf("error creating WAF policy: %s", err)
 	}
-
-	logp.Printf("[DEBUG] Waf policy created: %#v", policy)
 	d.SetId(policy.Id)
 	d.Set("name", policy.Name)
 
@@ -162,20 +161,20 @@ func resourceWafPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
 	protectionMode := d.Get("protection_mode").(string)
 
 	// Get the policy details, then check if need to update 'protection_mode' or 'level.
-	err = resourceWafPolicyV1Read(d, meta)
+	resourceWafPolicyV1Read(ctx, d, meta)
 
 	// If the vlaue of 'protection_mode' or 'level' is not equal to the value returned by the server,
 	// then update the policy.
-	err = checkAndUpdateDefaultVal(wafClient, d, protectionMode, level, config)
+	err = checkAndUpdateDefaultVal(wafClient, d, protectionMode, level, cfg)
 	if err != nil {
-		return fmtp.Errorf("the Waf Policy was created successfully, "+
+		return diag.Errorf("the Waf Policy was created successfully, "+
 			"but failed to update protection_mode or level : %s", err)
 	} else {
 		d.Set("protection_mode", protectionMode)
 		d.Set("level", level)
 	}
 
-	return err
+	return resourceWafPolicyV1Read(ctx, d, meta)
 }
 
 // checkAndUpdateDefaultVal check the vlaue of 'protection_mode' or 'level' is not equal to
@@ -200,58 +199,62 @@ func checkAndUpdateDefaultVal(wafClient *golangsdk.ServiceClient, d *schema.Reso
 	}
 
 	if needUpdate {
-		logp.Printf("[DEBUG] update default protection_mode or level: %#v", updateOpts)
 		_, err := policies.Update(wafClient, d.Id(), updateOpts).Extract()
 		return err
 	}
 	return nil
 }
 
-func resourceWafPolicyV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	wafClient, err := cfg.WafV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	n, err := policies.GetWithEpsID(wafClient, d.Id(), common.GetEnterpriseProjectID(d, config)).Extract()
+	n, err := policies.GetWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Waf Policy")
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF policy")
 	}
 
-	d.Set("region", config.GetRegion(d))
-	d.Set("name", n.Name)
-	d.Set("level", n.Level)
-	d.Set("protection_mode", n.Action.Category)
-	d.Set("full_detection", n.FullDetection)
-
-	options := []map[string]interface{}{
-		{
-			"basic_web_protection":  n.Options.Webattack,
-			"general_check":         n.Options.Common,
-			"crawler":               n.Options.Crawler,
-			"crawler_engine":        n.Options.CrawlerEngine,
-			"crawler_scanner":       n.Options.CrawlerScanner,
-			"crawler_script":        n.Options.CrawlerScript,
-			"crawler_other":         n.Options.CrawlerOther,
-			"webshell":              n.Options.Webshell,
-			"cc_attack_protection":  n.Options.Cc,
-			"precise_protection":    n.Options.Custom,
-			"blacklist":             n.Options.Whiteblackip,
-			"false_alarm_masking":   n.Options.Ignore,
-			"data_masking":          n.Options.Privacy,
-			"web_tamper_protection": n.Options.Antitamper,
-		},
-	}
-	d.Set("options", options)
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", n.Name),
+		d.Set("level", n.Level),
+		d.Set("protection_mode", n.Action.Category),
+		d.Set("full_detection", n.FullDetection),
+		d.Set("options", flattenOptions(n)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceWafPolicyV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func flattenOptions(policy *policies.Policy) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"basic_web_protection":  policy.Options.Webattack,
+			"general_check":         policy.Options.Common,
+			"crawler":               policy.Options.Crawler,
+			"crawler_engine":        policy.Options.CrawlerEngine,
+			"crawler_scanner":       policy.Options.CrawlerScanner,
+			"crawler_script":        policy.Options.CrawlerScript,
+			"crawler_other":         policy.Options.CrawlerOther,
+			"webshell":              policy.Options.Webshell,
+			"cc_attack_protection":  policy.Options.Cc,
+			"precise_protection":    policy.Options.Custom,
+			"blacklist":             policy.Options.Whiteblackip,
+			"false_alarm_masking":   policy.Options.Ignore,
+			"data_masking":          policy.Options.Privacy,
+			"web_tamper_protection": policy.Options.Antitamper,
+		},
+	}
+}
+
+func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	if d.HasChanges("name", "level", "protection_mode") {
@@ -261,30 +264,27 @@ func resourceWafPolicyV1Update(d *schema.ResourceData, meta interface{}) error {
 			Action: &policies.Action{
 				Category: d.Get("protection_mode").(string),
 			},
-			EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
 
-		logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
 		_, err = policies.Update(wafClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("error updating WAF Policy: %s", err)
+			return diag.Errorf("error updating WAF policy: %s", err)
 		}
 	}
-	return resourceWafPolicyV1Read(d, meta)
+	return resourceWafPolicyV1Read(ctx, d, meta)
 }
 
-func resourceWafPolicyV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafPolicyV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	err = policies.DeleteWithEpsID(wafClient, d.Id(), common.GetEnterpriseProjectID(d, config)).ExtractErr()
+	err = policies.DeleteWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("error deleting WAF Policy: %s", err)
+		return diag.Errorf("error deleting WAF policy: %s", err)
 	}
-
-	d.SetId("")
 	return nil
 }
