@@ -34,8 +34,10 @@ var (
 	HW_NETWORK_ID            = os.Getenv("HW_NETWORK_ID")
 	HW_SUBNET_ID             = os.Getenv("HW_SUBNET_ID")
 	HW_ENTERPRISE_PROJECT_ID = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
-	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
+
+	HW_MAPREDUCE_CUSTOM           = os.Getenv("HW_MAPREDUCE_CUSTOM")
+	HW_MAPREDUCE_BOOTSTRAP_SCRIPT = os.Getenv("HW_MAPREDUCE_BOOTSTRAP_SCRIPT")
 
 	HW_CNAD_ENABLE_FLAG       = os.Getenv("HW_CNAD_ENABLE_FLAG")
 	HW_CNAD_PROJECT_OBJECT_ID = os.Getenv("HW_CNAD_PROJECT_OBJECT_ID")
@@ -317,6 +319,13 @@ func TestAccPreCheckSms(t *testing.T) {
 func TestAccPreCheckMrsCustom(t *testing.T) {
 	if HW_MAPREDUCE_CUSTOM == "" {
 		t.Skip("HW_MAPREDUCE_CUSTOM must be set for acceptance tests:custom type cluster of map reduce")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckMrsBootstrapScript(t *testing.T) {
+	if HW_MAPREDUCE_BOOTSTRAP_SCRIPT == "" {
+		t.Skip("HW_MAPREDUCE_BOOTSTRAP_SCRIPT must be set for acceptance tests: cluster of map reduce with bootstrap")
 	}
 }
 
