@@ -132,8 +132,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Value options:
-  + **PER**: Billed by bandwidth.
-  + **WHOLE**: Billed by traffic.
+  + **PER**: Dedicated bandwidth.
+  + **WHOLE**: Shared bandwidth.
   
   It is mandatory when `iptype` is set and `bandwidth_id` is empty.
   Changing this parameter will create a new resource.
