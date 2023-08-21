@@ -20,8 +20,8 @@ type User struct {
 	CreateAt         string `json:"create_time"`
 	UpdateAt         string `json:"update_time"`
 	LastLogin        string `json:"last_login_time"`
-	XuserID          string `json:"xuser_id"`
-	XuserType        string `json:"xuser_type"`
+	XUserID          string `json:"xuser_id"`
+	XUserType        string `json:"xuser_type"`
 
 	// Links contains referencing links to the user.
 	Links map[string]interface{} `json:"links"`
