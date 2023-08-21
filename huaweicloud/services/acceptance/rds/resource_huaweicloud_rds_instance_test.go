@@ -35,6 +35,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
@@ -52,6 +53,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
@@ -291,8 +293,10 @@ func TestAccRdsInstance_restore_mysql(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test_backup"
-	pwd := acceptance.RandomPassword()
-	newPwd := acceptance.RandomPassword()
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+	newPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -338,8 +342,10 @@ func TestAccRdsInstance_restore_sqlserver(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test_backup"
-	pwd := acceptance.RandomPassword()
-	newPwd := acceptance.RandomPassword()
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+	newPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -381,8 +387,10 @@ func TestAccRdsInstance_restore_pg(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test_backup"
-	pwd := acceptance.RandomPassword()
-	newPwd := acceptance.RandomPassword()
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+	newPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -484,6 +492,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
+  description       = "test_description"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -844,38 +853,59 @@ resource "huaweicloud_rds_instance" "test" {
 
 func testAccRdsInstance_prePaid(name, pwd string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_rds_instance" "test" {
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), [])
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
 
-  name      = "%[2]s"
-  flavor    = "rds.mssql.spec.se.c6.large.4"
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "SQLServer"
+  db_version    = "2019_SE"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 4
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  name      = "%[1]s"
+  flavor    = data.huaweicloud_rds_flavors.test.flavors[0].name
   collation = "Chinese_PRC_CI_AS"
 
   db {
-    password = "%[3]s"
+    password = "%[2]s"
     type     = "SQLServer"
-    version  = "2014_SE"
-    port     = 8635
+    version  = "2019_SE"
+    port     = 8638
   }
 
   volume {
-    type = "ULTRAHIGH"
-    size = 40
+    type = "CLOUDSSD"
+    size = 50
   }
 
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[4]v"
+  auto_renew    = "%[3]v"
 }
-`, common.TestBaseNetwork(name), name, pwd, isAutoRenew)
+`, name, pwd, isAutoRenew)
 }
 
 func testAccRdsInstance_parameters(name string) string {
