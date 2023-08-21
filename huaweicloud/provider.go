@@ -521,6 +521,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_notebook_flavors": modelarts.DataSourceNotebookFlavors(),
 			"huaweicloud_modelarts_service_flavors":  modelarts.DataSourceServiceFlavors(),
 			"huaweicloud_modelarts_models":           modelarts.DataSourceModels(),
+			"huaweicloud_modelarts_model_templates":  modelarts.DataSourceModelTemplates(),
 
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
