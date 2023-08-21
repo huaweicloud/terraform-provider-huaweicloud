@@ -240,10 +240,53 @@ func ResourceCluster() *schema.Resource {
 				Computed: true,
 			},
 			"extend_param": {
-				Type:     schema.TypeMap,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "schema: Internal",
+			},
+			"extend_params": {
+				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				ConflictsWith: []string{
+					"multi_az",
+				},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cluster_az": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"dss_master_volumes": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"fix_pool_mask": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"dec_master_flavor": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"docker_umask_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"cpu_manager_policy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
 			},
 			"hibernate": {
 				Type:     schema.TypeBool,
@@ -353,12 +396,68 @@ func resourceClusterAnnotations(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-func resourceClusterExtendParam(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func resourceClusterExtendParam(d *schema.ResourceData) map[string]interface{} {
 	extendParam := make(map[string]interface{})
 	if v, ok := d.GetOk("extend_param"); ok {
 		for key, val := range v.(map[string]interface{}) {
 			extendParam[key] = val.(string)
 		}
+	}
+
+	if multiAZ, ok := d.GetOk("multi_az"); ok && multiAZ.(bool) {
+		extendParam["clusterAZ"] = "multi_az"
+	}
+
+	return extendParam
+}
+
+func resourceClusterExtendParams(extendParamsRaw []interface{}) map[string]interface{} {
+	if len(extendParamsRaw) != 1 {
+		return nil
+	}
+
+	if extendParams, ok := extendParamsRaw[0].(map[string]interface{}); ok {
+		res := map[string]interface{}{
+			"clusterAZ":                      utils.ValueIngoreEmpty(extendParams["cluster_az"]),
+			"dssMasterVolumes":               utils.ValueIngoreEmpty(extendParams["dss_master_volumes"]),
+			"alpha.cce/fixPoolMask":          utils.ValueIngoreEmpty(extendParams["fix_pool_mask"]),
+			"decMasterFlavor":                utils.ValueIngoreEmpty(extendParams["dec_master_flavor"]),
+			"dockerUmaskMode":                utils.ValueIngoreEmpty(extendParams["docker_umask_mode"]),
+			"kubernetes.io/cpuManagerPolicy": utils.ValueIngoreEmpty(extendParams["cpu_manager_policy"]),
+		}
+
+		return res
+	}
+
+	return nil
+}
+
+func buildResourceClusterExtendParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	res := make(map[string]interface{})
+	extendParam := resourceClusterExtendParam(d)
+	extendParams := resourceClusterExtendParams(d.Get("extend_params").([]interface{}))
+
+	// defaults to use extend_params
+	if len(extendParam) != 0 {
+		for k, v := range extendParam {
+			res[k] = v
+		}
+	} else {
+		for k, v := range extendParams {
+			res[k] = v
+		}
+	}
+
+	if kubeProxyMode, ok := d.GetOk("kube_proxy_mode"); ok {
+		res["kubeProxyMode"] = kubeProxyMode.(string)
+	}
+	if eip, ok := d.GetOk("eip"); ok {
+		res["clusterExternalIP"] = eip.(string)
+	}
+
+	epsID := cfg.GetEnterpriseProjectID(d)
+	if epsID != "" {
+		res["enterpriseProjectId"] = epsID
 	}
 
 	// assemble the charge info
@@ -371,36 +470,21 @@ func resourceClusterExtendParam(d *schema.ResourceData, config *config.Config) m
 		billingMode = v.(int)
 	}
 	if isPrePaid || billingMode == 1 {
-		extendParam["isAutoRenew"] = "false"
-		extendParam["isAutoPay"] = common.GetAutoPay(d)
+		res["isAutoRenew"] = "false"
+		res["isAutoPay"] = common.GetAutoPay(d)
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {
-		extendParam["periodType"] = v.(string)
+		res["periodType"] = v.(string)
 	}
 	if v, ok := d.GetOk("period"); ok {
-		extendParam["periodNum"] = v.(int)
+		res["periodNum"] = v.(int)
 	}
 	if v, ok := d.GetOk("auto_renew"); ok {
-		extendParam["isAutoRenew"] = v.(string)
+		res["isAutoRenew"] = v.(string)
 	}
 
-	if multi_az, ok := d.GetOk("multi_az"); ok && multi_az == true {
-		extendParam["clusterAZ"] = "multi_az"
-	}
-	if kube_proxy_mode, ok := d.GetOk("kube_proxy_mode"); ok {
-		extendParam["kubeProxyMode"] = kube_proxy_mode.(string)
-	}
-	if eip, ok := d.GetOk("eip"); ok {
-		extendParam["clusterExternalIP"] = eip.(string)
-	}
-
-	epsID := config.GetEnterpriseProjectID(d)
-	if epsID != "" {
-		extendParam["enterpriseProjectId"] = epsID
-	}
-
-	return extendParam
+	return utils.RemoveNil(res)
 }
 
 func resourceClusterMasters(d *schema.ResourceData) ([]clusters.MasterSpec, error) {
@@ -520,7 +604,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				AuthenticatingProxy: authenticating_proxy,
 			},
 			BillingMode:          billingMode,
-			ExtendParam:          resourceClusterExtendParam(d, config),
+			ExtendParam:          buildResourceClusterExtendParams(d, config),
 			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
 			ClusterTags:          resourceClusterTags(d),
 		},
