@@ -77,6 +77,59 @@ func TestAccIdentityUser_basic(t *testing.T) {
 	})
 }
 
+func TestAccIdentityUser_external(t *testing.T) {
+	var user users.User
+	userName := acceptance.RandomAccResourceName()
+	password := acceptance.RandomPassword()
+	initXUserID := "123456789-abcdefg"
+	newXUserID := "abcdefg-123456789"
+	resourceName := "huaweicloud_identity_user.user_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&user,
+		getIdentityUserResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityUser_external(userName, password, initXUserID),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "description", "IAM user with external identity id"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "true"),
+					resource.TestCheckResourceAttr(resourceName, "password_strength", "Strong"),
+					resource.TestCheckResourceAttr(resourceName, "external_identity_id", initXUserID),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+				},
+			},
+			{
+				Config: testAccIdentityUser_external(userName, password, newXUserID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "external_identity_id", newXUserID),
+				),
+			},
+		},
+	})
+}
+
 func testAccIdentityUser_basic(name, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
@@ -100,4 +153,15 @@ resource "huaweicloud_identity_user" "user_1" {
   description = "updated by terraform"
 }
 `, name, password)
+}
+
+func testAccIdentityUser_external(name, password, xUserID string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_user" "user_1" {
+  name                 = "%s"
+  password             = "%s"
+  description          = "IAM user with external identity id"
+  external_identity_id = "%s"
+}
+`, name, password, xUserID)
 }

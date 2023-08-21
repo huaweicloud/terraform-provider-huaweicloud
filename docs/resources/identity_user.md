@@ -49,6 +49,13 @@ The following arguments are supported:
   + **programmatic**: only support programmatic access.
   + **console**: only support management console access.
 
+* `external_identity_id` - (Optional, String) Specifies the ID of the IAM user in the external system.
+  This parameter is used for IAM user SSO type, make sure that the **IAM_SAML_Attributes_xUserId** of the federated user
+  is the same as the `external_identity_id` of the corresponding IAM user.
+
+* `external_identity_type` - (Optional, String) Specifies the type of the IAM user in the external system.
+  Only **TenantIdp** is supported now. This parameter must be used together with `external_identity_id`.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

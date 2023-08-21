@@ -36,6 +36,12 @@ type CreateOpts struct {
 	// AccessMode is the access type for IAM user
 	AccessMode string `json:"access_mode,omitempty"`
 
+	// XUserID is the user ID in the external system, it must be used together with xuser_type.
+	XUserID string `json:"xuser_id,omitempty"`
+
+	// XUserType is the user type in the external system. Currently, it can only be "TenantIdp".
+	XUserType string `json:"xuser_type,omitempty"`
+
 	// Enabled sets the user status to enabled or disabled.
 	Enabled *bool `json:"enabled,omitempty"`
 
@@ -93,6 +99,12 @@ type UpdateOpts struct {
 
 	// AccessMode is the access type for IAM user
 	AccessMode string `json:"access_mode,omitempty"`
+
+	// XUserID is the user ID in the external system, it must be used together with xuser_type.
+	XUserID *string `json:"xuser_id,omitempty"`
+
+	// XUserType is the user type in the external system, currently, it can only be "TenantIdp".
+	XUserType *string `json:"xuser_type,omitempty"`
 
 	// Enabled sets the user status to enabled or disabled.
 	Enabled *bool `json:"enabled,omitempty"`

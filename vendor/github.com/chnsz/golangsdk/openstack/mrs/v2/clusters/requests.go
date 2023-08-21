@@ -297,6 +297,7 @@ type ScriptOpts struct {
 	// Time when the bootstrap action script is executed. Currently, the following two options are available: Before component start and After component start
 	// The default value is false, indicating that the bootstrap action script is executed after the component is started.
 	BeforeComponentStart *bool `json:"before_component_start,omitempty"`
+	ExecuteNeedSudoRoot  *bool `json:"execute_need_sudo_root,omitempty"`
 }
 
 type ComponentConfigOpts struct {
