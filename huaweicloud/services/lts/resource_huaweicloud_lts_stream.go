@@ -1,4 +1,4 @@
-package huaweicloud
+package lts
 
 import (
 	"github.com/chnsz/golangsdk"
@@ -46,7 +46,7 @@ func ResourceLTSStreamV2() *schema.Resource {
 
 func resourceStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -69,7 +69,7 @@ func resourceStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -113,7 +113,7 @@ func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -121,7 +121,7 @@ func resourceStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	groupId := d.Get("group_id").(string)
 	err = logstreams.Delete(client, groupId, d.Id()).ExtractErr()
 	if err != nil {
-		return CheckDeleted(d, err, "Error deleting log stream")
+		return common.CheckDeleted(d, err, "Error deleting log stream")
 	}
 
 	d.SetId("")

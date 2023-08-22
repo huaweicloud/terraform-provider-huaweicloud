@@ -1,4 +1,4 @@
-package huaweicloud
+package lts
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -17,9 +18,11 @@ func TestAccLogTankStreamV2_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLogTankStreamV2Destroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckLogTankStreamV2Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLogTankStreamV2_basic(rName),
@@ -35,8 +38,8 @@ func TestAccLogTankStreamV2_basic(t *testing.T) {
 }
 
 func testAccCheckLogTankStreamV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	ltsclient, err := config.LtsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -67,8 +70,8 @@ func testAccCheckLogTankStreamV2Exists(n string, stream *logstreams.LogStream) r
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		ltsclient, err := config.LtsV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 		}

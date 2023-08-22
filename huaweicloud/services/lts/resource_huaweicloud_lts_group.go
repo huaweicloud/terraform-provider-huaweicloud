@@ -1,8 +1,9 @@
-package huaweicloud
+package lts
 
 import (
 	"github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -40,7 +41,7 @@ func ResourceLTSGroupV2() *schema.Resource {
 
 func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -63,7 +64,7 @@ func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -88,7 +89,7 @@ func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -109,14 +110,14 @@ func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	err = loggroups.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
-		return CheckDeleted(d, err, "Error deleting log group")
+		return common.CheckDeleted(d, err, "Error deleting log group")
 	}
 
 	d.SetId("")
