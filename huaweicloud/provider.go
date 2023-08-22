@@ -952,6 +952,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_group":      ResourceLTSGroupV2(),
 			"huaweicloud_lts_stream":     ResourceLTSStreamV2(),
 			"huaweicloud_lts_host_group": lts.ResourceHostGroup(),
+			"huaweicloud_lts_transfer":   lts.ResourceLtsTransfer(),
 
 			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
