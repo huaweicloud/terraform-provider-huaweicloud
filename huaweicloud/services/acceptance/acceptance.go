@@ -260,6 +260,13 @@ func TestAccPrecheckDomainId(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPrecheckDomainName(t *testing.T) {
+	if HW_DOMAIN_NAME == "" {
+		t.Skip("HW_DOMAIN_NAME must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPrecheckCustomRegion(t *testing.T) {
 	if HW_CUSTOM_REGION_NAME == "" {
 		t.Skip("HW_CUSTOM_REGION_NAME must be set for acceptance tests")
