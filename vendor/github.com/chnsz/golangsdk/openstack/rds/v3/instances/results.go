@@ -26,6 +26,10 @@ type RenameResult struct {
 	commonResult
 }
 
+type ModifyAliasResult struct {
+	commonResult
+}
+
 type SingleToHaResult struct {
 	commonResult
 }
@@ -218,6 +222,17 @@ type RdsInstanceResponse struct {
 	DiskEncryptionId    string             `json:"disk_encryption_id"`
 	EnterpriseProjectId string             `json:"enterprise_project_id"`
 	TimeZone            string             `json:"time_zone"`
+	Alias               string             `json:"alias"`
+	AssociatedWithDdm   bool               `json:"associated_with_ddm"`
+	BackupUsedSpace     float64            `json:"backup_used_space"`
+	Cpu                 string             `json:"cpu"`
+	EnableSsl           bool               `json:"enable_ssl"`
+	ExpirationTime      string             `json:"expiration_time"`
+	MaxIops             int                `json:"max_iops"`
+	Mem                 string             `json:"mem"`
+	PrivateDnsNames     []string           `json:"private_dns_names"`
+	ReadOnlyByUser      bool               `json:"read_only_by_user"`
+	StorageUsedSpace    float64            `json:"storage_used_space"`
 	Tags                []tags.ResourceTag `json:"tags"`
 }
 

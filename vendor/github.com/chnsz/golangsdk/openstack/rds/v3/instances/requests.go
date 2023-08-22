@@ -2,6 +2,7 @@ package instances
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
@@ -25,9 +26,11 @@ type CreateOpts struct {
 	RestorePoint        *RestorePoint      `json:"restore_point,omitempty"`
 	ChargeInfo          *ChargeInfo        `json:"charge_info,omitempty"`
 	TimeZone            string             `json:"time_zone,omitempty"`
+	DssPoolId           string             `json:"dsspool_id,omitempty"`
 	FixedIp             string             `json:"data_vip,omitempty"`
 	Collation           string             `json:"collation,omitempty"`
 	UnchangeableParam   *UnchangeableParam `json:"unchangeable_param,omitempty"`
+	Tags                []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 type CreateReplicaOpts struct {
@@ -43,8 +46,9 @@ type CreateReplicaOpts struct {
 }
 
 type Datastore struct {
-	Type    string `json:"type" required:"true"`
-	Version string `json:"version" required:"true"`
+	Type            string `json:"type" required:"true"`
+	Version         string `json:"version" required:"true"`
+	CompleteVersion string `json:"complete_version,omitempty"`
 }
 
 type Ha struct {
@@ -596,4 +600,25 @@ func GetAutoExpand(c *golangsdk.ServiceClient, instanceId string) (*AutoExpansio
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
+}
+
+type ModifyAliasOpts struct {
+	Alias string `json:"alias,omitempty"`
+}
+
+func (opts ModifyAliasOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifyAlias is a method used to modify the alias.
+func ModifyAlias(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r ModifyAliasResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(updateURL(c, instanceId, "alias"), b, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{200, 202},
+	})
+	return
 }

@@ -217,7 +217,7 @@ func resourceIdentityUserUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if d.HasChange("description") {
-		updateOpts.Description = d.Get("description").(string)
+		updateOpts.Description = utils.String(d.Get("description").(string))
 	}
 
 	if d.HasChange("email") {

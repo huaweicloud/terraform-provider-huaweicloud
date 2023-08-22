@@ -6,13 +6,16 @@ import (
 
 // Policy contains the infomateion of the policy.
 type Policy struct {
-	Id            string       `json:"id"`
-	Name          string       `json:"name"`
-	Action        Action       `json:"action"`
-	Options       PolicyOption `json:"options"`
-	Level         int          `json:"level"`
-	FullDetection bool         `json:"full_detection"`
-	BindHosts     []BindHost   `json:"bind_host"`
+	Id            string            `json:"id"`
+	Name          string            `json:"name"`
+	Action        Action            `json:"action"`
+	RobotAction   Action            `json:"robot_action"`
+	Options       PolicyOption      `json:"options"`
+	Level         int               `json:"level"`
+	FullDetection bool              `json:"full_detection"`
+	Hosts         []string          `json:"hosts"`
+	BindHosts     []BindHost        `json:"bind_host"`
+	Extend        map[string]string `json:"extend"`
 }
 
 //Action contains actions after the attack is detected
@@ -23,28 +26,33 @@ type Action struct {
 
 // PolicyOption contains the protection rule of a policy
 type PolicyOption struct {
-	Webattack      bool `json:"webattack,omitempty"`
-	Common         bool `json:"common,omitempty"`
-	Crawler        bool `json:"crawler,omitempty"`
-	CrawlerEngine  bool `json:"crawler_engine,omitempty"`
-	CrawlerScanner bool `json:"crawler_scanner,omitempty"`
-	CrawlerScript  bool `json:"crawler_script,omitempty"`
-	CrawlerOther   bool `json:"crawler_other,omitempty"`
-	Webshell       bool `json:"webshell,omitempty"`
-	Cc             bool `json:"cc,omitempty"`
-	Custom         bool `json:"custom,omitempty"`
-	Whiteblackip   bool `json:"whiteblackip,omitempty"`
-	Ignore         bool `json:"ignore,omitempty"`
-	Privacy        bool `json:"privacy,omitempty"`
-	Antitamper     bool `json:"antitamper,omitempty"`
+	Webattack      *bool `json:"webattack,omitempty"`
+	Common         *bool `json:"common,omitempty"`
+	Crawler        *bool `json:"crawler,omitempty"`
+	CrawlerEngine  *bool `json:"crawler_engine,omitempty"`
+	CrawlerScanner *bool `json:"crawler_scanner,omitempty"`
+	CrawlerScript  *bool `json:"crawler_script,omitempty"`
+	CrawlerOther   *bool `json:"crawler_other,omitempty"`
+	Webshell       *bool `json:"webshell,omitempty"`
+	Cc             *bool `json:"cc,omitempty"`
+	Custom         *bool `json:"custom,omitempty"`
+	Whiteblackip   *bool `json:"whiteblackip,omitempty"`
+	Ignore         *bool `json:"ignore,omitempty"`
+	Privacy        *bool `json:"privacy,omitempty"`
+	Antitamper     *bool `json:"antitamper,omitempty"`
+	GeoIP          *bool `json:"geoip,omitempty"`
+	Antileakage    *bool `json:"antileakage,omitempty"`
+	BotEnable      *bool `json:"bot_enable,omitempty"`
+	FollowedAction *bool `json:"followed_action,omitempty"`
+	Anticrawler    *bool `json:"anticrawler,omitempty"`
 }
 
 // BindHost the hosts bound to this policy.
 type BindHost struct {
-	Id       string `json:"id,omitempty"`
-	Hostname string `json:"hostname,omitempty"`
-	WafType  string `json:"waf_type,omitempty"`
-	Mode     string `json:"mode,omitempty"`
+	Id       string `json:"id"`
+	Hostname string `json:"hostname"`
+	WafType  string `json:"waf_type"`
+	Mode     string `json:"mode"`
 }
 
 type commonResult struct {
