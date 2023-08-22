@@ -111,10 +111,11 @@ func ResourceMigrateTask() *schema.Resource {
 							ForceNew: true,
 						},
 						"disk_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "schema: Required",
 						},
 						"used_size": {
 							Type:     schema.TypeInt,

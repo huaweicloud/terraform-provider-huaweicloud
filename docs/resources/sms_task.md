@@ -83,7 +83,7 @@ The `target_server_disks` block supports:
 * `device_type` - (Required, String, ForceNew) Specifies the disk type. The value can be **NORMAL** and **BOOT**.
   Changing this parameter will create a new resource.
 
-* `disk_id` - (Optional, String, ForceNew) Specifies the disk index, e.g. "0".
+* `disk_id` - (Required, String, ForceNew) Specifies the disk index, e.g. "0".
   Changing this parameter will create a new resource.
 
 * `used_size` - (Optional, Int, ForceNew) Specifies the used space in MB. Changing this parameter will create a new resource.
