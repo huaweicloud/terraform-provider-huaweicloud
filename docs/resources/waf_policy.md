@@ -14,11 +14,25 @@ used. The policy resource can be used in Cloud Mode, Dedicated Mode and ELB Mode
 ```hcl
 variable "enterprise_project_id" {}
 
-resource "huaweicloud_waf_policy" "policy_1" {
-  name                  = "policy_1"
+resource "huaweicloud_waf_policy" "test" {
+  name                  = "test_policy"
   protection_mode       = "log"
+  robot_action          = "block"
   level                 = 2
   enterprise_project_id = var.enterprise_project_id
+
+  options {
+    crawler_scanner                = true
+    crawler_script                 = true
+    false_alarm_masking            = true
+    general_check                  = true
+    geolocation_access_control     = true
+    information_leakage_prevention = true
+    known_attack_source            = true
+    precise_protection             = true
+    web_tamper_protection          = true
+    webshell                       = true
+  }
 }
 ```
 
@@ -32,18 +46,81 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the policy name. The maximum length is 256 characters. Only digits, letters,
   underscores(_), and hyphens(-) are allowed.
 
-* `protection_mode` - (Optional, String) Specifies the protective action after a rule is matched. Defaults to `log`.
-  Valid values are:
-  + `block`: WAF blocks and logs detected attacks.
-  + `log`: WAF logs detected attacks only.
-
-* `level` - (Optional, Int) Specifies the protection level. Defaults to `2`. Valid values are:
-  + `1`: low
-  + `2`: medium
-  + `3`: high
-
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF policy.
   Changing this parameter will create a new resource.
+
+* `full_detection` - (Optional, Bool) Specifies the detection mode in precise protection. Defaults to **false**.
+  + **false**: Instant detection. When a request hits the blocking conditions in precise protection, WAF terminates
+    checks and blocks the request immediately.
+  + **true**: Full detection. If a request hits the blocking conditions in precise protection, WAF does not block the
+    request immediately. Instead, it blocks the requests until other checks are finished.
+
+* `protection_mode` - (Optional, String) Specifies the protective action after a rule is matched. Defaults to **log**.
+  Valid values are:
+  + **block**: WAF blocks and logs detected attacks.
+  + **log**: WAF logs detected attacks only.
+
+* `robot_action` - (Optional, String) Specifies the protective actions for each rule in anti-crawler protection.
+  Defaults to **log**. Valid values are:
+  + **block**: WAF blocks discovered attacks.
+  + **log**: WAF only logs discovered attacks.
+
+* `level` - (Optional, Int) Specifies the protection level. Defaults to **2**. Valid values are:
+  + **1**: Low. At this protection level, WAF blocks only requests with obvious attack features. If a large number of
+    false alarms have been reported, this value is recommended.
+  + **2**: Medium. This protection level meets web protection requirements in most scenarios.
+  + **3**: High. At this protection level, WAF provides the finest granular protection and can intercept attacks with
+    complex bypass features, such as Jolokia cyber attacks, common gateway interface (CGI) vulnerability detection,
+    and Druid SQL injection attacks.
+
+* `options` - (Optional, List) Specifies the switch options of the protection item in the policy.
+  The [options](#Policy_Options) structure is documented below.
+
+<a name="Policy_Options"></a>
+The `options` block supports:
+
+* `basic_web_protection` - (Optional, Bool) Specifies whether basic web protection is enabled. Defaults to **false**.
+
+* `general_check` - (Optional, Bool) Specifies whether the general check in basic web protection is enabled.
+  Defaults to **false**.
+
+* `webshell` - (Optional, Bool) Specifies whether the webshell detection in basic web protection is enabled.
+  Defaults to **false**.
+
+* `crawler_engine` - (Optional, Bool) Specifies whether the search engine is enabled. Defaults to **false**.
+
+* `crawler_scanner` - (Optional, Bool) Specifies whether the anti-crawler detection is enabled. Defaults to **false**.
+
+* `crawler_script` - (Optional, Bool) Specifies whether the script tool is enabled. Defaults to **false**.
+
+* `crawler_other` - (Optional, Bool) Specifies whether other crawler check is enabled. Defaults to **false**.
+
+* `cc_attack_protection` - (Optional, Bool) Specifies whether the cc attack protection rules are enabled.
+  Defaults to **false**.
+
+* `precise_protection` - (Optional, Bool) Specifies whether the precise protection is enabled. Defaults to **false**.
+
+* `blacklist` - (Optional, Bool) Specifies whether the blacklist and whitelist protection is enabled.
+  Defaults to **false**.
+
+* `data_masking` - (Optional, Bool) Specifies whether data masking is enabled. Defaults to **false**.
+
+* `false_alarm_masking` - (Optional, Bool) Specifies whether false alarm masking is enabled. Defaults to **false**.
+
+* `web_tamper_protection` - (Optional, Bool) Specifies whether the web tamper protection is enabled.
+  Defaults to **false**.
+
+* `geolocation_access_control` - (Optional, Bool) Specifies whether the geolocation access control is enabled.
+  Defaults to **false**.
+
+* `information_leakage_prevention` - (Optional, Bool) Specifies whether the information leakage prevention is enabled.
+  Defaults to **false**.
+
+* `bot_enable` - (Optional, Bool) Specifies whether the anti-crawler protection is enabled. Defaults to **false**.
+
+* `known_attack_source` - (Optional, Bool) Specifies whether the known attack source is enabled. Defaults to **false**.
+
+* `anti_crawler` - (Optional, Bool) Specifies whether the javascript anti-crawler is enabled. Defaults to **false**.
 
 ## Attribute Reference
 
@@ -51,43 +128,24 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The policy ID in UUID format.
 
-* `full_detection` - The detection mode in Precise Protection.
-  + `true`: full detection, Full detection finishes all threat detections before blocking requests that meet Precise
-      Protection specified conditions.
-  + `false`: instant detection. Instant detection immediately ends threat detection after blocking a request that
-      meets Precise Protection specified conditions.
+* `deep_inspection` - The deep inspection in basic web protection.
 
-* `options` - The protection switches. The options object structure is documented below.
+* `header_inspection` - The header inspection in basic web protection.
 
-The `options` block supports:
+* `shiro_decryption_check` - The shiro decryption check in basic web protection.
 
-* `basic_web_protection` - Indicates whether Basic Web Protection is enabled.
+* `bind_hosts` - The protection switches. The options object structure is documented below.
 
-* `general_check` - Indicates whether General Check in Basic Web Protection is enabled.
+The `bind_hosts` block supports:
 
-* `crawler` - Indicates whether the master crawler detection switch in Basic Web Protection is enabled.
+* `id` - The domain name ID.
 
-* `crawler_engine` - Indicates whether the Search Engine switch in Basic Web Protection is enabled.
+* `hostname` - The domain name.
 
-* `crawler_scanner` - Indicates whether the Scanner switch in Basic Web Protection is enabled.
+* `waf_type` - The deployment mode of WAF instance that is used for the domain name. The value can be **cloud** for
+  cloud WAF or **premium** for dedicated WAF instances.
 
-* `crawler_script` - Indicates whether the Script Tool switch in Basic Web Protection is enabled.
-
-* `crawler_other` - Indicates whether detection of other crawlers in Basic Web Protection is enabled.
-
-* `webshell` - Indicates whether webshell detection in Basic Web Protection is enabled.
-
-* `cc_attack_protection` - Indicates whether CC Attack Protection is enabled.
-
-* `precise_protection` - Indicates whether Precise Protection is enabled.
-
-* `blacklist` - Indicates whether Blacklist and Whitelist is enabled.
-
-* `data_masking` - Indicates whether Data Masking is enabled.
-
-* `false_alarm_masking` - Indicates whether False Alarm Masking is enabled.
-
-* `web_tamper_protection` - Indicates whether Web Tamper Protection is enabled.
+* `mode` - The special domain name mode. This attribute is only valid for dedicated mode.
 
 ## Import
 

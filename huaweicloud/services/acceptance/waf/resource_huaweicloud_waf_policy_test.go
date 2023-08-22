@@ -48,15 +48,84 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "level", "1"),
 					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "protection_mode", "log"),
+					resource.TestCheckResourceAttr(resourceName, "robot_action", "log"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.basic_web_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.general_check", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_engine", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_scanner", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_script", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_other", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.webshell", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.cc_attack_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.precise_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.blacklist", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.data_masking", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.false_alarm_masking", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.web_tamper_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.geolocation_access_control", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.information_leakage_prevention", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "bind_hosts.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "deep_inspection"),
+					resource.TestCheckResourceAttrSet(resourceName, "header_inspection"),
+					resource.TestCheckResourceAttrSet(resourceName, "shiro_decryption_check"),
 				),
 			},
 			{
-				Config: testAccWafPolicyV1_update(randName),
+				Config: testAccWafPolicyV1_update1(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"_updated"),
+					resource.TestCheckResourceAttr(resourceName, "full_detection", "true"),
 					resource.TestCheckResourceAttr(resourceName, "protection_mode", "block"),
 					resource.TestCheckResourceAttr(resourceName, "level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "robot_action", "block"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.basic_web_protection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.general_check", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_engine", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_scanner", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_script", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_other", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.webshell", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.cc_attack_protection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.precise_protection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.blacklist", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.data_masking", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.false_alarm_masking", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.web_tamper_protection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.geolocation_access_control", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.information_leakage_prevention", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "true"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "true"),
+				),
+			},
+			{
+				Config: testAccWafPolicyV1_update2(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.basic_web_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.general_check", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_engine", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_scanner", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_script", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.crawler_other", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.webshell", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.cc_attack_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.precise_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.blacklist", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.data_masking", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.false_alarm_masking", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.web_tamper_protection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.geolocation_access_control", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.information_leakage_prevention", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "false"),
+					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "false"),
 				),
 			},
 			{
@@ -134,14 +203,57 @@ resource "huaweicloud_waf_policy" "policy_1" {
 `, testAccWafDedicatedInstanceV1_conf(name), name)
 }
 
-func testAccWafPolicyV1_update(name string) string {
+func testAccWafPolicyV1_update1(name string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_waf_policy" "policy_1" {
   name            = "%s_updated"
+  full_detection  = true
   protection_mode = "block"
   level           = 3
+  robot_action    = "block"
+
+  options {
+    anti_crawler                   = true
+    basic_web_protection           = true
+    blacklist                      = true
+    bot_enable                     = true
+    cc_attack_protection           = true
+    crawler_engine                 = true
+    crawler_other                  = true
+    crawler_scanner                = true
+    false_alarm_masking            = true
+    general_check                  = true
+    geolocation_access_control     = true
+    information_leakage_prevention = true
+    known_attack_source            = true
+    precise_protection             = true
+    web_tamper_protection          = true
+    webshell                       = true
+  }
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
+}
+`, testAccWafDedicatedInstanceV1_conf(name), name)
+}
+
+func testAccWafPolicyV1_update2(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_policy" "policy_1" {
+  name            = "%s_updated"
+  full_detection  = false
+  protection_mode = "block"
+  level           = 3
+  robot_action    = "block"
+
+  options {
+    
+  }
 
   depends_on = [
     huaweicloud_waf_dedicated_instance.instance_1

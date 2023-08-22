@@ -2,24 +2,19 @@ package waf
 
 import (
 	"context"
-	"strings"
+	"encoding/json"
+	"log"
 	"time"
-
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-)
-
-const (
-	ProtectionModeLog   = "log"
-	ProtectionModeBlock = "block"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceWafPolicyV1() *schema.Resource {
@@ -48,95 +43,164 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"protection_mode": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					ProtectionModeLog, ProtectionModeBlock,
-				}, false),
-			},
-			"level": {
-				Type:         schema.TypeInt,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 3),
-			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
+			"full_detection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"protection_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"robot_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"level": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"options": {
 				Type:     schema.TypeList,
+				Optional: true,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"basic_web_protection": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"general_check": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"crawler": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"crawler_engine": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"crawler_scanner": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"crawler_script": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"crawler_other": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"webshell": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"cc_attack_protection": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"precise_protection": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"blacklist": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"data_masking": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"false_alarm_masking": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"web_tamper_protection": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-					},
-				},
+				Elem:     policyOptionSchema(),
 			},
-			"full_detection": {
+			"bind_hosts": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     policyBindHostSchema(),
+			},
+			"deep_inspection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"header_inspection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"shiro_decryption_check": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
 		},
 	}
+}
+
+func policyOptionSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"basic_web_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"general_check": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"crawler_engine": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"crawler_scanner": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"crawler_script": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"crawler_other": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"webshell": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"cc_attack_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"precise_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"blacklist": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"data_masking": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"false_alarm_masking": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"web_tamper_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"geolocation_access_control": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"information_leakage_prevention": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"bot_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"known_attack_source": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"anti_crawler": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"crawler": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "schema: Deprecated",
+			},
+		},
+	}
+	return &sc
+}
+
+func policyBindHostSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"hostname": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"waf_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -155,54 +219,70 @@ func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating WAF policy: %s", err)
 	}
 	d.SetId(policy.Id)
-	d.Set("name", policy.Name)
 
-	level := d.Get("level").(int)
-	protectionMode := d.Get("protection_mode").(string)
-
-	// Get the policy details, then check if need to update 'protection_mode' or 'level.
-	resourceWafPolicyV1Read(ctx, d, meta)
-
-	// If the vlaue of 'protection_mode' or 'level' is not equal to the value returned by the server,
-	// then update the policy.
-	err = checkAndUpdateDefaultVal(wafClient, d, protectionMode, level, cfg)
-	if err != nil {
-		return diag.Errorf("the Waf Policy was created successfully, "+
-			"but failed to update protection_mode or level : %s", err)
-	} else {
-		d.Set("protection_mode", protectionMode)
-		d.Set("level", level)
+	// Update policy
+	if err := updatePolicy(wafClient, d, cfg); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceWafPolicyV1Read(ctx, d, meta)
 }
 
-// checkAndUpdateDefaultVal check the vlaue of 'protection_mode' or 'level' is not equal to
-// the value returned by the server.
-// If the value is not equal to the value returned by the server, call the update API to make changes.
-func checkAndUpdateDefaultVal(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
-	protectionMode string, level int, conf *config.Config) error {
-	needUpdate := false
+func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
 	updateOpts := policies.UpdateOpts{
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
+		Name:                d.Get("name").(string),
+		Level:               d.Get("level").(int),
+		FullDetection:       utils.Bool(d.Get("full_detection").(bool)),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		Options:             buildUpdatePolicyOption(d),
 	}
 
-	if strings.Compare(d.Get("protection_mode").(string), protectionMode) != 0 && len(protectionMode) != 0 {
-		needUpdate = true
+	if v, ok := d.GetOk("protection_mode"); ok {
 		updateOpts.Action = &policies.Action{
-			Category: protectionMode,
+			Category: v.(string),
 		}
 	}
-	if d.Get("level").(int) != level && level != 0 {
-		needUpdate = true
-		updateOpts.Level = level
+
+	if v, ok := d.GetOk("robot_action"); ok {
+		updateOpts.RobotAction = &policies.Action{
+			Category: v.(string),
+		}
+	}
+	_, err := policies.Update(client, d.Id(), updateOpts).Extract()
+	return err
+}
+
+func buildUpdatePolicyOption(d *schema.ResourceData) *policies.PolicyOption {
+	// if not specified, make all the switch off
+	defaultOptionMap := make(map[string]bool)
+	if rawArray, ok := d.Get("options").([]interface{}); ok && len(rawArray) > 0 {
+		if rawMap, rawOk := rawArray[0].(map[string]interface{}); rawOk {
+			for k, v := range rawMap {
+				defaultOptionMap[k] = v.(bool)
+			}
+		}
 	}
 
-	if needUpdate {
-		_, err := policies.Update(wafClient, d.Id(), updateOpts).Extract()
-		return err
+	return &policies.PolicyOption{
+		Webattack:      utils.Bool(defaultOptionMap["basic_web_protection"]),
+		Common:         utils.Bool(defaultOptionMap["general_check"]),
+		CrawlerEngine:  utils.Bool(defaultOptionMap["crawler_engine"]),
+		CrawlerScanner: utils.Bool(defaultOptionMap["crawler_scanner"]),
+		CrawlerScript:  utils.Bool(defaultOptionMap["crawler_script"]),
+		CrawlerOther:   utils.Bool(defaultOptionMap["crawler_other"]),
+		Webshell:       utils.Bool(defaultOptionMap["webshell"]),
+		Cc:             utils.Bool(defaultOptionMap["cc_attack_protection"]),
+		Custom:         utils.Bool(defaultOptionMap["precise_protection"]),
+		Whiteblackip:   utils.Bool(defaultOptionMap["blacklist"]),
+		Ignore:         utils.Bool(defaultOptionMap["false_alarm_masking"]),
+		Privacy:        utils.Bool(defaultOptionMap["data_masking"]),
+		Antitamper:     utils.Bool(defaultOptionMap["web_tamper_protection"]),
+		GeoIP:          utils.Bool(defaultOptionMap["geolocation_access_control"]),
+		Antileakage:    utils.Bool(defaultOptionMap["information_leakage_prevention"]),
+		BotEnable:      utils.Bool(defaultOptionMap["bot_enable"]),
+		FollowedAction: utils.Bool(defaultOptionMap["known_attack_source"]),
+		Anticrawler:    utils.Bool(defaultOptionMap["anti_crawler"]),
 	}
-	return nil
 }
 
 func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -218,36 +298,67 @@ func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta int
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF policy")
 	}
 
+	// the extend struct value example is: "extend": "{\"deep_decode\":true}"
+	var extendRespBody interface{}
+	if extendValue, ok := n.Extend["extend"]; ok {
+		if err := json.Unmarshal([]byte(extendValue), &extendRespBody); err != nil {
+			log.Printf("[WARN] error flatten extend map: %s", err)
+		}
+	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", n.Name),
-		d.Set("level", n.Level),
-		d.Set("protection_mode", n.Action.Category),
 		d.Set("full_detection", n.FullDetection),
+		d.Set("protection_mode", n.Action.Category),
+		d.Set("level", n.Level),
+		d.Set("robot_action", n.RobotAction.Category),
 		d.Set("options", flattenOptions(n)),
+		d.Set("bind_hosts", flattenBindHosts(n)),
+		d.Set("deep_inspection", utils.PathSearch("deep_decode", extendRespBody, false)),
+		d.Set("header_inspection", utils.PathSearch("check_all_headers", extendRespBody, false)),
+		d.Set("shiro_decryption_check", utils.PathSearch("shiro_rememberMe_enable", extendRespBody, false)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenOptions(policy *policies.Policy) []map[string]interface{} {
+	policyOption := policy.Options
 	return []map[string]interface{}{
 		{
-			"basic_web_protection":  policy.Options.Webattack,
-			"general_check":         policy.Options.Common,
-			"crawler":               policy.Options.Crawler,
-			"crawler_engine":        policy.Options.CrawlerEngine,
-			"crawler_scanner":       policy.Options.CrawlerScanner,
-			"crawler_script":        policy.Options.CrawlerScript,
-			"crawler_other":         policy.Options.CrawlerOther,
-			"webshell":              policy.Options.Webshell,
-			"cc_attack_protection":  policy.Options.Cc,
-			"precise_protection":    policy.Options.Custom,
-			"blacklist":             policy.Options.Whiteblackip,
-			"false_alarm_masking":   policy.Options.Ignore,
-			"data_masking":          policy.Options.Privacy,
-			"web_tamper_protection": policy.Options.Antitamper,
+			"basic_web_protection":           policyOption.Webattack,
+			"general_check":                  policyOption.Common,
+			"crawler_engine":                 policyOption.CrawlerEngine,
+			"crawler_scanner":                policyOption.CrawlerScanner,
+			"crawler_script":                 policyOption.CrawlerScript,
+			"crawler_other":                  policyOption.CrawlerOther,
+			"webshell":                       policyOption.Webshell,
+			"cc_attack_protection":           policyOption.Cc,
+			"precise_protection":             policyOption.Custom,
+			"blacklist":                      policyOption.Whiteblackip,
+			"false_alarm_masking":            policyOption.Ignore,
+			"data_masking":                   policyOption.Privacy,
+			"web_tamper_protection":          policyOption.Antitamper,
+			"geolocation_access_control":     policyOption.GeoIP,
+			"information_leakage_prevention": policyOption.Antileakage,
+			"bot_enable":                     policyOption.BotEnable,
+			"known_attack_source":            policyOption.FollowedAction,
+			"anti_crawler":                   policyOption.Anticrawler,
+			"crawler":                        policyOption.Crawler,
 		},
 	}
+}
+
+func flattenBindHosts(policy *policies.Policy) []map[string]interface{} {
+	rst := make([]map[string]interface{}, len(policy.BindHosts))
+	for i, host := range policy.BindHosts {
+		rst[i] = map[string]interface{}{
+			"id":       host.Id,
+			"hostname": host.Hostname,
+			"waf_type": host.WafType,
+			"mode":     host.Mode,
+		}
+	}
+	return rst
 }
 
 func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -257,20 +368,8 @@ func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	if d.HasChanges("name", "level", "protection_mode") {
-		updateOpts := policies.UpdateOpts{
-			Name:  d.Get("name").(string),
-			Level: d.Get("level").(int),
-			Action: &policies.Action{
-				Category: d.Get("protection_mode").(string),
-			},
-			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		}
-
-		_, err = policies.Update(wafClient, d.Id(), updateOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating WAF policy: %s", err)
-		}
+	if err := updatePolicy(wafClient, d, cfg); err != nil {
+		return diag.Errorf("error updating WAF policy: %s", err)
 	}
 	return resourceWafPolicyV1Read(ctx, d, meta)
 }
