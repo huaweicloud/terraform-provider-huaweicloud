@@ -92,11 +92,13 @@ func ResourcePublicDnatRule() *schema.Resource {
 				Type:         schema.TypeString,
 				ExactlyOneOf: []string{"port_id", "private_ip"},
 				Optional:     true,
+				Computed:     true,
 				Description:  "The port ID of network.",
 			},
 			"private_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: "The private IP address of a user.",
 			},
 
