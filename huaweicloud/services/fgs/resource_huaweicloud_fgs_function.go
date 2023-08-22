@@ -169,6 +169,12 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"vpc_id"},
 			},
+			"dns_list": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"vpc_id"},
+			},
 			"mount_user_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -593,6 +599,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("functiongraph_version", f.Type),
 		d.Set("custom_image", flattenFgsCustomImage(f.CustomImage)),
 		d.Set("max_instance_num", strconv.Itoa(*f.StrategyConfig.Concurrency)),
+		d.Set("dns_list", f.DomainNames),
 		setFgsFunctionApp(d, f.Package),
 		setFgsFunctionAgency(d, f.Xrole),
 		setFgsFunctionVpcAccess(d, f.FuncVpc),
@@ -693,7 +700,7 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 	//lintignore:R019
 	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
-		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image") {
+		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err
@@ -776,6 +783,7 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 		InitializerHandler: d.Get("initializer_handler").(string),
 		InitializerTimeout: d.Get("initializer_timeout").(int),
 		CustomImage:        buildCustomImage(d.Get("custom_image").([]interface{})),
+		DomainNames:        d.Get("dns_list").(string),
 	}
 
 	if _, ok := d.GetOk("vpc_id"); ok {

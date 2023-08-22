@@ -47,6 +47,27 @@ type Function struct {
 	InitializerHandler  string         `json:"initializer_handler,omitempty"`
 	EnterpriseProjectID string         `json:"enterprise_project_id"`
 	Type                string         `json:"type"`
+	// GPU memory.
+	// Range: 1024 to 16,384, and the value is a multiple of 1024.
+	GPUMemory int `json:"gpu_memory"`
+	// Ephemeral storage size, the maximum value is 10 GB. Defaults to 512 MB.
+	EphemeralStorage int `json:"ephemeral_storage"`
+	// Whether to allow a long timeout.
+	LongTime bool `json:"long_time"`
+	// Log group ID.
+	LogGroupId string `json:"log_group_id"`
+	// Log stream ID.
+	LogStreamId string `json:"log_stream_id"`
+	// Network configuration.
+	NetworkController NetworkControlConfig `json:"network_controller"`
+	// Whether stateful functions are supported.
+	IsStatefulFunction bool `json:"is_stateful_function"`
+	// Whether to enable dynamic memory allocation.
+	EnableDynamicMemory bool `json:"enable_dynamic_memory"`
+	// Whether to allow authentication information in the request header.
+	EnableAuthInHeader bool `json:"enable_auth_in_header"`
+	// Private domain name.
+	DomainNames string `json:"domain_names"`
 }
 
 type FuncMount struct {
@@ -63,7 +84,7 @@ type FuncMount struct {
 	SaveType       int                `json:"-"` //仅仅在数据处理时用到，如果需要保存新的映射关系，则将其置为1，如要删除老的，将其置为2
 }
 
-//noinspection GoNameStartsWithPackageName
+// noinspection GoNameStartsWithPackageName
 type FunctionVersion struct {
 	Id                 string        `json:"-"`
 	FuncId             string        `json:"-"`
@@ -124,13 +145,13 @@ type MountConfig struct {
 	FuncMounts []FuncMount `json:"func_mounts" required:"true"`
 }
 
-//noinspection GoNameStartsWithPackageName
+// noinspection GoNameStartsWithPackageName
 type FunctionCode struct {
 	File string `json:"file"`
 	Link string `json:"link"`
 }
 
-//noinspection GoNameStartsWithPackageName
+// noinspection GoNameStartsWithPackageName
 type FunctionBase struct {
 	Id          string `json:"-"`
 	FuncName    string `json:"func_name"`
@@ -186,7 +207,7 @@ func (r commonResult) Extract() (*Function, error) {
 	return &f, err
 }
 
-//noinspection GoNameStartsWithPackageName
+// noinspection GoNameStartsWithPackageName
 type FunctionList struct {
 	Functions  []Function `json:"functions"`
 	NextMarker int        `json:"next_marker"`

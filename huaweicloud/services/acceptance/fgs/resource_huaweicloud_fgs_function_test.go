@@ -643,3 +643,117 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, name)
 }
+
+func TestAccFgsV2Function_domain(t *testing.T) {
+	var (
+		f function.Function
+
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_domain_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
+			},
+			{
+				Config: testAccFunction_domain_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"xrole",
+					"agency",
+					"app",
+					"package",
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_domain_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dns_zone" "test" {
+  count = 3
+
+  zone_type = "private"
+  name      = format("functiondebug.example%%d.com.", count.index)
+
+  router {
+    router_id = huaweicloud_vpc.test.id
+  }
+}
+`, common.TestBaseNetwork(name))
+}
+
+func testAccFunction_domain_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[2]s"
+  app         = "default"
+  handler     = "index.handler"
+  code_type   = "inline"
+  memory_size = 128
+  runtime     = "Python3.10"
+  timeout     = 3
+  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  # VPC access and DNS configuration
+  agency     = "function_network_test" # Allow VPC and DNS permissions for FunctionGraph service
+  vpc_id     = huaweicloud_vpc.test.id
+  network_id = huaweicloud_vpc_subnet.test.id
+  dns_list   = jsonencode(
+    [for v in slice(huaweicloud_dns_zone.test[*], 0, 2) : tomap({id=v.id, domain_name=v.name})]
+  )
+}
+`, testAccFunction_domain_base(name), name)
+}
+
+func testAccFunction_domain_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[2]s"
+  app         = "default"
+  handler     = "index.handler"
+  code_type   = "inline"
+  memory_size = 128
+  runtime     = "Python3.10"
+  timeout     = 3
+  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  # VPC access and DNS configuration
+  agency     = "function_network_test" # Allow VPC and DNS permissions for FunctionGraph service
+  vpc_id     = huaweicloud_vpc.test.id
+  network_id = huaweicloud_vpc_subnet.test.id
+  dns_list   = jsonencode(
+    [for v in slice(huaweicloud_dns_zone.test[*], 1, 3) : tomap({id=v.id, domain_name=v.name})]
+  )
+}
+`, testAccFunction_domain_base(name), name)
+}

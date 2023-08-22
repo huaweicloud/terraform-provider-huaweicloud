@@ -101,6 +101,45 @@ resource "huaweicloud_fgs_function" "with_alias" {
 }
 ```
 
+### Create function with VPC access and DNS configuration
+
+```hcl
+variable "function_name" {}
+variable "agency_name" {} # Allow VPC and DNS permissions for FunctionGraph service
+variable "vpc_id" {}
+variable "network_id" {}
+
+resource "huaweicloud_dns_zone" "test" {
+  count = 3
+
+  zone_type = "private"
+  name      = format("functiondebug.example%d.com.", count.index)
+
+  router {
+    router_id = var.vpc_id
+  }
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = var.function_name
+  app         = "default"
+  handler     = "index.handler"
+  code_type   = "inline"
+  memory_size = 128
+  runtime     = "Python3.10"
+  timeout     = 3
+  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  # VPC access and DNS configuration
+  agency     = var.agency_name
+  vpc_id     = var.vpc_id
+  network_id = var.network_id
+  dns_list   = jsonencode(
+    [for v in huaweicloud_dns_zone.test[*] : tomap({id=v.id, domain_name=v.name})]
+  )
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -193,7 +232,13 @@ The following arguments are supported:
 
 * `network_id` - (Optional, String) Specifies the network ID of subnet.
 
--> **NOTE:** An agency with VPC management permissions must be specified for the function.
+  -> An agency with VPC management permissions must be specified for the function.
+
+* `dns_list` - (Optional, String) Specifies the private DNS configuration of the function network.
+  Private DNS list is associated to the function by a string in the following format:  
+  `[{\"id\":\"ff8080828a07ffea018a17184aa310f5\","domain_name":"functiondebug.example1.com."}]`
+
+  -> Ensure the agency with DNS management permissions specified before using this parameter.
 
 * `mount_user_id` - (Optional, Int) Specifies the user ID, a non-0 integer from –1 to 65534. Default to -1.
 
