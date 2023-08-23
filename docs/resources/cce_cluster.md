@@ -248,7 +248,8 @@ The following arguments are supported:
   + **ipvs**: Optimized kube-proxy mode with higher throughput and faster speed. This mode supports incremental updates
     and can keep connections uninterrupted during service updates. It is suitable for large-sized clusters.
 
-* `extend_param` - (Optional, Map, ForceNew) Specifies the extended parameter.
+* `extend_params` - (Optional, List, ForceNew) Specifies the extended parameter.
+  The [object](#cce_cluster_extend_params) structure is documented below.
   Changing this parameter will create a new cluster resource.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE cluster.
@@ -296,6 +297,50 @@ The following arguments are supported:
 The `masters` block supports:
 
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone of the master node.
+  Changing this parameter will create a new cluster resource.
+
+<a name="cce_cluster_extend_params"></a>
+The `extend_params` block supports:
+
+* `cluster_az` - (Optional, String, ForceNew) Specifies the AZ of master nodes in the cluster. The value can be:
+  + **multi_az**: The cluster will span across AZs. This field is configurable only for high-availability clusters.
+  + **AZ of the dedicated cloud computing pool**: The cluster will be deployed in the AZ of Dedicated Cloud (DeC).
+  This parameter is mandatory for dedicated CCE clusters.
+
+  Changing this parameter will create a new cluster resource.
+
+* `dss_master_volumes` - (Optional, String, ForceNew) Specifies whether the system and data disks of a master node
+  use dedicated distributed storage. If left unspecified, EVS disks are used by default.
+  This parameter is mandatory for dedicated CCE clusters.
+  It is in the following format:
+
+  ```bash
+  <rootVol.dssPoolID>.<rootVol.volType>;<dataVol.dssPoolID>.<dataVol.volType>
+  ```
+
+  Changing this parameter will create a new cluster resource.
+
+* `fix_pool_mask` - (Optional, String, ForceNew) Specifies the number of mask bits of the fixed IP address pool
+  of the container network model. This field can only be used when `container_network_type` is set to **vpc-router**.
+  Changing this parameter will create a new cluster resource.
+
+* `dec_master_flavor` - (Optional, String, ForceNew) Specifies the specifications of the master node
+  in the dedicated hybrid cluster.
+  Changing this parameter will create a new cluster resource.
+
+* `docker_umask_mode` - (Optional, String, ForceNew) Specifies the default UmaskMode configuration of Docker in a
+  cluster. The value can be **secure** or **normal**, defaults to normal.
+  Changing this parameter will create a new cluster resource.
+
+* `cpu_manager_policy` - (Optional, String, ForceNew) Specifies the cluster CPU management policy.
+  The value can be:
+  + **none**: CPU cores will not be exclusively allocated to workload pods.
+    Select this value if you want a large pool of shareable CPU cores.
+  + **static**: CPU cores can be exclusively allocated to workload pods.
+    Select this value if your workload is sensitive to latency in CPU cache and scheduling.In a CCE Turbo cluster,
+    this setting is valid only for nodes where common containers, not Kata containers, run.
+
+  Defaults to none.  
   Changing this parameter will create a new cluster resource.
 
 ## Attribute Reference
