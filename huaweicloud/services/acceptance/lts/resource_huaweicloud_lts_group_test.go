@@ -1,36 +1,63 @@
 package lts
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccLogTankGroupV2_basic(t *testing.T) {
-	var group loggroups.LogGroup
+func getLtsGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.LtsV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating LTS client: %s", err)
+	}
 
-	resourceName := "huaweicloud_lts_group.testacc_group"
+	resourceID := state.Primary.ID
+	groups, err := loggroups.List(client).Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range groups.LogGroups {
+		if item.ID == resourceID {
+			return &item, nil
+		}
+	}
+
+	return nil, fmt.Errorf("the log group %s does not exist", resourceID)
+}
+
+func TestAccLtsGroup_basic(t *testing.T) {
+	var group loggroups.LogGroup
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_lts_group.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&group,
+		getLtsGroupResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckLogTankGroupV2Destroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLogTankGroupV2_basic,
+				Config: testAccLtsGroup_basic(rName, 30),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLogTankGroupV2Exists(
-						resourceName, &group),
-					resource.TestCheckResourceAttr(
-						resourceName, "group_name", "testacc_group"),
-					resource.TestCheckResourceAttr(
-						resourceName, "ttl_in_days", "1"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "30"),
 				),
 			},
 			{
@@ -39,87 +66,21 @@ func TestAccLogTankGroupV2_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccLogTankGroupV2_update,
+				Config: testAccLtsGroup_basic(rName, 7),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						resourceName, "group_name", "testacc_group"),
-					resource.TestCheckResourceAttr(
-						resourceName, "ttl_in_days", "7"),
+					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "7"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckLogTankGroupV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	ltsclient, err := config.LtsV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lts_group" {
-			continue
-		}
-
-		groups, err := loggroups.List(ltsclient).Extract()
-		if err != nil {
-			return fmtp.Errorf("Log group get list err: %s", err.Error())
-		}
-		for _, group := range groups.LogGroups {
-			if group.ID == rs.Primary.ID {
-				return fmtp.Errorf("Log group (%s) still exists.", rs.Primary.ID)
-			}
-		}
-
-	}
-	return nil
+func testAccLtsGroup_basic(name string, ttl int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%s"
+  ttl_in_days = %d
 }
-
-func testAccCheckLogTankGroupV2Exists(n string, group *loggroups.LogGroup) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		ltsclient, err := config.LtsV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
-		}
-
-		var founds *loggroups.LogGroups
-		founds, err = loggroups.List(ltsclient).Extract()
-		if err != nil {
-			return err
-		}
-		for _, loggroup := range founds.LogGroups {
-			if rs.Primary.ID == loggroup.ID {
-				*group = loggroup
-				return nil
-			}
-		}
-
-		return fmtp.Errorf("Error HuaweiCloud log group %s: No Found", rs.Primary.ID)
-	}
+`, name, ttl)
 }
-
-const testAccLogTankGroupV2_basic = `
-resource "huaweicloud_lts_group" "testacc_group" {
-	group_name  = "testacc_group"
-	ttl_in_days = 1
-}
-`
-
-const testAccLogTankGroupV2_update = `
-resource "huaweicloud_lts_group" "testacc_group" {
-	group_name  = "testacc_group"
-	ttl_in_days = 7
-}
-`

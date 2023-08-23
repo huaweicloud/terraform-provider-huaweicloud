@@ -1,22 +1,28 @@
 package lts
 
 import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceLTSStreamV2() *schema.Resource {
+func ResourceLTSStream() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStreamV2Create,
-		Read:   resourceStreamV2Read,
-		Delete: resourceStreamV2Delete,
+		CreateContext: resourceStreamCreate,
+		ReadContext:   resourceStreamRead,
+		DeleteContext: resourceStreamDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -44,11 +50,11 @@ func ResourceLTSStreamV2() *schema.Resource {
 	}
 }
 
-func resourceStreamV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(config.GetRegion(d))
+func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.LtsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return diag.Errorf("error creating LTS client: %s", err)
 	}
 
 	groupId := d.Get("group_id").(string)
@@ -56,74 +62,81 @@ func resourceStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 		LogStreamName: d.Get("stream_name").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	streamCreate, err := logstreams.Create(client, groupId, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating log stream: %s", err)
+		return diag.Errorf("error creating log stream: %s", err)
 	}
 
 	d.SetId(streamCreate.ID)
-	return resourceStreamV2Read(d, meta)
+	return resourceStreamRead(ctx, d, meta)
 }
 
-func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(config.GetRegion(d))
+func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.LtsV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return diag.Errorf("error creating LTS client: %s", err)
 	}
 
 	streamID := d.Id()
 	groupID := d.Get("group_id").(string)
 	streams, err := logstreams.List(client, groupID).Extract()
 	if err != nil {
+		notFoundDiags := diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Resource not found",
+				Detail:   fmt.Sprintf("the log group %s is gone and will be removed in Terraform state.", groupID),
+			},
+		}
+
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			logp.Printf("[WARN] log group stream %s: the log group %s is gone", streamID, groupID)
+			// 404 indicates the log group is not exist
 			d.SetId("")
-			return nil
+			return notFoundDiags
 		}
 
 		if apiError, ok := err.(golangsdk.ErrDefault400); ok {
 			// "LTS.0201" indicates the log group is not exist
 			if resp, pErr := common.ParseErrorMsg(apiError.Body); pErr == nil && resp.ErrorCode == "LTS.0201" {
-				logp.Printf("[WARN] log group stream %s: the log group %s is gone", streamID, groupID)
 				d.SetId("")
-				return nil
+				return notFoundDiags
 			}
 		}
 
-		return fmtp.Errorf("Error getting HuaweiCloud log stream %s: %s", streamID, err)
+		return diag.Errorf("error getting log stream %s: %s", streamID, err)
 	}
 
 	for _, stream := range streams.LogStreams {
 		if stream.ID == streamID {
-			logp.Printf("[DEBUG] Retrieved log stream %s: %#v", streamID, stream)
-			d.SetId(stream.ID)
-			d.Set("stream_name", stream.Name)
-			d.Set("filter_count", stream.FilterCount)
-			return nil
+			log.Printf("[DEBUG] Retrieved log stream %s: %#v", streamID, stream)
+			mErr := multierror.Append(nil,
+				d.Set("region", region),
+				d.Set("stream_name", stream.Name),
+				d.Set("filter_count", stream.FilterCount),
+			)
+			return diag.FromErr(mErr.ErrorOrNil())
 		}
 	}
 
-	logp.Printf("[WARN] log group stream %s: resource is gone and will be removed in Terraform state", streamID)
-	d.SetId("")
-	return nil
+	// can not find the log stream by ID
+	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 }
 
-func resourceStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.LtsV2Client(config.GetRegion(d))
+func resourceStreamDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.LtsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return diag.Errorf("error creating LTS client: %s", err)
 	}
 
 	groupId := d.Get("group_id").(string)
 	err = logstreams.Delete(client, groupId, d.Id()).ExtractErr()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error deleting log stream")
+		return common.CheckDeletedDiag(d, err, "error deleting log stream")
 	}
 
-	d.SetId("")
 	return nil
 }
