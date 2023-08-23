@@ -18,7 +18,7 @@ import (
 func getForwardRuleFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.AadV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud CloudTable v2 client: %s", err)
+		return nil, fmt.Errorf("error creating CloudTable v2 client: %s", err)
 	}
 	port := state.Primary.Attributes["forward_port"]
 	portNum, err := strconv.Atoi(port)
