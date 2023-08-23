@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceAntiDdosV1() *schema.Resource {
+func DataSourceAntiDdosV1() *schema.Resource {
 	return &schema.Resource{
 		Read:               dataSourceAntiDdosV1Read,
 		DeprecationMessage: "this is deprecated",
@@ -109,8 +109,8 @@ func dataSourceAntiDdosV1() *schema.Resource {
 }
 
 func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	antiddosClient, err := config.AntiDDosV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	antiddosClient, err := cfg.AntiDDosV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating antiddos client: %s", err)
 	}
@@ -147,7 +147,7 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("network_type", ddosStatus.NetworkType)
 	d.Set("status", ddosStatus.Status)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", cfg.GetRegion(d))
 
 	traffic, err := antiddos.DailyReport(antiddosClient, ddosStatus.FloatingIpId).Extract()
 	logp.Printf("traffic %#v", traffic)

@@ -385,8 +385,6 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"huaweicloud_antiddos": dataSourceAntiDdosV1(),
-
 			"huaweicloud_apig_environments": apig.DataSourceEnvironments(),
 
 			"huaweicloud_as_configurations": as.DataSourceASConfigurations(),
@@ -597,8 +595,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
 
-			"huaweicloud_antiddos_v1": dataSourceAntiDdosV1(),
-
 			"huaweicloud_dcs_maintainwindow_v1": dcs.DataSourceDcsMaintainWindow(),
 
 			"huaweicloud_dds_flavors_v3":   dds.DataSourceDDSFlavorV3(),
@@ -621,6 +617,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_route_ids_v2": vpc.DataSourceVpcRouteIdsV2(),
 
 			// Deprecated
+			"huaweicloud_antiddos":                      deprecated.DataSourceAntiDdosV1(),
+			"huaweicloud_antiddos_v1":                   deprecated.DataSourceAntiDdosV1(),
 			"huaweicloud_compute_availability_zones_v2": deprecated.DataSourceComputeAvailabilityZonesV2(),
 			"huaweicloud_csbs_backup":                   deprecated.DataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":            deprecated.DataSourceCSBSBackupPolicyV1(),
