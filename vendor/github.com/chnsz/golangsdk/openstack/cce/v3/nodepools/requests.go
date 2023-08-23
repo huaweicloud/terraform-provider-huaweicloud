@@ -5,6 +5,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -171,9 +172,9 @@ type UpdateOptsBuilder interface {
 // UpdateOpts contains all the values needed to update a new node pool
 type UpdateOpts struct {
 	// API type, fixed value Node
-	Kind string `json:"kind" required:"true"`
+	Kind string `json:"kind,omitempty"`
 	// API version, fixed value v3
-	ApiVersion string `json:"apiversion" required:"true"`
+	ApiVersion string `json:"apiversion,omitempty"`
 	// Metadata required to update a Node Pool
 	Metadata UpdateMetaData `json:"metadata" required:"true"`
 	// specifications to update a Node Pool
@@ -186,12 +187,56 @@ type UpdateMetaData struct {
 	Name string `json:"name" required:"true"`
 }
 
+type UpdateNodeTemplate struct {
+	// Node specifications
+	Flavor string `json:"flavor,omitempty"`
+	// The value of the available partition name
+	Az string `json:"az,omitempty"`
+	// The OS of the node
+	Os string `json:"os,omitempty"`
+	// ID of the dedicated host to which nodes will be scheduled
+	DedicatedHostID string `json:"dedicatedHostId,omitempty"`
+	// Node login parameters
+	Login *nodes.LoginSpec `json:"login,omitempty"`
+	// System disk parameter of the node
+	RootVolume *nodes.VolumeSpec `json:"rootVolume,omitempty"`
+	// The data disk parameter of the node must currently be a disk
+	DataVolumes []nodes.VolumeSpec `json:"dataVolumes,omitempty"`
+	// Disk initialization configuration management parameters
+	// If omit, disk management is performed according to the DockerLVMConfigOverride parameter in extendParam
+	Storage *nodes.StorageSpec `json:"storage,omitempty"`
+	// Elastic IP parameters of the node
+	PublicIP *nodes.PublicIPSpec `json:"publicIP,omitempty"`
+	// The billing mode of the node: the value is 0 (on demand)
+	BillingMode int `json:"billingMode,omitempty"`
+	// Number of nodes when creating in batch
+	Count int `json:"count,omitempty"`
+	// The node nic spec
+	NodeNicSpec *nodes.NodeNicSpec `json:"nodeNicSpec,omitempty"`
+	// Extended parameter
+	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
+	// UUID of an ECS group
+	EcsGroupID string `json:"ecsGroupId,omitempty"`
+	// Tag of a VM, key value pair format
+	UserTags []tags.ResourceTag `json:"userTags,omitempty"`
+	// Tag of a Kubernetes node, key value pair format
+	K8sTags map[string]string `json:"k8sTags,omitempty"`
+	// The runtime spec
+	RunTime *nodes.RunTimeSpec `json:"runtime,omitempty"`
+	// taints to created nodes to configure anti-affinity
+	Taints []nodes.TaintSpec `json:"taints,omitempty"`
+	// The name of the created partition
+	Partition string `json:"partition,omitempty"`
+	// The initialized conditions
+	InitializedConditions []string `json:"initializedConditions,omitempty"`
+}
+
 // UpdateSpec describes Node pools update specification
 type UpdateSpec struct {
 	// Node type. Currently, only VM nodes are supported.
 	Type string `json:"type,omitempty"`
 	// Node template
-	NodeTemplate nodes.Spec `json:"nodeTemplate"`
+	NodeTemplate UpdateNodeTemplate `json:"nodeTemplate"`
 	// Initial number of expected nodes
 	InitialNodeCount *int `json:"initialNodeCount" required:"true"`
 	// Auto scaling parameters
