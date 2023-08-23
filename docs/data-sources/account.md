@@ -5,8 +5,7 @@ Use this data source to get information about the current account.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_account" "current" {
-}
+data "huaweicloud_account" "current" {}
 
 output "current_account_id" {
   value = data.huaweicloud_account.current.id
