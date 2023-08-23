@@ -73,6 +73,14 @@ func TestAccIdentityUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abcd.com"),
 				),
 			},
+			{
+				Config: testAccIdentityUser_no_desc(userName, newPassword),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+				),
+			},
 		},
 	})
 }
@@ -151,6 +159,18 @@ resource "huaweicloud_identity_user" "user_1" {
   enabled     = false
   email       = "user_1@abcd.com"
   description = "updated by terraform"
+}
+`, name, password)
+}
+
+func testAccIdentityUser_no_desc(name, password string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_user" "user_1" {
+  name      = "%s"
+  password  = "%s"
+  pwd_reset = false
+  enabled   = false
+  email     = "user_1@abcd.com"
 }
 `, name, password)
 }

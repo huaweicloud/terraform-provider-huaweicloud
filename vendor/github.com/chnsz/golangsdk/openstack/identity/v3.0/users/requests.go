@@ -95,7 +95,7 @@ type UpdateOpts struct {
 	Phone string `json:"phone,omitempty"`
 
 	// Description is a description of the user.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// AccessMode is the access type for IAM user
 	AccessMode string `json:"access_mode,omitempty"`
