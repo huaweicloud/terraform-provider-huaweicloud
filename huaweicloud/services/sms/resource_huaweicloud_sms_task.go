@@ -111,10 +111,11 @@ func ResourceMigrateTask() *schema.Resource {
 							ForceNew: true,
 						},
 						"disk_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "schema: Required",
 						},
 						"used_size": {
 							Type:     schema.TypeInt,
@@ -284,13 +285,13 @@ func buildTargetServerPVRequest(raw []interface{}) []tasks.PVRequest {
 		idx := item["index"].(int)
 		pvs[i] = tasks.PVRequest{
 			Name:       item["name"].(string),
-			Size:       convertMBtoBytes(item["size"].(int64)),
+			Size:       convertMBtoBytes(int64(item["size"].(int))),
+			UsedSize:   convertMBtoBytes(int64(item["used_size"].(int))),
 			DeviceType: item["device_type"].(string),
 			FileSystem: item["file_system"].(string),
 			MountPoint: item["mount_point"].(string),
 			Index:      &idx,
 			UUID:       item["uuid"].(string),
-			UsedSize:   convertMBtoBytes(item["used_size"].(int64)),
 		}
 	}
 
@@ -310,8 +311,8 @@ func buildTargetServerDiskRequest(d *schema.ResourceData, cfg *config.Config, si
 		disks[i] = tasks.DiskRequest{
 			Name:            item["name"].(string),
 			DeviceType:      item["device_type"].(string),
-			Size:            convertMBtoBytes(item["size"].(int64)),
-			UsedSize:        convertMBtoBytes(item["used_size"].(int64)),
+			Size:            convertMBtoBytes(int64(item["size"].(int))),
+			UsedSize:        convertMBtoBytes(int64(item["used_size"].(int))),
 			DiskId:          item["disk_id"].(string),
 			PhysicalVolumes: buildTargetServerPVRequest(item["physical_volumes"].([]interface{})),
 		}
