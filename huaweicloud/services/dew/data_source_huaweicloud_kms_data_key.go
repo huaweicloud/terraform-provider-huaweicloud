@@ -1,19 +1,18 @@
-package huaweicloud
+package dew
 
 import (
+	"context"
 	"time"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
 	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceKmsDataKeyV1() *schema.Resource {
 	return &schema.Resource{
-		Read: resourceKmsDataKeyV1Read,
+		ReadContext: resourceKmsDataKeyV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,12 +44,11 @@ func DataSourceKmsDataKeyV1() *schema.Resource {
 	}
 }
 
-func resourceKmsDataKeyV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-
-	KmsDataKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
+func resourceKmsDataKeyV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	kmsDataKeyV1Client, err := cfg.KmsKeyV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return diag.Errorf("error creating kms key client: %s", err)
 	}
 
 	req := &keys.DataEncryptOpts{
@@ -58,10 +56,9 @@ func resourceKmsDataKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 		EncryptionContext: d.Get("encryption_context").(string),
 		DatakeyLength:     d.Get("datakey_length").(string),
 	}
-	logp.Printf("[DEBUG] KMS get data key for key: %s", d.Get("key_id").(string))
-	v, err := keys.DataEncryptGet(KmsDataKeyV1Client, req).ExtractDataKey()
+	v, err := keys.DataEncryptGet(kmsDataKeyV1Client, req).ExtractDataKey()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	//lintignore:R017
