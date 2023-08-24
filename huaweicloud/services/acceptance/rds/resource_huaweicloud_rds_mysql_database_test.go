@@ -5,8 +5,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -36,6 +38,8 @@ func TestAccRdsDatabase_basic(t *testing.T) {
 	description := "test database"
 	descriptionUpdate := "test database update"
 	resourceName := "huaweicloud_rds_mysql_database.test"
+	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -49,7 +53,7 @@ func TestAccRdsDatabase_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRdsDatabase_basic(rName, description),
+				Config: testRdsDatabase_basic(rName, dbPwd, description),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -58,7 +62,7 @@ func TestAccRdsDatabase_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testRdsDatabase_basic(rName, descriptionUpdate),
+				Config: testRdsDatabase_basic(rName, dbPwd, descriptionUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -70,7 +74,7 @@ func TestAccRdsDatabase_basic(t *testing.T) {
 	})
 }
 
-func testRdsDatabase_basic(rName, description string) string {
+func testRdsDatabase_basic(rName, dbPwd, description string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -80,5 +84,5 @@ resource "huaweicloud_rds_mysql_database" "test" {
   character_set = "utf8"
   description   = "%s"
 }
-`, testRdsAccount_base(rName), rName, description)
+`, testAccRdsInstance_mysql_step1(rName, dbPwd), rName, description)
 }

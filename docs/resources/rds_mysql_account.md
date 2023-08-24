@@ -34,26 +34,55 @@ The following arguments are supported:
 
 * `password` - (Required, String) Specifies the password of the db account. The parameter must be 8 to 32 characters
   long and contain only letters(case-sensitive), digits, and special characters(~!@#$%^*-_=+?,()&). The value must be
-  different from name or name spelled backwards.
+  different from `name` or `name` spelled backwards.
+
+* `hosts` - (Optional, List, ForceNew) Specifies the IP addresses that are allowed to access your DB instance.
+  + If the IP address is set to %, all IP addresses are allowed to access your instance.
+  + If the IP address is set to 10.10.10.%, all IP addresses in the subnet 10.10.10.X are allowed to access
+    your instance.
+  + Multiple IP addresses can be added.
+
+  Changing this parameter will create a new resource.
+
+* `description` - (Optional, String) Specifies remarks of the database account. The parameter must be 1 to 512
+  characters long and is supported only for MySQL 8.0.25 and later versions.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID of account which is formatted `<instance_id>/<account_name>`.
+* `id` - The resource ID of account which is formatted `<instance_id>/<name>`.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minutes.
-* `update` - Default is 10 minutes.
-* `delete` - Default is 10 minutes.
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
-RDS account can be imported using the `instance id` and `account name`, e.g.:
+RDS account can be imported using the `instance_id` and `name` separated by a slash, e.g.:
 
+```bash
+$ terraform import huaweicloud_rds_mysql_account.account_1 <instance_id>/<name>
 ```
-$ terraform import huaweicloud_rds_mysql_account.user_1 instance_id/account_name
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `password`. It is generally recommended
+running `terraform plan` after importing the RDS Mysql account. You can then decide if changes should be applied to
+the RDS Mysql account, or the resource definition should be updated to align with the RDS Mysql account. Also you
+can ignore changes as below.
+
+```hcl
+resource "huaweicloud_rds_mysql_account" "account_1" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      password
+    ]
+  }
+}
 ```

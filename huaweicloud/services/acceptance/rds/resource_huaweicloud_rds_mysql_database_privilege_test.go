@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -33,6 +34,9 @@ func getRdsDatabasePrivilegeFunc(conf *config.Config, state *terraform.ResourceS
 func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_rds_mysql_database_privilege.test"
+	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+
 	var users []model.UserWithPrivilege
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -46,7 +50,7 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsDatabasePrivilege_basic(rName),
+				Config: testAccRdsDatabasePrivilege_basic(rName, dbPwd),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "users.0.name",
@@ -63,7 +67,7 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsDatabasePrivilege_basic(rName string) string {
+func testAccRdsDatabasePrivilege_basic(rName, dbPwd string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -81,5 +85,5 @@ resource "huaweicloud_rds_mysql_database_privilege" "test" {
     name = huaweicloud_rds_mysql_account.test.name
   }
 }
-`, testRdsDatabase_basic(rName, rName), rName)
+`, testRdsDatabase_basic(rName, dbPwd, rName), rName)
 }

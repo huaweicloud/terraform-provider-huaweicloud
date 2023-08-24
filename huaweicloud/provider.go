@@ -1007,7 +1007,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ram_resource_share": ram.ResourceRAMShare(),
 
-			"huaweicloud_rds_mysql_account":            rds.ResourceRdsAccount(),
+			"huaweicloud_rds_mysql_account":            rds.ResourceMysqlAccount(),
 			"huaweicloud_rds_mysql_database":           rds.ResourceRdsDatabase(),
 			"huaweicloud_rds_mysql_database_privilege": rds.ResourceRdsDatabasePrivilege(),
 			"huaweicloud_rds_instance":                 rds.ResourceRdsInstance(),
@@ -1182,7 +1182,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_topic_v2":        smn.ResourceTopic(),
 			"huaweicloud_smn_subscription_v2": smn.ResourceSubscription(),
 
-			"huaweicloud_rds_account":            rds.ResourceRdsAccount(),
+			"huaweicloud_rds_account":            rds.ResourceMysqlAccount(),
 			"huaweicloud_rds_database":           rds.ResourceRdsDatabase(),
 			"huaweicloud_rds_database_privilege": rds.ResourceRdsDatabasePrivilege(),
 			"huaweicloud_rds_instance_v3":        rds.ResourceRdsInstance(),
