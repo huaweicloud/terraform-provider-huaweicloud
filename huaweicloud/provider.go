@@ -948,8 +948,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_snapshot":             live.ResourceLiveSnapshot(),
 			"huaweicloud_live_bucket_authorization": live.ResourceLiveBucketAuthorization(),
 
-			"huaweicloud_lts_group":      ResourceLTSGroupV2(),
-			"huaweicloud_lts_stream":     ResourceLTSStreamV2(),
+			"huaweicloud_lts_group":      lts.ResourceLTSGroup(),
+			"huaweicloud_lts_stream":     lts.ResourceLTSStream(),
 			"huaweicloud_lts_host_group": lts.ResourceHostGroup(),
 			"huaweicloud_lts_transfer":   lts.ResourceLtsTransfer(),
 
