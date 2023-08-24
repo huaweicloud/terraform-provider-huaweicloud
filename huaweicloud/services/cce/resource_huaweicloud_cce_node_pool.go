@@ -621,14 +621,7 @@ func flattenStorage(storageRaw *nodes.StorageSpec) []map[string]interface{} {
 }
 
 func buildNodePoolUpdateOpts(d *schema.ResourceData) (*nodepools.UpdateOpts, error) {
-	loginSpec, err := buildResourceNodeLoginSpec(d)
-	if err != nil {
-		return nil, err
-	}
-
 	updateOpts := nodepools.UpdateOpts{
-		Kind:       "NodePool",
-		ApiVersion: "v3",
 		Metadata: nodepools.UpdateMetaData{
 			Name: d.Get("name").(string),
 		},
@@ -641,19 +634,12 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData) (*nodepools.UpdateOpts, err
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
-			NodeTemplate: nodes.Spec{
-				Flavor:                d.Get("flavor_id").(string),
-				Az:                    d.Get("availability_zone").(string),
-				Login:                 loginSpec,
-				RootVolume:            buildResourceNodeRootVolume(d),
-				DataVolumes:           buildResourceNodeDataVolume(d),
-				Count:                 1,
+			NodeTemplate: nodepools.UpdateNodeTemplate{
 				UserTags:              utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 				K8sTags:               buildResourceNodeK8sTags(d),
 				Taints:                buildResourceNodeTaint(d),
 				InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
 			},
-			Type: d.Get("type").(string),
 		},
 	}
 	return &updateOpts, nil
