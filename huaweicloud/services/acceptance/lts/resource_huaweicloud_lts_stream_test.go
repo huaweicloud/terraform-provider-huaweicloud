@@ -61,8 +61,28 @@ func TestAccLtsStream_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testLtsStreamImportState(resourceName),
+			},
 		},
 	})
+}
+
+func testLtsStreamImportState(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
+		}
+
+		streamID := rs.Primary.ID
+		groupID := rs.Primary.Attributes["group_id"]
+
+		return fmt.Sprintf("%s/%s", groupID, streamID), nil
+	}
 }
 
 func testAccLtsStream_basic(rName string) string {

@@ -43,8 +43,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The log stream can be imported using the `id`, e.g.
+The log stream can be imported using the group ID and stream ID separated by a slash, e.g.
 
-```
-$ terraform import huaweicloud_lts_stream.stream_1 393f2bfd-2244-11ea-adb7-286ed488c87f
+```bash
+$ terraform import huaweicloud_lts_stream.stream_1 <group_id>/<stream_id>
 ```

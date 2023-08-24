@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -22,7 +23,7 @@ func ResourceLTSStream() *schema.Resource {
 		ReadContext:   resourceStreamRead,
 		DeleteContext: resourceStreamDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceStreamImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -139,4 +140,20 @@ func resourceStreamDelete(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	return nil
+}
+
+func resourceStreamImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid ID format, want '<group_id>/<stream_id>', but '%s'", d.Id())
+	}
+
+	groupID := parts[0]
+	streamID := parts[1]
+
+	d.SetId(streamID)
+	mErr := multierror.Append(nil,
+		d.Set("group_id", groupID),
+	)
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
