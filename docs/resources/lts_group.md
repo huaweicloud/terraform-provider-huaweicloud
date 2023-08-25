@@ -27,11 +27,17 @@ The following arguments are supported:
 
 * `ttl_in_days` - (Required, Int) Specifies the log expiration time(days), value range: 1-365.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the log group.
+
+  -> Currently, the key in tags can not be removed.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The log group ID.
+
+* `created_at` - The creation time of the log group.
 
 ## Import
 

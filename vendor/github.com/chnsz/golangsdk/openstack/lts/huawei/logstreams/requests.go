@@ -1,6 +1,9 @@
 package logstreams
 
-import "github.com/chnsz/golangsdk"
+import (
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+)
 
 // CreateOptsBuilder is used for creating log stream parameters.
 type CreateOptsBuilder interface {
@@ -11,6 +14,12 @@ type CreateOptsBuilder interface {
 type CreateOpts struct {
 	// Specifies the log stream name.
 	LogStreamName string `json:"log_stream_name" required:"true"`
+
+	// Specifies the log expiration time, only support in few regions: cn-north-4, cn-east-3, cn-south-1
+	TTL int `json:"ttl_in_days,omitempty"`
+
+	// Specifies the tags
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 // ToLogStreamsCreateMap is used for type convert

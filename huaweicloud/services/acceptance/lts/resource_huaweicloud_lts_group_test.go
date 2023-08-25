@@ -72,6 +72,15 @@ func TestAccLtsGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "7"),
 				),
 			},
+			{
+				Config: testAccLtsGroup_tags(rName, 60),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+				),
+			},
 		},
 	})
 }
@@ -81,6 +90,20 @@ func testAccLtsGroup_basic(name string, ttl int) string {
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%s"
   ttl_in_days = %d
+}
+`, name, ttl)
+}
+
+func testAccLtsGroup_tags(name string, ttl int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%s"
+  ttl_in_days = %d
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, name, ttl)
 }

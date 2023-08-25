@@ -26,10 +26,12 @@ type DeleteResult struct {
 
 // Log stream response
 type LogStream struct {
-	ID           string `json:"log_stream_id"`
-	Name         string `json:"log_stream_name"`
-	CreationTime int64  `json:"creation_time"`
-	FilterCount  int64  `json:"filter_count"`
+	ID           string            `json:"log_stream_id"`
+	Name         string            `json:"log_stream_name"`
+	Tags         map[string]string `json:"tag"`
+	CreationTime int64             `json:"creation_time"`
+	FilterCount  int               `json:"filter_count"`
+	Favorite     bool              `json:"is_favorite"`
 }
 
 // Log stream list response
