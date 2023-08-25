@@ -14,7 +14,7 @@ terraform {
   required_providers {
     huaweicloud = {
       source  = "huaweicloud/huaweicloud"
-      version = "~> 1.26.0"
+      version = ">= 1.36.0"
     }
   }
 }
@@ -38,7 +38,7 @@ Terraform 0.12 and earlier:
 ```hcl
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
-  version    = "~> 1.26.0"
+  version    = ">= 1.36.0"
   region     = "cn-north-4"
   access_key = "my-access-key"
   secret_key = "my-secret-key"
