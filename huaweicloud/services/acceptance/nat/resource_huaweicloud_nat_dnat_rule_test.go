@@ -86,6 +86,44 @@ func TestAccPublicDnatRule_basic(t *testing.T) {
 	})
 }
 
+func TestAccPublicDnatRule_withPort(t *testing.T) {
+	var (
+		obj dnats.Rule
+
+		rName = "huaweicloud_nat_dnat_rule.test"
+		name  = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getPublicDnatRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPublicDnatRule_withPort(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "nat_gateway_id", "huaweicloud_nat_gateway.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "floating_ip_id", "huaweicloud_vpc_eip.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "port_id", "huaweicloud_compute_instance.test", "network.0.port"),
+					resource.TestCheckResourceAttr(rName, "protocol", "udp"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
+					resource.TestCheckResourceAttr(rName, "internal_service_port", "80"),
+					resource.TestCheckResourceAttr(rName, "external_service_port", "8080"),
+				),
+			},
+		},
+	})
+}
+
 func testAccPublicDnatRule_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -168,6 +206,22 @@ resource "huaweicloud_nat_dnat_rule" "test" {
   protocol                    = "tcp"
   internal_service_port_range = "23-823"
   external_service_port_range = "8023-8823"
+}
+`, testAccPublicDnatRule_base(name))
+}
+
+func testAccPublicDnatRule_withPort(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_nat_dnat_rule" "test" {
+  nat_gateway_id        = huaweicloud_nat_gateway.test.id
+  floating_ip_id        = huaweicloud_vpc_eip.test.id
+  port_id               = huaweicloud_compute_instance.test.network[0].port
+  description           = "Created by acc test"
+  protocol              = "udp"
+  internal_service_port = 80
+  external_service_port = 8080
 }
 `, testAccPublicDnatRule_base(name))
 }
