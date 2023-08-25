@@ -234,7 +234,7 @@ func TestAccCluster_multiContainerNetworkCidrs(t *testing.T) {
 		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCluster_multiContainerNetworkCidrs(rName),
+				Config: testAccCluster_multiContainerNetworkCidrs(rName, "172.16.0.0/24,172.16.1.0/24"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -245,6 +245,20 @@ func TestAccCluster_multiContainerNetworkCidrs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "container_network_cidr", "172.16.0.0/24,172.16.1.0/24"),
+				),
+			},
+			{
+				Config: testAccCluster_multiContainerNetworkCidrs(rName, "172.16.0.0/24,172.16.1.0/24,172.16.2.0/24"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "vpc-router"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
+					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_cidr", "172.16.0.0/24,172.16.1.0/24,172.16.2.0/24"),
 				),
 			},
 		},
@@ -557,7 +571,7 @@ resource "huaweicloud_cce_cluster" "test" {
 `, common.TestVpc(rName), rName)
 }
 
-func testAccCluster_multiContainerNetworkCidrs(rName string) string {
+func testAccCluster_multiContainerNetworkCidrs(rName, containerNetworkCidr string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -567,7 +581,7 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "vpc-router"
-  container_network_cidr = "172.16.0.0/24,172.16.1.0/24"
+  container_network_cidr = "%s"
   service_network_cidr   = "10.248.0.0/16"
 
   tags = {
@@ -575,7 +589,7 @@ resource "huaweicloud_cce_cluster" "test" {
     key = "value"
   }
 }
-`, common.TestVpc(rName), rName)
+`, common.TestVpc(rName), rName, containerNetworkCidr)
 }
 
 func testAccCluster_secGroup(rName string) string {

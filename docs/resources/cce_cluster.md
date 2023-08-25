@@ -197,12 +197,14 @@ The following arguments are supported:
 * `cluster_type` - (Optional, String, ForceNew) Specifies the cluster Type, possible values are **VirtualMachine** and
   **ARM64**. Defaults to **VirtualMachine**. Changing this parameter will create a new cluster resource.
 
+* `alias` - (Optional, String) Specifies the display name of a cluster. The value of `alias` cannot be the same as the `name`
+  and display names of other clusters.
+
 * `description` - (Optional, String) Specifies the cluster description.
 
-* `container_network_cidr` - (Optional, String, ForceNew) Specifies the container network segments.
+* `container_network_cidr` - (Optional, String) Specifies the container network segments.
   In clusters of v1.21 and later, when the `container_network_type` is **vpc-router**, you can add multiple container
   segments, separated with comma (,). In other situations, only the first segment takes effect.
-  Changing this parameter will create a new cluster resource.
 
 * `service_network_cidr` - (Optional, String, ForceNew) Specifies the service network segment.
   Changing this parameter will create a new cluster resource.
@@ -248,8 +250,21 @@ The following arguments are supported:
   + **ipvs**: Optimized kube-proxy mode with higher throughput and faster speed. This mode supports incremental updates
     and can keep connections uninterrupted during service updates. It is suitable for large-sized clusters.
 
+* `custom_san` - (Optional, List) Specifies the custom san to add to certificate (array of string).
+
+* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to enable IPv6 in the cluster.
+  Changing this parameter will create a new cluster resource.
+
+* `support_istio` - (Optional, Bool, ForceNew) Specifies whether to support Istio in the cluster.
+  Changing this parameter will create a new cluster resource.
+
 * `extend_params` - (Optional, List, ForceNew) Specifies the extended parameter.
   The [object](#cce_cluster_extend_params) structure is documented below.
+  Changing this parameter will create a new cluster resource.
+
+* `component_configurations` - (Optional, List, ForceNew) Specifies the kubernetes component configurations.
+  For details, see [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-cce/cce_10_0213.html).
+  The [object](#cce_cluster_component_configurations) structure is documented below.
   Changing this parameter will create a new cluster resource.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE cluster.
@@ -343,6 +358,15 @@ The `extend_params` block supports:
   Defaults to none.  
   Changing this parameter will create a new cluster resource.
 
+<a name="cce_cluster_component_configurations"></a>
+The `component_configurations` block supports:
+
+* `name` - (Required, String, ForceNew) Specifies the component name.
+  Changing this parameter will create a new cluster resource.
+
+* `configurations` - (Optional, String, ForceNew) Specifies JSON string of the component configurations.
+  Changing this parameter will create a new cluster resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -350,6 +374,8 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - ID of the cluster resource.
 
 * `status` - Cluster status information.
+
+* `category` - The category of the cluster. The value can be **CCE** and **Turbo**.
 
 * `certificate_clusters` - The certificate clusters. Structure is documented below.
 

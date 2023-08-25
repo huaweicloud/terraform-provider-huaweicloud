@@ -135,6 +135,8 @@ type CreateMetaData struct {
 	Labels map[string]string `json:"labels,omitempty"`
 	// Cluster annotation, key/value pair format
 	Annotations map[string]string `json:"annotations,omitempty"`
+	// Cluster alias
+	Alias string `json:"alias,omitempty"`
 }
 
 // ToClusterCreateMap builds a create request body from CreateOpts.
@@ -175,7 +177,13 @@ func GetCert(c *golangsdk.ServiceClient, id string) (r GetCertResult) {
 
 // UpdateOpts contains all the values needed to update a new cluster
 type UpdateOpts struct {
-	Spec UpdateSpec `json:"spec" required:"true"`
+	Spec     UpdateSpec      `json:"spec" required:"true"`
+	Metadata *UpdateMetadata `json:"metadata,omitempty"`
+}
+
+type UpdateMetadata struct {
+	// Cluster alias
+	Alias string `json:"alias"`
 }
 
 type UpdateSpec struct {
@@ -183,10 +191,19 @@ type UpdateSpec struct {
 	Description string `json:"description,omitempty"`
 	// Custom san list for certificates
 	CustomSan []string `json:"customSan,omitempty"`
+	//Container network parameters
+	ContainerNetwork *UpdateContainerNetworkSpec `json:"containerNetwork,omitempty"`
 	// ENI network parameters
 	EniNetwork *EniNetworkSpec `json:"eniNetwork,omitempty"`
 	// Node network parameters
 	HostNetwork *UpdateHostNetworkSpec `json:"hostNetwork,omitempty"`
+}
+
+type UpdateContainerNetworkSpec struct {
+	// List of container CIDR blocks. In clusters of v1.21 and later, the cidrs field is used.
+	// When the cluster network type is vpc-router, you can add multiple container CIDR blocks.
+	// In versions earlier than v1.21, if the cidrs field is used, the first CIDR element in the array is used as the container CIDR block.
+	Cidrs []CidrSpec `json:"cidrs,omitempty"`
 }
 
 type UpdateHostNetworkSpec struct {
@@ -226,6 +243,7 @@ type DeleteOpts struct {
 	DeleteNet   string `q:"delete_net"`
 	DeleteObs   string `q:"delete_obs"`
 	DeleteSfs   string `q:"delete_sfs"`
+	DeleteSfs30 string `q:"delete_sfs30"`
 }
 
 type DeleteOptsBuilder interface {
