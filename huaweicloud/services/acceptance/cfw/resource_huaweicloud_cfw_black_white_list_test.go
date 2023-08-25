@@ -105,7 +105,7 @@ func TestAccBlackWhiteList_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "list_type", "4"),
 					resource.TestCheckResourceAttr(rName, "direction", "1"),
 					resource.TestCheckResourceAttr(rName, "protocol", "-1"),
-					resource.TestCheckResourceAttr(rName, "port", "80"),
+					resource.TestCheckResourceAttr(rName, "port", ""),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
 					resource.TestCheckResourceAttr(rName, "address", "2.2.2.2"),
 				),
@@ -145,7 +145,6 @@ resource "huaweicloud_cfw_black_white_list" "test" {
   list_type    = 4
   direction    = 1
   protocol     = -1
-  port         = "80"
   address_type = 0
   address      = "2.2.2.2"
 }

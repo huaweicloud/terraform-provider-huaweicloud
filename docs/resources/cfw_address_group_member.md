@@ -31,10 +31,6 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the address name.
-
-  Changing this parameter will create a new resource.
-
 * `address` - (Required, String, ForceNew) Specifies the IP address.
 
   Changing this parameter will create a new resource.
