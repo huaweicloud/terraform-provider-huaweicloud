@@ -11,7 +11,7 @@ import (
 
 func TestAccKmsKeyDataSource_Basic(t *testing.T) {
 	keyAlias := acceptance.RandomAccResourceName()
-	datasourceName := "data.huaweicloud_kms_key.key_1"
+	datasourceName := "data.huaweicloud_kms_key.test"
 	dc := acceptance.InitDataSourceCheck(datasourceName)
 
 	resource.ParallelTest(t, resource.TestCase{

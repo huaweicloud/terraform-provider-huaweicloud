@@ -499,7 +499,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_images_images": ims.DataSourceImagesImages(),
 
 			"huaweicloud_kms_key":      dew.DataSourceKmsKey(),
-			"huaweicloud_kms_data_key": DataSourceKmsDataKeyV1(),
+			"huaweicloud_kms_data_key": dew.DataSourceKmsDataKeyV1(),
 			"huaweicloud_kps_keypairs": dew.DataSourceKeypairs(),
 
 			"huaweicloud_lb_listeners":    lb.DataSourceListeners(),
@@ -579,7 +579,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup_v2": DataSourceNetworkingSecGroup(),
 
 			"huaweicloud_kms_key_v1":      dew.DataSourceKmsKey(),
-			"huaweicloud_kms_data_key_v1": DataSourceKmsDataKeyV1(),
+			"huaweicloud_kms_data_key_v1": dew.DataSourceKmsDataKeyV1(),
 
 			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
 			"huaweicloud_sfs_file_system_v2": DataSourceSFSFileSystemV2(),
