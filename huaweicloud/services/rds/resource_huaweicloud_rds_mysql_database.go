@@ -2,42 +2,38 @@ package rds
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-
-	v3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3"
-	rds "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
+	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func ResourceRdsDatabase() *schema.Resource {
+func ResourceMysqlDatabase() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceRdsDatabaseCreate,
-		UpdateContext: resourceRdsDatabaseUpdate,
-		DeleteContext: resourceRdsDatabaseDelete,
-		ReadContext:   resourceRdsDatabaseRead,
+		CreateContext: resourceMysqlDatabaseCreate,
+		UpdateContext: resourceMysqlDatabaseUpdate,
+		ReadContext:   resourceMysqlDatabaseRead,
+		DeleteContext: resourceMysqlDatabaseDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -48,216 +44,258 @@ func ResourceRdsDatabase() *schema.Resource {
 				Computed: true,
 			},
 			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the ID of the RDS Mysql instance.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\$a-z0-9-_]+$`),
-						"the name can only consist of lowercase letters, digits, hyphens (-), underscores (_) and dollar signs ($)"),
-					func(v interface{}, k string) (ws []string, errors []error) {
-						re := regexp.MustCompile(`-|\$`)
-						if len(re.FindAllString(v.(string), -1)) > 10 {
-							errors = append(errors,
-								fmt.Errorf("the total number of hyphens (-) and dollar signs ($) cannot exceed 10"))
-						}
-						return
-					},
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the database name.`,
 			},
 			"character_set": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the character set used by the database.`,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 512),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the database description.`,
 			},
 		},
 	}
 }
 
-func resourceRdsDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcRdsV3Client(c.GetRegion(d))
+func resourceMysqlDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// createMysqlDatabase: create RDS Mysql database.
+	var (
+		createMysqlDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database"
+		createMysqlDatabaseProduct = "rds"
+	)
+	createMysqlDatabaseClient, err := cfg.NewServiceClient(createMysqlDatabaseProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
-	config.MutexKV.Lock(instanceId)
-	defer config.MutexKV.Unlock(instanceId)
+	createMysqlDatabasePath := createMysqlDatabaseClient.Endpoint + createMysqlDatabaseHttpUrl
+	createMysqlDatabasePath = strings.ReplaceAll(createMysqlDatabasePath, "{project_id}",
+		createMysqlDatabaseClient.ProjectID)
+	createMysqlDatabasePath = strings.ReplaceAll(createMysqlDatabasePath, "{instance_id}", instanceId)
 
-	dbName := d.Get("name").(string)
-	createOpts := rds.DatabaseForCreation{
-		Name:         dbName,
-		CharacterSet: d.Get("character_set").(string),
-		Comment:      utils.StringIgnoreEmpty(d.Get("description").(string)),
+	createMysqlDatabaseOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	createDatabaseReq := rds.CreateDatabaseRequest{
-		InstanceId: instanceId,
-		Body:       &createOpts,
-	}
+	createMysqlDatabaseOpt.JSONBody = utils.RemoveNil(buildCreateMysqlDatabaseBodyParams(d))
+	log.Printf("[DEBUG] Create RDS Mysql database options: %#v", createMysqlDatabaseOpt)
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		_, err = client.CreateDatabase(&createDatabaseReq)
-		retryable, err := handleMultiOperationsError(err)
-		if retryable {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	retryFunc := func() (interface{}, bool, error) {
+		_, err = createMysqlDatabaseClient.Request("POST", createMysqlDatabasePath, &createMysqlDatabaseOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(createMysqlDatabaseClient, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error creating RDS database: %s", err)
+		return diag.Errorf("error creating RDS Mysql database: %s", err)
 	}
 
-	id := instanceId + "/" + dbName
-	d.SetId(id)
-	return resourceRdsDatabaseRead(ctx, d, meta)
+	dbName := d.Get("name").(string)
+	d.SetId(instanceId + "/" + dbName)
+
+	return resourceMysqlDatabaseRead(ctx, d, meta)
 }
 
-func resourceRdsDatabaseRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcRdsV3Client(c.GetRegion(d))
+func buildCreateMysqlDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":          utils.ValueIngoreEmpty(d.Get("name")),
+		"character_set": utils.ValueIngoreEmpty(d.Get("character_set")),
+		"comment":       utils.ValueIngoreEmpty(d.Get("description")),
+	}
+	return bodyParams
+}
+
+func resourceMysqlDatabaseRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	// getMysqlDatabase: query RDS Mysql database
+	var (
+		getMysqlDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/detail?page=1&limit=100"
+		getMysqlDatabaseProduct = "rds"
+	)
+	getMysqlDatabaseClient, err := cfg.NewServiceClient(getMysqlDatabaseProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
 	// Split instance_id and database from resource id
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<database_name>")
+		return diag.Errorf("invalid id format, must be <instance_id>/<name>")
 	}
 	instanceId := parts[0]
 	dbName := parts[1]
 
-	db, err := QueryDatabases(client, instanceId, dbName)
+	getMysqlDatabasePath := getMysqlDatabaseClient.Endpoint + getMysqlDatabaseHttpUrl
+	getMysqlDatabasePath = strings.ReplaceAll(getMysqlDatabasePath, "{project_id}",
+		getMysqlDatabaseClient.ProjectID)
+	getMysqlDatabasePath = strings.ReplaceAll(getMysqlDatabasePath, "{instance_id}", instanceId)
+
+	getMysqlDatabaseResp, err := pagination.ListAllItems(
+		getMysqlDatabaseClient,
+		"page",
+		getMysqlDatabasePath,
+		&pagination.QueryOpts{MarkerField: ""})
+
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error listing RDS db databases")
+		return common.CheckDeletedDiag(d, err, "error retrieving RDS Mysql database")
 	}
 
-	mErr := multierror.Append(nil,
+	getMysqlDatabaseRespJson, err := json.Marshal(getMysqlDatabaseResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	var getMysqlDatabaseRespBody interface{}
+	err = json.Unmarshal(getMysqlDatabaseRespJson, &getMysqlDatabaseRespBody)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	database := utils.PathSearch(fmt.Sprintf("databases[?name=='%s']|[0]", dbName), getMysqlDatabaseRespBody, nil)
+	if database == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
 		d.Set("instance_id", instanceId),
-		d.Set("name", dbName),
-		d.Set("character_set", db.CharacterSet),
-		d.Set("description", db.Comment),
+		d.Set("name", utils.PathSearch("name", database, nil)),
+		d.Set("character_set", utils.PathSearch("character_set", database, nil)),
+		d.Set("description", utils.PathSearch("comment", database, nil)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting RDS db database fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceRdsDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcRdsV3Client(c.GetRegion(d))
+func resourceMysqlDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	if d.HasChange("description") {
+		// updateMysqlDatabase: update RDS Mysql database
+		var (
+			updateMysqlDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/update"
+			updateMysqlDatabaseProduct = "rds"
+		)
+		updateMysqlDatabaseClient, err := cfg.NewServiceClient(updateMysqlDatabaseProduct, region)
+		if err != nil {
+			return diag.Errorf("error creating RDS client: %s", err)
+		}
+
+		instanceId := d.Get("instance_id").(string)
+		updateMysqlDatabasePath := updateMysqlDatabaseClient.Endpoint + updateMysqlDatabaseHttpUrl
+		updateMysqlDatabasePath = strings.ReplaceAll(updateMysqlDatabasePath, "{project_id}",
+			updateMysqlDatabaseClient.ProjectID)
+		updateMysqlDatabasePath = strings.ReplaceAll(updateMysqlDatabasePath, "{instance_id}", instanceId)
+
+		updateMysqlDatabaseOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		updateMysqlDatabaseOpt.JSONBody = utils.RemoveNil(buildUpdateMysqlDatabaseBodyParams(d))
+		log.Printf("[DEBUG] Update RDS Mysql database options: %#v", updateMysqlDatabaseOpt)
+		retryFunc := func() (interface{}, bool, error) {
+			_, err = updateMysqlDatabaseClient.Request("POST", updateMysqlDatabasePath, &updateMysqlDatabaseOpt)
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(updateMysqlDatabaseClient, instanceId),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error updating RDS Mysql database: %s", err)
+		}
+	}
+
+	return resourceMysqlDatabaseRead(ctx, d, meta)
+}
+
+func buildUpdateMysqlDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":    utils.ValueIngoreEmpty(d.Get("name")),
+		"comment": utils.ValueIngoreEmpty(d.Get("description")),
+	}
+	return bodyParams
+}
+
+func resourceMysqlDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// deleteMysqlDatabase: delete RDS Mysql database
+	var (
+		deleteMysqlDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/{db_name}"
+		deleteMysqlDatabaseProduct = "rds"
+	)
+	deleteMysqlDatabaseClient, err := cfg.NewServiceClient(deleteMysqlDatabaseProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
-	config.MutexKV.Lock(instanceId)
-	defer config.MutexKV.Unlock(instanceId)
+	deleteMysqlDatabasePath := deleteMysqlDatabaseClient.Endpoint + deleteMysqlDatabaseHttpUrl
+	deleteMysqlDatabasePath = strings.ReplaceAll(deleteMysqlDatabasePath, "{project_id}",
+		deleteMysqlDatabaseClient.ProjectID)
+	deleteMysqlDatabasePath = strings.ReplaceAll(deleteMysqlDatabasePath, "{instance_id}", instanceId)
+	deleteMysqlDatabasePath = strings.ReplaceAll(deleteMysqlDatabasePath, "{db_name}", d.Get("name").(string))
 
-	updateOpts := rds.UpdateDatabaseRequest{
-		InstanceId: instanceId,
-		Body: &rds.UpdateDatabaseReq{
-			Name:    d.Get("name").(string),
-			Comment: utils.String(d.Get("description").(string)),
-		},
+	deleteMysqlDatabaseOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	log.Printf("[DEBUG] Update RDS database options: %#v", updateOpts)
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, err = client.UpdateDatabase(&updateOpts)
-		retryable, err := handleMultiOperationsError(err)
-		if retryable {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	log.Printf("[DEBUG] Delete RDS Mysql database options: %#v", deleteMysqlDatabaseOpt)
+	retryFunc := func() (interface{}, bool, error) {
+		_, err = deleteMysqlDatabaseClient.Request("DELETE", deleteMysqlDatabasePath, &deleteMysqlDatabaseOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(deleteMysqlDatabaseClient, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error updating RDS database: %s", err)
-	}
-
-	return resourceRdsDatabaseRead(ctx, d, meta)
-}
-
-func resourceRdsDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcRdsV3Client(c.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating RDS client: %s", err)
-	}
-
-	instanceId := d.Get("instance_id").(string)
-	config.MutexKV.Lock(instanceId)
-	defer config.MutexKV.Unlock(instanceId)
-
-	deleteOpts := rds.DeleteDatabaseRequest{
-		InstanceId: instanceId,
-		DbName:     d.Get("name").(string),
-	}
-
-	log.Printf("[DEBUG] Delete RDS database options: %#v", deleteOpts)
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-		_, err = client.DeleteDatabase(&deleteOpts)
-		retryable, err := handleMultiOperationsError(err)
-		if retryable {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
-	})
-	if err != nil {
-		return diag.Errorf("error deleting RDS database: %s", err)
+		return diag.Errorf("error deleting RDS Mysql database: %s", err)
 	}
 
 	return nil
-}
-
-func QueryDatabases(client *v3.RdsClient, instanceId, dbName string) (*rds.DatabaseForCreation, error) {
-	request := rds.ListDatabasesRequest{
-		InstanceId: instanceId,
-		Limit:      int32(100),
-		Page:       int32(1),
-	}
-
-	// List all databases
-	for {
-		response, err := client.ListDatabases(&request)
-		if err != nil {
-			return nil, err
-		}
-		if response.Databases == nil || len(*response.Databases) == 0 {
-			break
-		}
-
-		databases := *response.Databases
-		request.Page++
-		for _, db := range databases {
-			if db.Name == dbName {
-				return &db, nil
-			}
-		}
-	}
-
-	return nil, golangsdk.ErrDefault404{}
 }

@@ -1,6 +1,7 @@
 package rds
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -9,42 +10,77 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
+	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRdsDatabaseFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcRdsV3Client(acceptance.HW_REGION_NAME)
+func getMysqlDatabaseResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	// getMysqlDatabase: query RDS Mysql database
+	var (
+		getMysqlDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/detail?page=1&limit=100"
+		getMysqlDatabaseProduct = "rds"
+	)
+	getMysqlDatabaseClient, err := cfg.NewServiceClient(getMysqlDatabaseProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating RDS client: %s", err)
 	}
 
 	// Split instance_id and database from resource id
-	parts := strings.SplitN(state.Primary.ID, "/", 2)
+	parts := strings.Split(state.Primary.ID, "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<database_name>")
+		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<name>")
 	}
 	instanceId := parts[0]
 	dbName := parts[1]
-	return rds.QueryDatabases(client, instanceId, dbName)
+
+	getMysqlDatabasePath := getMysqlDatabaseClient.Endpoint + getMysqlDatabaseHttpUrl
+	getMysqlDatabasePath = strings.ReplaceAll(getMysqlDatabasePath, "{project_id}", getMysqlDatabaseClient.ProjectID)
+	getMysqlDatabasePath = strings.ReplaceAll(getMysqlDatabasePath, "{instance_id}", instanceId)
+
+	getMysqlDatabaseResp, err := pagination.ListAllItems(
+		getMysqlDatabaseClient,
+		"page",
+		getMysqlDatabasePath,
+		&pagination.QueryOpts{MarkerField: ""})
+
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving MysqlDatabase")
+	}
+
+	getMysqlDatabaseRespJson, err := json.Marshal(getMysqlDatabaseResp)
+	if err != nil {
+		return nil, err
+	}
+	var getMysqlDatabaseRespBody interface{}
+	err = json.Unmarshal(getMysqlDatabaseRespJson, &getMysqlDatabaseRespBody)
+	if err != nil {
+		return nil, err
+	}
+
+	database := utils.PathSearch(fmt.Sprintf("databases[?name=='%s']|[0]", dbName), getMysqlDatabaseRespBody, nil)
+	if database != nil {
+		return database, nil
+	}
+
+	return nil, fmt.Errorf("error get RDS Mysql database by instanceID %s and database %s", instanceId, dbName)
 }
 
-func TestAccRdsDatabase_basic(t *testing.T) {
-	var database model.DatabaseForCreation
-	rName := acceptance.RandomAccResourceName()
-	description := "test database"
-	descriptionUpdate := "test database update"
-	resourceName := "huaweicloud_rds_mysql_database.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
-		acctest.RandIntRange(10, 99))
+func TestAccMysqlDatabase_basic(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_rds_mysql_database.test"
+	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
+		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&database,
-		getRdsDatabaseFunc,
+		rName,
+		&obj,
+		getMysqlDatabaseResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -53,28 +89,37 @@ func TestAccRdsDatabase_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRdsDatabase_basic(rName, dbPwd, description),
+				Config: testMysqlDatabase_basic(name, dbPwd, "test database"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "character_set", "utf8"),
-					resource.TestCheckResourceAttr(resourceName, "description", description),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "instance_id",
+						"huaweicloud_rds_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "character_set", "utf8"),
+					resource.TestCheckResourceAttr(rName, "description", "test database"),
 				),
 			},
 			{
-				Config: testRdsDatabase_basic(rName, dbPwd, descriptionUpdate),
+				Config: testMysqlDatabase_basic(name, dbPwd, "test database update"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "character_set", "utf8"),
-					resource.TestCheckResourceAttr(resourceName, "description", descriptionUpdate),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "instance_id",
+						"huaweicloud_rds_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "character_set", "utf8"),
+					resource.TestCheckResourceAttr(rName, "description", "test database update"),
 				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
-func testRdsDatabase_basic(rName, dbPwd, description string) string {
+func testMysqlDatabase_basic(name, dbPwd, description string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -84,5 +129,5 @@ resource "huaweicloud_rds_mysql_database" "test" {
   character_set = "utf8"
   description   = "%s"
 }
-`, testAccRdsInstance_mysql_step1(rName, dbPwd), rName, description)
+`, testMysqlAccount_basic(name, dbPwd), name, description)
 }

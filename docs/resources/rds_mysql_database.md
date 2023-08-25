@@ -44,20 +44,20 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID of database which is formatted `<instance_id>/<database_name>`.
+* `id` - The resource ID of database which is formatted `<instance_id>/<name>`.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minutes.
-* `update` - Default is 10 minutes.
-* `delete` - Default is 10 minutes.
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
-RDS database can be imported using the `instance id` and `database name`, e.g.
+RDS database can be imported using the `instance id` and `name` separated by slash, e.g.
 
-```
-$ terraform import huaweicloud_rds_mysql_database.database_1 instance_id/database_name
+```bash
+$ terraform import huaweicloud_rds_mysql_database.database_1 <instance_id>/<name>
 ```
