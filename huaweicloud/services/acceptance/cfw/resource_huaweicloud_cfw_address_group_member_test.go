@@ -71,7 +71,6 @@ func TestAccAddressGroupMember_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "group_id", "huaweicloud_cfw_address_group.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "address", "192.168.0.1"),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
 				),
@@ -92,10 +91,9 @@ func testAddressGroupMember_basic(name string) string {
 
 resource "huaweicloud_cfw_address_group_member" "test" {
   group_id = huaweicloud_cfw_address_group.test.id
-  name     = "%s"
   address  = "192.168.0.1"
 }
-`, testAddressGroup_basic(name), name)
+`, testAddressGroup_basic(name))
 }
 
 func testAddressGroupMemberImportState(name string) resource.ImportStateIdFunc {

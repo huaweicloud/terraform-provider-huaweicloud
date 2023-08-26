@@ -55,12 +55,13 @@ The following arguments are supported:
   + **58**: indicates ICMPv6;
   + **-1**: indicates any protocol;
 
-* `port` - (Required, String) Specifies the destination port.
-
 * `address_type` - (Required, Int) Specifies the IP address type.
   The options are **0** (ipv4), **1** (ipv6) and **2** (domain).
 
 * `address` - (Required, String) Specifies the address.
+
+* `port` - (Optional, String) Specifies the destination port.
+  Required and only available if protocol is **TCP** or **UDP**.
 
 ## Attribute Reference
 
