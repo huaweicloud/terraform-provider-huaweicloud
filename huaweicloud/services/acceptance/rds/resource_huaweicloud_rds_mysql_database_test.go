@@ -129,5 +129,5 @@ resource "huaweicloud_rds_mysql_database" "test" {
   character_set = "utf8"
   description   = "%s"
 }
-`, testMysqlAccount_basic(name, dbPwd), name, description)
+`, testAccRdsInstance_mysql_step1(name, dbPwd), name, description)
 }

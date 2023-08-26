@@ -41,36 +41,36 @@ The following arguments are supported:
 
 * `db_name` - (Required, String, ForceNew) Specifies the database name. Changing this creates a new resource.
 
-* `users` - (Required, List, ForceNew) Specifies the account that associated with the database. This parameter supports
-  a maximum of 50 elements. Structure is documented below. Changing this creates a new resource.
+* `users` - (Required, List) Specifies the account that associated with the database. Structure is documented below.
 
 The `users` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the username of the database account. Changing this creates a new resource.
+* `name` - (Required, String) Specifies the username of the database account.
 
-* `readonly` - (Optional, Bool, ForceNew) Specifies the read-only permission. The value can be:
+* `readonly` - (Optional, Bool) Specifies the read-only permission. The value can be:
   + **true**: indicates the read-only permission.
   + **false**: indicates the read and write permission.
 
-  The default value is **false**. Changing this creates a new resource.
+  The default value is **false**.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID of database privilege which is formatted `<instance_id>/<database_name>`.
+* `id` - The resource ID of database privilege which is formatted `<instance_id>/<db_name>`.
 
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minutes.
-* `delete` - Default is 10 minutes.
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
-RDS database privilege can be imported using the `instance id` and `database name`, e.g.
+RDS database privilege can be imported using the `instance id` and `db_name`, e.g.
 
-```
-$ terraform import huaweicloud_rds_mysql_database_privilege.test instance_id/database_name
+```bash
+$ terraform import huaweicloud_rds_mysql_database_privilege.test <instance_id>/<db_name>
 ```
