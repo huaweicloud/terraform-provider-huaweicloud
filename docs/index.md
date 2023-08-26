@@ -193,7 +193,7 @@ The following arguments are supported:
   `HW_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
 
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
-  `HW_AUTH_URL` environment variable is used. Defaults to `https://iam.{{region}}.{{cloud}}:443/v3`.
+  `HW_AUTH_URL` environment variable is used. Defaults to `https://iam.{{region}}.{{cloud}}/v3`.
 
 * `insecure` - (Optional) Trust self-signed SSL certificates. If omitted, the
   `HW_INSECURE` environment variable is used.
