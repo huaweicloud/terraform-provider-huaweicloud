@@ -42,10 +42,18 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the rocketMQ instance.
   Changing this parameter will create a new resource.
 
-* `access_key` - (Required, String, ForceNew) Specifies the access key of the user.
+* `access_key` - (Required, String, ForceNew) Specifies the name of the user, which starts with a letter, consists of 7
+  to 64 characters and can contain only letters, digits, hyphens (-), and underscores (_).
   Changing this parameter will create a new resource.
 
-* `secret_key` - (Required, String, ForceNew) Specifies the secret key of the user.
+* `secret_key` - (Required, String, ForceNew) Specifies the password of the user. Use 8 to 32 characters. Contain at
+  least three of the following character types:
+  + Uppercase letters.
+  + Lowercase letters.
+  + Digits.
+  + Special characters \`~!@#$%^&*()-_=+\|[{}];:'"",<.>/?. Cannot be the `access_key` or the `access_key` spelled
+    backwards.
+  
   Changing this parameter will create a new resource.
 
 * `white_remote_address` - (Optional, String) Specifies the IP address whitelist.
@@ -80,8 +88,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The rocketmq user can be imported using the rocketMQ instance ID and user access key separated by a slash, e.g.
+The rocketmq user can be imported using the rocketMQ `instance_id` and user `access_key` separated by a slash, e.g.
 
-```
-$ terraform import huaweicloud_dms_rocketmq_user.test c8057fe5-23a8-46ef-ad83-c0055b4e0c5c/access_key
+```bash
+$ terraform import huaweicloud_dms_rocketmq_user.test <instance_id>/<access_key>
 ```

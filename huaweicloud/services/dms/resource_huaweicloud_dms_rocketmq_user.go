@@ -3,13 +3,11 @@ package dms
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -47,18 +45,12 @@ func ResourceDmsRocketMQUser() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the access key of the user.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]*$`),
-						"Only support letters"),
-					validation.StringLenBetween(7, 64),
-				),
 			},
 			"secret_key": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `Specifies the secret key of the user.`,
-				ValidateFunc: validation.StringLenBetween(8, 32),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the secret key of the user.`,
 			},
 			"white_remote_address": {
 				Type:        schema.TypeString,
