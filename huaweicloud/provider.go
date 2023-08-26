@@ -1414,7 +1414,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		identityEndpoint = v.(string)
 	} else {
 		// use cloud as basis for identityEndpoint
-		identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
+		identityEndpoint = fmt.Sprintf("https://iam.%s.%s/v3", region, cloud)
 	}
 
 	config := config.Config{
