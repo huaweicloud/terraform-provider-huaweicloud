@@ -1,46 +1,118 @@
 package rds
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
+	"github.com/chnsz/golangsdk/pagination"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func TestAccRdsAccount_basic(t *testing.T) {
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_rds_mysql_account.test"
+func getMysqlAccountResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	// getMysqlAccount: query RDS Mysql account
+	var (
+		getMysqlAccountHttpUrl = "v3/{project_id}/instances/{instance_id}/db_user/detail?page=1&limit=100"
+		getMysqlAccountProduct = "rds"
+	)
+	getMysqlAccountClient, err := cfg.NewServiceClient(getMysqlAccountProduct, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating RDS client: %s", err)
+	}
+
+	// Split instance_id and user from resource id
+	parts := strings.Split(state.Primary.ID, "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<name>")
+	}
+	instanceId := parts[0]
+	accountName := parts[1]
+
+	getMysqlAccountPath := getMysqlAccountClient.Endpoint + getMysqlAccountHttpUrl
+	getMysqlAccountPath = strings.ReplaceAll(getMysqlAccountPath, "{project_id}", getMysqlAccountClient.ProjectID)
+	getMysqlAccountPath = strings.ReplaceAll(getMysqlAccountPath, "{instance_id}", instanceId)
+
+	getMysqlAccountResp, err := pagination.ListAllItems(
+		getMysqlAccountClient,
+		"page",
+		getMysqlAccountPath,
+		&pagination.QueryOpts{MarkerField: ""})
+
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving RDS Mysql account")
+	}
+
+	getMysqlAccountRespJson, err := json.Marshal(getMysqlAccountResp)
+	if err != nil {
+		return nil, err
+	}
+	var getMysqlAccountRespBody interface{}
+	err = json.Unmarshal(getMysqlAccountRespJson, &getMysqlAccountRespBody)
+	if err != nil {
+		return nil, err
+	}
+
+	account := utils.PathSearch(fmt.Sprintf("users[?name=='%s']|[0]", accountName), getMysqlAccountRespBody, nil)
+
+	if account != nil {
+		return account, nil
+	}
+
+	return nil, fmt.Errorf("error get RDS Mysql account by instanceID %s and account %s", instanceId, accountName)
+}
+
+func TestAccMysqlAccount_basic(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_rds_mysql_account.test"
+	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
+		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getMysqlAccountResourceFunc,
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckRdsAccountDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRdsAccount_basic(rName),
+				Config: testMysqlAccount_basic(name, dbPwd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsAccountExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "password", "Test@12345678"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "instance_id",
+						"huaweicloud_rds_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "test_description"),
+					resource.TestCheckResourceAttr(rName, "hosts.0", "10.10.%"),
 				),
 			},
 			{
-				Config: testRdsAccount_update(rName),
+				Config: testMysqlAccount_basic_update(name, dbPwd),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsAccountExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "password", "Test@123456789"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "instance_id",
+						"huaweicloud_rds_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "test_description_update"),
+					resource.TestCheckResourceAttr(rName, "hosts.0", "10.10.%"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
+				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
@@ -49,146 +121,7 @@ func TestAccRdsAccount_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckRdsAccountDestroy(s *terraform.State) error {
-	c := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := c.HcRdsV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating RDS client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_rds_mysql_account" {
-			continue
-		}
-
-		// Split instance_id and user from resource id
-		parts := strings.SplitN(rs.Primary.ID, "/", 2)
-		if len(parts) != 2 {
-			return fmt.Errorf("invalid id format, must be <instance_id>/<user>")
-		}
-		instanceId := parts[0]
-		userName := parts[1]
-		// items on every page, [1, 100]
-		limit := int32(100)
-		// List all db users
-		request := &model.ListDbUsersRequest{
-			InstanceId: instanceId,
-			Limit:      limit,
-			Page:       int32(1),
-		}
-
-		for {
-			response, err := client.ListDbUsers(request)
-			if err != nil {
-				return nil
-			}
-			users := *response.Users
-			if len(users) == 0 {
-				break
-			}
-			request.Page += 1
-			for _, user := range users {
-				if user.Name == userName {
-					return fmt.Errorf("Rds account still exists")
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckRdsAccountExists(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		c := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := c.HcRdsV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating RDS client: %s", err)
-		}
-
-		// Split instance_id and user from resource id
-		parts := strings.SplitN(rs.Primary.ID, "/", 2)
-		if len(parts) != 2 {
-			return fmt.Errorf("invalid id format, must be <instance_id>/<user>")
-		}
-		instanceId := parts[0]
-		userName := parts[1]
-		// items on every page, [1, 100]
-		limit := int32(100)
-		// List all db users
-		request := &model.ListDbUsersRequest{
-			InstanceId: instanceId,
-			Limit:      limit,
-			Page:       int32(1),
-		}
-
-		for {
-			response, err := client.ListDbUsers(request)
-			if err != nil {
-				return fmt.Errorf("error listing RDS db users: %s", err)
-			}
-			users := *response.Users
-			if len(users) == 0 {
-				break
-			} else {
-				request.Page += 1
-				for _, user := range users {
-					if user.Name == userName {
-						return nil
-					}
-				}
-			}
-		}
-
-		return fmt.Errorf("rds account not found")
-	}
-}
-
-func testRdsAccount_base(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
-  flavor              = "rds.mysql.sld4.large.ha"
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
-  fixed_ip            = "192.168.0.58"
-  ha_replication_mode = "semisync"
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-    data.huaweicloud_availability_zones.test.names[3],
-  ]
-
-  db {
-    password = "Huangwei!120521"
-    type     = "MySQL"
-    version  = "5.7"
-    port     = 3306
-  }
-
-  volume {
-    type = "LOCALSSD"
-    size = 50
-  }
-}
-`, common.TestBaseNetwork(rName), rName)
-}
-
-func testRdsAccount_basic(rName string) string {
+func testMysqlAccount_basic(name, dbPwd string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -196,11 +129,16 @@ resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%s"
   password    = "Test@12345678"
+  description = "test_description"
+
+  hosts = [
+    "10.10.%%"
+  ]
 }
-`, testRdsAccount_base(rName), rName)
+`, testAccRdsInstance_mysql_step1(name, dbPwd), name)
 }
 
-func testRdsAccount_update(rName string) string {
+func testMysqlAccount_basic_update(name, dbPwd string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -208,6 +146,11 @@ resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%s"
   password    = "Test@123456789"
+  description = "test_description_update"
+
+  hosts = [
+    "10.10.%%"
+  ]
 }
-`, testRdsAccount_base(rName), rName)
+`, testAccRdsInstance_mysql_step1(name, dbPwd), name)
 }
