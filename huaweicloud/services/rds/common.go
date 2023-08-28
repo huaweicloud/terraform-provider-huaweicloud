@@ -14,6 +14,7 @@ var (
 	retryErrCodes = map[string]struct{}{
 		"DBS.201202": {},
 		"DBS.200011": {},
+		"DBS.200018": {},
 		"DBS.200019": {},
 		"DBS.200047": {},
 		"DBS.200080": {},
@@ -68,5 +69,49 @@ func handleMultiOperationsError(err error) (bool, error) {
 		}
 	}
 	// Operation execution failed due to some resource or server issues, no need to try again.
+	return false, err
+}
+
+// The RDS instance can not be deleted or unsubscribe if another operation is being performed.
+func handleDeletionError(err error) (bool, error) {
+	if err == nil {
+		// The operation was executed successfully and does not need to be executed again.
+		return false, nil
+	}
+	// unsubscribe fail
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		// CBC.99003651: Another operation is being performed.
+		if errorCode == "CBC.99003651" {
+			return true, err
+		}
+	}
+	// delete fail
+	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		if _, ok = retryErrCodes[errorCode.(string)]; ok {
+			// The operation failed to execute and needs to be executed again, because other operations are
+			// currently in progress.
+			return true, err
+		}
+	}
 	return false, err
 }

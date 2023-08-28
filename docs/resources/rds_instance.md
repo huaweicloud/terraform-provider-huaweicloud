@@ -241,6 +241,13 @@ The following arguments are supported:
 
 * `ssl_enable` - (Optional, Bool) Specifies whether to enable the SSL for MySQL database.
 
+* `description` - (Optional, String) Specifies the description of the instance. The value consists of 0 to 64
+  characters, including letters, digits, periods (.), underscores (_), and hyphens (-).
+
+* `dss_pool_id` - (Optional, String) Specifies the exclusive storage ID for Dec users. It is different for each az
+  configuration. When creating an instance for Dec users, it is needed to be specified for all nodes of the instance
+  and separated by commas if database instance type is not standalone or read-only.
+
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance. Each tag is represented by one key-value
   pair.
 
