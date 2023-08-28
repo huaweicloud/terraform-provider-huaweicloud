@@ -13,6 +13,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceLTSGroup() *schema.Resource {
@@ -41,6 +42,13 @@ func ResourceLTSGroup() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"tags": common.TagsSchema(),
+
+			// Attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -55,6 +63,7 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	createOpts := &loggroups.CreateOpts{
 		LogGroupName: d.Get("group_name").(string),
 		TTL:          d.Get("ttl_in_days").(int),
+		Tags:         utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -88,6 +97,8 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 				d.Set("region", region),
 				d.Set("group_name", group.Name),
 				d.Set("ttl_in_days", group.TTLinDays),
+				d.Set("tags", group.Tags),
+				d.Set("created_at", utils.FormatTimeStampRFC3339(group.CreationTime/1000, false)),
 			)
 			return diag.FromErr(mErr.ErrorOrNil())
 		}
@@ -106,6 +117,13 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	updateOpts := &loggroups.UpdateOpts{
 		TTL: d.Get("ttl_in_days").(int),
+	}
+
+	if d.HasChanges("tags") {
+		// NOTE: the key in tags can not be removed due to the API restrictions.
+		tagRaw := d.Get("tags").(map[string]interface{})
+		taglist := utils.ExpandResourceTags(tagRaw)
+		updateOpts.Tags = taglist
 	}
 
 	log.Printf("[DEBUG] Update Options: %#v", updateOpts)

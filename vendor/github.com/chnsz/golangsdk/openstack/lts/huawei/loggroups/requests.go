@@ -1,6 +1,9 @@
 package loggroups
 
-import "github.com/chnsz/golangsdk"
+import (
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+)
 
 // CreateOptsBuilder is used for creating log group parameters.
 type CreateOptsBuilder interface {
@@ -14,6 +17,9 @@ type CreateOpts struct {
 
 	// Specifies the log expiration time.
 	TTL int `json:"ttl_in_days,omitempty"`
+
+	// Specifies the tags
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 // ToLogGroupsCreateMap is used for type convert
@@ -46,7 +52,9 @@ type UpdateOptsBuilder interface {
 // For more information about the parameters, see the LogGroup object.
 type UpdateOpts struct {
 	// Specifies the log expiration time.
-	TTL int `json:"ttl_in_days,omitempty"`
+	TTL int `json:"ttl_in_days" required:"true"`
+	// Specifies the tags
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 // ToLogGroupsUpdateMap is used for type convert

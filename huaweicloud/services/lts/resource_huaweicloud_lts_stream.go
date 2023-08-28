@@ -11,11 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+const EPSTagKey string = "_sys_enterprise_project_id"
 
 func ResourceLTSStream() *schema.Resource {
 	return &schema.Resource{
@@ -43,8 +47,28 @@ func ResourceLTSStream() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"ttl_in_days": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
+			// Attributes
+			// tags of stream will be changed when the tags of group has been changed
+			// and the API cannot support updating tags, so we should mark tags as computed.
+			"tags": common.TagsComputedSchema(),
 			"filter_count": {
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -61,6 +85,16 @@ func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	groupId := d.Get("group_id").(string)
 	createOpts := &logstreams.CreateOpts{
 		LogStreamName: d.Get("stream_name").(string),
+		TTL:           d.Get("ttl_in_days").(int),
+	}
+
+	if epsID := cfg.GetEnterpriseProjectID(d); epsID != "" {
+		createOpts.Tags = []tags.ResourceTag{
+			{
+				Key:   EPSTagKey,
+				Value: epsID,
+			},
+		}
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -113,10 +147,18 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 	for _, stream := range streams.LogStreams {
 		if stream.ID == streamID {
 			log.Printf("[DEBUG] Retrieved log stream %s: %#v", streamID, stream)
+
+			// fetch enterprise_project_id in tags and then delete it in tags
+			epsID := stream.Tags[EPSTagKey]
+			delete(stream.Tags, EPSTagKey)
+
 			mErr := multierror.Append(nil,
 				d.Set("region", region),
 				d.Set("stream_name", stream.Name),
+				d.Set("tags", stream.Tags),
+				d.Set("enterprise_project_id", epsID),
 				d.Set("filter_count", stream.FilterCount),
+				d.Set("created_at", utils.FormatTimeStampRFC3339(stream.CreationTime/1000, false)),
 			)
 			return diag.FromErr(mErr.ErrorOrNil())
 		}

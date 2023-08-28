@@ -59,6 +59,9 @@ func TestAccLtsStream_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
+					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrPair(resourceName, "group_id", "huaweicloud_lts_group.test", "id"),
 				),
 			},
 			{
@@ -66,6 +69,47 @@ func TestAccLtsStream_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testLtsStreamImportState(resourceName),
+			},
+		},
+	})
+}
+
+func TestAccLtsStream_ttl(t *testing.T) {
+	var stream logstreams.LogStream
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_lts_stream.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&stream,
+		getLtsStreamResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLtsStream_ttl(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
+					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
+					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrPair(resourceName, "group_id", "huaweicloud_lts_group.test", "id"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl_in_days"},
+				ImportStateIdFunc:       testLtsStreamImportState(resourceName),
 			},
 		},
 	})
@@ -89,12 +133,27 @@ func testAccLtsStream_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
-  ttl_in_days = 1
+  ttl_in_days = 30
 }
 
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[1]s"
+}
+`, rName)
+}
+
+func testAccLtsStream_ttl(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+  ttl_in_days = 60
 }
 `, rName)
 }
