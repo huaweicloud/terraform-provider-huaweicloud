@@ -33,6 +33,8 @@ const (
 	PolicyTypeShared      PolicyType = "API-shared"
 	PolicyTypeUser        PolicyType = "USER"
 	PolicyTypeApplication PolicyType = "APP"
+
+	includeSpecialThrottle int = 1
 )
 
 var (
@@ -322,19 +324,6 @@ func resourceThrottlingPolicyRead(_ context.Context, d *schema.ResourceData, met
 		return common.CheckDeletedDiag(d, err, "throttling policy")
 	}
 
-	// Get related special throttling policies.
-	pages, err := throttles.ListSpecThrottles(client, instanceId, d.Id(), throttles.SpecThrottlesListOpts{}).AllPages()
-	if err != nil {
-		return diag.Errorf("error retrieving special throttle: %s", err)
-	}
-	specResp, err := throttles.ExtractSpecThrottles(pages)
-	if err != nil {
-		return diag.Errorf("unable to find the special throttles from policy: %s", err)
-	}
-	userThrottles, appThrottles, err := flattenSpecThrottlingPolicies(specResp)
-	if err != nil {
-		return diag.Errorf("error retrieving special throttle: %s", err)
-	}
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("type", analyseThrottlingPolicyType(resp.Type)),
@@ -346,11 +335,29 @@ func resourceThrottlingPolicyRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("max_app_requests", resp.AppCallLimits),
 		d.Set("max_ip_requests", resp.IpCallLimits),
 		d.Set("description", resp.Description),
-		d.Set("user_throttles", userThrottles),
-		d.Set("app_throttles", appThrottles),
 		// Attributes
 		d.Set("created_at", resp.CreateTime),
 	)
+
+	if resp.IsIncludeSpecialThrottle == includeSpecialThrottle {
+		// Get related special throttling policies.
+		pages, err := throttles.ListSpecThrottles(client, instanceId, d.Id(), throttles.SpecThrottlesListOpts{}).AllPages()
+		if err != nil {
+			return diag.Errorf("error retrieving special throttle: %s", err)
+		}
+		specResp, err := throttles.ExtractSpecThrottles(pages)
+		if err != nil {
+			return diag.Errorf("unable to find the special throttles from policy: %s", err)
+		}
+		userThrottles, appThrottles, err := flattenSpecThrottlingPolicies(specResp)
+		if err != nil {
+			return diag.Errorf("error retrieving special throttle: %s", err)
+		}
+		mErr = multierror.Append(mErr,
+			d.Set("user_throttles", userThrottles),
+			d.Set("app_throttles", appThrottles),
+		)
+	}
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving throttling policy (%s) fields: %s", policyId, err)
 	}
