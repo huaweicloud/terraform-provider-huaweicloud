@@ -256,6 +256,9 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 	}
 
 	if endpoint, ok := c.Endpoints[srv]; ok {
+		if region != c.Region {
+			return nil, fmt.Errorf("Resource-level region must be the same as Provider-level region when using customizing endpoints")
+		}
 		return c.newServiceClientByEndpoint(client, srv, endpoint)
 	}
 	return c.newServiceClientByName(client, serviceCatalog, region)
