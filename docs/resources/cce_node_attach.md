@@ -103,6 +103,7 @@ In addition to all arguments above, the following attributes are exported:
 * `ecs_group_id` - The Ecs group ID.
 * `subnet_id` - The ID of the subnet to which the NIC belongs.
 * `charging_mode` - The charging mode of the CCE node. Valid values are *prePaid* and *postPaid*.
+* `initialized_conditions` - The custom initialization flags.
 
 * `root_volume` - The configuration of the system disk.
   + `size` - The disk size in GB.

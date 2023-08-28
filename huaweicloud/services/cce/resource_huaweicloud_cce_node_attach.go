@@ -265,6 +265,11 @@ func ResourceNodeAttach() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"initialized_conditions": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
