@@ -789,6 +789,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "ProjectMan",
 	},
 
+	"codearts_deploy": {
+		Name:    "codearts-deploy",
+		Version: "v2",
+		Product: "CodeArtsDeploy",
+	},
+
 	// catalog for Data Security Center
 	"dsc": {
 		Name:    "sdg",
