@@ -20,13 +20,18 @@ func DataSourceAccount() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"region": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func dataSourceAccountRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	identityClient, err := cfg.IdentityV3Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating IAM client: %s", err)
 	}
@@ -52,6 +57,7 @@ func dataSourceAccountRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	mErr := multierror.Append(nil,
 		d.Set("name", result.Name),
+		d.Set("region", region),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

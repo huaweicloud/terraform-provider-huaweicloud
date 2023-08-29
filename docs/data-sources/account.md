@@ -23,3 +23,5 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The account ID.
 
 * `name` - The account name.
+
+* `region` - The region name.

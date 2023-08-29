@@ -20,6 +20,7 @@ func TestAccDatasourceAccount_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAccountDataSourceID(rName),
 					resource.TestCheckResourceAttrSet(rName, "name"),
+					resource.TestCheckResourceAttrSet(rName, "region"),
 				),
 			},
 		},
