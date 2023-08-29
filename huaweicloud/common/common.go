@@ -67,7 +67,7 @@ func GetEnterpriseProjectID(d *schema.ResourceData, config *config.Config) strin
 	return config.EnterpriseProjectID
 }
 
-func MigrateEnterpriseProject(client *golangsdk.ServiceClient, region, targetEPSId, resourceType, resourceID string) error {
+func MigrateEnterpriseProject(client *golangsdk.ServiceClient, targetEPSId string, migrateOpts enterpriseprojects.MigrateResourceOpts) error {
 	if targetEPSId == "" {
 		targetEPSId = "0"
 	} else {
@@ -77,15 +77,9 @@ func MigrateEnterpriseProject(client *golangsdk.ServiceClient, region, targetEPS
 		}
 	}
 
-	migrateOpts := enterpriseprojects.MigrateResourceOpts{
-		RegionId:     region,
-		ProjectId:    client.ProjectID,
-		ResourceType: resourceType,
-		ResourceId:   resourceID,
-	}
 	migrateResult := enterpriseprojects.Migrate(client, migrateOpts, targetEPSId)
 	if err := migrateResult.Err; err != nil {
-		return fmt.Errorf("failed to migrate %s to enterprise project %s, err: %s", resourceID, targetEPSId, err)
+		return fmt.Errorf("failed to migrate %s to enterprise project %s, err: %s", migrateOpts.ResourceId, targetEPSId, err)
 	}
 
 	return nil

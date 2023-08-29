@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -443,11 +444,10 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
-		if epsClient.ProjectID == "" {
-			epsClient.ProjectID = conf.GetProjectID(region)
-		}
 
-		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region); err != nil {
+		// API Limitations: still requires `project_id` field when migrating the EPS of OBS bucket
+		projectID := conf.GetProjectID(region)
+		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region, projectID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -949,11 +949,18 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 }
 
 func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData,
-	obsClient *obs.ObsClient, epsClient *golangsdk.ServiceClient, region string) error {
+	obsClient *obs.ObsClient, epsClient *golangsdk.ServiceClient, region, projectID string) error {
 	bucket := d.Get("bucket").(string)
 	targetEPSId := d.Get("enterprise_project_id").(string)
 
-	if err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "bucket", bucket); err != nil {
+	migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		RegionId:     region,
+		ProjectId:    projectID,
+		ResourceType: "bucket",
+		ResourceId:   bucket,
+	}
+
+	if err := common.MigrateEnterpriseProject(epsClient, targetEPSId, migrateOpts); err != nil {
 		return err
 	}
 
