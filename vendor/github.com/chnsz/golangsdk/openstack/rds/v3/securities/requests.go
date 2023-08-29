@@ -108,3 +108,38 @@ func UpdateSecGroup(client *golangsdk.ServiceClient, instanceId string, opts Sec
 
 	return
 }
+
+// DataIpOpts is a struct which will be used to fix the data IP(private IP).
+type DataIpOpts struct {
+	// Specifies the new private ip.
+	NewIp string `json:"new_ip" required:"true"`
+}
+
+// DataIpOptsBuilder is an interface which to support request body build of
+// the data IP of the specifies database.
+type DataIpOptsBuilder interface {
+	ToDataIpOptsMap() (map[string]interface{}, error)
+}
+
+// ToDataIpOptsMap is a method which to build a request body by the DataIpOpts.
+func (opts DataIpOpts) ToDataIpOptsMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+// UpdateDataIp is a method to update the data IP of the database.
+func UpdateDataIp(client *golangsdk.ServiceClient, instanceId string, opts DataIpOptsBuilder) (r commonResult) {
+	b, err := opts.ToDataIpOptsMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(rootURL(client, instanceId, "ip"), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
+
+	return
+}

@@ -191,8 +191,7 @@ The following arguments are supported:
 * `restore` - (Optional, List, ForceNew) Specifies the restoration information. It only supported restore to postpaid
   instance. Structure is documented below. Changing this parameter will create a new resource.
 
-* `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance. Changing this
-  parameter will create a new resource.
+* `fixed_ip` - (Optional, String) Specifies an intranet floating IP address of RDS DB instance.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 

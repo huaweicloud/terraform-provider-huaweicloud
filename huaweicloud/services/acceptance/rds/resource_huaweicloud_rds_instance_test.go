@@ -42,7 +42,8 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.52"),
+					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.52"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
@@ -59,6 +60,8 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.62"),
+					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.62"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8636"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
@@ -160,6 +163,8 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "400"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.57"),
+					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.57"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
 				),
@@ -175,6 +180,8 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "500"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "20"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.67"),
+					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.67"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
 				),
@@ -205,13 +212,27 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstance_sqlserver(name, pwd),
+				Config: testAccRdsInstance_sqlserver(name, pwd, "192.168.0.56"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.56"),
+					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.56"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_sqlserver(name, pwd, "192.168.0.66"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.66"),
+					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.66"),
 				),
 			},
 		},
@@ -499,7 +520,7 @@ resource "huaweicloud_rds_instance" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
-  fixed_ip          = "192.168.0.58"
+  fixed_ip          = "192.168.0.52"
 
   db {
     password = "%s"
@@ -539,6 +560,7 @@ resource "huaweicloud_rds_instance" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
+  fixed_ip          = "192.168.0.62"
 
   db {
     password = "%s"
@@ -674,6 +696,7 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = true  
+  fixed_ip          = "192.168.0.57"
 
   db {
     password = "%[2]s"
@@ -729,6 +752,7 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = false
+  fixed_ip          = "192.168.0.67"
 
   db {
     password = "%[2]s"
@@ -784,6 +808,7 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = false
+  fixed_ip          = "192.168.0.67"
 
   db {
     password = "%[2]s"
@@ -800,7 +825,7 @@ resource "huaweicloud_rds_instance" "test" {
 `, name, pwd)
 }
 
-func testAccRdsInstance_sqlserver(name, pwd string) string {
+func testAccRdsInstance_sqlserver(name, pwd, fixedIp string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -825,12 +850,13 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
-  flavor              = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id   = data.huaweicloud_networking_secgroup.test.id
-  subnet_id           = data.huaweicloud_vpc_subnet.test.id
-  vpc_id              = data.huaweicloud_vpc.test.id
-  collation           = "Chinese_PRC_CI_AS"
+  name              = "%s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  collation         = "Chinese_PRC_CI_AS"
+  fixed_ip          = "%s"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -848,7 +874,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, name, pwd)
+`, name, fixedIp, pwd)
 }
 
 func testAccRdsInstance_prePaid(name, pwd string, isAutoRenew bool) string {
