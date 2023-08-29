@@ -168,6 +168,8 @@ type AddNodeSpec struct {
 	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
 	// Extended parameter
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
+	// The initialized conditions
+	InitializedConditions []string `json:"initializedConditions,omitempty"`
 }
 
 type ServerConfig struct {
@@ -187,6 +189,8 @@ type RootVolume struct {
 type VolumeConfig struct {
 	// Docker data disk configurations
 	LvmConfig string `json:"lvmConfig,omitempty"`
+	// Disk initialization configuration management parameters
+	Storage *StorageSpec `json:"storage,omitempty"`
 }
 
 type RuntimeConfig struct {
