@@ -66,19 +66,11 @@ func testAccWafInstanceGroup_conf(baseName, groupName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "flavors" {
-  availability_zone = data.huaweicloud_availability_zones.zones.names[1]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-}
-
 resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name               = "%s"
-  available_zone     = data.huaweicloud_availability_zones.test.names[1]
+  available_zone     = data.huaweicloud_availability_zones.test.names[0]
   specification_code = "waf.instance.professional"
-  ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
+  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
   vpc_id             = huaweicloud_vpc.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   
@@ -93,5 +85,5 @@ resource "huaweicloud_waf_instance_group" "group_1" {
 
   depends_on = [huaweicloud_waf_dedicated_instance.instance_1]
 }
-`, common.TestBaseNetwork(baseName), baseName, groupName)
+`, common.TestBaseComputeResources(baseName), baseName, groupName)
 }
