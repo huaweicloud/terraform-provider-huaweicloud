@@ -85,5 +85,5 @@ resource "huaweicloud_rds_mysql_database_privilege" "test" {
     name = huaweicloud_rds_mysql_account.test.name
   }
 }
-`, testRdsDatabase_basic(rName, dbPwd, rName), rName)
+`, testMysqlDatabase_basic(rName, dbPwd, rName), rName)
 }
