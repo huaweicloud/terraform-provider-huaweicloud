@@ -176,6 +176,7 @@ var (
 	HW_NEW_CERTIFICATE_ROOT_CA     = os.Getenv("HW_NEW_CERTIFICATE_ROOT_CA")
 
 	HW_CODEARTS_RESOURCE_POOL_ID = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
+	HW_CODEARTS_ENABLE_FLAG      = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -380,14 +381,14 @@ func RandomPassword() string {
 // lintignore:AT003
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
-		t.Skip("Jump the WAF acceptance tests.")
+		t.Skip("Skip the WAF acceptance tests.")
 	}
 }
 
 // lintignore:AT003
 func TestAccPreCheckCNADInstance(t *testing.T) {
 	if HW_CNAD_ENABLE_FLAG == "" {
-		t.Skip("Jump the CNAD acceptance tests.")
+		t.Skip("Skip the CNAD acceptance tests.")
 	}
 }
 
@@ -401,7 +402,7 @@ func TestAccPreCheckCNADProtectedObject(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckOmsInstance(t *testing.T) {
 	if HW_OMS_ENABLE_FLAG == "" {
-		t.Skip("Jump the OMS acceptance tests.")
+		t.Skip("Skip the OMS acceptance tests.")
 	}
 }
 
@@ -415,7 +416,7 @@ func TestAccPreCheckAdminOnly(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckReplication(t *testing.T) {
 	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
-		t.Skip("Jump the replication policy acceptance tests.")
+		t.Skip("Skip the replication policy acceptance tests.")
 	}
 }
 
@@ -785,6 +786,13 @@ func TestAccPreCheckCertificateFull(t *testing.T) {
 func TestAccPreCheckCodeArtsDeploy(t *testing.T) {
 	if HW_CODEARTS_RESOURCE_POOL_ID == "" {
 		t.Skip("HW_CODEARTS_RESOURCE_POOL_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCodeArtsEnableFlag(t *testing.T) {
+	if HW_CODEARTS_ENABLE_FLAG == "" {
+		t.Skip("Skip the CodeArts acceptance tests.")
 	}
 }
 
