@@ -1121,8 +1121,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),
 
 			// CodeArts
-			"huaweicloud_codearts_project":    codearts.ResourceProject(),
-			"huaweicloud_codearts_repository": codearts.ResourceRepository(),
+			"huaweicloud_codearts_project":      codearts.ResourceProject(),
+			"huaweicloud_codearts_repository":   codearts.ResourceRepository(),
+			"huaweicloud_codearts_deploy_group": codearts.ResourceDeployGroup(),
 
 			"huaweicloud_dsc_instance":  dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs": dsc.ResourceAssetObs(),

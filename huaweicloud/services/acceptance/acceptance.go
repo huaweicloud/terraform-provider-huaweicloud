@@ -172,6 +172,8 @@ var (
 	HW_NEW_CERTIFICATE_CONTENT     = os.Getenv("HW_NEW_CERTIFICATE_CONTENT")
 	HW_NEW_CERTIFICATE_PRIVATE_KEY = os.Getenv("HW_NEW_CERTIFICATE_PRIVATE_KEY")
 	HW_NEW_CERTIFICATE_ROOT_CA     = os.Getenv("HW_NEW_CERTIFICATE_ROOT_CA")
+
+	HW_CODEARTS_RESOURCE_POOL_ID = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -774,5 +776,12 @@ func TestAccPreCheckCertificateFull(t *testing.T) {
 	TestAccPreCheckCertificateWithoutRootCA(t)
 	if HW_CERTIFICATE_ROOT_CA == "" || HW_NEW_CERTIFICATE_ROOT_CA == "" {
 		t.Skip("HW_CERTIFICATE_ROOT_CA and HW_NEW_CERTIFICATE_ROOT_CA must be set for root CA validation")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCodeArtsDeploy(t *testing.T) {
+	if HW_CODEARTS_RESOURCE_POOL_ID == "" {
+		t.Skip("HW_CODEARTS_RESOURCE_POOL_ID must be set for this acceptance test")
 	}
 }
