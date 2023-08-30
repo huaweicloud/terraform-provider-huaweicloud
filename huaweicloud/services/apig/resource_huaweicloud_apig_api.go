@@ -100,6 +100,9 @@ const (
 	ProtocolTypeHTTP  ProtocolType = "HTTP"
 	ProtocolTypeHTTPS ProtocolType = "HTTPS"
 	ProtocolTypeBoth  ProtocolType = "BOTH"
+
+	strBoolEnabled  int = 1
+	strBoolDisabled int = 2
 )
 
 var (
@@ -236,8 +239,19 @@ func ResourceApigAPIV2() *schema.Resource {
 						},
 						"required": {
 							Type:        schema.TypeBool,
-							Required:    true,
+							Optional:    true,
 							Description: "Whether this parameter is required.",
+						},
+						"passthrough": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Whether to transparently transfer the parameter.",
+						},
+						"enumeration": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The enumerated value.",
 						},
 						"location": {
 							Type:     schema.TypeString,
@@ -884,6 +898,13 @@ func buildApiType(t string) int {
 	}
 }
 
+func isObjectEnabled(isEnabled bool) int {
+	if isEnabled {
+		return strBoolEnabled
+	}
+	return strBoolDisabled
+}
+
 func buildMockStructure(mocks []interface{}) *apis.Mock {
 	if len(mocks) < 1 {
 		return nil
@@ -929,13 +950,13 @@ func buildWebStructure(webs []interface{}) *apis.Web {
 	)
 	// If vpc_channel_id is empty, the backend address is used.
 	if chanId, ok := webMap["vpc_channel_id"]; ok && chanId != "" {
-		webResp.VpcChannelStatus = 1
+		webResp.VpcChannelStatus = strBoolEnabled
 		webResp.VpcChannelInfo = &apis.VpcChannel{
 			VpcChannelId:        chanId.(string),
 			VpcChannelProxyHost: webMap["host_header"].(string),
 		}
 	} else {
-		webResp.VpcChannelStatus = 2
+		webResp.VpcChannelStatus = strBoolDisabled
 		webResp.DomainURL = webMap["backend_address"].(string)
 	}
 
@@ -952,10 +973,15 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 		paramMap := v.(map[string]interface{})
 		paramType := paramMap["type"].(string)
 		param := apis.ReqParamBase{
-			Type:        paramType,
-			Name:        paramMap["name"].(string),
-			Location:    paramMap["location"].(string),
-			Description: utils.String(paramMap["description"].(string)),
+			Type:         paramType,
+			Name:         paramMap["name"].(string),
+			Required:     isObjectEnabled(paramMap["required"].(bool)),
+			Location:     paramMap["location"].(string),
+			Description:  utils.String(paramMap["description"].(string)),
+			Enumerations: utils.String(paramMap["enumeration"].(string)),
+			PassThrough:  isObjectEnabled(paramMap["passthrough"].(bool)),
+			DefaultValue: utils.String(paramMap["default"].(string)),
+			SampleValue:  paramMap["example"].(string),
 		}
 		switch paramType {
 		case string(ParamTypeNumber):
@@ -964,12 +990,6 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 		case string(ParamTypeString):
 			param.MaxSize = utils.Int(paramMap["maximum"].(int))
 			param.MinSize = utils.Int(paramMap["minimum"].(int))
-		}
-
-		if paramMap["required"].(bool) {
-			param.Required = 1
-		} else {
-			param.Required = 2
 		}
 		result[i] = param
 	}
@@ -1124,9 +1144,9 @@ func buildApigAPIWebPolicy(policies *schema.Set) ([]apis.PolicyWeb, error) {
 					VpcChannelId:        pm["vpc_channel_id"].(string),
 					VpcChannelProxyHost: pm["host_header"].(string),
 				}
-				wp.VpcChannelStatus = 1
+				wp.VpcChannelStatus = strBoolEnabled
 			} else {
-				wp.VpcChannelStatus = 2
+				wp.VpcChannelStatus = strBoolDisabled
 			}
 		}
 		result[i] = wp
@@ -1333,6 +1353,16 @@ func analyseAppSimpleAuth(opt apis.AuthOpt) bool {
 	return opt.AppCodeAuthType == string(AppCodeAuthTypeEnable)
 }
 
+func parseObjectEnabled(objStatus int) bool {
+	if objStatus == strBoolEnabled {
+		return true
+	}
+	if objStatus != strBoolDisabled {
+		log.Printf("[DEBUG] unexpected object value, want '1'(yes) or '2'(no), but got '%d'", objStatus)
+	}
+	return false
+}
+
 func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interface{} {
 	if len(reqParams) < 1 {
 		return nil
@@ -1344,6 +1374,9 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interfa
 			"name":        v.Name,
 			"location":    v.Location,
 			"type":        v.Type,
+			"required":    parseObjectEnabled(v.Required),
+			"passthrough": parseObjectEnabled(v.PassThrough),
+			"enumeration": v.Enumerations,
 			"example":     v.SampleValue,
 			"default":     v.DefaultValue,
 			"description": v.Description,
@@ -1355,13 +1388,6 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interfa
 		case string(ParamTypeString):
 			param["maximum"] = v.MaxSize
 			param["minimum"] = v.MinSize
-		}
-
-		switch v.Required {
-		case 1:
-			param["required"] = true
-		case 2:
-			param["required"] = false
 		}
 		result[i] = param
 	}

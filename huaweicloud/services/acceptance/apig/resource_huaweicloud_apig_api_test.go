@@ -59,7 +59,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "matching", "Exact"),
 					resource.TestCheckResourceAttr(rName, "success_response", "Success response"),
 					resource.TestCheckResourceAttr(rName, "failure_response", "Failed response"),
-					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "backend_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserAge/{userAge}"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
@@ -89,7 +89,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "matching", "Exact"),
 					resource.TestCheckResourceAttr(rName, "success_response", "Updated Success response"),
 					resource.TestCheckResourceAttr(rName, "failure_response", "Updated Failed response"),
-					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "backend_params.#", "3"),
 					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserName/{userName}"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
@@ -248,6 +248,16 @@ resource "huaweicloud_apig_api" "test" {
     maximum  = 200
     minimum  = 0
   }
+  request_params {
+    name        = "X-TEST-ENUM"
+    type        = "STRING"
+    location    = "HEADER"
+    maximum     = 20
+    minimum     = 10
+    example     = "ACC_TEST_XXX"
+    passthrough = true
+    enumeration = "ACC_TEST_A,ACC_TEST_B"
+  }
 
   backend_params {
     type     = "REQUEST"
@@ -339,6 +349,16 @@ resource "huaweicloud_apig_api" "test" {
     required = true
     maximum  = 64
     minimum  = 3
+  }
+  request_params {
+    name        = "X-TEST-ENUM"
+    type        = "STRING"
+    location    = "HEADER"
+    maximum     = 20
+    minimum     = 10
+    example     = "ACC_TEST_XXXX"
+    passthrough = false
+    enumeration = "ACC_TEST_A,ACC_TEST_B,ACC_TEST_C"
   }
 
   backend_params {

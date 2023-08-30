@@ -147,7 +147,12 @@ The `request_params` block supports:
   If Location is specified as **HEADER** and `security_authentication` is specified as **APP**, the parameter name
   cannot be `Authorization` (case-insensitive) and cannot contain underscores.
 
-* `required` - (Required, Bool) Specifies whether the request parameter is required.
+* `required` - (Optional, Bool) Specifies whether the request parameter is required.
+
+* `passthrough` - (Optional, Bool) Specifies whether to transparently transfer the parameter.
+
+* `enumeration` - (Optional, String) Specifies the enumerated value(s).
+  Use commas to separate multiple enumeration values, such as **VALUE_A,VALUE_B**.
 
 * `location` - (Optional, String) Specifies the location of the request parameter.  
   The valid values are **PATH**, **QUERY** and **HEADER**, defaults to **PATH**.
