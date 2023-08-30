@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"sync"
 
@@ -1453,7 +1454,15 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 
 	// get assume role
 	assumeRoleList := d.Get("assume_role").([]interface{})
-	if len(assumeRoleList) == 1 {
+	if len(assumeRoleList) == 0 {
+		// without assume_role block in provider
+		delegatedAgencyName := os.Getenv("HW_ASSUME_ROLE_AGENCY_NAME")
+		delegatedDomianName := os.Getenv("HW_ASSUME_ROLE_DOMAIN_NAME")
+		if delegatedAgencyName != "" && delegatedDomianName != "" {
+			config.AssumeRoleAgency = delegatedAgencyName
+			config.AssumeRoleDomain = delegatedDomianName
+		}
+	} else {
 		assumeRole := assumeRoleList[0].(map[string]interface{})
 		config.AssumeRoleAgency = assumeRole["agency_name"].(string)
 		config.AssumeRoleDomain = assumeRole["domain_name"].(string)
