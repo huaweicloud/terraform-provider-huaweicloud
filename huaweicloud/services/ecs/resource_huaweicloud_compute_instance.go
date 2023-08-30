@@ -19,6 +19,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	groups "github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
@@ -1040,9 +1041,6 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		if err != nil {
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
-		if epsClient.ProjectID == "" {
-			epsClient.ProjectID = cfg.GetProjectID(region)
-		}
 
 		if err := migrateEnterpriseProject(ctx, d, ecsClient, epsClient, region); err != nil {
 			return diag.FromErr(err)
@@ -1766,7 +1764,14 @@ func migrateEnterpriseProject(ctx context.Context, d *schema.ResourceData,
 	resourceID := d.Id()
 	targetEPSId := d.Get("enterprise_project_id").(string)
 
-	if err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "ecs", resourceID); err != nil {
+	migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		RegionId:     region,
+		ProjectId:    ecsClient.ProjectID,
+		ResourceType: "ecs",
+		ResourceId:   resourceID,
+	}
+
+	if err := common.MigrateEnterpriseProject(epsClient, targetEPSId, migrateOpts); err != nil {
 		return err
 	}
 

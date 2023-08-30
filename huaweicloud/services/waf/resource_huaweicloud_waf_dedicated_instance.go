@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	instances "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -296,9 +297,6 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf("error creating EPS client: %s", err)
 		}
-		if epsClient.ProjectID == "" {
-			epsClient.ProjectID = conf.GetProjectID(region)
-		}
 
 		if err := resourceWafDedicatedEPSIdUpdate(d.Id(), epsId, client, epsClient, region); err != nil {
 			return diag.FromErr(err)
@@ -307,15 +305,21 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceDedicatedInstanceRead(ctx, d, meta)
 }
 
-func resourceWafDedicatedEPSIdUpdate(id string, targetEPSId string, c *golangsdk.ServiceClient,
+func resourceWafDedicatedEPSIdUpdate(id string, targetEPSId string, wafClient *golangsdk.ServiceClient,
 	epsClient *golangsdk.ServiceClient, region string) error {
-	err := common.MigrateEnterpriseProject(epsClient, region, targetEPSId, "waf-instance", id)
+	migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		RegionId:     region,
+		ProjectId:    wafClient.ProjectID,
+		ResourceType: "waf-instance",
+		ResourceId:   id,
+	}
+	err := common.MigrateEnterpriseProject(epsClient, targetEPSId, migrateOpts)
 	if err != nil {
 		return nil
 	}
 
 	// check waf with enterprise_project_id
-	_, err = instances.GetWithEpsId(c, id, targetEPSId)
+	_, err = instances.GetWithEpsId(wafClient, id, targetEPSId)
 	if err != nil {
 		return err
 	}
