@@ -68,6 +68,7 @@ func dataSourceAvailabilityZonesRead(d *schema.ResourceData, meta interface{}) e
 
 	d.SetId(hashcode.Strings(zones))
 	d.Set("names", zones)
+	d.Set("region", region)
 
 	return nil
 }
