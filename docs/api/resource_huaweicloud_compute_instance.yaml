@@ -62,10 +62,10 @@ paths:
     put:
       tag: VPC
       operationId: Update
-  /v1/{project_id}/servers/{id}/action:
+  /v2.1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
-      operationId: ChangeAdminPassword
+      operationId: RemoveServer
   /v2.1/{project_id}/servers/{id}/metadata:
     post:
       tag: ECS

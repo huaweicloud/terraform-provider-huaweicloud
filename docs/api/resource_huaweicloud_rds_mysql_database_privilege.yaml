@@ -1,21 +1,23 @@
 info:
-  version: 
-  title: resource_huaweicloud_rds_mysql_database_privilege
-  description: 
-schemes:
-  - https
-host: huaweicloud.com
+    title: resource_huaweicloud_rds_mysql_database_privilege
+    description: Manages an RDS Mysql database privilege resource within HuaweiCloud.
+host: myhuaweicloud.com
 tags:
-  - name: RDS
+    - name: RDS
+servers:
+    - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
-  /v3/{project_id}/instances/{instance_id}/database/db_user:
-    get:
-      tag: RDS
-      operationId: ListAuthorizedDbUsers
-  /v3/{project_id}/instances/{instance_id}/db_privilege:
-    delete:
-      tag: RDS
-      operationId: Revoke
-    post:
-      tag: RDS
-      operationId: AllowDbUserPrivilege
+    /v3/{project_id}/instances/{instance_id}/database/db_user:
+        GET:
+            tag: RDS
+            operationId: GetMysqlDatabasePrivilege
+            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/database/db_user
+    /v3/{project_id}/instances/{instance_id}/db_privilege:
+        DELETE:
+            tag: RDS
+            operationId: DeleteMysqlDatabasePrivilege
+            x-ref-api: DELETE /v3/{project_id}/instances/{instance_id}/db_privilege
+        POST:
+            tag: RDS
+            operationId: CreateMysqlDatabasePrivilege
+            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/db_privilege

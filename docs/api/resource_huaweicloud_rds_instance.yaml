@@ -45,7 +45,7 @@ paths:
     post:
       tag: RDS
       operationId: RestRootPassword
-  /v3/{project_id}/instances/{instancesId}/{updata}:
+  /v3/{project_id}/instances/{instancesId}/{update}:
     post:
       tag: RDS
       operationId: Resize

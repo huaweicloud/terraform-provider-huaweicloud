@@ -19,10 +19,6 @@ paths:
     get:
       tag: MRS
       operationId: ListHosts
-  /v1.1/{project_id}/clusters/{id}/tags/action:
-    POST:
-      tag: MRS
-      operationId: batchUpdate
   /v1.1/{project_id}/clusters/{id}:
     delete:
       tag: MRS
@@ -35,3 +31,7 @@ paths:
     get:
       tag: EIP
       operationId: List
+  /v1.1/{project_id}/{resourceType}/{id}/tags/action:
+    post:
+      tag: MRS
+      operationId: Delete

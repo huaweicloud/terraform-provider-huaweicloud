@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_dns_recordsets
+    description: Use this data source to get the list of DNS recordsets.
+host: myhuaweicloud.com
+tags:
+    - name: DNS
+servers:
+    - url: https://dns.cn-north-4.myhuaweicloud.com
+paths:
+    /v2.1/zones/{zone_id}/recordsets:
+        GET:
+            tag: dns_region
+            operationId: ListDNSRecordsets
+            x-ref-api: GET /v2.1/zones/{zone_id}/recordsets
