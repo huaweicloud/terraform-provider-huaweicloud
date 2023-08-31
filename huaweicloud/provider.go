@@ -527,6 +527,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_model_templates":  modelarts.DataSourceModelTemplates(),
 			"huaweicloud_modelarts_workspaces":       modelarts.DataSourceWorkspaces(),
 			"huaweicloud_modelarts_services":         modelarts.DataSourceServices(),
+			"huaweicloud_modelarts_resource_flavors": modelarts.DataSourceResourceFlavors(),
 
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
