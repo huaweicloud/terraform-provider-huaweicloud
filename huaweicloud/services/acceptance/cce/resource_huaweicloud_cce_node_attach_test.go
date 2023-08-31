@@ -51,7 +51,7 @@ func TestAccNodeAttach_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.5"),
+					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.9"),
 				),
 			},
 			{
@@ -135,7 +135,7 @@ resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
   key_pair   = huaweicloud_kps_keypair.test.name
-  os         = "EulerOS 2.5"
+  os         = "EulerOS 2.9"
   name       = "%[2]s"
 
   max_pods         = 20
@@ -168,7 +168,7 @@ resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
   key_pair   = huaweicloud_kps_keypair.test.name
-  os         = "EulerOS 2.5"
+  os         = "EulerOS 2.9"
   name       = "%[2]s"
 
   max_pods         = 20
@@ -255,7 +255,7 @@ func TestAccNodeAttach_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.5"),
+					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.9"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 				),
 			},
@@ -324,7 +324,7 @@ resource "huaweicloud_cce_node_attach" "test" {
   cluster_id = huaweicloud_cce_cluster.test.id
   server_id  = huaweicloud_compute_instance.test.id
   password   = "Test@123"
-  os         = "EulerOS 2.5"
+  os         = "EulerOS 2.9"
   name       = "%[2]s"
 
   tags = {

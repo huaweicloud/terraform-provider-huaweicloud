@@ -396,3 +396,354 @@ func flattenResourceNodeDataVolume(dataVolumes []nodes.VolumeSpec) []map[string]
 
 	return res
 }
+
+func resourceNodeStorageSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		ForceNew: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"selectors": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+							"type": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+								Default:  "evs",
+							},
+							"match_label_size": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+							},
+							"match_label_volume_type": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+							},
+							"match_label_metadata_encrypted": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+							},
+							"match_label_metadata_cmkid": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+							},
+							"match_label_count": {
+								Type:     schema.TypeString,
+								Optional: true,
+								ForceNew: true,
+							},
+						},
+					},
+				},
+				"groups": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+							"cce_managed": {
+								Type:     schema.TypeBool,
+								Optional: true,
+								ForceNew: true,
+							},
+							"selector_names": {
+								Type:     schema.TypeList,
+								Required: true,
+								ForceNew: true,
+								Elem:     &schema.Schema{Type: schema.TypeString},
+							},
+							"virtual_spaces": {
+								Type:     schema.TypeList,
+								Required: true,
+								ForceNew: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"name": {
+											Type:     schema.TypeString,
+											Required: true,
+											ForceNew: true,
+										},
+										"size": {
+											Type:     schema.TypeString,
+											Required: true,
+											ForceNew: true,
+										},
+										"lvm_lv_type": {
+											Type:     schema.TypeString,
+											Optional: true,
+											ForceNew: true,
+										},
+										"lvm_path": {
+											Type:     schema.TypeString,
+											Optional: true,
+											ForceNew: true,
+										},
+										"runtime_lv_type": {
+											Type:     schema.TypeString,
+											Optional: true,
+											ForceNew: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func resourceNodeStorageUpdatableSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"selectors": {
+					Type:     schema.TypeList,
+					Required: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Required: true,
+							},
+							"type": {
+								Type:     schema.TypeString,
+								Optional: true,
+								Default:  "evs",
+							},
+							"match_label_size": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"match_label_volume_type": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"match_label_metadata_encrypted": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"match_label_metadata_cmkid": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"match_label_count": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"groups": {
+					Type:     schema.TypeList,
+					Required: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Required: true,
+							},
+							"cce_managed": {
+								Type:     schema.TypeBool,
+								Optional: true,
+							},
+							"selector_names": {
+								Type:     schema.TypeList,
+								Required: true,
+								Elem:     &schema.Schema{Type: schema.TypeString},
+							},
+							"virtual_spaces": {
+								Type:     schema.TypeList,
+								Required: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"name": {
+											Type:     schema.TypeString,
+											Required: true,
+										},
+										"size": {
+											Type:     schema.TypeString,
+											Required: true,
+										},
+										"lvm_lv_type": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"lvm_path": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"runtime_lv_type": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func buildResourceNodeStorage(d *schema.ResourceData) *nodes.StorageSpec {
+	v, ok := d.GetOk("storage")
+	if !ok {
+		return nil
+	}
+
+	var storageSpec nodes.StorageSpec
+	storageSpecRaw := v.([]interface{})
+	storageSpecRawMap := storageSpecRaw[0].(map[string]interface{})
+	storageSelectorSpecRaw := storageSpecRawMap["selectors"].([]interface{})
+	storageGroupSpecRaw := storageSpecRawMap["groups"].([]interface{})
+
+	var selectors []nodes.StorageSelectorsSpec
+	for _, s := range storageSelectorSpecRaw {
+		sMap := s.(map[string]interface{})
+		selector := nodes.StorageSelectorsSpec{
+			Name:        sMap["name"].(string),
+			StorageType: sMap["type"].(string),
+			MatchLabels: nodes.MatchLabelsSpec{
+				Size:              sMap["match_label_size"].(string),
+				VolumeType:        sMap["match_label_volume_type"].(string),
+				MetadataEncrypted: sMap["match_label_metadata_encrypted"].(string),
+				MetadataCmkid:     sMap["match_label_metadata_cmkid"].(string),
+				Count:             sMap["match_label_count"].(string),
+			},
+		}
+		selectors = append(selectors, selector)
+	}
+	storageSpec.StorageSelectors = selectors
+
+	var groups []nodes.StorageGroupsSpec
+	for _, g := range storageGroupSpecRaw {
+		gMap := g.(map[string]interface{})
+		group := nodes.StorageGroupsSpec{
+			Name:          gMap["name"].(string),
+			CceManaged:    gMap["cce_managed"].(bool),
+			SelectorNames: utils.ExpandToStringList(gMap["selector_names"].([]interface{})),
+		}
+
+		virtualSpacesRaw := gMap["virtual_spaces"].([]interface{})
+		virtualSpaces := make([]nodes.VirtualSpacesSpec, 0, len(virtualSpacesRaw))
+		for _, v := range virtualSpacesRaw {
+			virtualSpaceMap := v.(map[string]interface{})
+			virtualSpace := nodes.VirtualSpacesSpec{
+				Name: virtualSpaceMap["name"].(string),
+				Size: virtualSpaceMap["size"].(string),
+			}
+
+			if virtualSpaceMap["lvm_lv_type"].(string) != "" {
+				lvmConfig := nodes.LVMConfigSpec{
+					LvType: virtualSpaceMap["lvm_lv_type"].(string),
+					Path:   virtualSpaceMap["lvm_path"].(string),
+				}
+				virtualSpace.LVMConfig = &lvmConfig
+			}
+
+			if virtualSpaceMap["runtime_lv_type"].(string) != "" {
+				runtimeConfig := nodes.RuntimeConfigSpec{
+					LvType: virtualSpaceMap["runtime_lv_type"].(string),
+				}
+				virtualSpace.RuntimeConfig = &runtimeConfig
+			}
+
+			virtualSpaces = append(virtualSpaces, virtualSpace)
+		}
+		group.VirtualSpaces = virtualSpaces
+
+		groups = append(groups, group)
+	}
+
+	storageSpec.StorageGroups = groups
+	return &storageSpec
+}
+
+func flattenResourceNodeStorage(storageRaw *nodes.StorageSpec) []map[string]interface{} {
+	if storageRaw == nil {
+		return nil
+	}
+
+	storageSelectorsRaw := storageRaw.StorageSelectors
+	storageSelectors := make([]map[string]interface{}, len(storageSelectorsRaw))
+	for i, s := range storageSelectorsRaw {
+		storageSelector := map[string]interface{}{
+			"name": s.Name,
+			"type": s.StorageType,
+		}
+
+		if s.MatchLabels != (nodes.MatchLabelsSpec{}) {
+			storageSelector["match_label_size"] = s.MatchLabels.Size
+			storageSelector["match_label_volume_type"] = s.MatchLabels.VolumeType
+			storageSelector["match_label_metadata_encrypted"] = s.MatchLabels.MetadataEncrypted
+			storageSelector["match_label_metadata_cmkid"] = s.MatchLabels.MetadataCmkid
+			storageSelector["match_label_count"] = s.MatchLabels.Count
+		}
+		storageSelectors[i] = storageSelector
+	}
+
+	storageGroupsRaw := storageRaw.StorageGroups
+	storageGroups := make([]map[string]interface{}, len(storageGroupsRaw))
+	for i, v := range storageGroupsRaw {
+		storageGroup := map[string]interface{}{
+			"name":           v.Name,
+			"cce_managed":    v.CceManaged,
+			"selector_names": v.SelectorNames,
+		}
+
+		virtualSpaces := make([]map[string]interface{}, len(v.VirtualSpaces))
+		for k, s := range v.VirtualSpaces {
+			virtualSpace := map[string]interface{}{
+				"name": s.Name,
+				"size": s.Size,
+			}
+
+			if s.LVMConfig != nil {
+				virtualSpace["lvm_lv_type"] = s.LVMConfig.LvType
+				virtualSpace["lvm_path"] = s.LVMConfig.Path
+			}
+			if s.RuntimeConfig != nil {
+				virtualSpace["runtime_lv_type"] = s.RuntimeConfig.LvType
+			}
+
+			virtualSpaces[k] = virtualSpace
+		}
+		storageGroup["virtual_spaces"] = virtualSpaces
+
+		storageGroups[i] = storageGroup
+	}
+
+	return []map[string]interface{}{
+		{
+			"selectors": storageSelectors,
+			"groups":    storageGroups,
+		},
+	}
+}
