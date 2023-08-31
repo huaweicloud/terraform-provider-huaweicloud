@@ -1349,7 +1349,7 @@ func updateResourceTagsWithSleep(conn *golangsdk.ServiceClient, d *schema.Resour
 			if err != nil {
 				return err
 			}
-			//lintignore:R018
+			// lintignore:R018
 			time.Sleep(5 * time.Second)
 		}
 
@@ -1360,7 +1360,7 @@ func updateResourceTagsWithSleep(conn *golangsdk.ServiceClient, d *schema.Resour
 			if err != nil {
 				return err
 			}
-			//lintignore:R018
+			// lintignore:R018
 			time.Sleep(5 * time.Second)
 		}
 	}
