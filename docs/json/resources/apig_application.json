@@ -11,7 +11,8 @@
                   "string"
                 ],
                 "description": "The array of one or more application codes that the application has.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "app_key": {
                 "type": "string",

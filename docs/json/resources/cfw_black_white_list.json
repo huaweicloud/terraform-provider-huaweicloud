@@ -39,7 +39,8 @@
               "port": {
                 "type": "string",
                 "description": "Specifies the destination port.",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "protocol": {
                 "type": "number",

@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_model_templates": {
+          "block": {
+            "attributes": {
+              "engine": {
+                "type": "string",
+                "description": "The AI engine.",
+                "optional": true
+              },
+              "environment": {
+                "type": "string",
+                "description": "Model runtime environment.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keyword": {
+                "type": "string",
+                "description": "Keywords to search in name or description. Fuzzy match is supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch": "string",
+                      "description": "string",
+                      "engine": "string",
+                      "environment": "string",
+                      "id": "string",
+                      "name": "string",
+                      "template_docs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "doc_name": "string",
+                            "doc_url": "string"
+                          }
+                        ]
+                      ],
+                      "template_inputs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "id": "string",
+                            "name": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of model templates.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of model. The valid values are **Classification** and **Common**.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

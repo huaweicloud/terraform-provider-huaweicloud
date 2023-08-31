@@ -5,6 +5,16 @@
         "huaweicloud_lts_stream": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "filter_count": {
                 "type": "number",
                 "computed": true
@@ -25,6 +35,18 @@
               "stream_name": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "ttl_in_days": {
+                "type": "number",
+                "optional": true,
                 "forcenew": true
               }
             }

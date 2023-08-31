@@ -1,0 +1,239 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_transfer": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "Log group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "description": "Log group name.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "log_streams": {
+                "block": {
+                  "attributes": {
+                    "log_stream_id": {
+                      "type": "string",
+                      "description": "Log stream ID.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "log_stream_name": {
+                      "type": "string",
+                      "description": "Log stream name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The list of log streams."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              },
+              "log_transfer_info": {
+                "block": {
+                  "attributes": {
+                    "log_storage_format": {
+                      "type": "string",
+                      "description": "Log transfer format.",
+                      "required": true
+                    },
+                    "log_transfer_mode": {
+                      "type": "string",
+                      "description": "Log transfer mode.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "log_transfer_status": {
+                      "type": "string",
+                      "description": "Log transfer status.",
+                      "required": true
+                    },
+                    "log_transfer_type": {
+                      "type": "string",
+                      "description": "Log transfer type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "log_agency_transfer": {
+                      "block": {
+                        "attributes": {
+                          "agency_domain_id": {
+                            "type": "string",
+                            "description": "Delegator account ID.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "agency_domain_name": {
+                            "type": "string",
+                            "description": "Delegator account name.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "agency_name": {
+                            "type": "string",
+                            "description": "The agency name created by the delegator.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "agency_project_id": {
+                            "type": "string",
+                            "description": "Project ID of the delegator.",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
+                    },
+                    "log_transfer_detail": {
+                      "block": {
+                        "attributes": {
+                          "delivery_tags": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The list of tag fields will be delivered when transferring.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "dis_id": {
+                            "type": "string",
+                            "description": "DIS stream ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "dis_name": {
+                            "type": "string",
+                            "description": "DIS stream name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "kafka_id": {
+                            "type": "string",
+                            "description": "Kafka ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "kafka_topic": {
+                            "type": "string",
+                            "description": "Kafka topic.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_bucket_name": {
+                            "type": "string",
+                            "description": "OBS bucket name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_dir_prefix_name": {
+                            "type": "string",
+                            "description": "Custom transfer path of an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_encrypted_enable": {
+                            "type": "bool",
+                            "description": "Whether OBS bucket encryption is enabled.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_encrypted_id": {
+                            "type": "string",
+                            "description": "KMS key ID for an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_eps_id": {
+                            "type": "string",
+                            "description": "Enterprise project ID of an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_period": {
+                            "type": "number",
+                            "description": "Length of the transfer interval for an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_period_unit": {
+                            "type": "string",
+                            "description": "Unit of the transfer interval for an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_prefix_name": {
+                            "type": "string",
+                            "description": "Transfer file prefix of an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_time_zone": {
+                            "type": "string",
+                            "description": "Time zone for an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_time_zone_id": {
+                            "type": "string",
+                            "description": "ID of the time zone for an OBS transfer task.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "obs_transfer_path": {
+                            "type": "string",
+                            "description": "OBS bucket path, which is the log transfer destination.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

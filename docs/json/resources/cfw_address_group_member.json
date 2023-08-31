@@ -35,12 +35,6 @@
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "description": "Specifies the address name.",
-                "required": true,
-                "forcenew": true
-              },
               "region": {
                 "type": "string",
                 "computed": true

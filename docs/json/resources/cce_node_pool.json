@@ -317,7 +317,6 @@
                           "cce_managed": {
                             "type": "bool",
                             "optional": true,
-                            "computed": true,
                             "forcenew": true
                           },
                           "name": {
@@ -341,13 +340,11 @@
                                 "lvm_lv_type": {
                                   "type": "string",
                                   "optional": true,
-                                  "computed": true,
                                   "forcenew": true
                                 },
                                 "lvm_path": {
                                   "type": "string",
                                   "optional": true,
-                                  "computed": true,
                                   "forcenew": true
                                 },
                                 "name": {
@@ -358,7 +355,6 @@
                                 "runtime_lv_type": {
                                   "type": "string",
                                   "optional": true,
-                                  "computed": true,
                                   "forcenew": true
                                 },
                                 "size": {
@@ -384,31 +380,26 @@
                           "match_label_count": {
                             "type": "string",
                             "optional": true,
-                            "computed": true,
                             "forcenew": true
                           },
                           "match_label_metadata_cmkid": {
                             "type": "string",
                             "optional": true,
-                            "computed": true,
                             "forcenew": true
                           },
                           "match_label_metadata_encrypted": {
                             "type": "string",
                             "optional": true,
-                            "computed": true,
                             "forcenew": true
                           },
                           "match_label_size": {
                             "type": "string",
                             "optional": true,
-                            "computed": true,
                             "forcenew": true
                           },
                           "match_label_volume_type": {
                             "type": "string",
                             "optional": true,
-                            "computed": true,
                             "forcenew": true
                           },
                           "name": {

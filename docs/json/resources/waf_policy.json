@@ -5,12 +5,35 @@
         "huaweicloud_waf_policy": {
           "block": {
             "attributes": {
+              "bind_hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "hostname": "string",
+                      "id": "string",
+                      "mode": "string",
+                      "waf_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "deep_inspection": {
+                "type": "bool",
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
               },
               "full_detection": {
+                "type": "bool",
+                "optional": true
+              },
+              "header_inspection": {
                 "type": "bool",
                 "computed": true
               },
@@ -27,31 +50,6 @@
                 "type": "string",
                 "required": true
               },
-              "options": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "basic_web_protection": "bool",
-                      "blacklist": "bool",
-                      "cc_attack_protection": "bool",
-                      "crawler": "bool",
-                      "crawler_engine": "bool",
-                      "crawler_other": "bool",
-                      "crawler_scanner": "bool",
-                      "crawler_script": "bool",
-                      "data_masking": "bool",
-                      "false_alarm_masking": "bool",
-                      "general_check": "bool",
-                      "precise_protection": "bool",
-                      "web_tamper_protection": "bool",
-                      "webshell": "bool"
-                    }
-                  ]
-                ],
-                "computed": true
-              },
               "protection_mode": {
                 "type": "string",
                 "optional": true,
@@ -60,6 +58,96 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "robot_action": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "shiro_decryption_check": {
+                "type": "bool",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "options": {
+                "block": {
+                  "attributes": {
+                    "anti_crawler": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "basic_web_protection": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "blacklist": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "bot_enable": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "cc_attack_protection": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "crawler_engine": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "crawler_other": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "crawler_scanner": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "crawler_script": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "data_masking": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "false_alarm_masking": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "general_check": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "geolocation_access_control": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "information_leakage_prevention": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "known_attack_source": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "precise_protection": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "web_tamper_protection": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "webshell": {
+                      "type": "bool",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
               }
             }
           },

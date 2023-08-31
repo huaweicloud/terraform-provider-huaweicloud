@@ -31,6 +31,15 @@
                 "optional": true,
                 "default": true
               },
+              "external_identity_id": {
+                "type": "string",
+                "optional": true
+              },
+              "external_identity_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

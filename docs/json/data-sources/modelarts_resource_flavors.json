@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_resource_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch": "string",
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "billing_modes": [
+                        "list",
+                        "number"
+                      ],
+                      "cpu": "string",
+                      "gpu": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "size": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "job_flavors": [
+                        "list",
+                        "string"
+                      ],
+                      "memory": "string",
+                      "npu": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "size": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "size": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of resource flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tag": {
+                "type": "string",
+                "description": "The tag key.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of resource flavor.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

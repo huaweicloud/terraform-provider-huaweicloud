@@ -5,6 +5,10 @@
         "huaweicloud_lts_group": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "group_name": {
                 "type": "string",
                 "required": true,
@@ -17,6 +21,13 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               },
               "ttl_in_days": {
                 "type": "number",

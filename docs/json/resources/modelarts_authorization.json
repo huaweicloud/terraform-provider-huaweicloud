@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_authorization": {
+          "block": {
+            "attributes": {
+              "agency_name": {
+                "type": "string",
+                "description": "Agency name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Authorization type. The valid value is **agency**.",
+                "required": true,
+                "forcenew": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "User ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "User Name.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

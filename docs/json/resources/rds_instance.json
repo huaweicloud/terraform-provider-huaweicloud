@@ -32,6 +32,14 @@
                 "type": "string",
                 "computed": true
               },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "dss_pool_id": {
+                "type": "string",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
@@ -41,8 +49,7 @@
               "fixed_ip": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "flavor": {
                 "type": "string",

@@ -7,11 +7,13 @@
             "attributes": {
               "character_set": {
                 "type": "string",
+                "description": "Specifies the character set used by the database.",
                 "required": true,
                 "forcenew": true
               },
               "description": {
                 "type": "string",
+                "description": "Specifies the database description.",
                 "optional": true
               },
               "id": {
@@ -20,11 +22,13 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "Specifies the ID of the RDS Mysql instance.",
                 "required": true,
                 "forcenew": true
               },
               "name": {
                 "type": "string",
+                "description": "Specifies the database name.",
                 "required": true,
                 "forcenew": true
               },

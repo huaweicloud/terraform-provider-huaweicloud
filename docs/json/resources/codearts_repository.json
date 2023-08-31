@@ -115,13 +115,6 @@
                 "computed": true
               }
             }
-          },
-          "product": {
-            "short": "CodeHub",
-            "name": "CodeHub",
-            "catalog": "CodeArts",
-            "name_cn": "代码托管",
-            "catalog_cn": "软件开发生产线"
           }
         }
       }

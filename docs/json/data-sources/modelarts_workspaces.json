@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_workspaces": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the workspace belongs.",
+                "optional": true
+              },
+              "filter_accessible": {
+                "type": "bool",
+                "description": "Whether to filter that the current user does not have permission to access.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Workspace name. Fuzzy match is supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspaces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_type": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "status": "string",
+                      "status_info": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of workspaces.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

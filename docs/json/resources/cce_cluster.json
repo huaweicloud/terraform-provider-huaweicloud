@@ -5,6 +5,11 @@
         "huaweicloud_cce_cluster": {
           "block": {
             "attributes": {
+              "alias": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "authenticating_proxy_ca": {
                 "type": "string",
                 "optional": true,
@@ -29,6 +34,10 @@
               "auto_renew": {
                 "type": "string",
                 "optional": true
+              },
+              "category": {
+                "type": "string",
+                "computed": true
               },
               "certificate_clusters": {
                 "type": [
@@ -79,13 +88,20 @@
               "container_network_cidr": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "container_network_type": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "custom_san": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
               },
               "delete_all": {
                 "type": "string",
@@ -133,14 +149,6 @@
                 "computed": true,
                 "forcenew": true
               },
-              "extend_param": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "forcenew": true
-              },
               "flavor_id": {
                 "type": "string",
                 "required": true,
@@ -154,6 +162,12 @@
                 "type": "string",
                 "computed": true
               },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "kube_config_raw": {
                 "type": "string",
                 "computed": true
@@ -161,6 +175,7 @@
               "kube_proxy_mode": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "multi_az": {
@@ -207,6 +222,12 @@
                 "required": true,
                 "forcenew": true
               },
+              "support_istio": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "tags": {
                 "type": [
                   "map",
@@ -222,6 +243,62 @@
               }
             },
             "block_types": {
+              "component_configurations": {
+                "block": {
+                  "attributes": {
+                    "configurations": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "extend_params": {
+                "block": {
+                  "attributes": {
+                    "cluster_az": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "cpu_manager_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "dec_master_flavor": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "docker_umask_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "dss_master_volumes": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "fix_pool_mask": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
               "masters": {
                 "block": {
                   "attributes": {

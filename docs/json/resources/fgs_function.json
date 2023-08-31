@@ -45,6 +45,11 @@
                 "type": "string",
                 "optional": true
               },
+              "dns_list": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "encrypted_user_data": {
                 "type": "string",
                 "optional": true,

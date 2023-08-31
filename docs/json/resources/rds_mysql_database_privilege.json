@@ -7,6 +7,7 @@
             "attributes": {
               "db_name": {
                 "type": "string",
+                "description": "Specifies the database name.",
                 "required": true,
                 "forcenew": true
               },
@@ -16,6 +17,7 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "Specifies the ID of the RDS Mysql instance.",
                 "required": true,
                 "forcenew": true
               },
@@ -30,21 +32,20 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "description": "Specifies the username of the database account.",
+                      "required": true
                     },
                     "readonly": {
                       "type": "bool",
+                      "description": "Specifies the read-only permission.",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     }
-                  }
+                  },
+                  "description": "Specifies the account that associated with the database."
                 },
                 "nesting_mode": "set",
-                "forcenew": true,
-                "min_items": 1,
-                "max_items": 50
+                "min_items": 1
               }
             }
           },

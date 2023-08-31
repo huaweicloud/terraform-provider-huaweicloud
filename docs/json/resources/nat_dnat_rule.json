@@ -58,12 +58,14 @@
               "port_id": {
                 "type": "string",
                 "description": "The port ID of network.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "private_ip": {
                 "type": "string",
                 "description": "The private IP address of a user.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "protocol": {
                 "type": "string",

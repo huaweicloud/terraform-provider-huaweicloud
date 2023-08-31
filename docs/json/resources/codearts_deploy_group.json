@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_group": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The create time.",
+                "computed": true
+              },
+              "created_by": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "host_count": {
+                "type": "number",
+                "description": "The host number in a group.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_proxy_mode": {
+                "type": "number",
+                "description": "Specifies whether the host is in agent access mode.",
+                "optional": true,
+                "forcenew": true,
+                "default": 1
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the group name.",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "Specifies the operating system.",
+                "required": true,
+                "forcenew": true
+              },
+              "permission": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "can_add_host": "bool",
+                      "can_delete": "bool",
+                      "can_edit": "bool",
+                      "can_manage": "bool",
+                      "can_view": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_pool_id": {
+                "type": "string",
+                "description": "Specifies the resource pool ID.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "updated_by": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

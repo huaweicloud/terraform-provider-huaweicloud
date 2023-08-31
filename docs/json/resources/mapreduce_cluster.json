@@ -265,6 +265,78 @@
                 "forcenew": true,
                 "max_items": 1
               },
+              "bootstrap_scripts": {
+                "block": {
+                  "attributes": {
+                    "active_master": {
+                      "type": "bool",
+                      "description": "Whether the bootstrap action script runs only on active master nodes.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "before_component_start": {
+                      "type": "bool",
+                      "description": "Whether the bootstrap action script is executed before component start.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "execute_need_sudo_root": {
+                      "type": "bool",
+                      "description": "Whether the bootstrap action script involves root user operations.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "fail_action": {
+                      "type": "string",
+                      "description": "The action after the bootstrap action script fails to be executed.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of a bootstrap action script.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "nodes": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Name of the node group where the bootstrap action script is executed.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "parameters": {
+                      "type": "string",
+                      "description": "Bootstrap action script parameters.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "description": "The execution time of one bootstrap action script, in RFC-3339 format.",
+                      "computed": true
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "The status of one bootstrap action script.",
+                      "computed": true
+                    },
+                    "uri": {
+                      "type": "string",
+                      "description": "Path of a bootstrap action script. Set this parameter to an OBS bucket path or a local VM path.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true
+              },
               "component_configs": {
                 "block": {
                   "attributes": {

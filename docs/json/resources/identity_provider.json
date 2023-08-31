@@ -68,7 +68,9 @@
               },
               "sso_type": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "status": {
                 "type": "bool",

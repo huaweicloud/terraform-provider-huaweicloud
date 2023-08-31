@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_zones": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID which the zone associated.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the zone name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "search_mode": {
+                "type": "string",
+                "description": "Specifies the query criteria search mode.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the zone status.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the resource tag.",
+                "optional": true
+              },
+              "zone_type": {
+                "type": "string",
+                "description": "Specifies the zone type. The value can be **public** or **private**.",
+                "required": true
+              },
+              "zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "email": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "masters": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "record_num": "number",
+                      "routers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "router_id": "string",
+                            "router_region": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "ttl": "number",
+                      "zone_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of zones.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

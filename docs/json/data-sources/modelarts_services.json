@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "infer_type": {
+                "type": "string",
+                "description": "Inference mode of the service.",
+                "optional": true
+              },
+              "model_id": {
+                "type": "string",
+                "description": "The model ID which the service used.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Service name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_id": {
+                "type": "string",
+                "description": "Service ID.",
+                "optional": true
+              },
+              "services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "additional_properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "log_report_channels": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "smn_notification": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "events": [
+                                    "list",
+                                    "number"
+                                  ],
+                                  "topic_urn": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "failed_times": "number",
+                      "id": "string",
+                      "infer_type": "string",
+                      "invocation_times": "number",
+                      "is_free": "bool",
+                      "is_opened_sample_collection": "bool",
+                      "is_shared": "bool",
+                      "name": "string",
+                      "owner": "string",
+                      "schedule": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "duration": "number",
+                            "time_unit": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "shared_count": "number",
+                      "status": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of services.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Service status.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which a service belongs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}
