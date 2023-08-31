@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
 	clusterV2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
@@ -1243,7 +1244,7 @@ func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "clusters", d.Id())
+		tagErr := updateResourceTagsWithSleep(client, d, "clusters", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 		}
@@ -1333,4 +1334,36 @@ func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.Service
 	}
 
 	return hostsMap, nil
+}
+
+func updateResourceTagsWithSleep(conn *golangsdk.ServiceClient, d *schema.ResourceData, resourceType, id string) error {
+	if d.HasChange("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oMap) > 0 {
+			removedTags := utils.ExpandResourceTags(oMap)
+			err := tags.Delete(conn, resourceType, id, removedTags).ExtractErr()
+			if err != nil {
+				return err
+			}
+			//lintignore:R018
+			time.Sleep(5 * time.Second)
+		}
+
+		// set new tags
+		if len(nMap) > 0 {
+			taglist := utils.ExpandResourceTags(nMap)
+			err := tags.Create(conn, resourceType, id, taglist).ExtractErr()
+			if err != nil {
+				return err
+			}
+			//lintignore:R018
+			time.Sleep(5 * time.Second)
+		}
+	}
+
+	return nil
 }
