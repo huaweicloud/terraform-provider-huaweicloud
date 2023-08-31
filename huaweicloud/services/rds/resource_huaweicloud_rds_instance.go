@@ -220,7 +220,6 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: utils.ValidateIP,
 			},
 
@@ -787,6 +786,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err := updateRdsInstanceFixedIp(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if err := updateRdsInstanceSecurityGroup(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
@@ -1281,6 +1284,43 @@ func updateRdsInstanceDBPort(ctx context.Context, d *schema.ResourceData, client
 	}
 	if _, err = stateConf.WaitForState(); err != nil {
 		return fmt.Errorf("error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
+	}
+
+	return nil
+}
+
+func updateRdsInstanceFixedIp(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChange("fixed_ip") {
+		return nil
+	}
+
+	updateOpts := securities.DataIpOpts{
+		NewIp: d.Get("fixed_ip").(string),
+	}
+	log.Printf("[DEBUG] Update opts of RDS database fixed IP: %+v", updateOpts)
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := securities.UpdateDataIp(client, instanceID, updateOpts).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance database fixed IP: %s ", err)
+	}
+	job := res.(*securities.WorkFlow)
+
+	if err := checkRDSInstanceJobFinish(client, job.WorkflowId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) update fixed IP completed: %s", instanceID, err)
 	}
 
 	return nil
