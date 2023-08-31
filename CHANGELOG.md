@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## 1.55.0 (August 31, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_lts_transfer` [GH-3288]
+  + `huaweicloud_modelarts_authorization` [GH-3297]
+  + `huaweicloud_apig_appcode` [GH-3318]
+  + `huaweicloud_apig_application_authorization` [GH-3343]
+  + `huaweicloud_codearts_deploy_group` [GH-3356]
+
+* **New Data Source:**
+  + `huaweicloud_account` [GH-3327]
+  + `huaweicloud_dns_zones` [GH-3302]
+  + `huaweicloud_dns_recordsets` [GH-3308]
+  + `huaweicloud_modelarts_model_templates` [GH-3317]
+  + `huaweicloud_modelarts_services` [GH-3339]
+  + `huaweicloud_modelarts_workspaces` [GH-3347]
+  + `huaweicloud_modelarts_resource_flavors` [GH-3359]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_mapreduce_cluster: Support bootstrap script [GH-3312]
+* resource/huaweicloud_identity_provider: Support specify IAM user SSO type [GH-3319]
+* resource/huaweicloud_identity_user: Support `external_identity_id` parameter [GH-3321]
+* resource/huaweicloud_fgs_function: Support configuring DNS network [GH-3323]
+* resource/huaweicloud_waf_policy: Support more options [GH-3326]
+* resource/huaweicloud_rds_instance: Support `description` and `dss_pool_id` parameters [GH-3329]
+* resource/huaweicloud_rds_instance: Support updating the private IP of RDS instance [GH-3366]
+* resource/huaweicloud_rds_mysql_account: Support `description` and `hosts` parameters [GH-3342]
+* resource/huaweicloud_lts_group: Add tags support [GH-3346]
+* resource/huaweicloud_cce_cluster: Support more parameters [GH-3348]
+
+BUG FIXES:
+
+* resource/huaweicloud_sms_task: Fix panic in when specifying `target_server_disks` block [GH-3325]
+* resource/huaweicloud_cbh_instance: Ignore the error when the unbinding eip does not exist [GH-3355]
+
 ## 1.54.1 (August 17, 2023)
 
 ENHANCEMENTS:
