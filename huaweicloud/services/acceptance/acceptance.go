@@ -158,6 +158,8 @@ var (
 	// The SecMaster workspace ID
 	HW_SECMASTER_WORKSPACE_ID = os.Getenv("HW_SECMASTER_WORKSPACE_ID")
 
+	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
+
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
@@ -783,5 +785,13 @@ func TestAccPreCheckCertificateFull(t *testing.T) {
 func TestAccPreCheckCodeArtsDeploy(t *testing.T) {
 	if HW_CODEARTS_RESOURCE_POOL_ID == "" {
 		t.Skip("HW_CODEARTS_RESOURCE_POOL_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelArtsHasSubscribeModel(t *testing.T) {
+	if HW_MODELARTS_HAS_SUBSCRIBE_MODEL == "" {
+		t.Skip("Subscribe two free models from market and set HW_MODELARTS_HAS_SUBSCRIBE_MODEL" +
+			" for modelarts service acceptance tests")
 	}
 }
