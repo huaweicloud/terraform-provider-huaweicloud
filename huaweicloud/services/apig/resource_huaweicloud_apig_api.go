@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -507,6 +508,12 @@ func ResourceApigAPIV2() *schema.Resource {
 							ValidateFunc: validation.IntBetween(1, 600000),
 							Description:  "The timeout for API requests to backend service.",
 						},
+						"retry_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     -1,
+							Description: "The number of retry attempts to request the backend service.",
+						},
 						"ssl_enable": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -740,6 +747,12 @@ func ResourceApigAPIV2() *schema.Resource {
 							ValidateFunc: validation.IntBetween(1, 600000),
 							Description:  "The timeout for API requests to backend service.",
 						},
+						"retry_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     -1,
+							Description: "The number of retry attempts to request the backend service.",
+						},
 						"backend_params": {
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -946,6 +959,7 @@ func buildWebStructure(webs []interface{}) *apis.Web {
 			Timeout:         webMap["timeout"].(int),
 			ClientSslEnable: utils.Bool(webMap["ssl_enable"].(bool)),
 			AuthorizerId:    utils.String(webMap["authorizer_id"].(string)),
+			RetryCount:      utils.String(strconv.Itoa(webMap["retry_count"].(int))),
 		}
 	)
 	// If vpc_channel_id is empty, the backend address is used.
@@ -1133,6 +1147,7 @@ func buildApigAPIWebPolicy(policies *schema.Set) ([]apis.PolicyWeb, error) {
 			ReqMethod:     pm["request_method"].(string),
 			ReqURI:        pm["path"].(string),
 			EffectMode:    pm["effective_mode"].(string),
+			RetryCount:    utils.String(strconv.Itoa(pm["retry_count"].(int))),
 			Timeout:       pm["timeout"].(int),
 			DomainURL:     pm["host_header"].(string),
 			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
@@ -1435,6 +1450,7 @@ func flattenWebStructure(webResp apis.Web, sslEnabled bool) []map[string]interfa
 		"timeout":          webResp.Timeout,
 		"ssl_enable":       sslEnabled,
 		"authorizer_id":    webResp.AuthorizerId,
+		"retry_count":      utils.StringToInt(webResp.RetryCount),
 	}
 	if webResp.VpcChannelInfo.VpcChannelId != "" {
 		result["vpc_channel_id"] = webResp.VpcChannelInfo.VpcChannelId
@@ -1503,6 +1519,7 @@ func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp) []map[string]in
 func flattenWebPolicy(policies []apis.PolicyWebResp) []map[string]interface{} {
 	result := make([]map[string]interface{}, len(policies))
 	for i, policy := range policies {
+		retryCount := policy.RetryCount
 		wp := map[string]interface{}{
 			"name":             policy.Name,
 			"request_protocol": policy.ReqProtocol,
@@ -1510,6 +1527,7 @@ func flattenWebPolicy(policies []apis.PolicyWebResp) []map[string]interface{} {
 			"effective_mode":   policy.EffectMode,
 			"path":             policy.ReqURI,
 			"timeout":          policy.Timeout,
+			"retry_count":      utils.StringToInt(&retryCount),
 			"authorizer_id":    policy.AuthorizerId,
 			"backend_params":   flattenBackendParameters(policy.BackendParams),
 			"conditions":       flattenPolicyConditions(policy.Conditions),

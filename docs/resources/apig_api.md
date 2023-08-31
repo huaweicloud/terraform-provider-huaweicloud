@@ -257,6 +257,15 @@ The `web` block supports:
 * `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service, the unit is **ms**.
   The valid value ranges from `1` to `600,000`, defaults to `5,000`.
 
+* `retry_count` - (Optional, Int) Specifies the number of retry attempts to request the backend service.
+  The valid value ranges from `-1` to `10`, defaults to `-1`.
+  `-1` indicates that idempotent APIs will retry once and non-idempotent APIs will not retry.
+  **POST** and **PATCH** are not-idempotent.
+  **GET**, **HEAD**, **PUT**, **OPTIONS** and **DELETE** are idempotent.
+
+  -> When the (web) backend uses the channel, the `retry_count` must be less than the number of available backend
+     servers in the channel.
+
 * `ssl_enable` - (Optional, Bool) Specifies whether to enable two-way authentication, defaults to **false**.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
@@ -355,6 +364,15 @@ The `web_policy` block supports:
 
 * `timeout` - (Optional, Int) Specifies the timeout, in ms, which allowed for APIG to request the backend service. The
   valid value is range from `1` to `600,000`, defaults to `5,000`.
+
+* `retry_count` - (Optional, Int) Specifies the number of retry attempts to request the backend service.
+  The valid value ranges from `-1` to `10`, defaults to `-1`.
+  `-1` indicates that idempotent APIs will retry once and non-idempotent APIs will not retry.
+  **POST** and **PATCH** are not-idempotent.
+  **GET**, **HEAD**, **PUT**, **OPTIONS** and **DELETE** are idempotent.
+
+  -> When the (web) backend uses the channel, the `retry_count` must be less than the number of available backend
+     servers in the channel.
 
 * `backend_params` - (Optional, List) Specifies an array of one or more backend parameters. The maximum of request
   parameters is 50. The [object](#apig_api_backend_params) structure is documented above.

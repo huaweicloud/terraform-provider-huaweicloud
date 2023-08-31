@@ -133,7 +133,9 @@ func testAccApi_base(name string) string {
 %[1]s
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[2]s"
+  count = 2
+
+  name               = "%[2]s_${count.index}"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
@@ -169,8 +171,12 @@ resource "huaweicloud_apig_vpc_channel" "test" {
   path        = "/"
   http_code   = "201"
 
-  members {
-    id = huaweicloud_compute_instance.test.id
+  dynamic "members" {
+    for_each = huaweicloud_compute_instance.test[*].id
+
+    content {
+      id = members.value
+    }
   }
 }
 
@@ -279,6 +285,7 @@ resource "huaweicloud_apig_api" "test" {
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 30000
+    retry_count      = 1
     authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
   }
 
@@ -289,6 +296,7 @@ resource "huaweicloud_apig_api" "test" {
     effective_mode   = "ANY"
     path             = "/getUserAge/{userAge}"
     timeout          = 30000
+    retry_count      = 1
     vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
     authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
 
