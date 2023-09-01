@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -282,25 +283,35 @@ func isDeprecatedField(field string) bool {
 	return false
 }
 
-func parseExtentAttribute(desc string) map[string]bool {
-	extra := make(map[string]bool)
+func parseExtentAttribute(desc string) map[string]interface{} {
+	extra := make(map[string]interface{})
 	prefix := "schema:"
 
-	if !strings.HasPrefix(desc, prefix) {
+	if strings.HasPrefix(desc, prefix) {
+		validDesc := strings.SplitN(desc, ";", 2)[0]
+		allAttrJson := validDesc[len(prefix):]
+		err := json.Unmarshal([]byte(strings.Trim(allAttrJson, " ")), &extra)
+		if err == nil {
+			return extra
+		}
+
+		validDesc = strings.SplitN(desc, ";", 2)[0]
+		allAttr := strings.Split(validDesc[len(prefix):], ",")
+		for _, ext := range allAttr {
+			if attr := strings.TrimLeft(ext, " "); attr != "" {
+				extra[attr] = true
+			}
+		}
 		return extra
 	}
 
-	validDesc := strings.SplitN(desc, ";", 2)[0]
-	allAttr := strings.Split(validDesc[len(prefix):], ",")
-	for _, ext := range allAttr {
-		if attr := strings.TrimLeft(ext, " "); attr != "" {
-			extra[attr] = true
-		}
-	}
-
-	return extra
+	return nil
 }
 
-func hasExtentAttribute(extra map[string]bool, key string) bool {
-	return extra[key]
+func hasExtentAttribute(extra map[string]interface{}, key string) bool {
+	if v, ok := extra[key]; ok {
+		return v.(bool)
+	}
+
+	return false
 }
