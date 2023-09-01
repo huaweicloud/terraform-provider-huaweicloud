@@ -175,8 +175,9 @@ var (
 	HW_NEW_CERTIFICATE_PRIVATE_KEY = os.Getenv("HW_NEW_CERTIFICATE_PRIVATE_KEY")
 	HW_NEW_CERTIFICATE_ROOT_CA     = os.Getenv("HW_NEW_CERTIFICATE_ROOT_CA")
 
-	HW_CODEARTS_RESOURCE_POOL_ID = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
-	HW_CODEARTS_ENABLE_FLAG      = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
+	HW_CODEARTS_RESOURCE_POOL_ID   = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
+	HW_CODEARTS_ENABLE_FLAG        = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
+	HW_CODEARTS_DEPLOY_TEMPLATE_ID = os.Getenv("HW_CODEARTS_DEPLOY_TEMPLATE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -783,7 +784,7 @@ func TestAccPreCheckCertificateFull(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCodeArtsDeploy(t *testing.T) {
+func TestAccPreCheckCodeArtsDeployResourcePoolID(t *testing.T) {
 	if HW_CODEARTS_RESOURCE_POOL_ID == "" {
 		t.Skip("HW_CODEARTS_RESOURCE_POOL_ID must be set for this acceptance test")
 	}
@@ -793,6 +794,13 @@ func TestAccPreCheckCodeArtsDeploy(t *testing.T) {
 func TestAccPreCheckCodeArtsEnableFlag(t *testing.T) {
 	if HW_CODEARTS_ENABLE_FLAG == "" {
 		t.Skip("Skip the CodeArts acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCodeArtsDeployTemplateID(t *testing.T) {
+	if HW_CODEARTS_DEPLOY_TEMPLATE_ID == "" {
+		t.Skip("HW_CODEARTS_DEPLOY_TEMPLATE_ID must be set for this acceptance test")
 	}
 }
 
