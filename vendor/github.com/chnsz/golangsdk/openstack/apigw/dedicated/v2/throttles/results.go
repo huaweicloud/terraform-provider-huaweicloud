@@ -30,7 +30,7 @@ type ThrottlingPolicy struct {
 	// Indicates whether an excluded request throttling configuration has been created.
 	// 1: yes
 	// 2: no
-	IsIncludeSpecialThrottle int `json:"is_include_special_throttle"`
+	IsIncludeSpecialThrottle int `json:"is_inclu_special_throttle"`
 	// Creation time.
 	CreateTime string `json:"create_time"`
 	// Description.

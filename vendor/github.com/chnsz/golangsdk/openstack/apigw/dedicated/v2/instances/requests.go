@@ -2,6 +2,7 @@ package instances
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 )
 
@@ -35,6 +36,11 @@ type CreateOpts struct {
 	// dedicated instance.
 	// Zero means turn off the egress access.
 	BandwidthSize int `json:"bandwidth_size"`
+	// Billing type of the public outbound access bandwidth. This parameter is required if public outbound access is enabled for the gateway.
+	// + bandwidth: billed by bandwidth
+	// + traffic: billed by traffic
+	// Defaults to bandwidth.
+	BandwidthChargingMode string `json:"bandwidth_charging_mode,omitempty"`
 	// Enterprise project ID. This parameter is required if you are using an enterprise account.
 	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
 	// AZs.
@@ -46,6 +52,29 @@ type CreateOpts struct {
 	// + lvs: Linux virtual server
 	// + elb: Elastic load balance
 	LoadbalancerProvider string `json:"loadbalancer_provider,omitempty"`
+	// Tags
+	// A maximum of 20 tags can be created for a gateway.
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// Name of the VPC endpoint service.
+	// It can contain a maximum of 16 characters, including letters, digits, underscores (_), and hyphens (-).
+	// If this parameter is not specified, the system automatically generates a name in the
+	// "{region}.apig.{service_id}" format. If this parameter is specified, the system automatically generates a name
+	// in the "{region}.{vpcep_service_name}.{service_id}" format.
+	// After the gateway is created, you can modify this name on the Gateways > VPC Endpoints page.
+	VpcepServiceName string `json:"vpcep_service_name,omitempty"`
+	// Public inbound access bandwidth.
+	// This parameter is required if public inbound access is enabled for the gateway and loadbalancer_provider is set
+	// to elb. After you bind an EIP to the gateway, users can access APIs in the gateway from public networks using
+	// the EIP.
+	// Defaults to 5.
+	IngressBandwithSize int `json:"ingress_bandwidth_size,omitempty"`
+	// Billing type of the public inbound access bandwidth.
+	// This parameter is required if public inbound access is enabled for the gateway and loadbalancer_provider is set
+	// to elb.
+	// + bandwidth: billed by bandwidth
+	// + traffic: billed by traffic
+	// Defaults to bandwidth.
+	IngressBandwithChargingMode string `json:"ingress_bandwidth_charging_mode,omitempty"`
 }
 
 type CreateOptsBuilder interface {
@@ -130,6 +159,12 @@ type UpdateOpts struct {
 	Name string `json:"instance_name,omitempty"`
 	// ID of the security group to which the APIG dedicated instance belongs to.
 	SecurityGroupId string `json:"security_group_id,omitempty"`
+	// Name of the VPC endpoint service.
+	// It can contain a maximum of 16 characters, including letters, digits, underscores (_), and hyphens (-).
+	// If this parameter is not specified, the system automatically generates a name in the
+	// "{region}.apig.{service_id}" format. If this parameter is specified, the system automatically generates a name
+	// in the "{region}.{vpcep_service_name}.{service_id}" format.
+	VpcepServiceName string `json:"vpcep_service_name,omitempty"`
 }
 
 type UpdateOptsBuilder interface {
@@ -297,4 +332,40 @@ func ListFeatures(c *golangsdk.ServiceClient, instanceId string, opts ListFeatur
 		return nil, err
 	}
 	return ExtractFeatures(pages)
+}
+
+// TagsUpdateOpts is the structure used to modify instance tags.
+type TagsUpdateOpts struct {
+	// Dedicated instance ID.
+	InstanceId string `json:"-" required:"true"`
+	// Operation identification.
+	// + create
+	// + delete
+	Action string `json:"action" required:"true"`
+	// Tag list.
+	// An instance supports the creation of up to 20 tags by default.
+	Tags []tags.ResourceTag `json:"tags" required:"true"`
+}
+
+// UpdateTags
+func UpdateTags(c *golangsdk.ServiceClient, opts *TagsUpdateOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Post(modifyTagsURL(c, opts.InstanceId), b, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+		OkCodes:     []int{200, 201, 204},
+	})
+	return err
+}
+
+// GetTags is a method used to obtain the list of instance tags.
+func GetTags(c *golangsdk.ServiceClient, instanceId string) ([]tags.ResourceTag, error) {
+	var r struct {
+		Tags []tags.ResourceTag `json:"tags"`
+	}
+	_, err := c.Get(queryTagsURL(c, instanceId), &r, nil)
+	return r.Tags, err
 }

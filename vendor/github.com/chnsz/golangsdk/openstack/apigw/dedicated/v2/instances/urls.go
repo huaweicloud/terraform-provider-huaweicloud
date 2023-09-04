@@ -23,3 +23,11 @@ func ingressURL(c *golangsdk.ServiceClient, id string) string {
 func featureURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL(rootPath, instanceId, "features")
 }
+
+func modifyTagsURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL(rootPath, instanceId, "instance-tags/action")
+}
+
+func queryTagsURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL(rootPath, instanceId, "instance-tags")
+}

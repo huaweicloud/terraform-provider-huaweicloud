@@ -21,7 +21,7 @@ type CreateResp struct {
 	Message string `json:"message"`
 }
 
-//Call its Extract method to interpret it as a Instance Id.
+// Call its Extract method to interpret it as a Instance Id.
 func (r CreateResult) Extract() (*CreateResp, error) {
 	var s CreateResp
 	err := r.ExtractInto(&s)
@@ -81,6 +81,8 @@ type Instance struct {
 	// + lvs: Linux virtual server
 	// + elb: Elastic load balance
 	LoadbalancerProvider string `json:"loadbalancer_provider"`
+	// The operation locks of the CBC serivce.
+	CbcOperationLocks []CbcOperationLock `json:"cbc_operation_locks"`
 	// Description about the APIG dedicated instance.
 	Description string `json:"description"`
 	// VPC ID.
@@ -109,6 +111,8 @@ type Instance struct {
 	Ipv4EgressAddress string `json:"nat_eip_address"`
 	// Outbound access bandwidth.
 	BandwidthSize int `json:"bandwidth_size"`
+	// Billing type of the public inbound access bandwidth.
+	BandwidthChargingMode string `json:"bandwidth_charging_mode"`
 	// AZs.
 	AvailableZoneIds string `json:"available_zone_ids"`
 	// Instance version.
@@ -123,6 +127,24 @@ type Instance struct {
 	PublicIps []IpDetail `json:"publicips"`
 	// The ingress address list of private network.
 	PrivateIps []IpDetail `json:"privateips"`
+	// Whether the gateway can be released.
+	// + true: The gateway can be released.
+	// + false: The gateway cannot be released.
+	IsReleasable bool `json:"is_releasable"`
+	// Billing mode of the public inbound access bandwidth.
+	IngressBandwidthChargingMode string `json:"ingress_bandwidth_charging_mode"`
+}
+
+// CbcOperationLock is the structure that represents the restricted operation lock for CBC service.
+type CbcOperationLock struct {
+	// Restricted operation scenarios:
+	// + TO_PERIOD_LOCK: On-demand subcontracting period scene lock, which does not allow deletion, specification
+	//                   changes, on-demand subcontracting periods, etc.
+	// + SPEC_CHG_LOCK: Package cycle specification change scene lock, which does not allow deletion, specification
+	//                  change, etc.
+	LockScene string `json:"lock_scene"`
+	// The ID of the object that initiated the restriction operation.
+	LockSourceId string `json:"lock_source_id"`
 }
 
 type EndpointService struct {
