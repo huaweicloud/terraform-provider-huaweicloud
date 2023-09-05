@@ -18,6 +18,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -174,6 +175,12 @@ func ResourceApigInstanceV2() *schema.Resource {
 						"the hour is not 02, 06, 10, 14, 18 or 22."),
 				Description: `The start time of the maintenance time window.`,
 			},
+			"vpcep_service_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Name of the VPC endpoint service.`,
+			},
 			"tags": common.TagsSchema(),
 			// Attributes
 			"maintain_end": {
@@ -211,6 +218,11 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Status of the dedicated instance.`,
+			},
+			"vpcep_service_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The address (full name) of the VPC endpoint service.`,
 			},
 			// Deprecated arguments
 			"available_zones": {
@@ -269,6 +281,7 @@ func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (ins
 		Ipv6Enable:           d.Get("ipv6_enable").(bool),
 		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
 		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		VpcepServiceName:     d.Get("vpcep_service_name").(string),
 	}
 
 	azList, err := buildInstanceAvailabilityZones(d)
@@ -391,6 +404,19 @@ func parseInstanceIpv6Enable(ipv6Address string) bool {
 	return ipv6Address != ""
 }
 
+func parseVpcepServiceName(serviceName string) string {
+	// The format of the service endpoint is the '{region}.{vpcep_service_name}.{service_id}'
+	regexExp := `^[\w-]+\.(.*)\.[a-f0-9-]+$`
+	result := regexp.MustCompile(regexExp).FindStringSubmatch(serviceName)
+	log.Printf("[DEBUG] The result of the regex matching is: %v (length: %d)", result, len(result))
+	if len(result) <= 1 {
+		return ""
+	}
+	// For the result of the regex matching, the first element (result[0]) is the full
+	// address ({region}.{vpcep_service_name}.{service_id}), the others (result[1:]) are match objects.
+	return result[1]
+}
+
 func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -437,8 +463,12 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 	} else {
 		mErr = multierror.Append(d.Set("eip_id", eipId))
 	}
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
+
+	if len(resp.EndpointServices) > 0 {
+		mErr = multierror.Append(mErr,
+			d.Set("vpcep_service_name", parseVpcepServiceName(resp.EndpointServices[0].ServiceName)),
+			d.Set("vpcep_service_address", resp.EndpointServices[0].ServiceName),
+		)
 	}
 
 	if tagList, err := instances.GetTags(client, instanceId); err != nil {
@@ -446,6 +476,7 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 	} else {
 		mErr = multierror.Append(d.Set("tags", utils.TagsToMap(tagList)))
 	}
+
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
 	}
@@ -463,6 +494,9 @@ func buildInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, erro
 	}
 	if d.HasChange("security_group_id") {
 		result.SecurityGroupId = d.Get("security_group_id").(string)
+	}
+	if d.HasChange("vpcep_service_name") {
+		result.VpcepServiceName = d.Get("vpcep_service_name").(string)
 	}
 	if d.HasChange("maintain_begin") {
 		startTime := d.Get("maintain_begin").(string)
@@ -577,7 +611,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			return diag.Errorf("update ingress access failed: %s", err)
 		}
 	}
-	// Update instance name, maintain window, description and security group ID.
+	// Update instance name, maintain window, description, security group ID and vpcep service name.
 	updateOpts, err := buildInstanceUpdateOpts(d)
 	if err != nil {
 		return diag.Errorf("unable to get the update options of the dedicated instance: %s", err)
