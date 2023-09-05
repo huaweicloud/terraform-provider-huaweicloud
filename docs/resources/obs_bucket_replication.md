@@ -6,8 +6,9 @@ subcategory: "Object Storage Service (OBS)"
 
 Manages an OBS bucket **Cross-Region Replication** resource within HuaweiCloud.
 
--> **NOTE:** The source bucket and destination bucket must belong to the same account. More cross-Region replication
-constraints see [Cross-Region replication](https://support.huaweicloud.com/intl/en-us/ugobs-obs/obs_41_0034.html)
+-> **NOTE:** When creating or updating the OBS bucket replication, the original bucket replication rules will be
+overwritten. The source bucket and destination bucket must belong to the same account. More cross-Region replication
+constraints see [Cross-Region replication](https://support.huaweicloud.com/intl/en-us/ugobs-obs/obs_41_0034.html).
 
 ## Example Usage
 
