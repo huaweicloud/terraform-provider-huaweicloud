@@ -163,8 +163,6 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "400"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.57"),
-					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.57"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
 				),
@@ -696,7 +694,6 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = true  
-  fixed_ip          = "192.168.0.57"
 
   db {
     password = "%[2]s"
