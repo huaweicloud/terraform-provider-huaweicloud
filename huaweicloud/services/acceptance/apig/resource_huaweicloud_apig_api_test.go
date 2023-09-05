@@ -59,7 +59,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "matching", "Exact"),
 					resource.TestCheckResourceAttr(rName, "success_response", "Success response"),
 					resource.TestCheckResourceAttr(rName, "failure_response", "Failed response"),
-					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "backend_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserAge/{userAge}"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
@@ -89,7 +89,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "matching", "Exact"),
 					resource.TestCheckResourceAttr(rName, "success_response", "Updated Success response"),
 					resource.TestCheckResourceAttr(rName, "failure_response", "Updated Failed response"),
-					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "backend_params.#", "3"),
 					resource.TestCheckResourceAttr(rName, "web.0.path", "/getUserName/{userName}"),
 					resource.TestCheckResourceAttr(rName, "web.0.request_method", "GET"),
@@ -133,7 +133,9 @@ func testAccApi_base(name string) string {
 %[1]s
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%[2]s"
+  count = 2
+
+  name               = "%[2]s_${count.index}"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
@@ -169,8 +171,12 @@ resource "huaweicloud_apig_vpc_channel" "test" {
   path        = "/"
   http_code   = "201"
 
-  members {
-    id = huaweicloud_compute_instance.test.id
+  dynamic "members" {
+    for_each = huaweicloud_compute_instance.test[*].id
+
+    content {
+      id = members.value
+    }
   }
 }
 
@@ -248,6 +254,16 @@ resource "huaweicloud_apig_api" "test" {
     maximum  = 200
     minimum  = 0
   }
+  request_params {
+    name        = "X-TEST-ENUM"
+    type        = "STRING"
+    location    = "HEADER"
+    maximum     = 20
+    minimum     = 10
+    example     = "ACC_TEST_XXX"
+    passthrough = true
+    enumeration = "ACC_TEST_A,ACC_TEST_B"
+  }
 
   backend_params {
     type     = "REQUEST"
@@ -269,6 +285,7 @@ resource "huaweicloud_apig_api" "test" {
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 30000
+    retry_count      = 1
     authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
   }
 
@@ -279,6 +296,7 @@ resource "huaweicloud_apig_api" "test" {
     effective_mode   = "ANY"
     path             = "/getUserAge/{userAge}"
     timeout          = 30000
+    retry_count      = 1
     vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
     authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
 
@@ -339,6 +357,16 @@ resource "huaweicloud_apig_api" "test" {
     required = true
     maximum  = 64
     minimum  = 3
+  }
+  request_params {
+    name        = "X-TEST-ENUM"
+    type        = "STRING"
+    location    = "HEADER"
+    maximum     = 20
+    minimum     = 10
+    example     = "ACC_TEST_XXXX"
+    passthrough = false
+    enumeration = "ACC_TEST_A,ACC_TEST_B,ACC_TEST_C"
   }
 
   backend_params {

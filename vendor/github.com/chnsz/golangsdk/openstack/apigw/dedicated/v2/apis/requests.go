@@ -172,6 +172,11 @@ type Web struct {
 	//   1: (A VPC channel is used).
 	//   2: (No VPC channel is used).
 	VpcChannelStatus int `json:"vpc_channel_status,omitempty"`
+	// Number of retry attempts to request the backend service.
+	// The default value is –1, and the value ranges from –1 to 10.
+	// –1 indicates that idempotent APIs will retry once and non-idempotent APIs will not retry.
+	// POST and PATCH are non-idempotent. GET, HEAD, PUT, OPTIONS, and DELETE are idempotent.
+	RetryCount *string `json:"retry_count,omitempty"`
 }
 
 // VpcChannel is an object which will be build up a vpc channel.
@@ -225,7 +230,7 @@ type ReqParamBase struct {
 	// This parameter is valid when type is set to STRING.
 	MaxSize *int `json:"max_size,omitempty"`
 	// Indicates whether to transparently transfer the parameter. The valid values are 1 (yes) and 2 (no).
-	PassThrough string `json:"pass_through,omitempty"`
+	PassThrough int `json:"pass_through,omitempty"`
 }
 
 // PolicyMock is an object which will be build up a backend policy of the mock.
@@ -318,6 +323,11 @@ type PolicyWeb struct {
 	// Timeout, in ms, which allowed for API Gateway to request the backend service.
 	// The valid value is range from 1 to 600,000.
 	Timeout int `json:"timeout,omitempty"`
+	// Number of retry attempts to request the backend service.
+	// The default value is –1, and the value ranges from –1 to 10.
+	// –1 indicates that idempotent APIs will retry once and non-idempotent APIs will not retry.
+	// POST and PATCH are non-idempotent. GET, HEAD, PUT, OPTIONS, and DELETE are idempotent.
+	RetryCount *string `json:"retry_count,omitempty"`
 }
 
 // BackendParamBase is an object which will be build up a back-end parameter.
