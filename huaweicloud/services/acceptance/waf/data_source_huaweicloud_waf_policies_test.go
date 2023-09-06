@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -26,9 +27,32 @@ func TestAccDataSourceWafPoliciesV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafPoliciesID(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "name", name),
-					resource.TestCheckResourceAttr(dataSourceName, "policies.#", "1"),
 					resource.TestCheckResourceAttr(dataSourceName, "policies.0.name", name),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.full_detection"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.protection_mode"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.robot_action"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.level"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.deep_inspection"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.header_inspection"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.shiro_decryption_check"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.basic_web_protection"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.general_check"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.crawler_engine"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.crawler_scanner"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.crawler_script"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.crawler_other"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.webshell"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.cc_attack_protection"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.precise_protection"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.blacklist"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.data_masking"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.false_alarm_masking"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.web_tamper_protection"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.geolocation_access_control"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.information_leakage_prevention"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.bot_enable"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.known_attack_source"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.anti_crawler"),
 				),
 			},
 		},

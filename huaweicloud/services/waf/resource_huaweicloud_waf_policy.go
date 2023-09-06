@@ -312,8 +312,8 @@ func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("protection_mode", n.Action.Category),
 		d.Set("level", n.Level),
 		d.Set("robot_action", n.RobotAction.Category),
-		d.Set("options", flattenOptions(n)),
-		d.Set("bind_hosts", flattenBindHosts(n)),
+		d.Set("options", flattenOptions(n.Options)),
+		d.Set("bind_hosts", flattenBindHosts(n.BindHosts)),
 		d.Set("deep_inspection", utils.PathSearch("deep_decode", extendRespBody, false)),
 		d.Set("header_inspection", utils.PathSearch("check_all_headers", extendRespBody, false)),
 		d.Set("shiro_decryption_check", utils.PathSearch("shiro_rememberMe_enable", extendRespBody, false)),
@@ -321,8 +321,7 @@ func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta int
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenOptions(policy *policies.Policy) []map[string]interface{} {
-	policyOption := policy.Options
+func flattenOptions(policyOption policies.PolicyOption) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"basic_web_protection":           policyOption.Webattack,
@@ -348,9 +347,9 @@ func flattenOptions(policy *policies.Policy) []map[string]interface{} {
 	}
 }
 
-func flattenBindHosts(policy *policies.Policy) []map[string]interface{} {
-	rst := make([]map[string]interface{}, len(policy.BindHosts))
-	for i, host := range policy.BindHosts {
+func flattenBindHosts(bindHosts []policies.BindHost) []map[string]interface{} {
+	rst := make([]map[string]interface{}, len(bindHosts))
+	for i, host := range bindHosts {
 		rst[i] = map[string]interface{}{
 			"id":       host.Id,
 			"hostname": host.Hostname,
