@@ -48,6 +48,7 @@ func TestAccConnection_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_vpn_connection.test"
+	ipAddress := "172.16.1.2"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -61,7 +62,7 @@ func TestAccConnection_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testConnection_basic(name),
+				Config: testConnection_basic(name, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -81,7 +82,7 @@ func TestAccConnection_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testConnection_update(name),
+				Config: testConnection_update(name, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
@@ -110,6 +111,7 @@ func TestAccConnection_policy(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_vpn_connection.test"
+	ipAddress := "172.16.1.3"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -123,7 +125,7 @@ func TestAccConnection_policy(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testConnection_policy(name),
+				Config: testConnection_policy(name, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -149,7 +151,7 @@ func TestAccConnection_policy(t *testing.T) {
 	})
 }
 
-func testConnection_basic(name string) string {
+func testConnection_basic(name, ipAddress string) string {
 	return fmt.Sprintf(`
 %s
 %s
@@ -163,10 +165,10 @@ resource "huaweicloud_vpn_connection" "test" {
   vpn_type            = "static"
   psk                 = "Test@123"
 }
-`, testGateway_basic(name), testCustomerGateway_basic(name), name)
+`, testGateway_basic(name), testCustomerGateway_basic(name, ipAddress), name)
 }
 
-func testConnection_update(name string) string {
+func testConnection_update(name, ipAddress string) string {
 	return fmt.Sprintf(`
 %s
 %s
@@ -192,10 +194,10 @@ resource "huaweicloud_vpn_connection" "test" {
     lifetime_seconds         = 7200
   }
 }
-`, testGateway_basic(name), testCustomerGateway_basic(name), name)
+`, testGateway_basic(name), testCustomerGateway_basic(name, ipAddress), name)
 }
 
-func testConnection_policy(name string) string {
+func testConnection_policy(name, ipAddress string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -227,5 +229,5 @@ resource "huaweicloud_vpn_connection" "test" {
     lifetime_seconds         = 7200
   }
 }
-`, testGateway_basic(name), testCustomerGateway_basic(name), name)
+`, testGateway_basic(name), testCustomerGateway_basic(name, ipAddress), name)
 }

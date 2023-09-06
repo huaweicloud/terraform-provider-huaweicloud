@@ -49,6 +49,7 @@ func TestAccCustomerGateway_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	nameUpdate := name + "-update"
 	rName := "huaweicloud_vpn_customer_gateway.test"
+	ipAddress := "172.16.1.1"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -62,19 +63,19 @@ func TestAccCustomerGateway_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCustomerGateway_basic(name),
+				Config: testCustomerGateway_basic(name, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "ip", "192.168.1.1"),
+					resource.TestCheckResourceAttr(rName, "ip", "172.16.1.1"),
 				),
 			},
 			{
-				Config: testCustomerGateway_basic(nameUpdate),
+				Config: testCustomerGateway_basic(nameUpdate, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", nameUpdate),
-					resource.TestCheckResourceAttr(rName, "ip", "192.168.1.1"),
+					resource.TestCheckResourceAttr(rName, "ip", "172.16.1.1"),
 				),
 			},
 			{
@@ -86,11 +87,11 @@ func TestAccCustomerGateway_basic(t *testing.T) {
 	})
 }
 
-func testCustomerGateway_basic(name string) string {
+func testCustomerGateway_basic(name, ipAddress string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpn_customer_gateway" "test" {
   name = "%s"
-  ip   = "172.16.1.1"
+  ip   = "%s"
 }
-`, name)
+`, name, ipAddress)
 }
