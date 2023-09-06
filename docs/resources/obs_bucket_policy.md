@@ -6,6 +6,8 @@ subcategory: "Object Storage Service (OBS)"
 
 Attaches a policy to an OBS bucket resource.
 
+-> **NOTE:** When creating or updating the OBS bucket policy, the original policy will be overwritten.
+
 ## Example Usage
 
 ### Policy with OBS format
@@ -72,9 +74,11 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new OBS bucket policy resource.
 
 * `bucket` - (Required, String, ForceNew) Specifies the name of the bucket to which to apply the policy.
+
 * `policy` - (Required, String) Specifies the text of the bucket policy in JSON format. For more information about obs
   format bucket policy,
   see the [Developer Guide](https://support.huaweicloud.com/intl/en-us/perms-cfg-obs/obs_40_0004.html).
+
 * `policy_format` - (Optional, String) Specifies the policy format, the supported values are *obs* and *s3*. Defaults
   to *obs* .
 
