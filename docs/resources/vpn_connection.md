@@ -99,10 +99,6 @@ The following arguments are supported:
 
 * `enable_nqa` - (Optional, Bool) Whether to enable NQA check. Defaults to **false**.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID.
-
-  Changing this parameter will create a new resource.
-
 * `ikepolicy` - (Optional, List) The IKE policy configurations.
 The [ikepolicy](#Connection_CreateRequestIkePolicy) structure is documented below.
 
@@ -123,9 +119,6 @@ The `ikepolicy` block supports:
   **aes-256**, **aes-128-gcm-16**, **aes-256-gcm-16**, **aes-128-gcm-128**, **aes-256-gcm-128**. Defaults to **aes-128**.
   **3des** is less secure, please use it with caution.
 
-* `pfs` - (Optional, String) The DH key group used by PFS. The value can be **group1**, **group2**, **group5**, **group14**
-  **group16**, **group19**, **group20**, **group21**. Defaults to **group14**.
-
 * `ike_version` - (Optional, String) The IKE negotiation version. The value can be **v1** and **v2**. Defaults to **v2**.
 
 * `lifetime_seconds` - (Optional, Int) The life cycle of SA in seconds. The value ranges from **60** to **604800**.
@@ -142,8 +135,31 @@ The `ikepolicy` block supports:
 * `phase1_negotiation_mode` - (Optional, String) The negotiation mode, only works when the ike_version is v1.
   The value can be **main** or **aggressive**. Defaults to **main**.
 
-* `authentication_method` - (Optional, String) The authentication method during IKE negotiation.
-  Only **pre-share** supported for now. Defaults to **pre-share**.
+* `authentication_method` - (Optional, String, ForceNew) The authentication method during IKE negotiation.
+  The value can be **pre-share** and **digital-envelope-v2**. Defaults to **pre-share**.
+
+* `dh_group` - (Optional, String) Specifies the DH group used for key exchange in phase 1.
+  The value can be **group1**, **group2**, **group5**, **group14**, **group15**, **group16**, **group19**, **group20**,
+  or **group21**. Exercise caution when using **group1**, **group2**, **group5**,
+  or **group14** as they have low security. Defaults to **group15**.
+
+* `dpd` - (Optional, List) Specifies the dead peer detection (DPD) object.
+  The [dpd](#Connection_DPD) structure is documented below.
+
+<a name="Connection_DPD"></a>
+The `dpd` block supports:
+
+* `timeout` - (Optional, Int) Specifies the interval for retransmitting DPD packets.
+  The value ranges from **2** to **60**, in seconds. Defaults to **15**.
+
+* `interval` - (Optional, Int) Specifies the DPD idle timeout period.
+  The value ranges from **10** to **3600**, in seconds. Defaults to **30**.
+
+* `msg` - (Optional, String) Specifies the format of DPD packets. The value can be:
+  + **seq-hash-notify**: indicates that the payload of DPD packets is in the sequence of hash-notify;
+  + **seq-notify-hash**: indicates that the payload of DPD packets is in the sequence of notify-hash;
+
+  Defaults to **seq-hash-notify**.
 
 <a name="Connection_CreateRequestIpsecPolicy"></a>
 The `ipsecpolicy` block supports:
@@ -184,6 +200,8 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID.
 
 * `status` - The status of the VPN connection.
+
+* `enterprise_project_id` - The enterprise project ID.
 
 * `created_at` - The create time.
 
