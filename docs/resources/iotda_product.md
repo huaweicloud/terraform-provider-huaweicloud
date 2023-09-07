@@ -155,11 +155,6 @@ allowed: `?'#().,&%@!`.
 * `type` - (Required, String) Specifies the type of the parameter.
 The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObject** and **string list**.
 
-* `access_permission` - (Required, String) Specifies the access permission of the parameter. The options are as follows:
-  + **R**: readable.
-  + **w**: writable.
-  + **RW**: readable and writable.
-
 * `method` - (Required, String) Specifies the access mode of the device property.
   Options: **RW**, **W**, **R**.
 
@@ -204,7 +199,7 @@ The `paras` and `responses` block supports:
 Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are
 allowed: `?'#().,&%@!`.
 
-* `type` - (Optional, String) Specifies the type of the parameter.
+* `type` - (Required, String) Specifies the type of the parameter.
 The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObject** and **string list**.
 
 * `description` - (Optional, String) Specifies the description of the parameter. The description contains a maximum of
