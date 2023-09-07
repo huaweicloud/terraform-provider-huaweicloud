@@ -59,7 +59,7 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `delete` - Default is 5 minute.
+* `delete` - Default is 5 minutes.
 
 ## Import
 

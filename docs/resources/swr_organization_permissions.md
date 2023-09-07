@@ -74,8 +74,8 @@ The `self_permission` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 5 minute.
-* `delete` - Default is 5 minute.
+* `create` - Default is 5 minutes.
+* `delete` - Default is 5 minutes.
 
 ## Import
 

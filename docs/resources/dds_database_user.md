@@ -99,9 +99,9 @@ The `resources` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 2 minute.
-* `update` - Default is 2 minute.
-* `delete` - Default is 2 minute.
+* `create` - Default is 2 minutes.
+* `update` - Default is 2 minutes.
+* `delete` - Default is 2 minutes.
 
 ## Import
 

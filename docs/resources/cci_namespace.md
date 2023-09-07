@@ -81,5 +81,5 @@ $ terraform import huaweicloud_cci_namespace.test terraform-test
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 5 minute.
-* `delete` - Default is 3 minute.
+* `create` - Default is 5 minutes.
+* `delete` - Default is 3 minutes.
