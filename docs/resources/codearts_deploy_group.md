@@ -84,12 +84,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The update time.
 
-* `host_count` - The host number in a group.
-
 * `created_by` - The creator information.
-  The [object](#DeployGroup_user) structure is documented below.
-
-* `updated_by` - The editor information.
   The [object](#DeployGroup_user) structure is documented below.
 
 * `permission` - The group permission detail.
@@ -117,26 +112,8 @@ The `permission` block supports:
 
 ## Import
 
-The CodeArts deploy group resource can be imported using the `id`, e.g.
+The CodeArts deploy group resource can be imported using the `project_id` and `id`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_codearts_deploy_group.test <id>
-```
-
-Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `is_proxy_mode`.
-It is generally recommended running `terraform plan` after importing a resource.
-You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
-with the resource. Also, you can ignore changes as below.
-
-```hcl
-resource "huaweicloud_codearts_deploy_group" "test" {
-  ...
-  
-  lifecycle {
-    ignore_changes = [
-      is_proxy_mode,
-    ]
-  }
-}
+$ terraform import huaweicloud_codearts_deploy_group.test <project_id>/<id>
 ```

@@ -783,7 +783,7 @@ func TestAccPreCheckCertificateFull(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCodeArtsDeploy(t *testing.T) {
+func TestAccPreCheckCodeArtsDeployResourcePoolID(t *testing.T) {
 	if HW_CODEARTS_RESOURCE_POOL_ID == "" {
 		t.Skip("HW_CODEARTS_RESOURCE_POOL_ID must be set for this acceptance test")
 	}
