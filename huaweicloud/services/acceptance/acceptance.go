@@ -178,6 +178,8 @@ var (
 
 	HW_CODEARTS_RESOURCE_POOL_ID = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
 	HW_CODEARTS_ENABLE_FLAG      = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
+
+	HW_EG_CHANNEL_ID = os.Getenv("HW_EG_CHANNEL_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -809,5 +811,12 @@ func TestAccPreCheckModelArtsHasSubscribeModel(t *testing.T) {
 	if HW_MODELARTS_HAS_SUBSCRIBE_MODEL == "" {
 		t.Skip("Subscribe two free models from market and set HW_MODELARTS_HAS_SUBSCRIBE_MODEL" +
 			" for modelarts service acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEgChannelId(t *testing.T) {
+	if HW_EG_CHANNEL_ID == "" {
+		t.Skip("The sub-resource acceptance test of the EG channel must set 'HW_EG_CHANNEL_ID'")
 	}
 }
