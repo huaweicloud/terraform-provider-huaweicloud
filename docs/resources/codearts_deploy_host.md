@@ -161,7 +161,7 @@ The `permission` block supports:
 
 * `can_add_host` - Indicates whether the user has the permission to add hosts.
 
-* `can_connection_test` - Indicates whether to test the host connectivity permission.
+* `can_copy` - Indicates whether the user has the permission to copy hosts.
 
 ## Import
 
