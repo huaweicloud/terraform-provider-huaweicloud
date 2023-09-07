@@ -91,6 +91,11 @@ jobs:
   schema-markdown-check:
     runs-on: ubuntu-latest
 
+    env:
+      # when HW_SCHEMA is not empty, custom schema config will be contained in the description of parameters
+      # for the schema-markdown-check
+      HW_SCHEMA: "true"
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3

@@ -523,7 +523,6 @@ type SchemaDescInput struct {
 	Internal   bool     `json:"Internal,omitempty"`
 	Deprecated bool     `json:"Deprecated,omitempty"`
 	Required   bool     `json:"Required,omitempty"`
-	Optional   bool     `json:"Optional,omitempty"`
 	Computed   bool     `json:"Computed,omitempty"`
 	ForceNew   bool     `json:"ForceNew,omitempty"`
 	Unscope    []string `json:"Unscope,omitempty"`
