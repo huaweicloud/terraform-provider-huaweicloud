@@ -103,15 +103,7 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - Specifies a resource ID in UUID format.
 * `update_time` - Indicates the update time.
 * `create_time` - Indicates the creation time.
-* `expire_time` - Indicates the expire time.
-
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 10 minutes.
-* `update` - Default is 10 minutes.
-* `delete` - Default is 5 minutes.
+* `expire_time` - Indicates the expiration time.
 
 ## Import
 

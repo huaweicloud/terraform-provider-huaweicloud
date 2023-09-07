@@ -267,8 +267,8 @@ The `nodes` block contains:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 120 minutes.
-* `update` - Default is 60 minutes.
-* `delete` - Default is 30 minutes.
+* `update` - Default is 90 minutes.
+* `delete` - Default is 45 minutes.
 
 ## Import
 
