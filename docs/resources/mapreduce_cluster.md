@@ -617,9 +617,9 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 60 minute.
-* `update` - Default is 180 minute.
-* `delete` - Default is 40 minute.
+* `create` - Default is 60 minutes.
+* `update` - Default is 180 minutes.
+* `delete` - Default is 40 minutes.
 
 ## Import
 

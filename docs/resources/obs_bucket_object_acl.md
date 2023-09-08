@@ -6,6 +6,10 @@ subcategory: "Object Storage Service (OBS)"
 
 Manages an OBS bucket object acl resource within HuaweiCloud.
 
+-> **NOTE:** When creating or updating the OBS bucket object acl, the original object acl will be overwritten. When
+deleting the OBS bucket object acl, only the owner permissions will be retained, and the other permissions will be
+removed.
+
 ## Example Usage
 
 ```hcl

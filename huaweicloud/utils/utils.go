@@ -518,3 +518,26 @@ func JSONStringsEqual(s1, s2 string) bool {
 
 	return jsonBytesEqual(b1.Bytes(), b2.Bytes())
 }
+
+type SchemaDescInput struct {
+	Internal   bool     `json:"Internal,omitempty"`
+	Deprecated bool     `json:"Deprecated,omitempty"`
+	Required   bool     `json:"Required,omitempty"`
+	Computed   bool     `json:"Computed,omitempty"`
+	ForceNew   bool     `json:"ForceNew,omitempty"`
+	Unscope    []string `json:"Unscope,omitempty"`
+	UsedBy     []string `json:"UsedBy,omitempty"`
+}
+
+func SchemaDesc(description string, schemaDescInput SchemaDescInput) string {
+	if os.Getenv("HW_SCHEMA") == "" {
+		return description
+	}
+
+	b, err := json.Marshal(schemaDescInput)
+	if err == nil && string(b) != "" {
+		return "schema:" + string(b) + ";" + description
+	}
+
+	return description
+}

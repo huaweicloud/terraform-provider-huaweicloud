@@ -24,6 +24,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+type ctxType string
+
 // ResourceRdsInstance is the impl for huaweicloud_rds_instance resource
 func ResourceRdsInstance() *schema.Resource {
 	return &schema.Resource{
@@ -463,18 +465,12 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
 	}
 
-	if v, ok := d.GetOk("description"); ok {
-		err = updateRdsInstanceDescription(client, instanceID, v.(string))
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if d.Get("ssl_enable").(bool) {
-		err = configRdsInstanceSSL(ctx, d, client, d.Id())
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	if err = updateRdsInstanceSSLConfig(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
 	}
 
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -486,106 +482,15 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// Set Parameters
-	parametersRaw := d.Get("parameters").(*schema.Set)
-	if parametersRaw.Len() > 0 {
-		configOpts := buildRdsInstanceParameters(parametersRaw)
-		retryFunc := func() (interface{}, bool, error) {
-			_, err = instances.ModifyConfiguration(client, instanceID, configOpts).Extract()
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
-			WaitTarget:   []string{"ACTIVE"},
-			Timeout:      d.Timeout(schema.TimeoutCreate),
-			DelayTimeout: 10 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
-		if err != nil {
-			return diag.Errorf("error modifying parameters for RDS instance (%s): %s", instanceID, err)
-		}
-
-		// Check if we need to restart
-		configs, err := instances.GetConfigurations(client, instanceID).Extract()
-		if err != nil {
-			return diag.Errorf("error fetching the instance parameters (%s): %s", instanceID, err)
-		}
-
-		restart := false
-		for _, parameter := range parametersRaw.List() {
-			name := parameter.(map[string]interface{})["name"]
-			for _, v := range configs.Parameters {
-				if v.Name == name {
-					if v.Restart {
-						restart = true
-					}
-					break
-				}
-			}
-			if restart {
-				break
-			}
-		}
-
-		if restart {
-			// If parameters which requires restart changed, reboot the instance.
-			retryFunc = func() (interface{}, bool, error) {
-				_, err = instances.RebootInstance(client, instanceID).Extract()
-				retry, err := handleMultiOperationsError(err)
-				return nil, retry, err
-			}
-			_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-				Ctx:          ctx,
-				RetryFunc:    retryFunc,
-				WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
-				WaitTarget:   []string{"ACTIVE"},
-				Timeout:      d.Timeout(schema.TimeoutCreate),
-				DelayTimeout: 10 * time.Second,
-				PollInterval: 10 * time.Second,
-			})
-			if err != nil {
-				return diag.Errorf("error rebooting for RDS instance (%s): %s", instanceID, err)
-			}
-
-			// wait for the instance state to be 'ACTIVE'.
-			stateConf = &resource.StateChangeConf{
-				Target:       []string{"ACTIVE"},
-				Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
-				Timeout:      d.Timeout(schema.TimeoutDefault),
-				Delay:        5 * time.Second,
-				PollInterval: 5 * time.Second,
-			}
-			if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-				return diag.Errorf("error waiting for RDS instance (%s) become active state: %s", instanceID, err)
-			}
+	if parameters := d.Get("parameters").(*schema.Set); parameters.Len() > 0 {
+		if err = initializeParameters(ctx, d.Timeout(schema.TimeoutCreate), client, instanceID, parameters); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	if size := d.Get("volume.0.limit_size").(int); size > 0 {
-		opts := instances.EnableAutoExpandOpts{
-			InstanceId:       instanceID,
-			LimitSize:        size,
-			TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
-		}
-
-		retryFunc := func() (interface{}, bool, error) {
-			err = instances.EnableAutoExpand(client, opts)
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
-			WaitTarget:   []string{"ACTIVE"},
-			Timeout:      d.Timeout(schema.TimeoutCreate),
-			DelayTimeout: 10 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
-		if err != nil {
-			return diag.Errorf("error configuring auto-expansion: %v", err)
+		if err = enableVolumeAutoExpand(ctx, d, client, instanceID, size); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -707,46 +612,51 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error saving nodes to RDS instance (%s): %s", instanceID, err)
 	}
 
+	return setRdsInstanceParameters(ctx, d, client, instanceID)
+}
+
+func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) diag.Diagnostics {
 	// Set Parameters
 	configs, err := instances.GetConfigurations(client, instanceID).Extract()
 	if err != nil {
 		log.Printf("[WARN] error fetching parameters of instance (%s): %s", instanceID, err)
-	} else {
-		var restart []string
-		var params []map[string]interface{}
-		for _, parameter := range d.Get("parameters").(*schema.Set).List() {
-			name := parameter.(map[string]interface{})["name"]
-			for _, v := range configs.Parameters {
-				if v.Name == name {
-					p := map[string]interface{}{
-						"name":  v.Name,
-						"value": v.Value,
-					}
-					params = append(params, p)
-					if v.Restart {
-						restart = append(restart, v.Name)
-					}
-					break
-				}
-			}
-		}
+		return nil
+	}
 
-		if len(params) > 0 {
-			if err := d.Set("parameters", params); err != nil {
-				log.Printf("error saving parameters to RDS instance (%s): %s", instanceID, err)
-			}
-			if len(restart) > 0 && ctx.Value("parametersChanged") == "true" {
-				return diag.Diagnostics{
-					diag.Diagnostic{
-						Severity: diag.Warning,
-						Summary:  "Parameters Changed",
-						Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", restart),
-					},
+	var restart []string
+	var params []map[string]interface{}
+	for _, parameter := range d.Get("parameters").(*schema.Set).List() {
+		name := parameter.(map[string]interface{})["name"]
+		for _, v := range configs.Parameters {
+			if v.Name == name {
+				p := map[string]interface{}{
+					"name":  v.Name,
+					"value": v.Value,
 				}
+				params = append(params, p)
+				if v.Restart {
+					restart = append(restart, v.Name)
+				}
+				break
 			}
 		}
 	}
 
+	if len(params) > 0 {
+		if err = d.Set("parameters", params); err != nil {
+			log.Printf("error saving parameters to RDS instance (%s): %s", instanceID, err)
+		}
+		if len(restart) > 0 && ctx.Value(ctxType("parametersChanged")) == "true" {
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Parameters Changed",
+					Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", restart),
+				},
+			}
+		}
+	}
 	return nil
 }
 
@@ -763,11 +673,8 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if d.HasChange("description") {
-		err = updateRdsInstanceDescription(client, instanceID, d.Get("description").(string))
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if err := updateRdsInstanceFlavor(ctx, d, config, client, instanceID, true); err != nil {
@@ -819,73 +726,12 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	if d.HasChange("parameters") {
-		type ctxType string
-		retryFunc := func() (interface{}, bool, error) {
-			err := updateRdsParameters(d, client, instanceID)
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
-			WaitTarget:   []string{"ACTIVE"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 10 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
-		if err != nil {
-			return diag.Errorf("error updating parameters of RDS instance (%s): %s", instanceID, err)
-		}
-		// Sending parametersChanged to Read to warn users the instance needs a reboot.
-		ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
+	if ctx, err = updateRdsParameters(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if d.HasChanges("volume.0.limit_size", "volume.0.trigger_threshold") {
-		limitSize := d.Get("volume.0.limit_size").(int)
-		if limitSize > 0 {
-			opts := instances.EnableAutoExpandOpts{
-				InstanceId:       instanceID,
-				LimitSize:        limitSize,
-				TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
-			}
-			retryFunc := func() (interface{}, bool, error) {
-				err = instances.EnableAutoExpand(client, opts)
-				retry, err := handleMultiOperationsError(err)
-				return nil, retry, err
-			}
-			_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-				Ctx:          ctx,
-				RetryFunc:    retryFunc,
-				WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
-				WaitTarget:   []string{"ACTIVE"},
-				Timeout:      d.Timeout(schema.TimeoutUpdate),
-				DelayTimeout: 10 * time.Second,
-				PollInterval: 10 * time.Second,
-			})
-			if err != nil {
-				return diag.Errorf("an error occurred while enable automatic expansion of instance storage: %v", err)
-			}
-		} else {
-			retryFunc := func() (interface{}, bool, error) {
-				err = instances.DisableAutoExpand(client, instanceID)
-				retry, err := handleMultiOperationsError(err)
-				return nil, retry, err
-			}
-			_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-				Ctx:          ctx,
-				RetryFunc:    retryFunc,
-				WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
-				WaitTarget:   []string{"ACTIVE"},
-				Timeout:      d.Timeout(schema.TimeoutUpdate),
-				DelayTimeout: 10 * time.Second,
-				PollInterval: 10 * time.Second,
-			})
-			if err != nil {
-				return diag.Errorf("an error occurred while disable automatic expansion of instance storage: %v", err)
-			}
-		}
+	if err = updateVolumeAutoExpand(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceRdsInstanceRead(ctx, d, meta)
@@ -1086,6 +932,91 @@ func buildRdsInstanceParameters(params *schema.Set) instances.ModifyConfiguratio
 	return configOpts
 }
 
+func initializeParameters(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient,
+	instanceID string, parametersRaw *schema.Set) error {
+	configOpts := buildRdsInstanceParameters(parametersRaw)
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.ModifyConfiguration(client, instanceID, configOpts).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modifying parameters for RDS instance (%s): %s", instanceID, err)
+	}
+
+	// Check if we need to restart
+	restart, err := checkRdsInstanceRestart(client, instanceID, parametersRaw.List())
+	if err != nil {
+		return err
+	}
+
+	if restart {
+		return restartRdsInstance(ctx, timeout, client, instanceID)
+	}
+	return nil
+}
+
+func checkRdsInstanceRestart(client *golangsdk.ServiceClient, instanceID string, parameters []interface{}) (bool, error) {
+	configs, err := instances.GetConfigurations(client, instanceID).Extract()
+	if err != nil {
+		return false, fmt.Errorf("error fetching the instance parameters (%s): %s", instanceID, err)
+	}
+
+	for _, parameter := range parameters {
+		name := parameter.(map[string]interface{})["name"]
+		for _, v := range configs.Parameters {
+			if v.Name == name && v.Restart {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+func restartRdsInstance(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	// If parameters which requires restart changed, reboot the instance.
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.RebootInstance(client, instanceID).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error rebooting for RDS instance (%s): %s", instanceID, err)
+	}
+
+	// wait for the instance state to be 'ACTIVE'.
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) become active status: %s", instanceID, err)
+	}
+	return nil
+}
+
 func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
 	if !d.HasChange("name") {
 		return nil
@@ -1102,9 +1033,13 @@ func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClie
 	return nil
 }
 
-func updateRdsInstanceDescription(client *golangsdk.ServiceClient, instanceID, description string) error {
+func updateRdsInstanceDescription(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChange("description") {
+		return nil
+	}
+
 	modifyAliasOpts := instances.ModifyAliasOpts{
-		Alias: description,
+		Alias: d.Get("description").(string),
 	}
 	log.Printf("[DEBUG] Modify RDS instance description opts: %+v", modifyAliasOpts)
 	r := instances.ModifyAlias(client, modifyAliasOpts, instanceID)
@@ -1368,8 +1303,12 @@ func updateRdsInstanceSSLConfig(ctx context.Context, d *schema.ResourceData, cli
 	return configRdsInstanceSSL(ctx, d, client, instanceID)
 }
 
-func updateRdsParameters(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+func updateRdsParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) (context.Context, error) {
 	values := make(map[string]string)
+	if !d.HasChange("parameters") {
+		return ctx, nil
+	}
 
 	o, n := d.GetChange("parameters")
 	os, ns := o.(*schema.Set), n.(*schema.Set)
@@ -1384,12 +1323,96 @@ func updateRdsParameters(d *schema.ResourceData, client *golangsdk.ServiceClient
 		configOpts := instances.ModifyConfigurationOpts{
 			Values: values,
 		}
-		_, err := instances.ModifyConfiguration(client, instanceID, configOpts).Extract()
+		retryFunc := func() (interface{}, bool, error) {
+			_, err := instances.ModifyConfiguration(client, instanceID, configOpts).Extract()
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
-			return fmt.Errorf("error modifying parameters for RDS instance (%s): %s", instanceID, err)
+			return ctx, fmt.Errorf("error modifying parameters for RDS instance (%s): %s", instanceID, err)
 		}
 	}
 
+	// Sending parametersChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
+
+	return ctx, nil
+}
+
+func updateVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("volume.0.limit_size", "volume.0.trigger_threshold") {
+		return nil
+	}
+
+	limitSize := d.Get("volume.0.limit_size").(int)
+	if limitSize > 0 {
+		if err := enableVolumeAutoExpand(ctx, d, client, instanceID, limitSize); err != nil {
+			return err
+		}
+	} else {
+		if err := disableVolumeAutoExpand(ctx, d.Timeout(schema.TimeoutUpdate), client, instanceID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func enableVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string, limitSize int) error {
+	opts := instances.EnableAutoExpandOpts{
+		InstanceId:       instanceID,
+		LimitSize:        limitSize,
+		TriggerThreshold: d.Get("volume.0.trigger_threshold").(int),
+	}
+	retryFunc := func() (interface{}, bool, error) {
+		err := instances.EnableAutoExpand(client, opts)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("an error occurred while enable automatic expansion of instance storage: %v", err)
+	}
+	return nil
+}
+
+func disableVolumeAutoExpand(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := instances.DisableAutoExpand(client, instanceID)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("an error occurred while disable automatic expansion of instance storage: %v", err)
+	}
 	return nil
 }
 

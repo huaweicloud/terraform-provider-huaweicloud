@@ -49,6 +49,7 @@ func TestAccConnectionHealthCheck_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_vpn_connection_health_check.test"
+	ipAddress := "172.16.1.4"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -62,7 +63,7 @@ func TestAccConnectionHealthCheck_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testConnectionHealthCheck_basic(name),
+				Config: testConnectionHealthCheck_basic(name, ipAddress),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "connection_id",
@@ -81,12 +82,12 @@ func TestAccConnectionHealthCheck_basic(t *testing.T) {
 	})
 }
 
-func testConnectionHealthCheck_basic(name string) string {
+func testConnectionHealthCheck_basic(name, ipAddress string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpn_connection_health_check" "test" {
   connection_id = huaweicloud_vpn_connection.test.id
 }
-`, testConnection_basic(name))
+`, testConnection_basic(name, ipAddress))
 }

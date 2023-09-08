@@ -99,6 +99,10 @@ jobs:
     if: ${{ always() }}
     needs: scan-api
 
+    env:
+      # when HW_SCHEMA is not empty, custom schema config will be contained in the description of parameters
+      HW_SCHEMA: "true"
+
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go

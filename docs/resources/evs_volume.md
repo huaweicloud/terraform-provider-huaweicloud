@@ -201,6 +201,6 @@ resource "huaweicloud_evs_volume" "volume_1" {
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `update` - Default is 3 minute.
-* `delete` - Default is 3 minute.
+* `create` - Default is 10 minutes.
+* `update` - Default is 3 minutes.
+* `delete` - Default is 3 minutes.

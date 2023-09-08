@@ -212,7 +212,7 @@ resource "huaweicloud_rds_instance" "test" {
   }
   backup_strategy {
     start_time = "08:00-09:00"
-    keep_days  = 0
+    keep_days  = 1
   }
 
   lifecycle {
@@ -277,7 +277,7 @@ resource "huaweicloud_rds_instance" "test" {
   }
   backup_strategy {
     start_time = "08:00-09:00"
-    keep_days  = 0
+    keep_days  = 1
   }
 
   lifecycle {
@@ -330,7 +330,7 @@ resource "huaweicloud_rds_instance" "test" {
   }
   backup_strategy {
     start_time = "08:00-09:00"
-    keep_days  = 0
+    keep_days  = 1
   }
 
   lifecycle {

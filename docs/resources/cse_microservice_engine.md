@@ -117,8 +117,8 @@ The `service_registry_addresses` and `config_center_addresses` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 60 minute.
-* `delete` - Default is 20 minute.
+* `create` - Default is 60 minutes.
+* `delete` - Default is 20 minutes.
 
 ## Import
 

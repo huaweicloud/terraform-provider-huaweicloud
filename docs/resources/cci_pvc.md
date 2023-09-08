@@ -133,5 +133,5 @@ $ terraform import huaweicloud_cci_pvc.test <namespace>/<volume_type>/<id>
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 5 minute.
-* `delete` - Default is 3 minute.
+* `create` - Default is 5 minutes.
+* `delete` - Default is 3 minutes.
