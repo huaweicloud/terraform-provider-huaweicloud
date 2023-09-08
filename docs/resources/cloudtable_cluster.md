@@ -123,5 +123,5 @@ resource "huaweicloud_cloudtable_cluster" "test" {
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minute.
-* `delete` - Default is 5 minute.
+* `create` - Default is 30 minutes.
+* `delete` - Default is 5 minutes.

@@ -99,7 +99,7 @@ The `rules` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `delete` - Default is 10 minute.
+* `delete` - Default is 10 minutes.
 
 ## Import
 

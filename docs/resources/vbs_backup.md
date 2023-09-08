@@ -94,5 +94,5 @@ VBS Backup can be imported using the `backup id`, e.g.
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 10 minute.
-* `delete` - Default is 3 minute.
+* `create` - Default is 10 minutes.
+* `delete` - Default is 3 minutes.
