@@ -2,6 +2,7 @@ package policies
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 // Policy contains the infomateion of the policy.
@@ -96,4 +97,19 @@ type ListPolicyRst struct {
 	Total int `json:"total"`
 	// the policy list
 	Items []Policy `json:"items"`
+}
+
+type PolicyPage struct {
+	pagination.PageSizeBase
+}
+
+func (r PolicyPage) IsEmpty() (bool, error) {
+	arr, err := ExtractPolicies(r)
+	return len(arr) == 0, err
+}
+
+func ExtractPolicies(r pagination.Page) ([]Policy, error) {
+	var s ListPolicyRst
+	err := (r.(PolicyPage)).ExtractInto(&s)
+	return s.Items, err
 }
