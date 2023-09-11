@@ -2,6 +2,7 @@ package codearts
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -19,7 +20,7 @@ import (
 func getDeployHostResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		region  = acceptance.HW_REGION_NAME
-		httpUrl = "v2/host-groups/{group_id}/hosts/{host_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}/hosts/{host_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -205,6 +206,33 @@ func TestAccDeployHost_withoutProxyMode(t *testing.T) {
 	})
 }
 
+func TestAccDeployHost_errorCheck(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_codearts_deploy_host.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getDeployHostResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      testDeployHost_errorCheck(name),
+				ExpectError: regexp.MustCompile(`error creating CodeArts deploy host: error code:`),
+			},
+		},
+	})
+}
+
 func testComputedInstance(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -365,6 +393,24 @@ resource "huaweicloud_codearts_deploy_host" "test" {
   name            = "%[2]s_update"
   install_icagent = false
   sync            = false
+}
+`, testDeployHost_base_withoutProxyMode(name), name)
+}
+
+func testDeployHost_errorCheck(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_codearts_deploy_host" "test" {
+  group_id        = huaweicloud_codearts_deploy_group.test.id
+  ip_address      = huaweicloud_compute_instance.test[1].public_ip
+  port            = 22
+  username        = "root"
+  password        = "Test@123"
+  os_type         = "linux"
+  name            = "%[2]s"
+  install_icagent = true
+  sync            = true
 }
 `, testDeployHost_base_withoutProxyMode(name), name)
 }

@@ -166,10 +166,10 @@ func deployHostPermissionSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates whether the user has the permission to add hosts.`,
 			},
-			"can_connection_test": {
+			"can_copy": {
 				Type:        schema.TypeBool,
 				Computed:    true,
-				Description: `Indicates whether to test the host connectivity permission.`,
+				Description: `Indicates whether the user has the permission to copy hosts.`,
 			},
 		},
 	}
@@ -180,7 +180,7 @@ func resourceDeployHostCreate(ctx context.Context, d *schema.ResourceData, meta 
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups/{group_id}/hosts"
+		httpUrl = "v1/resources/host-groups/{group_id}/hosts"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -212,7 +212,7 @@ func resourceDeployHostCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CodeArts deploy host: %s", err)
 	}
 
-	id, err := jmespath.Search("host_id", createRespBody)
+	id, err := jmespath.Search("id", createRespBody)
 	if err != nil || id == nil {
 		return diag.Errorf("error creating CodeArts deploy host: ID is not found in API response")
 	}
@@ -267,7 +267,7 @@ func resourceDeployHostRead(_ context.Context, d *schema.ResourceData, meta inte
 		mErr    *multierror.Error
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups/{group_id}/hosts/{host_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}/hosts/{host_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -296,23 +296,29 @@ func resourceDeployHostRead(_ context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy host")
 	}
 
+	resultRespBody := utils.PathSearch("result", getRespBody, nil)
+	if resultRespBody == nil {
+		return diag.Errorf("error retrieving CodeArts deploy host: result is not found in API response")
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("group_id", utils.PathSearch("group_id", getRespBody, nil)),
-		d.Set("name", utils.PathSearch("host_name", getRespBody, nil)),
-		d.Set("ip_address", utils.PathSearch("ip", getRespBody, nil)),
-		d.Set("port", utils.PathSearch("port", getRespBody, nil)),
-		d.Set("os_type", utils.PathSearch("os", getRespBody, nil)),
-		d.Set("as_proxy", utils.PathSearch("as_proxy", getRespBody, nil)),
-		d.Set("proxy_host_id", utils.PathSearch("proxy_host_id", getRespBody, nil)),
-		d.Set("username", utils.PathSearch("authorization.username", getRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("create_time", getRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("update_time", getRespBody, nil)),
-		d.Set("lastest_connection_at", utils.PathSearch("lastest_connection_time", getRespBody,
+		d.Set("group_id", utils.PathSearch("group_id", resultRespBody, nil)),
+		d.Set("name", utils.PathSearch("host_name", resultRespBody, nil)),
+		d.Set("ip_address", utils.PathSearch("ip", resultRespBody, nil)),
+		d.Set("port", utils.PathSearch("port", resultRespBody, nil)),
+		d.Set("os_type", utils.PathSearch("os", resultRespBody, nil)),
+		d.Set("as_proxy", utils.PathSearch("as_proxy", resultRespBody, nil)),
+		d.Set("proxy_host_id", utils.PathSearch("proxy_host_id", resultRespBody, nil)),
+		d.Set("username", utils.PathSearch("authorization.username", resultRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("create_time", resultRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("update_time", resultRespBody, nil)),
+		d.Set("lastest_connection_at", utils.PathSearch("lastest_connection_time", resultRespBody,
 			nil)),
-		d.Set("connection_status", utils.PathSearch("connection_status", getRespBody, nil)),
-		d.Set("permission", flattenDeployHostPermission(getRespBody)),
+		d.Set("connection_status", utils.PathSearch("connection_status", resultRespBody,
+			nil)),
+		d.Set("permission", flattenDeployHostPermission(resultRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -327,11 +333,11 @@ func flattenDeployHostPermission(resp interface{}) []interface{} {
 
 	return []interface{}{
 		map[string]interface{}{
-			"can_view":            utils.PathSearch("can_view", curJson, nil),
-			"can_edit":            utils.PathSearch("can_edit", curJson, nil),
-			"can_delete":          utils.PathSearch("can_delete", curJson, nil),
-			"can_add_host":        utils.PathSearch("can_add_host", curJson, nil),
-			"can_connection_test": utils.PathSearch("can_connection_test", curJson, nil),
+			"can_view":     utils.PathSearch("can_view", curJson, nil),
+			"can_edit":     utils.PathSearch("can_edit", curJson, nil),
+			"can_delete":   utils.PathSearch("can_delete", curJson, nil),
+			"can_add_host": utils.PathSearch("can_add_host", curJson, nil),
+			"can_copy":     utils.PathSearch("can_copy", curJson, nil),
 		},
 	}
 }
