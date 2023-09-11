@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -67,9 +68,15 @@ func resourceIdentityGroupMembershipRead(_ context.Context, d *schema.ResourceDa
 	groupID := d.Get("group").(string)
 	userList := d.Get("users").(*schema.Set)
 
+	// check whether the user group exists
+	_, err = groups.Get(identityClient, d.Id()).Extract()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "unable to query group")
+	}
+
 	allPages, err := users.ListInGroup(identityClient, groupID, nil).AllPages()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "unable to query groups")
+		return common.CheckDeletedDiag(d, err, "unable to query group membership")
 	}
 
 	allUsers, err := users.ExtractUsers(allPages)
