@@ -71,14 +71,6 @@ In addition to all arguments above, the following attributes are exported:
 * `expire_time` - The expiration time of agency.
 * `create_time` - The time when the agency was created.
 
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 10 minutes.
-* `update` - Default is 10 minutes.
-* `delete` - Default is 5 minutes.
-
 ## Import
 
 Agencies can be imported using the `id`, e.g.

@@ -49,14 +49,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The uuid of the ip group.
 
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 10 minutes.
-* `update` - Default is 10 minutes.
-* `delete` - Default is 5 minutes.
-
 ELB IP group can be imported using the IP group ID, e.g.
 
 ```
