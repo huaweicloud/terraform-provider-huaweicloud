@@ -1,7 +1,9 @@
-package huaweicloud
+package vpc
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,10 +20,9 @@ import (
 	v2groups "github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
 	v3groups "github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	v3rules "github.com/chnsz/golangsdk/openstack/networking/v3/security/rules"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var securityGroupRuleSchema = &schema.Schema{
@@ -94,7 +95,7 @@ func ResourceNetworkingSecGroup() *schema.Resource {
 		UpdateContext: resourceNetworkingSecGroupUpdate,
 		DeleteContext: resourceNetworkingSecGroupDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -141,26 +142,26 @@ func ResourceNetworkingSecGroup() *schema.Resource {
 }
 
 func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	v3Client, err := config.NetworkingV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v3Client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	// Only name and enterprise project ID are supported.
 	createOpts := v3groups.CreateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
-	logp.Printf("[DEBUG] Create HuaweiCloud Security Group: %#v", createOpts)
+	log.Printf("[DEBUG] Create Security Group: %#v", createOpts)
 	securityGroup, err := v3groups.Create(v3Client, createOpts)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			return resourceNetworkingSecGroupCreateV1(ctx, d, meta)
 		}
-		return fmtp.DiagErrorf("Error creating Security Group: %s", err)
+		return diag.Errorf("error creating Security Group: %s", err)
 	}
 
 	d.SetId(securityGroup.ID)
@@ -172,7 +173,7 @@ func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceDat
 		}
 		_, err = v3groups.Update(v3Client, d.Id(), updateOpts)
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating the security group (%s) description: %s", d.Id(), err)
+			return diag.Errorf("error updating the security group (%s) description: %s", d.Id(), err)
 		}
 	}
 
@@ -181,7 +182,7 @@ func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceDat
 	if deleteDefaultRules {
 		for _, rule := range securityGroup.SecurityGroupRules {
 			if err := v3rules.Delete(v3Client, rule.ID).ExtractErr(); err != nil {
-				return fmtp.DiagErrorf("There was a problem deleting a default security group rule: %s", err)
+				return diag.Errorf("there was a problem deleting a default security group rule: %s", err)
 			}
 		}
 	}
@@ -190,30 +191,30 @@ func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceNetworkingSecGroupCreateV1(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	// The v3 API does not exist or has not been published in this region, retry creation using v1 client.
-	v1Client, err := config.NetworkingV1Client(region)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	// Only name and enterprise project ID are supported.
 	createOpts := v1groups.CreateOpts{
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 	securityGroup, err := v1groups.Create(v1Client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Security Group: %s", err)
+		return diag.Errorf("error creating Security Group: %s", err)
 	}
 	d.SetId(securityGroup.ID)
 
 	if _, ok := d.GetOk("description"); ok {
 		// The v1 API does not support creating and updating methods for description parameters.
-		err = resourceNetworkingSecGroupUpdateV2(d, config, region)
+		err = resourceNetworkingSecGroupUpdateV2(d, cfg, region)
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating description of Security group (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating description of Security group (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -221,7 +222,7 @@ func resourceNetworkingSecGroupCreateV1(ctx context.Context, d *schema.ResourceD
 	if d.Get("delete_default_rules").(bool) {
 		for _, rule := range securityGroup.SecurityGroupRules {
 			if err := v1rules.Delete(v1Client, rule.ID).ExtractErr(); err != nil {
-				return fmtp.DiagErrorf("There was a problem deleting a default security group rule: %s", err)
+				return diag.Errorf("there was a problem deleting a default security group rule: %s", err)
 			}
 		}
 	}
@@ -229,23 +230,23 @@ func resourceNetworkingSecGroupCreateV1(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	v1Client, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
-	v3Client, err := config.NetworkingV3Client(region)
+	v3Client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	v1Resp, err := v1groups.Get(v1Client, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "HuaweiCloud Security group")
+		return common.CheckDeletedDiag(d, err, "Security group")
 	}
 
-	logp.Printf("[DEBUG] Retrieved Security Group (%s) by v1 client: %v", d.Id(), v1Resp)
+	log.Printf("[DEBUG] Retrieved Security Group (%s) by v1 client: %v", d.Id(), v1Resp)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -259,7 +260,7 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 	v3Resp, err := v3groups.Get(v3Client, d.Id())
 	if err == nil {
 		// If the v3 API method has no error, parse its rules list and timestamp attributes and setup.
-		logp.Printf("[DEBUG] Retrieved Security Group (%s) by v3 client: %v", d.Id(), v3Resp)
+		log.Printf("[DEBUG] Retrieved Security Group (%s) by v3 client: %v", d.Id(), v3Resp)
 		rules, err := flattenSecurityGroupRulesV3(v3Resp.SecurityGroupRules)
 		if err != nil {
 			return diag.FromErr(err)
@@ -314,12 +315,12 @@ func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[strin
 		if rule.MultiPort != "" {
 			ruleInfo["ports"] = rule.MultiPort
 			if !strings.Contains(rule.MultiPort, ",") {
-				re := regexp.MustCompile("^(\\d+)(?:\\-(\\d+))?$")
+				re := regexp.MustCompile(`^(\d+)(?:\-(\d+))?$`)
 				rangeSet := re.FindStringSubmatch(rule.MultiPort)
 				if len(rangeSet) < 3 {
-					logp.Printf("[DEBUG] Regular result for port range (%v) not as expected, should be 3, but %d.",
+					log.Printf("[DEBUG] Regular result for port range (%v) not as expected, should be 3, but %d.",
 						rule.MultiPort, len(rule.MultiPort))
-					return sgRules, fmtp.Errorf("The parameter format of the 'ports' is invalid.")
+					return sgRules, fmt.Errorf("the parameter format of the 'ports' is invalid")
 				}
 				minVal, _ := strconv.Atoi(rangeSet[1])
 				ruleInfo["port_range_min"] = minVal
@@ -340,11 +341,11 @@ func flattenSecurityGroupRulesV3(rules []v3rules.SecurityGroupRule) ([]map[strin
 
 func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	client, err := config.NetworkingV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	description := d.Get("description").(string)
@@ -354,17 +355,17 @@ func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceDat
 		Description: &description,
 	}
 
-	logp.Printf("[DEBUG] Updating SecGroup %s with options: %#v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating SecGroup %s with options: %#v", d.Id(), updateOpts)
 	_, err = v3groups.Update(client, d.Id(), updateOpts)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			// The v1 API does not support creating and updating description parameters.
-			err = resourceNetworkingSecGroupUpdateV2(d, config, region)
+			err = resourceNetworkingSecGroupUpdateV2(d, cfg, region)
 			if err != nil {
-				return fmtp.DiagErrorf("Error updating description of security group (%s): %s", d.Id(), err)
+				return diag.Errorf("error updating description of security group (%s): %s", d.Id(), err)
 			}
 		} else {
-			return fmtp.DiagErrorf("Error updating security group (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating security group (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -374,7 +375,7 @@ func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceDat
 func resourceNetworkingSecGroupUpdateV2(d *schema.ResourceData, config *config.Config, region string) error {
 	v2Client, err := config.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud networking v2 client: %s", err)
+		return fmt.Errorf("error creating networking v2 client: %s", err)
 	}
 
 	desc := d.Get("description").(string)
@@ -389,10 +390,10 @@ func resourceNetworkingSecGroupUpdateV2(d *schema.ResourceData, config *config.C
 }
 
 func resourceNetworkingSecGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.NetworkingV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	client, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -406,7 +407,7 @@ func resourceNetworkingSecGroupDelete(ctx context.Context, d *schema.ResourceDat
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting security group (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting security group (%s): %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -415,12 +416,12 @@ func resourceNetworkingSecGroupDelete(ctx context.Context, d *schema.ResourceDat
 
 func waitForSecGroupDelete(client *golangsdk.ServiceClient, secGroupId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group %s.", secGroupId)
+		log.Printf("[DEBUG] Attempting to delete Security Group %s.", secGroupId)
 
 		r, err := v1groups.Get(client, secGroupId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Security Group %s", secGroupId)
+				log.Printf("[DEBUG] Successfully deleted Security Group %s", secGroupId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -429,7 +430,7 @@ func waitForSecGroupDelete(client *golangsdk.ServiceClient, secGroupId string) r
 		err = v1groups.Delete(client, secGroupId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Security Group %s", secGroupId)
+				log.Printf("[DEBUG] Successfully deleted Security Group %s", secGroupId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -440,7 +441,7 @@ func waitForSecGroupDelete(client *golangsdk.ServiceClient, secGroupId string) r
 			return r, "ACTIVE", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Security Group %s still active", secGroupId)
+		log.Printf("[DEBUG] Security Group %s still active", secGroupId)
 		return r, "ACTIVE", nil
 	}
 }
