@@ -54,6 +54,7 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
 			},
@@ -67,6 +68,7 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
 			},
@@ -239,6 +241,8 @@ resource "huaweicloud_apig_instance" "test" {
   enterprise_project_id = "%[3]s"
   maintain_begin        = "14:00:00"
   description           = "created by acc test"
+
+  tags = {}
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -263,6 +267,10 @@ resource "huaweicloud_apig_instance" "test" {
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
+
+  tags = {
+    foo = "bar"
+  }
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

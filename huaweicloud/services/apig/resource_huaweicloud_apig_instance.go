@@ -174,6 +174,7 @@ func ResourceApigInstanceV2() *schema.Resource {
 						"the hour is not 02, 06, 10, 14, 18 or 22."),
 				Description: `The start time of the maintenance time window.`,
 			},
+			"tags": common.TagsSchema(),
 			// Attributes
 			"maintain_end": {
 				Type:        schema.TypeString,
@@ -267,6 +268,7 @@ func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (ins
 		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
 		Ipv6Enable:           d.Get("ipv6_enable").(bool),
 		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
+		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 
 	azList, err := buildInstanceAvailabilityZones(d)
@@ -289,6 +291,17 @@ func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (ins
 	return result, nil
 }
 
+func buildTagsUpdateOpts(tags map[string]interface{}, instanceId, action string) *instances.TagsUpdateOpts {
+	if len(tags) < 1 {
+		return nil
+	}
+	return &instances.TagsUpdateOpts{
+		InstanceId: instanceId,
+		Action:     action,
+		Tags:       utils.ExpandResourceTags(tags),
+	}
+}
+
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
@@ -308,18 +321,27 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	d.SetId(resp.Id)
 
+	instanceId := d.Id()
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      InstanceStateRefreshFunc(client, d.Id(), []string{"Running"}),
+		Refresh:      InstanceStateRefreshFunc(client, instanceId, []string{"Running"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for the dedicated instance (%s) to become running: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the dedicated instance (%s) to become running: %s", instanceId, err)
 	}
+
+	if tagsRaw, ok := d.GetOk("tags"); ok {
+		err = instances.UpdateTags(client, buildTagsUpdateOpts(tagsRaw.(map[string]interface{}), instanceId, "create"))
+		if err != nil {
+			return diag.Errorf("error creating instance tags: %s", err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
 }
 
@@ -370,17 +392,19 @@ func parseInstanceIpv6Enable(ipv6Address string) bool {
 }
 
 func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ApigV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	resp, err := instances.Get(client, d.Id()).Extract()
+
+	instanceId := d.Id()
+	resp, err := instances.Get(client, instanceId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting instance (%s) details form server", d.Id()))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting instance (%s) details form server", instanceId))
 	}
-	log.Printf("[DEBUG] Retrieved the dedicated instance (%s): %#v", d.Id(), resp)
+	log.Printf("[DEBUG] Retrieved the dedicated instance (%s): %#v", instanceId, resp)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -408,15 +432,24 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
 	)
 
-	if eipId, err := parseInstanceIngressAccess(config, region, resp.Ipv4IngressEipAddress); err != nil {
+	if eipId, err := parseInstanceIngressAccess(cfg, region, resp.Ipv4IngressEipAddress); err != nil {
 		mErr = multierror.Append(mErr, err)
 	} else {
 		mErr = multierror.Append(d.Set("eip_id", eipId))
 	}
-
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
 	}
+
+	if tagList, err := instances.GetTags(client, instanceId); err != nil {
+		log.Printf("[WARN] error querying instance tags: %s", err)
+	} else {
+		mErr = multierror.Append(d.Set("tags", utils.TagsToMap(tagList)))
+	}
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
+	}
+
 	return nil
 }
 
@@ -502,6 +535,29 @@ func updateInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.Servi
 	return
 }
 
+func updateInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		err              error
+		instanceId       = d.Id()
+		oldRaws, newRaws = d.GetChange("tags")
+		rmTags           = oldRaws.(map[string]interface{})
+		addTags          = newRaws.(map[string]interface{})
+	)
+	if len(rmTags) > 0 {
+		err := instances.UpdateTags(client, buildTagsUpdateOpts(rmTags, instanceId, "delete"))
+		if err != nil {
+			return fmt.Errorf("error deleting instance tags: %s", err)
+		}
+	}
+	if len(addTags) > 0 {
+		err = instances.UpdateTags(client, buildTagsUpdateOpts(addTags, instanceId, "create"))
+		if err != nil {
+			return fmt.Errorf("[WARN] error creating instance tags: %s", err)
+		}
+	}
+	return nil
+}
+
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
@@ -542,6 +598,11 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	if d.HasChange("tags") {
+		if err = updateInstanceTags(client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}

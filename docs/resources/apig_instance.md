@@ -34,6 +34,10 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
     data.huaweicloud_availability_zones.test.names[1],
   ]
+
+  tags = {
+    foo = "bar"
+  }
 }
 ```
 
@@ -101,6 +105,8 @@ The following arguments are supported:
   + **elb**: Elastic load balance.
 
   Changing this will create a new resource.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the dedicated instance.
 
 ## Attribute Reference
 
