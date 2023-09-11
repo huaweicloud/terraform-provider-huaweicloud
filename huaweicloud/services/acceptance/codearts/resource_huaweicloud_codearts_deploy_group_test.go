@@ -19,7 +19,7 @@ import (
 func getDeployGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		region  = acceptance.HW_REGION_NAME
-		httpUrl = "v2/host-groups/{group_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -43,8 +43,8 @@ func getDeployGroupResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 		return nil, err
 	}
 	errorCode := utils.PathSearch("error_code", getRespBody, "")
-	if errorCode == "Deploy.00021104" {
-		// 'Deploy.00021104' means the group is not exist
+	if errorCode == "Deploy.00021423" {
+		// 'Deploy.00021423' means the group is not exist
 		return nil, golangsdk.ErrDefault404{}
 	}
 
@@ -86,9 +86,7 @@ func TestAccDeployGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "is_proxy_mode", "1"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
-					resource.TestCheckResourceAttrSet(rName, "host_count"),
 					resource.TestCheckResourceAttrSet(rName, "created_by.#"),
-					resource.TestCheckResourceAttrSet(rName, "updated_by.#"),
 					resource.TestCheckResourceAttrSet(rName, "permission.#"),
 				),
 			},
@@ -104,9 +102,7 @@ func TestAccDeployGroup_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"is_proxy_mode",
-				},
+				ImportStateIdFunc: testDeployGroupImportState(rName),
 			},
 		},
 	})
@@ -127,7 +123,7 @@ func TestAccDeployGroup_resourcePoolId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCodeArtsDeploy(t)
+			acceptance.TestAccPreCheckCodeArtsDeployResourcePoolID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -145,9 +141,7 @@ func TestAccDeployGroup_resourcePoolId(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "resource_pool_id", acceptance.HW_CODEARTS_RESOURCE_POOL_ID),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
-					resource.TestCheckResourceAttrSet(rName, "host_count"),
 					resource.TestCheckResourceAttrSet(rName, "created_by.#"),
-					resource.TestCheckResourceAttrSet(rName, "updated_by.#"),
 					resource.TestCheckResourceAttrSet(rName, "permission.#"),
 				),
 			},
@@ -164,9 +158,7 @@ func TestAccDeployGroup_resourcePoolId(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"is_proxy_mode",
-				},
+				ImportStateIdFunc: testDeployGroupImportState(rName),
 			},
 		},
 	})
@@ -187,7 +179,6 @@ func TestAccDeployGroup_errorCheck(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCodeArtsDeploy(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -267,4 +258,20 @@ resource "huaweicloud_codearts_deploy_group" "test" {
   is_proxy_mode = 0
 }
 `, testProject_basic(name), name)
+}
+
+// testDeployGroupImportState use to return an id with format <project_id>/<id>
+func testDeployGroupImportState(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
+		}
+
+		projectId := rs.Primary.Attributes["project_id"]
+		if projectId == "" {
+			return "", fmt.Errorf("attribute (project_id) of resource (%s) not found: %s", name, rs)
+		}
+		return projectId + "/" + rs.Primary.ID, nil
+	}
 }

@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	groupNotFound = "Deploy.00021104"
+	groupNotFound = "Deploy.00021423"
 )
 
 func ResourceDeployGroup() *schema.Resource {
@@ -34,7 +34,7 @@ func ResourceDeployGroup() *schema.Resource {
 		ReadContext:   resourceDeployGroupRead,
 		DeleteContext: resourceDeployGroupDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceDeployGroupImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -88,17 +88,7 @@ func ResourceDeployGroup() *schema.Resource {
 				Computed:    true,
 				Description: `The update time.`,
 			},
-			"host_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The host number in a group.`,
-			},
 			"created_by": {
-				Type:     schema.TypeList,
-				Elem:     deployGroupUserSchema(),
-				Computed: true,
-			},
-			"updated_by": {
 				Type:     schema.TypeList,
 				Elem:     deployGroupUserSchema(),
 				Computed: true,
@@ -167,7 +157,7 @@ func resourceDeployGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups"
+		httpUrl = "v1/resources/host-groups"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -181,7 +171,7 @@ func resourceDeployGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf-8",
 		},
-		JSONBody: buildCreateDeployGroupBodyParams(d, region),
+		JSONBody: buildCreateDeployGroupBodyParams(d),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -198,7 +188,7 @@ func resourceDeployGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating CodeArts deploy group: %s", err)
 	}
 
-	id, err := jmespath.Search("group_id", createRespBody)
+	id, err := jmespath.Search("id", createRespBody)
 	if err != nil || id == nil {
 		return diag.Errorf("error creating CodeArts deploy group: ID is not found in API response")
 	}
@@ -208,10 +198,9 @@ func resourceDeployGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceDeployGroupRead(ctx, d, meta)
 }
 
-func buildCreateDeployGroupBodyParams(d *schema.ResourceData, region string) map[string]interface{} {
+func buildCreateDeployGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"name":             d.Get("name"),
-		"region_name":      region,
 		"project_id":       d.Get("project_id"),
 		"os":               d.Get("os_type"),
 		"is_proxy_mode":    d.Get("is_proxy_mode"),
@@ -225,7 +214,7 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 		mErr    *multierror.Error
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups/{group_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -252,29 +241,32 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy group")
 	}
 
+	resultRespBody := utils.PathSearch("result", getRespBody, nil)
+	if resultRespBody == nil {
+		return diag.Errorf("error retrieving CodeArts deploy group: result is not found in API response")
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
-		d.Set("project_id", utils.PathSearch("project_id", getRespBody, nil)),
-		d.Set("os_type", utils.PathSearch("os", getRespBody, nil)),
-		d.Set("resource_pool_id", utils.PathSearch("slave_cluster_id", getRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("created_time", getRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("updated_time", getRespBody, nil)),
-		d.Set("host_count", utils.PathSearch("host_count", getRespBody, nil)),
-		d.Set("created_by", flattenDeployGroupCreateOrUpdateUser(getRespBody, "created_by")),
-		d.Set("updated_by", flattenDeployGroupCreateOrUpdateUser(getRespBody, "updated_by")),
-		d.Set("permission", flattenDeployGroupPermission(getRespBody)),
+		d.Set("name", utils.PathSearch("name", resultRespBody, nil)),
+		d.Set("os_type", utils.PathSearch("os", resultRespBody, nil)),
+		d.Set("resource_pool_id", utils.PathSearch("slave_cluster_id", resultRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", resultRespBody, nil)),
+		d.Set("is_proxy_mode", utils.PathSearch("is_proxy_mode", resultRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("created_time", resultRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("updated_time", resultRespBody, nil)),
+		d.Set("created_by", flattenDeployGroupCreatedBy(resultRespBody)),
+		d.Set("permission", flattenDeployGroupPermission(resultRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenDeployGroupCreateOrUpdateUser(resp interface{}, expression string) []interface{} {
-	curJson, err := jmespath.Search(expression, resp)
+func flattenDeployGroupCreatedBy(resp interface{}) []interface{} {
+	curJson, err := jmespath.Search("created_by", resp)
 	if err != nil {
-		log.Printf("[ERROR] error flatten %s, cause this field is not found in API response", expression)
+		log.Printf("[ERROR] error flatten created_by, cause this field is not found in API response")
 		return nil
 	}
 
@@ -408,4 +400,19 @@ func checkResponseError(respBody interface{}, notFoundCode string) error {
 			Body: []byte(err.Error()),
 		},
 	}
+}
+
+func resourceDeployGroupImportState(_ context.Context, d *schema.ResourceData,
+	_ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<project_id>/<id>', but got '%s'",
+			d.Id())
+	}
+
+	d.SetId(parts[1])
+	if err := d.Set("project_id", parts[0]); err != nil {
+		return nil, fmt.Errorf("error saving project ID: %s", err)
+	}
+	return []*schema.ResourceData{d}, nil
 }
