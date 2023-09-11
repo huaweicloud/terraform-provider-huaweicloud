@@ -696,6 +696,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "ServiceStage",
 	},
+	"eg": {
+		Name:    "eg",
+		Version: "v1",
+		Product: "EG",
+	},
 
 	// catalog for IEC which is a global service
 	"iec": {
