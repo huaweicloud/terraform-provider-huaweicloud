@@ -116,6 +116,7 @@ var (
 	HW_KMS_ENVIRONMENT = os.Getenv("HW_KMS_ENVIRONMENT")
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
+	HW_ORGANIZATIONS_ACCOUNT_NAME           = os.Getenv("HW_ORGANIZATIONS_ACCOUNT_NAME")
 	HW_ORGANIZATIONS_INVITE_ACCOUNT_ID      = os.Getenv("HW_ORGANIZATIONS_INVITE_ACCOUNT_ID")
 	HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID = os.Getenv("HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID")
 	HW_ORGANIZATIONS_INVITATION_ID          = os.Getenv("HW_ORGANIZATIONS_INVITATION_ID")
@@ -218,6 +219,13 @@ func preCheckRequiredEnvVars(t *testing.T) {
 func TestAccPreCheckMultiAccount(t *testing.T) {
 	if HW_MULTI_ACCOUNT_ENVIRONMENT == "" {
 		t.Skip("This environment does not support multi-account tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOrganizationsAccountName(t *testing.T) {
+	if HW_ORGANIZATIONS_ACCOUNT_NAME == "" {
+		t.Skip("HW_ORGANIZATIONS_ACCOUNT_NAME must be set for the acceptance test")
 	}
 }
 
