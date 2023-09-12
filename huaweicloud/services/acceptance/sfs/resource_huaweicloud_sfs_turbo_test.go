@@ -1,37 +1,61 @@
-package huaweicloud
+package sfs
 
 import (
 	"fmt"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+func getSfsTurboResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.SfsV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating SFS client: %s", err)
+	}
+
+	resourceID := state.Primary.ID
+	share, err := shares.Get(client, resourceID).Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	if share.ID == resourceID {
+		return &share, nil
+	}
+
+	return nil, fmt.Errorf("the sfs turbo %s does not exist", resourceID)
+}
+
 func TestAccSFSTurbo_basic(t *testing.T) {
-	randSuffix := acctest.RandString(5)
-	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
-	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_basic(randSuffix),
+				Config: testAccSFSTurbo_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", turboName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "STANDARD"),
 					resource.TestCheckResourceAttr(resourceName, "enhanced", "false"),
@@ -47,9 +71,9 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccSFSTurbo_update(randSuffix),
+				Config: testAccSFSTurbo_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "size", "600"),
 					resource.TestCheckResourceAttr(resourceName, "status", "221"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
@@ -61,21 +85,28 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 }
 
 func TestAccSFSTurbo_crypt(t *testing.T) {
-	randSuffix := acctest.RandString(5)
-	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
-	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_crypt(randSuffix),
+				Config: testAccSFSTurbo_crypt(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", turboName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "STANDARD"),
 					resource.TestCheckResourceAttr(resourceName, "enhanced", "false"),
@@ -89,22 +120,29 @@ func TestAccSFSTurbo_crypt(t *testing.T) {
 }
 
 func TestAccSFSTurbo_withEpsId(t *testing.T) {
-	randSuffix := acctest.RandString(5)
-	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
-	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_withEpsId(randSuffix),
+				Config: testAccSFSTurbo_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", turboName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -112,31 +150,37 @@ func TestAccSFSTurbo_withEpsId(t *testing.T) {
 }
 
 func TestAccSFSTurbo_prePaid(t *testing.T) {
-	randName := fmt.Sprintf("sfs-turbo-acc-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_sfs_turbo.test"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckChargingMode(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_prePaid_step1(randName),
+				Config: testAccSFSTurbo_prePaid_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "size", "500"),
 				),
 			},
 			{
-				Config: testAccSFSTurbo_prePaid_step2(randName),
+				Config: testAccSFSTurbo_prePaid_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "size", "600"),
 				),
 			},
@@ -145,20 +189,28 @@ func TestAccSFSTurbo_prePaid(t *testing.T) {
 }
 
 func TestAccSFSTurbo_hpcShareType(t *testing.T) {
-	name := fmt.Sprintf("sfs-turbo-acc-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_sfs_turbo.test"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_shareTypeHpc(name),
+				Config: testAccSFSTurbo_shareTypeHpc(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "HPC"),
 					resource.TestCheckResourceAttr(resourceName, "hpc_bandwidth", "40M"),
@@ -167,10 +219,10 @@ func TestAccSFSTurbo_hpcShareType(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSFSTurbo_shareTypeHpc_update(name),
+				Config: testAccSFSTurbo_shareTypeHpc_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "size", "4915"),
 				),
 			},
@@ -184,20 +236,28 @@ func TestAccSFSTurbo_hpcShareType(t *testing.T) {
 }
 
 func TestAccSFSTurbo_hpcCacheShareType(t *testing.T) {
-	name := fmt.Sprintf("sfs-turbo-acc-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_sfs_turbo.test"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_shareTypeHpcCache(name),
+				Config: testAccSFSTurbo_shareTypeHpcCache(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "HPC_CACHE"),
 					resource.TestCheckResourceAttr(resourceName, "hpc_cache_bandwidth", "2G"),
@@ -206,19 +266,19 @@ func TestAccSFSTurbo_hpcCacheShareType(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSFSTurbo_shareTypeHpcCache_update1(name),
+				Config: testAccSFSTurbo_shareTypeHpcCache_update1(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "hpc_cache_bandwidth", "2G"),
 					resource.TestCheckResourceAttr(resourceName, "size", "8192"),
 				),
 			},
 			{
-				Config: testAccSFSTurbo_shareTypeHpcCache_update2(name),
+				Config: testAccSFSTurbo_shareTypeHpcCache_update2(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "hpc_cache_bandwidth", "4G"),
 					resource.TestCheckResourceAttr(resourceName, "size", "8192"),
 				),
@@ -233,27 +293,37 @@ func TestAccSFSTurbo_hpcCacheShareType(t *testing.T) {
 }
 
 func TestAccSFSTurbo_checkError(t *testing.T) {
-	name := fmt.Sprintf("sfs-turbo-acc-%s", acctest.RandString(5))
+	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccSFSTurbo_checkError1(name),
+				Config:      testAccSFSTurbo_checkError1(rName),
 				ExpectError: regexp.MustCompile("`hpc_bandwidth` is required when share type is HPC"),
 			},
 			{
-				Config:      testAccSFSTurbo_checkError2(name),
+				Config:      testAccSFSTurbo_checkError2(rName),
 				ExpectError: regexp.MustCompile("`hpc_cache_bandwidth` is required when share type is HPC_CACHE"),
 			},
 			{
-				Config:      testAccSFSTurbo_checkError3(name),
+				Config:      testAccSFSTurbo_checkError3(rName),
 				ExpectError: regexp.MustCompile("HPC_CACHE share type only support in postpaid charging mode"),
 			},
 			{
-				Config: testAccSFSTurbo_checkError4(name),
+				Config: testAccSFSTurbo_checkError4(rName),
 				ExpectError: regexp.MustCompile("`hpc_bandwidth` and `hpc_cache_bandwidth` cannot be set" +
 					" when share type is STANDARD or PERFORMANCE"),
 			},
@@ -262,192 +332,131 @@ func TestAccSFSTurbo_checkError(t *testing.T) {
 }
 
 func TestAccSFSTurbo_checkUpdateError(t *testing.T) {
-	name := fmt.Sprintf("sfs-turbo-acc-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_sfs_turbo.test"
 	var turbo shares.Turbo
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_sfs_turbo.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&turbo,
+		getSfsTurboResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSFSTurboDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSTurbo_checkUpdateErrorBasic(name),
+				Config: testAccSFSTurbo_checkUpdateErrorBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSTurboExists(resourceName, &turbo),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "PERFORMANCE"),
 					resource.TestCheckResourceAttr(resourceName, "size", "500"),
 				),
 			},
 			{
-				Config:      testAccSFSTurbo_checkUpdateErrorBasic_update(name),
+				Config:      testAccSFSTurbo_checkUpdateErrorBasic_update(rName),
 				ExpectError: regexp.MustCompile("only `HPC_CACHE` share type support updating HPC cache bandwidth"),
 			},
 		},
 	})
 }
 
-func testAccCheckSFSTurboDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_sfs_turbo" {
-			continue
-		}
-
-		_, err := shares.Get(sfsClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("SFS Turbo still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckSFSTurboExists(n string, share *shares.Turbo) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
-		}
-
-		found, err := shares.Get(sfsClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("sfs turbo not found")
-		}
-
-		*share = *found
-		return nil
-	}
-}
-
-func testAccNetworkPreConditions(suffix string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "test" {
-  name = "tf-acc-vpc-%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet_v1" "test" {
-  name       = "tf-acc-subnet-%s"
-  cidr       = "192.168.0.0/16"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc_v1.test.id
-}
-
-resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name        = "tf-acc-sg-%s"
-  description = "terraform security group for sfs turbo acceptance test"
-}
-`, suffix, suffix, suffix)
-}
-
-func testAccSFSTurbo_basic(suffix string) string {
+func testAccSFSTurbo_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
-data "huaweicloud_availability_zones" "myaz" {}
 
-resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
-  name        = "sfs-turbo-acc-%s"
-  size        = 500
-  share_proto = "NFS"
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  name              = "%s"
+  size              = 500
+  share_proto       = "NFS"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, testAccNetworkPreConditions(suffix), suffix)
+`, common.TestBaseNetwork(rName), rName)
 }
 
-func testAccSFSTurbo_update(suffix string) string {
+func testAccSFSTurbo_update(rName string) string {
 	return fmt.Sprintf(`
 %s
-data "huaweicloud_availability_zones" "myaz" {}
 
-resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
-  name        = "sfs-turbo-acc-%s"
-  size        = 600
-  share_proto = "NFS"
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  name              = "%s"
+  size              = 600
+  share_proto       = "NFS"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   tags = {
     foo = "bar_update"
     key = "value_update"
   }
 }
-`, testAccNetworkPreConditions(suffix), suffix)
+`, common.TestBaseNetwork(rName), rName)
 }
 
-func testAccSFSTurbo_crypt(suffix string) string {
+func testAccSFSTurbo_crypt(rName string) string {
 	return fmt.Sprintf(`
 %s
-data "huaweicloud_availability_zones" "myaz" {}
 
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias = "kms-acc-%s"
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%s"
   pending_days = "7"
 }
 
-resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
-  name        = "sfs-turbo-acc-%s"
-  size        = 500
-  share_proto = "NFS"
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  crypt_key_id      = huaweicloud_kms_key.key_1.id
+resource "huaweicloud_sfs_turbo" "test" {
+  name              = "%s"
+  size              = 500
+  share_proto       = "NFS"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  crypt_key_id      = huaweicloud_kms_key.test.id
 }
-`, testAccNetworkPreConditions(suffix), suffix, suffix)
+`, common.TestBaseNetwork(rName), rName, rName)
 }
 
-func testAccSFSTurbo_withEpsId(suffix string) string {
+func testAccSFSTurbo_withEpsId(rName string) string {
 	return fmt.Sprintf(`
 %s
-data "huaweicloud_availability_zones" "myaz" {}
 
-resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
-  name                   = "sfs-turbo-acc-%s"
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  name                   = "%s"
   size                   = 500
   share_proto            = "NFS"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
-  security_group_id      = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone      = data.huaweicloud_availability_zones.myaz.names[0]
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
   enterprise_project_id  = "%s"
 }
-`, testAccNetworkPreConditions(suffix), suffix, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccSFSTurbo_prePaid_step1(name string) string {
+func testAccSFSTurbo_prePaid_step1(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -468,7 +477,7 @@ resource "huaweicloud_sfs_turbo" "test" {
   period        = 1
   auto_renew    = false
 }
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccSFSTurbo_prePaid_step2(name string) string {

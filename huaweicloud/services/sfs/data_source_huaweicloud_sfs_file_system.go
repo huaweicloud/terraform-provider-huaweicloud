@@ -1,17 +1,20 @@
-package huaweicloud
+package sfs
 
 import (
-	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"context"
+	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceSFSFileSystemV2() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceSFSFileSystemV2Read,
+		ReadContext: dataSourceSFSFileSystemV2Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -100,11 +103,12 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 	}
 }
 
-func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func dataSourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	sfsClient, err := cfg.SfsV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud SFS Client: %s", err)
+		return diag.Errorf("error creating SFS Client: %s", err)
 	}
 
 	listOpts := shares.ListOpts{
@@ -115,22 +119,22 @@ func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) err
 
 	refinedSfs, err := shares.List(sfsClient, listOpts)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve shares: %s", err)
+		return diag.Errorf("unable to retrieve shares: %s", err)
 	}
 
 	if len(refinedSfs) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedSfs) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
+		return diag.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	share := refinedSfs[0]
 
-	logp.Printf("[INFO] Retrieved Shares using given filter %s: %+v", share.ID, share)
+	log.Printf("[INFO] Retrieved Shares using given filter %s: %+v", share.ID, share)
 	d.SetId(share.ID)
 
 	d.Set("availability_zone", share.AvailabilityZone)
@@ -142,7 +146,7 @@ func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("status", share.Status)
 	d.Set("export_location", share.ExportLocation)
 	d.Set("metadata", share.Metadata)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 
 	n, err := shares.ListAccessRights(sfsClient, share.ID).ExtractAccessRights()
 	shareaccess := n[0]

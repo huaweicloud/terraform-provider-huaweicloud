@@ -1,27 +1,30 @@
-package huaweicloud
+package sfs
 
 import (
+	"context"
+	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceSFSFileSystemV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSFSFileSystemV2Create,
-		Read:   resourceSFSFileSystemV2Read,
-		Update: resourceSFSFileSystemV2Update,
-		Delete: resourceSFSFileSystemV2Delete,
+		CreateContext: resourceSFSFileSystemV2Create,
+		ReadContext:   resourceSFSFileSystemV2Read,
+		UpdateContext: resourceSFSFileSystemV2Update,
+		DeleteContext: resourceSFSFileSystemV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -85,7 +88,7 @@ func ResourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -140,12 +143,12 @@ func ResourceSFSFileSystemV2() *schema.Resource {
 	}
 }
 
-func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSFileSystemV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud File Share Client: %s", err)
+		return diag.Errorf("error creating SFS client: %s", err)
 	}
 
 	createOpts := shares.CreateOpts{
@@ -154,19 +157,18 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 		Name:             d.Get("name").(string),
 		Description:      d.Get("description").(string),
 		IsPublic:         d.Get("is_public").(bool),
-		Metadata:         resourceSFSMetadataV2(d, config),
+		Metadata:         resourceSFSMetadataV2(d, cfg),
 		AvailabilityZone: d.Get("availability_zone").(string),
 	}
 
 	create, err := shares.Create(sfsClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud File Share: %s", err)
+		return diag.Errorf("error creating SFS file system: %s", err)
 	}
 
 	d.SetId(create.ID)
-	logp.Printf("[INFO] Share ID: %s", create.Name)
 
-	logp.Printf("[DEBUG] Waiting for Huaweicloud SFS File Share (%s) to be become available", create.ID)
+	log.Printf("[DEBUG] Waiting for SFS file system (%s) to be available", create.ID)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating"},
 		Target:     []string{"available"},
@@ -177,7 +179,7 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 	}
 	_, StateErr := stateConf.WaitForState()
 	if StateErr != nil {
-		return fmtp.Errorf("Error waiting for Share File (%s) to become available: %s ", d.Id(), StateErr)
+		return diag.Errorf("error waiting for SFS file system (%s) to be available: %s ", d.Id(), StateErr)
 	}
 
 	// specified the "access_to" field, apply first access rule to share file
@@ -200,10 +202,10 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 
 		grant, accessErr := shares.GrantAccess(sfsClient, d.Id(), grantAccessOpts).ExtractAccess()
 		if accessErr != nil {
-			return fmtp.Errorf("Error applying access rule to share file : %s", accessErr)
+			return diag.Errorf("error applying access rule to SFS file system : %s", accessErr)
 		}
 
-		logp.Printf("[DEBUG] Applied access rule (%s) to share file %s", grant.ID, d.Id())
+		log.Printf("[DEBUG] Applied access rule (%s) to SFS file system %s", grant.ID, d.Id())
 		d.Set("share_access_id", grant.ID)
 	}
 
@@ -212,19 +214,19 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(sfsClient, "sfs", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of sfs %s: %s", d.Id(), tagErr)
+			return diag.Errorf("error setting tags for sfs %s: %s", d.Id(), tagErr)
 		}
 	}
 
-	return resourceSFSFileSystemV2Read(d, meta)
+	return resourceSFSFileSystemV2Read(ctx, d, meta)
 }
 
-func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error {
-
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	sfsClient, err := cfg.SfsV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud File Share Client: %s", err)
+		return diag.Errorf("error creating SFS Client: %s", err)
 	}
 
 	n, err := shares.Get(sfsClient, d.Id()).Extract()
@@ -234,7 +236,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 			return nil
 		}
 
-		return fmtp.Errorf("Error retrieving Huaweicloud Shares: %s", err)
+		return diag.Errorf("error retrieving SFS file system: %s", err)
 	}
 
 	d.Set("name", n.Name)
@@ -243,7 +245,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("description", n.Description)
 	d.Set("is_public", n.IsPublic)
 	d.Set("availability_zone", n.AvailabilityZone)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 	d.Set("export_location", n.ExportLocation)
 	d.Set("enterprise_project_id", n.Metadata["enterprise_project_id"])
 
@@ -268,7 +270,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 			d.SetId("")
 			return nil
 		}
-		return fmtp.Errorf("Error retrieving Huaweicloud Shares rules: %s", err)
+		return diag.Errorf("error retrieving SFS file system: %s", err)
 	}
 
 	var ruleExist bool
@@ -295,7 +297,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if accessID != "" && !ruleExist {
-		logp.Printf("[WARN] access rule (%s) of share file %s was not exist!", accessID, d.Id())
+		log.Printf("[WARN] access rule (%s) of SFS file system %s was not exist!", accessID, d.Id())
 		d.Set("share_access_id", "")
 	}
 	d.Set("access_rules", allAccessRules)
@@ -311,20 +313,20 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	if resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("Error saving tags to state for SFS file system (%s): %s", d.Id(), err)
+			return diag.Errorf("error saving tags to state for SFS file system (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of SFS file system (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of SFS file system (%s): %s", d.Id(), err)
 	}
 
 	return nil
 }
 
-func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSFileSystemV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error updating Huaweicloud Share File Client: %s", err)
+		return diag.Errorf("error creating SFS Client: %s", err)
 	}
 
 	if d.HasChanges("name", "description") {
@@ -334,7 +336,7 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 		}
 		_, err = shares.Update(sfsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error updating Huaweicloud Share File: %s", err)
+			return diag.Errorf("error updating SFS file system: %s", err)
 		}
 	}
 
@@ -343,7 +345,7 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 			deleteAccessOpts := shares.DeleteAccessOpts{AccessID: ruleID.(string)}
 			deny := shares.DeleteAccess(sfsClient, d.Id(), deleteAccessOpts)
 			if deny.Err != nil {
-				return fmtp.Errorf("Error changing access rules for share file : %s", deny.Err)
+				return diag.Errorf("error changing access rules for SFS file system: %s", deny.Err)
 			}
 			d.Set("share_access_id", "")
 		}
@@ -365,10 +367,10 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 				grantAccessOpts.AccessType = "cert"
 			}
 
-			logp.Printf("[DEBUG] Grant Access Rules: %#v", grantAccessOpts)
+			log.Printf("[DEBUG] Grant Access Rules: %#v", grantAccessOpts)
 			grant, accessErr := shares.GrantAccess(sfsClient, d.Id(), grantAccessOpts).ExtractAccess()
 			if accessErr != nil {
-				return fmtp.Errorf("Error changing access rules for share file : %s", accessErr)
+				return diag.Errorf("error changing access rules for share file : %s", accessErr)
 			}
 			d.Set("share_access_id", grant.ID)
 		}
@@ -380,13 +382,13 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 			expandOpts := shares.ExpandOpts{OSExtend: shares.OSExtendOpts{NewSize: newsize.(int)}}
 			expand := shares.Expand(sfsClient, d.Id(), expandOpts)
 			if expand.Err != nil {
-				return fmtp.Errorf("Error Expanding Huaweicloud Share File size: %s", expand.Err)
+				return diag.Errorf("error expanding SFS file system size: %s", expand.Err)
 			}
 		} else {
 			shrinkOpts := shares.ShrinkOpts{OSShrink: shares.OSShrinkOpts{NewSize: newsize.(int)}}
 			shrink := shares.Shrink(sfsClient, d.Id(), shrinkOpts)
 			if shrink.Err != nil {
-				return fmtp.Errorf("Error Shrinking Huaweicloud Share File size: %s", shrink.Err)
+				return diag.Errorf("error shrinking SFS file system size: %s", shrink.Err)
 			}
 		}
 	}
@@ -395,23 +397,23 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(sfsClient, d, "sfs", d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of sfs:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of sfs:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
-	return resourceSFSFileSystemV2Read(d, meta)
+	return resourceSFSFileSystemV2Read(ctx, d, meta)
 }
 
-func resourceSFSFileSystemV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSFileSystemV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud Shared File Client: %s", err)
+		return diag.Errorf("error creating SFS client: %s", err)
 	}
 
 	err = shares.Delete(sfsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud Share File: %s", err)
+		return diag.Errorf("error deleting SFS file system: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"available", "deleting"},
@@ -424,7 +426,7 @@ func resourceSFSFileSystemV2Delete(d *schema.ResourceData, meta interface{}) err
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Timeout waiting for share file deletion to complete %s", err)
+		return diag.Errorf("timeout waiting for SFS file system deletion to complete %s", err)
 	}
 
 	d.SetId("")
@@ -451,7 +453,7 @@ func resourceSFSMetadataV2(d *schema.ResourceData, config *config.Config) map[st
 		m[key] = val.(string)
 	}
 
-	epsID := GetEnterpriseProjectID(d, config)
+	epsID := common.GetEnterpriseProjectID(d, config)
 
 	if epsID != "" {
 		m["enterprise_project_id"] = epsID

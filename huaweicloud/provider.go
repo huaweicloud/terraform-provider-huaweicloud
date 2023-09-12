@@ -552,7 +552,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_scm_certificates": scm.DataSourceCertificates(),
 
-			"huaweicloud_sfs_file_system": DataSourceSFSFileSystemV2(),
+			"huaweicloud_sfs_file_system": sfs.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
 
 			"huaweicloud_vpc_bandwidth": eip.DataSourceBandWidth(),
@@ -586,7 +586,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_data_key_v1": dew.DataSourceKmsDataKeyV1(),
 
 			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
-			"huaweicloud_sfs_file_system_v2": DataSourceSFSFileSystemV2(),
+			"huaweicloud_sfs_file_system_v2": sfs.DataSourceSFSFileSystemV2(),
 
 			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
 			"huaweicloud_vpc_ids_v1":                vpc.DataSourceVpcIdsV1(),
@@ -1039,9 +1039,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
 
-			"huaweicloud_sfs_access_rule": ResourceSFSAccessRuleV2(),
-			"huaweicloud_sfs_file_system": ResourceSFSFileSystemV2(),
-			"huaweicloud_sfs_turbo":       ResourceSFSTurbo(),
+			"huaweicloud_sfs_access_rule": sfs.ResourceSFSAccessRuleV2(),
+			"huaweicloud_sfs_file_system": sfs.ResourceSFSFileSystemV2(),
+			"huaweicloud_sfs_turbo":       sfs.ResourceSFSTurbo(),
 
 			"huaweicloud_smn_topic":            smn.ResourceTopic(),
 			"huaweicloud_smn_subscription":     smn.ResourceSubscription(),
@@ -1200,8 +1200,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_gateway_v2":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule_v2": nat.ResourcePublicSnatRule(),
 
-			"huaweicloud_sfs_access_rule_v2": ResourceSFSAccessRuleV2(),
-			"huaweicloud_sfs_file_system_v2": ResourceSFSFileSystemV2(),
+			"huaweicloud_sfs_access_rule_v2": sfs.ResourceSFSAccessRuleV2(),
+			"huaweicloud_sfs_file_system_v2": sfs.ResourceSFSFileSystemV2(),
 
 			"huaweicloud_iam_agency":    iam.ResourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3": iam.ResourceIAMAgencyV3(),
