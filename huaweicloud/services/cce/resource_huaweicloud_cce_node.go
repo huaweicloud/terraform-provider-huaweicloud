@@ -613,8 +613,8 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		d.Set("private_ip", s.Status.PrivateIP),
 		d.Set("public_ip", s.Status.PublicIP),
 		d.Set("status", s.Status.Phase),
-		d.Set("root_volume", flattenResourceNodeRootVolume(s.Spec.RootVolume)),
-		d.Set("data_volumes", flattenResourceNodeDataVolume(s.Spec.DataVolumes)),
+		d.Set("root_volume", flattenResourceNodeRootVolume(d, s.Spec.RootVolume)),
+		d.Set("data_volumes", flattenResourceNodeDataVolume(d, s.Spec.DataVolumes)),
 		d.Set("initialized_conditions", s.Spec.InitializedConditions),
 	)
 
