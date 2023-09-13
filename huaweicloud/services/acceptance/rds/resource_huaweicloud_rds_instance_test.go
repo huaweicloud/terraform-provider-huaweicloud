@@ -81,6 +81,56 @@ func TestAccRdsInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_without_password(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_without_password(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_without_password_update(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"db",
+					"status",
+					"availability_zone",
+				},
+			},
+		},
+	})
+}
+
 func TestAccRdsInstance_withEpsId(t *testing.T) {
 	var instance instances.RdsInstanceResponse
 	name := acceptance.RandomAccResourceName()
@@ -578,6 +628,67 @@ resource "huaweicloud_rds_instance" "test" {
   tags = {
     key1 = "value"
     foo  = "bar_updated"
+  }
+}
+`, common.TestBaseNetwork(name), name, password)
+}
+
+func testAccRdsInstance_without_password(name string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%s"
+  description       = "test_description"
+  flavor            = "rds.pg.n1.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+
+  db {
+    type    = "PostgreSQL"
+    version = "12"
+    port    = 8635
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccRdsInstance_without_password_update(name, password string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%s"
+  description       = "test_description"
+  flavor            = "rds.pg.n1.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+
+  db {
+    password = "%s"
+    type     = "PostgreSQL"
+    version  = "12"
+    port     = 8635
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
   }
 }
 `, common.TestBaseNetwork(name), name, password)

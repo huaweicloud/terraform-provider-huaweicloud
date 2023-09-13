@@ -12,7 +12,7 @@ type CreateOpts struct {
 	Ha                  *Ha                `json:"ha,omitempty"`
 	ConfigurationId     string             `json:"configuration_id,omitempty"`
 	Port                string             `json:"port,omitempty"`
-	Password            string             `json:"password" required:"true"`
+	Password            string             `json:"password,omitempty"`
 	BackupStrategy      *BackupStrategy    `json:"backup_strategy,omitempty"`
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
 	DiskEncryptionId    string             `json:"disk_encryption_id,omitempty"`
