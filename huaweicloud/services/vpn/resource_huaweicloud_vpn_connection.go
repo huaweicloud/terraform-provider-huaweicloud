@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -19,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -52,41 +50,30 @@ func ResourceConnection() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The name of the VPN connection.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9_-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 64),
-				),
 			},
 			"gateway_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The VPN gateway ID.`,
-				ValidateFunc: validation.StringLenBetween(0, 64),
-			},
-			"gateway_ip": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The VPN gateway IP ID.`,
-				ValidateFunc: validation.StringLenBetween(0, 64),
-			},
-			"vpn_type": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The connection type. The value can be **policy**, **static** or **bgp**.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"policy", "static", "bgp",
-				}, false),
+				Description: `The VPN gateway ID.`,
+			},
+			"gateway_ip": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The VPN gateway IP ID.`,
+			},
+			"vpn_type": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				Description:      `The connection type. The value can be **policy**, **static** or **bgp**.`,
 				DiffSuppressFunc: utils.SuppressCaseDiffs,
 			},
 			"customer_gateway_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The customer gateway ID.`,
-				ValidateFunc: validation.StringLenBetween(0, 64),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The customer gateway ID.`,
 			},
 			"peer_subnets": {
 				Type:        schema.TypeList,
@@ -95,10 +82,9 @@ func ResourceConnection() *schema.Resource {
 				Description: `The customer subnets.`,
 			},
 			"psk": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The pre-shared key.`,
-				ValidateFunc: validation.StringLenBetween(8, 128),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The pre-shared key.`,
 			},
 			"tunnel_local_address": {
 				Type:        schema.TypeString,
@@ -117,14 +103,6 @@ func ResourceConnection() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Whether to enable NQA check.`,
-			},
-			"enterprise_project_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				Description:  `The enterprise project ID.`,
-				ValidateFunc: validation.StringLenBetween(1, 64),
 			},
 			"ikepolicy": {
 				Type:     schema.TypeList,
@@ -152,6 +130,17 @@ func ResourceConnection() *schema.Resource {
 				Computed:    true,
 				Description: `The status of the VPN connection.`,
 			},
+			// some early users may input this, leaving it optional, but the code won't handle it
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The enterprise project ID.`,
+					utils.SchemaDescInput{
+						Computed: true,
+					}),
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -174,93 +163,111 @@ func ConnectionCreateRequestIkePolicySchema() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `The authentication algorithm, SHA1 and MD5 are less secure, please use them with caution.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"sha1", "md5", "sha2-256", "sha2-384", "sha2-512",
-				}, false),
 			},
 			"encryption_algorithm": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The encryption algorithm, 3DES is less secure, please use them with caution.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"3des", "aes-128", "aes-192", "aes-256", "aes-128-gcm-16", "aes-256-gcm-16", "aes-128-gcm-128", "aes-256-gcm-128",
-				}, false),
-			},
-			"pfs": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The DH key group used by PFS.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"group1", "group2", "group5", "group14", "group16", "group19", "group20", "group21",
-				}, false),
 			},
 			"ike_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The IKE negotiation version.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"v1", "v2",
-				}, false),
 			},
 			"lifetime_seconds": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				Description:  `The life cycle of SA in seconds, when the life cycle expires, IKE SA will be automatically updated.`,
-				ValidateFunc: validation.IntBetween(60, 604800),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The life cycle of SA in seconds, when the life cycle expires, IKE SA will be automatically updated.`,
 			},
 			"local_id_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The local ID type.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ip", "fqdn",
-				}, false),
 			},
 			"local_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Description:  `The local ID.`,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The local ID.`,
 			},
 			"peer_id_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The peer ID type.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ip", "fqdn", "any",
-				}, false),
 			},
 			"peer_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Description:  `The peer ID.`,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The peer ID.`,
 			},
 			"phase1_negotiation_mode": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The negotiation mode, only works when the ike_version is v1.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"main", "aggressive",
-				}, false),
 			},
 			"authentication_method": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `The authentication method during IKE negotiation. Only **pre-share** supported for now.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"pre-share",
-				}, false),
+				ForceNew:    true,
+				Description: `The authentication method during IKE negotiation.`,
+			},
+			"dh_group": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the DH group used for key exchange in phase 1.`,
+			},
+			"dpd": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem:        ConnectionPolicyDPDSchema(),
+				Description: `Specifies the dead peer detection (DPD) object.`,
+			},
+			"pfs": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The DH key group used by PFS.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
+			},
+		},
+	}
+	return &sc
+}
+
+func ConnectionPolicyDPDSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the interval for retransmitting DPD packets.`,
+			},
+			"interval": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the DPD idle timeout period.`,
+			},
+			"msg": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the format of DPD packets.`,
 			},
 		},
 	}
@@ -275,52 +282,36 @@ func ConnectionCreateRequestIpsecPolicySchema() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `The authentication algorithm, SHA1 and MD5 are less secure, please use them with caution.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"sha1", "md5", "sha2-256", "sha2-384", "sha2-512",
-				}, false),
 			},
 			"encryption_algorithm": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The encryption algorithm, 3DES is less secure, please use them with caution.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"3des", "aes-128", "aes-192", "aes-256", "aes-128-gcm-16", "aes-256-gcm-16", "aes-128-gcm-128", "aes-256-gcm-128",
-				}, false),
 			},
 			"pfs": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The DH key group used by PFS.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"group1", "group2", "group5", "group14", "group15", "group16", "group19", "group20", "group21",
-				}, false),
 			},
 			"lifetime_seconds": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				Description:  `The lifecycle time of Ipsec tunnel in seconds.`,
-				ValidateFunc: validation.IntBetween(30, 604800),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The lifecycle time of Ipsec tunnel in seconds.`,
 			},
 			"transform_protocol": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The transform protocol. Only **esp** supported for now.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"esp",
-				}, false),
 			},
 			"encapsulation_mode": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The encapsulation mode, only **tunnel** supported for now.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"tunnel",
-				}, false),
 			},
 		},
 	}
@@ -410,19 +401,18 @@ func buildCreateConnectionBodyParams(d *schema.ResourceData, config *config.Conf
 
 func buildCreateConnectionVpnConnectionChildBody(d *schema.ResourceData, config *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"vgw_id":                utils.ValueIngoreEmpty(d.Get("gateway_id")),
-		"vgw_ip":                utils.ValueIngoreEmpty(d.Get("gateway_ip")),
-		"style":                 utils.ValueIngoreEmpty(d.Get("vpn_type")),
-		"cgw_id":                utils.ValueIngoreEmpty(d.Get("customer_gateway_id")),
-		"peer_subnets":          utils.ValueIngoreEmpty(d.Get("peer_subnets")),
-		"psk":                   utils.ValueIngoreEmpty(d.Get("psk")),
-		"tunnel_local_address":  utils.ValueIngoreEmpty(d.Get("tunnel_local_address")),
-		"tunnel_peer_address":   utils.ValueIngoreEmpty(d.Get("tunnel_peer_address")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
-		"ikepolicy":             buildCreateConnectionIkepolicyChildBody(d),
-		"ipsecpolicy":           buildCreateConnectionIpsecpolicyChildBody(d),
-		"policy_rules":          buildCreateConnectionPolicyRulesChildBody(d),
+		"name":                 utils.ValueIngoreEmpty(d.Get("name")),
+		"vgw_id":               utils.ValueIngoreEmpty(d.Get("gateway_id")),
+		"vgw_ip":               utils.ValueIngoreEmpty(d.Get("gateway_ip")),
+		"style":                utils.ValueIngoreEmpty(d.Get("vpn_type")),
+		"cgw_id":               utils.ValueIngoreEmpty(d.Get("customer_gateway_id")),
+		"peer_subnets":         utils.ValueIngoreEmpty(d.Get("peer_subnets")),
+		"psk":                  utils.ValueIngoreEmpty(d.Get("psk")),
+		"tunnel_local_address": utils.ValueIngoreEmpty(d.Get("tunnel_local_address")),
+		"tunnel_peer_address":  utils.ValueIngoreEmpty(d.Get("tunnel_peer_address")),
+		"ikepolicy":            buildCreateConnectionIkepolicyChildBody(d),
+		"ipsecpolicy":          buildCreateConnectionIpsecpolicyChildBody(d),
+		"policy_rules":         buildCreateConnectionPolicyRulesChildBody(d),
 	}
 
 	if enableNqa, ok := d.GetOk("enable_nqa"); ok {
@@ -438,22 +428,45 @@ func buildCreateConnectionIkepolicyChildBody(d *schema.ResourceData) map[string]
 		return nil
 	}
 
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-		"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
-		"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
-		"ike_version":              utils.ValueIngoreEmpty(raw["ike_version"]),
-		"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-		"local_id_type":            utils.ValueIngoreEmpty(raw["local_id_type"]),
-		"local_id":                 utils.ValueIngoreEmpty(raw["local_id"]),
-		"peer_id_type":             utils.ValueIngoreEmpty(raw["peer_id_type"]),
-		"peer_id":                  utils.ValueIngoreEmpty(raw["peer_id"]),
-		"phase1_negotiation_mode":  utils.ValueIngoreEmpty(raw["phase1_negotiation_mode"]),
-		"authentication_method":    utils.ValueIngoreEmpty(raw["authentication_method"]),
+	if raw, ok := rawParams[0].(map[string]interface{}); ok {
+		params := map[string]interface{}{
+			"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
+			"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
+			"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
+			"ike_version":              utils.ValueIngoreEmpty(raw["ike_version"]),
+			"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
+			"local_id_type":            utils.ValueIngoreEmpty(raw["local_id_type"]),
+			"local_id":                 utils.ValueIngoreEmpty(raw["local_id"]),
+			"peer_id_type":             utils.ValueIngoreEmpty(raw["peer_id_type"]),
+			"peer_id":                  utils.ValueIngoreEmpty(raw["peer_id"]),
+			"phase1_negotiation_mode":  utils.ValueIngoreEmpty(raw["phase1_negotiation_mode"]),
+			"authentication_method":    utils.ValueIngoreEmpty(raw["authentication_method"]),
+			"dh_group":                 utils.ValueIngoreEmpty(raw["dh_group"]),
+			"dpd":                      buildCreateConnectionDPDChildBody(raw["dpd"]),
+		}
+
+		return params
 	}
 
-	return params
+	return nil
+}
+
+func buildCreateConnectionDPDChildBody(dpd interface{}) map[string]interface{} {
+	rawParams := dpd.([]interface{})
+	if len(rawParams) == 0 {
+		return nil
+	}
+
+	if raw, ok := rawParams[0].(map[string]interface{}); ok {
+		params := map[string]interface{}{
+			"timeout":  utils.ValueIngoreEmpty(raw["timeout"]),
+			"interval": utils.ValueIngoreEmpty(raw["interval"]),
+			"msg":      utils.ValueIngoreEmpty(raw["msg"]),
+		}
+
+		return params
+	}
+	return nil
 }
 
 func buildCreateConnectionIpsecpolicyChildBody(d *schema.ResourceData) map[string]interface{} {
@@ -462,17 +475,20 @@ func buildCreateConnectionIpsecpolicyChildBody(d *schema.ResourceData) map[strin
 		return nil
 	}
 
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-		"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
-		"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
-		"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-		"transform_protocol":       utils.ValueIngoreEmpty(raw["transform_protocol"]),
-		"encapsulation_mode":       utils.ValueIngoreEmpty(raw["encapsulation_mode"]),
+	if raw, ok := rawParams[0].(map[string]interface{}); ok {
+		params := map[string]interface{}{
+			"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
+			"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
+			"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
+			"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
+			"transform_protocol":       utils.ValueIngoreEmpty(raw["transform_protocol"]),
+			"encapsulation_mode":       utils.ValueIngoreEmpty(raw["encapsulation_mode"]),
+		}
+
+		return params
 	}
 
-	return params
+	return nil
 }
 
 func buildCreateConnectionPolicyRulesChildBody(d *schema.ResourceData) []map[string]interface{} {
@@ -483,11 +499,12 @@ func buildCreateConnectionPolicyRulesChildBody(d *schema.ResourceData) []map[str
 
 	params := make([]map[string]interface{}, len(rawParams))
 	for i, raw := range rawParams {
-		rawMap := raw.(map[string]interface{})
-		params[i] = map[string]interface{}{
-			"rule_index":  utils.ValueIngoreEmpty(rawMap["rule_index"]),
-			"source":      utils.ValueIngoreEmpty(rawMap["source"]),
-			"destination": utils.ValueIngoreEmpty(rawMap["destination"]),
+		if rawMap, ok := raw.(map[string]interface{}); ok {
+			params[i] = map[string]interface{}{
+				"rule_index":  utils.ValueIngoreEmpty(rawMap["rule_index"]),
+				"source":      utils.ValueIngoreEmpty(rawMap["source"]),
+				"destination": utils.ValueIngoreEmpty(rawMap["destination"]),
+			}
 		}
 	}
 
@@ -645,6 +662,26 @@ func flattenGetConnectionResponseBodyCreateRequestIkePolicy(resp interface{}) []
 			"peer_id":                  utils.PathSearch("peer_id", curJson, nil),
 			"phase1_negotiation_mode":  utils.PathSearch("phase1_negotiation_mode", curJson, nil),
 			"authentication_method":    utils.PathSearch("authentication_method", curJson, nil),
+			"dh_group":                 utils.PathSearch("dh_group", curJson, nil),
+			"dpd":                      flattenGetConnectionResponseBodyDPD(resp),
+		},
+	}
+	return rst
+}
+
+func flattenGetConnectionResponseBodyDPD(resp interface{}) []interface{} {
+	var rst []interface{}
+	curJson, err := jmespath.Search("vpn_connection.ikepolicy.dpd", resp)
+	if err != nil {
+		log.Printf("[ERROR] error parsing vpn_connection.ikepolicy.dpd from response= %#v", resp)
+		return rst
+	}
+
+	rst = []interface{}{
+		map[string]interface{}{
+			"timeout":  utils.PathSearch("timeout", curJson, nil),
+			"interval": utils.PathSearch("interval", curJson, nil),
+			"msg":      utils.PathSearch("msg", curJson, nil),
 		},
 	}
 	return rst
@@ -775,7 +812,6 @@ func buildUpdateConnectionIkepolicyChildBody(d *schema.ResourceData) map[string]
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
 		"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-		"authentication_method":    utils.ValueIngoreEmpty(raw["authentication_method"]),
 		"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
 		"ike_version":              utils.ValueIngoreEmpty(raw["ike_version"]),
 		"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
@@ -783,6 +819,8 @@ func buildUpdateConnectionIkepolicyChildBody(d *schema.ResourceData) map[string]
 		"peer_id_type":             utils.ValueIngoreEmpty(raw["peer_id_type"]),
 		"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
 		"phase1_negotiation_mode":  utils.ValueIngoreEmpty(raw["phase1_negotiation_mode"]),
+		"dh_group":                 utils.ValueIngoreEmpty(raw["dh_group"]),
+		"dpd":                      buildCreateConnectionDPDChildBody(raw["dpd"]),
 	}
 
 	// if the id type is ip, the id must be empty
