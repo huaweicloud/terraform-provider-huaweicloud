@@ -42,7 +42,6 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "stop_before_destroy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
-					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "test111"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),

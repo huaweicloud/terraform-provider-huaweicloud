@@ -15,7 +15,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
@@ -922,29 +921,30 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating compute V1.1 client: %s", err)
 	}
 
+	serverID := d.Id()
 	if d.HasChanges("name", "description") {
 		var updateOpts cloudservers.UpdateOpts
 		updateOpts.Name = d.Get("name").(string)
 		description := d.Get("description").(string)
 		updateOpts.Description = &description
 
-		err := cloudservers.Update(ecsClient, d.Id(), updateOpts).ExtractErr()
+		err := cloudservers.Update(ecsClient, serverID, updateOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating server: %s", err)
 		}
 	}
 
-	if d.HasChanges("agency_name", "agent_list ") {
-		metadataOpts := make(servers.MetadataOpts)
+	if d.HasChanges("agency_name", "agent_list") {
+		metadataOpts := make(map[string]interface{})
 		if d.HasChange("agency_name") {
 			metadataOpts["agency_name"] = d.Get("agency_name").(string)
 		}
 		if d.HasChange("agent_list") {
 			metadataOpts["__support_agent_list"] = d.Get("agent_list").(string)
 		}
-		_, err = servers.UpdateMetadata(computeClient, d.Id(), metadataOpts).Extract()
+		_, err = cloudservers.UpdateMetadata(ecsClient, serverID, metadataOpts).Extract()
 		if err != nil {
-			return diag.Errorf("error updating server (%s) metadata(agency_name, agent_list) : %s", d.Id(), err)
+			return diag.Errorf("error updating the metadata(agency_name, agent_list): %s", err)
 		}
 	}
 
@@ -964,30 +964,30 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		log.Printf("[DEBUG] security groups to remove: %v", secgroupsToRemove)
 
 		for _, g := range secgroupsToRemove.List() {
-			err := secgroups.RemoveServer(computeClient, d.Id(), g.(string)).ExtractErr()
+			err := secgroups.RemoveServer(computeClient, serverID, g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					continue
 				}
-				return diag.Errorf("error removing security group (%s) from server (%s): %s", g, d.Id(), err)
+				return diag.Errorf("error removing security group (%s) from server (%s): %s", g, serverID, err)
 			}
-			log.Printf("[DEBUG] removed security group (%s) from instance (%s)", g, d.Id())
+			log.Printf("[DEBUG] removed security group (%s) from instance (%s)", g, serverID)
 		}
 
 		for _, g := range secgroupsToAdd.List() {
-			err := secgroups.AddServer(computeClient, d.Id(), g.(string)).ExtractErr()
+			err := secgroups.AddServer(computeClient, serverID, g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
-				return diag.Errorf("error adding security group (%s) to server (%s): %s", g, d.Id(), err)
+				return diag.Errorf("error adding security group (%s) to server (%s): %s", g, serverID, err)
 			}
-			log.Printf("[DEBUG] added security group (%s) to instance (%s)", g, d.Id())
+			log.Printf("[DEBUG] added security group (%s) to instance (%s)", g, serverID)
 		}
 	}
 
 	if d.HasChange("admin_pass") {
 		if newPwd, ok := d.Get("admin_pass").(string); ok {
-			err := cloudservers.ChangeAdminPassword(ecsClient, d.Id(), newPwd).ExtractErr()
+			err := cloudservers.ChangeAdminPassword(ecsClient, serverID, newPwd).ExtractErr()
 			if err != nil {
-				return diag.Errorf("error changing admin password of server (%s): %s", d.Id(), err)
+				return diag.Errorf("error changing admin password of server (%s): %s", serverID, err)
 			}
 		}
 	}
@@ -1007,13 +1007,13 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			ExtendParam: extendParam,
 		}
 		log.Printf("[DEBUG] resize configuration: %#v", resizeOpts)
-		job, err := cloudservers.Resize(ecsV11Client, resizeOpts, d.Id()).ExtractJobResponse()
+		job, err := cloudservers.Resize(ecsV11Client, resizeOpts, serverID).ExtractJobResponse()
 		if err != nil {
 			return diag.Errorf("error resizing server: %s", err)
 		}
 
 		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), job.JobID); err != nil {
-			return diag.Errorf("error waiting for instance (%s) to be resized: %s", d.Id(), err)
+			return diag.Errorf("error waiting for instance (%s) to be resized: %s", serverID, err)
 		}
 	}
 
@@ -1030,9 +1030,9 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(ecsClient, d, "cloudservers", d.Id())
+		tagErr := utils.UpdateResourceTags(ecsClient, d, "cloudservers", serverID)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of instance:%s, err:%s", d.Id(), err)
+			return diag.Errorf("error updating tags of instance:%s, err:%s", serverID, err)
 		}
 	}
 
@@ -1084,7 +1084,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %#v",
-					resp.OrderID, d.Id(), err)
+					resp.OrderID, serverID, err)
 			}
 		}
 
@@ -1113,7 +1113,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		o, n := d.GetChange("key_pair")
 		keyPairOpts := &common.KeypairAuthOpts{
-			InstanceID:       d.Id(),
+			InstanceID:       serverID,
 			InUsedKeyPair:    o.(string),
 			NewKeyPair:       n.(string),
 			InUsedPrivateKey: d.Get("private_key").(string),
@@ -1129,7 +1129,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("power_action") {
 		action := d.Get("power_action").(string)
 		if err = doPowerAction(ecsClient, d, action); err != nil {
-			return diag.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+			return diag.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, serverID, err)
 		}
 	}
 
@@ -1138,8 +1138,8 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), serverID); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", serverID, err)
 		}
 	}
 
