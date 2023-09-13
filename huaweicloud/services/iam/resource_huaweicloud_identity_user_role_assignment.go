@@ -125,7 +125,7 @@ func resourceIdentityUserRoleAssignmentDelete(_ context.Context, d *schema.Resou
 	roleID := d.Get("role_id").(string)
 	enterpriseProjectID := d.Get("enterprise_project_id").(string)
 
-	err = eps_permissions.UserPermissionsCreate(client, enterpriseProjectID, userID, roleID).ExtractErr()
+	err = eps_permissions.UserPermissionsDelete(client, enterpriseProjectID, userID, roleID).ExtractErr()
 	if err != nil {
 		errMessage := fmt.Sprintf("error unassigning role (%s) from enterprise project (%s) and user (%s)",
 			roleID, enterpriseProjectID, userID)
