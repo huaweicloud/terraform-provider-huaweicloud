@@ -157,13 +157,13 @@ The following arguments are supported:
 
   -> You cannot update `size` if the vault is **prePaid** mode.
 
-* `consistent_level` - (Optional, String, ForceNew) Specifies the consistent level (specification) of the vault.
+* `consistent_level` - (Optional, String) Specifies the consistent level (specification) of the vault.
   The valid values are as follows:
   + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
   + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
 
-  Only **server** type vaults support application consistent and defaults to **crash_consistent**.
-  Changing this will create a new vault.
+  Only **server** type vaults support application consistent and defaults to **crash_consistent**, and only
+  **crash_consistent** can be updated to **app_consistent**.
 
 * `auto_expand` - (Optional, Bool) Specifies to enable auto capacity expansion for the backup protection type vault.
   Defaults to **false**.

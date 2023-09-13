@@ -51,7 +51,7 @@ func TestAccVault_backupServer(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "consistent_level", "app_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
@@ -150,7 +150,7 @@ func testAccVault_backupServer_step1(basicConfig, name string) string {
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%[2]s"
   type                  = "server"
-  consistent_level      = "app_consistent"
+  consistent_level      = "crash_consistent"
   protection_type       = "backup"
   size                  = 200
   enterprise_project_id = "0"
