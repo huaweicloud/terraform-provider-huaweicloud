@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -45,7 +47,7 @@ func TestAccInstance_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstance_basic(rName),
+				Config: testAccInstance_basic_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -55,11 +57,14 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "loadbalancer_provider", "elb"),
+					resource.TestCheckResourceAttr(resourceName, "vpcep_service_name", "apig"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpcep_service_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
 			},
 			{
-				Config: testAccInstance_update(updateName),
+				Config: testAccInstance_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -69,6 +74,8 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "vpcep_service_name", "new_custom_apig"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpcep_service_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
 			},
@@ -79,6 +86,60 @@ func TestAccInstance_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccInstance_basic_step1(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  loadbalancer_provider = "elb"
+
+  edition               = "BASIC"
+  name                  = "%[2]s"
+  enterprise_project_id = "%[3]s"
+  maintain_begin        = "14:00:00"
+  description           = "created by acc test"
+
+  tags = {}
+}
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccInstance_basic_step2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_networking_secgroup" "new" {
+  name = "%[2]s_new"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.new.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  loadbalancer_provider = "elb"
+  vpcep_service_name    = "new_custom_apig"
+
+  edition               = "BASIC"
+  name                  = "%[2]s"
+  enterprise_project_id = "%[3]s"
+  maintain_begin        = "18:00:00"
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func TestAccInstance_egress(t *testing.T) {
@@ -104,7 +165,7 @@ func TestAccInstance_egress(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstance_basic(rName),
+				Config: testAccInstance_baseConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -137,7 +198,7 @@ func TestAccInstance_egress(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccInstance_basic(rName), // Unbind egress nat
+				Config: testAccInstance_baseConfig(rName), // Unbind egress nat
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -152,6 +213,26 @@ func TestAccInstance_egress(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccInstance_baseConfig(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  edition               = "BASIC"
+  name                  = "%[2]s"
+  enterprise_project_id = "%[3]s"
+  maintain_begin        = "14:00:00"
+  description           = "created by acc test"
+}
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func TestAccInstance_ingress(t *testing.T) {
@@ -177,7 +258,7 @@ func TestAccInstance_ingress(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstance_basic(rName),
+				Config: testAccInstance_baseConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -209,7 +290,7 @@ func TestAccInstance_ingress(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccInstance_basic(rName), // Unbind ingress eip
+				Config: testAccInstance_baseConfig(rName), // Unbind ingress eip
 				Check: resource.ComposeTestCheckFunc(rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
@@ -222,57 +303,6 @@ func TestAccInstance_ingress(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccInstance_basic(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  maintain_begin        = "14:00:00"
-  description           = "created by acc test"
-
-  tags = {}
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccInstance_update(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_networking_secgroup" "new" {
-  name = "%[2]s_new"
-}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.new.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  maintain_begin        = "18:00:00"
-
-  tags = {
-    foo = "bar"
-  }
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_egress(rName string) string {

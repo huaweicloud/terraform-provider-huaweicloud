@@ -106,6 +106,12 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
+* `vpcep_service_name` - (Optional, String) Specifies the name of the VPC endpoint service.
+  It can contain a maximum of 16 characters, including letters, digits, underscores (_), and hyphens (-).
+
+  -> This parameter is only available if the `loadbalancer_provider` is **elb**.
+     Only enable and update operations are supported, and disable operation is not supported.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the dedicated instance.
 
 ## Attribute Reference
@@ -120,6 +126,9 @@ In addition to all arguments above, the following attributes are exported:
 * `supported_features` - The supported features of the APIG dedicated instance.
 * `created_at` - Time when the dedicated instance is created, in RFC-3339 format.
 * `status` - Status of the dedicated instance.
+* `vpcep_service_address` -  The address (full name) of the VPC endpoint service, in the
+  "{region}.{vpcep_service_name}.{service_id}" format. If this parameter is not specified, the system automatically
+  generates a name in the "{region}.apig.{service_id}" format.
 
 ## Timeouts
 
