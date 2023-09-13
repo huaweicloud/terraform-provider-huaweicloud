@@ -302,6 +302,11 @@ func ResourceComputeInstance() *schema.Resource {
 				// just stash the hash for state & diff comparisons
 				StateFunc: utils.HashAndHexEncode,
 			},
+			"metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"stop_before_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -677,6 +682,17 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		d.SetId(serverId.(string))
 	}
 
+	// update the user-defined metadata if necessary
+	if v, ok := d.GetOk("metadata"); ok {
+		metadataOpts := v.(map[string]interface{})
+		log.Printf("[DEBUG] ECS metadata options: %v", metadataOpts)
+
+		_, err := cloudservers.UpdateMetadata(ecsClient, d.Id(), metadataOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating the metadata: %s", err)
+		}
+	}
+
 	// Create an instance in the shutdown state.
 	if action, ok := d.GetOk("power_action"); ok {
 		action := action.(string)
@@ -948,6 +964,12 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.HasChanges("metadata") {
+		if err := updateInstanceMetaData(d, ecsClient, serverID); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChanges("security_group_ids", "security_groups") {
 		var oldSGRaw interface{}
 		var newSGRaw interface{}
@@ -1144,6 +1166,46 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	return resourceComputeInstanceRead(ctx, d, meta)
+}
+
+func updateInstanceMetaData(d *schema.ResourceData, client *golangsdk.ServiceClient, serverID string) error {
+	oldRaw, newRaw := d.GetChange("metadata")
+	oldMetadata := oldRaw.(map[string]interface{})
+	newMetadata := newRaw.(map[string]interface{})
+
+	// Determine if any metadata keys will be removed from the configuration.
+	// Then request those keys to be deleted.
+	var metadataToDelete []string
+	for oldKey := range oldMetadata {
+		var found bool
+		for newKey := range newMetadata {
+			if oldKey == newKey {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			metadataToDelete = append(metadataToDelete, oldKey)
+		}
+	}
+
+	for _, key := range metadataToDelete {
+		err := cloudservers.DeleteMetadatItem(client, serverID, key).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("error deleting metadata (%s) from server: %s", key, err)
+		}
+	}
+
+	// Update existing metadata and add any new metadata.
+	if len(newMetadata) > 0 {
+		_, err := cloudservers.UpdateMetadata(client, serverID, newMetadata).Extract()
+		if err != nil {
+			return fmt.Errorf("error updating the metadata: %s", err)
+		}
+	}
+
+	return nil
 }
 
 func resourceComputeInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
