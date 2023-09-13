@@ -81,7 +81,7 @@ type CreateOpts struct {
 	ProtectionStatus string `json:"protection_status,omitempty"`
 
 	// Update protection reason
-	ProtectionReason *string `json:"protection_reason,omitempty"`
+	ProtectionReason string `json:"protection_reason,omitempty"`
 }
 
 // BandwidthRef

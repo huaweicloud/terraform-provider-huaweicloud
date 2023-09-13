@@ -267,7 +267,6 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
-	protectionReason := d.Get("protection_reason").(string)
 	createOpts := loadbalancers.CreateOpts{
 		AvailabilityZoneList: resourceElbV3AvailabilityZone(d),
 		IPTargetEnable:       &iPTargetEnable,
@@ -278,7 +277,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		L4Flavor:             d.Get("l4_flavor_id").(string),
 		L7Flavor:             d.Get("l7_flavor_id").(string),
 		ProtectionStatus:     d.Get("protection_status").(string),
-		ProtectionReason:     &protectionReason,
+		ProtectionReason:     d.Get("protection_reason").(string),
 		Name:                 d.Get("name").(string),
 		Description:          d.Get("description").(string),
 		EnterpriseProjectID:  common.GetEnterpriseProjectID(d, cfg),
