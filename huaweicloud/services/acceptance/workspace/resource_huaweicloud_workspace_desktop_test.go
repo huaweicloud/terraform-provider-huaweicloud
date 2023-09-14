@@ -74,6 +74,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.2.size", "20"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
 				),
 			},
 			{
@@ -202,7 +203,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   }
 
   tags = {
-    foo = "bar"
+    foo = "baar"
   }
 
   delete_user = true
