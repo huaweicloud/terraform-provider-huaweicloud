@@ -1,7 +1,8 @@
-package huaweicloud
+package vpc
 
 import (
 	"context"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -15,11 +16,10 @@ import (
 	"github.com/chnsz/golangsdk"
 	v1Rules "github.com/chnsz/golangsdk/openstack/networking/v1/security/rules"
 	v3Rules "github.com/chnsz/golangsdk/openstack/networking/v3/security/rules"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // Some parameters are only support creation in ver.3 API.
@@ -31,7 +31,7 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 		ReadContext:   resourceNetworkingSecGroupRuleRead,
 		DeleteContext: resourceNetworkingSecGroupRuleDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -163,10 +163,10 @@ func doesAdvanceddParamUsed(d *schema.ResourceData, params []string) bool {
 
 func resourceNetworkingSecGroupRuleCreateV1(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	v1Client, err := config.NetworkingV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	v1Client, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	opt := v1Rules.CreateOpts{
@@ -181,10 +181,10 @@ func resourceNetworkingSecGroupRuleCreateV1(ctx context.Context, d *schema.Resou
 		PortRangeMax:    d.Get("port_range_max").(int),
 	}
 
-	logp.Printf("[DEBUG] The createOpts of the Security Group rule is: %#v", opt)
+	log.Printf("[DEBUG] The createOpts of the Security Group rule is: %#v", opt)
 	resp, err := v1Rules.Create(v1Client, opt)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Security Group rule: %s", err)
+		return diag.Errorf("error creating Security Group rule: %s", err)
 	}
 	d.SetId(resp.ID)
 
@@ -193,11 +193,11 @@ func resourceNetworkingSecGroupRuleCreateV1(ctx context.Context, d *schema.Resou
 
 func resourceNetworkingSecGroupRuleCreateV3(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	v3Client, err := config.NetworkingV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v3Client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	opt := v3Rules.CreateOpts{
@@ -214,15 +214,15 @@ func resourceNetworkingSecGroupRuleCreateV3(ctx context.Context, d *schema.Resou
 		Priority:             d.Get("priority").(int),
 	}
 
-	logp.Printf("[DEBUG] The createOpts of the Security Group rule is: %#v", opt)
+	log.Printf("[DEBUG] The createOpts of the Security Group rule is: %#v", opt)
 	resp, err := v3Rules.Create(v3Client, opt)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return fmtp.DiagErrorf("these parameters (%v) are not support in current region (%s), please stop using "+
+			return diag.Errorf("these parameters (%v) are not support in current region (%s), please stop using "+
 				"and re-run the script. However, the 'ports' parameter can be replaced by parameter 'port_range_min' "+
 				"and parameter 'port_range_max'", utils.MarshalValue(advancedParams), region)
 		}
-		return fmtp.DiagErrorf("Error creating Security Group rule: %s", err)
+		return diag.Errorf("error creating Security Group rule: %s", err)
 	}
 	d.SetId(resp.ID)
 
@@ -239,26 +239,26 @@ func resourceNetworkingSecGroupRuleCreate(ctx context.Context, d *schema.Resourc
 
 func resourceNetworkingSecGroupRuleRead(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	v1Client, err := config.NetworkingV1Client(region)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
-	v3Client, err := config.NetworkingV3Client(GetRegion(d, config))
+	v3Client, err := cfg.NetworkingV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	resp, err := v1Rules.Get(v1Client, d.Id())
 	if err != nil {
-		logp.Printf("[DEBUG] Unable to find the specified Security group rule (%s).", d.Id())
-		return common.CheckDeletedDiag(d, err, "HuaweiCloud Security Group Rule")
+		log.Printf("[DEBUG] Unable to find the specified Security group rule (%s).", d.Id())
+		return common.CheckDeletedDiag(d, err, "Security Group Rule")
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("direction", resp.Direction),
 		d.Set("description", resp.Description),
 		d.Set("ethertype", resp.Ethertype),
@@ -273,7 +273,7 @@ func resourceNetworkingSecGroupRuleRead(_ context.Context, d *schema.ResourceDat
 	rule, err := v3Rules.Get(v3Client, d.Id())
 	if err == nil {
 		// If the v3 API method has no error, parse its ports attribute and setup.
-		logp.Printf("[DEBUG] Retrieved Security Group rule (%s): %+v", d.Id(), rule)
+		log.Printf("[DEBUG] Retrieved Security Group rule (%s): %+v", d.Id(), rule)
 		mErr = multierror.Append(mErr,
 			d.Set("ports", rule.MultiPort),
 			d.Set("action", rule.Action),
@@ -289,12 +289,12 @@ func resourceNetworkingSecGroupRuleRead(_ context.Context, d *schema.ResourceDat
 
 func resourceNetworkingSecGroupRuleDelete(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	logp.Printf("[DEBUG] Destroy security group rule: %s", d.Id())
+	log.Printf("[DEBUG] Destroy security group rule: %s", d.Id())
 
-	config := meta.(*config.Config)
-	client, err := config.NetworkingV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	client, err := cfg.NetworkingV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -308,7 +308,7 @@ func resourceNetworkingSecGroupRuleDelete(ctx context.Context, d *schema.Resourc
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud Security Group Rule: %s", err)
+		return diag.Errorf("error deleting Security Group Rule: %s", err)
 	}
 
 	d.SetId("")
@@ -317,12 +317,12 @@ func resourceNetworkingSecGroupRuleDelete(ctx context.Context, d *schema.Resourc
 
 func waitForSecGroupRuleDelete(client *golangsdk.ServiceClient, ruleId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group Rule %s.", ruleId)
+		log.Printf("[DEBUG] Attempting to delete Security Group Rule %s.", ruleId)
 
 		r, err := v1Rules.Get(client, ruleId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Security Group Rule %s", ruleId)
+				log.Printf("[DEBUG] Successfully deleted Security Group Rule %s", ruleId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -331,13 +331,13 @@ func waitForSecGroupRuleDelete(client *golangsdk.ServiceClient, ruleId string) r
 		err = v1Rules.Delete(client, ruleId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Security Group Rule %s", ruleId)
+				log.Printf("[DEBUG] Successfully deleted Security Group Rule %s", ruleId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Security Group Rule %s still active.", ruleId)
+		log.Printf("[DEBUG] Security Group Rule %s still active.", ruleId)
 		return r, "ACTIVE", nil
 	}
 }

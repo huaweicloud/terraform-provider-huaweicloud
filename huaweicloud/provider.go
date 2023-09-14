@@ -517,7 +517,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_gateway": nat.DataSourcePublicGateway(),
 
 			"huaweicloud_networking_port":      vpc.DataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup":  DataSourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup":  vpc.DataSourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroups": vpc.DataSourceNetworkingSecGroups(),
 
 			"huaweicloud_modelarts_datasets":         modelarts.DataSourceDatasets(),
@@ -582,7 +582,7 @@ func Provider() *schema.Provider {
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
 			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup_v2": DataSourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup_v2": vpc.DataSourceNetworkingSecGroup(),
 
 			"huaweicloud_kms_key_v1":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key_v1": dew.DataSourceKmsDataKeyV1(),
@@ -1000,8 +1000,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_network_acl":              ResourceNetworkACL(),
 			"huaweicloud_network_acl_rule":         ResourceNetworkACLRule(),
-			"huaweicloud_networking_secgroup":      ResourceNetworkingSecGroup(),
-			"huaweicloud_networking_secgroup_rule": ResourceNetworkingSecGroupRule(),
+			"huaweicloud_networking_secgroup":      vpc.ResourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup_rule": vpc.ResourceNetworkingSecGroupRule(),
 			"huaweicloud_networking_vip":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate": vpc.ResourceNetworkingVIPAssociateV2(),
 
@@ -1188,8 +1188,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_mrs_cluster_v1": ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job_v1":     ResourceMRSJobV1(),
 
-			"huaweicloud_networking_secgroup_v2":      ResourceNetworkingSecGroup(),
-			"huaweicloud_networking_secgroup_rule_v2": ResourceNetworkingSecGroupRule(),
+			"huaweicloud_networking_secgroup_v2":      vpc.ResourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroup_rule_v2": vpc.ResourceNetworkingSecGroupRule(),
 
 			"huaweicloud_smn_topic_v2":        smn.ResourceTopic(),
 			"huaweicloud_smn_subscription_v2": smn.ResourceSubscription(),

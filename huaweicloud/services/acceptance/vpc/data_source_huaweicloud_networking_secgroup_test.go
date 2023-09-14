@@ -1,21 +1,22 @@
-package huaweicloud
+package vpc
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccNetworkingSecGroupV3DataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "data.huaweicloud_networking_secgroup.test"
+	var rName = acceptance.RandomAccResourceNameWithDash()
+	dataSourceName := "data.huaweicloud_networking_secgroup.test"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingSecGroupV3DataSource_group(rName),
@@ -23,9 +24,9 @@ func TestAccNetworkingSecGroupV3DataSource_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingSecGroupV3DataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSecGroupV3DataSourceID(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "rules.#"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
 				),
 			},
 		},
@@ -33,12 +34,13 @@ func TestAccNetworkingSecGroupV3DataSource_basic(t *testing.T) {
 }
 
 func TestAccNetworkingSecGroupV3DataSource_byID(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "data.huaweicloud_networking_secgroup.test"
+	var rName = acceptance.RandomAccResourceNameWithDash()
+	dataSourceName := "data.huaweicloud_networking_secgroup.test"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingSecGroupV3DataSource_group(rName),
@@ -46,28 +48,13 @@ func TestAccNetworkingSecGroupV3DataSource_byID(t *testing.T) {
 			{
 				Config: testAccNetworkingSecGroupV3DataSource_secGroupID(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSecGroupV3DataSourceID(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "rules.#"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckNetworkingSecGroupV3DataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Can't find security group data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Security group data source ID not set")
-		}
-
-		return nil
-	}
 }
 
 func testAccNetworkingSecGroupV3DataSource_group(rName string) string {

@@ -1,7 +1,8 @@
-package huaweicloud
+package vpc
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,10 +12,9 @@ import (
 	v1groups "github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
 	v3groups "github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
 	v3rules "github.com/chnsz/golangsdk/openstack/networking/v3/security/rules"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceNetworkingSecGroup() *schema.Resource {
@@ -70,10 +70,10 @@ func getRuleListByGroupId(client *golangsdk.ServiceClient, groupId string) ([]ma
 
 func dataSourceNetworkingSecGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	v3Client, err := config.NetworkingV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v3 client: %s", err)
+		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
 
 	listOpts := v3groups.ListOpts{
@@ -88,26 +88,26 @@ func dataSourceNetworkingSecGroupRead(ctx context.Context, d *schema.ResourceDat
 			// If the v3 API does not exist or has not been published in the specified region, set again using v1 API.
 			return dataSourceNetworkingSecGroupReadV1(ctx, d, meta)
 		}
-		return fmtp.DiagErrorf("Unable to get security groups list: %s", err)
+		return diag.Errorf("unable to get security groups list: %s", err)
 	}
 
 	if len(allSecGroups) < 1 {
-		return fmtp.DiagErrorf("No Security Group found.")
+		return diag.Errorf("no Security Group found.")
 	}
 
 	if len(allSecGroups) > 1 {
-		return fmtp.DiagErrorf("More than one Security Groups found.")
+		return diag.Errorf("more than one Security Groups found.")
 	}
 
 	secGroup := allSecGroups[0]
 	d.SetId(secGroup.ID)
-	logp.Printf("[DEBUG] Retrieved Security Group (%s) by v3 client: %v", d.Id(), secGroup)
+	log.Printf("[DEBUG] Retrieved Security Group (%s) by v3 client: %v", d.Id(), secGroup)
 
 	rules, err := getRuleListByGroupId(v3Client, secGroup.ID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	logp.Printf("[DEBUG] The rules list of security group (%s) is: %v", d.Id(), rules)
+	log.Printf("[DEBUG] The rules list of security group (%s) is: %v", d.Id(), rules)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -126,10 +126,10 @@ func dataSourceNetworkingSecGroupRead(ctx context.Context, d *schema.ResourceDat
 
 func dataSourceNetworkingSecGroupReadV1(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	v1Client, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v1 client: %s", err)
+		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	listOpts := v1groups.ListOpts{
@@ -142,12 +142,12 @@ func dataSourceNetworkingSecGroupReadV1(_ context.Context, d *schema.ResourceDat
 	}
 	allGroups, err := v1groups.ExtractSecurityGroups(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Error retrieving security groups list: %s", err)
+		return diag.Errorf("error retrieving security groups list: %s", err)
 	}
 	if len(allGroups) == 0 {
-		return fmtp.DiagErrorf("No sucurity group found, please change your search criteria and try again.")
+		return diag.Errorf("no sucurity group found, please change your search criteria and try again.")
 	}
-	logp.Printf("[DEBUG] The retrieved group list is: %v", allGroups)
+	log.Printf("[DEBUG] The retrieved group list is: %v", allGroups)
 
 	filter := map[string]interface{}{
 		"ID":   d.Get("secgroup_id"),
@@ -155,20 +155,20 @@ func dataSourceNetworkingSecGroupReadV1(_ context.Context, d *schema.ResourceDat
 	}
 	filterGroups, err := utils.FilterSliceWithField(allGroups, filter)
 	if err != nil {
-		return fmtp.DiagErrorf("Erroring filting security groups list: %s", err)
+		return diag.Errorf("error filting security groups list: %s", err)
 	}
 	if len(filterGroups) < 1 {
-		return fmtp.DiagErrorf("No Security Group found.")
+		return diag.Errorf("No Security Group found.")
 	}
 	if len(filterGroups) > 1 {
-		return fmtp.DiagErrorf("More than one Security Groups found.")
+		return diag.Errorf("More than one Security Groups found.")
 	}
 
 	resp := filterGroups[0].(v1groups.SecurityGroup)
 	d.SetId(resp.ID)
 
 	rules := flattenSecurityGroupRulesV1(&resp)
-	logp.Printf("[DEBUG] The retrieved rules list is: %v", rules)
+	log.Printf("[DEBUG] The retrieved rules list is: %v", rules)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
