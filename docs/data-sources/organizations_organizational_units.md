@@ -4,7 +4,7 @@ subcategory: "Organizations"
 
 # huaweicloud_organizations_organizational_units
 
-Use this data source to get the a list of child organizational units under the specified parent OU.
+Use this data source to get the list of child organizational units under the specified parent OU.
 
 ## Example Usage
 
