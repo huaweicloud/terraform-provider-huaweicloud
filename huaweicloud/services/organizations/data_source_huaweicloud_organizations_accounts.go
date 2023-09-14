@@ -76,7 +76,7 @@ func organizationsAccountSchema() *schema.Resource {
 			"joined_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Date when an account joined an organization`,
+				Description: `Time when an account joined an organization`,
 			},
 		},
 	}
