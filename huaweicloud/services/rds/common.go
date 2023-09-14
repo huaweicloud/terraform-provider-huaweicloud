@@ -116,3 +116,24 @@ func handleDeletionError(err error) (bool, error) {
 	}
 	return false, err
 }
+
+// The RDS cross region backup strategy can not be updated if another operation is being performed.
+func handleCrossRegionBackupStrategyError(err error) (bool, error) {
+	if errCode, ok := err.(golangsdk.ErrDefault500); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		// DBS.280228: Another operation is being performed.
+		if errorCode == "DBS.280228" {
+			return true, err
+		}
+	}
+	return false, err
+}
