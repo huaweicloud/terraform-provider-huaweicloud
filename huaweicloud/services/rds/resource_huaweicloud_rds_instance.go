@@ -78,11 +78,6 @@ func ResourceRdsInstance() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"password": {
-							Type:      schema.TypeString,
-							Sensitive: true,
-							Required:  true,
-						},
 						"type": {
 							Type:             schema.TypeString,
 							Required:         true,
@@ -93,6 +88,11 @@ func ResourceRdsInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
+						},
+						"password": {
+							Type:      schema.TypeString,
+							Sensitive: true,
+							Optional:  true,
 						},
 						"port": {
 							Type:     schema.TypeInt,
