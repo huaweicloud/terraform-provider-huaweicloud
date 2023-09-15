@@ -563,6 +563,18 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 		t.Fatalf("ServiceStage v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("ServiceStage v2 endpoint:\t %s", actualURL)
+
+	// test the endpoint of EG service
+	serviceClient, err = cfg.EgV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("error creating EG v1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://eg.%s.%s/v1/%s/", HW_REGION_NAME, cfg.Cloud, cfg.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("EG endpoint: expected %s, but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("EG endpoint:\t %s", actualURL)
 }
 
 // TestAccServiceEndpoints_Compute test for endpoints of the clients used in ecs
