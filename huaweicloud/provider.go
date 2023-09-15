@@ -54,6 +54,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dsc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eg"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eps"
@@ -829,6 +830,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_snapshot":           dws.ResourceDwsSnapshot(),
 			"huaweicloud_dws_snapshot_policy":    dws.ResourceDwsSnapshotPolicy(),
 			"huaweicloud_dws_ext_data_source":    dws.ResourceDwsExtDataSource(),
+
+			"huaweicloud_eg_endpoint": eg.ResourceEndpoint(),
 
 			"huaweicloud_elb_certificate":     elb.ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":        elb.ResourceL7PolicyV3(),
