@@ -232,6 +232,7 @@ func ResourceMigrationTaskGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -567,7 +568,9 @@ func startMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *v2.Oms
 	var sourceCdnAuthenticationKey *string
 	if sourceCDNs := d.Get("source_cdn").([]interface{}); len(sourceCDNs) > 0 {
 		sourceCdn := sourceCDNs[0].(map[string]interface{})
-		sourceCdnAuthenticationKey = utils.String(sourceCdn["authentication_key"].(string))
+		if sourceCdn["authentication_key"].(string) != "" {
+			sourceCdnAuthenticationKey = utils.String(sourceCdn["authentication_key"].(string))
+		}
 	}
 
 	startTaskGroupReq := &oms.StartTaskGroupReq{
