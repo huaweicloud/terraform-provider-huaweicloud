@@ -166,7 +166,7 @@ func ResourceDesktop() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 			"delete_user": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -549,6 +549,14 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if d.HasChanges("root_volume", "data_volume") {
 		if err = updateDesktopVolumes(ctx, client, d); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		desktopId := d.Id()
+		err = utils.UpdateResourceTags(client, d, "desktops", desktopId)
+		if err != nil {
+			return diag.Errorf("error updating tags of Workspace desktop (%s): %s", desktopId, err)
 		}
 	}
 
