@@ -94,7 +94,6 @@ func ResourceVault() *schema.Resource {
 			"consistent_level": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     "crash_consistent",
 				Description: "The consistent level (specification) of the vault.",
 			},
@@ -770,9 +769,17 @@ func updatePolicyBindings(d *schema.ResourceData, client *golangsdk.ServiceClien
 }
 
 func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	opts := vaults.UpdateOpts{}
+	var (
+		billing = vaults.BillingUpdate{}
+		opts    = vaults.UpdateOpts{
+			Billing: &billing,
+		}
+	)
 	if d.HasChange("name") {
 		opts.Name = d.Get("name").(string)
+	}
+	if d.HasChange("consistent_level") {
+		billing.ConsistentLevel = d.Get("consistent_level").(string)
 	}
 
 	if d.HasChanges("size", "auto_expand", "auto_bind") {
@@ -781,9 +788,7 @@ func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceDa
 		}
 		opts.AutoExpand = utils.Bool(d.Get("auto_expand").(bool))
 		opts.AutoBind = utils.Bool(d.Get("auto_bind").(bool))
-		opts.Billing = &vaults.BillingUpdate{
-			Size: d.Get("size").(int),
-		}
+		billing.Size = d.Get("size").(int)
 	}
 
 	if d.HasChanges("bind_rules") {
@@ -813,9 +818,9 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
-	if d.HasChanges("name", "size", "auto_expand", "auto_bind", "bind_rules") {
+	if d.HasChanges("name", "consistent_level", "size", "auto_expand", "auto_bind", "bind_rules") {
 		if err = updateBasicParameters(client, d); err != nil {
-			return diag.Errorf("cannot update 'size', 'auto_expand' or 'auto_bind' if the vault is prepaid mode")
+			return diag.FromErr(err)
 		}
 	}
 
