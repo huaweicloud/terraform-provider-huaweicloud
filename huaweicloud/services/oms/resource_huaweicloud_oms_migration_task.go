@@ -803,9 +803,12 @@ func flattenSourceCdn(sourceCdn *oms.SourceCdnResp) []map[string]interface{} {
 	}
 
 	sourceCdnResult := map[string]interface{}{
-		"domain":              sourceCdn.Domain,
-		"protocol":            sourceCdn.Protocol,
-		"authentication_type": sourceCdn.AuthenticationType.Value(),
+		"domain":   sourceCdn.Domain,
+		"protocol": sourceCdn.Protocol.Value(),
+	}
+
+	if sourceCdn.AuthenticationType != nil {
+		sourceCdnResult["authentication_type"] = sourceCdn.AuthenticationType.Value()
 	}
 
 	return []map[string]interface{}{sourceCdnResult}
