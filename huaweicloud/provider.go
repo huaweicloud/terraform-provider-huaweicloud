@@ -425,6 +425,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_instances":    ecs.DataSourceComputeInstances(),
 			"huaweicloud_compute_servergroups": ecs.DataSourceComputeServerGroups(),
 
+			"huaweicloud_cdm_clusters": cdm.DataSourceCdmClusters(),
+
 			"huaweicloud_cph_server_flavors": cph.DataSourceServerFlavors(),
 			"huaweicloud_cph_phone_flavors":  cph.DataSourcePhoneFlavors(),
 			"huaweicloud_cph_phone_images":   cph.DataSourcePhoneImages(),
