@@ -172,7 +172,7 @@ The `destination_object` block supports:
 The `bandwidth_policy` block supports:
 
 * `max_bandwidth` - (Required, Int) Specifies the maximum traffic bandwidth allowed in the specified time
-  segment. The unit is byte/s. The value ranges from **1** MB/s to **200** MB/s.
+  segment. The value ranges from **1** to **200**. The unit is MB/s.
 
 * `start` - (Required, String) Specifies the start time of the traffic limit rule. The format is **hh:mm**,
   e.g. **12:03**.
