@@ -42,10 +42,11 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "stop_before_destroy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
-					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "test111"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "hss"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -59,6 +60,8 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "test222"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "ces"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.foo", "bar2"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.key2", "value2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 				),
@@ -68,7 +71,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"stop_before_destroy", "delete_eip_on_termination", "data_disks",
+					"stop_before_destroy", "delete_eip_on_termination", "data_disks", "metadata",
 				},
 			},
 		},
@@ -423,6 +426,11 @@ resource "huaweicloud_compute_instance" "test" {
     size = "10"
   }
 
+  metadata = {
+    foo = "bar"
+    key = "value"
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -458,8 +466,13 @@ resource "huaweicloud_compute_instance" "test" {
     size = "10"
   }
 
+  metadata = {
+    foo  = "bar2"
+    key2 = "value2"
+  }
+
   tags = {
-    foo = "bar2"
+    foo  = "bar2"
     key2 = "value2"
   }
 }

@@ -290,6 +290,13 @@ The following arguments are supported:
   -> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init
   installed, the `admin_pass` field becomes invalid.
 
+* `metadata` - (Optional, Map) Specifies the user-defined metadata key-value pair.
+
+  + A maximum of 10 key-value pairs can be injected.
+  + A metadata key consists of 1 to 255 characters and contains only uppercase letters, lowercase letters, spaces,
+    digits, hyphens (-), underscores (_), colons (:), and decimal points (.).
+  + A metadata value consists of a maximum of 255 characters.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
 * `scheduler_hints` - (Optional, List) Specifies the scheduler with hints on how the instance should be launched. The
@@ -505,7 +512,7 @@ terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
+The missing attributes include: `admin_pass`, `user_data`, `metadata`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
 `delete_disks_on_termination`, `delete_eip_on_termination`, `network/access_network`, `bandwidth`, `eip_type`,
 `power_action` and arguments for pre-paid and spot price.
 It is generally recommended running `terraform plan` after importing an instance.

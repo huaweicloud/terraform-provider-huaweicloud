@@ -433,3 +433,18 @@ func Update(client *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) 
 	})
 	return
 }
+
+// UpdateMetadata updates (or creates) all the metadata specified by opts for
+// the given server ID. This operation does not affect already-existing metadata
+// that is not specified by opts.
+func UpdateMetadata(client *golangsdk.ServiceClient, id string, opts map[string]interface{}) (r UpdateMetadataResult) {
+	b := map[string]interface{}{"metadata": opts}
+	_, r.Err = client.Post(metadataURL(client, id), b, &r.Body, nil)
+	return
+}
+
+// DeleteMetadatItem will delete the key-value pair with the given key for the given server ID.
+func DeleteMetadatItem(client *golangsdk.ServiceClient, id, key string) (r DeleteMetadatItemResult) {
+	_, r.Err = client.Delete(metadatItemURL(client, id, key), nil)
+	return
+}

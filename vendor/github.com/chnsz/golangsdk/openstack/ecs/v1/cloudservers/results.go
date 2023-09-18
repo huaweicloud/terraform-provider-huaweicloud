@@ -207,3 +207,23 @@ func ExtractServers(r pagination.Page) ([]CloudServer, error) {
 	err := (r.(ServerPage)).ExtractInto(&s)
 	return s.Servers, err
 }
+
+// UpdateMetadataResult contains the result of an UpdateMetadata operation.
+// Call its Extract method to interpret it as a map[string]interface{}.
+type UpdateMetadataResult struct {
+	golangsdk.Result
+}
+
+// DeleteMetadatItemResult contains the result of a DeleteMetadatItem operation.
+// Call its ExtractErr method to determine if the call succeeded or failed.
+type DeleteMetadatItemResult struct {
+	golangsdk.ErrResult
+}
+
+func (r UpdateMetadataResult) Extract() (map[string]interface{}, error) {
+	var s struct {
+		Metadata map[string]interface{} `json:"metadata"`
+	}
+	err := r.ExtractInto(&s)
+	return s.Metadata, err
+}
