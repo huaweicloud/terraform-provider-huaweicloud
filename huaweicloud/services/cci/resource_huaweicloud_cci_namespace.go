@@ -311,7 +311,7 @@ func GetCciNamespaceInfoById(c *golangsdk.ServiceClient, id string) (*namespaces
 			return &v, nil
 		}
 	}
-	return response, fmtp.Errorf("Unable to find the namespace on the server by id (%s): %s", id, err)
+	return nil, golangsdk.ErrDefault404{}
 }
 
 func resourceCciNamespaceImportState(context context.Context, d *schema.ResourceData,
