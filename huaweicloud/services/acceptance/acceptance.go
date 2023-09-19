@@ -384,8 +384,11 @@ func RandomCidrAndGatewayIp() (string, string) {
 }
 
 func RandomPassword() string {
-	return fmt.Sprintf("%s%s%s%d", acctest.RandStringFromCharSet(2, "ABCDEFGHIJKLMNOPQRSTUVWXZY"),
-		acctest.RandString(3), acctest.RandStringFromCharSet(2, "~!@#%^*-_=+?"), acctest.RandIntRange(1000, 9999))
+	return fmt.Sprintf("%s%s%s%d",
+		acctest.RandStringFromCharSet(2, "ABCDEFGHIJKLMNOPQRSTUVWXZY"),
+		acctest.RandStringFromCharSet(3, acctest.CharSetAlpha),
+		acctest.RandStringFromCharSet(2, "~!@#%^*-_=+?"),
+		acctest.RandIntRange(1000, 9999))
 }
 
 // lintignore:AT003
