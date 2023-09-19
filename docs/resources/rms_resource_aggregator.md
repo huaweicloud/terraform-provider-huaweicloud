@@ -1,5 +1,5 @@
 ---
-subcategory: "Resource Management Service (RMS)"
+subcategory: "Config"
 ---
 
 # huaweicloud_rms_resource_aggregator
@@ -20,6 +20,7 @@ resource "huaweicloud_rms_resource_aggregator" "account" {
   name        = var.name
   type        = "ACCOUNT"
   account_ids = var.source_account_list
+}
 ```
 
 ### Organization Based Aggregation
@@ -30,6 +31,7 @@ variable "name" {}
 resource "huaweicloud_rms_resource_aggregator" "organization" {
   name = var.name
   type = "ORGANIZATION"
+}
 ```
 
 ## Argument Reference

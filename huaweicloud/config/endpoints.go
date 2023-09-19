@@ -46,6 +46,7 @@ var multiCatalogKeys = map[string][]string{
 	"smn":          {"smn-tag"},
 	"ces":          {"cesv2"},
 	"ims":          {"imsv1"},
+	"config":       {"rms"}, // config is named as Resource Management Service(RMS) before
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
@@ -480,7 +481,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		Version:          "v1",
 		WithOutProjectID: true,
-		Product:          "RMS",
+		Product:          "Config",
 	},
 	"organizations": {
 		Name:             "organizations",

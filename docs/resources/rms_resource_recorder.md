@@ -1,5 +1,5 @@
 ---
-subcategory: "Resource Management Service (RMS)"
+subcategory: "Config"
 ---
 
 # huaweicloud_rms_resource_recorder
