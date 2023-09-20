@@ -781,6 +781,7 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		return diag.Errorf("error creating CCE Node client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
+	nodeId := d.Id()
 	s, err := nodes.Get(nodeClient, clusterid, d.Id()).Extract()
 
 	if err != nil {
@@ -827,7 +828,17 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 
 	// fetch tags from ECS instance
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
+		// Special blacklist of CCE service.
+		sysTagsBL := []string{
+			"CCE-Cluster-ID",
+			"CCE-Dynamic-Provisioning-Node",
+			// HCS provider used
+			fmt.Sprintf("CCE-Cluster-ID.%s", clusterid),
+			fmt.Sprintf("CCE-Dynamic-Provisioning-Node.%s", nodeId),
+			clusterid,
+			nodeId,
+		}
+		tagmap := utils.TagsToMapWithIndicator(resourceTags.Tags, sysTagsBL, d.Get("tags").(map[string]interface{}))
 		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 	} else {
 		log.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", serverId, err)
