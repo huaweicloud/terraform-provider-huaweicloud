@@ -454,7 +454,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zones":      dns.DataSourceZones(),
 			"huaweicloud_dns_recordsets": dns.DataSourceRecordsets(),
 
-			"huaweicloud_eg_custom_event_sources": eg.DataSourceCustomEventSources(),
+			"huaweicloud_eg_custom_event_channels": eg.DataSourceCustomEventChannels(),
+			"huaweicloud_eg_custom_event_sources":  eg.DataSourceCustomEventSources(),
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
