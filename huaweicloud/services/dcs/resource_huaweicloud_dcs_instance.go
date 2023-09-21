@@ -1203,7 +1203,7 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 	})
 	if err != nil {
 		if d.Get("charging_mode").(string) == chargeModePrePaid {
-			return diag.Errorf("error unsubscribing DCS redis instance : %s", err)
+			return diag.Errorf("error unsubscribing DCS redis instance: %s", err)
 		}
 		return diag.FromErr(err)
 	}
