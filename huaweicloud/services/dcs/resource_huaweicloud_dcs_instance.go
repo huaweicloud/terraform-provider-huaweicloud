@@ -49,6 +49,8 @@ var (
 	}
 
 	operateErrorCode = map[string]bool{
+		// current state not support
+		"DCS.4026": true,
 		// backup
 		"DCS.4096": true,
 		// restore
@@ -1148,6 +1150,23 @@ func handleOperationError(err error) (bool, error) {
 			return true, err
 		}
 	}
+	// unsubscribe fail
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		// CBC.99003651: Another operation is being performed.
+		if errorCode == "CBC.99003651" {
+			return true, err
+		}
+	}
 	return false, err
 }
 
@@ -1158,17 +1177,35 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DCS Client(v2): %s", err)
 	}
 
+	var retryFunc func() (interface{}, bool, error)
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == chargeModePrePaid {
-		err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
-		if err != nil {
-			return diag.Errorf("error unsubscribing DCS redis instance : %s", err)
+		retryFunc = func() (interface{}, bool, error) {
+			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
+			retry, err := handleOperationError(err)
+			return nil, retry, err
 		}
 	} else {
-		err = instances.Delete(client, d.Id())
-		if err != nil {
-			return diag.FromErr(err)
+		retryFunc = func() (interface{}, bool, error) {
+			err = instances.Delete(client, d.Id())
+			retry, err := handleOperationError(err)
+			return nil, retry, err
 		}
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     refreshDcsInstanceState(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		if d.Get("charging_mode").(string) == chargeModePrePaid {
+			return diag.Errorf("error unsubscribing DCS redis instance: %s", err)
+		}
+		return diag.FromErr(err)
 	}
 
 	// Waiting to delete success
