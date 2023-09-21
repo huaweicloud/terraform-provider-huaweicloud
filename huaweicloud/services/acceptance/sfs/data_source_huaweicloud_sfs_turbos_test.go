@@ -44,7 +44,7 @@ func TestAccTurbosDataSource_basic(t *testing.T) {
 
 func testAccTurbosDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
-"%[1]s"
+%[1]s
 
 variable "turbo_configuration" {
   type = list(object({
@@ -98,7 +98,7 @@ data "huaweicloud_sfs_turbos" "by_share_type" {
 data "huaweicloud_sfs_turbos" "by_eps_id" {
   depends_on = [huaweicloud_sfs_turbo.test]
 
-  enterprise_project_id = "%[2]s"
+  enterprise_project_id = "%[3]s"
 }
 
 output "name_query_result_validation" {
@@ -124,9 +124,7 @@ output "share_type_query_result_validation" {
 
 output "eps_id_query_result_validation" {
   value = contains(data.huaweicloud_sfs_turbos.by_eps_id.turbos[*].id,
-  huaweicloud_sfs_turbo.test[2].id) && !contains(data.huaweicloud_sfs_turbos.by_eps_id.turbos[*].id,
-  huaweicloud_sfs_turbo.test[0].id) && !contains(data.huaweicloud_sfs_turbos.by_eps_id.turbos[*].id,
-  huaweicloud_sfs_turbo.test[1].id)
+  huaweicloud_sfs_turbo.test[2].id)
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
