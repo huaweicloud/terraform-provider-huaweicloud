@@ -1025,13 +1025,14 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ram_resource_share": ram.ResourceRAMShare(),
 
-			"huaweicloud_rds_mysql_account":            rds.ResourceMysqlAccount(),
-			"huaweicloud_rds_mysql_database":           rds.ResourceMysqlDatabase(),
-			"huaweicloud_rds_mysql_database_privilege": rds.ResourceMysqlDatabasePrivilege(),
-			"huaweicloud_rds_instance":                 rds.ResourceRdsInstance(),
-			"huaweicloud_rds_parametergroup":           rds.ResourceRdsConfiguration(),
-			"huaweicloud_rds_read_replica_instance":    rds.ResourceRdsReadReplicaInstance(),
-			"huaweicloud_rds_backup":                   rds.ResourceBackup(),
+			"huaweicloud_rds_mysql_account":                rds.ResourceMysqlAccount(),
+			"huaweicloud_rds_mysql_database":               rds.ResourceMysqlDatabase(),
+			"huaweicloud_rds_mysql_database_privilege":     rds.ResourceMysqlDatabasePrivilege(),
+			"huaweicloud_rds_instance":                     rds.ResourceRdsInstance(),
+			"huaweicloud_rds_parametergroup":               rds.ResourceRdsConfiguration(),
+			"huaweicloud_rds_read_replica_instance":        rds.ResourceRdsReadReplicaInstance(),
+			"huaweicloud_rds_backup":                       rds.ResourceBackup(),
+			"huaweicloud_rds_cross_region_backup_strategy": rds.ResourceBackupStrategy(),
 
 			"huaweicloud_rms_policy_assignment":                  rms.ResourcePolicyAssignment(),
 			"huaweicloud_rms_resource_aggregator":                rms.ResourceAggregator(),
