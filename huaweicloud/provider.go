@@ -1033,6 +1033,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_read_replica_instance":        rds.ResourceRdsReadReplicaInstance(),
 			"huaweicloud_rds_backup":                       rds.ResourceBackup(),
 			"huaweicloud_rds_cross_region_backup_strategy": rds.ResourceBackupStrategy(),
+			"huaweicloud_rds_sql_audit":                    rds.ResourceSQLAudit(),
 
 			"huaweicloud_rms_policy_assignment":                  rms.ResourcePolicyAssignment(),
 			"huaweicloud_rms_resource_aggregator":                rms.ResourceAggregator(),
