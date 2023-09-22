@@ -1044,6 +1044,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_resource_aggregation_authorization": rms.ResourceAggregationAuthorization(),
 			"huaweicloud_rms_resource_recorder":                  rms.ResourceRecorder(),
 			"huaweicloud_rms_advanced_query":                     rms.ResourceAdvancedQuery(),
+			"huaweicloud_rms_assignment_package":                 rms.ResourceAssignmentPackage(),
 
 			"huaweicloud_sdrs_drill":              sdrs.ResourceDrill(),
 			"huaweicloud_sdrs_replication_pair":   sdrs.ResourceReplicationPair(),
