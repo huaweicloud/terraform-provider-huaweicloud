@@ -140,6 +140,12 @@ var (
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
+	// The cluster name of the CCE
+	HW_CCE_CLUSTER_NAME = os.Getenv("HW_CCE_CLUSTER_NAME")
+	// The cluster ID of the CCE
+	HW_CCE_CLUSTER_ID_ANOTHER = os.Getenv("HW_CCE_CLUSTER_ID_ANOTHER")
+	// The cluster name of the CCE
+	HW_CCE_CLUSTER_NAME_ANOTHER = os.Getenv("HW_CCE_CLUSTER_NAME_ANOTHER")
 	// The partition az of the CCE
 	HW_CCE_PARTITION_AZ = os.Getenv("HW_CCE_PARTITION_AZ")
 	// The namespace of the workload is located
@@ -821,5 +827,20 @@ func TestAccPreCheckModelArtsHasSubscribeModel(t *testing.T) {
 func TestAccPreCheckEgChannelId(t *testing.T) {
 	if HW_EG_CHANNEL_ID == "" {
 		t.Skip("The sub-resource acceptance test of the EG channel must set 'HW_EG_CHANNEL_ID'")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsAomAccess(t *testing.T) {
+	if HW_CCE_CLUSTER_ID == "" || HW_CCE_CLUSTER_NAME == "" {
+		t.Skip("HW_CCE_CLUSTER_ID and HW_CCE_CLUSTER_NAME must be set for LTS AOM access acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
+	if HW_CCE_CLUSTER_ID_ANOTHER == "" || HW_CCE_CLUSTER_NAME_ANOTHER == "" {
+		t.Skip("HW_CCE_CLUSTER_ID_ANOTHER and HW_CCE_CLUSTER_NAME_ANOTHER must be set for LTS AOM access" +
+			" acceptance tests")
 	}
 }
