@@ -623,7 +623,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	clusterId := d.Id()
-	n, err := clusters.Get(cceClient, d.Id()).Extract()
+	n, err := clusters.Get(cceClient, clusterId).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "CCE cluster")
 	}
