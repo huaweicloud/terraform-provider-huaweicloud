@@ -782,7 +782,7 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 	}
 	clusterid := d.Get("cluster_id").(string)
 	nodeId := d.Id()
-	s, err := nodes.Get(nodeClient, clusterid, d.Id()).Extract()
+	s, err := nodes.Get(nodeClient, clusterid, nodeId).Extract()
 
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CCE Node")
