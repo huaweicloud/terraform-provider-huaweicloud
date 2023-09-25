@@ -171,6 +171,12 @@ func ResourceDesktop() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "0",
+			},
 		},
 	}
 }
@@ -243,18 +249,19 @@ func buildDesktopCreateOpts(d *schema.ResourceData) desktops.CreateOpts {
 				DesktopName: d.Get("name").(string),
 			},
 		},
-		DesktopType:       "DEDICATED",
-		ProductId:         d.Get("flavor_id").(string),
-		RootVolume:        buildDesktopRootVolume(d.Get("root_volume").([]interface{})),
-		AvailabilityZone:  d.Get("availability_zone").(string),
-		ImageType:         d.Get("image_type").(string),
-		ImageId:           d.Get("image_id").(string),
-		VpcId:             d.Get("vpc_id").(string),
-		EmailNotification: utils.Bool(d.Get("email_notification").(bool)),
-		DataVolumes:       buildDesktopDataVolumes(d.Get("data_volume").([]interface{})),
-		Nics:              buildDesktopNics(d.Get("nic").([]interface{})),
-		SecurityGroups:    buildDesktopSecurityGroups(d.Get("security_groups").(*schema.Set)),
-		Tags:              utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		DesktopType:         "DEDICATED",
+		ProductId:           d.Get("flavor_id").(string),
+		RootVolume:          buildDesktopRootVolume(d.Get("root_volume").([]interface{})),
+		AvailabilityZone:    d.Get("availability_zone").(string),
+		ImageType:           d.Get("image_type").(string),
+		ImageId:             d.Get("image_id").(string),
+		VpcId:               d.Get("vpc_id").(string),
+		EmailNotification:   utils.Bool(d.Get("email_notification").(bool)),
+		DataVolumes:         buildDesktopDataVolumes(d.Get("data_volume").([]interface{})),
+		Nics:                buildDesktopNics(d.Get("nic").([]interface{})),
+		SecurityGroups:      buildDesktopSecurityGroups(d.Get("security_groups").(*schema.Set)),
+		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
 	}
 	return result
 }
@@ -403,6 +410,7 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("user_group", resp.UserGroup),
 		d.Set("name", resp.Name),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
+		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 	)
 
 	if imageId, ok := resp.Metadata["metering.image_id"]; ok {

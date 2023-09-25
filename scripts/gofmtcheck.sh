@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Check gofmt
 echo "==> Checking that code complies with gofmt requirements..."
 gofmt_files=$(gofmt -l `find . -name '*.go' | grep -v vendor`)
@@ -9,5 +8,4 @@ if [[ -n "${gofmt_files}" ]]; then
     echo "You can use the command: \`make fmt\` to reformat code."
     exit 1
 fi
-
 exit 0
