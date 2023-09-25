@@ -1,8 +1,9 @@
-package huaweicloud
+package sfs
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +19,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -267,7 +267,8 @@ func validateParameter(d *schema.ResourceData) error {
 
 func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	sfsClient, err := cfg.SfsV1Client(GetRegion(d, cfg))
+	region := cfg.GetRegion(d)
+	sfsClient, err := cfg.SfsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
 	}
@@ -277,7 +278,7 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	createOpts := buildTurboCreateOpts(cfg, d)
-	logp.Printf("[DEBUG] create sfs turbo with option: %+v", createOpts)
+	log.Printf("[DEBUG] create sfs turbo with option: %+v", createOpts)
 	resp, err := shares.Create(sfsClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating SFS Turbo: %s", err)
@@ -289,7 +290,7 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 			return diag.Errorf("unable to find the order ID, this is a COM (Cloud Order Management) error, " +
 				"please contact service for help and check your order status on the console.")
 		}
-		bssClient, err := cfg.BssV2Client(GetRegion(d, cfg))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -327,8 +328,9 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	sfsClient, err := cfg.SfsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
 	}
@@ -344,7 +346,7 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 	d.Set("subnet_id", n.SubnetID)
 	d.Set("security_group_id", n.SecurityGroupID)
 	d.Set("version", n.Version)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("available_capacity", n.AvailCapacity)
 	d.Set("export_location", n.ExportLocation)
@@ -426,7 +428,7 @@ func convertHpcCacheBandwidth(d *schema.ResourceData) (int, error) {
 
 func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := GetRegion(d, cfg)
+	region := cfg.GetRegion(d)
 	sfsClient, err := cfg.SfsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
@@ -483,7 +485,7 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return diag.Errorf("Error updating HuaweiCloud SFS Turbo: %s", err)
+			return diag.Errorf("error updating SFS Turbo: %s", err)
 		}
 	}
 
@@ -530,8 +532,8 @@ func getOldTagKeys(d *schema.ResourceData) []string {
 }
 
 func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SFS v1 client: %s", err)
 	}
@@ -539,7 +541,7 @@ func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta in
 	resourceId := d.Id()
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == "prePaid" {
-		err := common.UnsubscribePrePaidResource(d, config, []string{resourceId})
+		err := common.UnsubscribePrePaidResource(d, cfg, []string{resourceId})
 		if err != nil {
 			return diag.Errorf("error unsubscribing SFS Turbo: %s", err)
 		}
@@ -571,7 +573,7 @@ func waitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) r
 		r, err := shares.Get(sfsClient, shareId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted shared File %s", shareId)
+				log.Printf("[INFO] Successfully deleted shared File %s", shareId)
 				return r, "deleted", nil
 			}
 			return r, "error", err
@@ -586,7 +588,7 @@ func waitForSFSTurboSubStatus(sfsClient *golangsdk.ServiceClient, shareId string
 		r, err := shares.Get(sfsClient, shareId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[INFO] Successfully deleted shared File %s", shareId)
+				log.Printf("[INFO] Successfully deleted shared File %s", shareId)
 				return r, "deleted", nil
 			}
 			return r, "error", err

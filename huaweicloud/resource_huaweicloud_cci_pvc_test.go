@@ -254,28 +254,67 @@ resource "huaweicloud_cci_pvc" "test" {
 
 func testAccCCIPersistentVolumeClaims_nfs(rName, volumeType string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
+resource "huaweicloud_sfs_file_system" "sfs_1" {
+  share_proto  = "NFS"
+  size         = 10
+  name         = "%[1]s"
+  description  = "sfs_c2c_test-file"
+  access_to    = huaweicloud_vpc.test.id
+  access_type  = "cert"
+  access_level = "rw"
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  enterprise_project_id = "%[2]s"
+}
 
 resource "huaweicloud_cci_pvc" "test" {
-  name              = "%s"
-  namespace         = "%s"
-  volume_type       = "%s"
+  name              = "%[1]s"
+  namespace         = "%[3]s"
+  volume_type       = "%[4]s"
   volume_id         = huaweicloud_sfs_file_system.sfs_1.id
   device_mount_path = huaweicloud_sfs_file_system.sfs_1.export_location
 }
-`, testAccSFSFileSystemV2_epsId(rName), rName, HW_CCI_NAMESPACE, volumeType)
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST, HW_CCI_NAMESPACE, volumeType)
 }
 
 func testAccCCIPersistentVolumeClaims_efs(rName, volumeType, suffix string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+}
+
+resource "huaweicloud_sfs_turbo" "test" {
+  name              = "%[1]s"
+  size              = 500
+  share_proto       = "NFS"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
 
 resource "huaweicloud_cci_pvc" "test" {
-  name              = "%s"
-  namespace         = "%s"
-  volume_type       = "%s"
-  volume_id         = huaweicloud_sfs_turbo.sfs-turbo1.id
-  device_mount_path = huaweicloud_sfs_turbo.sfs-turbo1.export_location
+  name              = "%[1]s"
+  namespace         = "%[2]s"
+  volume_type       = "%[3]s"
+  volume_id         = huaweicloud_sfs_turbo.test.id
+  device_mount_path = huaweicloud_sfs_turbo.test.export_location
 }
-`, testAccSFSTurbo_basic(suffix), rName, HW_CCI_NAMESPACE, volumeType)
+`, rName, HW_CCI_NAMESPACE, volumeType)
 }

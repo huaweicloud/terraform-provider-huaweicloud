@@ -1,26 +1,30 @@
-package huaweicloud
+package sfs
 
 import (
+	"context"
+	"log"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceSFSAccessRuleV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSFSAccessRuleV2Create,
-		Read:   resourceSFSAccessRuleV2Read,
-		Delete: resourceSFSAccessRuleV2Delete,
+		CreateContext: resourceSFSAccessRuleV2Create,
+		ReadContext:   resourceSFSAccessRuleV2Read,
+		DeleteContext: resourceSFSAccessRuleV2Delete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceSFSAccessRuleV2Import,
+			StateContext: resourceSFSAccessRuleV2Import,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -65,11 +69,11 @@ func ResourceSFSAccessRuleV2() *schema.Resource {
 	}
 }
 
-func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSAccessRuleV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
+		return diag.Errorf("error creating SFS Client: %s", err)
 	}
 
 	shareID := d.Get("sfs_id").(string)
@@ -79,10 +83,10 @@ func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) err
 		AccessTo:    d.Get("access_to").(string),
 	}
 
-	logp.Printf("[DEBUG] Applied access rule to share file %s, opts: %#v", shareID, grantAccessOpts)
+	log.Printf("[DEBUG] Applied access rule to share file %s, opts: %#v", shareID, grantAccessOpts)
 	grant, err := shares.GrantAccess(sfsClient, shareID, grantAccessOpts).ExtractAccess()
 	if err != nil {
-		return fmtp.Errorf("Error creating access rule to share file: %s", err)
+		return diag.Errorf("error creating access rule to share file: %s", err)
 	}
 
 	d.SetId(grant.ID)
@@ -97,23 +101,23 @@ func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) err
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SFS access rule: %s", err)
+		return diag.Errorf("error creating SFS access rule: %s", err)
 	}
 
-	return resourceSFSAccessRuleV2Read(d, meta)
+	return resourceSFSAccessRuleV2Read(ctx, d, meta)
 }
 
-func resourceSFSAccessRuleV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSAccessRuleV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
+		return diag.Errorf("error creating SFS Client: %s", err)
 	}
 
 	shareID := d.Get("sfs_id").(string)
 	rules, err := shares.ListAccessRights(sfsClient, shareID).ExtractAccessRights()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving HuaweiCloud Shares rules: %s", err)
+		return diag.Errorf("error retrieving SFS access rules: %s", err)
 	}
 
 	for _, rule := range rules {
@@ -127,23 +131,23 @@ func resourceSFSAccessRuleV2Read(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// the access rule was not found
-	logp.Printf("[WARN] access rule (%s) of share file %s was not exist!", d.Id(), shareID)
+	log.Printf("[WARN] access rule (%s) of share file %s was not exist!", d.Id(), shareID)
 	d.SetId("")
 	return nil
 }
 
-func resourceSFSAccessRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
+func resourceSFSAccessRuleV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
+		return diag.Errorf("error creating SFS Client: %s", err)
 	}
 
 	shareID := d.Get("sfs_id").(string)
 	deleteAccessOpts := shares.DeleteAccessOpts{AccessID: d.Id()}
 	deny := shares.DeleteAccess(sfsClient, shareID, deleteAccessOpts)
 	if deny.Err != nil {
-		return CheckDeleted(d, deny.Err, "Error deleting access rule")
+		return common.CheckDeletedDiag(d, deny.Err, "Error deleting access rule")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -157,7 +161,7 @@ func resourceSFSAccessRuleV2Delete(d *schema.ResourceData, meta interface{}) err
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud SFS access rule: %s", err)
+		return diag.Errorf("error deleting SFS access rule: %s", err)
 	}
 
 	d.SetId("")
@@ -168,24 +172,24 @@ func waitForSFSAccessStatus(sfsClient *golangsdk.ServiceClient, shareID, ruleID 
 	return func() (interface{}, string, error) {
 		rules, err := shares.ListAccessRights(sfsClient, shareID).ExtractAccessRights()
 		if err != nil {
-			logp.Printf("[WARN] list access rules error")
+			log.Printf("[WARN] list access rules error")
 			return nil, "error", err
 		}
 
 		for _, rule := range rules {
 			if rule.ID == ruleID {
-				logp.Printf("[DEBUG] find access rule %s, state: %s", ruleID, rule.State)
+				log.Printf("[DEBUG] find access rule %s, state: %s", ruleID, rule.State)
 				return rule, rule.State, nil
 			}
 		}
 
 		// the rule was not found, seem as deleted
-		logp.Printf("[DEBUG] could not find the access rule %s", ruleID)
+		log.Printf("[DEBUG] could not find the access rule %s", ruleID)
 		return shares.AccessRight{}, "deleted", nil
 	}
 }
 
-func resourceSFSAccessRuleV2Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSFSAccessRuleV2Import(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	arr := strings.Split(d.Id(), "/")
 	shareID := arr[0]
 	ruleID := arr[1]
