@@ -29,7 +29,6 @@ func TestAccUser_basic(t *testing.T) {
 		rName        = acceptance.RandomAccResourceNameWithDash()
 		currentTime  = time.Now().Format("2006-01-02T15:04:05Z")
 	)
-
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&user,
@@ -72,6 +71,41 @@ func TestAccUser_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccUser_account_expires_empty(t *testing.T) {
+	var (
+		user         users.UserDetail
+		resourceName = "huaweicloud_workspace_user.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+	)
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&user,
+		getUserFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccUser_account_expires_empty(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "email", "basic@example.com"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by acc test"),
+					resource.TestCheckResourceAttrSet(resourceName, "account_expires"),
+					resource.TestCheckResourceAttr(resourceName, "password_never_expires", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enable_change_password", "true"),
+					resource.TestCheckResourceAttr(resourceName, "next_login_change_password", "true"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+				),
 			},
 		},
 	})
@@ -126,6 +160,23 @@ resource "huaweicloud_workspace_user" "test" {
   enable_change_password     = false
   next_login_change_password = false
   disabled                   = true
+}
+`, testAccUser_base(rName), rName)
+}
+
+func testAccUser_account_expires_empty(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_user" "test" {
+  depends_on = [huaweicloud_workspace_service.test]
+
+  name        = "%[2]s"
+  email       = "basic@example.com"
+  description = "Created by acc test"
+
+  password_never_expires = false
+  disabled               = false
 }
 `, testAccUser_base(rName), rName)
 }

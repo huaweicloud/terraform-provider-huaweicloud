@@ -57,6 +57,7 @@ func ResourceUser() *schema.Resource {
 			"account_expires": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "0",
 			},
 			"password_never_expires": {
 				Type:     schema.TypeBool,
@@ -89,7 +90,7 @@ func ResourceUser() *schema.Resource {
 }
 
 func calculateExpireTime(timeStr string) (string, error) {
-	if timeStr == "0" {
+	if timeStr == "0" || timeStr == "" {
 		return "0", nil
 	}
 	return translateUTC0Time(timeStr)
@@ -148,7 +149,6 @@ func parseUserAccountExpires(expires int) string {
 	if expires == 0 {
 		return strconv.Itoa(expires)
 	}
-
 	return utils.FormatTimeStampRFC3339(int64(expires/1000), false, RFC3339NoT)
 }
 

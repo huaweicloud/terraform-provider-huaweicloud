@@ -45,6 +45,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of user. The maximum length is `255` characters.
 
 * `account_expires` - (Optional, String) Specifies the user's valid period configuration.
+  Defaults to "0".
   + Never expires: **0**.
   + Expires at a certain time: account expires must in RFC3339 format like `yyyy-MM-ddTHH:mm:ssZ`.
     The times is in local time, depending on the timezone.
