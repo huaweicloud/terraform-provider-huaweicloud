@@ -101,7 +101,6 @@ func translateUTC0Time(timeStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return utils.FormatTimeStampRFC3339(timestamp.Unix()-int64(utils.GetTimezoneCode()*3600), true, MilliRFC3339NoT), nil
 }
 
@@ -130,7 +129,6 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
 	}
-
 	opts, err := buildUserCreateOpts(d)
 	if err != nil {
 		return diag.FromErr(err)

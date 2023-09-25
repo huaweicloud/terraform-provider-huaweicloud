@@ -57,6 +57,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.size", "70"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
@@ -119,8 +120,8 @@ locals {
 
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large2"
-  image_type        = "market"
-  image_id          = "63aa8670-27ad-4747-8c44-6d8919e785a7"
+  image_type        = "gold"
+  image_id          = "d928f85c-06fe-4682-abec-6a288c78fa8d"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [
@@ -131,7 +132,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   nic {
     network_id = huaweicloud_vpc_subnet.test.id
   }
-
+  enterprise_project_id = "0"
   name       = "%[2]s"
   user_name  = "user-%[2]s"
   user_email = "terraform@example.com"
@@ -170,8 +171,8 @@ locals {
 
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large4"
-  image_type        = "market"
-  image_id          = "63aa8670-27ad-4747-8c44-6d8919e785a7"
+  image_type        = "gold"
+  image_id          = "d928f85c-06fe-4682-abec-6a288c78fa8d"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [
@@ -182,7 +183,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   nic {
     network_id = huaweicloud_vpc_subnet.test.id
   }
-
+  enterprise_project_id = "0"
   name       = "%[2]s"
   user_name  = "user-%[2]s"
   user_email = "terraform@example.com"
