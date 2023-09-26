@@ -271,6 +271,18 @@ func kafkaSchemaResource() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"user_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"password": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ForceNew:     true,
+				RequiredWith: []string{"kafka.0.user_name"},
+			},
 			"batch_size": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -425,9 +437,11 @@ func buildDisEventData(d *schema.ResourceData) map[string]interface{} {
 
 func buildKafkaEventData(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
-		"instance_id": d.Get("kafka.0.instance_id").(string),
-		"batch_size":  d.Get("kafka.0.batch_size").(int),
-		"topic_ids":   utils.ExpandToStringListBySet(d.Get("kafka.0.topic_ids").(*schema.Set)),
+		"instance_id":    d.Get("kafka.0.instance_id").(string),
+		"kafka_user":     d.Get("kafka.0.user_name").(string),
+		"kafka_password": d.Get("kafka.0.password").(string),
+		"batch_size":     d.Get("kafka.0.batch_size").(int),
+		"topic_ids":      utils.ExpandToStringListBySet(d.Get("kafka.0.topic_ids").(*schema.Set)),
 	}
 }
 
@@ -704,6 +718,8 @@ func setKafkaEventData(d *schema.ResourceData, eventData map[string]interface{})
 	result := []map[string]interface{}{
 		{
 			"instance_id": eventData["instance_id"],
+			"user_name":   eventData["kafka_user"],
+			"password":    eventData["kafka_password"],
 			"topic_ids":   eventData["topic_ids"],
 			"batch_size":  eventData["batch_size"],
 		},

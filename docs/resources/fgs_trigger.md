@@ -117,6 +117,8 @@ resource "huaweicloud_fgs_trigger" "test" {
 
   kafka {
     instance_id = var.kafka_instance_id
+    user_name   = "user"
+    password    = "passWord@123"     
     batch_size  = 100
 
     topic_ids = [
@@ -320,6 +322,12 @@ The `dis` block supports:
 The `kafka` block supports:
 
 * `instance_id` - (Required, String, ForceNew) Specifies the DMS instance ID for kafka.
+  Changing this will create a new trigger resource.
+
+* `user_name` - (Optional, String, ForceNew) Specifies the username for logging in to the Kafka Manager.
+  Changing this will create a new trigger resource.
+
+* `password` - (Optional, String, ForceNew) Specifies the password for logging in to the Kafka Manager.
   Changing this will create a new trigger resource.
 
 * `topic_ids` - (Required, List, ForceNew) Specifies one or more topic IDs of DMS kafka instance.
