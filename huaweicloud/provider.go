@@ -837,6 +837,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_eg_custom_event_source": eg.ResourceCustomEventSource(),
 			"huaweicloud_eg_endpoint":            eg.ResourceEndpoint(),
+			"huaweicloud_eg_connection":          eg.ResourceConnection(),
 
 			"huaweicloud_elb_certificate":     elb.ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":        elb.ResourceL7PolicyV3(),
