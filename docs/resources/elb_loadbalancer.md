@@ -196,6 +196,9 @@ The following arguments are supported:
 * `min_l7_flavor_id` - (Optional, String) Specifies the ID of the minimum Layer-7 flavor for elastic scaling.
   This parameter cannot be left blank if there are HTTP or HTTPS listeners.
 
+* `force_delete` - (Optional, Bool) Specifies whether to forcibly delete the LoadBalancer, remove the LoadBalancer,
+  listeners, unbind associated pools. Defaults to **false**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -224,17 +227,17 @@ $ terraform import huaweicloud_elb_loadbalancer.loadbalancer_1 5c20fdad-7288-11e
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `ipv6_bandwidth_id`, `iptype`,
-`bandwidth_charge_mode`, `sharetype`,  `bandwidth_size` and `bandwidth_id`.
+`bandwidth_charge_mode`, `sharetype`,  `bandwidth_size`, `bandwidth_id` and `force_delete`.
 It is generally recommended running `terraform plan` after importing a loadbalancer.
 You can then decide if changes should be applied to the loadbalancer, or the resource
 definition should be updated to align with the loadbalancer. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_elb_loadbalancer" "loadbalancer_1" {
     ...
   lifecycle {
     ignore_changes = [
-      ipv6_bandwidth_id, iptype, bandwidth_charge_mode, sharetype, bandwidth_size, bandwidth_id,
+      ipv6_bandwidth_id, iptype, bandwidth_charge_mode, sharetype, bandwidth_size, bandwidth_id, force_delete,
     ]
   }
 }

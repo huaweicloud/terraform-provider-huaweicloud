@@ -194,6 +194,11 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Optional: true,
 			},
 
+			"force_delete": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"tags": common.TagsSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
@@ -661,8 +666,14 @@ func resourceLoadBalancerV3Delete(ctx context.Context, d *schema.ResourceData, m
 			return diag.Errorf("error unsubscribing ELB LoadBalancer : %s", err)
 		}
 	} else {
-		if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-			return diag.Errorf("error deleting ELB LoadBalancer: %s", err)
+		if d.Get("force_delete").(bool) {
+			if err = loadbalancers.ForceDelete(elbClient, d.Id()).ExtractErr(); err != nil {
+				return diag.Errorf("error deleting ELB LoadBalancer: %s", err)
+			}
+		} else {
+			if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
+				return diag.Errorf("error deleting ELB LoadBalancer: %s", err)
+			}
 		}
 	}
 

@@ -185,6 +185,11 @@ func ResourceListenerV3() *schema.Resource {
 				Optional: true,
 			},
 
+			"force_delete": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"tags": common.TagsSchema(),
 		},
 	}
@@ -521,8 +526,14 @@ func resourceListenerV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Deleting listener %s", d.Id())
-	if err = listeners.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting listener %s: %s", d.Id(), err)
+	if d.Get("force_delete").(bool) {
+		if err = listeners.ForceDelete(elbClient, d.Id()).ExtractErr(); err != nil {
+			return diag.Errorf("error deleting listener %s: %s", d.Id(), err)
+		}
+	} else {
+		if err = listeners.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
+			return diag.Errorf("error deleting listener %s: %s", d.Id(), err)
+		}
 	}
 
 	// Wait for LoadBalancer to become active again before continuing

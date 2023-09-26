@@ -109,6 +109,9 @@ The following arguments are supported:
 * `protection_reason` - (Optional, String) The reason for update protection. Only valid when `protection_status` is
   **consoleProtection**.
 
+* `force_delete` - (Optional, Bool) Specifies whether to forcibly delete the listener, remove the listener, l7 policies,
+  unbind associated pools. Defaults to **false**.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the listener.
 
 ## Attribute Reference
@@ -131,4 +134,20 @@ ELB listener can be imported using the listener ID, e.g.
 
 ```
 $ terraform import huaweicloud_elb_listener.listener_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `force_delete`. It is generally recommended
+running `terraform plan` after importing a listener. You can then decide if changes should be applied to the listener,
+or the resource definition should be updated to align with the listener. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_elb_listener" "listener_1" {
+    ...
+  lifecycle {
+    ignore_changes = [
+      force_delete,
+    ]
+  }
+}
 ```
