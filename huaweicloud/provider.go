@@ -454,7 +454,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zones":      dns.DataSourceZones(),
 			"huaweicloud_dns_recordsets": dns.DataSourceRecordsets(),
 
-			"huaweicloud_eg_custom_event_sources": eg.DataSourceCustomEventSources(),
+			"huaweicloud_eg_custom_event_channels": eg.DataSourceCustomEventChannels(),
+			"huaweicloud_eg_custom_event_sources":  eg.DataSourceCustomEventSources(),
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
@@ -836,9 +837,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_snapshot_policy":    dws.ResourceDwsSnapshotPolicy(),
 			"huaweicloud_dws_ext_data_source":    dws.ResourceDwsExtDataSource(),
 
-			"huaweicloud_eg_custom_event_source": eg.ResourceCustomEventSource(),
-			"huaweicloud_eg_endpoint":            eg.ResourceEndpoint(),
-			"huaweicloud_eg_connection":          eg.ResourceConnection(),
+			"huaweicloud_eg_connection":           eg.ResourceConnection(),
+			"huaweicloud_eg_custom_event_channel": eg.ResourceCustomEventChannel(),
+			"huaweicloud_eg_custom_event_source":  eg.ResourceCustomEventSource(),
+			"huaweicloud_eg_endpoint":             eg.ResourceEndpoint(),
 
 			"huaweicloud_elb_certificate":     elb.ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":        elb.ResourceL7PolicyV3(),
