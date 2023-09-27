@@ -6,9 +6,9 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: RMS
+  - name: Config
 paths:
   /v1/resource-manager/policy-definitions:
     get:
-      tag: RMS
+      tag: Config
       operationId: ListDefinitions

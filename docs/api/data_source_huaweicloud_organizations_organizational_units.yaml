@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_organizations_organizational_units
+    description: Use this data source to get the list of child organizational units under the specified parent OU.
+host: myhuaweicloud.com
+tags:
+    - name: Organizations
+servers:
+    - url: https://organizations.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/organizations/organizational-units:
+        GET:
+            tag: Organizations
+            operationId: ListOrganizationalUnits
+            x-ref-api: GET /v1/organizations/organizational-units

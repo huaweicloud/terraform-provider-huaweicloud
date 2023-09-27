@@ -20,7 +20,7 @@ paths:
     put:
       tag: SMN
       operationId: UpdatePolicies
-  /v2/{project_id}/notifications/topics/{id}/attributes?name=+policyName:
+  /v2/{project_id}/notifications/topics/{id}/attributes:
     get:
       tag: SMN
       operationId: GetPolicies

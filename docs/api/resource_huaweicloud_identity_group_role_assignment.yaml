@@ -1,32 +1,54 @@
 info:
-  version: 
+  version: v1.xx.y
   title: resource_huaweicloud_identity_group_role_assignment
-  description: 
+  description:
 schemes:
   - https
 host: huaweicloud.com
 tags:
   - name: IAM
 paths:
-  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{userID}/roles/{roleID}:
+  /v3/domains/{domainID}/groups/{groupID}/roles/{roleID}:
     delete:
       tag: IAM
-      operationId: UserGroupPermissionsDelete
+      operationId: RemoveDomainPermissionFromGroup
     put:
       tag: IAM
-      operationId: UserGroupPermissionsCreate
-  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{userID}/roles:
+      operationId: AssociateGroupWithDomainPermission
+  /v3/domains/{domainID}/groups/{groupID}/roles:
     get:
       tag: IAM
-      operationId: UserGroupPermissionsGet
-  /v3/{targetType}/{targetID}/{actorType}/{actorID}/roles/{roleID}:
+      operationId: ListDomainPermissionsForGroup
+  /v3/projects/{projectID}/groups/{groupID}/roles/{roleID}:
     delete:
       tag: IAM
-      operationId: Unassign
+      operationId: RemoveProjectPermissionFromGroup
     put:
       tag: IAM
-      operationId: Assign
-  /v3/{targetType}/{targetID}/{actorType}/{actorID}/roles:
+      operationId: AssociateGroupWithProjectPermission
+  /v3/projects/{projectID}/groups/{groupID}/roles:
     get:
       tag: IAM
-      operationId: ListAssignments
+      operationId: ListProjectPermissionsForGroup
+  /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/{roleID}/inherited_to_projects:
+    delete:
+      tag: IAM
+      operationId: DeleteDomainGroupInheritedRole
+    put:
+      tag: IAM
+      operationId: UpdateDomainGroupInheritRole
+  /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/inherited_to_projects:
+    get:
+      tag: IAM
+      operationId: ListAllProjectPermissionsForGroup
+  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles/{roleID}:
+    delete:
+      tag: IAM
+      operationId: RevokeRoleFromGroupOnEnterpriseProject
+    put:
+      tag: IAM
+      operationId: AssociateRoleToGroupOnEnterpriseProject
+  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles:
+    get:
+      tag: IAM
+      operationId: ListRolesForGroupOnEnterpriseProject

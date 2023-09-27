@@ -6,27 +6,27 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: RMS
+  - name: Config
 paths:
   /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/disable:
     post:
-      tag: RMS
+      tag: Config
       operationId: Disable
   /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/enable:
     post:
-      tag: RMS
+      tag: Config
       operationId: Enable
   /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}:
     delete:
-      tag: RMS
+      tag: Config
       operationId: Delete
     get:
-      tag: RMS
+      tag: Config
       operationId: Get
     put:
-      tag: RMS
+      tag: Config
       operationId: Update
   /v1/resource-manager/domains/{domainId}/policy-assignments:
     put:
-      tag: RMS
+      tag: Config
       operationId: Create

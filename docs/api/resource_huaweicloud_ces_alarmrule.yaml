@@ -35,11 +35,10 @@ paths:
     put:
       tag: CES
       operationId: Update
-  /v2/{project_id}/alarms?alarm_id= + id:
+  /v2/{project_id}/alarms:
     get:
       tag: CES
       operationId: Get
-  /v2/{project_id}/alarms:
     post:
       tag: CES
       operationId: Create

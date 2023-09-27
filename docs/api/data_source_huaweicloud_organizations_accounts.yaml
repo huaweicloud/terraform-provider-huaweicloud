@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_organizations_accounts
+    description: Use this data source to get the list of accounts in an organization.
+host: myhuaweicloud.com
+tags:
+    - name: Organizations
+servers:
+    - url: https://organizations.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/organizations/accounts:
+        GET:
+            tag: Organizations
+            operationId: ListAccounts
+            x-ref-api: GET /v1/organizations/accounts

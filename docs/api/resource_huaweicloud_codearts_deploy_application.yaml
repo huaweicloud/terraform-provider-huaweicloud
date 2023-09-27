@@ -1,0 +1,24 @@
+info:
+    title: resource_huaweicloud_codearts_deploy_application
+    description: Manages a CodeArts deploy application resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: CodeArts
+servers:
+    - url: https://codearts-deploy.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/applications:
+        POST:
+            tag: codearts
+            operationId: CreateDeployApplication
+            x-ref-api: POST /v1/applications
+    /v1/applications/{app_id}:
+        DELETE:
+            tag: codearts
+            operationId: DeleteDeployApplication
+            x-ref-api: DELETE /v1/applications/{app_id}
+    /v1/applications/{app_id}/info:
+        GET:
+            tag: codearts
+            operationId: GetDeployApplication
+            x-ref-api: GET /v1/applications/{app_id}/info

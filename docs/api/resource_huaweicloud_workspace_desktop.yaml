@@ -19,6 +19,10 @@ paths:
     get:
       tag: Workspace
       operationId: Get
+  /v2/{project_id}/desktops/{id}/tags/action:
+    POST:
+      tag: Workspace
+      operationId: batchUpdate
   /v2/{project_id}/desktops:
     post:
       tag: Workspace

@@ -32,6 +32,14 @@ paths:
     get:
       tag: ECS
       operationId: Get
+  /v1/{project_id}/cloudservers/{serverID}/metadata/{key}:
+    delete:
+      tag: ECS
+      operationId: DeleteMetadatItem
+  /v1/{project_id}/cloudservers/{serverID}/metadata:
+    post:
+      tag: ECS
+      operationId: UpdateMetadata
   /v1.1/{project_id}/cloudservers/{serverID}/resize:
     post:
       tag: ECS
@@ -66,27 +74,6 @@ paths:
     post:
       tag: ECS
       operationId: RemoveServer
-  /v2.1/{project_id}/servers/{id}/metadata:
-    post:
-      tag: ECS
-      operationId: UpdateMetadata
-  /v1/{project_id}/servers/{id}:
-    delete:
-      tag: ECS
-      operationId: Delete
-    get:
-      tag: ECS
-      operationId: Get
-    get:
-      tag: ECS
-      operationId: Get
-    put:
-      tag: ECS
-      operationId: Update
-  /v1.1/{project_id}/servers:
-    post:
-      tag: ECS
-      operationId: Create
   /v1/{project_id}/security-groups:
     get:
       tag: VPC

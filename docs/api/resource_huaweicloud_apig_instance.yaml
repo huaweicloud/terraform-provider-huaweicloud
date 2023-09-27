@@ -35,6 +35,14 @@ paths:
     put:
       tag: APIG
       operationId: Update
+  /v2/{project_id}/apigw/instances/{instanceId}/instance-tags/action:
+    post:
+      tag: APIG
+      operationId: UpdateTags
+  /v2/{project_id}/apigw/instances/{instanceId}/instance-tags:
+    get:
+      tag: APIG
+      operationId: GetTags
   /v2/{project_id}/apigw/instances:
     post:
       tag: APIG

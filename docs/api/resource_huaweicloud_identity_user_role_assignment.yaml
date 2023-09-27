@@ -9,6 +9,9 @@ tags:
   - name: IAM
 paths:
   /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles/{roleID}:
+    delete:
+      tag: IAM
+      operationId: UserPermissionsDelete
     put:
       tag: IAM
       operationId: UserPermissionsCreate

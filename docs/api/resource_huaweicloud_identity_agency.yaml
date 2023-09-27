@@ -1,7 +1,7 @@
 info:
-  version: 
+  version: v1.xx.y
   title: resource_huaweicloud_identity_agency
-  description: 
+  description:
 schemes:
   - https
 host: huaweicloud.com

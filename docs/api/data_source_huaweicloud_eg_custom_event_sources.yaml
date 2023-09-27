@@ -1,14 +1,14 @@
 info:
   version: 
-  title: data_source_huaweicloud_waf_policies
+  title: data_source_huaweicloud_eg_custom_event_sources
   description: 
 schemes:
   - https
 host: huaweicloud.com
 tags:
-  - name: WAF
+  - name: EG
 paths:
-  /v1/{project_id}/waf/policy:
+  /v1/{project_id}/sources:
     get:
-      tag: WAF
+      tag: EG
       operationId: List

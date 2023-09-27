@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_modelarts_resource_pool
+    description: 'Manages a ModelArts dedicated resource pool resource within HuaweiCloud.  '
+host: myhuaweicloud.com
+tags:
+    - name: ModelArts
+servers:
+    - url: https://modelarts.myhuaweicloud.com
+paths:
+    /v2/{project_id}/pools:
+        POST:
+            tag: ModelArts
+            operationId: CreateResourcePool
+            x-ref-api: POST /v2/{project_id}/pools
+    /v2/{project_id}/pools/{id}:
+        DELETE:
+            tag: ModelArts
+            operationId: DeleteResourcePool
+            x-ref-api: DELETE /v2/{project_id}/pools/{id}
+        GET:
+            tag: ModelArts
+            operationId: CreateResourcePoolWaiting
+            x-ref-api: GET /v2/{project_id}/pools/{id}
+        PATCH:
+            tag: ModelArts
+            operationId: UpdateResourcePool
+            x-ref-api: PATCH /v2/{project_id}/pools/{id}

@@ -19,3 +19,7 @@ paths:
     get:
       tag: IAM
       operationId: ListInGroup
+  /v3/groups/{groupID}:
+    get:
+      tag: IAM
+      operationId: Get
