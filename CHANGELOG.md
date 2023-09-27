@@ -1,5 +1,54 @@
 # CHANGELOG
 
+## 1.56.0 (September 28, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_codearts_deploy_host` [GH-3368]
+  + `huaweicloud_codearts_deploy_application` [GH-3420]
+  + `huaweicloud_modelarts_network` [GH-3374]
+  + `huaweicloud_modelarts_resource_pool` [GH-3395]
+  + `huaweicloud_rds_cross_region_backup_strategy` [GH-3417]
+  + `huaweicloud_rds_sql_audit` [GH-3419]
+  + `huaweicloud_rms_advanced_query` [GH-3430]
+  + `huaweicloud_rms_assignment_package` [GH-3446]
+
+  + `huaweicloud_eg_endpoint` [GH-3404]
+  + `huaweicloud_eg_connection` [GH-3433]
+  + `huaweicloud_eg_custom_event_source` [GH-3411]
+  + `huaweicloud_eg_custom_event_channel` [GH-3435]
+  + `huaweicloud_eg_event_subscription` [GH-3460]`
+
+  + `huaweicloud_lts_aom_access` [GH-3436]
+  + `huaweicloud_lts_notification_template` [GH-3437]
+  + `huaweicloud_lts_host_access` [GH-3443]
+  + `huaweicloud_lts_search_criteria` [GH-3447]
+  + `huaweicloud_lts_sql_alarm_rule` [GH-3448]
+  + `huaweicloud_lts_keywords_alarm_rule` [GH-3454]
+  + `huaweicloud_lts_structuring_configuration` [GH-3455]
+
+* **New Data Source:**
+  + `huaweicloud_organizations_accounts` [GH-3409]
+  + `huaweicloud_organizations_organizational_units` [GH-3409]
+  + `huaweicloud_cdm_clusters` [GH-3418]
+  + `huaweicloud_eg_custom_event_sources` [GH-3421]
+  + `huaweicloud_eg_custom_event_channels` [GH-3435]
+  + `huaweicloud_rms_assignment_package_templates` [GH-3441]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_apig_api: Add `passthrough`, `enumeration` and `retry_count` parameters [GH-3369]
+* resource/huaweicloud_apig_instance: Add tags support [GH-3394]
+* resource/huaweicloud_cbr_vault: Support updating `consistent_level` param [GH-3413]
+* resource/huaweicloud_compute_instance: Add `metadata` param [GH-3414]
+* resource/huaweicloud_workspace_desktop: Add tags support [GH-3416]
+* resource/huaweicloud_fgs_trigger: Support Kafka user_ame and password [GH-3434]
+* resource/huaweicloud_fgs_function: Add log config support[GH-3458]
+
+BUG FIXES:
+
+* resource/huaweicloud_identity_group_membership: Add checkDeleted in read function [GH-3387]
+* resource/huaweicloud_cci_namespace: Add checkDeleted in read function [GH-3424]
+
 ## 1.55.0 (August 31, 2023)
 
 * **New Resurce:**
