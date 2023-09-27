@@ -4,7 +4,7 @@ subcategory: "Log Tank Service (LTS)"
 
 # huaweicloud_lts_notification_template
 
-Manages a LTS notification template resource within HuaweiCloud.  
+Manages an LTS notification template resource within HuaweiCloud.  
 
 ## Example Usage
 
