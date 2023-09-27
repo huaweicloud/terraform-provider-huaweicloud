@@ -93,6 +93,9 @@ var (
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 
+	HW_LTS_STRUCT_CONFIG_TEMPLATE_ID   = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID")
+	HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME")
+
 	HW_CHAIR_EMAIL              = os.Getenv("HW_CHAIR_EMAIL")
 	HW_GUEST_EMAIL              = os.Getenv("HW_GUEST_EMAIL")
 	HW_MEETING_ACCOUNT_NAME     = os.Getenv("HW_MEETING_ACCOUNT_NAME")
@@ -851,5 +854,13 @@ func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
 func TestAccPrecheckKooGallery(t *testing.T) {
 	if HW_KOOGALLERY_ASSET == "" {
 		t.Skip("Skip the KooGallery acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
+	if HW_LTS_STRUCT_CONFIG_TEMPLATE_ID == "" || HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME == "" {
+		t.Skip("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID and HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME must be" +
+			" set for LTS struct config custom acceptance tests")
 	}
 }
