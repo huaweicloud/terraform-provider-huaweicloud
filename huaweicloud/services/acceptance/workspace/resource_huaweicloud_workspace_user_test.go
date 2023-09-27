@@ -29,7 +29,6 @@ func TestAccUser_basic(t *testing.T) {
 		rName        = acceptance.RandomAccResourceNameWithDash()
 		currentTime  = time.Now().Format("2006-01-02T15:04:05Z")
 	)
-
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&user,
@@ -42,13 +41,13 @@ func TestAccUser_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccUser_basic(rName, currentTime),
+				Config: testAccUser_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "email", "basic@example.com"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by acc test"),
-					resource.TestCheckResourceAttrSet(resourceName, "account_expires"),
+					resource.TestCheckResourceAttr(resourceName, "account_expires", "0"),
 					resource.TestCheckResourceAttr(resourceName, "password_never_expires", "false"),
 					resource.TestCheckResourceAttr(resourceName, "enable_change_password", "true"),
 					resource.TestCheckResourceAttr(resourceName, "next_login_change_password", "true"),
@@ -56,7 +55,7 @@ func TestAccUser_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccUser_update(rName),
+				Config: testAccUser_update(rName, currentTime),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "email", "update@example.com"),
@@ -93,7 +92,7 @@ resource "huaweicloud_workspace_service" "test" {
 `, common.TestBaseNetwork(rName))
 }
 
-func testAccUser_basic(rName, currentTime string) string {
+func testAccUser_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -104,14 +103,13 @@ resource "huaweicloud_workspace_user" "test" {
   email       = "basic@example.com"
   description = "Created by acc test"
 
-  account_expires        = timeadd("%[3]s", "1h")
   password_never_expires = false
   disabled               = false
 }
-`, testAccUser_base(rName), rName, currentTime)
+`, testAccUser_base(rName), rName)
 }
 
-func testAccUser_update(rName string) string {
+func testAccUser_update(rName, currentTime string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -121,11 +119,11 @@ resource "huaweicloud_workspace_user" "test" {
   name  = "%[2]s"
   email = "update@example.com"
 
-  account_expires            = "0"
+  account_expires            = timeadd("%[3]s", "1h")
   password_never_expires     = true
   enable_change_password     = false
   next_login_change_password = false
   disabled                   = true
 }
-`, testAccUser_base(rName), rName)
+`, testAccUser_base(rName), rName, currentTime)
 }
