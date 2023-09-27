@@ -44,12 +44,13 @@ resource "huaweicloud_workspace_desktop" "test" {
   user_email         = "terraform@example.com"
   user_group         = "administrators"
   email_notification = true
-
+  enterprise_project_id = "0"
+  
   root_volume {
     type = "SAS"
     size = 80
   }
-  enterprise_project_id = "0"
+
   data_volume {
     type = "SAS"
     size = 50
@@ -121,13 +122,13 @@ The following arguments are supported:
   operations.  
   Defaults to **false**. Changing this will create a new resource.
 
+* `enterprise_project_id` - (Optional,String, ForceNew) Specifies the Enterprise Project ID of desktop.
+  Default is "0".
+
 * `tags` - (Optional, Map) Specifies the key/value pairs of the desktop.
 
 * `delete_user` - (Optional, Bool) Specifies whether to delete user associated with this desktop after deleting it.
   The user can only be successfully deleted if the user has no other desktops.
-
-* `enterprise_project_id` - (Optional,String, ForceNew) Specifies the Enterprise Project ID of desktop.
-  Default is "0".
 
 <a name="desktop_volume"></a>
 The `root_volume` and `data_volume` block supports:
