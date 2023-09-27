@@ -19,6 +19,10 @@ func resourceURL(client *golangsdk.ServiceClient, id, cluster_id string) string 
 	return CCEServiceURL(client, cluster_id, rootPath, id+"?cluster_id="+cluster_id)
 }
 
+func resourceUpdateURL(client *golangsdk.ServiceClient, id, cluster_id string) string {
+	return CCEServiceURL(client, cluster_id, rootPath, id)
+}
+
 func resourceListURL(client *golangsdk.ServiceClient, cluster_id string) string {
 	return CCEServiceURL(client, cluster_id, rootPath+"?cluster_id="+cluster_id)
 }

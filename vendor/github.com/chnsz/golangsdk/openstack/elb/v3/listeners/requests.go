@@ -269,3 +269,9 @@ func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	_, r.Err = c.Delete(resourceURL(c, id), nil)
 	return
 }
+
+// ForceDelete will delete the listener and the sub resource(listener and l7 policies, unbind associated pools)
+func ForceDelete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
+	_, r.Err = c.Delete(resourceForceDeleteURL(c, id), nil)
+	return
+}

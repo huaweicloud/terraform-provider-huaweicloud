@@ -130,6 +130,8 @@ type Desktop struct {
 	OrderId string `json:"order_id"`
 	// The key/value pairs of the desktop.
 	Tags []tags.ResourceTag `json:"tags"`
+	// EnterpriseProject ID of desktop
+	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 
 // AddressInfo is an object to specified the IP address details of desktop.

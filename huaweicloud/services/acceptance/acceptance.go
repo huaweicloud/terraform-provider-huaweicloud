@@ -186,6 +186,8 @@ var (
 	HW_CODEARTS_ENABLE_FLAG      = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
 
 	HW_EG_CHANNEL_ID = os.Getenv("HW_EG_CHANNEL_ID")
+
+	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -842,5 +844,12 @@ func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
 	if HW_CCE_CLUSTER_ID_ANOTHER == "" || HW_CCE_CLUSTER_NAME_ANOTHER == "" {
 		t.Skip("HW_CCE_CLUSTER_ID_ANOTHER and HW_CCE_CLUSTER_NAME_ANOTHER must be set for LTS AOM access" +
 			" acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckKooGallery(t *testing.T) {
+	if HW_KOOGALLERY_ASSET == "" {
+		t.Skip("Skip the KooGallery acceptance tests.")
 	}
 }

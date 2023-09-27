@@ -826,6 +826,15 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "NAT",
 	},
+
+	// catalog for KooGallery
+	"mkt": {
+		Name:             "mkt",
+		Version:          "api/mkp-openapi-public/v1",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "KooGallery",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map

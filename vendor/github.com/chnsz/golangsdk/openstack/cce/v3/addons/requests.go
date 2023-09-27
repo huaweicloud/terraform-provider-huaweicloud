@@ -181,7 +181,7 @@ func Update(c *golangsdk.ServiceClient, opts UpdateOptsBuilder, id, cluster_id s
 		return
 	}
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
-	_, r.Err = c.Put(resourceURL(c, id, cluster_id), b, &r.Body, reqOpt)
+	_, r.Err = c.Put(resourceUpdateURL(c, id, cluster_id), b, &r.Body, reqOpt)
 	return
 }
 

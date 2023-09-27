@@ -937,3 +937,8 @@ func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
 func (c *Config) NatV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("natv2", region)
 }
+
+// KooGalleryV1Client has the endpoint: https://mkt.{{cloud}}/v1/
+func (c *Config) KooGalleryV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("mkt", region)
+}

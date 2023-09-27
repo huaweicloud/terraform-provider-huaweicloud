@@ -267,6 +267,12 @@ func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	return
 }
 
+// ForceDelete will delete the LoadBalancer and the sub resource(LoadBalancer, listeners, unbind associated pools)
+func ForceDelete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
+	_, r.Err = c.Delete(resourceForceDeleteURL(c, id), nil)
+	return
+}
+
 // GetStatuses will return the status of a particular LoadBalancer.
 func GetStatuses(c *golangsdk.ServiceClient, id string) (r GetStatusesResult) {
 	_, r.Err = c.Get(statusRootURL(c, id), &r.Body, nil)
