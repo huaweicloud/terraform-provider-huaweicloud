@@ -979,6 +979,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_stream":                    lts.ResourceLTSStream(),
 			"huaweicloud_lts_structuring_configuration": lts.ResourceStructConfig(),
 			"huaweicloud_lts_transfer":                  lts.ResourceLtsTransfer(),
+			"huaweicloud_lts_keywords_alarm_rule":       lts.ResourceKeywordsAlarmRule(),
+			"huaweicloud_lts_sql_alarm_rule":            lts.ResourceSQLAlarmRule(),
 			"huaweicloud_lts_notification_template":     lts.ResourceNotificationTemplate(),
 
 			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
