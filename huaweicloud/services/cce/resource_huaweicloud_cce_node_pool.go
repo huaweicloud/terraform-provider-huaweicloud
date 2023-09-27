@@ -408,8 +408,8 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("security_groups", s.Spec.CustomSecurityGroups),
 		d.Set("tags", utils.TagsToMap(s.Spec.NodeTemplate.UserTags)),
 		d.Set("status", s.Status.Phase),
-		d.Set("data_volumes", flattenResourceNodeDataVolume(s.Spec.NodeTemplate.DataVolumes)),
-		d.Set("root_volume", flattenResourceNodeRootVolume(s.Spec.NodeTemplate.RootVolume)),
+		d.Set("data_volumes", flattenResourceNodeDataVolume(d, s.Spec.NodeTemplate.DataVolumes)),
+		d.Set("root_volume", flattenResourceNodeRootVolume(d, s.Spec.NodeTemplate.RootVolume)),
 		d.Set("initialized_conditions", s.Spec.NodeTemplate.InitializedConditions),
 	)
 

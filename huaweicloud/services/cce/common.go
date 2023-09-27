@@ -2,6 +2,7 @@ package cce
 
 import (
 	"log"
+	"reflect"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -355,17 +356,33 @@ func buildResourceNodeDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 	return volumes
 }
 
-func flattenResourceNodeRootVolume(rootVolume nodes.VolumeSpec) []map[string]interface{} {
+func flattenResourceNodeRootVolume(d *schema.ResourceData, rootVolume nodes.VolumeSpec) []map[string]interface{} {
 	res := []map[string]interface{}{
 		{
 			"size":           rootVolume.Size,
 			"volumetype":     rootVolume.VolumeType,
 			"hw_passthrough": rootVolume.HwPassthrough,
-			"extend_params":  rootVolume.ExtendParam,
 			"extend_param":   "",
 			"dss_pool_id":    rootVolume.ClusterID,
 		},
 	}
+
+	orignRootVolume := buildResourceNodeRootVolume(d)
+	if !reflect.DeepEqual(orignRootVolume, nodes.VolumeSpec{}) {
+		orignExtendParams := orignRootVolume.ExtendParam
+		extendParams := make(map[string]interface{})
+
+		for k := range orignExtendParams {
+			if value, ok := rootVolume.ExtendParam[k]; ok {
+				extendParams[k] = value
+			}
+		}
+
+		res[0]["extend_params"] = extendParams
+	} else {
+		res[0]["extend_params"] = rootVolume.ExtendParam
+	}
+
 	if rootVolume.Metadata != nil {
 		res[0]["kms_key_id"] = rootVolume.Metadata.SystemCmkid
 	}
@@ -373,24 +390,52 @@ func flattenResourceNodeRootVolume(rootVolume nodes.VolumeSpec) []map[string]int
 	return res
 }
 
-func flattenResourceNodeDataVolume(dataVolumes []nodes.VolumeSpec) []map[string]interface{} {
+func flattenResourceNodeDataVolume(d *schema.ResourceData, dataVolumes []nodes.VolumeSpec) []map[string]interface{} {
 	if len(dataVolumes) == 0 {
 		return nil
 	}
 
 	res := make([]map[string]interface{}, len(dataVolumes))
-	for i, v := range dataVolumes {
-		res[i] = map[string]interface{}{
-			"size":           v.Size,
-			"volumetype":     v.VolumeType,
-			"hw_passthrough": v.HwPassthrough,
-			"extend_params":  v.ExtendParam,
-			"extend_param":   "",
-			"dss_pool_id":    v.ClusterID,
-		}
+	orignDataVolumes := buildResourceNodeDataVolume(d)
+	if len(orignDataVolumes) == len(dataVolumes) {
+		for i, v := range dataVolumes {
+			res[i] = map[string]interface{}{
+				"size":           v.Size,
+				"volumetype":     v.VolumeType,
+				"hw_passthrough": v.HwPassthrough,
+				"extend_param":   "",
+				"dss_pool_id":    v.ClusterID,
+			}
 
-		if v.Metadata != nil {
-			res[i]["kms_key_id"] = v.Metadata.SystemCmkid
+			orignExtendParams := orignDataVolumes[i].ExtendParam
+			extendParams := make(map[string]interface{})
+
+			for k := range orignExtendParams {
+				if value, ok := v.ExtendParam[k]; ok {
+					extendParams[k] = value
+				}
+			}
+
+			res[i]["extend_params"] = extendParams
+
+			if v.Metadata != nil {
+				res[i]["kms_key_id"] = v.Metadata.SystemCmkid
+			}
+		}
+	} else {
+		for i, v := range dataVolumes {
+			res[i] = map[string]interface{}{
+				"size":           v.Size,
+				"volumetype":     v.VolumeType,
+				"hw_passthrough": v.HwPassthrough,
+				"extend_param":   "",
+				"dss_pool_id":    v.ClusterID,
+				"extend_params":  v.ExtendParam,
+			}
+
+			if v.Metadata != nil {
+				res[i]["kms_key_id"] = v.Metadata.SystemCmkid
+			}
 		}
 	}
 
