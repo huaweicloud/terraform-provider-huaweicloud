@@ -28,6 +28,7 @@ func ResourceLtsStruct() *schema.Resource {
 			StateContext: ltsStructResourceImportState,
 		},
 
+		Description: "schema: Internal;",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

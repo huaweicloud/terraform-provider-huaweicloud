@@ -972,12 +972,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_snapshot":             live.ResourceLiveSnapshot(),
 			"huaweicloud_live_bucket_authorization": live.ResourceLiveBucketAuthorization(),
 
-			"huaweicloud_lts_aom_access":  lts.ResourceAOMAccess(),
-			"huaweicloud_lts_group":       lts.ResourceLTSGroup(),
-			"huaweicloud_lts_stream":      lts.ResourceLTSStream(),
-			"huaweicloud_lts_host_group":  lts.ResourceHostGroup(),
-			"huaweicloud_lts_host_access": lts.ResourceHostAccessConfig(),
-			"huaweicloud_lts_transfer":    lts.ResourceLtsTransfer(),
+			"huaweicloud_lts_aom_access":            lts.ResourceAOMAccess(),
+			"huaweicloud_lts_group":                 lts.ResourceLTSGroup(),
+			"huaweicloud_lts_stream":                lts.ResourceLTSStream(),
+			"huaweicloud_lts_host_group":            lts.ResourceHostGroup(),
+			"huaweicloud_lts_host_access":           lts.ResourceHostAccessConfig(),
+			"huaweicloud_lts_transfer":              lts.ResourceLtsTransfer(),
+			"huaweicloud_lts_notification_template": lts.ResourceNotificationTemplate(),
 
 			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
@@ -1170,11 +1171,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_cmdb_resource_relationships": cmdb.ResourceCiRelationships(),
 			"huaweicloud_aom_environment":                 cmdb.ResourceAomEnvironment(),
 
-			"huaweicloud_lts_access_rule":           lts.ResourceAomMappingRule(),
-			"huaweicloud_lts_dashboard":             lts.ResourceLtsDashboard(),
-			"huaweicloud_elb_log":                   lts.ResourceLtsElb(),
-			"huaweicloud_lts_struct_template":       lts.ResourceLtsStruct(),
-			"huaweicloud_lts_notification_template": lts.ResourceNotificationTemplate(),
+			"huaweicloud_lts_access_rule":     lts.ResourceAomMappingRule(),
+			"huaweicloud_lts_dashboard":       lts.ResourceLtsDashboard(),
+			"huaweicloud_elb_log":             lts.ResourceLtsElb(),
+			"huaweicloud_lts_struct_template": lts.ResourceLtsStruct(),
 
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),

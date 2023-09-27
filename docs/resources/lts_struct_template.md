@@ -1,10 +1,12 @@
 ---
-subcategory: "Log Tank Service (LTS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_lts_struct_template
 
 Manage a log structuring template resource within HuaweiCloud.
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_lts_structuring_configuration` instead.
 
 ## Example Usage
 
