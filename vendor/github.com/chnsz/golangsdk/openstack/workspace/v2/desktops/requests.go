@@ -37,6 +37,8 @@ type CreateOpts struct {
 	SecurityGroups []SecurityGroup `json:"security_groups,omitempty"`
 	// Specifies the key/value pairs of the desktop.
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// EnterpriseProject ID of desktop
+	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
 }
 
 // DesktopConfig is an object to specified the basic configuration of desktop.
