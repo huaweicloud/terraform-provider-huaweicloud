@@ -981,6 +981,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_transfer":                  lts.ResourceLtsTransfer(),
 			"huaweicloud_lts_keywords_alarm_rule":       lts.ResourceKeywordsAlarmRule(),
 			"huaweicloud_lts_sql_alarm_rule":            lts.ResourceSQLAlarmRule(),
+			"huaweicloud_lts_notification_template":     lts.ResourceNotificationTemplate(),
 
 			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
@@ -1173,11 +1174,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_cmdb_resource_relationships": cmdb.ResourceCiRelationships(),
 			"huaweicloud_aom_environment":                 cmdb.ResourceAomEnvironment(),
 
-			"huaweicloud_lts_access_rule":           lts.ResourceAomMappingRule(),
-			"huaweicloud_lts_dashboard":             lts.ResourceLtsDashboard(),
-			"huaweicloud_elb_log":                   lts.ResourceLtsElb(),
-			"huaweicloud_lts_struct_template":       lts.ResourceLtsStruct(),
-			"huaweicloud_lts_notification_template": lts.ResourceNotificationTemplate(),
+			"huaweicloud_lts_access_rule":     lts.ResourceAomMappingRule(),
+			"huaweicloud_lts_dashboard":       lts.ResourceLtsDashboard(),
+			"huaweicloud_elb_log":             lts.ResourceLtsElb(),
+			"huaweicloud_lts_struct_template": lts.ResourceLtsStruct(),
 
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
