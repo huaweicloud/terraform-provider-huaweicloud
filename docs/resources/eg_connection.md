@@ -90,7 +90,7 @@ The `KafkaDetail` block supports:
 
   Changing this parameter will create a new resource.
 
-* `username` - (Optional, String, ForceNew) Specifies the username of the kafka intance.
+* `user_name` - (Optional, String, ForceNew) Specifies the user name of the kafka intance.
 
   Changing this parameter will create a new resource.
 

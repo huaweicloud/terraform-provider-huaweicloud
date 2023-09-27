@@ -112,12 +112,12 @@ func connectionKafkaDetailSchema() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the IP address of the kafka intance.`,
 			},
-			"username": {
+			"user_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies the username of the kafka intance.`,
+				Description: `Specifies the user name of the kafka intance.`,
 			},
 			"password": {
 				Type:        schema.TypeString,
@@ -213,9 +213,9 @@ func buildCreateConnectionRequestBodyKafkaDetail(rawParams interface{}) map[stri
 			"acks":        utils.ValueIngoreEmpty(raw["acks"]),
 		}
 
-		if raw["username"].(string) != "" {
+		if raw["user_name"].(string) != "" {
 			params["sasl_ssl"] = true
-			params["username"] = raw["username"]
+			params["username"] = raw["user_name"]
 			params["password"] = raw["password"]
 		}
 		return params
@@ -292,7 +292,7 @@ func flattenGetConnectionResponseBodyKafkaDetail(resp interface{}) []interface{}
 			"instance_id":     utils.PathSearch("instance_id", curJson, nil),
 			"connect_address": utils.PathSearch("addr", curJson, nil),
 			"sasl_ssl":        utils.PathSearch("sasl_ssl", curJson, nil),
-			"username":        utils.PathSearch("username", curJson, nil),
+			"user_name":       utils.PathSearch("username", curJson, nil),
 			"password":        utils.PathSearch("password", curJson, nil),
 			"acks":            utils.PathSearch("acks", curJson, nil),
 		},
