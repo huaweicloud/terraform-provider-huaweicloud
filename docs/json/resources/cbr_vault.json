@@ -51,7 +51,6 @@
                 "type": "string",
                 "description": "The consistent level (specification) of the vault.",
                 "optional": true,
-                "forcenew": true,
                 "default": "crash_consistent"
               },
               "enterprise_project_id": {

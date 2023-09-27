@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_notification_template": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the notification template.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "locale": {
+                "type": "string",
+                "description": "Language.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the notification template.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "description": "The source of the notification template.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "templates": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "The content of the sub-template.",
+                      "required": true
+                    },
+                    "sub_type": {
+                      "type": "string",
+                      "description": "The type of the sub-template.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of notification template body."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

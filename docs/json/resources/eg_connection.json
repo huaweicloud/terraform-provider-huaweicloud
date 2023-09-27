@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_connection": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the connection.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the connection.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the connection.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the connection.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of the subnet to which the connection belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the connection.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The last update time of the connection.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC to which the connection belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "kafka_detail": {
+                "block": {
+                  "attributes": {
+                    "acks": {
+                      "type": "string",
+                      "description": "Specifies the number of confirmation signals the procuder\n                    needs to receive to consider the message sent successfully.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "connect_address": {
+                      "type": "string",
+                      "description": "Specifies the IP address of the kafka intance.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the kafka intance.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "description": "Specifies the password of the kafka intance.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "Specifies the user name of the kafka intance.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the configuration details of the kafka intance."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

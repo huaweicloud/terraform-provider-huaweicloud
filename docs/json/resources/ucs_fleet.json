@@ -55,6 +55,13 @@
                 "nesting_mode": "list"
               }
             }
+          },
+          "product": {
+            "short": "UCS",
+            "name": "Ubiquitous Cloud Native Service",
+            "catalog": "Containers",
+            "name_cn": "华为云UCS",
+            "catalog_cn": "容器"
           }
         }
       }

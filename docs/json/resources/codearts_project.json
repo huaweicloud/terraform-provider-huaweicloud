@@ -67,6 +67,13 @@
                 "forcenew": true
               }
             }
+          },
+          "product": {
+            "short": "CodeArtsReq",
+            "name": "CodeArts Req",
+            "catalog": "CodeArts",
+            "name_cn": "需求管理",
+            "catalog_cn": "软件开发生产线"
           }
         }
       }

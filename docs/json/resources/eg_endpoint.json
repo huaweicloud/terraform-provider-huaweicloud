@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_endpoint": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the endpoint.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the endpoint.",
+                "optional": true
+              },
+              "domain": {
+                "type": "string",
+                "description": "The domain of the endpoint.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the endpoint.\n",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the endpoint.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of the subnet to which the endpoint belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The last update time of the endpoint.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC to which the endpoint belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

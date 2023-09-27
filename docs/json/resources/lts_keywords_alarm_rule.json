@@ -1,0 +1,262 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_keywords_alarm_rule": {
+          "block": {
+            "attributes": {
+              "alarm_level": {
+                "type": "string",
+                "description": "Specifies the alarm level.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the alarm rule.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the keywords alarm rule.",
+                "optional": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "The domain ID.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the keywords alarm rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "recovery_frequency": {
+                "type": "number",
+                "description": "Specifies the frequency to recover the alarm.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "send_notifications": {
+                "type": "bool",
+                "description": "Specifies whether to send notifications.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "send_recovery_notifications": {
+                "type": "bool",
+                "description": "Specifies whether to send recovery notifications.",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status.",
+                "optional": true,
+                "computed": true
+              },
+              "trigger_condition_count": {
+                "type": "number",
+                "description": "Specifies the count to trigger the alarm.",
+                "optional": true,
+                "computed": true
+              },
+              "trigger_condition_frequency": {
+                "type": "number",
+                "description": "Specifies the frequency to trigger the alarm.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The last update time of the alarm rule.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "frequency": {
+                "block": {
+                  "attributes": {
+                    "cron_expression": {
+                      "type": "string",
+                      "description": "Specifies the cron expression.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "day_of_week": {
+                      "type": "number",
+                      "description": "Specifies the day of week.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "fixed_rate": {
+                      "type": "number",
+                      "description": "Specifies the unit fixed rate.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "fixed_rate_unit": {
+                      "type": "string",
+                      "description": "Specifies the unit of fixed rate.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "hour_of_day": {
+                      "type": "number",
+                      "description": "Specifies the hour of day.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the frequency type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the alarm frequency configurations."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "keywords_requests": {
+                "block": {
+                  "attributes": {
+                    "condition": {
+                      "type": "string",
+                      "description": "Specifies the keywords request condition.",
+                      "required": true
+                    },
+                    "keywords": {
+                      "type": "string",
+                      "description": "Specifies the keywords.",
+                      "required": true
+                    },
+                    "log_group_id": {
+                      "type": "string",
+                      "description": "Specifies the log group id.",
+                      "required": true
+                    },
+                    "log_stream_id": {
+                      "type": "string",
+                      "description": "Specifies the log stream id.",
+                      "required": true
+                    },
+                    "number": {
+                      "type": "number",
+                      "description": "Specifies the line number.",
+                      "required": true
+                    },
+                    "search_time_range": {
+                      "type": "number",
+                      "description": "Specifies the search time range.",
+                      "required": true
+                    },
+                    "search_time_range_unit": {
+                      "type": "string",
+                      "description": "Specifies the unit of search time range.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the keywords requests."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "notification_rule": {
+                "block": {
+                  "attributes": {
+                    "language": {
+                      "type": "string",
+                      "description": "Specifies the notification language.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "template_name": {
+                      "type": "string",
+                      "description": "Specifies the notification template name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "description": "Specifies the timezone.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "Specifies the user name.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "topics": {
+                      "block": {
+                        "attributes": {
+                          "display_name": {
+                            "type": "string",
+                            "description": "Specifies the display name.",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the topic name.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "push_policy": {
+                            "type": "string",
+                            "description": "Specifies the push policy.",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "topic_urn": {
+                            "type": "string",
+                            "description": "Specifies the topic URN.",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        },
+                        "description": "Specifies the SMN topics."
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the notification rule."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

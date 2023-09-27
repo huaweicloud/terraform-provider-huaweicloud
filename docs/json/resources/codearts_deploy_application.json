@@ -1,0 +1,206 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_application": {
+          "block": {
+            "attributes": {
+              "artifact_source_system": {
+                "type": "string",
+                "description": "Specifies the source information transferred by the pipeline.",
+                "optional": true,
+                "forcenew": true
+              },
+              "artifact_type": {
+                "type": "string",
+                "description": "Specifies the artifact type for the pipeline source.",
+                "optional": true,
+                "forcenew": true
+              },
+              "can_copy": {
+                "type": "bool",
+                "description": "Indicates whether the user has the copy permission.",
+                "computed": true
+              },
+              "can_create_env": {
+                "type": "bool",
+                "description": "Indicates whether the user has the permission to create an environment.",
+                "computed": true
+              },
+              "can_delete": {
+                "type": "bool",
+                "description": "Indicates whether the user has the deletion permission.",
+                "computed": true
+              },
+              "can_execute": {
+                "type": "bool",
+                "description": "Indicates whether the user has the deployment permission",
+                "computed": true
+              },
+              "can_manage": {
+                "type": "bool",
+                "description": "Check whether the user has the management permission, including adding, deleting,\nmodifying, querying deployment and permission modification.",
+                "computed": true
+              },
+              "can_modify": {
+                "type": "bool",
+                "description": "Indicates whether the user has the editing permission.",
+                "computed": true
+              },
+              "can_view": {
+                "type": "bool",
+                "description": "Indicates whether the user has the view permission.",
+                "computed": true
+              },
+              "create_type": {
+                "type": "string",
+                "description": "Specifies the creation type.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The create time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the application description.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_draft": {
+                "type": "bool",
+                "description": "Specifies whether the application is in draft status.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "required": true,
+                "forcenew": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "required": true,
+                "forcenew": true
+              },
+              "project_name": {
+                "type": "string",
+                "description": "The project name.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_pool_id": {
+                "type": "string",
+                "description": "Specifies the custom slave resource pool ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "steps": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The deployment steps.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The deployment task ID.",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "The deployment task name.",
+                "computed": true
+              },
+              "trigger_source": {
+                "type": "string",
+                "description": "Specifies where a deployment task can be executed.",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "operation_list": {
+                "block": {
+                  "attributes": {
+                    "code": {
+                      "type": "string",
+                      "description": "Specifies the download URL.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the step description.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "entrance": {
+                      "type": "string",
+                      "description": "Specifies the entry function.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "module_id": {
+                      "type": "string",
+                      "description": "Specifies the module ID.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the step name.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "params": {
+                      "type": "string",
+                      "description": "Specifies the parameter.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Specifies the version.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the deployment orchestration list information."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

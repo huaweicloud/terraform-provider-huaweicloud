@@ -20,26 +20,20 @@
                 "computed": true,
                 "forcenew": true
               },
-              "db": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "port": "number",
-                      "type": "string",
-                      "user_name": "string",
-                      "version": "string"
-                    }
-                  ]
-                ],
-                "computed": true
+              "description": {
+                "type": "string",
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "fixed_ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "flavor": {
                 "type": "string",
@@ -51,8 +45,7 @@
               },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "period": {
                 "type": "number",
@@ -89,7 +82,12 @@
               },
               "security_group_id": {
                 "type": "string",
+                "optional": true,
                 "computed": true
+              },
+              "ssl_enable": {
+                "type": "bool",
+                "optional": true
               },
               "status": {
                 "type": "string",
@@ -116,18 +114,67 @@
               }
             },
             "block_types": {
+              "db": {
+                "block": {
+                  "attributes": {
+                    "port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "volume": {
                 "block": {
                   "attributes": {
                     "disk_encryption_id": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "description": "schema: Computed",
+                      "computed": true
+                    },
+                    "limit_size": {
+                      "type": "number",
+                      "optional": true
                     },
                     "size": {
                       "type": "number",
-                      "description": "schema: Computed",
+                      "optional": true,
                       "computed": true
+                    },
+                    "trigger_threshold": {
+                      "type": "number",
+                      "optional": true
                     },
                     "type": {
                       "type": "string",

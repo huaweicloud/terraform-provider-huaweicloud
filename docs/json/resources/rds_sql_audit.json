@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_sql_audit": {
+          "block": {
+            "attributes": {
+              "audit_types": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of audit types.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "keep_days": {
+                "type": "number",
+                "description": "Specifies the number of days for storing audit logs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "reserve_auditlogs": {
+                "type": "bool",
+                "description": "Specifies whether the historical audit logs will be reserved for some time when SQL\naudit is disabled.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

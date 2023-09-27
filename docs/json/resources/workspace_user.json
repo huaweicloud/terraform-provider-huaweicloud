@@ -7,7 +7,8 @@
             "attributes": {
               "account_expires": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "0"
               },
               "description": {
                 "type": "string",

@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_custom_event_channel": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the custom event channel.",
+                "computed": true
+              },
+              "cross_account_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of domain IDs (other tenants) for the cross-account policy.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the custom event channel.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the custom event channel belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the custom event channel.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the custom event channel is located.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the custom event channel.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

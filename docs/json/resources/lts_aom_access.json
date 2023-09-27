@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_aom_access": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster ID.",
+                "required": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "description": "Specifies the cluster name.",
+                "required": true
+              },
+              "container_name": {
+                "type": "string",
+                "description": "Specifies the container name.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workloads": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the deployments.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "access_rules": {
+                "block": {
+                  "attributes": {
+                    "file_name": {
+                      "type": "string",
+                      "description": "Specifies the path name.",
+                      "required": true
+                    },
+                    "log_group_id": {
+                      "type": "string",
+                      "description": "Specifies the log group ID.",
+                      "required": true
+                    },
+                    "log_group_name": {
+                      "type": "string",
+                      "description": "Specifies the log group name.",
+                      "required": true
+                    },
+                    "log_stream_id": {
+                      "type": "string",
+                      "description": "Specifies the log stream ID.",
+                      "required": true
+                    },
+                    "log_stream_name": {
+                      "type": "string",
+                      "description": "Specifies the log stream name.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the log details."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

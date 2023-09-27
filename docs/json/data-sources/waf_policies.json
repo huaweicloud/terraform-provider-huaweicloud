@@ -23,7 +23,21 @@
                   [
                     "object",
                     {
+                      "bind_hosts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "hostname": "string",
+                            "id": "string",
+                            "mode": "string",
+                            "waf_type": "string"
+                          }
+                        ]
+                      ],
+                      "deep_inspection": "bool",
                       "full_detection": "bool",
+                      "header_inspection": "bool",
                       "id": "string",
                       "level": "number",
                       "name": "string",
@@ -32,10 +46,11 @@
                         [
                           "object",
                           {
+                            "anti_crawler": "bool",
                             "basic_web_protection": "bool",
                             "blacklist": "bool",
+                            "bot_enable": "bool",
                             "cc_attack_protection": "bool",
-                            "crawler": "bool",
                             "crawler_engine": "bool",
                             "crawler_other": "bool",
                             "crawler_scanner": "bool",
@@ -43,13 +58,18 @@
                             "data_masking": "bool",
                             "false_alarm_masking": "bool",
                             "general_check": "bool",
+                            "geolocation_access_control": "bool",
+                            "information_leakage_prevention": "bool",
+                            "known_attack_source": "bool",
                             "precise_protection": "bool",
                             "web_tamper_protection": "bool",
                             "webshell": "bool"
                           }
                         ]
                       ],
-                      "protection_mode": "string"
+                      "protection_mode": "string",
+                      "robot_action": "string",
+                      "shiro_decryption_check": "bool"
                     }
                   ]
                 ],

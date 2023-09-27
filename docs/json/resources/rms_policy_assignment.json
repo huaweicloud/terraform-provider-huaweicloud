@@ -130,10 +130,10 @@
             }
           },
           "product": {
-            "short": "RMS",
-            "name": "Resource Management Service",
+            "short": "Config",
+            "name": "Config",
             "catalog": "Management & Governance",
-            "name_cn": "资源管理服务",
+            "name_cn": "配置审计",
             "catalog_cn": "管理与监管"
           }
         }

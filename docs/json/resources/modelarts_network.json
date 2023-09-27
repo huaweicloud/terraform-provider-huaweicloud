@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_network": {
+          "block": {
+            "attributes": {
+              "cidr": {
+                "type": "string",
+                "description": "Network CIDR.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of network.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of network.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Workspace ID, which defaults to 0.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "peer_connections": {
+                "block": {
+                  "attributes": {
+                    "subnet_id": {
+                      "type": "string",
+                      "description": "ID of the peer subnet.",
+                      "required": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "description": "ID of the peer VPC.",
+                      "required": true
+                    }
+                  },
+                  "description": "List of networks that can be connected in peer mode."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

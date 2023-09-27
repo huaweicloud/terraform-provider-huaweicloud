@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_cross_region_backup_strategy": {
+          "block": {
+            "attributes": {
+              "backup_type": {
+                "type": "string",
+                "description": "Specifies the backup type.",
+                "required": true
+              },
+              "destination_project_id": {
+                "type": "string",
+                "description": "Specifies the target project ID for the cross-region backup policy.",
+                "required": true,
+                "forcenew": true
+              },
+              "destination_region": {
+                "type": "string",
+                "description": "Specifies the target region ID for the cross-region backup policy.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "keep_days": {
+                "type": "number",
+                "description": "Specifies the number of days to retain the generated backup files.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

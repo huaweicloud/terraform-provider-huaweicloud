@@ -23,10 +23,9 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "The enterprise project ID.",
+                "description": "schema:{\"Computed\":true};The enterprise project ID.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "gateway_id": {
                 "type": "string",
@@ -107,7 +106,14 @@
                     },
                     "authentication_method": {
                       "type": "string",
-                      "description": "The authentication method during IKE negotiation. Only **pre-share** supported for now.",
+                      "description": "The authentication method during IKE negotiation.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "dh_group": {
+                      "type": "string",
+                      "description": "Specifies the DH group used for key exchange in phase 1.",
                       "optional": true,
                       "computed": true
                     },
@@ -155,7 +161,7 @@
                     },
                     "pfs": {
                       "type": "string",
-                      "description": "The DH key group used by PFS.",
+                      "description": "schema:{\"Deprecated\":true};The DH key group used by PFS.",
                       "optional": true,
                       "computed": true
                     },
@@ -164,6 +170,35 @@
                       "description": "The negotiation mode, only works when the ike_version is v1.",
                       "optional": true,
                       "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "dpd": {
+                      "block": {
+                        "attributes": {
+                          "interval": {
+                            "type": "number",
+                            "description": "Specifies the DPD idle timeout period.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "msg": {
+                            "type": "string",
+                            "description": "Specifies the format of DPD packets.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "timeout": {
+                            "type": "number",
+                            "description": "Specifies the interval for retransmitting DPD packets.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the dead peer detection (DPD) object."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     }
                   }
                 },

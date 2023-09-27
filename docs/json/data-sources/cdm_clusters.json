@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdm_clusters": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "The AZ name.",
+                "optional": true
+              },
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "id": "string",
+                      "instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "is_frozen": "string",
+                            "manage_ip": "string",
+                            "name": "string",
+                            "private_ip": "string",
+                            "public_ip": "string",
+                            "role": "string",
+                            "status": "string",
+                            "traffic_ip": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "is_auto_off": "bool",
+                      "is_failure_remind": "string",
+                      "is_frozen": "string",
+                      "name": "string",
+                      "public_endpoint": "string",
+                      "recent_event": "number",
+                      "status": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of clusters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Cluster name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Cluster status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDM",
+            "name": "Cloud Data Migration",
+            "catalog": "Migration",
+            "name_cn": "云数据迁移",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

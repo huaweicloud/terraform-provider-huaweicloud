@@ -107,6 +107,13 @@
                 "type": "string",
                 "optional": true
               },
+              "metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "required": true

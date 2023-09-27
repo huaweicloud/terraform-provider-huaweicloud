@@ -27,6 +27,10 @@
                 "type": "string",
                 "optional": true
               },
+              "force_delete": {
+                "type": "bool",
+                "optional": true
+              },
               "forward_eip": {
                 "type": "bool",
                 "optional": true,

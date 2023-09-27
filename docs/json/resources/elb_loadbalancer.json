@@ -69,6 +69,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "force_delete": {
+                "type": "bool",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

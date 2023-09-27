@@ -26,6 +26,11 @@
                 "default": "available"
               }
             }
+          },
+          "product": {
+            "short": "Terraform",
+            "name": "Terraform",
+            "catalog": "Terraform"
           }
         }
       }

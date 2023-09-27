@@ -443,6 +443,12 @@
                       "description": "The parameter description.",
                       "optional": true
                     },
+                    "enumeration": {
+                      "type": "string",
+                      "description": "The enumerated value.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "example": {
                       "type": "string",
                       "description": "The parameter example.",
@@ -469,10 +475,15 @@
                       "description": "The name of the request parameter.",
                       "required": true
                     },
+                    "passthrough": {
+                      "type": "bool",
+                      "description": "Whether to transparently transfer the parameter.",
+                      "optional": true
+                    },
                     "required": {
                       "type": "bool",
                       "description": "Whether this parameter is required.",
-                      "required": true
+                      "optional": true
                     },
                     "type": {
                       "type": "string",
@@ -519,6 +530,12 @@
                       "description": "The web protocol type of the API request.",
                       "optional": true,
                       "default": "HTTPS"
+                    },
+                    "retry_count": {
+                      "type": "number",
+                      "description": "The number of retry attempts to request the backend service.",
+                      "optional": true,
+                      "default": -1
                     },
                     "ssl_enable": {
                       "type": "bool",
@@ -587,6 +604,12 @@
                       "type": "string",
                       "description": "The backend request protocol.",
                       "optional": true
+                    },
+                    "retry_count": {
+                      "type": "number",
+                      "description": "The number of retry attempts to request the backend service.",
+                      "optional": true,
+                      "default": -1
                     },
                     "timeout": {
                       "type": "number",

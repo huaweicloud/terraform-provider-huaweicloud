@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_assignment_package": {
+          "block": {
+            "attributes": {
+              "agency_name": {
+                "type": "string",
+                "description": "Specifies the agency name.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "deployment_id": {
+                "type": "string",
+                "description": "Indicates the deployment ID.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the assignment package name.",
+                "required": true,
+                "forcenew": true
+              },
+              "stack_id": {
+                "type": "string",
+                "description": "Indicates the unique ID of a resource stack.",
+                "computed": true
+              },
+              "stack_name": {
+                "type": "string",
+                "description": "Indicates the name of a resource stack.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the deployment status of an assignment package.",
+                "computed": true
+              },
+              "template_body": {
+                "type": "string",
+                "description": "Specifies the content of a custom assignment package.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "template_key": {
+                "type": "string",
+                "description": "Specifies the name of a built-in assignment package template.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "template_uri": {
+                "type": "string",
+                "description": "Specifies the URL address of the OBS bucket where an assignment package template was stored.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "vars_structure": {
+                "block": {
+                  "attributes": {
+                    "var_key": {
+                      "type": "string",
+                      "description": "Specifies the name of a parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "var_value": {
+                      "type": "string",
+                      "description": "Specifies the value of a parameter.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the parameters of an assignment package."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

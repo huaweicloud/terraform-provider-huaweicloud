@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_assignment_package_templates": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Specifies the description for a built-in assignment package template.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "template_key": {
+                "type": "string",
+                "description": "Specifies the name of a built-in assignment package template.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "id": "string",
+                      "parameters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "default_value": "string",
+                            "description": "string",
+                            "name": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "template_body": "string",
+                      "template_key": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of RMS assignment package templates.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

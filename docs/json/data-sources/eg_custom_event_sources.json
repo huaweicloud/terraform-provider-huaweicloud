@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_custom_event_sources": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "The ID of the custom event channel to which the custom event sources belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The event source name used to query specified custom event source.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the custom event sources are located."
+              },
+              "source_id": {
+                "type": "string",
+                "description": "The event source ID used to query specified custom event source.",
+                "optional": true
+              },
+              "sources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "channel_id": "string",
+                      "channel_name": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

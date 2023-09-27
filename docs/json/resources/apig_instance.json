@@ -121,6 +121,13 @@
                 "description": "The supported features of the dedicated instance.",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "vpc_id": {
                 "type": "string",
                 "description": "The ID of the VPC used to create the dedicated instance.",
@@ -130,6 +137,17 @@
               "vpc_ingress_address": {
                 "type": "string",
                 "description": "The ingress private IP address of the VPC.",
+                "computed": true
+              },
+              "vpcep_service_address": {
+                "type": "string",
+                "description": "The address (full name) of the VPC endpoint service.",
+                "computed": true
+              },
+              "vpcep_service_name": {
+                "type": "string",
+                "description": "Name of the VPC endpoint service.",
+                "optional": true,
                 "computed": true
               }
             }

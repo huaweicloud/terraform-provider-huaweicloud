@@ -1,0 +1,162 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_host_access": {
+          "block": {
+            "attributes": {
+              "access_type": {
+                "type": "string",
+                "computed": true
+              },
+              "host_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "computed": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "log_stream_name": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            },
+            "block_types": {
+              "access_config": {
+                "block": {
+                  "attributes": {
+                    "black_paths": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "paths": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "multi_log_format": {
+                      "block": {
+                        "attributes": {
+                          "mode": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "single_log_format": {
+                      "block": {
+                        "attributes": {
+                          "mode": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "windows_log_info": {
+                      "block": {
+                        "attributes": {
+                          "categorys": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          },
+                          "event_level": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          },
+                          "time_offset": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "time_offset_unit": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

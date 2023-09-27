@@ -125,12 +125,23 @@
                       "required": true,
                       "forcenew": true
                     },
+                    "password": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
                     "topic_ids": {
                       "type": [
                         "set",
                         "string"
                       ],
                       "required": true,
+                      "forcenew": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "optional": true,
                       "forcenew": true
                     }
                   }

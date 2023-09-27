@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_accounts": {
+          "block": {
+            "attributes": {
+              "accounts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "join_method": "string",
+                      "joined_at": "string",
+                      "name": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "description": "List of accounts in an organization.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the account.",
+                "optional": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the ID of root or organizational unit.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

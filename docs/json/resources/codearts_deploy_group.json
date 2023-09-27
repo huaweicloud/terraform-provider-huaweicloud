@@ -28,11 +28,6 @@
                 "description": "Specifies the description.",
                 "optional": true
               },
-              "host_count": {
-                "type": "number",
-                "description": "The host number in a group.",
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -89,19 +84,6 @@
               "updated_at": {
                 "type": "string",
                 "description": "The update time.",
-                "computed": true
-              },
-              "updated_by": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "user_id": "string",
-                      "user_name": "string"
-                    }
-                  ]
-                ],
                 "computed": true
               }
             }

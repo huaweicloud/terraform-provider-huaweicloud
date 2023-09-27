@@ -2,28 +2,28 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_rms_resource_aggregation_authorization": {
+        "huaweicloud_rms_advanced_query": {
           "block": {
             "attributes": {
-              "account_id": {
+              "description": {
                 "type": "string",
-                "description": "Specifies the ID of the resource aggregation account to be authorized.",
-                "required": true,
-                "forcenew": true
+                "description": "Specifies the ResourceQL description.",
+                "optional": true
               },
-              "created_at": {
+              "expression": {
                 "type": "string",
-                "description": "Indicates the time when the resource aggregation account was authorized.",
-                "computed": true
+                "description": "Specifies the ResourceQL expression.",
+                "required": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "urn": {
+              "name": {
                 "type": "string",
-                "description": "Indicates the authorization identifier of the resource aggregation account.",
-                "computed": true
+                "description": "Specifies the ResourceQL name.",
+                "required": true,
+                "forcenew": true
               }
             }
           },
