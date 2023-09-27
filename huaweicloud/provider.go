@@ -980,6 +980,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_structuring_configuration": lts.ResourceStructConfig(),
 			"huaweicloud_lts_transfer":                  lts.ResourceLtsTransfer(),
 			"huaweicloud_lts_keywords_alarm_rule":       lts.ResourceKeywordsAlarmRule(),
+			"huaweicloud_lts_sql_alarm_rule":            lts.ResourceSQLAlarmRule(),
 
 			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
