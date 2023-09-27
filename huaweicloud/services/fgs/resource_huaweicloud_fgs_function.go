@@ -185,6 +185,31 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"log_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				RequiredWith: []string{
+					"log_stream_id", "log_group_name", "log_stream_name"},
+			},
+			"log_stream_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"log_group_id"},
+			},
+			"log_group_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"log_group_id"},
+			},
+			"log_stream_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"log_group_id"},
+			},
 			"func_mounts": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -349,6 +374,15 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 			File: utils.TryBase64EncodeString(v.(string)),
 		}
 		result.FuncCode = &funcCode
+	}
+	if v, ok := d.GetOk("log_group_id"); ok {
+		logConfig := function.FuncLogConfig{
+			GroupId:    v.(string),
+			StreamId:   d.Get("log_stream_id").(string),
+			GroupName:  d.Get("log_group_name").(string),
+			StreamName: d.Get("log_stream_name").(string),
+		}
+		result.LogConfig = &logConfig
 	}
 	return result, nil
 }
@@ -600,6 +634,8 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("custom_image", flattenFgsCustomImage(f.CustomImage)),
 		d.Set("max_instance_num", strconv.Itoa(*f.StrategyConfig.Concurrency)),
 		d.Set("dns_list", f.DomainNames),
+		d.Set("log_group_id", f.LogGroupId),
+		d.Set("log_stream_id", f.LogStreamId),
 		setFgsFunctionApp(d, f.Package),
 		setFgsFunctionAgency(d, f.Xrole),
 		setFgsFunctionVpcAccess(d, f.FuncVpc),
@@ -700,7 +736,8 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 	//lintignore:R019
 	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
-		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image") {
+		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
+		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err
@@ -792,6 +829,17 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 
 	if _, ok := d.GetOk("func_mounts"); ok {
 		updateMetadateOpts.MountConfig = resourceFgsFunctionMountConfig(d)
+	}
+
+	// check name here as it will only save to sate if specified before
+	if v, ok := d.GetOk("log_group_name"); ok {
+		logConfig := function.FuncLogConfig{
+			GroupId:    d.Get("log_group_id").(string),
+			StreamId:   d.Get("log_stream_id").(string),
+			GroupName:  v.(string),
+			StreamName: d.Get("log_stream_name").(string),
+		}
+		updateMetadateOpts.LogConfig = &logConfig
 	}
 
 	logp.Printf("[DEBUG] Metaddata Update Options: %#v", updateMetadateOpts)
