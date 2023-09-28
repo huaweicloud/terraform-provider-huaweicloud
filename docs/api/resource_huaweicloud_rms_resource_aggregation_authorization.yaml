@@ -3,21 +3,21 @@ info:
     description: Manages a RMS aggregation authorization resource within HuaweiCloud.
 host: myhuaweicloud.com
 tags:
-    - name: RMS
+    - name: Config
 servers:
     - url: https://rms.myhuaweicloud.com
 paths:
     /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization:
         GET:
-            tag: RMS
+            tag: Config
             operationId: GetAggregationAuth
             x-ref-api: GET /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization
         PUT:
-            tag: RMS
+            tag: Config
             operationId: CreateAggregationAuth
             x-ref-api: PUT /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization
     /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization/{id}:
         DELETE:
-            tag: RMS
+            tag: Config
             operationId: DeleteAggregationAuth
             x-ref-api: DELETE /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization/{id}
