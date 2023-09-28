@@ -314,7 +314,9 @@ The `cce_config` block supports:
   + **statefulset**: Stateful load.
   + **daemonset**: Daemons set.
 
-* `workload_name` - (Required, String) Specifies the workload name.
+* `label_key` - (Required, String) Specifies the service label key.
+
+* `label_value` - (Required, String) Specifies the service label value.
 
 ## Attribute Reference
 
