@@ -63,6 +63,7 @@ linters-settings:
     ignore-words:
       - classis
       - cancelled
+      - criterias
   gci:
     # Section configuration to compare against.
     # Section names are case-insensitive and may contain parameters in ().
