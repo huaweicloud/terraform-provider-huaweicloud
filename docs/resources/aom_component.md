@@ -24,15 +24,15 @@ resource "huaweicloud_aom_component" "test" {
 The following arguments are supported:
 
 * `name` - (Required, String) Specifies the component name.
-  Changing this parameter will create a new resource.
+  Changing this creates a new resource.
 
 * `model_id` - (Required, String) Specifies the model id. Application ID
   sub-application ID, ID length cannot exceed 36 characters, consisting of uppercase and lowercase letters and numbers.
-  Changing this creates a new resource
+  Changing this creates a new resource.
 
-* `model_type` - (Required, String) Specifies the model type. Application, sub-application, 
+* `model_type` - (Required, String) Specifies the model type. Application, sub-application,
   not case sensitive, Enumeration values: APPLICATION, SUB_APPLICATION
-  Changing this creates a new resource
+  Changing this creates a new resource.
 
 * `region` - (Optional, String) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used.
