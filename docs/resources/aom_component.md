@@ -30,7 +30,7 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `model_id` - (Required, String) Specifies the model id. Application ID
-  sub-application ID, ID length cannot exceed 36 characters, 
+  sub-application ID, ID length cannot exceed 36 characters,
   consisting of uppercase and lowercase letters and numbers.
   Changing this creates a new resource.
 
