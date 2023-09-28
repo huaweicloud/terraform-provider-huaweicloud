@@ -23,10 +23,10 @@ resource "huaweicloud_aom_application" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource. 
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
   Changing this creates a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of application. The value can contain 2 to 64 characters. 
+* `name` - (Required, String, ForceNew) Specifies the name of application. The value can contain 2 to 64 characters.
   Only letters, digits, underscores (_), hyphens (-), and periods (.) are allowed.
   Changing this creates a new resource.
 
@@ -34,16 +34,16 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Description which can contain up to 255 characters.
 
-* `display_name` - (Optional, String, ForceNew) Display name, which can contain 2 to 64 characters. 
+* `display_name` - (Optional, String, ForceNew) Display name, which can contain 2 to 64 characters.
   Only letters, digits, underscores (_), hyphens (-), and periods (.) are allowed.
   Changing this creates a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the application. 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the application.
   This parameter is mandatory for enterprise users.
   Changing this creates a new resource.
 
-* `register_type` - (Optional, String, ForceNew) During frontend invocation, the default value is CONSOLE and no 
-  parameter needs to be transferred. During REST API invocation, the default value is API. 
+* `register_type` - (Optional, String, ForceNew) During frontend invocation, the default value is CONSOLE and no
+  parameter needs to be transferred. During REST API invocation, the default value is API.
   You can change the value to SERVICE_DISCOVERY when necessary.
   Changing this creates a new resource.
 
