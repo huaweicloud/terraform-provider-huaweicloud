@@ -2,7 +2,7 @@
 subcategory: "Organizations"
 ---
 
-# huaweicloud_organizations
+# huaweicloud_organizations_organization
 
 Manages an Organizations organization resource within HuaweiCloud.
 
