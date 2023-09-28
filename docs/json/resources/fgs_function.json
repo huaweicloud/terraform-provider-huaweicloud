@@ -90,6 +90,26 @@
                 "optional": true,
                 "computed": true
               },
+              "log_group_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "log_stream_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "max_instance_num": {
                 "type": "string",
                 "optional": true,

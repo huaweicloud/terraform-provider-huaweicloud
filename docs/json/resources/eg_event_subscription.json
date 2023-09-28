@@ -1,0 +1,134 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_event_subscription": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "The channel ID to which the event subscription belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the event subscription.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the event subscription.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event subscription.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event subscription is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the event subscription.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the event subscription.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "sources": {
+                "block": {
+                  "attributes": {
+                    "filter_rule": {
+                      "type": "string",
+                      "description": "The filter rule of the event source",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the event source.",
+                      "required": true
+                    },
+                    "provider_type": {
+                      "type": "string",
+                      "description": "The provider type of the event source.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of the event sources."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "connection_id": {
+                      "type": "string",
+                      "description": "The connection ID of the EG event target.",
+                      "optional": true
+                    },
+                    "dead_letter_queue": {
+                      "type": "string",
+                      "description": "The specified queue to which failure events sent, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "The configuration detail of the event target, in JSON format.",
+                      "required": true
+                    },
+                    "detail_name": {
+                      "type": "string",
+                      "description": "The name (key) of the target configuration detail.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the event target.",
+                      "required": true
+                    },
+                    "provider_type": {
+                      "type": "string",
+                      "description": "The provider type of the event target.",
+                      "required": true
+                    },
+                    "transform": {
+                      "type": "string",
+                      "description": "The transform configuration of the event target, in JSON format.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of the event targets."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}
