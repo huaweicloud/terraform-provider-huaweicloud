@@ -145,6 +145,7 @@ github.com/chnsz/golangsdk/openstack/ecs/v1/powers
 github.com/chnsz/golangsdk/openstack/ecs/v1/servergroups
 github.com/chnsz/golangsdk/openstack/eg/v1/channel/custom
 github.com/chnsz/golangsdk/openstack/eg/v1/source/custom
+github.com/chnsz/golangsdk/openstack/eg/v1/subscriptions
 github.com/chnsz/golangsdk/openstack/elb/v2/certificates
 github.com/chnsz/golangsdk/openstack/elb/v2/l7policies
 github.com/chnsz/golangsdk/openstack/elb/v2/listeners
