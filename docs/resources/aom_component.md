@@ -30,7 +30,7 @@ The following arguments are supported:
   sub-application ID, ID length cannot exceed 36 characters, consisting of uppercase and lowercase letters and numbers.
   Changing this creates a new resource
 
-* `model_type` - (Required, String) Specifies the model type. Application, sub-application, 
+* `model_type` - (Required, String) Specifies the model type. Application, sub-application,
   not case sensitive, Enumeration values: APPLICATION, SUB_APPLICATION
   Changing this creates a new resource
 
