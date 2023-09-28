@@ -140,6 +140,34 @@ resource "huaweicloud_fgs_function" "test" {
 }
 ```
 
+### Create function with log group and stream
+
+```hcl
+variable "function_name" {}
+variable "log_group_id" {}
+variable "log_stream_id" {}
+variable "log_group_name" {}
+variable "log_stream_name" {}
+
+resource "huaweicloud_fgs_function" "f_1" {
+  name        = var.function_name
+  app         = "default"
+  agency      = "test"
+  description = "fuction test"
+  handler     = "test.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+
+  log_group_id    = var.log_group_id
+  log_stream_id   = var.log_stream_id
+  log_group_name  = var.log_group_name
+  log_stream_name = var.log_stream_name
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -263,6 +291,14 @@ The following arguments are supported:
   The [object](#functiongraph_versions_management) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
+
+* `log_group_id` - (Optional, String) Specifies the ID of the LTS log group.
+
+* `log_group_name` - (Optional, String) Specifies the name of the LTS log group.
+
+* `log_stream_id` - (Optional, String) Specifies the ID of the LTS log stream.
+
+* `log_stream_name` - (Optional, String) Specifies the name of the LTS stream.
 
 The `func_mounts` block supports:
 

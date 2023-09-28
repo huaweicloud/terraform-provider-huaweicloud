@@ -245,6 +245,44 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 	})
 }
 
+func TestAccFgsV2Function_logConfig(t *testing.T) {
+	var f function.Function
+	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_fgs_function.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_logConfig(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttrSet(resourceName, "log_group_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "log_stream_id"),
+				),
+			},
+			{
+				Config: testAccFgsV2Function_logConfigUpdate(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttrSet(resourceName, "log_group_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "log_stream_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccFgsV2Function_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
@@ -723,7 +761,7 @@ resource "huaweicloud_fgs_function" "test" {
   func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
 
   # VPC access and DNS configuration
-  agency     = "function_network_test" # Allow VPC and DNS permissions for FunctionGraph service
+  agency     = "function_all_trust" # Allow VPC and DNS permissions for FunctionGraph service
   vpc_id     = huaweicloud_vpc.test.id
   network_id = huaweicloud_vpc_subnet.test.id
   dns_list   = jsonencode(
@@ -748,7 +786,7 @@ resource "huaweicloud_fgs_function" "test" {
   func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
 
   # VPC access and DNS configuration
-  agency     = "function_network_test" # Allow VPC and DNS permissions for FunctionGraph service
+  agency     = "function_all_trust" # Allow VPC and DNS permissions for FunctionGraph service
   vpc_id     = huaweicloud_vpc.test.id
   network_id = huaweicloud_vpc_subnet.test.id
   dns_list   = jsonencode(
@@ -756,4 +794,76 @@ resource "huaweicloud_fgs_function" "test" {
   )
 }
 `, testAccFunction_domain_base(name), name)
+}
+
+func testAccFgsV2Function_logConfig(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  description = "fuction test"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  log_group_id    = huaweicloud_lts_group.test.id
+  log_stream_id   = huaweicloud_lts_stream.test.id
+  log_group_name  = huaweicloud_lts_group.test.group_name
+  log_stream_name = huaweicloud_lts_stream.test.stream_name
+}
+`, rName)
+}
+
+func testAccFgsV2Function_logConfigUpdate(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+}
+
+resource "huaweicloud_lts_group" "test1" {
+  group_name  = "%[1]s-new"
+  ttl_in_days = 30
+}
+
+resource "huaweicloud_lts_stream" "test1" {
+  group_id    = huaweicloud_lts_group.test1.id
+  stream_name = "%[1]s-new"
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  description = "fuction test"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+
+  log_group_id    = huaweicloud_lts_group.test1.id
+  log_stream_id   = huaweicloud_lts_stream.test1.id
+  log_group_name  = huaweicloud_lts_group.test1.group_name
+  log_stream_name = huaweicloud_lts_stream.test1.stream_name
+}
+`, rName)
 }
