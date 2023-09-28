@@ -223,7 +223,7 @@ func resourceAssociationDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	var (
 		instanceId    = d.Get("instance_id").(string)
-		routeTableId  = d.Get("instance_id").(string)
+		routeTableId  = d.Get("route_table_id").(string)
 		associationId = d.Id()
 
 		opts = associations.DeleteOpts{
