@@ -123,6 +123,8 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs of the desktop.
 
+* `enterprise_project_id` - (Optional,String, ForceNew) Specifies the Enterprise Project ID of desktop.
+
 * `delete_user` - (Optional, Bool) Specifies whether to delete user associated with this desktop after deleting it.
   The user can only be successfully deleted if the user has no other desktops.
 
