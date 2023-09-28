@@ -33,16 +33,16 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Description which can contain up to 255 characters.
 
-* `display_name` - (Optional, String, ForceNew) Display name, which can contain 2 to 64 characters. Only letters, digits, 
-  underscores (_), hyphens (-), and periods (.) are allowed.
+* `display_name` - (Optional, String, ForceNew) Display name, which can contain 2 to 64 characters. Only letters,
+  digits, underscores (_), hyphens (-), and periods (.) are allowed.
   Changing this creates a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the application. This 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the application. This
   parameter is mandatory for enterprise users.
   Changing this creates a new resource.
 
 * `register_type` - (Optional, String, ForceNew) During frontend invocation, the default value is CONSOLE and no
-  parameter needs to be transferred. During REST API invocation, the default value is API. You can change the value to 
+  parameter needs to be transferred. During REST API invocation, the default value is API. You can change the value to
   SERVICE_DISCOVERY when necessary.
   Changing this creates a new resource.
   Enumeration values: **API**, **CONSOLE**, **SERVICE_DISCOVERY**
