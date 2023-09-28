@@ -47,13 +47,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The component id.
 
-* `create_time` - The creation time, the time when the component was created.
+* `create_at` - The creation time, the time when the component was created.
 
 * `creator` - The creator name.
 
 * `modifier` - The modifier name.
 
-* `modified_time` - The modified time, the time when the component was changed.
+* `modified_at` - The modified time, the time when the component was changed.
 
 * `aom_id` - The aom id.
 
