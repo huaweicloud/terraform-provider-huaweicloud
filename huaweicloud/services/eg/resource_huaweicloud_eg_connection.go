@@ -291,7 +291,6 @@ func flattenGetConnectionResponseBodyKafkaDetail(resp interface{}) []interface{}
 		map[string]interface{}{
 			"instance_id":     utils.PathSearch("instance_id", curJson, nil),
 			"connect_address": utils.PathSearch("addr", curJson, nil),
-			"sasl_ssl":        utils.PathSearch("sasl_ssl", curJson, nil),
 			"user_name":       utils.PathSearch("username", curJson, nil),
 			"password":        utils.PathSearch("password", curJson, nil),
 			"acks":            utils.PathSearch("acks", curJson, nil),
