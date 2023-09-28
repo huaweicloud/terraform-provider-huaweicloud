@@ -7,12 +7,13 @@ package rds
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -76,14 +77,38 @@ audit is disabled.`,
 }
 
 func resourceSQLAuditCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	params := buildSetSQLAuditBodyParams(d)
-	err := updateSQLAudit(ctx, d, meta, d.Timeout(schema.TimeoutCreate), params)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// createSQLAudit: create RDS SQL audit
+	var (
+		createSQLAuditProduct = "rds"
+	)
+	createSQLAuditClient, err := cfg.NewServiceClient(createSQLAuditProduct, region)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating RDS client: %s", err)
+	}
+
+	params := buildUpdateSQLAuditBodyParams(d)
+	log.Printf("[DEBUG] Create RDS SQL audit params: %#v", params)
+	err = updateSQLAudit(ctx, d, createSQLAuditClient, d.Timeout(schema.TimeoutCreate), params)
+	if err != nil {
+		return diag.Errorf("error creating RDS SQL audit: %s", err)
 	}
 
 	instanceID := d.Get("instance_id").(string)
 	d.SetId(instanceID)
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"COMPLETED"},
+		Refresh:      rdsSQLAuditStateRefreshFunc(createSQLAuditClient, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for RDS instance(%s) SQL audit creation completed: %s", instanceID, err)
+	}
 
 	return resourceSQLAuditRead(ctx, d, meta)
 }
@@ -96,7 +121,6 @@ func resourceSQLAuditRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	// getSQLAudit: Query the RDS SQL audit
 	var (
-		getSQLAuditHttpUrl = "v3/{project_id}/instances/{instance_id}/auditlog-policy"
 		getSQLAuditProduct = "rds"
 	)
 	getSQLAuditClient, err := cfg.NewServiceClient(getSQLAuditProduct, region)
@@ -112,24 +136,9 @@ func resourceSQLAuditRead(_ context.Context, d *schema.ResourceData, meta interf
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	getSQLAuditPath := getSQLAuditClient.Endpoint + getSQLAuditHttpUrl
-	getSQLAuditPath = strings.ReplaceAll(getSQLAuditPath, "{project_id}", getSQLAuditClient.ProjectID)
-	getSQLAuditPath = strings.ReplaceAll(getSQLAuditPath, "{instance_id}", d.Id())
-
-	getSQLAuditOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-
-	getSQLAuditResp, err := getSQLAuditClient.Request("GET", getSQLAuditPath, &getSQLAuditOpt)
-
+	getSQLAuditRespBody, err := getSQLAudit(getSQLAuditClient, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving RDS SQL audit")
-	}
-
-	getSQLAuditRespBody, err := utils.FlattenResponse(getSQLAuditResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	keepDays := utils.PathSearch("keep_days", getSQLAuditRespBody, 0).(float64)
@@ -149,33 +158,73 @@ func resourceSQLAuditRead(_ context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceSQLAuditUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// updateSQLAudit: update RDS SQL audit
+	var (
+		updateSQLAuditProduct = "rds"
+	)
+	updateSQLAuditClient, err := cfg.NewServiceClient(updateSQLAuditProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating RDS client: %s", err)
+	}
+
 	updateSQLAuditChanges := []string{
 		"keep_days",
 		"audit_types",
 	}
 
 	if d.HasChanges(updateSQLAuditChanges...) {
-		params := buildSetSQLAuditBodyParams(d)
-		err := updateSQLAudit(ctx, d, meta, d.Timeout(schema.TimeoutUpdate), params)
+		params := buildUpdateSQLAuditBodyParams(d)
+		log.Printf("[DEBUG] Update RDS SQL audit params: %#v", params)
+		err = updateSQLAudit(ctx, d, updateSQLAuditClient, d.Timeout(schema.TimeoutUpdate), params)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error updating RDS SQL audit: %s", err)
 		}
+
+		// lintignore:R018
+		time.Sleep(10 * time.Second)
 	}
 
 	return resourceSQLAuditRead(ctx, d, meta)
 }
 
 func resourceSQLAuditDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	params := buildDeleteSQLAuditBodyParams(d)
-	err := updateSQLAudit(ctx, d, meta, d.Timeout(schema.TimeoutDelete), params)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// deleteSQLAudit: delete RDS SQL audit
+	var (
+		deleteSQLAuditProduct = "rds"
+	)
+	deleteSQLAuditClient, err := cfg.NewServiceClient(deleteSQLAuditProduct, region)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating RDS client: %s", err)
+	}
+
+	params := buildDeleteSQLAuditBodyParams(d)
+	log.Printf("[DEBUG] Delete RDS SQL audit params: %#v", params)
+	err = updateSQLAudit(ctx, d, deleteSQLAuditClient, d.Timeout(schema.TimeoutDelete), params)
+	if err != nil {
+		return diag.Errorf("error deleting RDS SQL audit: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"DELETED"},
+		Refresh:      rdsSQLAuditStateRefreshFunc(deleteSQLAuditClient, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for RDS instance(%s) SQL audit to be deleted: %s", d.Id(), err)
 	}
 
 	return nil
 }
 
-func buildSetSQLAuditBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateSQLAuditBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"keep_days":   utils.ValueIngoreEmpty(d.Get("keep_days")),
 		"audit_types": d.Get("audit_types").(*schema.Set).List(),
@@ -191,51 +240,74 @@ func buildDeleteSQLAuditBodyParams(d *schema.ResourceData) map[string]interface{
 	return bodyParams
 }
 
-func updateSQLAudit(ctx context.Context, d *schema.ResourceData, meta interface{}, timeout time.Duration,
+func updateSQLAudit(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout time.Duration,
 	params map[string]interface{}) error {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// setSQLAudit: set RDS SQL audit
+	// updateSQLAudit: update RDS SQL audit
 	var (
-		setSQLAuditHttpUrl = "v3/{project_id}/instances/{instance_id}/auditlog-policy"
-		setSQLAuditProduct = "rds"
+		updateSQLAuditHttpUrl = "v3/{project_id}/instances/{instance_id}/auditlog-policy"
 	)
-	setSQLAuditClient, err := cfg.NewServiceClient(setSQLAuditProduct, region)
-	if err != nil {
-		return fmt.Errorf("error creating RDS client: %s", err)
-	}
 
 	instanceID := d.Get("instance_id").(string)
-	setSQLAuditPath := setSQLAuditClient.Endpoint + setSQLAuditHttpUrl
-	setSQLAuditPath = strings.ReplaceAll(setSQLAuditPath, "{project_id}", setSQLAuditClient.ProjectID)
-	setSQLAuditPath = strings.ReplaceAll(setSQLAuditPath, "{instance_id}", instanceID)
+	updateSQLAuditPath := client.Endpoint + updateSQLAuditHttpUrl
+	updateSQLAuditPath = strings.ReplaceAll(updateSQLAuditPath, "{project_id}", client.ProjectID)
+	updateSQLAuditPath = strings.ReplaceAll(updateSQLAuditPath, "{instance_id}", instanceID)
 
-	setSQLAuditOpt := golangsdk.RequestOpts{
+	updateSQLAuditOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	setSQLAuditOpt.JSONBody = utils.RemoveNil(params)
+	updateSQLAuditOpt.JSONBody = utils.RemoveNil(params)
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = setSQLAuditClient.Request("PUT", setSQLAuditPath, &setSQLAuditOpt)
+		_, err := client.Request("PUT", updateSQLAuditPath, &updateSQLAuditOpt)
 		retry, err := handleMultiOperationsError(err)
 		return nil, retry, err
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     rdsInstanceStateRefreshFunc(setSQLAuditClient, instanceID),
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      timeout,
 		DelayTimeout: 1 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
-	if err != nil {
-		return fmt.Errorf("error updating RDS SQL audit: %s", err)
+	return err
+}
+
+func rdsSQLAuditStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getSQLAuditRespBody, err := getSQLAudit(client, instanceID)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		keepDays := utils.PathSearch("keep_days", getSQLAuditRespBody, 0).(float64)
+		if keepDays == 0 {
+			return getSQLAuditRespBody, "DELETED", nil
+		}
+		return getSQLAuditRespBody, "COMPLETED", nil
+	}
+}
+
+func getSQLAudit(client *golangsdk.ServiceClient, instanceID string) (interface{}, error) {
+	// getSQLAudit: Query the RDS SQL audit
+	var (
+		getSQLAuditHttpUrl = "v3/{project_id}/instances/{instance_id}/auditlog-policy"
+	)
+
+	getSQLAuditPath := client.Endpoint + getSQLAuditHttpUrl
+	getSQLAuditPath = strings.ReplaceAll(getSQLAuditPath, "{project_id}", client.ProjectID)
+	getSQLAuditPath = strings.ReplaceAll(getSQLAuditPath, "{instance_id}", instanceID)
+
+	getSQLAuditOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	// lintignore:R018
-	time.Sleep(10 * time.Second)
+	getSQLAuditResp, err := client.Request("GET", getSQLAuditPath, &getSQLAuditOpt)
 
-	return nil
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getSQLAuditResp)
 }
