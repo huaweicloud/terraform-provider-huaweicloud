@@ -54,11 +54,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Application ID.
 
-* `create_time` - Creation time.
+* `create_at` - Creation time.
 
 * `creator` - Creator.
 
-* `modified_time` - Modification time.
+* `modified_at` - Modification time.
 
 * `modifier` - User who makes the modification.
 
