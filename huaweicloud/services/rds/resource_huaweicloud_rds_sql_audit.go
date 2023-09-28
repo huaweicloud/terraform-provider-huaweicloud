@@ -102,7 +102,7 @@ func resourceSQLAuditCreate(ctx context.Context, d *schema.ResourceData, meta in
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"COMPLETED"},
 		Refresh:      rdsSQLAuditStateRefreshFunc(createSQLAuditClient, instanceID),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        2 * time.Second,
 		PollInterval: 2 * time.Second,
 	}
