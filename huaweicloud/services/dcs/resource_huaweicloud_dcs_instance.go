@@ -455,7 +455,7 @@ func resourceDcsInstancesCheck(d *schema.ResourceData) error {
 			return fmt.Errorf("security_group_id is not supported for Redis 4.0, 5.0 and 6.0. " +
 				"please configure the whitelists alternatively")
 		}
-	} else {
+	} else if engineVersion == "3.0" {
 		// check for Memcached and Redis 3.0
 		if secGroupID == "" {
 			return fmt.Errorf("security_group_id is mandatory for this DCS instance")
