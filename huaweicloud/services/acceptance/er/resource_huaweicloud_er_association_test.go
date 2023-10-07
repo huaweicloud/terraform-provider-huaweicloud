@@ -91,6 +91,8 @@ func testAccAssociationImportStateFunc() resource.ImportStateIdFunc {
 
 func testAccAssociation_base(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
   cidr = "192.168.0.0/16"
@@ -105,10 +107,10 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = ["%[2]s"]
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
   name = "%[1]s"
-  asn  = %[3]d
+  asn  = %[2]d
 }
 
 resource "huaweicloud_er_vpc_attachment" "test" {
@@ -125,7 +127,7 @@ resource "huaweicloud_er_route_table" "test" {
 
   name = "%[1]s"
 }
-`, name, acceptance.HW_AVAILABILITY_ZONE, bgpAsNum)
+`, name, bgpAsNum)
 }
 
 func testAccAssociation_basic(name string, bgpAsNum int) string {

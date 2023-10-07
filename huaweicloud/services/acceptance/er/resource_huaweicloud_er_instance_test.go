@@ -105,15 +105,15 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_er_instance" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
-  name = "%[2]s"
-  asn  = %[3]d
+  name = "%[1]s"
+  asn  = %[2]d
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, acceptance.HW_AVAILABILITY_ZONE, name, bgpAsNum)
+`, name, bgpAsNum)
 }
 
 func testInstance_basic_step2(name string, bgpAsNum int) string {
@@ -123,13 +123,13 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_er_instance" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
-  name = "%[2]s"
-  asn  = %[3]d
+  name = "%[1]s"
+  asn  = %[2]d
 
   tags = {
     foo    = "baar"
     newkey = "value"
   }
 }
-`, acceptance.HW_AVAILABILITY_ZONE, name, bgpAsNum)
+`, name, bgpAsNum)
 }

@@ -120,16 +120,18 @@ func TestAccRouteTablesDataSource_byTags(t *testing.T) {
 
 func testAccRouteTablesDataSource_base(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_er_instance" "test" {
-  availability_zones = ["%[1]s"]
+data "huaweicloud_availability_zones" "test" {}
 
-  name = "%[2]s"
-  asn  = %[3]d
+resource "huaweicloud_er_instance" "test" {
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+
+  name = "%[1]s"
+  asn  = %[2]d
 }
 
 resource "huaweicloud_er_route_table" "test" {
   instance_id = huaweicloud_er_instance.test.id
-  name        = "%[2]s"
+  name        = "%[1]s"
 
   tags = {
     foo   = "bar"
@@ -139,13 +141,13 @@ resource "huaweicloud_er_route_table" "test" {
 
 resource "huaweicloud_er_route_table" "another" {
   instance_id = huaweicloud_er_instance.test.id
-  name        = "%[2]s_another"
+  name        = "%[1]s_another"
 
   tags = {
     owner = "terraform"
   }
 }
-`, acceptance.HW_AVAILABILITY_ZONE, name, bgpAsNum)
+`, name, bgpAsNum)
 }
 
 func testAccRouteTablesDataSource_basic(name string, bgpAsNum int) string {
