@@ -30,7 +30,7 @@ func TestAccDataVaults_backupServer(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", name),
 					resource.TestCheckResourceAttr(dataSourceName, "vaults.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "vaults.0.consistent_level", "app_consistent"),
+					resource.TestCheckResourceAttr(dataSourceName, "vaults.0.consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(dataSourceName, "vaults.0.type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(dataSourceName, "vaults.0.protection_type", "backup"),
 					resource.TestCheckResourceAttr(dataSourceName, "vaults.0.size", "200"),
