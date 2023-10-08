@@ -11,7 +11,7 @@ Use this data source to get models of ModelArts.
 ```hcl
 variable "model_name" {}
 
-data "huaweicloud_modelart_models" "test" {
+data "huaweicloud_modelarts_models" "test" {
   name        = var.model_name
   exact_match = "true"
 }
