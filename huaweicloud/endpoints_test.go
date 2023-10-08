@@ -498,7 +498,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dcs.%s.%s/v1.0/%s/", HW_REGION_NAME, cfg.Cloud, cfg.TenantID)
+	expectedURL = fmt.Sprintf("https://dcs.%s.%s/v1.0/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DCS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -510,7 +510,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dcs.%s.%s/v2/%s/", HW_REGION_NAME, cfg.Cloud, cfg.TenantID)
+	expectedURL = fmt.Sprintf("https://dcs.%s.%s/v2/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DCS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -522,7 +522,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DMS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dms.%s.%s/v1.0/%s/", HW_REGION_NAME, cfg.Cloud, cfg.TenantID)
+	expectedURL = fmt.Sprintf("https://dms.%s.%s/v1.0/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DMS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -534,7 +534,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DMS v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dms.%s.%s/v2/%s/", HW_REGION_NAME, cfg.Cloud, cfg.TenantID)
+	expectedURL = fmt.Sprintf("https://dms.%s.%s/v2/", HW_REGION_NAME, cfg.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DMS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -554,6 +554,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("ServiceStage v1 endpoint:\t %s", actualURL)
 
 	// test the endpoint of ServiceStage v2 service
+	serviceClient, err = cfg.ServiceStageV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ServiceStage v2 client: %s", err)
 	}
