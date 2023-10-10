@@ -244,8 +244,8 @@ func resourceCustomResponseImportState(_ context.Context, d *schema.ResourceData
 			"must be <instance_id>/<group_id>/<name>")
 	}
 
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}

@@ -183,8 +183,8 @@ func flattenApplicationCodes(codes []applications.AppCode) []interface{} {
 }
 
 func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -199,7 +199,7 @@ func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", c.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("registration_time", resp.RegistrationTime),
@@ -271,8 +271,8 @@ func updateApplicationCodes(client *golangsdk.ServiceClient, d *schema.ResourceD
 }
 
 func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -310,8 +310,8 @@ func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -329,7 +329,7 @@ func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceApplicationImportState(_ context.Context, d *schema.ResourceData,
-	meta interface{}) ([]*schema.ResourceData, error) {
+	_ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")

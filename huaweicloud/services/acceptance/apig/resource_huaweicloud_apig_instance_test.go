@@ -14,8 +14,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func getInstanceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
+func getInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.ApigV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
