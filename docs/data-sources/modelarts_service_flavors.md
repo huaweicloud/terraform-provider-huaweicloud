@@ -9,7 +9,7 @@ Use this data source to get supported service deployment flavors of ModelArts.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_modelart_service_flavors" "flavors" {
+data "huaweicloud_modelarts_service_flavors" "flavors" {
   is_open = true
   status  = "normal"
 }
