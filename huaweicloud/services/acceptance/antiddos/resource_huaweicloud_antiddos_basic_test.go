@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	antiddossdk "github.com/chnsz/golangsdk/openstack/antiddos/v1/antiddos"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -47,7 +48,7 @@ func TestAccAntiDdos_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckAntiDdosDestroy(s *terraform.State) error {
+func testAccCheckAntiDdosDestroy(_ *terraform.State) error {
 	// the cloud native AntiDdos always exists
 	return nil
 }
