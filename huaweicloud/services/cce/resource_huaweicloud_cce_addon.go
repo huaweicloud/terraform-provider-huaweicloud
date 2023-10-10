@@ -132,7 +132,7 @@ func ResourceAddon() *schema.Resource {
 
 func buildAddonValues(d *schema.ResourceData) (basic, custom, flavor map[string]interface{}, err error) {
 	values := d.Get("values").([]interface{})
-	if len(values) == 0 {
+	if len(values) == 0 || values[0] == nil {
 		basic = make(map[string]interface{})
 		return
 	}
