@@ -41,8 +41,9 @@ func ResourceDliQueue() *schema.Resource {
 		ReadContext:   resourceDliQueueRead,
 		UpdateContext: resourceDliQueueUpdate,
 		DeleteContext: resourceDliQueueDelete,
+
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceQueueImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -180,7 +181,8 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("create dli queues failed: %s", createResult.Err)
 	}
 
-	//query queue detail,trriger read to refresh the state
+	// The resource ID (queue name) at this time is only used as a mark the resource, and the value will be refreshed
+	// in the READ method.
 	d.SetId(queueName)
 
 	// This is a workaround to avoid issue: the queue is assigning, which is not available
@@ -214,7 +216,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	queueName := d.Id()
+	queueName := d.Get("name").(string)
 
 	queryOpts := queues.ListOpts{
 		QueueType: d.Get("queue_type").(string),
@@ -232,6 +234,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DLI queue")
 	}
+	d.SetId(queueDetail.ResourceId)
 
 	log.Printf("[DEBUG]The detail of queue from SDK:%+v", queueDetail)
 
@@ -275,11 +278,12 @@ func resourceDliQueueDelete(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting dli Queue %q", d.Id())
+	queueName := d.Get("name").(string)
+	log.Printf("[DEBUG] Deleting dli Queue %q", queueName)
 
-	result := queues.Delete(client, d.Id())
+	result := queues.Delete(client, queueName)
 	if result.Err != nil {
-		return diag.Errorf("error deleting dli Queue %q, err=%s", d.Id(), result.Err)
+		return diag.Errorf("error deleting dli Queue %q, err=%s", queueName, result.Err)
 	}
 
 	return nil
@@ -294,8 +298,10 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if err != nil {
 		return diag.Errorf("error creating DliV1Client: %s", err)
 	}
+
+	queueName := d.Get("name").(string)
 	opt := queues.ActionOpts{
-		QueueName: d.Id(),
+		QueueName: queueName,
 	}
 	if d.HasChange("cu_count") {
 		oldValue, newValue := d.GetChange("cu_count")
@@ -307,14 +313,14 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		log.Printf("[DEBUG]DLI queue Update Option: %#v", opt)
 		result := queues.ScaleOrRestart(client, opt)
 		if result.Err != nil {
-			return diag.Errorf("update dli queues failed, queueName=%s, error:%s", opt.QueueName, result.Err)
+			return diag.Errorf("update dli queues failed, queueName=%s, error:%s", queueName, result.Err)
 		}
 
 		updateStateConf := &resource.StateChangeConf{
 			Pending: []string{fmt.Sprintf("%d", oldValue)},
 			Target:  []string{fmt.Sprintf("%d", newValue)},
 			Refresh: func() (interface{}, string, error) {
-				getResult := queues.Get(client, d.Id())
+				getResult := queues.Get(client, queueName)
 				queueDetail := getResult.Body.(*queues.Queue4Get)
 				return getResult, fmt.Sprintf("%d", queueDetail.CuCount), nil
 			},
@@ -324,14 +330,14 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		_, err = updateStateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return diag.Errorf("error waiting for dli.queue (%s) to be scale: %s", d.Id(), err)
+			return diag.Errorf("error waiting for dli.queue (%s) to be scale: %s", queueName, err)
 		}
 
 	}
 
 	if d.HasChange("vpc_cidr") {
 		cidr := d.Get("vpc_cidr").(string)
-		err = updateVpcCidrOfQueue(client, d.Id(), cidr)
+		err = updateVpcCidrOfQueue(client, queueName, cidr)
 		if err != nil {
 			return diag.Errorf("update cidr failed when updating dli queues: %s", err)
 		}
@@ -360,4 +366,12 @@ func validCuCount(val interface{}, key string) (warns []string, errs []error) {
 func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr string) error {
 	_, err := queues.UpdateCidr(client, queueName, queues.UpdateCidrOpts{Cidr: cidr})
 	return err
+}
+
+func resourceQueueImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	err := d.Set("name", d.Id())
+	if err != nil {
+		return []*schema.ResourceData{d}, fmt.Errorf("error saving resource name of the DLI queue: %s", err)
+	}
+	return []*schema.ResourceData{d}, nil
 }
