@@ -335,7 +335,7 @@ func ResourceCluster() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": common.SchemaChargingMode(nil),
@@ -996,6 +996,26 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			err = resourceClusterEipAction(cceClient, eipClient, d.Id(), newEip.(string), "bind")
 			if err != nil {
 				return diag.FromErr(err)
+			}
+		}
+	}
+
+	if d.HasChange("tags") {
+		// remove old tags and set new tags
+		oldTags, newTags := d.GetChange("tags")
+		oldTagsRaw := oldTags.(map[string]interface{})
+		if len(oldTagsRaw) > 0 {
+			taglist := utils.ExpandResourceTags(oldTagsRaw)
+			if tagErr := clusters.RemoveTags(cceClient, d.Id(), taglist).ExtractErr(); tagErr != nil {
+				return diag.Errorf("error deleting tags of CCE cluster %s: %s", d.Id(), tagErr)
+			}
+		}
+
+		newTagsRaw := newTags.(map[string]interface{})
+		if len(newTagsRaw) > 0 {
+			taglist := utils.ExpandResourceTags(newTagsRaw)
+			if tagErr := clusters.AddTags(cceClient, d.Id(), taglist).ExtractErr(); tagErr != nil {
+				return diag.Errorf("error setting tags of CCE cluster %s: %s", d.Id(), tagErr)
 			}
 		}
 	}
