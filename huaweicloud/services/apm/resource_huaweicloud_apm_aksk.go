@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
@@ -46,7 +47,7 @@ func ResourceApmAkSk() *schema.Resource {
 	}
 }
 
-func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceApmAkSkCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
 	if err != nil {
@@ -84,7 +85,7 @@ func ResourceApmAkSkCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return diag.Errorf("error creating aksk fields %s: %s", opts, string(body))
 }
 
-func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceApmAkSkRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
 	if err != nil {
@@ -130,7 +131,7 @@ func ResourceApmAkSkRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 }
 
-func ResourceApmAkSkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceApmAkSkDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "apm", cfg.GetRegion(d))
 	if err != nil {
