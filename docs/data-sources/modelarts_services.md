@@ -9,7 +9,7 @@ Use this data source to get services of ModelArts.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_modelart_services" "test" {
+data "huaweicloud_modelarts_services" "test" {
 }
 ```
 

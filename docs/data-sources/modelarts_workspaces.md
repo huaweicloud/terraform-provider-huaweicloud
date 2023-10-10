@@ -11,7 +11,7 @@ Use this data source to get workspaces of ModelArts.
 ```hcl
 variable "workspace_name" {}
 
-data "huaweicloud_modelart_workspaces" "test" {
+data "huaweicloud_modelarts_workspaces" "test" {
   name = var.workspace_name
 }
 ```
