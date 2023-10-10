@@ -259,7 +259,7 @@ func resourceCustomAuthorizerUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceCustomAuthorizerRead(ctx, d, meta)
 }
 
-func resourceCustomAuthorizerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomAuthorizerDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg = meta.(*config.Config)
 

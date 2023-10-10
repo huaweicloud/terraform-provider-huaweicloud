@@ -59,8 +59,8 @@ func ResourceThrottlingPolicyAssociate() *schema.Resource {
 
 func resourceThrottlingPolicyAssociateCreate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -107,8 +107,8 @@ func flattenApiPublishIds(apiList []throttles.ApiForThrottle) []string {
 
 func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %v", err)
 	}
@@ -154,8 +154,8 @@ func unbindPolicy(client *golangsdk.ServiceClient, instanceId, policyId string, 
 
 func resourceThrottlingPolicyAssociateUpdate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -192,8 +192,8 @@ func resourceThrottlingPolicyAssociateUpdate(ctx context.Context, d *schema.Reso
 
 func resourceThrottlingPolicyAssociateDelete(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	c := meta.(*config.Config)
+	client, err := c.ApigV2Client(c.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
