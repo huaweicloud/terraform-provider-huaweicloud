@@ -205,6 +205,12 @@ type MicroserviceCceInfo struct {
 	WorkloadType string `json:"workload_type,omitempty"`
 	// Application name.
 	AppName string `json:"app_name,omitempty"`
+	// Service label key. Start with a letter or digit, and use only letters, digits, and these special
+	// characters: -_./:(). (1 to 64 characters)
+	LabelKey string `json:"label_key,omitempty"`
+	// Service label value. Start with a letter, and include only letters, digits, periods (.), hyphens (-),
+	// and underscores (_). (1 to 64 characters)
+	LabelValue string `json:"label_value,omitempty"`
 }
 
 var requestOpts = golangsdk.RequestOpts{

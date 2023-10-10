@@ -7,6 +7,7 @@ const (
 	certPath      = "clustercert"
 	masterIpPath  = "mastereip"
 	operationPath = "operation"
+	tagsPath      = "tags"
 )
 
 func rootURL(client *golangsdk.ServiceClient) string {
@@ -27,4 +28,8 @@ func masterIpURL(c *golangsdk.ServiceClient, id string) string {
 
 func operationURL(c *golangsdk.ServiceClient, id, action string) string {
 	return c.ServiceURL(rootPath, id, operationPath, action)
+}
+
+func tagsURL(c *golangsdk.ServiceClient, id, action string) string {
+	return c.ServiceURL(rootPath, id, tagsPath, action)
 }
