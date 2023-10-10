@@ -38,3 +38,5 @@ In addition to all arguments above, the following attributes are exported:
 * `root_urn` - Indicates the urn of the root.
 
 * `root_tags` - Indicates the key/value attached to the root.
+
+* `enabled_policy_types` - Indicates the list of enabled Organizations policy types in the Organization Root.
