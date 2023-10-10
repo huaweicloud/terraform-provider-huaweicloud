@@ -1098,7 +1098,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_image_retention_policy":   swr.ResourceSwrImageRetentionPolicy(),
 			"huaweicloud_swr_image_auto_sync":          swr.ResourceSwrImageAutoSync(),
 
-			"huaweicloud_tms_tags": tms.ResourceTmsTag(),
+			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
+			"huaweicloud_tms_tags":          tms.ResourceTmsTag(),
 
 			"huaweicloud_ucs_fleet":   ucs.ResourceFleet(),
 			"huaweicloud_ucs_cluster": ucs.ResourceCluster(),
