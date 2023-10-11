@@ -326,7 +326,7 @@ func resourceThrottlingPolicyRead(_ context.Context, d *schema.ResourceData, met
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", metaConfig.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("type", analyseThrottlingPolicyType(resp.Type)),
 		d.Set("name", resp.Name),
 		d.Set("period", resp.TimeInterval),

@@ -276,7 +276,7 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", c.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("registration_time", resp.RegistraionTime),
