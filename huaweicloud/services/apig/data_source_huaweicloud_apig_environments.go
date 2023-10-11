@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
-// Test
+
 func DataSourceEnvironments() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceEnvironmentsRead,
