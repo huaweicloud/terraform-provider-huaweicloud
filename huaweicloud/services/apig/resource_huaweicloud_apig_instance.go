@@ -267,7 +267,7 @@ func buildInstanceAvailabilityZones(d *schema.ResourceData) ([]string, error) {
 	return nil, fmt.Errorf("The parameter 'availability_zones' must be specified")
 }
 
-func buildInstanceCreateOpts(d *schema.ResourceData, c *config.Config) (instances.CreateOpts, error) {
+func buildInstanceCreateOpts(d *schema.ResourceData, cfg *config.Config) (instances.CreateOpts, error) {
 	result := instances.CreateOpts{
 		Name:                 d.Get("name").(string),
 		Edition:              d.Get("edition").(string),
@@ -277,7 +277,7 @@ func buildInstanceCreateOpts(d *schema.ResourceData, c *config.Config) (instance
 		Description:          d.Get("description").(string),
 		EipId:                d.Get("eip_id").(string),
 		BandwidthSize:        d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, c),
+		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
 		Ipv6Enable:           d.Get("ipv6_enable").(bool),
 		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
 		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
