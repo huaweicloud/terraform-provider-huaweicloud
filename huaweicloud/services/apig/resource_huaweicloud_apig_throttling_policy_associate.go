@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -127,7 +128,8 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	return diag.FromErr(d.Set("publish_ids", flattenApiPublishIds(resp)))
+	mErr := multierror.Append(nil, d.Set("publish_ids", flattenApiPublishIds(resp)))
+	return diag.FromErr(mErr)
 }
 
 func unbindPolicy(client *golangsdk.ServiceClient, instanceId, policyId string, unbindSet *schema.Set) error {
