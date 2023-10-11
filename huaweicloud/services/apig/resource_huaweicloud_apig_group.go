@@ -179,8 +179,8 @@ func removeEnvironmentVariables(client *golangsdk.ServiceClient, instanceId stri
 }
 
 func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -259,8 +259,8 @@ func flattenEnvironmentVariables(variables []environments.Variable) []map[string
 }
 
 func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -309,8 +309,8 @@ func updateEnvironmentVariables(client *golangsdk.ServiceClient, d *schema.Resou
 }
 
 func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -340,8 +340,8 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
