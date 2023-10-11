@@ -124,8 +124,8 @@ func GetEnvironmentFormServer(client *golangsdk.ServiceClient, instanceId,
 }
 
 func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -135,7 +135,7 @@ func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta int
 		return common.CheckDeletedDiag(d, err, "dedicated environment")
 	}
 	mErr := multierror.Append(nil,
-		d.Set("region", c.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("created_at", resp.CreateTime),
@@ -147,8 +147,8 @@ func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -171,8 +171,8 @@ func resourceEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceEnvironmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -193,8 +193,8 @@ func resourceEnvironmentResourceImportState(_ context.Context, d *schema.Resourc
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<name>")
 	}
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}

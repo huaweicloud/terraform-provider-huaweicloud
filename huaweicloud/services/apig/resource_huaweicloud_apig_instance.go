@@ -316,13 +316,13 @@ func buildTagsUpdateOpts(tags map[string]interface{}, instanceId, action string)
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	opts, err := buildInstanceCreateOpts(d, c)
+	opts, err := buildInstanceCreateOpts(d, cfg)
 	if err != nil {
 		return diag.Errorf("error creating the dedicated instance options: %s", err)
 	}
@@ -593,8 +593,8 @@ func updateInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -644,8 +644,8 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}

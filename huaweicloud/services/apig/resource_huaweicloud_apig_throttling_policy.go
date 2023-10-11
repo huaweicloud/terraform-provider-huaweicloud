@@ -230,8 +230,8 @@ func addSpecThrottlingPolicies(client *golangsdk.ServiceClient, policies *schema
 }
 
 func resourceThrottlingPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	metaConfig := meta.(*config.Config)
-	client, err := metaConfig.ApigV2Client(metaConfig.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -310,8 +310,8 @@ func flattenSpecThrottlingPolicies(specThrottles []throttles.SpecThrottle) (user
 }
 
 func resourceThrottlingPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	metaConfig := meta.(*config.Config)
-	client, err := metaConfig.ApigV2Client(metaConfig.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -433,8 +433,8 @@ func updateSpecThrottlingPolicies(d *schema.ResourceData, client *golangsdk.Serv
 }
 
 func resourceThrottlingPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	metaConfig := meta.(*config.Config)
-	client, err := metaConfig.ApigV2Client(metaConfig.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -467,8 +467,8 @@ func resourceThrottlingPolicyUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceThrottlingPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Huawei Cloud APIG v2 client: %s", err)
 	}
@@ -487,8 +487,8 @@ func resourceThrottlingPolicyDelete(_ context.Context, d *schema.ResourceData, m
 // The ID cannot find on the console, so we need to import by throttling policy name.
 func resourceThrottlingPolicyImportState(_ context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	c := meta.(*config.Config)
-	client, err := c.ApigV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return []*schema.ResourceData{d}, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
