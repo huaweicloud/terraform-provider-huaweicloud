@@ -1,16 +1,52 @@
-Version 3.21.12
+Version 3.23.9
 
 New Features:
-1. Added the `obs.WithTrafficLimitHeader` method to limit the bandwidth of a single connection.
+1. Added the obs.WithProgress method to support progress bar callback.
+2. Added fragment expiration time in configuration life cycle management rules.
 
 Documentation & Demo:
-1. Added descriptions about single-connection bandwidth throttling.
+
+-----------------------------------------------------------------------------------
+
+Version 3.23.4
+
+New Features:
+1. Added the obs.WithCustomHeader method when upload.
+2. Added bucket customDomain-related APIs, including SetBucketCustomDomain, GetBucketCustomDomain, and DeleteBucketCustomDomain.
+3. Added bucket mirrorBackToSource-related APIs, including SetBucketMirrorBackToSource, GetBucketMirrorBackToSource, and DeleteBucketMirrorBackToSource.
+
+Documentation & Demo:
+1. Added descriptions about bucket customDomain APIs.
+2. Added descriptions about bucket mirrorBackToSource APIs.
+
+-----------------------------------------------------------------------------------
+Version 3.23.3
+
+New Features:
+1. Added the obs.WithCallbackHeader method when upload.
+
+Documentation & Demo:
+1. Added descriptions about callback when upload.
 2. Added descriptions about extended configurations of SDK APIs.
 
 Resolved Issues:
 1. Optimized some code.
 
 -----------------------------------------------------------------------------------
+Version 3.21.12
+
+New Features:
+1. Added obs.WithTrafficLimitHeader method to realize single-connection bandwidth throttling.
+
+Documentation & Demo:
+1. Added descriptions about single-connection bandwidth throttling.
+2. Added descriptions about the SDK interface extension configuration.
+
+Resolved Issues:
+1. Optimized part of the code.
+
+-----------------------------------------------------------------------------------
+
 Version 3.21.8
 
 New Features:
@@ -26,7 +62,6 @@ Documentation & Demo:
 4. Added descriptions about the new parameter for specifying a bucket type in the ListBuckets API.
 
 Resolved Issues:
-1. Use proxy URL from environment variables by default.
 
 -----------------------------------------------------------------------------------
 
