@@ -182,13 +182,15 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 
 	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
 	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
+	envProxyConfigure := obs.WithProxyFromEnv(true)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
 			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken), clientConfigure,
-			userAgentConfigure)
+			userAgentConfigure, envProxyConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"), clientConfigure, userAgentConfigure)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"), clientConfigure,
+		userAgentConfigure, envProxyConfigure)
 }
 
 func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
@@ -211,12 +213,13 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 
 	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
 	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
+	envProxyConfigure := obs.WithProxyFromEnv(true)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken), clientConfigure,
-			userAgentConfigure)
+			userAgentConfigure, envProxyConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure, envProxyConfigure)
 }
 
 func buildObsUserAgent() string {

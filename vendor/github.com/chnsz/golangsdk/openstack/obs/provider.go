@@ -206,7 +206,6 @@ func (ecsSp *EcsSecurityProvider) getSecurity() securityHolder {
 }
 
 func getInternalTransport() *http.Transport {
-
 	timeout := 10
 	transport := &http.Transport{
 		Dial: func(network, addr string) (net.Conn, error) {

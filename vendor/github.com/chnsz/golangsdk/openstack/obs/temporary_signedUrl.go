@@ -508,7 +508,7 @@ func (obsClient ObsClient) GetObjectMetadataWithSignedUrl(signedUrl string, actu
 // GetObjectWithSignedUrl downloads object with the specified signed url and signed request headers
 func (obsClient ObsClient) GetObjectWithSignedUrl(signedUrl string, actualSignedRequestHeaders http.Header) (output *GetObjectOutput, err error) {
 	output = &GetObjectOutput{}
-	err = obsClient.doHTTPWithSignedURL("GetObject", HTTP_GET, signedUrl, actualSignedRequestHeaders, nil, output, true)
+	err = obsClient.doHTTPWithSignedURL(GET_OBJECT, HTTP_GET, signedUrl, actualSignedRequestHeaders, nil, output, true)
 	if err != nil {
 		output = nil
 	} else {
@@ -520,7 +520,7 @@ func (obsClient ObsClient) GetObjectWithSignedUrl(signedUrl string, actualSigned
 // PutObjectWithSignedUrl uploads an object to the specified bucket with the specified signed url and signed request headers and data
 func (obsClient ObsClient) PutObjectWithSignedUrl(signedUrl string, actualSignedRequestHeaders http.Header, data io.Reader) (output *PutObjectOutput, err error) {
 	output = &PutObjectOutput{}
-	err = obsClient.doHTTPWithSignedURL("PutObject", HTTP_PUT, signedUrl, actualSignedRequestHeaders, data, output, true)
+	err = obsClient.doHTTPWithSignedURL(PUT_OBJECT, HTTP_PUT, signedUrl, actualSignedRequestHeaders, data, output, true)
 	if err != nil {
 		output = nil
 	} else {
@@ -570,7 +570,7 @@ func (obsClient ObsClient) PutFileWithSignedUrl(signedUrl string, actualSignedRe
 	}
 
 	output = &PutObjectOutput{}
-	err = obsClient.doHTTPWithSignedURL("PutObject", HTTP_PUT, signedUrl, actualSignedRequestHeaders, data, output, true)
+	err = obsClient.doHTTPWithSignedURL(PUT_FILE, HTTP_PUT, signedUrl, actualSignedRequestHeaders, data, output, true)
 	if err != nil {
 		output = nil
 	} else {
@@ -734,7 +734,7 @@ func (obsClient ObsClient) DeleteBucketEncryptionWithSignedURL(signedURL string,
 // AppendObjectWithSignedUrl uploads an object to the specified bucket with the specified signed url and signed request headers and data
 func (obsClient ObsClient) AppendObjectWithSignedURL(signedURL string, actualSignedRequestHeaders http.Header, data io.Reader) (output *AppendObjectOutput, err error) {
 	output = &AppendObjectOutput{}
-	err = obsClient.doHTTPWithSignedURL("AppendObject", HTTP_POST, signedURL, actualSignedRequestHeaders, data, output, true)
+	err = obsClient.doHTTPWithSignedURL(APPEND_OBJECT, HTTP_POST, signedURL, actualSignedRequestHeaders, data, output, true)
 	if err != nil {
 		output = nil
 	} else {

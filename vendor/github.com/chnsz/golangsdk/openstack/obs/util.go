@@ -13,6 +13,7 @@
 package obs
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
@@ -22,7 +23,10 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -47,6 +51,37 @@ func XmlTranscoding(src string) string {
 	srcTmp = StringContains(srcTmp, "'", "&apos;")
 	srcTmp = StringContains(srcTmp, "\"", "&quot;")
 	return srcTmp
+}
+
+func HandleHttpResponse(action string, headers map[string][]string, output IBaseModel, resp *http.Response, xmlResult bool, isObs bool) (err error) {
+	if IsHandleCallbackResponse(action, headers, isObs) {
+		if err = ParseCallbackResponseToBaseModel(resp, output, isObs); err != nil {
+			doLog(LEVEL_WARN, "Parse callback response to BaseModel with error: %v", err)
+		}
+	} else {
+		if err = ParseResponseToBaseModel(resp, output, xmlResult, isObs); err != nil {
+			doLog(LEVEL_WARN, "Parse response to BaseModel with error: %v", err)
+		}
+	}
+	return
+}
+
+func IsHandleCallbackResponse(action string, headers map[string][]string, isObs bool) bool {
+	var headerPrefix = HEADER_PREFIX
+	if isObs == true {
+		headerPrefix = HEADER_PREFIX_OBS
+	}
+	supportCallbackActions := []string{PUT_OBJECT, PUT_FILE, "CompleteMultipartUpload"}
+	return len(headers[headerPrefix+CALLBACK]) != 0 && IsContain(supportCallbackActions, action)
+}
+
+func IsContain(items []string, item string) bool {
+	for _, eachItem := range items {
+		if eachItem == item {
+			return true
+		}
+	}
+	return false
 }
 
 // StringToInt converts string value to int value with default value
@@ -548,4 +583,38 @@ func getTemporaryAuthorization(ak, sk, method, bucketName, objectKey, signature 
 	}
 
 	return
+}
+
+func GetContentType(key string) (string, bool) {
+	if ct, ok := mimeTypes[strings.ToLower(key[strings.LastIndex(key, ".")+1:])]; ok {
+		return ct, ok
+	}
+	return "", false
+}
+
+func GetReaderLen(reader io.Reader) (int64, error) {
+	var contentLength int64
+	var err error
+	switch v := reader.(type) {
+	case *bytes.Buffer:
+		contentLength = int64(v.Len())
+	case *bytes.Reader:
+		contentLength = int64(v.Len())
+	case *strings.Reader:
+		contentLength = int64(v.Len())
+	case *os.File:
+		fInfo, fError := v.Stat()
+		if fError != nil {
+			err = fmt.Errorf("can't get reader content length,%s", fError.Error())
+		} else {
+			contentLength = fInfo.Size()
+		}
+	case *io.LimitedReader:
+		contentLength = int64(v.N)
+	case *fileReaderWrapper:
+		contentLength = int64(v.totalCount)
+	default:
+		err = fmt.Errorf("can't get reader content length,unkown reader type")
+	}
+	return contentLength, err
 }
