@@ -18,6 +18,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/instances"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -485,19 +486,17 @@ func checkASGroupRemoved(ctx context.Context, client *golangsdk.ServiceClient, g
 }
 
 func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	asClient, err := conf.AutoscalingV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
-	var desireNum int
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
+	desireNum := minNum
 	if v, ok := d.GetOk("desire_instance_number"); ok {
 		desireNum = v.(int)
-	} else {
-		desireNum = minNum
 	}
 	log.Printf("[DEBUG] instance number options: min(%d), max(%d), desired(%d)", minNum, maxNum, desireNum)
 	if desireNum < minNum || desireNum > maxNum {
@@ -526,7 +525,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		Description:               d.Get("description").(string),
 		IamAgencyName:             d.Get("agency_name").(string),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
-		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -678,13 +677,11 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
-	var desireNum int
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
+	desireNum := minNum
 	if v, ok := d.GetOk("desire_instance_number"); ok {
 		desireNum = v.(int)
-	} else {
-		desireNum = minNum
 	}
 	if d.HasChanges("min_instance_number", "max_instance_number", "desire_instance_number") {
 		log.Printf("[DEBUG] instance number options: min(%d), max(%d), desired(%d)", minNum, maxNum, desireNum)
@@ -728,9 +725,9 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	// update tags
 	if d.HasChange("tags") {
-		// remove old tags and set new tags
-		old, new := d.GetChange("tags")
-		oldRaw := old.(map[string]interface{})
+		// remove oldTag tags and set newTag tags
+		oldTag, newTag := d.GetChange("tags")
+		oldRaw := oldTag.(map[string]interface{})
 		if len(oldRaw) > 0 {
 			taglist := expandGroupsTags(oldRaw)
 			if tagErr := tags.Delete(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
@@ -738,7 +735,7 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			}
 		}
 
-		newRaw := new.(map[string]interface{})
+		newRaw := newTag.(map[string]interface{})
 		if len(newRaw) > 0 {
 			taglist := expandGroupsTags(newRaw)
 			if tagErr := tags.Create(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
@@ -767,8 +764,8 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	asClient, err := conf.AutoscalingV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
