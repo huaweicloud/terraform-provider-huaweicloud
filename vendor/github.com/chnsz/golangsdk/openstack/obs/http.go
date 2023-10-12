@@ -17,96 +17,127 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
 func prepareHeaders(headers map[string][]string, meta bool, isObs bool) map[string][]string {
 	_headers := make(map[string][]string, len(headers))
-	if headers != nil {
-		for key, value := range headers {
-			key = strings.TrimSpace(key)
-			if key == "" {
+	for key, value := range headers {
+		key = strings.TrimSpace(key)
+		if key == "" {
+			continue
+		}
+		_key := strings.ToLower(key)
+		if _, ok := allowedRequestHTTPHeaderMetadataNames[_key]; !ok && !strings.HasPrefix(key, HEADER_PREFIX) && !strings.HasPrefix(key, HEADER_PREFIX_OBS) {
+			if !meta {
 				continue
 			}
-			_key := strings.ToLower(key)
-			if _, ok := allowedRequestHTTPHeaderMetadataNames[_key]; !ok && !strings.HasPrefix(key, HEADER_PREFIX) && !strings.HasPrefix(key, HEADER_PREFIX_OBS) {
-				if !meta {
-					continue
-				}
-				if !isObs {
-					_key = HEADER_PREFIX_META + _key
-				} else {
-					_key = HEADER_PREFIX_META_OBS + _key
-				}
+			if !isObs {
+				_key = HEADER_PREFIX_META + _key
 			} else {
-				_key = key
+				_key = HEADER_PREFIX_META_OBS + _key
 			}
-			_headers[_key] = value
+		} else {
+			_key = key
 		}
+		_headers[_key] = value
 	}
 	return _headers
 }
 
+func (obsClient ObsClient) checkParamsWithBucketName(bucketName string) bool {
+	return strings.TrimSpace(bucketName) == "" && !obsClient.conf.cname
+}
+
+func (obsClient ObsClient) checkParamsWithObjectKey(objectKey string) bool {
+	return strings.TrimSpace(objectKey) == ""
+}
+
 func (obsClient ObsClient) doActionWithoutBucket(action, method string, input ISerializable, output IBaseModel, extensions []extensionOptions) error {
-	return obsClient.doAction(action, method, "", "", input, output, true, true, extensions)
+	return obsClient.doAction(action, method, "", "", input, output, true, true, extensions, nil)
 }
 
 func (obsClient ObsClient) doActionWithBucketV2(action, method, bucketName string, input ISerializable, output IBaseModel, extensions []extensionOptions) error {
-	if strings.TrimSpace(bucketName) == "" && !obsClient.conf.cname {
+	if obsClient.checkParamsWithBucketName(bucketName) {
 		return errors.New("Bucket is empty")
 	}
-	return obsClient.doAction(action, method, bucketName, "", input, output, false, true, extensions)
+	return obsClient.doAction(action, method, bucketName, "", input, output, false, true, extensions, nil)
 }
 
 func (obsClient ObsClient) doActionWithBucket(action, method, bucketName string, input ISerializable, output IBaseModel, extensions []extensionOptions) error {
-	if strings.TrimSpace(bucketName) == "" && !obsClient.conf.cname {
+	if obsClient.checkParamsWithBucketName(bucketName) {
 		return errors.New("Bucket is empty")
 	}
-	return obsClient.doAction(action, method, bucketName, "", input, output, true, true, extensions)
+	return obsClient.doAction(action, method, bucketName, "", input, output, true, true, extensions, nil)
 }
 
 func (obsClient ObsClient) doActionWithBucketAndKey(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, extensions []extensionOptions) error {
-	return obsClient._doActionWithBucketAndKey(action, method, bucketName, objectKey, input, output, true, extensions)
+	if obsClient.checkParamsWithBucketName(bucketName) {
+		return errors.New("Bucket is empty")
+	}
+	if obsClient.checkParamsWithObjectKey(objectKey) {
+		return errors.New("Key is empty")
+	}
+	return obsClient.doAction(action, method, bucketName, objectKey, input, output, true, true, extensions, nil)
+}
+
+func (obsClient ObsClient) doActionWithBucketAndKeyWithProgress(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, extensions []extensionOptions, listener ProgressListener) error {
+	if obsClient.checkParamsWithBucketName(bucketName) {
+		return errors.New("Bucket is empty")
+	}
+	if obsClient.checkParamsWithObjectKey(objectKey) {
+		return errors.New("Key is empty")
+	}
+	return obsClient.doAction(action, method, bucketName, objectKey, input, output, true, true, extensions, listener)
 }
 
 func (obsClient ObsClient) doActionWithBucketAndKeyV2(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, extensions []extensionOptions) error {
-	if strings.TrimSpace(bucketName) == "" && !obsClient.conf.cname {
+	if obsClient.checkParamsWithBucketName(bucketName) {
 		return errors.New("Bucket is empty")
 	}
-	if strings.TrimSpace(objectKey) == "" {
+	if obsClient.checkParamsWithObjectKey(objectKey) {
 		return errors.New("Key is empty")
 	}
-	return obsClient.doAction(action, method, bucketName, objectKey, input, output, false, true, extensions)
+	return obsClient.doAction(action, method, bucketName, objectKey, input, output, false, true, extensions, nil)
 }
 
 func (obsClient ObsClient) doActionWithBucketAndKeyUnRepeatable(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, extensions []extensionOptions) error {
-	return obsClient._doActionWithBucketAndKey(action, method, bucketName, objectKey, input, output, false, extensions)
-}
-
-func (obsClient ObsClient) _doActionWithBucketAndKey(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, repeatable bool, extensions []extensionOptions) error {
-	if strings.TrimSpace(bucketName) == "" && !obsClient.conf.cname {
+	if obsClient.checkParamsWithBucketName(bucketName) {
 		return errors.New("Bucket is empty")
 	}
-	if strings.TrimSpace(objectKey) == "" {
+	if obsClient.checkParamsWithObjectKey(objectKey) {
 		return errors.New("Key is empty")
 	}
-	return obsClient.doAction(action, method, bucketName, objectKey, input, output, true, repeatable, extensions)
+	return obsClient.doAction(action, method, bucketName, objectKey, input, output, true, false, extensions, nil)
 }
 
-func (obsClient ObsClient) doAction(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, xmlResult bool, repeatable bool, extensions []extensionOptions) error {
+func (obsClient ObsClient) doActionWithBucketAndKeyUnRepeatableWithProgress(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, extensions []extensionOptions, listener ProgressListener) error {
+	if obsClient.checkParamsWithBucketName(bucketName) {
+		return errors.New("Bucket is empty")
+	}
+	if obsClient.checkParamsWithObjectKey(objectKey) {
+		return errors.New("Key is empty")
+	}
+	return obsClient.doAction(action, method, bucketName, objectKey, input, output, true, false, extensions, listener)
+}
+
+func (obsClient ObsClient) doAction(action, method, bucketName, objectKey string, input ISerializable, output IBaseModel, xmlResult bool, repeatable bool, extensions []extensionOptions, listener ProgressListener) error {
 
 	var resp *http.Response
 	var respError error
 	doLog(LEVEL_INFO, "Enter method %s...", action)
 	start := GetCurrentTimestamp()
+	isObs := obsClient.conf.signature == SignatureObs
 
-	params, headers, data, err := input.trans(obsClient.conf.signature == SignatureObs)
+	params, headers, data, err := input.trans(isObs)
 	if err != nil {
 		return err
 	}
@@ -121,8 +152,7 @@ func (obsClient ObsClient) doAction(action, method, bucketName, objectKey string
 
 	for _, extension := range extensions {
 		if extensionHeader, ok := extension.(extensionHeaders); ok {
-			_err := extensionHeader(headers, obsClient.conf.signature == SignatureObs)
-			if _err != nil {
+			if _err := extensionHeader(headers, isObs); err != nil {
 				doLog(LEVEL_INFO, fmt.Sprintf("set header with error: %v", _err))
 			}
 		} else {
@@ -130,27 +160,10 @@ func (obsClient ObsClient) doAction(action, method, bucketName, objectKey string
 		}
 	}
 
-	switch method {
-	case HTTP_GET:
-		resp, respError = obsClient.doHTTPGet(bucketName, objectKey, params, headers, data, repeatable)
-	case HTTP_POST:
-		resp, respError = obsClient.doHTTPPost(bucketName, objectKey, params, headers, data, repeatable)
-	case HTTP_PUT:
-		resp, respError = obsClient.doHTTPPut(bucketName, objectKey, params, headers, data, repeatable)
-	case HTTP_DELETE:
-		resp, respError = obsClient.doHTTPDelete(bucketName, objectKey, params, headers, data, repeatable)
-	case HTTP_HEAD:
-		resp, respError = obsClient.doHTTPHead(bucketName, objectKey, params, headers, data, repeatable)
-	case HTTP_OPTIONS:
-		resp, respError = obsClient.doHTTPOptions(bucketName, objectKey, params, headers, data, repeatable)
-	default:
-		respError = errors.New("Unexpect http method error")
-	}
+	resp, respError = obsClient.doHTTPRequest(method, bucketName, objectKey, params, headers, data, repeatable, listener)
+
 	if respError == nil && output != nil {
-		respError = ParseResponseToBaseModel(resp, output, xmlResult, obsClient.conf.signature == SignatureObs)
-		if respError != nil {
-			doLog(LEVEL_WARN, "Parse response to BaseModel with error: %v", respError)
-		}
+		respError = HandleHttpResponse(action, headers, output, resp, xmlResult, isObs)
 	} else {
 		doLog(LEVEL_WARN, "Do http request with error: %v", respError)
 	}
@@ -162,34 +175,9 @@ func (obsClient ObsClient) doAction(action, method, bucketName, objectKey string
 	return respError
 }
 
-func (obsClient ObsClient) doHTTPGet(bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (*http.Response, error) {
-	return obsClient.doHTTP(HTTP_GET, bucketName, objectKey, params, prepareHeaders(headers, false, obsClient.conf.signature == SignatureObs), data, repeatable)
-}
-
-func (obsClient ObsClient) doHTTPHead(bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (*http.Response, error) {
-	return obsClient.doHTTP(HTTP_HEAD, bucketName, objectKey, params, prepareHeaders(headers, false, obsClient.conf.signature == SignatureObs), data, repeatable)
-}
-
-func (obsClient ObsClient) doHTTPOptions(bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (*http.Response, error) {
-	return obsClient.doHTTP(HTTP_OPTIONS, bucketName, objectKey, params, prepareHeaders(headers, false, obsClient.conf.signature == SignatureObs), data, repeatable)
-}
-
-func (obsClient ObsClient) doHTTPDelete(bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (*http.Response, error) {
-	return obsClient.doHTTP(HTTP_DELETE, bucketName, objectKey, params, prepareHeaders(headers, false, obsClient.conf.signature == SignatureObs), data, repeatable)
-}
-
-func (obsClient ObsClient) doHTTPPut(bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (*http.Response, error) {
-	return obsClient.doHTTP(HTTP_PUT, bucketName, objectKey, params, prepareHeaders(headers, true, obsClient.conf.signature == SignatureObs), data, repeatable)
-}
-
-func (obsClient ObsClient) doHTTPPost(bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (*http.Response, error) {
-	return obsClient.doHTTP(HTTP_POST, bucketName, objectKey, params, prepareHeaders(headers, true, obsClient.conf.signature == SignatureObs), data, repeatable)
+func (obsClient ObsClient) doHTTPRequest(method, bucketName, objectKey string, params map[string]string,
+	headers map[string][]string, data interface{}, repeatable bool, listener ProgressListener) (*http.Response, error) {
+	return obsClient.doHTTP(method, bucketName, objectKey, params, prepareHeaders(headers, false, obsClient.conf.signature == SignatureObs), data, repeatable, listener)
 }
 
 func prepareAgentHeader(clientUserAgent string) string {
@@ -206,7 +194,7 @@ func (obsClient ObsClient) getSignedURLResponse(action string, output IBaseModel
 		respError = err
 		resp = nil
 	} else {
-		doLog(LEVEL_DEBUG, "Response headers: %v", resp.Header)
+		doLog(LEVEL_DEBUG, "Response headers: %s", logResponseHeader(resp.Header))
 		if resp.StatusCode >= 300 {
 			respError = ParseResponseToObsError(resp, obsClient.conf.signature == SignatureObs)
 			msg = resp.Status
@@ -296,7 +284,7 @@ func prepareData(headers map[string][]string, data interface{}) (io.Reader, erro
 	var _data io.Reader
 	if data != nil {
 		if dataStr, ok := data.(string); ok {
-			doLog(LEVEL_DEBUG, "Do http request with string: %s", dataStr)
+			doLog(LEVEL_DEBUG, "Do http request with string")
 			headers["Content-Length"] = []string{IntToString(len(dataStr))}
 			_data = strings.NewReader(dataStr)
 		} else if dataByte, ok := data.([]byte); ok {
@@ -363,7 +351,7 @@ func logHeaders(headers map[string][]string, signature SignatureType) {
 		} else if securityToken, isSecurityToken = headers[HEADER_STS_TOKEN_OBS]; isSecurityToken {
 			headers[HEADER_STS_TOKEN_OBS] = []string{"******"}
 		}
-		doLog(LEVEL_DEBUG, "Request headers: %v", headers)
+		doLog(LEVEL_DEBUG, "Request headers: %s", logRequestHeader(headers))
 		headers[HEADER_AUTH_CAMEL] = auth
 		if isSecurityToken {
 			if signature == SignatureObs {
@@ -429,6 +417,15 @@ func prepareRetry(resp *http.Response, headers map[string][]string, _data io.Rea
 		checkAndLogErr(_err, LEVEL_WARN, "Failed to close resp body")
 		resp = nil
 	}
+
+	if _, ok := headers[HEADER_DATE_CAMEL]; ok {
+		headers[HEADER_DATE_CAMEL] = []string{FormatUtcToRfc1123(time.Now().UTC())}
+	}
+
+	if _, ok := headers[HEADER_DATE_AMZ]; ok {
+		headers[HEADER_DATE_AMZ] = []string{FormatUtcToRfc1123(time.Now().UTC())}
+	}
+
 	if _, ok := headers[HEADER_AUTH_CAMEL]; ok {
 		delete(headers, HEADER_AUTH_CAMEL)
 	}
@@ -469,8 +466,32 @@ func prepareRetry(resp *http.Response, headers map[string][]string, _data io.Rea
 	return _data, resp, nil
 }
 
+// handleBody handles request body
+func handleBody(req *http.Request, body io.Reader, listener ProgressListener, tracker *readerTracker) {
+	reader := body
+	readerLen, err := GetReaderLen(reader)
+	if err == nil {
+		req.ContentLength = readerLen
+	}
+	if req.ContentLength > 0 {
+		req.Header.Set(HEADER_CONTENT_LENGTH_CAMEL, strconv.FormatInt(req.ContentLength, 10))
+	}
+
+	if reader != nil {
+		reader = TeeReader(reader, req.ContentLength, listener, tracker)
+	}
+
+	// HTTP body
+	rc, ok := reader.(io.ReadCloser)
+	if !ok && reader != nil {
+		rc = ioutil.NopCloser(reader)
+	}
+
+	req.Body = rc
+}
+
 func (obsClient ObsClient) doHTTP(method, bucketName, objectKey string, params map[string]string,
-	headers map[string][]string, data interface{}, repeatable bool) (resp *http.Response, respError error) {
+	headers map[string][]string, data interface{}, repeatable bool, listener ProgressListener) (resp *http.Response, respError error) {
 
 	bucketName = strings.TrimSpace(bucketName)
 
@@ -488,6 +509,9 @@ func (obsClient ObsClient) doHTTP(method, bucketName, objectKey string, params m
 
 	var lastRequest *http.Request
 	redirectFlag := false
+
+	tracker := &readerTracker{completedBytes: 0}
+
 	for i, redirectCount := 0, 0; i <= maxRetryCount; i++ {
 		req, err := obsClient.getRequest(redirectURL, requestURL, redirectFlag, _data,
 			method, bucketName, objectKey, params, headers)
@@ -495,9 +519,15 @@ func (obsClient ObsClient) doHTTP(method, bucketName, objectKey string, params m
 			return nil, err
 		}
 
+		handleBody(req, _data, listener, tracker)
+
 		logHeaders(headers, obsClient.conf.signature)
 
 		lastRequest = prepareReq(headers, req, lastRequest, obsClient.conf.userAgent)
+
+		// Transfer started
+		event := newProgressEvent(TransferStartedEvent, 0, req.ContentLength)
+		publishProgress(listener, event)
 
 		start := GetCurrentTimestamp()
 		resp, err = obsClient.httpClient.Do(req)
@@ -512,11 +542,14 @@ func (obsClient ObsClient) doHTTP(method, bucketName, objectKey string, params m
 				break
 			}
 		} else {
-			doLog(LEVEL_DEBUG, "Response headers: %v", resp.Header)
+			doLog(LEVEL_DEBUG, "Response headers: %s", logResponseHeader(resp.Header))
 			if resp.StatusCode < 300 {
 				respError = nil
 				break
 			} else if canNotRetry(repeatable, resp.StatusCode) {
+				event = newProgressEvent(TransferFailedEvent, tracker.completedBytes, req.ContentLength)
+				publishProgress(listener, event)
+
 				respError = ParseResponseToObsError(resp, obsClient.conf.signature == SignatureObs)
 				resp = nil
 				break
@@ -558,6 +591,8 @@ func (obsClient ObsClient) doHTTP(method, bucketName, objectKey string, params m
 				respError = ParseResponseToObsError(resp, obsClient.conf.signature == SignatureObs)
 				resp = nil
 			}
+			event = newProgressEvent(TransferFailedEvent, tracker.completedBytes, req.ContentLength)
+			publishProgress(listener, event)
 		}
 	}
 	return

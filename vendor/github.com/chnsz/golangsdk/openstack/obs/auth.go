@@ -20,7 +20,16 @@ import (
 	"time"
 )
 
-func (obsClient ObsClient) doAuthTemporary(method, bucketName, objectKey string, params map[string]string,
+func setURLWithPolicy(bucketName, canonicalizedUrl string) string {
+	if strings.HasPrefix(canonicalizedUrl, "/"+bucketName+"/") {
+		canonicalizedUrl = canonicalizedUrl[len("/"+bucketName+"/"):]
+	} else if strings.HasPrefix(canonicalizedUrl, "/"+bucketName) {
+		canonicalizedUrl = canonicalizedUrl[len("/"+bucketName):]
+	}
+	return canonicalizedUrl
+}
+
+func (obsClient ObsClient) doAuthTemporary(method, bucketName, objectKey string, policy string, params map[string]string,
 	headers map[string][]string, expires int64) (requestURL string, err error) {
 	sh := obsClient.getSecurity()
 	isAkSkEmpty := sh.ak == "" || sh.sk == ""
@@ -31,6 +40,11 @@ func (obsClient ObsClient) doAuthTemporary(method, bucketName, objectKey string,
 			params[HEADER_STS_TOKEN_AMZ] = sh.securityToken
 		}
 	}
+
+	if policy != "" {
+		objectKey = ""
+	}
+
 	requestURL, canonicalizedURL := obsClient.conf.formatUrls(bucketName, objectKey, params, true)
 	parsedRequestURL, err := url.Parse(requestURL)
 	if err != nil {
@@ -93,7 +107,13 @@ func (obsClient ObsClient) doAuthTemporary(method, bucketName, objectKey string,
 				return "", parseDateErr
 			}
 			expires += date.Unix()
-			headers[HEADER_DATE_CAMEL] = []string{Int64ToString(expires)}
+			if policy == "" {
+				headers[HEADER_DATE_CAMEL] = []string{Int64ToString(expires)}
+			} else {
+				policy = Base64Encode([]byte(policy))
+				headers[HEADER_DATE_CAMEL] = []string{policy}
+				canonicalizedURL = setURLWithPolicy(bucketName, canonicalizedURL)
+			}
 
 			stringToSign := getV2StringToSign(method, canonicalizedURL, headers, obsClient.conf.signature == SignatureObs)
 			signature := UrlEncode(Base64Encode(HmacSha1([]byte(sh.sk), []byte(stringToSign))), false)
@@ -107,7 +127,14 @@ func (obsClient ObsClient) doAuthTemporary(method, bucketName, objectKey string,
 			if obsClient.conf.signature != SignatureObs {
 				requestURL += "AWS"
 			}
-			requestURL += fmt.Sprintf("AccessKeyId=%s&Expires=%d&Signature=%s", UrlEncode(sh.ak, false), expires, signature)
+			if policy == "" {
+				requestURL += fmt.Sprintf("AccessKeyId=%s&Expires=%d&Signature=%s", UrlEncode(sh.ak, false),
+					expires, signature)
+				return
+
+			}
+			requestURL += fmt.Sprintf("AccessKeyId=%s&Policy=%s&Signature=%s", UrlEncode(sh.ak, false),
+				UrlEncode(policy, false), signature)
 		}
 	}
 

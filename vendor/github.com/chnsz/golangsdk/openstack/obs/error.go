@@ -28,6 +28,7 @@ type ObsError struct {
 	HostId   string   `xml:"HostId"`
 }
 
+// Format print obs error's log
 func (err ObsError) Error() string {
 	return fmt.Sprintf("obs: service returned error: Status=%s, Code=%s, Message=%s, RequestId=%s",
 		err.Status, err.Code, err.Message, err.RequestId)
