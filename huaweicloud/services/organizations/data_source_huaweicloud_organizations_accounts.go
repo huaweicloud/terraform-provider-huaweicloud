@@ -25,11 +25,6 @@ func DataSourceAccounts() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAccountsRead,
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"parent_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
