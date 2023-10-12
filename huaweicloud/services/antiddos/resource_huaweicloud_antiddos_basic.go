@@ -16,6 +16,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	antiddossdk "github.com/chnsz/golangsdk/openstack/antiddos/v1/antiddos"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -115,7 +116,7 @@ func resourceCloudNativeAntiDdosUpdate(ctx context.Context, d *schema.ResourceDa
 	return resourceCloudNativeAntiDdosRead(ctx, d, meta)
 }
 
-func resourceCloudNativeAntiDdosRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCloudNativeAntiDdosRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.AntiDDosV1Client(region)
