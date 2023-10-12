@@ -93,6 +93,7 @@ var (
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 
+	HW_LTS_ENABLE_FLAG                 = os.Getenv("HW_LTS_ENABLE_FLAG")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_ID   = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME")
 
@@ -862,5 +863,12 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 	if HW_LTS_STRUCT_CONFIG_TEMPLATE_ID == "" || HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME == "" {
 		t.Skip("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID and HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME must be" +
 			" set for LTS struct config custom acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsEnableFlag(t *testing.T) {
+	if HW_LTS_ENABLE_FLAG == "" {
+		t.Skip("Skip the LTS acceptance tests.")
 	}
 }
