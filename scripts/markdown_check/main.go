@@ -247,7 +247,7 @@ func buildMarkdownFilePath(parent, ty, name string) (string, error) {
 func isInternalResource(resource *schema.Resource, key string) bool {
 	internalResources := []string{
 		"apm_aksk", "aom_alarm_policy", "aom_prometheus_instance",
-		"aom_application", "aom_component", "aom_environment", "aom_cmdb_resource_relationships",
+		"aom_component", "aom_environment", "aom_cmdb_resource_relationships",
 		"lts_access_rule", "lts_dashboard", "lts_struct_template", "elb_log",
 		// the followings have changed to rds_mysql_xxx after v1.47.0
 		"rds_account", "rds_database", "rds_database_privilege",

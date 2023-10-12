@@ -1,34 +1,42 @@
+// ---------------------------------------------------------------
+// *** AUTO GENERATED CODE ***
+// @Product CMDB
+// ---------------------------------------------------------------
+
 package cmdb
 
 import (
 	"context"
 	"encoding/json"
-	"io"
+	"fmt"
+	"log"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+const (
+	AppNameExistsCode string = "AOM.30004012"
+	AppNotExistsCode  string = "AOM.30004003"
 )
 
 func ResourceAomApplication() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: ResourceAomApplicationCreate,
-		ReadContext:   ResourceAomApplicationRead,
-		UpdateContext: ResourceAomApplicationUpdate,
-		DeleteContext: ResourceAomApplicationDelete,
+		CreateContext: resourceApplicationCreate,
+		ReadContext:   resourceApplicationRead,
+		UpdateContext: resourceApplicationUpdate,
+		DeleteContext: resourceApplicationDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -36,26 +44,9 @@ func ResourceAomApplication() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"region": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"aom_id": {
+			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
-			},
-			"app_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"creator": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"description": {
@@ -63,14 +54,25 @@ func ResourceAomApplication() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"display_name": {
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"enterprise_project_id": {
+			"register_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Computed",
+			},
+
+			// attributes
+			"create_time": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
+			},
+			"creator": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"modified_time": {
@@ -81,93 +83,128 @@ func ResourceAomApplication() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"register_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+
+			// deprecated
+			"aom_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "this parameter is deprecated",
+			},
+			"app_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "this parameter is deprecated",
 			},
 		},
 	}
 }
 
-func ResourceAomApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
+func buildCreateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":          d.Get("name"),
+		"description":   utils.ValueIngoreEmpty(d.Get("description")),
+		"display_name":  utils.ValueIngoreEmpty(d.Get("display_name")),
+		"register_type": utils.ValueIngoreEmpty(d.Get("register_type")),
+		"eps_id":        utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+	}
+	return bodyParams
+}
+
+func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	product := "cmdb"
+
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	opts := entity.BizAppParam{
-		Description:  d.Get("description").(string),
-		DisplayName:  d.Get("display_name").(string),
-		EpsId:        d.Get("enterprise_project_id").(string),
-		Name:         d.Get("name").(string),
-		RegisterType: d.Get("register_type").(string),
+	createApplicationHttpUrl := "v1/applications"
+	createApplicationPath := client.Endpoint + createApplicationHttpUrl
+
+	createApplicationOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	client.WithMethod(httpclient_go.MethodPost).WithUrl("v1/applications").WithBody(opts)
-	response, err := client.Do()
+	var resID string
+	createApplicationOpt.JSONBody = utils.RemoveNil(buildCreateApplicationBodyParams(d, cfg))
+	createApplicationResp, err := client.Request("POST", createApplicationPath, &createApplicationOpt)
 	if err != nil {
-		if strings.Contains(err.Error(), "The identifier already exists.") {
-			return getAppByName(d, meta)
+		// if the application already exists, we reuse it rather than throwing the error
+		// this looks weird, but for compatibility with previous behavior
+		if !hasErrorCode(err, AppNameExistsCode) {
+			return diag.Errorf("error creating AOM application: %s", err)
 		}
-		return diag.Errorf("error create Application %s: %s", opts.Name, err)
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return diag.Errorf("error convert data %s, %s", string(body), err)
-	}
-	if response.StatusCode == 200 {
-		rlt := &entity.CreateModelVo{}
-		err = json.Unmarshal(body, rlt)
+
+		var listErr error
+		resID, listErr = getApplicationByName(d, client)
+		if listErr != nil || resID == "" {
+			log.Printf("[WARN] failed to retrieve AOM application: %s", listErr)
+			return diag.Errorf("error creating AOM application: %s", err)
+		}
+	} else {
+		createApplicationRespBody, err := utils.FlattenResponse(createApplicationResp)
 		if err != nil {
-			return diag.Errorf("error convert data %s, %s", string(body), err)
-		}
-		if rlt.Id == "" {
-			return diag.Errorf("error create Application %v. error: %s", opts.Name, string(body))
+			return diag.FromErr(err)
 		}
 
-		d.SetId(rlt.Id)
-		return ResourceAomApplicationRead(ctx, d, meta)
+		id, err := jmespath.Search("id", createApplicationRespBody)
+		if err != nil {
+			return diag.Errorf("error creating AOM application: ID is not found in API response")
+		}
+		resID = id.(string)
 	}
-	return diag.Errorf("error create Application %v. error: %s", opts.Name, string(body))
+
+	d.SetId(resID)
+	return resourceApplicationRead(ctx, d, meta)
 }
 
-func ResourceAomApplicationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
+func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	product := "cmdb"
+
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodGet).WithUrl("v1/applications/" + d.Id())
-	response, err := client.Do()
+	getApplicationHttpUrl := "v1/applications/{id}"
+	getApplicationPath := client.Endpoint + getApplicationHttpUrl
+	getApplicationPath = strings.ReplaceAll(getApplicationPath, "{id}", d.Id())
 
-	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Application")
-	if body == nil {
-		return diags
+	getApplicationOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	rlt := &entity.BizAppVo{}
-	err = json.Unmarshal(body, rlt)
+	getApplicationResp, err := client.Request("GET", getApplicationPath, &getApplicationOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving Application %s", d.Id())
+		if hasErrorCode(err, AppNotExistsCode) {
+			err = golangsdk.ErrDefault404{}
+		}
+		return common.CheckDeletedDiag(d, err, "error retrieving Application")
+	}
+
+	getApplicationRespBody, err := utils.FlattenResponse(getApplicationResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("aom_id", rlt.AomId),
-		d.Set("app_id", rlt.AppId),
-		d.Set("create_time", rlt.CreateTime),
-		d.Set("creator", rlt.Creator),
-		d.Set("description", rlt.Description),
-		d.Set("display_name", rlt.DisplayName),
-		d.Set("enterprise_project_id", rlt.EpsId),
-		d.Set("modified_time", rlt.ModifiedTime),
-		d.Set("modifier", rlt.Modifier),
-		d.Set("name", rlt.Name),
-		d.Set("register_type", rlt.RegisterType),
+		d.Set("name", utils.PathSearch("name", getApplicationRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getApplicationRespBody, nil)),
+		d.Set("display_name", utils.PathSearch("display_name", getApplicationRespBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("eps_id", getApplicationRespBody, nil)),
+		d.Set("register_type", utils.PathSearch("register_type", getApplicationRespBody, nil)),
+		d.Set("create_time", utils.PathSearch("create_time", getApplicationRespBody, nil)),
+		d.Set("creator", utils.PathSearch("creator", getApplicationRespBody, nil)),
+		d.Set("modified_time", utils.PathSearch("modified_time", getApplicationRespBody, nil)),
+		d.Set("modifier", utils.PathSearch("modifier", getApplicationRespBody, nil)),
 	)
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting Application fields: %s", err)
 	}
@@ -175,106 +212,124 @@ func ResourceAomApplicationRead(ctx context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func ResourceAomApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("err creating Client: %s", err)
+func buildUpdateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":          d.Get("name"),
+		"description":   utils.ValueIngoreEmpty(d.Get("description")),
+		"display_name":  utils.ValueIngoreEmpty(d.Get("display_name")),
+		"register_type": utils.ValueIngoreEmpty(d.Get("register_type")),
+		"eps_id":        utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
-	opts := entity.BizAppParam{
-		Description:  d.Get("description").(string),
-		DisplayName:  d.Get("display_name").(string),
-		EpsId:        d.Get("enterprise_project_id").(string),
-		Name:         d.Get("name").(string),
-		RegisterType: d.Get("register_type").(string),
-	}
-	client.WithMethod(httpclient_go.MethodPut).WithUrl("v1/applications/" + d.Id()).WithBody(opts)
-	response, err := client.Do()
-	if err != nil {
-		return diag.Errorf("error update Application %s: %s", opts.Name, err)
-	}
-
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return diag.Errorf("error update Application %s: %s", string(body), err)
-	}
-
-	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
-		return nil
-	}
-
-	return diag.Errorf("error update Application %s:  %s", opts.Name, string(body))
+	return bodyParams
 }
 
-func ResourceAomApplicationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
+func resourceApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	product := "cmdb"
+
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodDelete).WithUrl("v1/applications/" + d.Id())
+	updateApplicationHttpUrl := "v1/applications/{id}"
+	updateApplicationPath := client.Endpoint + updateApplicationHttpUrl
+	updateApplicationPath = strings.ReplaceAll(updateApplicationPath, "{id}", d.Id())
 
-	response, err := client.Do()
+	updateApplicationOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	updateApplicationOpt.JSONBody = utils.RemoveNil(buildUpdateApplicationBodyParams(d, cfg))
+	_, err = client.Request("PUT", updateApplicationPath, &updateApplicationOpt)
 	if err != nil {
-		return diag.Errorf("error delete Application %s: %s", d.Id(), err)
+		return diag.Errorf("error updating Application: %s", err)
 	}
 
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return diag.Errorf("error delete Application %s: %s", d.Id(), err)
-	}
-
-	if response.StatusCode == 200 && !strings.Contains(string(body), "error_msg") {
-		return nil
-	}
-
-	return diag.Errorf("error delete Application %s:  %s", d.Id(), string(body))
+	return resourceApplicationRead(ctx, d, meta)
 }
 
-func getAppByName(d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := httpclient_go.NewHttpClientGo(conf, "cmdb", conf.GetRegion(d))
+func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	product := "cmdb"
+
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("err creating Client: %s", err)
-	}
-	path := "v1/applications?name=" + d.Get("name").(string)
-	if d.Get("display_name").(string) != "" {
-		path += "&display_name=" + d.Get("display_name").(string)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	client.WithMethod(httpclient_go.MethodGet).WithUrl(path)
-	response, err := client.Do()
+	deleteApplicationHttpUrl := "v1/applications/{id}"
+	deleteApplicationPath := client.Endpoint + deleteApplicationHttpUrl
+	deleteApplicationPath = strings.ReplaceAll(deleteApplicationPath, "{id}", d.Id())
 
-	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving Application")
-	if body == nil {
-		return diags
+	deleteApplicationOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	rlt := &entity.BizAppVo{}
-	err = json.Unmarshal(body, rlt)
+	_, err = client.Request("DELETE", deleteApplicationPath, &deleteApplicationOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving Application %s", d.Id())
-	}
-	d.SetId(rlt.AppId)
-	mErr := multierror.Append(nil,
-		d.Set("aom_id", rlt.AomId),
-		d.Set("app_id", rlt.AppId),
-		d.Set("create_time", rlt.CreateTime),
-		d.Set("creator", rlt.Creator),
-		d.Set("description", rlt.Description),
-		d.Set("display_name", rlt.DisplayName),
-		d.Set("enterprise_project_id", rlt.EpsId),
-		d.Set("modified_time", rlt.ModifiedTime),
-		d.Set("modifier", rlt.Modifier),
-		d.Set("name", rlt.Name),
-		d.Set("register_type", rlt.RegisterType),
-	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting Application fields: %s", err)
+		return diag.Errorf("error deleting Application: %s", err)
 	}
 
 	return nil
+}
+
+func getApplicationByName(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, error) {
+	getApplicationByNameHttpUrl := "v1/applications"
+	getApplicationByNamePath := client.Endpoint + getApplicationByNameHttpUrl
+
+	getApplicationByNamequeryParams := buildGetApplicationByNameQueryParams(d)
+	getApplicationByNamePath += getApplicationByNamequeryParams
+
+	getApplicationByNameOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	name := d.Get("name").(string)
+	respRaw, err := client.Request("GET", getApplicationByNamePath, &getApplicationByNameOpt)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving AOM application %s: %s", name, err)
+	}
+
+	respBody, err := utils.FlattenResponse(respRaw)
+	if err != nil {
+		return "", fmt.Errorf("error parsing AOM application %s: %s", name, err)
+	}
+
+	id, err := jmespath.Search("app_id", respBody)
+	if err != nil {
+		return "", err
+	}
+	return id.(string), nil
+}
+
+func buildGetApplicationByNameQueryParams(d *schema.ResourceData) string {
+	res := fmt.Sprintf("?name=%v", d.Get("name"))
+
+	if v, ok := d.GetOk("display_name"); ok {
+		res = fmt.Sprintf("%s&display_name=%v", res, v)
+	}
+
+	return res
+}
+
+func hasErrorCode(err error, expectCode string) bool {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var response interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
+			errorCode, parseErr := jmespath.Search("error_code", response)
+			if parseErr != nil {
+				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
+			}
+
+			if errorCode == expectCode {
+				return true
+			}
+		}
+	}
+
+	return false
 }
