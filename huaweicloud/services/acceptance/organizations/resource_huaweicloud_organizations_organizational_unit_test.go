@@ -61,6 +61,7 @@ func TestAccOrganizationalUnit_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -101,14 +102,14 @@ func testOrganizationalUnit_basic(name string) string {
 
 resource "huaweicloud_organizations_organizational_unit" "test" {
   name      = "%s"
-  parent_id = huaweicloud_organizations_organization.test.root_id
+  parent_id = data.huaweicloud_organizations_organization.test.root_id
 
   tags = {
     "key1" = "value1"
     "key2" = "value2"
   }
 }
-`, testOrganization_basic(), name)
+`, testAccDatasourceOrganization_basic(), name)
 }
 
 func testOrganizationalUnit_basic_update(name string) string {
@@ -117,12 +118,12 @@ func testOrganizationalUnit_basic_update(name string) string {
 
 resource "huaweicloud_organizations_organizational_unit" "test" {
   name      = "%s"
-  parent_id = huaweicloud_organizations_organization.test.root_id
+  parent_id = data.huaweicloud_organizations_organization.test.root_id
 
   tags = {
     "key3" = "value3"
     "key4" = "value4"
   }
 }
-`, testOrganization_basic(), name)
+`, testAccDatasourceOrganization_basic(), name)
 }

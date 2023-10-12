@@ -56,6 +56,7 @@ func TestAccAccountInviteAccepter_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 			acceptance.TestAccPreCheckOrganizationsInvitationId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
