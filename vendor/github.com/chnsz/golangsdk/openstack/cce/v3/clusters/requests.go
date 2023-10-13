@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -318,6 +319,48 @@ func Operation(c *golangsdk.ServiceClient, id, action string) (r OperationResult
 	_, r.Err = c.Post(operationURL(c, id, action), nil, nil, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders, JSONBody: nil,
+	})
+	return
+}
+
+type UpdateTagsOpts struct {
+	Tags []tags.ResourceTag `json:"tags" required:"true"`
+}
+
+// AddTags will add tags to the cluster.
+func AddTags(c *golangsdk.ServiceClient, id string, tagList []tags.ResourceTag) (r UpdateIpResult) {
+	opts := UpdateTagsOpts{
+		Tags: tagList,
+	}
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(tagsURL(c, id, "create"), b, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return
+}
+
+// RemoveTags will remove tags from the cluster.
+func RemoveTags(c *golangsdk.ServiceClient, id string, tagList []tags.ResourceTag) (r UpdateIpResult) {
+	tagsWithKeys := make([]tags.ResourceTag, len(tagList))
+	for i, v := range tagList {
+		tagsWithKeys[i] = tags.ResourceTag{
+			Key: v.Key,
+		}
+	}
+	opts := UpdateTagsOpts{
+		Tags: tagsWithKeys,
+	}
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(tagsURL(c, id, "delete"), b, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
 	})
 	return
 }

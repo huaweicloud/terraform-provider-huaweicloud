@@ -37,6 +37,8 @@ func TestAccCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -51,6 +53,8 @@ func TestAccCluster_basic(t *testing.T) {
 				Config: testAccCluster_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "description", "new description"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 				),
 			},
 		},
@@ -417,8 +421,8 @@ resource "huaweicloud_cce_cluster" "test" {
   description            = "new description"
 
   tags = {
-    foo = "bar"
-    key = "value"
+    foo        = "bar_update"
+    key_update = "value_update"
   }
 }
 `, common.TestVpc(rName), rName)
