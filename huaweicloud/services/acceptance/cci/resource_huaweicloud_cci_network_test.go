@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cci/v1/networks"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cci/v1/networks"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -89,7 +90,7 @@ func testAccCciNetwork_base(rName string) string {
 
 resource "huaweicloud_cci_namespace" "test" {
   name = "%s"
-  type = "gpu-accelerated"
+  type = "general-computing"
 }
 `, common.TestBaseNetwork(rName), rName)
 }

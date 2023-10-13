@@ -10,16 +10,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceNetworkInstance() *schema.Resource {
@@ -143,7 +144,7 @@ func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 			201,
 		},
 	}
-	createNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildCreateNetworkInstanceBodyParams(d, cfg))
+	createNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildCreateNetworkInstanceBodyParams(d))
 	createNetworkInstanceResp, err := createNetworkInstanceClient.Request("POST", createNetworkInstancePath, &createNetworkInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating NetworkInstance: %s", err)
@@ -163,7 +164,7 @@ func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceNetworkInstanceRead(ctx, d, meta)
 }
 
-func buildCreateNetworkInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateNetworkInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"network_instance": buildCreateNetworkInstanceNetworkInstanceChildBody(d),
 	}
@@ -185,9 +186,9 @@ func buildCreateNetworkInstanceNetworkInstanceChildBody(d *schema.ResourceData) 
 	return params
 }
 
-func resourceNetworkInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceNetworkInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -196,13 +197,13 @@ func resourceNetworkInstanceRead(ctx context.Context, d *schema.ResourceData, me
 		getNetworkInstanceHttpUrl = "v3/{domain_id}/ccaas/network-instances/{id}"
 		getNetworkInstanceProduct = "cc"
 	)
-	getNetworkInstanceClient, err := config.NewServiceClient(getNetworkInstanceProduct, region)
+	getNetworkInstanceClient, err := conf.NewServiceClient(getNetworkInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating NetworkInstance Client: %s", err)
 	}
 
 	getNetworkInstancePath := getNetworkInstanceClient.Endpoint + getNetworkInstanceHttpUrl
-	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{domain_id}", config.DomainID)
+	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{domain_id}", conf.DomainID)
 	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{id}", d.Id())
 
 	getNetworkInstanceOpt := golangsdk.RequestOpts{
@@ -274,7 +275,7 @@ func resourceNetworkInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 				200,
 			},
 		}
-		updateNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateNetworkInstanceBodyParams(d, cfg))
+		updateNetworkInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateNetworkInstanceBodyParams(d))
 		_, err = updateNetworkInstanceClient.Request("PUT", updateNetworkInstancePath, &updateNetworkInstanceOpt)
 		if err != nil {
 			return diag.Errorf("error updating NetworkInstance: %s", err)
@@ -283,7 +284,7 @@ func resourceNetworkInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceNetworkInstanceRead(ctx, d, meta)
 }
 
-func buildUpdateNetworkInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateNetworkInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"network_instance": buildUpdateNetworkInstanceNetworkInstanceChildBody(d),
 	}
@@ -299,7 +300,7 @@ func buildUpdateNetworkInstanceNetworkInstanceChildBody(d *schema.ResourceData) 
 	return params
 }
 
-func resourceNetworkInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkInstanceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

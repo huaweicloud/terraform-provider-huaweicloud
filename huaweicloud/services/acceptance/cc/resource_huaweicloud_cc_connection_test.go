@@ -5,30 +5,31 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getCloudConnectionResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getCloudConnectionResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getCloudConnection: Query the Cloud Connection
 	var (
 		getCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
 		getCloudConnectionProduct = "cc"
 	)
-	getCloudConnectionClient, err := config.NewServiceClient(getCloudConnectionProduct, region)
+	getCloudConnectionClient, err := conf.NewServiceClient(getCloudConnectionProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CloudConnection Client: %s", err)
 	}
 
 	getCloudConnectionPath := getCloudConnectionClient.Endpoint + getCloudConnectionHttpUrl
-	getCloudConnectionPath = strings.Replace(getCloudConnectionPath, "{domain_id}", config.DomainID, -1)
-	getCloudConnectionPath = strings.Replace(getCloudConnectionPath, "{id}", state.Primary.ID, -1)
+	getCloudConnectionPath = strings.ReplaceAll(getCloudConnectionPath, "{domain_id}", conf.DomainID)
+	getCloudConnectionPath = strings.ReplaceAll(getCloudConnectionPath, "{id}", state.Primary.ID)
 
 	getCloudConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
