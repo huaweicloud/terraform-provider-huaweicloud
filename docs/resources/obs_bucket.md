@@ -214,6 +214,17 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the OBS bucket.
   Defaults to `0`.
 
+* `user_domain_names` - (Optional, List) Specifies the user domain names. The restriction requirements for this field
+  are as follows:
+  + Each value must meet the domain name rules.
+  + The maximum length of a domain name is 256 characters.
+  + A maximum of 100 custom domain names can be set for a bucket.
+  + A custom domain name can only be used by one bucket.
+  + Ensure the domain name has been licensed by the Ministry of Industry and Information Technology.
+  + The bound user domain names only support access over HTTP now.
+
+  -> When creating or updating the OBS bucket user domain names, the original user domain names will be overwritten.
+
 The `logging` object supports the following:
 
 * `target_bucket` - (Required, String) The name of the bucket that will receive the log objects. The acl policy of the

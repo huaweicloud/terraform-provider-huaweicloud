@@ -308,6 +308,12 @@ func ResourceObsBucket() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"user_domain_names": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
 
 			"bucket_domain_name": {
 				Type:     schema.TypeString,
@@ -452,6 +458,12 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if d.HasChange("user_domain_names") {
+		if err := resourceObsBucketUserDomainNamesUpdate(obsClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceObsBucketRead(ctx, d, meta)
 }
 
@@ -559,6 +571,10 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	// Read the storage info
 	if err := setObsBucketStorageInfo(obsClient, d); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := setObsBucketUserDomainNames(obsClient, d); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -944,6 +960,46 @@ func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceDat
 	_, err := obsClient.SetBucketCors(corsInput)
 	if err != nil {
 		return getObsError("Error setting CORS rules of OBS bucket", bucket, err)
+	}
+	return nil
+}
+
+func resourceObsBucketUserDomainNamesUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	oldRaws, newRaws := d.GetChange("user_domain_names")
+	addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+	removeRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+
+	if err := deleteObsBucketUserDomainNames(obsClient, bucket, removeRaws); err != nil {
+		return err
+	}
+	return createObsBucketUserDomainNames(obsClient, bucket, addRaws)
+}
+
+func createObsBucketUserDomainNames(obsClient *obs.ObsClient, bucket string, domainNameSet *schema.Set) error {
+	for _, domainName := range domainNameSet.List() {
+		input := &obs.SetBucketCustomDomainInput{
+			Bucket:       bucket,
+			CustomDomain: domainName.(string),
+		}
+		_, err := obsClient.SetBucketCustomDomain(input)
+		if err != nil {
+			return getObsError("error setting user domain name of OBS bucket", bucket, err)
+		}
+	}
+	return nil
+}
+
+func deleteObsBucketUserDomainNames(obsClient *obs.ObsClient, bucket string, domainNameSet *schema.Set) error {
+	for _, domainName := range domainNameSet.List() {
+		input := &obs.DeleteBucketCustomDomainInput{
+			Bucket:       bucket,
+			CustomDomain: domainName.(string),
+		}
+		_, err := obsClient.DeleteBucketCustomDomain(input)
+		if err != nil {
+			return getObsError("error deleting user domain name of OBS bucket", bucket, err)
+		}
 	}
 	return nil
 }
@@ -1505,6 +1561,21 @@ func setObsBucketStorageInfo(obsClient *obs.ObsClient, d *schema.ResourceData) e
 		return fmt.Errorf("error saving storage info of OBS bucket %s: %s", bucket, err)
 	}
 	return nil
+}
+
+func setObsBucketUserDomainNames(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketCustomDomain(bucket)
+	if err != nil {
+		return getObsError("Error getting user domain names of OBS bucket", bucket, err)
+	}
+	log.Printf("[DEBUG] getting user domain names of OBS bucket %s: %#v", bucket, output)
+
+	domainNames := make([]string, len(output.Domains))
+	for i, v := range output.Domains {
+		domainNames[i] = v.DomainName
+	}
+	return d.Set("user_domain_names", domainNames)
 }
 
 func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
