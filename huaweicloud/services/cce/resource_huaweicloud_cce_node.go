@@ -600,6 +600,9 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		return common.CheckDeletedDiag(d, err, "error retrieving CCE Node")
 	}
 
+	// The following parameters are not returned:
+	// password, private_key, storage, fixed_ip, extension_nics, eip_id, iptype, bandwidth_charge_mode, bandwidth_size,
+	// share_type, extend_params, dedicated_host_id, initialized_conditions, labels, taints
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),
