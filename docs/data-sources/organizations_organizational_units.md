@@ -20,9 +20,6 @@ data "huaweicloud_organizations_organizational_units" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
-  If omitted, the provider-level region will be used.
-
 * `parent_id` - (Required, String) Specifies the ID of root or organizational unit.
 
 ## Attribute Reference
