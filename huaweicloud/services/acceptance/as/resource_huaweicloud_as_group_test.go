@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -157,8 +158,8 @@ func TestAccASGroup_sourceDestCheck(t *testing.T) {
 }
 
 func testAccCheckASGroupDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -208,6 +209,7 @@ func testAccCheckASGroupExists(n string, group *groups.Group) resource.TestCheck
 	}
 }
 
+//nolint:revive
 func testASGroup_Base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s

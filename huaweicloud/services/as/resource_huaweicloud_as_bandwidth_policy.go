@@ -17,6 +17,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -83,14 +84,14 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 			"scaling_policy_action": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				Elem:     ASBandWidthPolicyActionSchema(),
+				Elem:     BandWidthPolicyActionSchema(),
 				Optional: true,
 				Computed: true,
 			},
 			"scheduled_policy": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				Elem:     ASBandWidthScheduledPolicySchema(),
+				Elem:     BandWidthScheduledPolicySchema(),
 				Optional: true,
 				Computed: true,
 				ExactlyOneOf: []string{
@@ -111,7 +112,7 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 	}
 }
 
-func ASBandWidthPolicyActionSchema() *schema.Resource {
+func BandWidthPolicyActionSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"operation": {
@@ -140,7 +141,7 @@ func ASBandWidthPolicyActionSchema() *schema.Resource {
 	return &sc
 }
 
-func ASBandWidthScheduledPolicySchema() *schema.Resource {
+func BandWidthScheduledPolicySchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"launch_time": {
@@ -181,15 +182,15 @@ func ASBandWidthScheduledPolicySchema() *schema.Resource {
 }
 
 func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createBandwidthPolicy: create an AS bandwidth scaling policy
 	var (
 		createBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy"
 		createBandwidthPolicyProduct = "autoscaling"
 	)
-	createBandwidthPolicyClient, err := config.NewServiceClient(createBandwidthPolicyProduct, region)
+	createBandwidthPolicyClient, err := conf.NewServiceClient(createBandwidthPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ASBandWidthPolicy Client: %s", err)
 	}
@@ -203,7 +204,7 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 			200,
 		},
 	}
-	createBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildCreateBandwidthPolicyBodyParams(d, config))
+	createBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildCreateBandwidthPolicyBodyParams(d))
 	createBandwidthPolicyResp, err := createBandwidthPolicyClient.Request("POST", createBandwidthPolicyPath, &createBandwidthPolicyOpt)
 	if err != nil {
 		return diag.Errorf("error creating ASBandWidthPolicy: %s", err)
@@ -223,7 +224,7 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
 
-func buildCreateBandwidthPolicyBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"scaling_policy_name":   utils.ValueIngoreEmpty(d.Get("scaling_policy_name")),
 		"scaling_policy_type":   utils.ValueIngoreEmpty(d.Get("scaling_policy_type")),
@@ -272,9 +273,9 @@ func buildCreateBandwidthPolicyScheduledPolicyChildBody(d *schema.ResourceData) 
 	return params
 }
 
-func resourceASBandWidthPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -283,7 +284,7 @@ func resourceASBandWidthPolicyRead(ctx context.Context, d *schema.ResourceData, 
 		getBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		getBandwidthPolicyProduct = "autoscaling"
 	)
-	getBandwidthPolicyClient, err := config.NewServiceClient(getBandwidthPolicyProduct, region)
+	getBandwidthPolicyClient, err := conf.NewServiceClient(getBandwidthPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ASBandWidthPolicy Client: %s", err)
 	}
@@ -365,8 +366,8 @@ func flattenGetBandwidthPolicyResponseBodyScheduledPolicy(resp interface{}) []in
 }
 
 func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateBandwidthPolicyhasChanges := []string{
 		"scaling_policy_name",
@@ -386,7 +387,7 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 			updateBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 			updateBandwidthPolicyProduct = "autoscaling"
 		)
-		updateBandwidthPolicyClient, err := config.NewServiceClient(updateBandwidthPolicyProduct, region)
+		updateBandwidthPolicyClient, err := conf.NewServiceClient(updateBandwidthPolicyProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating ASBandWidthPolicy Client: %s", err)
 		}
@@ -401,7 +402,7 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 				200,
 			},
 		}
-		updateBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateBandwidthPolicyBodyParams(d, config))
+		updateBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateBandwidthPolicyBodyParams(d))
 		_, err = updateBandwidthPolicyClient.Request("PUT", updateBandwidthPolicyPath, &updateBandwidthPolicyOpt)
 		if err != nil {
 			return diag.Errorf("error updating ASBandWidthPolicy: %s", err)
@@ -410,7 +411,7 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
 
-func buildUpdateBandwidthPolicyBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"scaling_policy_name":   utils.ValueIngoreEmpty(d.Get("scaling_policy_name")),
 		"scaling_policy_type":   utils.ValueIngoreEmpty(d.Get("scaling_policy_type")),
