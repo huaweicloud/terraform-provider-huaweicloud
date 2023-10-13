@@ -39,8 +39,9 @@ The following arguments are supported:
 * `topic_urn` - (Required, String, ForceNew) Specifies the resource identifier of a topic, which is unique.
   Changing this parameter will create a new resource.
 
-* `protocol` - (Required, String, ForceNew) Specifies the protocol of the message endpoint. Currently, email, sms, http,
-  https, functionstage and functiongraph are supported. Changing this parameter will create a new resource.
+* `protocol` - (Required, String, ForceNew) Specifies the protocol of the message endpoint. Currently, **email**,
+  **sms**, **http**, **https**, **functionstage**, **functiongraph**, **callnotify**, **wechat**, **dingding**,
+  **feishu** and **welink** are supported. Changing this parameter will create a new resource.
 
 * `endpoint` - (Required, String, ForceNew) Message endpoint. Changing this parameter will create a new resource.
   + **For an HTTP subscription**, the endpoint starts with `http://`.
@@ -50,9 +51,41 @@ The following arguments are supported:
     the format is \[+\]\[country code\]\[phone number\], e.g. +86185xxxx0000.
   + **For a functionstage subscription**, the endpoint is a function urn.
   + **For a functiongraph subscription**, the endpoint is a workflow ID.
+  + **For a callnotify subscription**, the endpoint is a phone number,
+    the format is \[+\]\[country code\]\[phone number\], e.g. +86185xxxx0000.
+  + **For a dingding subscription**, the endpoint is an IP address of a DingTalk group chatbot.
+  + **For a wechat subscription**, the endpoint is an IP address of a WeChat group chatbot.
+  + **For a feishu subscription**, the endpoint is a an IP address of a Lark group chatbot.
+  + **For a welink subscription**, the endpoint is a a WeLink group account.
 
 * `remark` - (Optional, String, ForceNew) Remark information. The remarks must be a UTF-8-coded character string
   containing 128 bytes. Changing this parameter will create a new resource.
+
+* `extension` - (Optional, List, ForceNew) Specifies the extension configurations.
+  The [extension](#extension) structure is documented below.
+  Changing this parameter will create a new resource.
+
+<a name="extension"></a>
+The `extension` block supports:
+
+* `client_id` - (Optional, String, ForceNew) Specifies the client ID. This field is the tenant ID field in
+  the WeLink subscription and is obtained by the tenant from WeLink. This field is mandatory when `protocol`
+  is set to **welink**. Changing this parameter will create a new resource.
+
+* `client_secret` - (Optional, String, ForceNew) Specifies the client secret. This field is the client secret
+  field obtained by the tenant from WeLink. This field is mandatory when `protocol` is set to **welink**.
+  Changing this parameter will create a new resource.
+
+* `keyword` - (Optional, String, ForceNew) Specifies the keyword. When `protocol` is set to **feishu**,
+  either `keyword` or `sign_secret` must be specified. When you use `keywords` to configure a security policy
+  for the Lark or DingTalk chatbot on SMN, the keywords must have one of the keywords configured on the Lark
+  or DingTalk client. Changing this parameter will create a new resource.
+
+* `sign_secret` - (Optional, String, ForceNew) Specifies the key including signature. When `protocol` is set
+  to **feishu** or **dingding**, this field or `keyword` must be specified. The key configurations must be
+  the same as those on the Lark or DingTalk client. For example, if only key is configured on the Lark client,
+  enter the key field obtained from the Lark client. If only keyword is configured on the Lark client, skip this field.
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
