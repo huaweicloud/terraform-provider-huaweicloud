@@ -7,11 +7,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+
 	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -242,8 +244,8 @@ func FilterRules(allRules []aom.AppRules, name string) (*aom.AppRules, error) {
 }
 
 func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
@@ -253,7 +255,7 @@ func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.R
 		Enable:    d.Get("discovery_rule_enabled").(bool),
 		EventName: "aom_inventory_rules_event",
 		Name:      d.Get("name").(string),
-		Projectid: config.HwClient.ProjectID,
+		Projectid: cfg.HwClient.ProjectID,
 		Spec: &aom.AppRulesSpec{
 			AppType:       d.Get("service_type").(string),
 			DetectLog:     strconv.FormatBool(d.Get("detect_log_enabled").(bool)),
@@ -289,8 +291,8 @@ func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.R
 }
 
 func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
@@ -313,7 +315,7 @@ func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData,
 	detectLogEnabled, _ := strconv.ParseBool(rule.Spec.DetectLog)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", rule.Name),
 		d.Set("rule_id", rule.Id),
 		d.Set("discovery_rule_enabled", rule.Enable),
@@ -334,9 +336,9 @@ func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func resourceServiceDiscoveryRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+func resourceServiceDiscoveryRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}

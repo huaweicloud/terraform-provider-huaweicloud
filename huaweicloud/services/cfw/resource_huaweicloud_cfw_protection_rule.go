@@ -12,16 +12,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceProtectionRule() *schema.Resource {
@@ -255,15 +256,15 @@ func ProtectionRuleRuleAddressDtoSchema() *schema.Resource {
 }
 
 func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createProtectionRule: Create a CFW Protection Rule.
 	var (
 		createProtectionRuleHttpUrl = "v1/{project_id}/acl-rule"
 		createProtectionRuleProduct = "cfw"
 	)
-	createProtectionRuleClient, err := config.NewServiceClient(createProtectionRuleProduct, region)
+	createProtectionRuleClient, err := conf.NewServiceClient(createProtectionRuleProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ProtectionRule Client: %s", err)
 	}
@@ -277,7 +278,7 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 			200,
 		},
 	}
-	createProtectionRuleOpt.JSONBody = utils.RemoveNil(buildCreateProtectionRuleBodyParams(d, config))
+	createProtectionRuleOpt.JSONBody = utils.RemoveNil(buildCreateProtectionRuleBodyParams(d))
 	createProtectionRuleResp, err := createProtectionRuleClient.Request("POST", createProtectionRulePath, &createProtectionRuleOpt)
 	if err != nil {
 		return diag.Errorf("error creating ProtectionRule: %s", err)
@@ -297,7 +298,7 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceProtectionRuleRead(ctx, d, meta)
 }
 
-func buildCreateProtectionRuleBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateProtectionRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"object_id": utils.ValueIngoreEmpty(d.Get("object_id")),
 		"type":      d.Get("type"),
@@ -380,9 +381,9 @@ func buildCreateProtectionRuleRequestBodyRuleAddressDto(rawParams interface{}) m
 	return nil
 }
 
-func resourceProtectionRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceProtectionRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -391,7 +392,7 @@ func resourceProtectionRuleRead(ctx context.Context, d *schema.ResourceData, met
 		getProtectionRuleHttpUrl = "v1/{project_id}/acl-rules"
 		getProtectionRuleProduct = "cfw"
 	)
-	getProtectionRuleClient, err := config.NewServiceClient(getProtectionRuleProduct, region)
+	getProtectionRuleClient, err := conf.NewServiceClient(getProtectionRuleProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ProtectionRule Client: %s", err)
 	}
@@ -535,8 +536,8 @@ func buildGetProtectionRuleQueryParams(d *schema.ResourceData) string {
 }
 
 func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateProtectionRulehasChanges := []string{
 		"action_type",
@@ -560,7 +561,7 @@ func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 		updateProtectionRuleOrderHttpUrl = "v1/{project_id}/acl-rule/order/{id}"
 		updateProtectionRuleProduct      = "cfw"
 	)
-	updateProtectionRuleClient, err := config.NewServiceClient(updateProtectionRuleProduct, region)
+	updateProtectionRuleClient, err := conf.NewServiceClient(updateProtectionRuleProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ProtectionRule Client: %s", err)
 	}
@@ -577,7 +578,7 @@ func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 				200,
 			},
 		}
-		updateProtectionRuleOpt.JSONBody = utils.RemoveNil(buildUpdateProtectionRuleBodyParams(d, config))
+		updateProtectionRuleOpt.JSONBody = utils.RemoveNil(buildUpdateProtectionRuleBodyParams(d))
 		_, err = updateProtectionRuleClient.Request("PUT", updateProtectionRulePath, &updateProtectionRuleOpt)
 		if err != nil {
 			return diag.Errorf("error updating ProtectionRule: %s", err)
@@ -606,7 +607,7 @@ func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceProtectionRuleRead(ctx, d, meta)
 }
 
-func buildUpdateProtectionRuleBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateProtectionRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"action_type":              d.Get("action_type"),
 		"address_type":             d.Get("address_type"),
@@ -679,16 +680,16 @@ func buildUpdateProtectionRuleRequestBodyRuleAddressDto(rawParams interface{}) m
 	return nil
 }
 
-func resourceProtectionRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceProtectionRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteProtectionRule: Delete an existing CFW Protection Rule
 	var (
 		deleteProtectionRuleHttpUrl = "v1/{project_id}/acl-rule/{id}"
 		deleteProtectionRuleProduct = "cfw"
 	)
-	deleteProtectionRuleClient, err := config.NewServiceClient(deleteProtectionRuleProduct, region)
+	deleteProtectionRuleClient, err := conf.NewServiceClient(deleteProtectionRuleProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ProtectionRule Client: %s", err)
 	}
@@ -712,7 +713,6 @@ func resourceProtectionRuleDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceProtectionRuleImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import id, must be <object_id>/<id>")

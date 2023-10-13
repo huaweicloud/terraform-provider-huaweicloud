@@ -5,11 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -17,14 +18,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getProtectionRuleResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getProtectionRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getProtectionRule: Query the CFW Protection Rule detail
 	var (
 		getProtectionRuleHttpUrl = "v1/{project_id}/acl-rules"
 		getProtectionRuleProduct = "cfw"
 	)
-	getProtectionRuleClient, err := config.NewServiceClient(getProtectionRuleProduct, region)
+	getProtectionRuleClient, err := conf.NewServiceClient(getProtectionRuleProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating ProtectionRule Client: %s", err)
 	}
