@@ -172,5 +172,5 @@ func resourceInstanceRoutesDelete(_ context.Context, d *schema.ResourceData, met
 func resourceInstanceRoutesImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	mErr := multierror.Append(nil, d.Set("instance_id", d.Id()))
-	return []*schema.ResourceData{d}, mErr
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
