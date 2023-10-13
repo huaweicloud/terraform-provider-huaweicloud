@@ -42,7 +42,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Resource ID. For database resources, the ID is the database name.
+* `id` - Resource ID in UUID format.
 
 ## Import
 

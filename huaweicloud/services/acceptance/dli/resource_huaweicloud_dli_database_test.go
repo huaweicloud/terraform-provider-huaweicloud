@@ -18,7 +18,7 @@ func getDatabaseResourceFunc(conf *config.Config, state *terraform.ResourceState
 		return nil, fmt.Errorf("error creating HuaweiCloud DLI v1 client: %s", err)
 	}
 
-	return dli.GetDliSqlDatabaseByName(c, state.Primary.ID)
+	return dli.GetDliSqlDatabaseByName(c, state.Primary.Attributes["name"])
 }
 
 func TestAccDliDatabase_basic(t *testing.T) {
@@ -55,9 +55,24 @@ func TestAccDliDatabase_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testAccDatabaseImportStateFunc(resourceName),
 			},
 		},
 	})
+}
+
+func testAccDatabaseImportStateFunc(rName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[rName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+		}
+		name := rs.Primary.Attributes["name"]
+		if name == "" {
+			return "", fmt.Errorf("the database name is incorrect, got '%s'", name)
+		}
+		return name, nil
+	}
 }
 
 func testAccDliDatabase_basic(rName string) string {
