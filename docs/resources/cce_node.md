@@ -261,14 +261,17 @@ The following arguments are supported:
   parameter will create a new resource.
 
 * `os` - (Optional, String, ForceNew) Specifies the operating system of the node.
+  The value can be **EulerOS 2.9** and **CentOS 7.6** e.g. For more details,
+  please see [documentation](https://support.huaweicloud.com/intl/en-us/api-cce/node-os.html).
+  This parameter is required when the `node_image_id` in `extend_params` is not specified.
   Changing this parameter will create a new resource.
-  + For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
-  + For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
 
 * `key_pair` - (Optional, String) Specifies the key pair name when logging in to select the key pair mode.
   This parameter and `password` are alternative.
 
 * `password` - (Optional, String) Specifies the root password when logging in to select the password mode.
+  The password consists of 8 to 26 characters and must contain at least three of following: uppercase letters,
+  lowercase letters, digits, special characters(!@$%^-_=+[{}]:,./?~#*).
   This parameter can be plain or salted and is alternative to `key_pair`.
 
   -> A new password is in plain text and takes effect after the node is started or restarted.
@@ -503,10 +506,11 @@ $ terraform import huaweicloud_cce_node.my_node 5c20fdad-7288-11eb-b817-0255ac10
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `fixed_ip`, `eip_id`, `iptype`, `bandwidth_charge_mode`, `bandwidth_size`,
-`share_type`, `extend_params`, `labels`, `taints` and arguments for pre-paid. It is generally recommended
-running `terraform plan` after importing a node. You can then decide if changes should be applied to the node, or the
-resource definition should be updated to align with the node. Also you can ignore changes as below.
+`password`, `private_key`, `storage`, `fixed_ip`, `extension_nics`, `eip_id`, `iptype`, `bandwidth_charge_mode`,
+`bandwidth_size`, `share_type`, `extend_params`, `dedicated_host_id`, `initialized_conditions`, `labels`, `taints`
+and arguments for pre-paid. It is generally recommended running `terraform plan` after importing a node.
+You can then decide if changes should be applied to the node, or the resource definition should be updated to align
+with the node. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_cce_node" "my_node" {

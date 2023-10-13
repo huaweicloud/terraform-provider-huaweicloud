@@ -192,12 +192,17 @@ The following arguments are supported:
   is random to create nodes in a random AZ in the node pool. Changing this parameter will create a new resource.
 
 * `os` - (Optional, String, ForceNew) Specifies the operating system of the node.
+  The value can be **EulerOS 2.9** and **CentOS 7.6** e.g. For more details,
+  please see [documentation](https://support.huaweicloud.com/intl/en-us/api-cce/node-os.html).
+  This parameter is required when the `node_image_id` in `extend_params` is not specified.
   Changing this parameter will create a new resource.
 
 * `key_pair` - (Optional, String, ForceNew) Specifies the key pair name when logging in to select the key pair mode.
   This parameter and `password` are alternative. Changing this parameter will create a new resource.
 
 * `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
+  The password consists of 8 to 26 characters and must contain at least three of following: uppercase letters,
+  lowercase letters, digits, special characters(!@$%^-_=+[{}]:,./?~#*).
   This parameter can be plain or salted and is alternative to `key_pair`.
   Changing this parameter will create a new resource.
 
