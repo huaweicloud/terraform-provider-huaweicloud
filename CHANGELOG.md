@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.56.1 (October 13, 2023)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster: Support updating `tags` param [GH-3479]
+* resource/huaweicloud_smn_subscription: Support more protocols and add `extension` block [GH-3497]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_addon: Fix a panic issue [GH-3399]
+
 ## 1.56.0 (September 28, 2023)
 
 * **New Resurce:**
