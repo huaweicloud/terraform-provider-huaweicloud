@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/configurations"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -76,8 +77,8 @@ func TestAccASConfiguration_instance(t *testing.T) {
 }
 
 func testAccCheckASConfigurationDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -127,6 +128,7 @@ func testAccCheckASConfigurationExists(n string, configuration *configurations.C
 	}
 }
 
+//nolint:revive
 func testAccASConfiguration_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}

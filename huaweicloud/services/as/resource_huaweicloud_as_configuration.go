@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/configurations"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -451,21 +452,21 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	asClient, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	asClient, err := conf.AutoscalingV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
 	configId := d.Id()
-	groups, err := getASGroupsByConfiguration(asClient, configId)
+	asGroups, err := getASGroupsByConfiguration(asClient, configId)
 	if err != nil {
 		return diag.Errorf("error getting AS groups by configuration ID %s: %s", configId, err)
 	}
 
-	if len(groups) > 0 {
+	if len(asGroups) > 0 {
 		var groupIds []string
-		for _, group := range groups {
+		for _, group := range asGroups {
 			groupIds = append(groupIds, group.ID)
 		}
 		return diag.Errorf("can not delete the configuration %s, it is used by AS groups %v", configId, groupIds)
@@ -494,22 +495,23 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 }
 
 func flattenInstanceConfig(instanceConfig configurations.InstanceConfig) []map[string]interface{} {
-	config := map[string]interface{}{
-		"charging_mode":          normalizeConfigurationChargingMode(instanceConfig.MarketType),
-		"instance_id":            instanceConfig.InstanceID,
-		"flavor":                 instanceConfig.FlavorRef,
-		"image":                  instanceConfig.ImageRef,
-		"key_name":               instanceConfig.SSHKey,
-		"flavor_priority_policy": instanceConfig.FlavorPriorityPolicy,
-		"ecs_group_id":           instanceConfig.ServerGroupID,
-		"user_data":              instanceConfig.UserData,
-		"metadata":               instanceConfig.Metadata,
-		"disk":                   flattenInstanceDisks(instanceConfig.Disk),
-		"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
-		"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
-		"personality":            flattenInstancePersonality(instanceConfig.Personality),
+	return []map[string]interface{}{
+		{
+			"charging_mode":          normalizeConfigurationChargingMode(instanceConfig.MarketType),
+			"instance_id":            instanceConfig.InstanceID,
+			"flavor":                 instanceConfig.FlavorRef,
+			"image":                  instanceConfig.ImageRef,
+			"key_name":               instanceConfig.SSHKey,
+			"flavor_priority_policy": instanceConfig.FlavorPriorityPolicy,
+			"ecs_group_id":           instanceConfig.ServerGroupID,
+			"user_data":              instanceConfig.UserData,
+			"metadata":               instanceConfig.Metadata,
+			"disk":                   flattenInstanceDisks(instanceConfig.Disk),
+			"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
+			"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
+			"personality":            flattenInstancePersonality(instanceConfig.Personality),
+		},
 	}
-	return []map[string]interface{}{config}
 }
 
 func flattenInstanceDisks(disks []configurations.Disk) []map[string]interface{} {
