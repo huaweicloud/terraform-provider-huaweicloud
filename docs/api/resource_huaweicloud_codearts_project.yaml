@@ -3,22 +3,22 @@ info:
     description: Manages a CodeArts project resource within HuaweiCloud.
 host: myhuaweicloud.com
 tags:
-    - name: ProjectMan
+    - name: CodeArts
 servers:
     - url: https://projectman-ext.cn-north-4.myhuaweicloud.com
 paths:
     /v4/project:
         POST:
-            tag: ProjectMan
+            tag: CodeArts
             operationId: CreateProject
             x-ref-api: POST /v4/project
     /v4/projects/{id}:
         DELETE:
-            tag: ProjectMan
+            tag: CodeArts
             operationId: DeleteProject
             x-ref-api: DELETE /v4/projects/{id}
         GET:
-            tag: ProjectMan
+            tag: CodeArts
             operationId: GetProject
             x-ref-api: GET /v4/projects/{id}
         PUT:
