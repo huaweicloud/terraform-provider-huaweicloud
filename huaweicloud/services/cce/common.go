@@ -211,6 +211,7 @@ func resourceNodeRootVolume() *schema.Schema {
 					Type:     schema.TypeMap,
 					Optional: true,
 					ForceNew: true,
+					Computed: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 				"kms_key_id": {
@@ -267,6 +268,7 @@ func resourceNodeDataVolume() *schema.Schema {
 					Type:     schema.TypeMap,
 					Optional: true,
 					ForceNew: true,
+					Computed: true,
 					Elem:     &schema.Schema{Type: schema.TypeString},
 				},
 				"kms_key_id": {
