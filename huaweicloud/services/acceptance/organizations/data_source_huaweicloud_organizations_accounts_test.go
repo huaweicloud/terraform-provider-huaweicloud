@@ -17,6 +17,7 @@ func TestAccDatasourceAccounts_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -44,6 +45,7 @@ func TestAccDatasourceAccounts_name(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
 			acceptance.TestAccPreCheckOrganizationsAccountName(t)
 		},
@@ -62,8 +64,8 @@ func TestAccDatasourceAccounts_name(t *testing.T) {
 }
 
 func testAccDatasourceAccounts_basic() string {
-	return `
-data "huaweicloud_organizations_organization" "test" {}
+	return fmt.Sprintf(`
+%s
 
 data "huaweicloud_organizations_accounts" "all" {}
 
@@ -74,7 +76,7 @@ data "huaweicloud_organizations_accounts" "parent_id_filter" {
 output "parent_id_filter_is_useful" {
   value = length(data.huaweicloud_organizations_accounts.parent_id_filter.accounts) > 0
 }
-`
+`, testAccDatasourceOrganization_basic())
 }
 
 func testAccDatasourceAccounts_name(name string) string {

@@ -57,6 +57,7 @@ func TestAccAccountAssociate_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 			acceptance.TestAccPreCheckOrganizationsOrganizationalUnitId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -98,16 +99,13 @@ func testAccountAssociate_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_organizations_organizational_unit" "test" {
-  name      = "%[2]s"
-  parent_id = huaweicloud_organizations_organization.test.root_id
-}
+%[2]s
 
 resource "huaweicloud_organizations_account_associate" "test" {
   account_id = huaweicloud_organizations_account.test.id
   parent_id  = huaweicloud_organizations_organizational_unit.test.id
 }
-`, testAccount_basic(name), name)
+`, testOrganizationalUnit_basic(name), testAccount_basic(name))
 }
 
 func testAccountAssociate_basic_update(name string) string {
