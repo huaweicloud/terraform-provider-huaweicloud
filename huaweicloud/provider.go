@@ -529,6 +529,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup":  vpc.DataSourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroups": vpc.DataSourceNetworkingSecGroups(),
 
+			"huaweicloud_mapreduce_versions": mrs.DataSourceMrsVersions(),
+
 			"huaweicloud_modelarts_datasets":         modelarts.DataSourceDatasets(),
 			"huaweicloud_modelarts_dataset_versions": modelarts.DataSourceDatasetVerions(),
 			"huaweicloud_modelarts_notebook_images":  modelarts.DataSourceNotebookImages(),
