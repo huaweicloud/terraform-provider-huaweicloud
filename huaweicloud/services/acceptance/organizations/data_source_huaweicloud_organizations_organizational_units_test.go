@@ -1,6 +1,7 @@
 package organizations
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -16,6 +17,7 @@ func TestAccDatasourceOrganizationalUnits_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -35,11 +37,11 @@ func TestAccDatasourceOrganizationalUnits_basic(t *testing.T) {
 }
 
 func testAccDatasourceOrganizationalUnits_basic() string {
-	return `
-data "huaweicloud_organizations_organization" "test" {}
+	return fmt.Sprintf(`
+%s
 
 data "huaweicloud_organizations_organizational_units" "test" {
   parent_id = data.huaweicloud_organizations_organization.test.root_id
 }
-`
+`, testAccDatasourceOrganization_basic())
 }
