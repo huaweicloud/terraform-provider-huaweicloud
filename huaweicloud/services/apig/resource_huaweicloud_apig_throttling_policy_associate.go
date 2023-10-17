@@ -129,7 +129,7 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 	}
 
 	mErr := multierror.Append(nil, d.Set("publish_ids", flattenApiPublishIds(resp)))
-	return diag.FromErr(mErr)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func unbindPolicy(client *golangsdk.ServiceClient, instanceId, policyId string, unbindSet *schema.Set) error {
