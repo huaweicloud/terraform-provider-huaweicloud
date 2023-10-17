@@ -11,15 +11,17 @@ import (
 	"log"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func DataSourceFirewalls() *schema.Resource {
@@ -118,8 +120,9 @@ func firewallsGetFirewallInstanceResponseRecordSchema() *schema.Resource {
 				Description: `Service type`,
 			},
 			"status": {
-				Type:        schema.TypeInt,
-				Computed:    true,
+				Type:     schema.TypeInt,
+				Computed: true,
+				//nolint:revive
 				Description: `Firewall status list. The options are as follows: -1: waiting for payment; 0: creating; 1: deleting; 2: running; 3: upgrading; 4: deletion completed; 5: freezing; 6: creation failed; 7: deletion failed; 8: freezing failed; 9: storage in progress; 10: storage failed; 11: upgrade failed`,
 			},
 			"support_ipv6": {
@@ -151,8 +154,9 @@ func firewallsGetFirewallInstanceResponseRecordFlavorSchema() *schema.Resource {
 				Description: `Log storage`,
 			},
 			"version": {
-				Type:        schema.TypeInt,
-				Computed:    true,
+				Type:     schema.TypeInt,
+				Computed: true,
+				//nolint:revive
 				Description: `Firewall version. The value can be 0 (standard edition), 1 (professional edition), 2 (platinum edition), or 3 (basic edition).`,
 			},
 			"vpc_count": {
@@ -217,8 +221,9 @@ func firewallsGetFirewallInstanceResponseRecordFirewallInstanceResourceSchema() 
 				Description: `Inventory unit code`,
 			},
 			"resource_type": {
-				Type:        schema.TypeString,
-				Computed:    true,
+				Type:     schema.TypeString,
+				Computed: true,
+				//nolint:revive
 				Description: `Resource type. The options are as follows:1. CFW: hws.resource.type.cfw 2. EIP:hws.resource.type.cfw.exp.eip 3. Bandwidth: hws.resource.type.cfw.exp.bandwidth 4. VPC: hws.resource.type.cfw.exp.vpc 5. Log storage: hws.resource.type.cfw.exp.logaudit`,
 			},
 		},
@@ -226,9 +231,9 @@ func firewallsGetFirewallInstanceResponseRecordFirewallInstanceResourceSchema() 
 	return &sc
 }
 
-func resourceFirewallsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceFirewallsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -237,7 +242,7 @@ func resourceFirewallsRead(ctx context.Context, d *schema.ResourceData, meta int
 		listFirewallsHttpUrl = "v1/{project_id}/firewall/exist"
 		listFirewallsProduct = "cfw"
 	)
-	listFirewallsClient, err := config.NewServiceClient(listFirewallsProduct, region)
+	listFirewallsClient, err := conf.NewServiceClient(listFirewallsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Firewalls Client: %s", err)
 	}

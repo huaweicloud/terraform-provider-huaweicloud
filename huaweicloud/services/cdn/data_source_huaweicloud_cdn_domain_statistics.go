@@ -10,12 +10,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -92,9 +94,9 @@ func DataSourceStatistics() *schema.Resource {
 	}
 }
 
-func resourceStatisticsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceStatisticsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -103,7 +105,7 @@ func resourceStatisticsRead(ctx context.Context, d *schema.ResourceData, meta in
 		domainStatisticsHttpUrl = "v1.0/cdn/statistics/domain-location-stats"
 		domainStatisticsProduct = "cdn"
 	)
-	domainStatisticsClient, err := config.NewServiceClient(domainStatisticsProduct, region)
+	domainStatisticsClient, err := conf.NewServiceClient(domainStatisticsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Statistics Client: %s", err)
 	}
@@ -111,7 +113,7 @@ func resourceStatisticsRead(ctx context.Context, d *schema.ResourceData, meta in
 	domainStatisticsPath := domainStatisticsClient.Endpoint + domainStatisticsHttpUrl
 
 	domainStatisticsqueryParams := buildDomainStatisticsQueryParams(d)
-	domainStatisticsPath = domainStatisticsPath + domainStatisticsqueryParams
+	domainStatisticsPath += domainStatisticsqueryParams
 
 	domainStatisticsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

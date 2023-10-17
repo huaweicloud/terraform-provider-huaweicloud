@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getClusterResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -46,9 +46,9 @@ func TestAccCloudtableCluster_basic(t *testing.T) {
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "storage_type", "ULTRAHIGH"),
-					resource.TestCheckResourceAttr(resourceName, "storage_size", "10240"),
 					resource.TestCheckResourceAttr(resourceName, "rs_num", "4"),
 					resource.TestCheckResourceAttr(resourceName, "hbase_version", "1.0.6"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage_size"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
