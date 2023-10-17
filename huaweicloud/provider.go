@@ -558,7 +558,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 
-			"huaweicloud_smn_topics": smn.DataSourceTopics(),
+			"huaweicloud_smn_topics":            smn.DataSourceTopics(),
+			"huaweicloud_smn_message_templates": smn.DataSourceSmnMessageTemplates(),
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
