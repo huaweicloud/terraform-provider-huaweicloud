@@ -987,6 +987,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_sql_alarm_rule":                   lts.ResourceSQLAlarmRule(),
 			"huaweicloud_lts_notification_template":            lts.ResourceNotificationTemplate(),
 			"huaweicloud_lts_search_criteria":                  lts.ResourceSearchCriteria(),
+			"huaweicloud_lts_waf_access":                       lts.ResourceWAFAccess(),
 
 			"huaweicloud_mapreduce_cluster":         mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mapreduce_job":             mrs.ResourceMRSJobV2(),
