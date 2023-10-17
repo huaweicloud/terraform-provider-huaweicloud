@@ -368,13 +368,13 @@ func parseInstanceAvailabilityZones(azStr string) []string {
 	return strings.Split(codesStr, ",")
 }
 
-// The response of ingress acess does not contain EIP ID, just the IP address.
-func parseInstanceIngressAccess(c *config.Config, region, publicAddress string) (*string, error) {
+// The response of ingress access does not contain EIP ID, just the IP address.
+func parseInstanceIngressAccess(cfg *config.Config, region, publicAddress string) (*string, error) {
 	if publicAddress == "" {
 		return nil, nil
 	}
 
-	client, err := c.NetworkingV1Client(region)
+	client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 	}
