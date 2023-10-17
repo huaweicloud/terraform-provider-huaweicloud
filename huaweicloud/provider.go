@@ -540,6 +540,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_services":         modelarts.DataSourceServices(),
 			"huaweicloud_modelarts_resource_flavors": modelarts.DataSourceResourceFlavors(),
 
+			"huaweicloud_mapreduce_clusters": mrs.DataSourceMrsClusters(),
+
 			"huaweicloud_obs_buckets":       obs.DataSourceObsBuckets(),
 			"huaweicloud_obs_bucket_object": obs.DataSourceObsBucketObject(),
 
