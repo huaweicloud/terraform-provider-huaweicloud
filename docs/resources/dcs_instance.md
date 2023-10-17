@@ -75,6 +75,17 @@ resource "huaweicloud_dcs_instance" "instance_2" {
     group_name = "test-group2"
     ip_address = ["172.16.10.100", "172.16.0.0/24"]
   }
+
+  parameters {
+    id    = "1"
+    name  = "timeout"
+    value = "500"
+  }
+  parameters {
+    id    = "3"
+    name  = "hash-max-ziplist-entries"
+    value = "4096"
+  }
 }
 ```
 
@@ -177,6 +188,10 @@ The following arguments are supported:
 
   -> **NOTE:** This parameter is not supported when the instance type is single.
 
+* `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the DCS instance after
+  launched. You can check on console to see which parameters supported.
+  The [parameters](#DcsInstance_Parameters) structure is documented below.
+
 * `rename_commands` - (Optional, Map) Critical command renaming, which is supported only by Redis 4.0 and
   Redis 5.0 instances but not by Redis 3.0 instance.
   The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall** and **hgetall**.
@@ -246,6 +261,15 @@ The `backup_policy` block supports:
 * `begin_at` - (Required, String) Time at which backup starts.
   Format: `hh24:00-hh24:00`, "00:00-01:00" indicates that backup starts at 00:00:00.
 
+<a name="DcsInstance_Parameters"></a>
+The `parameters` block supports:
+
+* `id` - (Required, String) Specifies the ID of the configuration item.
+
+* `name` - (Required, String) Specifies the name of the configuration item.
+
+* `value` - (Required, String) Specifies the value of the configuration item.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -296,7 +320,7 @@ terraform import huaweicloud_dcs_instance.instance_1 80e373f9-872e-4046-aae9-ccd
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
 The missing attributes include: `password`, `auto_renew`, `period`, `period_unit`, `rename_commands`,
-`internal_version`, `save_days`, `backup_type`, `begin_at`, `period_type`, `backup_at`.
+`internal_version`, `save_days`, `backup_type`, `begin_at`, `period_type`, `backup_at`, `parameters`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
