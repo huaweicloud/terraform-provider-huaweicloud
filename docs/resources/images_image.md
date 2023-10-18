@@ -112,6 +112,7 @@ The following arguments are supported:
 
 * `os_version` - (Optional, String, ForceNew) The OS version. This parameter is valid when you create a private image
   from an external file uploaded to an OBS bucket.
+  For its values, see [API docs](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0910.html).
 
 * `is_config` - (Optional, Bool, ForceNew) If automatic configuration is required, set the value to true. Otherwise, set
   the value to false.
