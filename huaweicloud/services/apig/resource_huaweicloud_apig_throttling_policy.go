@@ -470,7 +470,7 @@ func resourceThrottlingPolicyDelete(_ context.Context, d *schema.ResourceData, m
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Huawei Cloud APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
 	var (
