@@ -381,28 +381,28 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
+
+	nics := flattenBmsInstanceNicsV1(d, meta, server.Addresses)
+
+	// Set security groups
+	var secGrpIds []string
+	for _, sg := range server.SecurityGroups {
+		secGrpIds = append(secGrpIds, sg.ID)
+	}
+
+	// Set disk ids
+	var diskIds []string
+	for _, disk := range server.VolumeAttached {
+		diskIds = append(diskIds, disk.ID)
+	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", server.Name),
 		d.Set("image_id", server.Image.ID),
 		d.Set("flavor_id", server.Flavor.ID),
 		d.Set("host_id", server.HostID),
-	)
-
-	// Set fixed and floating ip
-	if eip := bmsPublicIP(server); eip != "" {
-		mErr = multierror.Append(mErr, d.Set("public_ip", eip))
-	}
-	nics := flattenBmsInstanceNicsV1(d, meta, server.Addresses)
-	mErr = multierror.Append(mErr, d.Set("nics", nics))
-
-	mErr = multierror.Append(mErr, d.Set("key_pair", server.KeyName))
-	// Set security groups
-	secGrpIds := []string{}
-	for _, sg := range server.SecurityGroups {
-		secGrpIds = append(secGrpIds, sg.ID)
-	}
-	mErr = multierror.Append(mErr,
+		d.Set("nics", nics),
+		d.Set("key_pair", server.KeyName),
 		d.Set("security_groups", secGrpIds),
 		d.Set("status", server.Status),
 		d.Set("user_id", server.Metadata.OpSvcUserId),
@@ -412,13 +412,13 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("description", server.Description),
 		d.Set("user_data", server.UserData),
 		d.Set("enterprise_project_id", server.EnterpriseProjectID),
+		d.Set("disk_ids", diskIds),
 	)
-	// Set disk ids
-	diskIds := []string{}
-	for _, disk := range server.VolumeAttached {
-		diskIds = append(diskIds, disk.ID)
+
+	// Set fixed and floating ip
+	if eip := bmsPublicIP(server); eip != "" {
+		mErr = multierror.Append(mErr, d.Set("public_ip", eip))
 	}
-	mErr = multierror.Append(mErr, d.Set("disk_ids", diskIds))
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -560,7 +560,7 @@ func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
 	}
 
 	var network string
-	nics := []map[string]interface{}{}
+	var nics []map[string]interface{}
 	// Loop through all networks and addresses.
 	for _, addrs := range addresses {
 		for _, addr := range addrs {
