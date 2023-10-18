@@ -674,6 +674,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_alarm_silence_rule":     aom.ResourceAlarmSilenceRule(),
 
 			"huaweicloud_aom_cmdb_application": aom.ResourceCmdbApplication(),
+			"huaweicloud_aom_cmdb_component":   aom.ResourceCmdbComponent(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
