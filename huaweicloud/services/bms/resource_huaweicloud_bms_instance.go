@@ -343,7 +343,7 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	n, err := baremetalservers.CreatePrePaid(bmsClient, createOpts).ExtractOrderResponse()
 	if err != nil {
-		return diag.Errorf("Error creating Huawei Cloud BMS server: %s", err)
+		return diag.Errorf("Error creating BMS server: %s", err)
 	}
 
 	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
@@ -368,7 +368,7 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 	region := cfg.GetRegion(d)
 	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating Huawei Cloud compute client: %s", err)
+		return diag.Errorf("Error creating compute client: %s", err)
 	}
 
 	server, err := baremetalservers.Get(bmsClient, d.Id()).Extract()
@@ -426,7 +426,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	cfg := meta.(*config.Config)
 	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huawei Cloud compute client: %s", err)
+		return diag.Errorf("Error creating compute client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -435,7 +435,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 		_, err = baremetalservers.Update(bmsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return diag.Errorf("Error updating Huawei Cloud bms server: %s", err)
+			return diag.Errorf("Error updating bms server: %s", err)
 		}
 	}
 
@@ -457,7 +457,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	region := cfg.GetRegion(d)
 	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating Huawei Cloud compute client: %s", err)
+		return diag.Errorf("Error creating compute client: %s", err)
 	}
 	serverID := d.Id()
 	publicIP := d.Get("public_ip").(string)
@@ -489,7 +489,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err := common.UnsubscribePrePaidResource(d, cfg, resourceIDs); err != nil {
-		return diag.Errorf("Error unsubscribing Huawei Cloud BMS server: %s", err)
+		return diag.Errorf("Error unsubscribing BMS server: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -503,7 +503,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting Huawei Cloud BMS instance: %s", err)
+		return diag.Errorf("Error deleting BMS instance: %s", err)
 	}
 
 	d.SetId("")
@@ -556,7 +556,7 @@ func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
 	cfg := meta.(*config.Config)
 	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
-		log.Printf("Error creating Huawei Cloud networking client: %s", err)
+		log.Printf("Error creating networking client: %s", err)
 	}
 
 	var network string
