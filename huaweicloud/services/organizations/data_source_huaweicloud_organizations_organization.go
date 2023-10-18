@@ -62,6 +62,12 @@ func DataSourceOrganization() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Indicates the key/value attached to the root.`,
 			},
+			"enabled_policy_types": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Indicates the list of enabled Organizations policy types in the Organization Root.`,
+			},
 		},
 	}
 }
@@ -95,6 +101,9 @@ func dataSourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta 
 
 	rootId := utils.PathSearch("roots|[0].id", getRootRespBody, "").(string)
 
+	policyTypes := utils.PathSearch("roots|[0].policy_types[?status=='enabled'].type", getRootRespBody,
+		make([]interface{}, 0)).([]interface{})
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("urn", utils.PathSearch("organization.urn", getOrganizationRespBody, nil)),
@@ -108,6 +117,7 @@ func dataSourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("root_name", utils.PathSearch("roots|[0].name",
 			getRootRespBody, nil)),
 		d.Set("root_urn", utils.PathSearch("roots|[0].urn", getRootRespBody, nil)),
+		d.Set("enabled_policy_types", policyTypes),
 	)
 
 	tagMap, err := getTags(getOrganizationClient, rootType, rootId)
