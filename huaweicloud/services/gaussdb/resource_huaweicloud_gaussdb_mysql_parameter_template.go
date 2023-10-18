@@ -141,8 +141,12 @@ func buildCreateParameterTemplateBodyParams(d *schema.ResourceData) map[string]i
 }
 
 func buildCreateParameterTemplateDatastoreChildBody(d *schema.ResourceData) map[string]interface{} {
+	datastoreEngine := d.Get("datastore_engine").(string)
+	if datastoreEngine == "" {
+		return nil
+	}
 	params := map[string]interface{}{
-		"type":    utils.ValueIngoreEmpty(d.Get("datastore_engine")),
+		"type":    utils.ValueIngoreEmpty(datastoreEngine),
 		"version": utils.ValueIngoreEmpty(d.Get("datastore_version")),
 	}
 	return params

@@ -103,6 +103,44 @@ func TestAccGaussDBMysqlTemplate_basic(t *testing.T) {
 	})
 }
 
+func TestAccGaussDBMysqlTemplate_with_name(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	updateName := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_gaussdb_mysql_parameter_template.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGaussDBMysqlTemplateResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testParameterTemplate_with_name(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+				),
+			},
+			{
+				Config: testParameterTemplate_with_name(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+				),
+			},
+		},
+	})
+}
+
 func testParameterTemplate_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
@@ -131,6 +169,14 @@ resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
     auto_increment_increment = "6"
     auto_increment_offset    = "8"
   }
+}
+`, name)
+}
+
+func testParameterTemplate_with_name(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
+  name = "%s"
 }
 `, name)
 }
