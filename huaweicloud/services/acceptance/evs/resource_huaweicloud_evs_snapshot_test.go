@@ -1,17 +1,19 @@
-package huaweicloud
+package evs
 
 import (
 	"fmt"
-	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/evs/v2/snapshots"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccEvsSnapshotV2_basic(t *testing.T) {
@@ -21,8 +23,8 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 	resourceName := "huaweicloud_evs_snapshot.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckEvsSnapshotV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -39,8 +41,8 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 }
 
 func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	evsClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	evsClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
 	}
@@ -70,8 +72,8 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		evsClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		evsClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
 		}

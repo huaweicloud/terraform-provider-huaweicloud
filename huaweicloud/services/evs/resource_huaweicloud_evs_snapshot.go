@@ -1,12 +1,15 @@
-package huaweicloud
+package evs
 
 import (
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/evs/v2/snapshots"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/evs/v2/snapshots"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -66,7 +69,7 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 
 func resourceEvsSnapshotV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+	evsClient, err := config.BlockStorageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
@@ -98,14 +101,14 @@ func resourceEvsSnapshotV2Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceEvsSnapshotV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+	evsClient, err := config.BlockStorageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
 
 	v, err := snapshots.Get(evsClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "snapshot")
+		return common.CheckDeleted(d, err, "snapshot")
 	}
 
 	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
@@ -121,7 +124,7 @@ func resourceEvsSnapshotV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceEvsSnapshotV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+	evsClient, err := config.BlockStorageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
@@ -141,13 +144,13 @@ func resourceEvsSnapshotV2Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceEvsSnapshotV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+	evsClient, err := config.BlockStorageV2Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
 
 	if err := snapshots.Delete(evsClient, d.Id()).ExtractErr(); err != nil {
-		return CheckDeleted(d, err, "snapshot")
+		return common.CheckDeleted(d, err, "snapshot")
 	}
 
 	// Wait for the snapshot to delete before moving on.
