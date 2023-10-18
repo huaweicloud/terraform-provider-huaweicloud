@@ -275,7 +275,7 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	cfg := meta.(*config.Config)
 	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating Huawei Cloud bms client: %s", err)
+		return diag.Errorf("Error creating bms client: %s", err)
 	}
 
 	createOpts := &baremetalservers.CreateOpts{
@@ -608,7 +608,7 @@ func bmsPublicIP(server *baremetalservers.CloudServer) string {
 
 func waitForBmsInstanceDelete(bmsClient *golangsdk.ServiceClient, serverId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete Huawei Cloud BMS instance %s", serverId)
+		log.Printf("[DEBUG] Attempting to delete BMS instance %s", serverId)
 
 		r, err := baremetalservers.Get(bmsClient, serverId).Extract()
 
