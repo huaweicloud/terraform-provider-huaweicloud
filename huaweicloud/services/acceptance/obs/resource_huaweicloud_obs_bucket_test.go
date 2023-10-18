@@ -382,6 +382,51 @@ func TestAccObsBucket_cors(t *testing.T) {
 	})
 }
 
+func TestAccObsBucket_userDomainNames(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "huaweicloud_obs_bucket.bucket"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+			acceptance.TestAccPreCheckOBSUserDomainNames(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucketConfigWithUserDomainNames(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "user_domain_names.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "user_domain_names.0",
+						acceptance.HW_OBS_USER_DOMAIN_NAME1),
+				),
+			},
+			{
+				Config: testAccObsBucketConfigWithUserDomainNames_update1(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "user_domain_names.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "user_domain_names.0",
+						acceptance.HW_OBS_USER_DOMAIN_NAME2),
+				),
+			},
+			{
+				Config: testAccObsBucketConfigWithUserDomainNames_update2(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "user_domain_names.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckObsBucketDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
@@ -703,6 +748,39 @@ resource "huaweicloud_obs_bucket" "bucket" {
     expose_headers  = ["x-amz-server-side-encryption","ETag"]
     max_age_seconds = 3000
   }
+}
+`, randInt)
+}
+
+func testAccObsBucketConfigWithUserDomainNames(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
+
+  user_domain_names = ["%s"]
+}
+`, randInt, acceptance.HW_OBS_USER_DOMAIN_NAME1)
+}
+
+func testAccObsBucketConfigWithUserDomainNames_update1(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
+
+  user_domain_names = ["%s"]
+}
+`, randInt, acceptance.HW_OBS_USER_DOMAIN_NAME2)
+}
+
+func testAccObsBucketConfigWithUserDomainNames_update2(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
+
+  user_domain_names = []
 }
 `, randInt)
 }
