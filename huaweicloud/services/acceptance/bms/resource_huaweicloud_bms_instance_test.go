@@ -57,7 +57,7 @@ func testAccCheckBmsInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	bmsClient, err := cfg.BmsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud bms client: %s", err)
+		return fmt.Errorf("error creating bms client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -90,7 +90,7 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		bmsClient, err := cfg.BmsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud bms client: %s", err)
+			return fmt.Errorf("error creating bms client: %s", err)
 		}
 
 		found, err := baremetalservers.Get(bmsClient, rs.Primary.ID).Extract()
