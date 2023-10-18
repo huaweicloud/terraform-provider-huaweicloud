@@ -275,7 +275,7 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	cfg := meta.(*config.Config)
 	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating bms client: %s", err)
+		return diag.Errorf("error creating bms client: %s", err)
 	}
 
 	createOpts := &baremetalservers.CreateOpts{
@@ -343,7 +343,7 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	n, err := baremetalservers.CreatePrePaid(bmsClient, createOpts).ExtractOrderResponse()
 	if err != nil {
-		return diag.Errorf("Error creating BMS server: %s", err)
+		return diag.Errorf("error creating BMS server: %s", err)
 	}
 
 	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
@@ -368,7 +368,7 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 	region := cfg.GetRegion(d)
 	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	server, err := baremetalservers.Get(bmsClient, d.Id()).Extract()
@@ -426,7 +426,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	cfg := meta.(*config.Config)
 	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("Error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -435,7 +435,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 		_, err = baremetalservers.Update(bmsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return diag.Errorf("Error updating bms server: %s", err)
+			return diag.Errorf("error updating bms server: %s", err)
 		}
 	}
 
@@ -457,7 +457,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	region := cfg.GetRegion(d)
 	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 	serverID := d.Id()
 	publicIP := d.Get("public_ip").(string)
@@ -477,19 +477,19 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	if _, ok := d.GetOk("iptype"); ok && publicIP != "" && d.Get("eip_charge_mode").(string) == "prePaid" {
 		eipClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
-			return diag.Errorf("Error creating networking client: %s", err)
+			return diag.Errorf("error creating networking client: %s", err)
 		}
 
 		epsID := "all_granted_eps"
 		var eipID string
 		if eipID, err = common.GetEipIDbyAddress(eipClient, publicIP, epsID); err != nil {
-			return diag.Errorf("Error fetching EIP ID of BMS server (%s): %s", d.Id(), err)
+			return diag.Errorf("error fetching EIP ID of BMS server (%s): %s", d.Id(), err)
 		}
 		resourceIDs = append(resourceIDs, eipID)
 	}
 
 	if err := common.UnsubscribePrePaidResource(d, cfg, resourceIDs); err != nil {
-		return diag.Errorf("Error unsubscribing BMS server: %s", err)
+		return diag.Errorf("error unsubscribing BMS server: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -503,7 +503,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting BMS instance: %s", err)
+		return diag.Errorf("error deleting BMS instance: %s", err)
 	}
 
 	d.SetId("")

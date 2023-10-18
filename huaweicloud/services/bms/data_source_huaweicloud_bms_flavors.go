@@ -81,7 +81,7 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	region := cfg.GetRegion(d)
 	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating BMS client: %s", err)
+		return diag.Errorf("error creating BMS client: %s", err)
 	}
 
 	az := d.Get("availability_zone").(string)
@@ -91,7 +91,7 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	allFlavors, err := flavors.List(bmsClient, listOpts).Extract()
 	if err != nil {
-		return diag.Errorf("Unable to retrieve BMS flavors: %s ", err)
+		return diag.Errorf("unable to retrieve BMS flavors: %s ", err)
 	}
 
 	var vcpus string
@@ -140,7 +140,7 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if len(resultFlavors) < 1 {
-		return diag.Errorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
