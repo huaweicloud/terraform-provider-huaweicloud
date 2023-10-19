@@ -17,10 +17,28 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getRuleWebTamperProtectionResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	wafClient, err := cfg.WafV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
+	}
+
+	policyID := state.Primary.Attributes["policy_id"]
+	epsID := state.Primary.Attributes["enterprise_project_id"]
+	return rules.GetWithEpsID(wafClient, policyID, state.Primary.ID, epsID).Extract()
+}
+
 func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
-	var rule rules.WebTamper
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getRuleWebTamperProtectionResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -28,30 +46,37 @@ func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafWafRuleWebTamperProtectionDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafRuleWebTamperProtection_basic(randName),
+				Config: testAccWafRuleWebTamperProtection_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleWebTamperProtectionExists(resourceName, &rule),
-					resource.TestCheckResourceAttr(resourceName, "domain", "www.abc.com"),
-					resource.TestCheckResourceAttr(resourceName, "path", "/a"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "domain", "www.abc.com"),
+					resource.TestCheckResourceAttr(rName, "path", "/a"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(resourceName),
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
 }
 
 func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
-	var rule rules.WebTamper
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getRuleWebTamperProtectionResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -60,80 +85,25 @@ func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafWafRuleWebTamperProtectionDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafRuleWebTamperProtection_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Config: testAccWafRuleWebTamperProtection_basic_withEpsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleWebTamperProtectionExists(resourceName, &rule),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "domain", "www.abc.com"),
-					resource.TestCheckResourceAttr(resourceName, "path", "/a"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(rName, "domain", "www.abc.com"),
+					resource.TestCheckResourceAttr(rName, "path", "/a"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(resourceName),
+				ImportStateIdFunc: testWAFRuleImportState(rName),
 			},
 		},
 	})
-}
-
-func testAccCheckWafWafRuleWebTamperProtectionDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_rule_web_tamper_protection" {
-			continue
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		_, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
-		if err == nil {
-			return fmt.Errorf("WAF rule still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckWafRuleWebTamperProtectionExists(n string, rule *rules.WebTamper) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		found, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("WAF web tamper protection rule not found")
-		}
-
-		*rule = *found
-
-		return nil
-	}
 }
 
 func testAccWafRuleWebTamperProtection_basic(name string) string {

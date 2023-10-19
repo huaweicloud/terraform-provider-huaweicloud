@@ -5,23 +5,23 @@
 package waf
 
 import (
+	"context"
+
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// ResourceWafRuleWebTamperProtectionV1 manages the resources for web tamper protection rules
 func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafRuleWebTamperProtectionCreate,
-		Read:   resourceWafRuleWebTamperProtectionRead,
-		Delete: resourceWafRuleWebTamperProtectionDelete,
+		CreateContext: resourceWafRuleWebTamperProtectionCreate,
+		ReadContext:   resourceWafRuleWebTamperProtectionRead,
+		DeleteContext: resourceWafRuleWebTamperProtectionDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFRuleImportState,
 		},
@@ -57,75 +57,66 @@ func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 	}
 }
 
-// resourceWafRuleWebTamperProtectionCreate create rules
-func resourceWafRuleWebTamperProtectionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleWebTamperProtectionCreate(ctx context.Context, d *schema.ResourceData,
+	meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
-	// create options
+
 	createOpts := rules.CreateOpts{
 		Hostname:            d.Get("domain").(string),
 		Url:                 d.Get("path").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
 	policyID := d.Get("policy_id").(string)
 	rule, err := rules.Create(wafClient, policyID, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Web Tamper Protection Rule: %s", err)
+		return diag.Errorf("error creating WAF web tamper protection rule: %s", err)
 	}
-
-	logp.Printf("[DEBUG] WAF web tamper protection rule created: %#v", rule)
 	d.SetId(rule.Id)
 
-	return resourceWafRuleWebTamperProtectionRead(d, meta)
+	return resourceWafRuleWebTamperProtectionRead(ctx, d, meta)
 }
 
-// resourceWafRuleWebTamperProtectionRead read rules from HuaweiCloud by id and policyid
-func resourceWafRuleWebTamperProtectionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleWebTamperProtectionRead(_ context.Context, d *schema.ResourceData,
+	meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	policyID := d.Get("policy_id").(string)
-	epsID := config.GetEnterpriseProjectID(d)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	n, err := rules.GetWithEpsID(wafClient, policyID, d.Id(), epsID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "WAF Web Tamper Protection Rule")
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF web tamper protection rule")
 	}
 
-	d.SetId(n.Id)
 	mErr := multierror.Append(nil,
 		d.Set("policy_id", n.PolicyID),
 		d.Set("domain", n.Hostname),
 		d.Set("path", n.Url),
 	)
-	if mErr.ErrorOrNil() != nil {
-		return mErr
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// resourceWafRuleWebTamperProtectionDelete delete the rules from HuaweiCloud by id
-func resourceWafRuleWebTamperProtectionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleWebTamperProtectionDelete(_ context.Context, d *schema.ResourceData,
+	meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	policyID := d.Get("policy_id").(string)
-	epsID := config.GetEnterpriseProjectID(d)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), epsID).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("error deleting HuaweiCloud WAF Web Tamper Protection Rule: %s", err)
+		return diag.Errorf("error deleting WAF web tamper protection rule: %s", err)
 	}
-
-	d.SetId("")
 	return nil
 }
