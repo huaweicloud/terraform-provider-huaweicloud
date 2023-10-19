@@ -236,6 +236,7 @@ func buildCreateOrUpdateBodyParams(d *schema.ResourceData) (map[string]interface
 		"conditions":  buildConditionBodyParam(d.Get("conditions")),
 		"action":      buildActionBodyParam(d),
 		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"time":        false,
 	}
 
 	if v, ok := d.GetOk("start_time"); ok {
