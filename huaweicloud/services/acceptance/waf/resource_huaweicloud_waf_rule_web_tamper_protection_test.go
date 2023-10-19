@@ -54,6 +54,15 @@ func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "domain", "www.abc.com"),
 					resource.TestCheckResourceAttr(rName, "path", "/a"),
+					resource.TestCheckResourceAttr(rName, "description", "test description"),
+					resource.TestCheckResourceAttr(rName, "status", "0"),
+				),
+			},
+			{
+				Config: testAccWafRuleWebTamperProtection_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "1"),
 				),
 			},
 			{
@@ -94,6 +103,7 @@ func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "domain", "www.abc.com"),
 					resource.TestCheckResourceAttr(rName, "path", "/a"),
+					resource.TestCheckResourceAttr(rName, "description", "test description"),
 				),
 			},
 			{
@@ -111,9 +121,25 @@ func testAccWafRuleWebTamperProtection_basic(name string) string {
 %s
 
 resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  domain    = "www.abc.com"
-  path      = "/a"
+  policy_id   = huaweicloud_waf_policy.policy_1.id
+  domain      = "www.abc.com"
+  path        = "/a"
+  description = "test description"
+  status      = 0
+}
+`, testAccWafPolicyV1_basic(name))
+}
+
+func testAccWafRuleWebTamperProtection_basic_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
+  policy_id   = huaweicloud_waf_policy.policy_1.id
+  domain      = "www.abc.com"
+  path        = "/a"
+  description = "test description"
+  status      = 1
 }
 `, testAccWafPolicyV1_basic(name))
 }
@@ -126,6 +152,7 @@ resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
   policy_id             = huaweicloud_waf_policy.policy_1.id
   domain                = "www.abc.com"
   path                  = "/a"
+  description           = "test description"
   enterprise_project_id = "%s"
 }
 `, testAccWafPolicyV1_basic_withEpsID(name, epsID), epsID)

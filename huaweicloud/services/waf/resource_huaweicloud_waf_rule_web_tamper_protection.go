@@ -20,6 +20,7 @@ import (
 func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleWebTamperProtectionCreate,
+		UpdateContext: resourceWafRuleWebTamperProtectionUpdate,
 		ReadContext:   resourceWafRuleWebTamperProtectionRead,
 		DeleteContext: resourceWafRuleWebTamperProtectionDelete,
 		Importer: &schema.ResourceImporter{
@@ -53,6 +54,17 @@ func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"status": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -68,6 +80,7 @@ func resourceWafRuleWebTamperProtectionCreate(ctx context.Context, d *schema.Res
 	createOpts := rules.CreateOpts{
 		Hostname:            d.Get("domain").(string),
 		Url:                 d.Get("path").(string),
+		Description:         d.Get("description").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
@@ -78,6 +91,27 @@ func resourceWafRuleWebTamperProtectionCreate(ctx context.Context, d *schema.Res
 	}
 	d.SetId(rule.Id)
 
+	if d.Get("status").(int) == 0 {
+		if err := updateRuleStatus(wafClient, d, cfg, "antitamper"); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	return resourceWafRuleWebTamperProtectionRead(ctx, d, meta)
+}
+
+func resourceWafRuleWebTamperProtectionUpdate(ctx context.Context, d *schema.ResourceData,
+	meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating WAF client: %s", err)
+	}
+
+	if d.HasChange("status") {
+		if err := updateRuleStatus(wafClient, d, cfg, "antitamper"); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceWafRuleWebTamperProtectionRead(ctx, d, meta)
 }
 
@@ -100,6 +134,8 @@ func resourceWafRuleWebTamperProtectionRead(_ context.Context, d *schema.Resourc
 		d.Set("policy_id", n.PolicyID),
 		d.Set("domain", n.Hostname),
 		d.Set("path", n.Url),
+		d.Set("description", n.Description),
+		d.Set("status", n.Status),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
