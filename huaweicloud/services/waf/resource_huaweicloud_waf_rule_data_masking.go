@@ -67,6 +67,16 @@ func ResourceWafRuleDataMaskingV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"status": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -83,6 +93,7 @@ func resourceWafRuleDataMaskingCreate(ctx context.Context, d *schema.ResourceDat
 		Path:                d.Get("path").(string),
 		Category:            d.Get("field").(string),
 		Index:               d.Get("subfield").(string),
+		Description:         d.Get("description").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
@@ -92,6 +103,11 @@ func resourceWafRuleDataMaskingCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	d.SetId(rule.Id)
 
+	if d.Get("status").(int) == 0 {
+		if err := updateRuleStatus(wafClient, d, cfg, "privacy"); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceWafRuleDataMaskingRead(ctx, d, meta)
 }
 
@@ -112,9 +128,12 @@ func resourceWafRuleDataMaskingRead(_ context.Context, d *schema.ResourceData, m
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		d.Set("policy_id", n.PolicyID),
 		d.Set("path", n.Path),
 		d.Set("field", n.Category),
 		d.Set("subfield", n.Index),
+		d.Set("description", n.Description),
+		d.Set("status", n.Status),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -126,18 +145,25 @@ func resourceWafRuleDataMaskingUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	if d.HasChanges("path", "field", "subfield") {
+	if d.HasChanges("path", "field", "subfield", "description") {
 		policyID := d.Get("policy_id").(string)
 		updateOpts := rules.UpdateOpts{
 			Path:                d.Get("path").(string),
 			Category:            d.Get("field").(string),
 			Index:               d.Get("subfield").(string),
+			Description:         d.Get("description").(string),
 			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
 
 		_, err = rules.Update(wafClient, policyID, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating WAF data masking rule: %s", err)
+		}
+	}
+
+	if d.HasChange("status") {
+		if err := updateRuleStatus(wafClient, d, cfg, "privacy"); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

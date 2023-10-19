@@ -58,6 +58,8 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName1, "path", "/login"),
 					resource.TestCheckResourceAttr(resourceName1, "subfield", "password"),
 					resource.TestCheckResourceAttr(resourceName1, "field", "params"),
+					resource.TestCheckResourceAttr(resourceName1, "description", "test description"),
+					resource.TestCheckResourceAttr(resourceName1, "status", "0"),
 					resource.TestCheckResourceAttr(resourceName2, "field", "header"),
 					resource.TestCheckResourceAttr(resourceName3, "field", "form"),
 					resource.TestCheckResourceAttr(resourceName4, "field", "cookie"),
@@ -70,6 +72,8 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName1, "path", "/login_new"),
 					resource.TestCheckResourceAttr(resourceName1, "subfield", "secret"),
 					resource.TestCheckResourceAttr(resourceName1, "field", "params"),
+					resource.TestCheckResourceAttr(resourceName1, "description", "test description update"),
+					resource.TestCheckResourceAttr(resourceName1, "status", "1"),
 					resource.TestCheckResourceAttr(resourceName2, "field", "header"),
 					resource.TestCheckResourceAttr(resourceName3, "field", "form"),
 					resource.TestCheckResourceAttr(resourceName4, "field", "cookie"),
@@ -142,9 +146,11 @@ func testAccWafRuleDataMasking_basic(name string) string {
 
 resource "huaweicloud_waf_rule_data_masking" "rule_1" {
   policy_id = huaweicloud_waf_policy.policy_1.id
-  path      = "/login"
-  field     = "params"
-  subfield  = "password"
+  path        = "/login"
+  field       = "params"
+  subfield    = "password"
+  description = "test description"
+  status      = 0
 }
 resource "huaweicloud_waf_rule_data_masking" "rule_2" {
   policy_id = huaweicloud_waf_policy.policy_1.id
@@ -172,10 +178,12 @@ func testAccWafRuleDataMasking_update(name string) string {
 %s
 
 resource "huaweicloud_waf_rule_data_masking" "rule_1" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  path      = "/login_new"
-  field     = "params"
-  subfield  = "secret"
+  policy_id   = huaweicloud_waf_policy.policy_1.id
+  path        = "/login_new"
+  field       = "params"
+  subfield    = "secret"
+  description = "test description update"
+  status      = 1
 }
 resource "huaweicloud_waf_rule_data_masking" "rule_2" {
   policy_id = huaweicloud_waf_policy.policy_1.id
