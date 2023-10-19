@@ -77,6 +77,14 @@ The following arguments are supported:
 * `action` - (Optional, String) Specifies the protective action of WAF precise protection rule.
   Valid values are **block**, **pass**, **log**. The default value is **block**.
 
+* `known_attack_source_id` - (Optional, String) Specifies the known attack source ID.
+  The requirements for using this parameter are as follows:
+  + The field is valid only when the `action` is set to **block**.
+  + The policy needs to be bound to a domain name.
+  + Before enabling `Cookie` or `Params` known attack source rules, configure a session or user tag for the
+  corresponding website domain name.
+  Refer to [Configure Traffic Identifier](https://support.huaweicloud.com/intl/en-us/usermanual-waf/waf_01_0270.html)
+
 * `status` - (Optional, Int) Specifies the status of WAF precise protection rule.
   Valid values are as follows:
   + **0**: Disabled.
