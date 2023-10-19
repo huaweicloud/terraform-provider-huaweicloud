@@ -17,13 +17,31 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getRuleDataMaskingResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	wafClient, err := cfg.WafV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
+	}
+
+	policyID := state.Primary.Attributes["policy_id"]
+	epsID := state.Primary.Attributes["enterprise_project_id"]
+	return rules.GetWithEpsID(wafClient, policyID, state.Primary.ID, epsID).Extract()
+}
+
 func TestAccWafRuleDataMasking_basic(t *testing.T) {
-	var rule rules.DataMasking
+	var obj interface{}
+
 	policyName := acceptance.RandomAccResourceName()
 	resourceName1 := "huaweicloud_waf_rule_data_masking.rule_1"
 	resourceName2 := "huaweicloud_waf_rule_data_masking.rule_2"
 	resourceName3 := "huaweicloud_waf_rule_data_masking.rule_3"
 	resourceName4 := "huaweicloud_waf_rule_data_masking.rule_4"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName1,
+		&obj,
+		getRuleDataMaskingResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -31,12 +49,12 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafRuleDataMaskingDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleDataMasking_basic(policyName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleDataMaskingExists(resourceName1, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName1, "path", "/login"),
 					resource.TestCheckResourceAttr(resourceName1, "subfield", "password"),
 					resource.TestCheckResourceAttr(resourceName1, "field", "params"),
@@ -48,7 +66,7 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 			{
 				Config: testAccWafRuleDataMasking_update(policyName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleDataMaskingExists(resourceName1, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName1, "path", "/login_new"),
 					resource.TestCheckResourceAttr(resourceName1, "subfield", "secret"),
 					resource.TestCheckResourceAttr(resourceName1, "field", "params"),
@@ -68,9 +86,16 @@ func TestAccWafRuleDataMasking_basic(t *testing.T) {
 }
 
 func TestAccWafRuleDataMasking_withEpsID(t *testing.T) {
-	var rule rules.DataMasking
+	var obj interface{}
+
 	policyName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_waf_rule_data_masking.rule"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getRuleDataMaskingResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -79,12 +104,12 @@ func TestAccWafRuleDataMasking_withEpsID(t *testing.T) {
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafRuleDataMaskingDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleDataMasking_basic_withEpsID(policyName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleDataMaskingExists(resourceName, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "path", "/login"),
 					resource.TestCheckResourceAttr(resourceName, "subfield", "password"),
@@ -94,7 +119,7 @@ func TestAccWafRuleDataMasking_withEpsID(t *testing.T) {
 			{
 				Config: testAccWafRuleDataMasking_update_withEpsID(policyName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleDataMaskingExists(resourceName, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "path", "/login_new"),
 					resource.TestCheckResourceAttr(resourceName, "subfield", "secret"),
@@ -109,60 +134,6 @@ func TestAccWafRuleDataMasking_withEpsID(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckWafRuleDataMaskingDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_rule_data_masking" {
-			continue
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		_, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
-		if err == nil {
-			return fmt.Errorf("WAF data masking rule still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckWafRuleDataMaskingExists(n string, rule *rules.DataMasking) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		found, err := rules.GetWithEpsID(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("WAF data masking rule not found")
-		}
-
-		*rule = *found
-
-		return nil
-	}
 }
 
 func testAccWafRuleDataMasking_basic(name string) string {
