@@ -967,7 +967,7 @@ resource "huaweicloud_rds_mysql_database_privilege" "test" {
   db_name     = huaweicloud_rds_mysql_database.test.name
 
   users {
-    name     = huaweicloud_rds_mysql_account.test.name
+    name = huaweicloud_rds_mysql_account.test.name
   }
 }
 
