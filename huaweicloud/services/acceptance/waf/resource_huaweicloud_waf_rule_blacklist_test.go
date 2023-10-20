@@ -13,13 +13,30 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getRuleBlackListResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	wafClient, err := cfg.WafV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
+	}
+
+	policyID := state.Primary.Attributes["policy_id"]
+	epsID := state.Primary.Attributes["enterprise_project_id"]
+	return rules.GetWithEpsId(wafClient, policyID, state.Primary.ID, epsID).Extract()
+}
+
 func TestAccWafRuleBlackList_basic(t *testing.T) {
-	var rule rules.WhiteBlackIP
+	var obj interface{}
+
 	randName := acceptance.RandomAccResourceName()
 	rName1 := "huaweicloud_waf_rule_blacklist.rule_1"
 	rName2 := "huaweicloud_waf_rule_blacklist.rule_2"
 	rName3 := "huaweicloud_waf_rule_blacklist.rule_3"
-	addressGroupResourceName := "huaweicloud_waf_address_group.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName1,
+		&obj,
+		getRuleBlackListResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -27,20 +44,19 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafRuleBlackListDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleBlackList_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleBlackListExists(rName1, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName1, "ip_address", "192.168.0.0/24"),
 					resource.TestCheckResourceAttr(rName1, "action", "0"),
+					resource.TestCheckResourceAttr(rName1, "status", "0"),
 
-					testAccCheckWafRuleBlackListExists(rName2, &rule),
 					resource.TestCheckResourceAttr(rName2, "ip_address", "192.165.0.0/24"),
 					resource.TestCheckResourceAttr(rName2, "action", "1"),
 
-					testAccCheckWafRuleBlackListExists(rName3, &rule),
 					resource.TestCheckResourceAttr(rName3, "ip_address", "192.160.0.0/24"),
 					resource.TestCheckResourceAttr(rName3, "action", "0"),
 					resource.TestCheckResourceAttr(rName3, "name", randName),
@@ -50,16 +66,16 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 			{
 				Config: testAccWafRuleBlackList_update(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleBlackListExists(rName1, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName1, "ip_address", "192.168.0.125"),
 					resource.TestCheckResourceAttr(rName1, "action", "2"),
+					resource.TestCheckResourceAttr(rName1, "status", "1"),
 
-					testAccCheckWafRuleBlackListExists(rName2, &rule),
 					resource.TestCheckResourceAttr(rName2, "ip_address", "192.150.0.0/24"),
 					resource.TestCheckResourceAttr(rName2, "action", "0"),
 
-					testAccCheckWafRuleBlackListExists(rName3, &rule),
-					resource.TestCheckResourceAttrPair(rName3, "address_group_id", addressGroupResourceName, "id"),
+					resource.TestCheckResourceAttrPair(rName3, "address_group_id",
+						"huaweicloud_waf_address_group.test", "id"),
 					resource.TestCheckResourceAttr(rName3, "action", "2"),
 					resource.TestCheckResourceAttr(rName3, "name", fmt.Sprintf("%s_update", randName)),
 					resource.TestCheckResourceAttr(rName3, "description", ""),
@@ -78,10 +94,16 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 }
 
 func TestAccWafRuleBlackList_withEpsID(t *testing.T) {
-	var rule rules.WhiteBlackIP
+	var obj interface{}
+
 	randName := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_waf_rule_blacklist.rule"
-	addressGroupResourceName := "huaweicloud_waf_address_group.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getRuleBlackListResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -90,12 +112,12 @@ func TestAccWafRuleBlackList_withEpsID(t *testing.T) {
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafRuleBlackListDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafRuleBlackList_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleBlackListExists(rName, &rule),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "ip_address", "192.160.0.0/24"),
 					resource.TestCheckResourceAttr(rName, "action", "0"),
@@ -106,8 +128,9 @@ func TestAccWafRuleBlackList_withEpsID(t *testing.T) {
 			{
 				Config: testAccWafRuleBlackList_update_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafRuleBlackListExists(rName, &rule),
-					resource.TestCheckResourceAttrPair(rName, "address_group_id", addressGroupResourceName, "id"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "address_group_id",
+						"huaweicloud_waf_address_group.test", "id"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "action", "2"),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", randName)),
@@ -126,61 +149,6 @@ func TestAccWafRuleBlackList_withEpsID(t *testing.T) {
 	})
 }
 
-func testAccCheckWafRuleBlackListDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_rule_blacklist" {
-			continue
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		_, err := rules.GetWithEpsId(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
-		if err == nil {
-			return fmt.Errorf("Waf rule still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckWafRuleBlackListExists(n string, rule *rules.WhiteBlackIP) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-		}
-
-		policyID := rs.Primary.Attributes["policy_id"]
-		found, err := rules.GetWithEpsId(wafClient, policyID, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"]).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("WAF black list rule not found")
-		}
-
-		*rule = *found
-
-		return nil
-	}
-}
-
 func testAccWafRuleBlackList_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -188,6 +156,7 @@ func testAccWafRuleBlackList_basic(name string) string {
 resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
   ip_address = "192.168.0.0/24"
+  status     = 0
 }
 
 resource "huaweicloud_waf_rule_blacklist" "rule_2" {
@@ -221,6 +190,7 @@ resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
   ip_address = "192.168.0.125"
   action     = 2
+  status     = 1
 }
 
 resource "huaweicloud_waf_rule_blacklist" "rule_2" {
