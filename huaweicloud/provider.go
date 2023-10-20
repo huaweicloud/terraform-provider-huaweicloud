@@ -519,9 +519,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_certificate":  lb.DataSourceLBCertificateV2(),
 			"huaweicloud_lb_pools":        lb.DataSourcePools(),
 
-			"huaweicloud_elb_certificate": elb.DataSourceELBCertificateV3(),
-			"huaweicloud_elb_flavors":     elb.DataSourceElbFlavorsV3(),
-			"huaweicloud_elb_pools":       elb.DataSourcePools(),
+			"huaweicloud_elb_certificate":   elb.DataSourceELBCertificateV3(),
+			"huaweicloud_elb_flavors":       elb.DataSourceElbFlavorsV3(),
+			"huaweicloud_elb_pools":         elb.DataSourcePools(),
+			"huaweicloud_elb_loadbalancers": elb.DataSourceElbLoadbalancesV3(),
 
 			"huaweicloud_nat_gateway": nat.DataSourcePublicGateway(),
 
