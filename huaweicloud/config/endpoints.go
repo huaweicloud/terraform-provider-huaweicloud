@@ -47,6 +47,7 @@ var multiCatalogKeys = map[string][]string{
 	"ces":          {"cesv2"},
 	"ims":          {"imsv1"},
 	"config":       {"rms"}, // config is named as Resource Management Service(RMS) before
+	"tms":          {"tmsv2"},
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
@@ -121,7 +122,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "BSS",
 	},
-
 	// ******* catalog for Compute *******
 	"ecs": {
 		Name:    "ecs",
@@ -473,6 +473,15 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:             "tms",
 		Version:          "v1.0",
 		Scope:            "global",
+		Admin:            true, // The 'X-Domain-Id' is required for TMS service requests.
+		WithOutProjectID: true,
+		Product:          "TMS",
+	},
+	"tmsv2": {
+		Name:             "tms",
+		Version:          "v2.0",
+		Scope:            "global",
+		Admin:            true, // The 'X-Domain-Id' is required for TMS service requests.
 		WithOutProjectID: true,
 		Product:          "TMS",
 	},

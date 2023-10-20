@@ -320,6 +320,7 @@ github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/sqlfilter
+github.com/chnsz/golangsdk/openstack/tms/v1/resourcetags
 github.com/chnsz/golangsdk/openstack/utils
 github.com/chnsz/golangsdk/openstack/vbs/v2/backups
 github.com/chnsz/golangsdk/openstack/vbs/v2/policies
