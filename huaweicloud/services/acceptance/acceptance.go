@@ -174,6 +174,9 @@ var (
 
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 
+	// The CMDB sub-application ID of AOM service
+	HW_AOM_SUB_APPLICATION_ID = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
+
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
@@ -867,6 +870,13 @@ func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
 	if HW_CCE_CLUSTER_ID_ANOTHER == "" || HW_CCE_CLUSTER_NAME_ANOTHER == "" {
 		t.Skip("HW_CCE_CLUSTER_ID_ANOTHER and HW_CCE_CLUSTER_NAME_ANOTHER must be set for LTS AOM access" +
 			" acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAomSubApplicationId(t *testing.T) {
+	if HW_AOM_SUB_APPLICATION_ID == "" {
+		t.Skip("HW_AOM_SUB_APPLICATION_ID must be set for the acceptance test")
 	}
 }
 
