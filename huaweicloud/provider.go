@@ -777,9 +777,10 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_csms_secret": dew.ResourceCsmsSecret(),
 
-			"huaweicloud_css_cluster":   css.ResourceCssCluster(),
-			"huaweicloud_css_snapshot":  css.ResourceCssSnapshot(),
-			"huaweicloud_css_thesaurus": css.ResourceCssthesaurus(),
+			"huaweicloud_css_cluster":       css.ResourceCssCluster(),
+			"huaweicloud_css_snapshot":      css.ResourceCssSnapshot(),
+			"huaweicloud_css_thesaurus":     css.ResourceCssthesaurus(),
+			"huaweicloud_css_configuration": css.ResourceCssConfiguration(),
 
 			"huaweicloud_dbss_instance": dbss.ResourceInstance(),
 
