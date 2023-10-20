@@ -84,6 +84,11 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 					protectionActionBlock, protectionActionAllow, protectionActionLog,
 				}),
 			},
+			"status": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
 			"address_group_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -119,6 +124,11 @@ func resourceWafRuleBlackListCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(rule.Id)
 
+	if d.Get("status").(int) == 0 {
+		if err := updateRuleStatus(wafClient, d, cfg, "whiteblackip"); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceWafRuleBlackListRead(ctx, d, meta)
 }
 
@@ -143,6 +153,7 @@ func resourceWafRuleBlackListRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("ip_address", n.Addr),
 		d.Set("description", n.Description),
 		d.Set("action", n.White),
+		d.Set("status", n.Status),
 	)
 
 	ipGroup := n.IPGroup
@@ -190,6 +201,12 @@ func resourceWafRuleBlackListUpdate(ctx context.Context, d *schema.ResourceData,
 		_, err = rules.UpdateWithEpsId(wafClient, updateOpts, policyID, d.Id(), epsID).Extract()
 		if err != nil {
 			return diag.Errorf("error updating WAF blacklist and whitelist rule: %s", err)
+		}
+	}
+
+	if d.HasChange("status") {
+		if err := updateRuleStatus(wafClient, d, cfg, "whiteblackip"); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 	return resourceWafRuleBlackListRead(ctx, d, meta)

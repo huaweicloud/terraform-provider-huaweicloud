@@ -52,6 +52,7 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName1, "ip_address", "192.168.0.0/24"),
 					resource.TestCheckResourceAttr(rName1, "action", "0"),
+					resource.TestCheckResourceAttr(rName1, "status", "0"),
 
 					resource.TestCheckResourceAttr(rName2, "ip_address", "192.165.0.0/24"),
 					resource.TestCheckResourceAttr(rName2, "action", "1"),
@@ -68,6 +69,7 @@ func TestAccWafRuleBlackList_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName1, "ip_address", "192.168.0.125"),
 					resource.TestCheckResourceAttr(rName1, "action", "2"),
+					resource.TestCheckResourceAttr(rName1, "status", "1"),
 
 					resource.TestCheckResourceAttr(rName2, "ip_address", "192.150.0.0/24"),
 					resource.TestCheckResourceAttr(rName2, "action", "0"),
@@ -154,6 +156,7 @@ func testAccWafRuleBlackList_basic(name string) string {
 resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
   ip_address = "192.168.0.0/24"
+  status     = 0
 }
 
 resource "huaweicloud_waf_rule_blacklist" "rule_2" {
@@ -187,6 +190,7 @@ resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
   ip_address = "192.168.0.125"
   action     = 2
+  status     = 1
 }
 
 resource "huaweicloud_waf_rule_blacklist" "rule_2" {
