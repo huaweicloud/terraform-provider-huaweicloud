@@ -29,9 +29,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the ELB loadbalancer.
 
-* `share_type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, false: The 
-  loadbalancer is a shared load balancer, true: The load balancer is a dedicated load balancer Value options: **true**,     
-  **false**.
+* `share_type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options: 
+  **dedicated**, **share**.
 
 * `vpc_id` - (Optional, String) Specifies the ID of the VPC where the load balancer resides.
 
@@ -86,8 +85,7 @@ The `loadbalancers` block supports:
 * `backend_subnets` - Lists the IDs of subnets on the downstream plane.
 
 * `protection_status` - Modify the protection status, value: nonProtection: No protection, the default value is  
-  nonProtection, consoleProtection: console modification protection
+  nonProtection, consoleProtection: console modification protection.
 
 * `protection_reason` - Reasons for setting protection, illustrate: Only valid when protection_status is 
-  consoleProtection, Minimum length=0, Maximum length=255
-
+  consoleProtection, Minimum length=0, Maximum length=255.
