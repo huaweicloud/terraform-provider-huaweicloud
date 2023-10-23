@@ -58,7 +58,7 @@ The `loadbalancers` block supports:
 
 * `description` - The description of loadbalancer.
 
-* `availability_zone` - The list of AZs where the load balancer is created..
+* `availability_zone` - The list of AZs where the load balancer is created.
 
 * `cross_vpc_backend` - Whether to enable IP as a Backend Server.
 

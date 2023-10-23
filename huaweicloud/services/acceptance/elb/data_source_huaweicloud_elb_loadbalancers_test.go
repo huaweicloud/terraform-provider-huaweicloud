@@ -50,7 +50,7 @@ data "huaweicloud_elb_loadbalancers" "test" {
 }
 
 data "huaweicloud_elb_loadbalancers" "name_filter" {
-  name              = huaweicloud_elb_loadbalancer.test.name
+  name = huaweicloud_elb_loadbalancer.test.name
 }
 
 locals {
