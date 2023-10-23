@@ -2,18 +2,19 @@ package bms
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/bms/v1/flavors"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceBmsFlavors() *schema.Resource {
@@ -76,11 +77,11 @@ func DataSourceBmsFlavors() *schema.Resource {
 }
 
 func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	bmsClient, err := config.BmsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud BMS client: %s", err)
+		return diag.Errorf("error creating BMS client: %s", err)
 	}
 
 	az := d.Get("availability_zone").(string)
@@ -90,7 +91,7 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	allFlavors, err := flavors.List(bmsClient, listOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve BMS flavors: %s ", err)
+		return diag.Errorf("unable to retrieve BMS flavors: %s ", err)
 	}
 
 	var vcpus string
@@ -107,9 +108,9 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	filterFlavors, err := utils.FilterSliceWithField(allFlavors, filter)
 	if err != nil {
-		return fmtp.DiagErrorf("filter BMS flavors failed: %s", err)
+		return diag.Errorf("filter BMS flavors failed: %s", err)
 	}
-	logp.Printf("filter %d bms flavors from %d through options %v", len(filterFlavors), len(allFlavors), filter)
+	log.Printf("filter %d bms flavors from %d through options %v", len(filterFlavors), len(allFlavors), filter)
 
 	var ids []string
 	var resultFlavors []map[string]interface{}
@@ -139,20 +140,21 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if len(resultFlavors) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	d.Set("region", region)
-	d.Set("flavors", resultFlavors)
-
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("flavors", resultFlavors),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenBmsFlavor(flavor flavors.Flavor) map[string]interface{} {
 	vcpus, _ := strconv.Atoi(flavor.VCPUs)
-	ram := int(flavor.RAM / 1024)
+	ram := flavor.RAM / 1024
 
 	return map[string]interface{}{
 		"id":        flavor.ID,

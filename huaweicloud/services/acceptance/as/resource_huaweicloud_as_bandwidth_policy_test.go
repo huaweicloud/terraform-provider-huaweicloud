@@ -5,23 +5,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getASBandWidthPolicyResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getASBandWidthPolicyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getBandwidthPolicy: Query the AS bandwidth scaling policy
 	var (
 		getBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		getBandwidthPolicyProduct = "autoscaling"
 	)
-	getBandwidthPolicyClient, err := config.NewServiceClient(getBandwidthPolicyProduct, region)
+	getBandwidthPolicyClient, err := conf.NewServiceClient(getBandwidthPolicyProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating ASBandWidthPolicy Client: %s", err)
 	}

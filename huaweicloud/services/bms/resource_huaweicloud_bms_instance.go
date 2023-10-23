@@ -2,20 +2,22 @@ package bms
 
 import (
 	"context"
+	"log"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceBmsInstance() *schema.Resource {
@@ -270,10 +272,10 @@ func ResourceBmsInstance() *schema.Resource {
 }
 
 func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud bms client: %s", err)
+		return diag.Errorf("error creating bms client: %s", err)
 	}
 
 	createOpts := &baremetalservers.CreateOpts{
@@ -298,7 +300,7 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			PeriodNum:           d.Get("period").(int),
 			IsAutoPay:           "true",
 			IsAutoRenew:         d.Get("auto_renew").(string),
-			EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		},
 	}
 
@@ -307,7 +309,6 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	if eipID, ok := d.GetOk("eip_id"); ok {
 		hasEIP = true
 		eipOpts.Id = eipID.(string)
-
 	} else if eipType, ok := d.GetOk("iptype"); ok {
 		hasEIP = true
 		eipOpts.Eip = &baremetalservers.Eip{
@@ -342,10 +343,10 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	n, err := baremetalservers.CreatePrePaid(bmsClient, createOpts).ExtractOrderResponse()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud BMS server: %s", err)
+		return diag.Errorf("error creating BMS server: %s", err)
 	}
 
-	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
@@ -363,11 +364,11 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	bmsClient, err := config.BmsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	server, err := baremetalservers.Get(bmsClient, d.Id()).Extract()
@@ -379,50 +380,53 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		return nil
 	}
 
-	logp.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
+	log.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
 
-	d.Set("region", region)
-	d.Set("name", server.Name)
-	d.Set("image_id", server.Image.ID)
-	d.Set("flavor_id", server.Flavor.ID)
-	d.Set("host_id", server.HostID)
-
-	// Set fixed and floating ip
-	if eip := bmsPublicIP(server); eip != "" {
-		d.Set("public_ip", eip)
-	}
 	nics := flattenBmsInstanceNicsV1(d, meta, server.Addresses)
-	d.Set("nics", nics)
 
-	d.Set("key_pair", server.KeyName)
 	// Set security groups
-	secGrpIds := []string{}
+	var secGrpIds []string
 	for _, sg := range server.SecurityGroups {
 		secGrpIds = append(secGrpIds, sg.ID)
 	}
-	d.Set("security_groups", secGrpIds)
-	d.Set("status", server.Status)
-	d.Set("user_id", server.Metadata.OpSvcUserId)
-	d.Set("image_name", server.Metadata.ImageName)
-	d.Set("vpc_id", server.Metadata.VpcID)
-	d.Set("availability_zone", server.AvailabilityZone)
-	d.Set("description", server.Description)
-	d.Set("user_data", server.UserData)
-	d.Set("enterprise_project_id", server.EnterpriseProjectID)
+
 	// Set disk ids
-	diskIds := []string{}
+	var diskIds []string
 	for _, disk := range server.VolumeAttached {
 		diskIds = append(diskIds, disk.ID)
 	}
-	d.Set("disk_ids", diskIds)
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", server.Name),
+		d.Set("image_id", server.Image.ID),
+		d.Set("flavor_id", server.Flavor.ID),
+		d.Set("host_id", server.HostID),
+		d.Set("nics", nics),
+		d.Set("key_pair", server.KeyName),
+		d.Set("security_groups", secGrpIds),
+		d.Set("status", server.Status),
+		d.Set("user_id", server.Metadata.OpSvcUserId),
+		d.Set("image_name", server.Metadata.ImageName),
+		d.Set("vpc_id", server.Metadata.VpcID),
+		d.Set("availability_zone", server.AvailabilityZone),
+		d.Set("description", server.Description),
+		d.Set("user_data", server.UserData),
+		d.Set("enterprise_project_id", server.EnterpriseProjectID),
+		d.Set("disk_ids", diskIds),
+	)
+
+	// Set fixed and floating ip
+	if eip := bmsPublicIP(server); eip != "" {
+		mErr = multierror.Append(mErr, d.Set("public_ip", eip))
+	}
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -431,12 +435,12 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 		_, err = baremetalservers.Update(bmsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating HuaweiCloud bms server: %s", err)
+			return diag.Errorf("error updating bms server: %s", err)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -449,11 +453,11 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	bmsClient, err := config.BmsV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud compute client: %s", err)
+		return diag.Errorf("error creating compute client: %s", err)
 	}
 	serverID := d.Id()
 	publicIP := d.Get("public_ip").(string)
@@ -471,21 +475,21 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	// unsubscribe the eip if necessary
 	if _, ok := d.GetOk("iptype"); ok && publicIP != "" && d.Get("eip_charge_mode").(string) == "prePaid" {
-		eipClient, err := config.NetworkingV1Client(region)
+		eipClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating networking client: %s", err)
+			return diag.Errorf("error creating networking client: %s", err)
 		}
 
 		epsID := "all_granted_eps"
-		if eipID, err := common.GetEipIDbyAddress(eipClient, publicIP, epsID); err == nil {
-			resourceIDs = append(resourceIDs, eipID)
-		} else {
-			return fmtp.DiagErrorf("Error fetching EIP ID of BMS server (%s): %s", d.Id(), err)
+		var eipID string
+		if eipID, err = common.GetEipIDbyAddress(eipClient, publicIP, epsID); err != nil {
+			return diag.Errorf("error fetching EIP ID of BMS server (%s): %s", d.Id(), err)
 		}
+		resourceIDs = append(resourceIDs, eipID)
 	}
 
-	if err := common.UnsubscribePrePaidResource(d, config, resourceIDs); err != nil {
-		return fmtp.DiagErrorf("Error unsubscribing HuaweiCloud BMS server: %s", err)
+	if err := common.UnsubscribePrePaidResource(d, cfg, resourceIDs); err != nil {
+		return diag.Errorf("error unsubscribing BMS server: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -499,7 +503,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud BMS instance: %s", err)
+		return diag.Errorf("error deleting BMS instance: %s", err)
 	}
 
 	d.SetId("")
@@ -549,15 +553,14 @@ func resourceBmsInstanceSecGroupsV1(d *schema.ResourceData) []baremetalservers.S
 
 func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
 	addresses map[string][]baremetalservers.Address) []map[string]interface{} {
-
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	networkingClient, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 	if err != nil {
-		logp.Printf("Error creating HuaweiCloud networking client: %s", err)
+		log.Printf("Error creating networking client: %s", err)
 	}
 
 	var network string
-	nics := []map[string]interface{}{}
+	var nics []map[string]interface{}
 	// Loop through all networks and addresses.
 	for _, addrs := range addresses {
 		for _, addr := range addrs {
@@ -569,7 +572,7 @@ func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
 			p, err := ports.Get(networkingClient, addr.PortID).Extract()
 			if err != nil {
 				network = ""
-				logp.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
+				log.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
 			} else {
 				network = p.NetworkID
 			}
@@ -584,7 +587,7 @@ func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
 		}
 	}
 
-	logp.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
+	log.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
 	return nics
 }
 
@@ -603,11 +606,11 @@ func bmsPublicIP(server *baremetalservers.CloudServer) string {
 	return publicIP
 }
 
-func waitForBmsInstanceDelete(bmsClient *golangsdk.ServiceClient, ServerId string) resource.StateRefreshFunc {
+func waitForBmsInstanceDelete(bmsClient *golangsdk.ServiceClient, serverId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud BMS instance %s", ServerId)
+		log.Printf("[DEBUG] Attempting to delete BMS instance %s", serverId)
 
-		r, err := baremetalservers.Get(bmsClient, ServerId).Extract()
+		r, err := baremetalservers.Get(bmsClient, serverId).Extract()
 
 		if err != nil {
 			return r, "Deleting", err

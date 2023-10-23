@@ -834,12 +834,11 @@ func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("%s", err)
 	}
 
-	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		if err = common.UnsubscribePrePaidResource(d, cfg, []string{resourceId}); err != nil {
-			return diag.Errorf("error unsubscribe CBH instance: %s", err)
-		}
-	} else {
+	if v, ok := d.GetOk("charging_mode"); !ok || v.(string) != "prePaid" {
 		return diag.Errorf("only the charging_mode of prePaid is support")
+	}
+	if err = common.UnsubscribePrePaidResource(d, cfg, []string{resourceId}); err != nil {
+		return diag.Errorf("error unsubscribe CBH instance: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

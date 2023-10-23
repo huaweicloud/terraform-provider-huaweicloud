@@ -5,30 +5,31 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getNetworkInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getNetworkInstanceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getNetworkInstance: Query the Network instance
 	var (
 		getNetworkInstanceHttpUrl = "v3/{domain_id}/ccaas/network-instances/{id}"
 		getNetworkInstanceProduct = "cc"
 	)
-	getNetworkInstanceClient, err := config.NewServiceClient(getNetworkInstanceProduct, region)
+	getNetworkInstanceClient, err := conf.NewServiceClient(getNetworkInstanceProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating NetworkInstance Client: %s", err)
 	}
 
 	getNetworkInstancePath := getNetworkInstanceClient.Endpoint + getNetworkInstanceHttpUrl
-	getNetworkInstancePath = strings.Replace(getNetworkInstancePath, "{domain_id}", config.DomainID, -1)
-	getNetworkInstancePath = strings.Replace(getNetworkInstancePath, "{id}", state.Primary.ID, -1)
+	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{domain_id}", conf.DomainID)
+	getNetworkInstancePath = strings.ReplaceAll(getNetworkInstancePath, "{id}", state.Primary.ID)
 
 	getNetworkInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

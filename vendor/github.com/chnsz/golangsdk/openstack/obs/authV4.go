@@ -76,7 +76,6 @@ func getV4StringToSign(method, canonicalizedURL, queryURL, scope, longDate, payl
 
 	_stringToSign := strings.Join(stringToSign, "")
 
-	doLog(LEVEL_DEBUG, "The v4 auth stringToSign:\n%s", _stringToSign)
 	return _stringToSign
 }
 

@@ -24,6 +24,10 @@ paths:
     post:
       tag: CCE
       operationId: Operation
+  /api/v3/projects/{project_id}/clusters/{id}/tags/{action}:
+    post:
+      tag: CCE
+      operationId: RemoveTags
   /api/v3/projects/{project_id}/clusters/{id}:
     delete:
       tag: CCE

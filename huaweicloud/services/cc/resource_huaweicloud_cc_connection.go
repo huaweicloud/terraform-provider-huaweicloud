@@ -10,16 +10,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceCloudConnection() *schema.Resource {
@@ -102,21 +103,21 @@ func ResourceCloudConnection() *schema.Resource {
 }
 
 func resourceCloudConnectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createCloudConnection: create a Cloud Connect.
 	var (
 		createCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections"
 		createCloudConnectionProduct = "cc"
 	)
-	createCloudConnectionClient, err := config.NewServiceClient(createCloudConnectionProduct, region)
+	createCloudConnectionClient, err := conf.NewServiceClient(createCloudConnectionProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CloudConnection Client: %s", err)
 	}
 
 	createCloudConnectionPath := createCloudConnectionClient.Endpoint + createCloudConnectionHttpUrl
-	createCloudConnectionPath = strings.Replace(createCloudConnectionPath, "{domain_id}", config.DomainID, -1)
+	createCloudConnectionPath = strings.ReplaceAll(createCloudConnectionPath, "{domain_id}", conf.DomainID)
 
 	createCloudConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -124,7 +125,7 @@ func resourceCloudConnectionCreate(ctx context.Context, d *schema.ResourceData, 
 			201,
 		},
 	}
-	createCloudConnectionOpt.JSONBody = utils.RemoveNil(buildCreateCloudConnectionBodyParams(d, config))
+	createCloudConnectionOpt.JSONBody = utils.RemoveNil(buildCreateCloudConnectionBodyParams(d, conf))
 	createCloudConnectionResp, err := createCloudConnectionClient.Request("POST", createCloudConnectionPath, &createCloudConnectionOpt)
 	if err != nil {
 		return diag.Errorf("error creating CloudConnection: %s", err)
@@ -144,25 +145,25 @@ func resourceCloudConnectionCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudConnectionRead(ctx, d, meta)
 }
 
-func buildCreateCloudConnectionBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateCloudConnectionBodyParams(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"cloud_connection": buildCreateCloudConnectionCloudConnectionChildBody(d, config),
+		"cloud_connection": buildCreateCloudConnectionCloudConnectionChildBody(d, conf),
 	}
 	return bodyParams
 }
 
-func buildCreateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, conf)),
 	}
 	return params
 }
 
-func resourceCloudConnectionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceCloudConnectionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -171,14 +172,14 @@ func resourceCloudConnectionRead(ctx context.Context, d *schema.ResourceData, me
 		getCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
 		getCloudConnectionProduct = "cc"
 	)
-	getCloudConnectionClient, err := config.NewServiceClient(getCloudConnectionProduct, region)
+	getCloudConnectionClient, err := conf.NewServiceClient(getCloudConnectionProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CloudConnection Client: %s", err)
 	}
 
 	getCloudConnectionPath := getCloudConnectionClient.Endpoint + getCloudConnectionHttpUrl
-	getCloudConnectionPath = strings.Replace(getCloudConnectionPath, "{domain_id}", config.DomainID, -1)
-	getCloudConnectionPath = strings.Replace(getCloudConnectionPath, "{id}", d.Id(), -1)
+	getCloudConnectionPath = strings.ReplaceAll(getCloudConnectionPath, "{domain_id}", conf.DomainID)
+	getCloudConnectionPath = strings.ReplaceAll(getCloudConnectionPath, "{id}", d.Id())
 
 	getCloudConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -215,8 +216,8 @@ func resourceCloudConnectionRead(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateCloudConnectionhasChanges := []string{
 		"name",
@@ -229,14 +230,14 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 			updateCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
 			updateCloudConnectionProduct = "cc"
 		)
-		updateCloudConnectionClient, err := config.NewServiceClient(updateCloudConnectionProduct, region)
+		updateCloudConnectionClient, err := conf.NewServiceClient(updateCloudConnectionProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating CloudConnection Client: %s", err)
 		}
 
 		updateCloudConnectionPath := updateCloudConnectionClient.Endpoint + updateCloudConnectionHttpUrl
-		updateCloudConnectionPath = strings.Replace(updateCloudConnectionPath, "{domain_id}", config.DomainID, -1)
-		updateCloudConnectionPath = strings.Replace(updateCloudConnectionPath, "{id}", d.Id(), -1)
+		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{domain_id}", conf.DomainID)
+		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{id}", d.Id())
 
 		updateCloudConnectionOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -244,7 +245,7 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 				200,
 			},
 		}
-		updateCloudConnectionOpt.JSONBody = utils.RemoveNil(buildUpdateCloudConnectionBodyParams(d, config))
+		updateCloudConnectionOpt.JSONBody = utils.RemoveNil(buildUpdateCloudConnectionBodyParams(d))
 		_, err = updateCloudConnectionClient.Request("PUT", updateCloudConnectionPath, &updateCloudConnectionOpt)
 		if err != nil {
 			return diag.Errorf("error updating CloudConnection: %s", err)
@@ -253,7 +254,7 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudConnectionRead(ctx, d, meta)
 }
 
-func buildUpdateCloudConnectionBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateCloudConnectionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"cloud_connection": buildUpdateCloudConnectionCloudConnectionChildBody(d),
 	}
@@ -268,23 +269,23 @@ func buildUpdateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData) 
 	return params
 }
 
-func resourceCloudConnectionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceCloudConnectionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteCloudConnection: missing operation notes
 	var (
 		deleteCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
 		deleteCloudConnectionProduct = "cc"
 	)
-	deleteCloudConnectionClient, err := config.NewServiceClient(deleteCloudConnectionProduct, region)
+	deleteCloudConnectionClient, err := conf.NewServiceClient(deleteCloudConnectionProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CloudConnection Client: %s", err)
 	}
 
 	deleteCloudConnectionPath := deleteCloudConnectionClient.Endpoint + deleteCloudConnectionHttpUrl
-	deleteCloudConnectionPath = strings.Replace(deleteCloudConnectionPath, "{domain_id}", config.DomainID, -1)
-	deleteCloudConnectionPath = strings.Replace(deleteCloudConnectionPath, "{id}", d.Id(), -1)
+	deleteCloudConnectionPath = strings.ReplaceAll(deleteCloudConnectionPath, "{domain_id}", conf.DomainID)
+	deleteCloudConnectionPath = strings.ReplaceAll(deleteCloudConnectionPath, "{id}", d.Id())
 
 	deleteCloudConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

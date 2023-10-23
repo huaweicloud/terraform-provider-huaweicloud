@@ -4,16 +4,17 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
-	"github.com/chnsz/golangsdk/openstack/cci/v1/networks"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
+	"github.com/chnsz/golangsdk/openstack/cci/v1/networks"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceCciNamespaces() *schema.Resource {
@@ -213,32 +214,32 @@ func filterDataCciNamespaces(d *schema.ResourceData, client *golangsdk.ServiceCl
 }
 
 func dataSourceCciNamespacesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CciV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.CciV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI v1 client: %s", err)
+		return diag.Errorf("Error creating CCI v1 client: %s", err)
 	}
-	betaClient, err := config.CciV1BetaClient(config.GetRegion(d))
+	betaClient, err := conf.CciV1BetaClient(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI v1 beta1 client: %s", err)
+		return diag.Errorf("Error creating CCI v1 beta1 client: %s", err)
 	}
 
 	var nsList []namespaces.Namespace
 	if ns, ok := d.GetOk("name"); ok {
 		nsResp, err := namespaces.Get(client, ns.(string)).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error getting the namespace (%s) from the server: %s", ns.(string), err)
+			return diag.Errorf("Error getting the namespace (%s) from the server: %s", ns.(string), err)
 		}
 		nsList = append(nsList, *nsResp)
 	} else {
 		pages, err := namespaces.List(client, namespaces.ListOpts{}).AllPages()
 		if err != nil {
-			return fmtp.DiagErrorf("Error finding the namespace list from the server: %s", err)
+			return diag.Errorf("Error finding the namespace list from the server: %s", err)
 		}
 		nsList, err = namespaces.ExtractNamespaces(pages)
 		if err != nil {
-			return fmtp.DiagErrorf("Error extracting HuaweiCloud CCI namespaces: %s", err)
+			return diag.Errorf("Error extracting CCI namespaces: %s", err)
 		}
 	}
 
@@ -253,7 +254,7 @@ func dataSourceCciNamespacesRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error saving the namespace's (%v) fields to state: %s", ids, mErr)
+		return diag.Errorf("Error saving the namespace's (%v) fields to state: %s", ids, mErr)
 	}
 	return nil
 }

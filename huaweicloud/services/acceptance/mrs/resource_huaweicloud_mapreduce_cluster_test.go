@@ -236,25 +236,23 @@ func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(2, 2, 1, 1)),
+				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(3, 3, 1, 0)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "MIXED"),
 					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.node_number", "2"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.node_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.node_number", "1"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.node_number", "1"),
-					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.host_ips.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.host_ips.#", "1"),
 				),
 			},
 			{
-				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(3, 3, 2, 2)),
+				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(3, 3, 2, 0)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -264,29 +262,25 @@ func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.node_number", "2"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.node_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.host_ips.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.host_ips.#", "2"),
 				),
 			},
 			{
-				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(2, 2, 1, 1)),
+				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(3, 3, 1, 0)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "MIXED"),
 					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.node_number", "2"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.node_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.node_number", "1"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.node_number", "1"),
-					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.host_ips.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.host_ips.#", "1"),
 				),
 			},
 			{
@@ -440,7 +434,7 @@ func TestAccMrsMapReduceCluster_externalDataSources(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "ANALYSIS"),
+					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
 				),
 			},
@@ -452,6 +446,7 @@ func TestAccMrsMapReduceCluster_externalDataSources(t *testing.T) {
 					"manager_admin_pass",
 					"node_admin_pass",
 					"external_datasources",
+					"template_id",
 				},
 			},
 		},
@@ -791,10 +786,10 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   node_admin_pass    = "%s"
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
-  component_list     = ["Hadoop", "Spark", "Hive", "Tez", "Storm"]
+  component_list     = ["Hadoop", "ZooKeeper", "Ranger", "Tez", "Spark2x", "Hive", "Kafka", "Flume"]
 
   master_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = 2
     root_volume_type  = "SAS"
     root_volume_size  = 300
@@ -803,7 +798,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     data_volume_count = 1
   }
   analysis_core_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = %d
     root_volume_type  = "SAS"
     root_volume_size  = 300
@@ -812,7 +807,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     data_volume_count = 1
   }
   streaming_core_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = %d
     root_volume_type  = "SAS"
     root_volume_size  = 300
@@ -821,16 +816,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     data_volume_count = 1
   }
   analysis_task_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = %d
-    root_volume_type  = "SAS"
-    root_volume_size  = 300
-    data_volume_type  = "SAS"
-    data_volume_size  = 480
-    data_volume_count = 1
-  }
-  streaming_task_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = %d
     root_volume_type  = "SAS"
     root_volume_size  = 300
@@ -839,7 +825,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     data_volume_count = 1
   }
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd,
-		nodeNums.AnalysisCoreNum, nodeNums.StreamCoreNum, nodeNums.AnalysisTaskNum, nodeNums.StreamTaskNum)
+		nodeNums.AnalysisCoreNum, nodeNums.StreamCoreNum, nodeNums.AnalysisTaskNum)
 }
 
 func testAccMrsMapReduceClusterConfig_customCompact(rName, pwd string, nodeNum1 int) string {
@@ -850,22 +836,22 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   name               = "%s"
   type               = "CUSTOM"
-  version            = "MRS 3.1.0"
+  version            = "MRS 3.1.5"
   safe_mode          = true
   manager_admin_pass = "%s"
   node_admin_pass    = "%s"
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
-  template_id        = "mgmt_control_combined_v4"
-  component_list     = ["DBService", "Hadoop", "ZooKeeper", "Ranger", "ClickHouse"]
+  template_id        = "mgmt_control_combined_v4.1"
+  component_list     = ["Hadoop", "ZooKeeper", "Ranger"]
 
-master_nodes {
-    flavor            = "c6.4xlarge.4.linux.bigdata"
+  master_nodes {
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = 3
     root_volume_type  = "SAS"
-    root_volume_size  = 480
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 600
+    data_volume_size  = 200
     data_volume_count = 1
     assigned_roles = [
       "OMSServer:1,2",
@@ -886,19 +872,18 @@ master_nodes {
       "TagSync:2",
       "KerberosClient",
       "SlapdClient",
-      "meta",
-      "ClickHouseBalancer:1,2"
+      "meta"
     ]
   }
 
   custom_nodes {
     group_name        = "node_group_1"
-    flavor            = "c6.4xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = %d
     root_volume_type  = "SAS"
-    root_volume_size  = 480
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 600
+    data_volume_size  = 200
     data_volume_count = 1
     assigned_roles = [
       "DataNode",
@@ -910,22 +895,21 @@ master_nodes {
   }
 
   custom_nodes {
-    group_name        = "ClickHouse"
-    flavor            = "c6.4xlarge.4.linux.bigdata"
+    group_name        = "node_group_2"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = 2
     root_volume_type  = "SAS"
-    root_volume_size  = 480
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 600
+    data_volume_size  = 200
     data_volume_count = 1
     assigned_roles = [
-      "ClickHouseServer",
-      "meta",
+      "NodeManager",
       "KerberosClient",
-      "SlapdClient"
+      "SlapdClient",
+      "meta"
     ]
   }
-  
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, nodeNum1)
 }
 
@@ -955,7 +939,7 @@ resource "huaweicloud_rds_instance" "test" {
   fixed_ip          = "192.168.0.58"
 
   db {
-    password = "Huangwei!120521"
+    password = "%[3]s"
     type     = "MySQL"
     version  = "5.7"
     port     = 3306
@@ -972,46 +956,114 @@ resource "huaweicloud_rds_mysql_database" "test" {
   character_set = "utf8"
 }
 
+resource "huaweicloud_rds_mysql_account" "test" {
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s"
+  password    = "%[3]s"
+}
+
+resource "huaweicloud_rds_mysql_database_privilege" "test" {
+  instance_id = huaweicloud_rds_instance.test.id
+  db_name     = huaweicloud_rds_mysql_database.test.name
+
+  users {
+    name = huaweicloud_rds_mysql_account.test.name
+  }
+}
+
 resource "huaweicloud_mapreduce_data_connection" "test" {
   name        = "%[2]s"
   source_type = "RDS_MYSQL"
   source_info {
     db_instance_id = huaweicloud_rds_instance.test.id
     db_name        = huaweicloud_rds_mysql_database.test.name
-    user_name      = "root"
+    user_name      = huaweicloud_rds_mysql_account.test.name
     password       = "%[3]s"
   }
 }
 
+
 resource "huaweicloud_mapreduce_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   name               = "%[2]s"
-  type               = "ANALYSIS"
-  version            = "MRS 1.9.2"
-  safe_mode          = false
+  type               = "CUSTOM"
+  version            = "MRS 3.1.5"
+  safe_mode          = true
   manager_admin_pass = "%[3]s"
   node_admin_pass    = "%[3]s"
-  vpc_id             = huaweicloud_vpc.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
-  component_list     = ["Hadoop", "Hive", "Tez"]
+  vpc_id             = huaweicloud_vpc.test.id
+  template_id        = "mgmt_control_combined_v4.1"
+  component_list     = ["Hadoop", "ZooKeeper", "Ranger", "Hive"]
 
   master_nodes {
-    flavor            = "c6.4xlarge.4.linux.bigdata"
-    node_number       = 2
-    root_volume_type  = "SAS"
-    root_volume_size  = 600
-    data_volume_type  = "SAS"
-    data_volume_size  = 600
-    data_volume_count = 1
-  }
-  analysis_core_nodes {
-    flavor            = "c6.4xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = 3
     root_volume_type  = "SAS"
-    root_volume_size  = 600
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 600
+    data_volume_size  = 200
     data_volume_count = 1
+    assigned_roles = [
+      "OMSServer:1,2",
+      "SlapdServer:1,2",
+      "KerberosServer:1,2",
+      "KerberosAdmin:1,2",
+      "quorumpeer:1,2,3",
+      "NameNode:2,3",
+      "Zkfc:2,3",
+      "JournalNode:1,2,3",
+      "ResourceManager:2,3",
+      "JobHistoryServer:2,3",
+      "DBServer:1,3",
+      "HttpFS:1,3",
+      "MetaStore:1,2",
+      "WebHCat:3",
+      "HiveServer:1,2",
+      "TimelineServer:3",
+      "RangerAdmin:1,2",
+      "UserSync:2",
+      "TagSync:2",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
+  }
+
+  custom_nodes {
+    group_name        = "node_group_1"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 100
+    data_volume_type  = "SAS"
+    data_volume_size  = 200
+    data_volume_count = 1
+    assigned_roles = [
+      "DataNode",
+      "NodeManager",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
+  }
+
+  custom_nodes {
+    group_name        = "node_group_2"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 100
+    data_volume_type  = "SAS"
+    data_volume_size  = 200
+    data_volume_count = 1
+    assigned_roles = [
+      "DataNode",
+      "NodeManager",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
   }
 
   external_datasources {
@@ -1040,7 +1092,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   template_id        = "mgmt_control_separated_v4"
   component_list     = ["DBService", "Hadoop", "ZooKeeper", "Ranger"]
 
-master_nodes {
+  master_nodes {
     flavor            = "c6.4xlarge.4.linux.bigdata"
     node_number       = 5
     root_volume_type  = "SAS"
@@ -1100,22 +1152,22 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   name               = "%s"
   type               = "CUSTOM"
-  version            = "MRS 3.1.0"
+  version            = "MRS 3.1.5"
   safe_mode          = true
   manager_admin_pass = "%s"
   node_admin_pass    = "%s"
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
-  template_id        = "mgmt_control_data_separated_v4"
-  component_list     = ["Hadoop", "Ranger", "ZooKeeper","DBServer"]
+  template_id        = "mgmt_control_data_separated_v4.1"
+  component_list     = ["Hadoop", "Ranger", "ZooKeeper"]
 
   master_nodes {
-    flavor            = "c6.4xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = 9
     root_volume_type  = "SAS"
-    root_volume_size  = 480
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 600
+    data_volume_size  = 200
     data_volume_count = 1
     assigned_roles = [
       "OMSServer:1,2",
@@ -1127,7 +1179,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
       "Zkfc:3,4",
       "JournalNode:5,6,7",
       "ResourceManager:8,9",
-      "JobHistoryServer:8",
+      "JobHistoryServer:8,9",
       "DBServer:8,9",
       "HttpFS:8,9",
       "TimelineServer:5",
@@ -1142,12 +1194,12 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   custom_nodes {
     group_name        = "node_group_1"
-    flavor            = "c6.4xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = %d
     root_volume_type  = "SAS"
-    root_volume_size  = 480
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 600
+    data_volume_size  = 200
     data_volume_count = 1
     assigned_roles = [
       "DataNode",

@@ -264,10 +264,10 @@ func buildInstanceAvailabilityZones(d *schema.ResourceData) ([]string, error) {
 		return utils.ExpandToStringList(v.([]interface{})), nil
 	}
 
-	return nil, fmt.Errorf("the parameter 'availability_zones' must be specified.")
+	return nil, fmt.Errorf("The parameter 'availability_zones' must be specified")
 }
 
-func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (instances.CreateOpts, error) {
+func buildInstanceCreateOpts(d *schema.ResourceData, cfg *config.Config) (instances.CreateOpts, error) {
 	result := instances.CreateOpts{
 		Name:                 d.Get("name").(string),
 		Edition:              d.Get("edition").(string),
@@ -277,7 +277,7 @@ func buildInstanceCreateOpts(d *schema.ResourceData, config *config.Config) (ins
 		Description:          d.Get("description").(string),
 		EipId:                d.Get("eip_id").(string),
 		BandwidthSize:        d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
 		Ipv6Enable:           d.Get("ipv6_enable").(bool),
 		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
 		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
@@ -316,13 +316,13 @@ func buildTagsUpdateOpts(tags map[string]interface{}, instanceId, action string)
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	opts, err := buildInstanceCreateOpts(d, config)
+	opts, err := buildInstanceCreateOpts(d, cfg)
 	if err != nil {
 		return diag.Errorf("error creating the dedicated instance options: %s", err)
 	}
@@ -368,13 +368,13 @@ func parseInstanceAvailabilityZones(azStr string) []string {
 	return strings.Split(codesStr, ",")
 }
 
-// The response of ingress acess does not contain EIP ID, just the IP address.
-func parseInstanceIngressAccess(config *config.Config, region, publicAddress string) (*string, error) {
+// The response of ingress access does not contain EIP ID, just the IP address.
+func parseInstanceIngressAccess(cfg *config.Config, region, publicAddress string) (*string, error) {
 	if publicAddress == "" {
 		return nil, nil
 	}
 
-	client, err := config.NetworkingV1Client(region)
+	client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
 	}
@@ -417,7 +417,7 @@ func parseVpcepServiceName(serviceName string) string {
 	return result[1]
 }
 
-func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.ApigV2Client(region)
@@ -593,8 +593,8 @@ func updateInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -644,8 +644,8 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}

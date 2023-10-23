@@ -216,6 +216,29 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 		t.Fatalf("CES endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("CES endpoint:\t %s", actualURL)
+
+	// test the endpoint of TMS service
+	serviceClient, err = cfg.TmsV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("error creating TMS v1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://tms.%s/v1.0/", cfg.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("TMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("TMS endpoint:\t %s", actualURL)
+
+	serviceClient, err = cfg.TmsV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("error creating TMS v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://tms.%s/v2.0/", cfg.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("TMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("TMS endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_Database(t *testing.T) {

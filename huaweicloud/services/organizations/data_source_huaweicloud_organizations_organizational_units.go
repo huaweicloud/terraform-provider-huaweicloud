@@ -25,11 +25,6 @@ func DataSourceOrganizationalUnits() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceOrganizationalUnitsRead,
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"parent_id": {
 				Type:        schema.TypeString,
 				Required:    true,

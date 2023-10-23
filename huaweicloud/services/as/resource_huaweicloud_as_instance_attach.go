@@ -211,11 +211,9 @@ func resourceInstanceAttachUpdate(ctx context.Context, d *schema.ResourceData, m
 		action := "EXIT_STANDBY"
 		if d.Get("standby").(bool) {
 			action = "ENTER_STANDBY"
-
+			isAppend = "no"
 			if d.Get("append_instance").(bool) {
 				isAppend = "yes"
-			} else {
-				isAppend = "no"
 			}
 		}
 		actionList = append(actionList, instances.BatchOpts{

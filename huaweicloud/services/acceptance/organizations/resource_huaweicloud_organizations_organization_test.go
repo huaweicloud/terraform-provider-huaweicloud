@@ -65,6 +65,7 @@ func TestAccOrganization_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "root_tags.key1", "value1"),
 					resource.TestCheckResourceAttr(rName, "root_tags.key2", "value2"),
+					resource.TestCheckResourceAttr(rName, "enabled_policy_types.0", "service_control_policy"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
 					resource.TestCheckResourceAttrSet(rName, "master_account_id"),
 					resource.TestCheckResourceAttrSet(rName, "master_account_name"),
@@ -80,6 +81,7 @@ func TestAccOrganization_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "root_tags.key3", "value3"),
 					resource.TestCheckResourceAttr(rName, "root_tags.key4", "value4"),
+					resource.TestCheckResourceAttr(rName, "enabled_policy_types.0", "tag_policy"),
 				),
 			},
 			{
@@ -94,6 +96,8 @@ func TestAccOrganization_basic(t *testing.T) {
 func testOrganization_basic() string {
 	return `
 resource "huaweicloud_organizations_organization" "test" {
+  enabled_policy_types = ["service_control_policy"]
+
   root_tags = {
     "key1" = "value1"
     "key2" = "value2"
@@ -105,6 +109,8 @@ resource "huaweicloud_organizations_organization" "test" {
 func testOrganization_basic_update() string {
 	return `
 resource "huaweicloud_organizations_organization" "test" {
+  enabled_policy_types = ["tag_policy"]
+
   root_tags = {
     "key3" = "value3"
     "key4" = "value4"

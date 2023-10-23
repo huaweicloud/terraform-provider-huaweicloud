@@ -42,12 +42,15 @@ The following arguments are supported:
   resource.
 
 * `os` - (Required, String) Specifies the operating System of the node. Changing this parameter will reset the node.
-  + For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
+  The value can be **EulerOS 2.9** and **CentOS 7.6** e.g. For more details,
+  please see [documentation](https://support.huaweicloud.com/intl/en-us/api-cce/node-os.html).
 
 * `key_pair` - (Optional, String) Specifies the key pair name when logging in to select the key pair mode.
   This parameter and `password` are alternative.
 
 * `password` - (Optional, String) Specifies the root password when logging in to select the password mode.
+  The password consists of 8 to 26 characters and must contain at least three of following: uppercase letters,
+  lowercase letters, digits, special characters(!@$%^-_=+[{}]:,./?~#*).
   This parameter can be plain or salted and is alternative to `key_pair`.
 
 * `private_key` - (Optional, String) Specifies the private key of the in used `key_pair`. This parameter is mandatory

@@ -2,21 +2,23 @@ package cloudtable
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 type stateRefresh struct {
@@ -48,7 +50,7 @@ func ResourceCloudTableCluster() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -186,16 +188,16 @@ func buildCloudTableClusterParams(d *schema.ResourceData) clusters.CreateOpts {
 }
 
 func resourceCloudTableClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CloudtableV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.CloudtableV2Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CloudTable V2 client: %s", err)
+		return diag.Errorf("Error creating CloudTable V2 client: %s", err)
 	}
 
 	opt := buildCloudTableClusterParams(d)
 	resp, err := clusters.Create(client, opt)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CloudTable cluster: %s", err)
+		return diag.Errorf("Error creating CloudTable cluster: %s", err)
 	}
 	d.SetId(resp.ClusterId)
 	stateRef := stateRefresh{
@@ -218,7 +220,7 @@ func setCloudTableClusterStatus(d *schema.ResourceData, strCode string) error {
 	if val, ok := stateCodes[strCode]; ok {
 		return d.Set("status", val)
 	}
-	return fmtp.Errorf("the status is abnormal, the code is %+v")
+	return fmt.Errorf("the status is abnormal, the code is %+v", strCode)
 }
 
 // Using this function needs to ensure that the strVal is a string type number.
@@ -232,11 +234,11 @@ func setCloudTableIntParam(d *schema.ResourceData, paramName, strVal string) err
 }
 
 func resourceCloudTableClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CloudtableV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.CloudtableV2Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CloudTable v2 client: %s", err)
+		return diag.Errorf("Error creating CloudTable v2 client: %s", err)
 	}
 
 	resp, err := clusters.Get(client, d.Id())
@@ -264,22 +266,22 @@ func resourceCloudTableClusterRead(_ context.Context, d *schema.ResourceData, me
 		setCloudTableClusterStatus(d, resp.Status),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error saving the specifies CloudTable cluster (%s) to state: %s", d.Id(), mErr)
+		return diag.Errorf("Error saving the specifies CloudTable cluster (%s) to state: %s", d.Id(), mErr)
 	}
 
 	return nil
 }
 
 func resourceCloudTableClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CloudtableV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.CloudtableV2Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CloudTable v2 client: %s", err)
+		return diag.Errorf("Error creating CloudTable v2 client: %s", err)
 	}
 
 	err = clusters.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting the specified CloudTable cluster (%s): %s", d.Id(), err)
+		return diag.Errorf("Error deleting the specified CloudTable cluster (%s): %s", d.Id(), err)
 	}
 
 	stateRef := stateRefresh{
@@ -312,7 +314,7 @@ func waitForCloudTableClusterStateRefresh(ctx context.Context, c *golangsdk.Serv
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("waiting for status of the cluster (%s) to complete (%s) timeout: %s",
+		return diag.Errorf("waiting for status of the cluster (%s) to complete (%s) timeout: %s",
 			clusterId, s.Target, err)
 	}
 
@@ -331,7 +333,7 @@ func clusterStateRefreshFunc(c *golangsdk.ServiceClient, clusterId string) resou
 		if val, ok := stateCodes[resp.Status]; ok {
 			return resp, val, nil
 		}
-		logp.Printf("[ERROR] The status is abnormal, the code is %+v", resp.Status)
+		log.Printf("[ERROR] The status is abnormal, the code is %+v", resp.Status)
 		return resp, "Error", nil
 	}
 }

@@ -2,19 +2,21 @@ package cci
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 type stateRefresh struct {
@@ -117,7 +119,7 @@ func ResourceCciNamespace() *schema.Resource {
 	}
 }
 
-func buildCciNamespaceCreateParams(d *schema.ResourceData, config *config.Config) (namespaces.CreateOpts,
+func buildCciNamespaceCreateParams(d *schema.ResourceData, conf *config.Config) (namespaces.CreateOpts,
 	error) {
 	createOpts := namespaces.CreateOpts{
 		Kind:       "Namespace",
@@ -129,7 +131,7 @@ func buildCciNamespaceCreateParams(d *schema.ResourceData, config *config.Config
 				AutoExpend: d.Get("auto_expend_enabled").(bool),
 			},
 			Labels: &namespaces.Labels{
-				EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+				EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
 				RbacEnable:          d.Get("rbac_enabled").(bool),
 			},
 		},
@@ -147,20 +149,20 @@ func buildCciNamespaceCreateParams(d *schema.ResourceData, config *config.Config
 }
 
 func resourceCciNamespaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CciV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.CciV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI v1 client: %s", err)
+		return diag.Errorf("Error creating CCI v1 client: %s", err)
 	}
 
-	createOpts, err := buildCciNamespaceCreateParams(d, config)
+	createOpts, err := buildCciNamespaceCreateParams(d, conf)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to build createOpts of the CCI namespace: %s", err)
+		return diag.Errorf("Unable to build createOpts of the CCI namespace: %s", err)
 	}
 	ns := d.Get("name").(string)
 	namespace, err := namespaces.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI PVC: %s", err)
+		return diag.Errorf("Error creating CCI namespace: %s", err)
 	}
 	d.SetId(namespace.Metadata.UID)
 	stateRef := stateRefresh{
@@ -203,11 +205,11 @@ func setCciNamespaceParams(d *schema.ResourceData, resp *namespaces.Namespace) e
 }
 
 func resourceCciNamespaceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.CciV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.CciV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI v1 client: %s", err)
+		return diag.Errorf("Error creating CCI v1 client: %s", err)
 	}
 
 	var response *namespaces.Namespace
@@ -221,7 +223,7 @@ func resourceCciNamespaceRead(_ context.Context, d *schema.ResourceData, meta in
 			setCciNamespaceParams(d, response),
 		)
 		if mErr.ErrorOrNil() != nil {
-			return fmtp.DiagErrorf("Error saving the specifies namespace (%s) to state: %s", d.Id(), mErr)
+			return diag.Errorf("Error saving the specifies namespace (%s) to state: %s", d.Id(), mErr)
 		}
 	}
 
@@ -229,16 +231,16 @@ func resourceCciNamespaceRead(_ context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceCciNamespaceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.CciV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.CciV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud CCI v1 client: %s", err)
+		return diag.Errorf("Error creating CCI v1 client: %s", err)
 	}
 
 	ns := d.Get("name").(string)
 	_, err = namespaces.Delete(client, ns).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting the specifies namespace (%s): %s", d.Id(), err)
+		return diag.Errorf("Error deleting the specifies namespace (%s): %s", d.Id(), err)
 	}
 
 	stateRef := stateRefresh{
@@ -268,7 +270,7 @@ func waitForCciNamespacestateRefresh(ctx context.Context, c *golangsdk.ServiceCl
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Waiting for the status of the namespace (%s) to complete (%s) timeout: %s",
+		return diag.Errorf("Waiting for the status of the namespace (%s) to complete (%s) timeout: %s",
 			ns, s.Target, err)
 	}
 	return nil
@@ -300,11 +302,11 @@ func GetCciNamespaceInfoById(c *golangsdk.ServiceClient, id string) (*namespaces
 	var response *namespaces.Namespace
 	pages, err := namespaces.List(c, namespaces.ListOpts{}).AllPages()
 	if err != nil {
-		return response, fmtp.Errorf("Error finding the namespaces from the server: %s", err)
+		return response, fmt.Errorf("error finding the namespaces from the server: %s", err)
 	}
 	responses, err := namespaces.ExtractNamespaces(pages)
 	if err != nil {
-		return response, fmtp.Errorf("Error extracting HuaweiCloud CCI namespaces: %s", err)
+		return response, fmt.Errorf("error extracting CCI namespaces: %s", err)
 	}
 	for _, v := range responses {
 		if v.Metadata.UID == id {
@@ -314,17 +316,17 @@ func GetCciNamespaceInfoById(c *golangsdk.ServiceClient, id string) (*namespaces
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func resourceCciNamespaceImportState(context context.Context, d *schema.ResourceData,
+func resourceCciNamespaceImportState(_ context.Context, d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*config.Config)
-	client, err := config.CciV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.CciV1Client(conf.GetRegion(d))
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud CCI v1 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating CCI v1 client: %s", err)
 	}
 
 	response, err := getCciNamespaceInfoByName(client, d.Id()) // The namespace is imported by name.
 	if err != nil {
-		return []*schema.ResourceData{d}, fmtp.Errorf("[Error] Unable to find the CCI namespace by name (%s).", d.Id())
+		return []*schema.ResourceData{d}, fmt.Errorf("unable to find the CCI namespace by name (%s)", d.Id())
 	}
 	d.SetId(response.Metadata.UID)
 

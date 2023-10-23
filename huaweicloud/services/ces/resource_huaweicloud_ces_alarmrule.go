@@ -513,8 +513,8 @@ func buildPoliciesOpts(d *schema.ResourceData, globalMetricName string) []alarmr
 }
 
 func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	clientV2, err := config.CesV2Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	clientV2, err := conf.CesV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
@@ -535,7 +535,7 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		NotificationEndTime:   d.Get("notification_end_time").(string),
 		NotificationEnabled:   d.Get("alarm_action_enabled").(bool),
 		Enabled:               d.Get("alarm_enabled").(bool),
-		EnterpriseProjectID:   config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID:   conf.GetEnterpriseProjectID(d),
 	}
 
 	log.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
@@ -552,12 +552,12 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	clientV1, err := config.CesV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	clientV1, err := conf.CesV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v1 client: %s", err)
 	}
-	clientV2, err := config.CesV2Client(config.GetRegion(d))
+	clientV2, err := conf.CesV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
@@ -752,12 +752,12 @@ func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, me
 }
 
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	clientV1, err := config.CesV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	clientV1, err := conf.CesV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v1 client: %s", err)
 	}
-	clientV2, err := config.CesV2Client(config.GetRegion(d))
+	clientV2, err := conf.CesV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
@@ -898,9 +898,9 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceAlarmRuleRead(ctx, d, meta)
 }
 
-func resourceAlarmRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	clientV2, err := config.CesV2Client(config.GetRegion(d))
+func resourceAlarmRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	clientV2, err := conf.CesV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye v2 Service client: %s", err)
 	}

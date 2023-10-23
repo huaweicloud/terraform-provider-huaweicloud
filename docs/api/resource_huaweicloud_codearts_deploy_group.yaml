@@ -3,25 +3,25 @@ info:
     description: Manages a CodeArts deploy group resource within HuaweiCloud.
 host: myhuaweicloud.com
 tags:
-    - name: CodeArts
+    - name: CodeArtsDeploy
 servers:
     - url: https://codearts-deploy.cn-north-4.myhuaweicloud.com
 paths:
     /v2/host-groups:
         POST:
-            tag: codearts
+            tag: CodeArtsDeploy
             operationId: CreateDeployGroup
             x-ref-api: POST /v2/host-groups
     /v2/host-groups/{group_id}:
         DELETE:
-            tag: codearts
+            tag: CodeArtsDeploy
             operationId: DeleteDeployGroup
             x-ref-api: DELETE /v2/host-groups/{group_id}
         GET:
-            tag: codearts
+            tag: CodeArtsDeploy
             operationId: GetDeployGroup
             x-ref-api: GET /v2/host-groups/{group_id}
         PUT:
-            tag: codearts
+            tag: CodeArtsDeploy
             operationId: UpdateDeployGroup
             x-ref-api: PUT /v2/host-groups/{group_id}

@@ -54,6 +54,7 @@ data "huaweicloud_images_images" "bms_image" {
   **CoreOS**, or **EulerOS**.
 
 * `os_version` - (Optional, String) Specifies the OS version. For example, *CentOS 7.4 64bit* or *Ubuntu 18.04 server 64bit*.
+  For all its valid values, see [API docs](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0910.html).
 
 * `image_type` - (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
 

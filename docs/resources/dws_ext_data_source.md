@@ -14,6 +14,7 @@ Manages a DWS external data source resource within HuaweiCloud.
 variable "mrs_id" {}
 variable "mrs_username" {}
 variable "mrs_password" {}
+variable "cluster_id" {}
 
 resource "huaweicloud_dws_ext_data_source" "test" {
   type           = "MRS"
@@ -21,6 +22,7 @@ resource "huaweicloud_dws_ext_data_source" "test" {
   data_source_id = var.mrs_id
   user_name      = var.mrs_username
   user_pwd       = var.mrs_password
+  cluster_id     = var.cluster_id
   description    = "This is a demo"
 }
 ```
@@ -30,12 +32,14 @@ resource "huaweicloud_dws_ext_data_source" "test" {
 ```hcl
 variable "dws_agency_obs" {}
 variable "dws_database" {}
+variable "cluster_id" {}
 
 resource "huaweicloud_dws_ext_data_source" "test" {
   type         = "OBS"
   name         = "demo"
   user_name    = var.dws_agency_obs
   connect_info = var.dws_database
+  cluster_id   = var.cluster_id
   description  = "This is a demo"
 }
 ```

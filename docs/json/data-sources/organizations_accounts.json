@@ -35,10 +35,6 @@
                 "type": "string",
                 "description": "Specifies the ID of root or organizational unit.",
                 "optional": true
-              },
-              "region": {
-                "type": "string",
-                "computed": true
               }
             }
           },

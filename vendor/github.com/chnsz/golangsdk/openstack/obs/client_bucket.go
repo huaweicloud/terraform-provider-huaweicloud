@@ -18,6 +18,69 @@ import (
 	"strings"
 )
 
+func (obsClient ObsClient) DeleteBucketCustomDomain(input *DeleteBucketCustomDomainInput, extensions ...extensionOptions) (output *BaseModel, err error) {
+	if input == nil {
+		return nil, errors.New("DeleteBucketCustomDomainInput is nil")
+	}
+
+	output = &BaseModel{}
+	err = obsClient.doActionWithBucket("DeleteBucketCustomDomain", HTTP_DELETE, input.Bucket, newSubResourceSerialV2(SubResourceCustomDomain, input.CustomDomain), output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) SetBucketCustomDomain(input *SetBucketCustomDomainInput, extensions ...extensionOptions) (output *BaseModel, err error) {
+	if input == nil {
+		return nil, errors.New("SetBucketCustomDomainInput is nil")
+	}
+
+	output = &BaseModel{}
+	err = obsClient.doActionWithBucket("SetBucketCustomDomain", HTTP_PUT, input.Bucket, newSubResourceSerialV2(SubResourceCustomDomain, input.CustomDomain), output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) GetBucketCustomDomain(bucketName string, extensions ...extensionOptions) (output *GetBucketCustomDomainOuput, err error) {
+	output = &GetBucketCustomDomainOuput{}
+	err = obsClient.doActionWithBucket("GetBucketCustomDomain", HTTP_GET, bucketName, newSubResourceSerial(SubResourceCustomDomain), output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) SetBucketMirrorBackToSource(input *SetBucketMirrorBackToSourceInput, extensions ...extensionOptions) (output *BaseModel, err error) {
+
+	output = &BaseModel{}
+	err = obsClient.doActionWithBucket("SetBucketMirrorBackToSource", HTTP_PUT, input.Bucket, input, output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) DeleteBucketMirrorBackToSource(bucketName string, extensions ...extensionOptions) (output *BaseModel, err error) {
+	output = &BaseModel{}
+	err = obsClient.doActionWithBucketV2("DeleteBucketMirrorBackToSource", HTTP_DELETE, bucketName, newSubResourceSerial(SubResourceMirrorBackToSource), output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+func (obsClient ObsClient) GetBucketMirrorBackToSource(bucketName string, extensions ...extensionOptions) (output *GetBucketMirrorBackToSourceOuput, err error) {
+	output = &GetBucketMirrorBackToSourceOuput{}
+	err = obsClient.doActionWithBucketV2("GetBucketMirrorBackToSource", HTTP_GET, bucketName, newSubResourceSerial(SubResourceMirrorBackToSource), output, extensions)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
 // ListBuckets lists buckets.
 //
 // You can use this API to obtain the bucket list. In the list, bucket names are displayed in lexicographical order.

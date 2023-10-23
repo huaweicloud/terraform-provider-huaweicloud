@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	aomservice "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	aomservice "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 )
 
 func getServiceDiscoveryRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {

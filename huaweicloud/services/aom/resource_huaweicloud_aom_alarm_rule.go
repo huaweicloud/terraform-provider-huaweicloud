@@ -11,11 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceAlarmRule() *schema.Resource {
@@ -255,10 +256,10 @@ func buildStatisticCreateOpts(statistic string) aom.AlarmRuleParamStatistic {
 }
 
 func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating AOM client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
 	createOpts := aom.AlarmRuleParam{
@@ -299,10 +300,10 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating AOM client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
 	response, err := client.ShowAlarmRule(&aom.ShowAlarmRuleRequest{AlarmRuleId: d.Id()})
@@ -317,13 +318,13 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 	rule := allRules[0]
 	log.Printf("[DEBUG] Retrieved AOM alarm rule %s: %#v", d.Id(), rule)
 
-	alarm_level, _ := strconv.Atoi(*rule.AlarmLevel)
+	alarmLevel, _ := strconv.Atoi(*rule.AlarmLevel)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", rule.AlarmRuleName),
 		d.Set("description", rule.AlarmDescription),
-		d.Set("alarm_level", alarm_level),
+		d.Set("alarm_level", alarmLevel),
 		d.Set("metric_name", rule.MetricName),
 		d.Set("alarm_actions", rule.AlarmActions),
 		d.Set("ok_actions", rule.OkActions),
@@ -352,17 +353,17 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 	mErr = multierror.Append(mErr, d.Set("dimensions", dimensions))
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting AOM alarm rule fields: %w", err)
+		return diag.Errorf("error setting AOM alarm rule fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating AOM client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
 	// all parameters should be set when updating due to the API issue
@@ -399,11 +400,11 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceAlarmRuleRead(ctx, d, meta)
 }
 
-func resourceAlarmRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcAomV2Client(config.GetRegion(d))
+func resourceAlarmRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating AOM client: %s", err)
+		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
 	_, err = client.DeleteAlarmRule(&aom.DeleteAlarmRuleRequest{AlarmRuleId: d.Id()})
