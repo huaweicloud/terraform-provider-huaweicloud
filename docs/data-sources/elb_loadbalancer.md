@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the ELB loadbalancer.
 
-* `share_type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options: 
+* `share_type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options:
   **dedicated**, **share**.
 
 * `vpc_id` - (Optional, String) Specifies the ID of the VPC where the load balancer resides.
@@ -87,5 +87,5 @@ The `loadbalancers` block supports:
 * `protection_status` - Modify the protection status, value: nonProtection: No protection, the default value is  
   nonProtection, consoleProtection: console modification protection.
 
-* `protection_reason` - Reasons for setting protection, illustrate: Only valid when protection_status is 
+* `protection_reason` - Reasons for setting protection, illustrate: Only valid when protection_status is
   consoleProtection, Minimum length=0, Maximum length=255.
