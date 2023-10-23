@@ -25,11 +25,12 @@ func TestAccDatasourceLoadBalancers_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.#"),
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.id"),
-					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.description"),
-					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.ipv4_subnet_id"),
-					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.ipv6_network_id"),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.ipv4_address"),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.ipv4_port_id"),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.l4_flavor_id"),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.l7_flavor_id"),
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.vpc_id"),
-					resource.TestCheckOutput("test_is_useful", "true"),
+					resource.TestCheckOutput("filter_is_useful", "true"),
 				),
 			},
 		},
@@ -46,6 +47,18 @@ data "huaweicloud_elb_loadbalancers" "test" {
   depends_on = [
     huaweicloud_elb_loadbalancer.test
   ]
+}
+
+data "huaweicloud_elb_loadbalancers" "name_filter" {
+  name              = huaweicloud_elb_loadbalancer.test.name
+}
+
+locals {
+  name_filter_result = [for v in data.huaweicloud_elb_loadbalancers.name_filter.loadbalancers[*].name : v == data.huaweicloud_elb_loadbalancers.test.name]
+}
+ 
+output "filter_is_useful" {
+  value = length(local.name_filter_result) > 0
 }
 `, testAccElbV3LoadBalancerConfig_basic(name))
 }

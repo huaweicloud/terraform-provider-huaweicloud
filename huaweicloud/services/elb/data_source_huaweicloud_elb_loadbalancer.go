@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -21,7 +21,7 @@ import (
 
 func DataSourceElbLoadbalancesV3() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceElbLoadbalancersV3Read,
+		ReadContext: dataSourceElbLoadBalancersV3Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -169,38 +169,38 @@ func loadbalancersSchema() *schema.Resource {
 	return &sc
 }
 
-func dataSourceElbLoadbalancersV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceElbLoadBalancersV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	var (
-		listLoadbalancersHttpUrl = "v3/{project_id}/elb/loadbalancers"
-		listLoadbalancersProduct = "elb"
+		listLoadBalancersHttpUrl = "v3/{project_id}/elb/loadbalancers"
+		listLoadBalancersProduct = "elb"
 	)
-	listLoadbalancersClient, err := cfg.NewServiceClient(listLoadbalancersProduct, cfg.GetRegion(d))
+	listLoadBalancersClient, err := cfg.NewServiceClient(listLoadBalancersProduct, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
-	listLoadbalancersPath := listLoadbalancersClient.Endpoint + listLoadbalancersHttpUrl
-	listLoadbalancersPath = strings.ReplaceAll(listLoadbalancersPath, "{project_id}", listLoadbalancersClient.ProjectID)
+	listLoadBalancersPath := listLoadBalancersClient.Endpoint + listLoadBalancersHttpUrl
+	listLoadBalancersPath = strings.ReplaceAll(listLoadBalancersPath, "{project_id}", listLoadBalancersClient.ProjectID)
 
-	listLoadbalancersQueryParams := buildListLoadbalancersQueryParams(d)
-	listLoadbalancersPath += listLoadbalancersQueryParams
+	listLoadBalancersQueryParams := buildListLoadBalancersQueryParams(d)
+	listLoadBalancersPath += listLoadBalancersQueryParams
 
-	listLoadbalancersResp, err := pagination.ListAllItems(
-		listLoadbalancersClient,
-		"name",
-		listLoadbalancersPath,
+	listLoadBalancersResp, err := pagination.ListAllItems(
+		listLoadBalancersClient,
+		"marker",
+		listLoadBalancersPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Loadbalancers")
+		return common.CheckDeletedDiag(d, err, "error retrieving LoadBalancers")
 	}
 
-	listLoadbalancersRespJson, err := json.Marshal(listLoadbalancersResp)
+	listLoadBalancersRespJson, err := json.Marshal(listLoadBalancersResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listLoadbalancersRespBody interface{}
-	err = json.Unmarshal(listLoadbalancersRespJson, &listLoadbalancersRespBody)
+	var listLoadBalancersRespBody interface{}
+	err = json.Unmarshal(listLoadBalancersRespJson, &listLoadBalancersRespBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -213,13 +213,13 @@ func dataSourceElbLoadbalancersV3Read(_ context.Context, d *schema.ResourceData,
 
 	mErr := multierror.Append(
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("loadbalancers", flattenListloadbalancersBody(listLoadbalancersRespBody)),
+		d.Set("loadbalancers", flattenListLoadBalancersBody(listLoadBalancersRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListLoadbalancersQueryParams(d *schema.ResourceData) string {
+func buildListLoadBalancersQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("loadbalancer_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -259,11 +259,11 @@ func buildListLoadbalancersQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func flattenListloadbalancersBody(resp interface{}) []interface{} {
+func flattenListLoadBalancersBody(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
-	curJson := utils.PathSearch("pools", resp, make([]interface{}, 0))
+	curJson := utils.PathSearch("loadbalancers", resp, make([]interface{}, 0))
 	if curJson == nil {
 		return nil
 	}
@@ -284,6 +284,7 @@ func flattenListloadbalancersBody(resp interface{}) []interface{} {
 			"ipv6_address":          utils.PathSearch("ipv6_vip_address", v, nil),
 			"l4_flavor_id":          utils.PathSearch("l4_flavor_id", v, nil),
 			"l7_flavor_id":          utils.PathSearch("l7_flavor_id", v, nil),
+			"min_l7_flavor_id":      utils.PathSearch("min_l7_flavor_id", v, nil),
 			"region":                utils.PathSearch("region", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"autoscaling_enabled":   utils.PathSearch("enable", v, nil),
