@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -178,8 +179,8 @@ func removeEnvironmentVariables(client *golangsdk.ServiceClient, instanceId stri
 }
 
 func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -198,8 +199,8 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	d.SetId(resp.Id)
 
-	if environments, ok := d.GetOk("environment"); ok {
-		err = createEnvironmentVariables(client, instanceId, d.Id(), environments.(*schema.Set))
+	if environmentSet, ok := d.GetOk("environment"); ok {
+		err = createEnvironmentVariables(client, instanceId, d.Id(), environmentSet.(*schema.Set))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -258,8 +259,8 @@ func flattenEnvironmentVariables(variables []environments.Variable) []map[string
 }
 
 func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -275,17 +276,17 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("registration_time", resp.RegistraionTime),
 		d.Set("update_time", resp.UpdateTime),
 	)
-	if variables, err := queryEnvironmentVariables(client, instanceId, groupId); err != nil {
+	var variables []environments.Variable
+	if variables, err = queryEnvironmentVariables(client, instanceId, groupId); err != nil {
 		return diag.FromErr(err)
-	} else {
-		mErr = multierror.Append(mErr, d.Set("environment", flattenEnvironmentVariables(variables)))
 	}
+	mErr = multierror.Append(mErr, d.Set("environment", flattenEnvironmentVariables(variables)))
 
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving dedicated group fields： %s", mErr)
@@ -304,15 +305,12 @@ func updateEnvironmentVariables(client *golangsdk.ServiceClient, d *schema.Resou
 	if err := removeEnvironmentVariables(client, instanceId, removeRaws); err != nil {
 		return err
 	}
-	if err := createEnvironmentVariables(client, instanceId, groupId, addRaws); err != nil {
-		return err
-	}
-	return nil
+	return createEnvironmentVariables(client, instanceId, groupId, addRaws)
 }
 
 func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -342,8 +340,8 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 }
 
 func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}

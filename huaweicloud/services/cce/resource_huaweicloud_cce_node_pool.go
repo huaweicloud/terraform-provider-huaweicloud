@@ -387,7 +387,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// The following parameters are not returned:
-	// password, subnet_id, preinstall, postinstall, taints, initial_node_count, pod_security_groups
+	// password, subnet_id, extend_params, taints, initial_node_count, pod_security_groups
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),

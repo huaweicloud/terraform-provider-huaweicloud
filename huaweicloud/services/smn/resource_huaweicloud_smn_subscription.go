@@ -57,6 +57,37 @@ func ResourceSubscription() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"extension": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"client_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"client_secret": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"keyword": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"sign_secret": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			"subscription_urn": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -83,9 +114,10 @@ func resourceSubscriptionCreate(ctx context.Context, d *schema.ResourceData, met
 
 	topicUrn := d.Get("topic_urn").(string)
 	createOpts := subscriptions.CreateOps{
-		Endpoint: d.Get("endpoint").(string),
-		Protocol: d.Get("protocol").(string),
-		Remark:   d.Get("remark").(string),
+		Endpoint:  d.Get("endpoint").(string),
+		Protocol:  d.Get("protocol").(string),
+		Remark:    d.Get("remark").(string),
+		Extension: buildExtensionOpts(d.Get("extension").([]interface{})),
 	}
 
 	log.Printf("[DEBUG] create Options: %#v", createOpts)
@@ -97,6 +129,23 @@ func resourceSubscriptionCreate(ctx context.Context, d *schema.ResourceData, met
 	log.Printf("[DEBUG] create SMN subscription: %s", subscription.SubscriptionUrn)
 	d.SetId(subscription.SubscriptionUrn)
 	return resourceSubscriptionRead(ctx, d, meta)
+}
+
+func buildExtensionOpts(extensionRaw []interface{}) *subscriptions.ExtensionSpec {
+	if len(extensionRaw) == 0 || extensionRaw[0] == nil {
+		return nil
+	}
+
+	extension := extensionRaw[0].(map[string]interface{})
+
+	res := subscriptions.ExtensionSpec{
+		ClientID:     extension["client_id"].(string),
+		ClientSecret: extension["client_secret"].(string),
+		Keyword:      extension["keyword"].(string),
+		SignSecret:   extension["sign_secret"].(string),
+	}
+
+	return &res
 }
 
 func resourceSubscriptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

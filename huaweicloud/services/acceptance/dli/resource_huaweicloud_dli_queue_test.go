@@ -20,7 +20,7 @@ func getDliQueueResourceFunc(config *config.Config, state *terraform.ResourceSta
 		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
 
-	result := queues.Get(client, state.Primary.ID)
+	result := queues.Get(client, state.Primary.Attributes["name"])
 	return result.Body, result.Err
 }
 
@@ -55,12 +55,27 @@ func TestAccDliQueue_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testAccQueueImportStateFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
 					"tags",
 				},
 			},
 		},
 	})
+}
+
+func testAccQueueImportStateFunc(rName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[rName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+		}
+		name := rs.Primary.Attributes["name"]
+		if name == "" {
+			return "", fmt.Errorf("the queue name is incorrect, got '%s'", name)
+		}
+		return name, nil
+	}
 }
 
 func TestAccDliQueue_withGeneral(t *testing.T) {
@@ -165,6 +180,7 @@ func TestAccDliQueue_cidr(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testAccQueueImportStateFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
 					"tags",
 				},

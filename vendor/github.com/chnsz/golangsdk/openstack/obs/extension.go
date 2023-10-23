@@ -21,6 +21,11 @@ import (
 type extensionOptions interface{}
 type extensionHeaders func(headers map[string][]string, isObs bool) error
 
+func WithProgress(progressListener ProgressListener) configurer {
+	return func(conf *config) {
+		conf.progressListener = progressListener
+	}
+}
 func setHeaderPrefix(key string, value string) extensionHeaders {
 	return func(headers map[string][]string, isObs bool) error {
 		if strings.TrimSpace(value) == "" {
@@ -38,4 +43,18 @@ func WithReqPaymentHeader(requester PayerType) extensionHeaders {
 
 func WithTrafficLimitHeader(trafficLimit int64) extensionHeaders {
 	return setHeaderPrefix(TRAFFIC_LIMIT, strconv.FormatInt(trafficLimit, 10))
+}
+
+func WithCallbackHeader(callback string) extensionHeaders {
+	return setHeaderPrefix(CALLBACK, string(callback))
+}
+
+func WithCustomHeader(key string, value string) extensionHeaders {
+	return func(headers map[string][]string, isObs bool) error {
+		if strings.TrimSpace(value) == "" {
+			return fmt.Errorf("set header %s with empty value", key)
+		}
+		headers[key] = []string{value}
+		return nil
+	}
 }

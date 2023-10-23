@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cci/v1/namespaces"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -45,7 +46,7 @@ func TestAccCciNamespace_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "gpu-accelerated"),
+					resource.TestCheckResourceAttr(resourceName, "type", "general-computing"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "auto_expend_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "warmup_pool_size", "0"),
@@ -90,7 +91,7 @@ func TestAccCciNamespace_network(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "gpu-accelerated"),
+					resource.TestCheckResourceAttr(resourceName, "type", "general-computing"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "auto_expend_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "warmup_pool_size", "15"),
@@ -125,7 +126,7 @@ func testAccCciNamespace_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cci_namespace" "test" {
   name                      = "%s"
-  type                      = "gpu-accelerated"
+  type                      = "general-computing"
   auto_expend_enabled       = true
   rbac_enabled              = true
   enterprise_project_id     = "%s"
@@ -138,7 +139,7 @@ func testAccCciNamespace_network(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cci_namespace" "test" {
   name                      = "%s"
-  type                      = "gpu-accelerated"
+  type                      = "general-computing"
   auto_expend_enabled       = true
   warmup_pool_size          = 15
   recycling_interval        = 30

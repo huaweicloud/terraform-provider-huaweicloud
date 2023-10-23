@@ -1,7 +1,6 @@
 package organizations
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -17,6 +16,7 @@ func TestAccDatasourceOrganization_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -26,6 +26,7 @@ func TestAccDatasourceOrganization_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "root_tags.key1", "value1"),
 					resource.TestCheckResourceAttr(rName, "root_tags.key2", "value2"),
+					resource.TestCheckResourceAttr(rName, "enabled_policy_types.0", "service_control_policy"),
 				),
 			},
 		},
@@ -33,11 +34,5 @@ func TestAccDatasourceOrganization_basic(t *testing.T) {
 }
 
 func testAccDatasourceOrganization_basic() string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_organizations_organization" "test" {
-  depends_on = [huaweicloud_organizations_organization.test]
-}
-`, testOrganization_basic())
+	return `data "huaweicloud_organizations_organization" "test" {}`
 }

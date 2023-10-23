@@ -185,6 +185,7 @@
                         "string"
                       ],
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "kms_key_id": {
@@ -283,6 +284,7 @@
                         "string"
                       ],
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "kms_key_id": {

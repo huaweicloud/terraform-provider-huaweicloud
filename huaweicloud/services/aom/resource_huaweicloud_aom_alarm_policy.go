@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
@@ -173,7 +174,6 @@ func schemeNoDataConditions() *schema.Schema {
 			},
 		},
 	}
-
 }
 
 func schemeAlarmTags() *schema.Schema {
@@ -372,7 +372,7 @@ func schemeAlarmNotifications() *schema.Schema {
 	}
 }
 
-func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAlarmPolicyCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", conf.GetRegion(d))
 	if err != nil {
@@ -390,7 +390,8 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 		AlarmNotifications:   flattenAlarmNotifications(d.Get("alarm_notifications").([]interface{})),
 	}
 	region := conf.GetRegion(d)
-	client.WithMethod(httpclient_go.MethodPost).WithUrl("v4/" + conf.GetProjectID(region) + "/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
+	client.WithMethod(httpclient_go.MethodPost).WithUrl("v4/" + conf.GetProjectID(region) +
+		"/alarm-rules?action_id=add-alarm-action").WithBody(createOpts)
 	response, err := client.Do()
 
 	if err != nil {
@@ -412,7 +413,7 @@ func resourceAlarmPolicyCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceAlarmPolicyRead(context.TODO(), d, meta)
 }
 
-func resourceAlarmPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAlarmPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", region)
@@ -540,7 +541,7 @@ func flattenAlarmNotificationsMap(notifications entity.AlarmNotifications) []map
 	return []map[string]interface{}{m}
 }
 
-func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAlarmPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(conf, "aom", region)
@@ -566,11 +567,11 @@ func resourceAlarmPolicyDelete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func flattenMetricAlarmSpec(raw interface{}) entity.MetricAlarmSpec {
-	mas := make([]entity.MetricAlarmSpec, 0)
 	b, err := json.Marshal(raw)
 	if err != nil {
 		return entity.MetricAlarmSpec{}
 	}
+	var mas []entity.MetricAlarmSpec
 	err = json.Unmarshal(b, &mas)
 	if err != nil {
 		return entity.MetricAlarmSpec{}
@@ -582,11 +583,11 @@ func flattenMetricAlarmSpec(raw interface{}) entity.MetricAlarmSpec {
 }
 
 func flattenEventAlarmSpec(raw interface{}) entity.EventAlarmSpec {
-	mas := make([]entity.EventAlarmSpec, 0)
 	b, err := json.Marshal(raw)
 	if err != nil {
 		return entity.EventAlarmSpec{}
 	}
+	var mas []entity.EventAlarmSpec
 	err = json.Unmarshal(b, &mas)
 	if err != nil {
 		return entity.EventAlarmSpec{}
@@ -598,11 +599,11 @@ func flattenEventAlarmSpec(raw interface{}) entity.EventAlarmSpec {
 }
 
 func flattenAlarmNotifications(raw interface{}) entity.AlarmNotifications {
-	mas := make([]entity.AlarmNotifications, 0)
 	b, err := json.Marshal(raw)
 	if err != nil {
 		return entity.AlarmNotifications{}
 	}
+	var mas []entity.AlarmNotifications
 	err = json.Unmarshal(b, &mas)
 	if err != nil {
 		return entity.AlarmNotifications{}

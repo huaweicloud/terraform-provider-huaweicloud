@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -59,8 +60,8 @@ func ResourceThrottlingPolicyAssociate() *schema.Resource {
 
 func resourceThrottlingPolicyAssociateCreate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -107,8 +108,8 @@ func flattenApiPublishIds(apiList []throttles.ApiForThrottle) []string {
 
 func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %v", err)
 	}
@@ -127,7 +128,8 @@ func resourceThrottlingPolicyAssociateRead(_ context.Context, d *schema.Resource
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	return diag.FromErr(d.Set("publish_ids", flattenApiPublishIds(resp)))
+	mErr := multierror.Append(nil, d.Set("publish_ids", flattenApiPublishIds(resp)))
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func unbindPolicy(client *golangsdk.ServiceClient, instanceId, policyId string, unbindSet *schema.Set) error {
@@ -154,8 +156,8 @@ func unbindPolicy(client *golangsdk.ServiceClient, instanceId, policyId string, 
 
 func resourceThrottlingPolicyAssociateUpdate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
@@ -192,8 +194,8 @@ func resourceThrottlingPolicyAssociateUpdate(ctx context.Context, d *schema.Reso
 
 func resourceThrottlingPolicyAssociateDelete(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}

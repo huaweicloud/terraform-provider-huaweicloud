@@ -15,14 +15,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getCBHInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getCBHInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getInstance: Query CBH instance
 	var (
 		getInstanceHttpUrl = "v1/{project_id}/cbs/instance/list"
 		getInstanceProduct = "cbh"
 	)
-	getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CBH Client: %s", err)
 	}

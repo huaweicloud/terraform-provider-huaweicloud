@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -100,8 +101,8 @@ func TestAccASPolicy_Alarm(t *testing.T) {
 }
 
 func testAccCheckASPolicyDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -147,6 +148,7 @@ func testAccCheckASPolicyExists(n string, policy *policies.Policy) resource.Test
 	}
 }
 
+//nolint:revive
 func testASPolicy_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s

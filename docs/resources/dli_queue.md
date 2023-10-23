@@ -106,8 +106,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-DLI queue can be imported by  `id`. For example,
+DLI queue can be imported by `name`. For example,
 
-```
-terraform import huaweicloud_dli_queue.example  abc123
+```bash
+terraform import huaweicloud_dli_queue.example terraform_dli_queue_test
 ```

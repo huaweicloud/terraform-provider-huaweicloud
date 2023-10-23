@@ -56,6 +56,7 @@ func TestAccAccount_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 			acceptance.TestAccPreCheckOrganizationsOrganizationalUnitId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

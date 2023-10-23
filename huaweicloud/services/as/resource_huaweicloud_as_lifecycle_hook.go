@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -93,8 +94,8 @@ func ResourceASLifecycleHook() *schema.Resource {
 }
 
 func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.AutoscalingV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -125,9 +126,9 @@ func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.AutoscalingV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -147,8 +148,8 @@ func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.AutoscalingV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -186,8 +187,8 @@ func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceASLifecycleHookDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.AutoscalingV1Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
@@ -212,10 +213,8 @@ func setASLifecycleHookToState(d *schema.ResourceData, hook *lifecyclehooks.Hook
 		d.Set("notification_topic_name", hook.NotificationTopicName),
 		d.Set("create_time", hook.CreateTime),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return err
-	}
-	return nil
+	err := mErr.ErrorOrNil()
+	return err
 }
 
 func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) error {
@@ -228,7 +227,7 @@ func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) e
 	return fmt.Errorf("the type of hook response is not in the map")
 }
 
-func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")

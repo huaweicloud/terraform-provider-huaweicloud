@@ -15,6 +15,7 @@ package obs
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -285,6 +286,7 @@ func initLogFile(_fullPath string) (os.FileInfo, *os.File, error) {
 			return nil, nil, err
 		}
 	}
+
 	return stat, fd, nil
 }
 
@@ -317,6 +319,10 @@ func doLog(level Level, format string, v ...interface{}) {
 			msg = fmt.Sprintf("%s:%d|%s", file, line, msg)
 		}
 		prefix := logLevelMap[level]
+		defer func() {
+			_ = recover()
+			// ignore ch closed error
+		}()
 		if consoleLogger != nil {
 			consoleLogger.Printf("%s%s", prefix, msg)
 		}
@@ -331,4 +337,40 @@ func checkAndLogErr(err error, level Level, format string, v ...interface{}) {
 	if err != nil {
 		doLog(level, format, v...)
 	}
+}
+
+func logResponseHeader(respHeader http.Header) string {
+	resp := make([]string, 0, len(respHeader)+1)
+	for key, value := range respHeader {
+		key = strings.TrimSpace(key)
+		if key == "" {
+			continue
+		}
+		if strings.HasPrefix(key, HEADER_PREFIX) || strings.HasPrefix(key, HEADER_PREFIX_OBS) {
+			key = key[len(HEADER_PREFIX):]
+		}
+		_key := strings.ToLower(key)
+		if _, ok := allowedLogResponseHTTPHeaderNames[_key]; ok {
+			resp = append(resp, fmt.Sprintf("%s: [%s]", key, value[0]))
+		}
+		if _key == HEADER_REQUEST_ID {
+			resp = append(resp, fmt.Sprintf("%s: [%s]", key, value[0]))
+		}
+	}
+	return strings.Join(resp, " ")
+}
+
+func logRequestHeader(reqHeader http.Header) string {
+	resp := make([]string, 0, len(reqHeader)+1)
+	for key, value := range reqHeader {
+		key = strings.TrimSpace(key)
+		if key == "" {
+			continue
+		}
+		_key := strings.ToLower(key)
+		if _, ok := allowedRequestHTTPHeaderMetadataNames[_key]; ok {
+			resp = append(resp, fmt.Sprintf("%s: [%s]", key, value[0]))
+		}
+	}
+	return strings.Join(resp, " ")
 }

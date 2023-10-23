@@ -17,6 +17,11 @@ resource "huaweicloud_organizations_organization" "test"{
 
 The following arguments are supported:
 
+* `enabled_policy_types` - (Optional, List) Specifies the list of Organizations policy types to enable in the
+  Organization Root. Value options:
+    + **service_control_policy**: service control policy.
+    + **tag_policy**: tag policy.
+
 * `root_tags` - (Optional, Map) Specifies the key/value to attach to the root.
 
 ## Attribute Reference
@@ -38,6 +43,13 @@ In addition to all arguments above, the following attributes are exported:
 * `root_name` - Indicates the name of the root.
 
 * `root_urn` - Indicates the urn of the root.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+* `update` - Default is 5 minutes.
 
 ## Import
 

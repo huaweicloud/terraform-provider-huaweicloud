@@ -23,7 +23,7 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 		DeleteContext: ResourceDliSqlDatabaseV1Delete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceDatabaseImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -81,6 +81,8 @@ func ResourceDliSqlDatabaseV1Create(ctx context.Context, d *schema.ResourceData,
 	if err != nil {
 		return diag.Errorf("error creating DLI database, %s", err)
 	}
+	// The resource ID (database name) at this time is only used as a mark the resource, and the value will be refreshed
+	// in the READ method.
 	d.SetId(dbName)
 
 	return ResourceDliSqlDatabaseV1Read(ctx, d, meta)
@@ -113,10 +115,12 @@ func ResourceDliSqlDatabaseV1Read(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
-	db, err := GetDliSqlDatabaseByName(c, d.Id())
+	dbName := d.Get("name").(string)
+	db, err := GetDliSqlDatabaseByName(c, dbName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DLI database")
 	}
+	d.SetId(db.ResourceId)
 
 	mErr := multierror.Append(nil,
 		d.Set("name", db.Name),
@@ -134,7 +138,8 @@ func ResourceDliSqlDatabaseV1Update(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
-	_, err = databases.UpdateDBOwner(c, d.Id(), databases.UpdateDBOwnerOpts{
+	dbName := d.Get("name").(string)
+	_, err = databases.UpdateDBOwner(c, dbName, databases.UpdateDBOwnerOpts{
 		NewOwner: d.Get("owner").(string),
 	})
 	if err != nil {
@@ -150,9 +155,19 @@ func ResourceDliSqlDatabaseV1Delete(_ context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
-	err = databases.Delete(c, d.Id()).ExtractErr()
+
+	dbName := d.Get("name").(string)
+	err = databases.Delete(c, dbName).ExtractErr()
 	if err != nil {
 		return diag.Errorf("error deleting SQL database: %s", err)
 	}
 	return nil
+}
+
+func resourceDatabaseImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	err := d.Set("name", d.Id())
+	if err != nil {
+		return []*schema.ResourceData{d}, fmt.Errorf("error saving resource name of the DLI database: %s", err)
+	}
+	return []*schema.ResourceData{d}, nil
 }

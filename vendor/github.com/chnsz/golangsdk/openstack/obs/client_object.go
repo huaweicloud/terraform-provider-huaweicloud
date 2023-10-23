@@ -223,12 +223,32 @@ func (obsClient ObsClient) GetObject(input *GetObjectInput, extensions ...extens
 		return nil, errors.New("GetObjectInput is nil")
 	}
 	output = &GetObjectOutput{}
-	err = obsClient.doActionWithBucketAndKey("GetObject", HTTP_GET, input.Bucket, input.Key, input, output, extensions)
+	err = obsClient.doActionWithBucketAndKeyWithProgress(GET_OBJECT, HTTP_GET, input.Bucket, input.Key, input, output, extensions, nil)
 	if err != nil {
 		output = nil
-	} else {
-		ParseGetObjectOutput(output)
+		return
 	}
+
+	ParseGetObjectOutput(output)
+	listener := obsClient.getProgressListener(extensions)
+	if listener != nil {
+		output.Body = TeeReader(output.Body, output.ContentLength, listener, nil)
+	}
+	return
+}
+
+func (obsClient ObsClient) GetObjectWithoutProgress(input *GetObjectInput, extensions ...extensionOptions) (output *GetObjectOutput, err error) {
+	if input == nil {
+		return nil, errors.New("GetObjectInput is nil")
+	}
+	output = &GetObjectOutput{}
+	err = obsClient.doActionWithBucketAndKeyWithProgress(GET_OBJECT, HTTP_GET, input.Bucket, input.Key, input, output, extensions, nil)
+	if err != nil {
+		output = nil
+		return
+	}
+
+	ParseGetObjectOutput(output)
 	return
 }
 
@@ -239,38 +259,41 @@ func (obsClient ObsClient) PutObject(input *PutObjectInput, extensions ...extens
 	}
 
 	if input.ContentType == "" && input.Key != "" {
-		if contentType, ok := mimeTypes[strings.ToLower(input.Key[strings.LastIndex(input.Key, ".")+1:])]; ok {
+		if contentType, ok := GetContentType(input.Key); ok {
 			input.ContentType = contentType
 		}
 	}
 	output = &PutObjectOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		if _, ok := input.Body.(*strings.Reader); !ok {
-			repeatable = false
+		if _, ok := input.Body.(*strings.Reader); ok {
+			repeatable = true
 		}
 		if input.ContentLength > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
 		}
 	}
+
+	listener := obsClient.getProgressListener(extensions)
 	if repeatable {
-		err = obsClient.doActionWithBucketAndKey("PutObject", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+		err = obsClient.doActionWithBucketAndKeyWithProgress(PUT_OBJECT, HTTP_PUT, input.Bucket, input.Key, input, output, extensions, listener)
 	} else {
-		err = obsClient.doActionWithBucketAndKeyUnRepeatable("PutObject", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+		err = obsClient.doActionWithBucketAndKeyUnRepeatableWithProgress(PUT_OBJECT, HTTP_PUT, input.Bucket, input.Key, input, output, extensions, listener)
 	}
 	if err != nil {
 		output = nil
-	} else {
-		ParsePutObjectOutput(output)
+		return
 	}
+	ParsePutObjectOutput(output)
+	output.ObjectUrl = fmt.Sprintf("%s/%s/%s", obsClient.conf.endpoint, input.Bucket, input.Key)
 	return
 }
 
 func (obsClient ObsClient) getContentType(input *PutObjectInput, sourceFile string) (contentType string) {
-	if contentType, ok := mimeTypes[strings.ToLower(input.Key[strings.LastIndex(input.Key, ".")+1:])]; ok {
+	if contentType, ok := GetContentType(input.Key); ok {
 		return contentType
 	}
-	if contentType, ok := mimeTypes[strings.ToLower(sourceFile[strings.LastIndex(sourceFile, ".")+1:])]; ok {
+	if contentType, ok := GetContentType(sourceFile); ok {
 		return contentType
 	}
 	return
@@ -349,14 +372,17 @@ func (obsClient ObsClient) PutFile(input *PutFileInput, extensions ...extensionO
 	if obsClient.isGetContentType(_input) {
 		_input.ContentType = obsClient.getContentType(_input, sourceFile)
 	}
-
+	listener := obsClient.getProgressListener(extensions)
 	output = &PutObjectOutput{}
-	err = obsClient.doActionWithBucketAndKey("PutFile", HTTP_PUT, _input.Bucket, _input.Key, _input, output, extensions)
+	err = obsClient.doActionWithBucketAndKeyWithProgress(PUT_FILE, HTTP_PUT, _input.Bucket, _input.Key, _input, output, extensions, listener)
+
 	if err != nil {
 		output = nil
-	} else {
-		ParsePutObjectOutput(output)
+		return
 	}
+
+	ParsePutObjectOutput(output)
+	output.ObjectUrl = fmt.Sprintf("%s/%s/%s", obsClient.conf.endpoint, input.Bucket, input.Key)
 	return
 }
 
@@ -398,24 +424,23 @@ func (obsClient ObsClient) AppendObject(input *AppendObjectInput, extensions ...
 	output = &AppendObjectOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		if _, ok := input.Body.(*strings.Reader); !ok {
-			repeatable = false
+		if _, ok := input.Body.(*strings.Reader); ok {
+			repeatable = true
 		}
 		if input.ContentLength > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
 		}
 	}
+	listener := obsClient.getProgressListener(extensions)
+
 	if repeatable {
-		err = obsClient.doActionWithBucketAndKey("AppendObject", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+		err = obsClient.doActionWithBucketAndKeyWithProgress(APPEND_OBJECT, HTTP_POST, input.Bucket, input.Key, input, output, extensions, listener)
 	} else {
-		err = obsClient.doActionWithBucketAndKeyUnRepeatable("AppendObject", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+		err = obsClient.doActionWithBucketAndKeyUnRepeatableWithProgress(APPEND_OBJECT, HTTP_POST, input.Bucket, input.Key, input, output, extensions, listener)
 	}
-	if err != nil {
+
+	if err != nil || ParseAppendObjectOutput(output) != nil {
 		output = nil
-	} else {
-		if err = ParseAppendObjectOutput(output); err != nil {
-			output = nil
-		}
 	}
 	return
 }
@@ -428,8 +453,8 @@ func (obsClient ObsClient) ModifyObject(input *ModifyObjectInput, extensions ...
 	output = &ModifyObjectOutput{}
 	var repeatable bool
 	if input.Body != nil {
-		if _, ok := input.Body.(*strings.Reader); !ok {
-			repeatable = false
+		if _, ok := input.Body.(*strings.Reader); ok {
+			repeatable = true
 		}
 		if input.ContentLength > 0 {
 			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}

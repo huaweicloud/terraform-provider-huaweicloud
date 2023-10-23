@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -170,5 +171,6 @@ func resourceInstanceRoutesDelete(_ context.Context, d *schema.ResourceData, met
 
 func resourceInstanceRoutesImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
-	return []*schema.ResourceData{d}, d.Set("instance_id", d.Id())
+	mErr := multierror.Append(nil, d.Set("instance_id", d.Id()))
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
