@@ -551,11 +551,12 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ram_resource_permissions": ram.DataSourceRAMPermissions(),
 
-			"huaweicloud_rds_flavors":         rds.DataSourceRdsFlavor(),
-			"huaweicloud_rds_engine_versions": rds.DataSourceRdsEngineVersionsV3(),
-			"huaweicloud_rds_instances":       rds.DataSourceRdsInstances(),
-			"huaweicloud_rds_backups":         rds.DataSourceBackup(),
-			"huaweicloud_rds_storage_types":   rds.DataSourceStoragetype(),
+			"huaweicloud_rds_flavors":              rds.DataSourceRdsFlavor(),
+			"huaweicloud_rds_engine_versions":      rds.DataSourceRdsEngineVersionsV3(),
+			"huaweicloud_rds_instances":            rds.DataSourceRdsInstances(),
+			"huaweicloud_rds_backups":              rds.DataSourceBackup(),
+			"huaweicloud_rds_storage_types":        rds.DataSourceStoragetype(),
+			"huaweicloud_rds_sqlserver_collations": rds.DataSourceSQLServerCollations(),
 
 			"huaweicloud_rms_policy_definitions":           rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates": rms.DataSourceTemplates(),
