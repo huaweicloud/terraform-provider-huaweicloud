@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -14,7 +16,7 @@ import (
 func getResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.WafV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 	return certificates.GetWithEpsID(client, state.Primary.ID, state.Primary.Attributes["enterprise_project_id"]).Extract()
 }
