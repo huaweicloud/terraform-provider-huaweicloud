@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceWafCertificateV1() *schema.Resource {
@@ -46,14 +47,15 @@ func ResourceWafCertificateV1() *schema.Resource {
 					"The maximum length is 256 characters. Only digits, letters, underscores (_), and hyphens (-) are allowed"),
 			},
 			"certificate": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: utils.SuppressTrimSpace,
+				Sensitive:        true,
 			},
 			"private_key": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -114,6 +116,9 @@ func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, met
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+// Field `name` is required for updating operation.
+// Field `certificate` and `private_key` must be specified together.
+// Ignore the updating operation when field `certificate` does not change.
 func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
@@ -121,14 +126,19 @@ func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	updateOpts := certificates.UpdateOpts{
-		Name:                d.Get("name").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-	}
-
-	_, err = certificates.Update(client, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return diag.Errorf("error updating WAF certificate: %s", err)
+	if d.HasChanges("name", "certificate") {
+		updateOpts := certificates.UpdateOpts{
+			Name:                d.Get("name").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+		if d.HasChange("certificate") {
+			updateOpts.Content = strings.TrimSpace(d.Get("certificate").(string))
+			updateOpts.Key = strings.TrimSpace(d.Get("private_key").(string))
+		}
+		_, err = certificates.Update(client, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating WAF certificate: %s", err)
+		}
 	}
 	return resourceWafCertificateV1Read(ctx, d, meta)
 }
