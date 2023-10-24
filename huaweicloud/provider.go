@@ -683,6 +683,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_aom_cmdb_application": aom.ResourceCmdbApplication(),
 			"huaweicloud_aom_cmdb_component":   aom.ResourceCmdbComponent(),
+			"huaweicloud_aom_cmdb_environment": aom.ResourceCmdbEnvironment(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
