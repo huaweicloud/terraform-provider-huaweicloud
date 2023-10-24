@@ -186,3 +186,63 @@ func UpdatePassword(c *golangsdk.ServiceClient, id string, opts UpdatePasswordOp
 	})
 	return &r, err
 }
+
+type RestartOrFlushInstanceOpts struct {
+	Instances []string `json:"instances,omitempty"`
+	Action    string   `json:"action,omitempty"`
+}
+
+func RestartOrFlushInstance(c *golangsdk.ServiceClient, opts RestartOrFlushInstanceOpts) (*RestartResponse, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst golangsdk.Result
+	_, err = c.Put(restartOrFlushInstanceURL(c), b, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err == nil {
+		var r RestartResponse
+		rst.ExtractInto(&r)
+		return &r, nil
+	}
+	return nil, err
+}
+
+type ModifyRedisConfigOpts struct {
+	RedisConfig []RedisConfigOpt `json:"redis_config"`
+}
+
+type RedisConfigOpt struct {
+	ParamId    string `json:"param_id" required:"true"`
+	ParamName  string `json:"param_name" required:"true"`
+	ParamValue string `json:"param_value" required:"true"`
+}
+
+func ModifyConfiguration(c *golangsdk.ServiceClient, instanceId string, opts ModifyRedisConfigOpts) (*golangsdk.Result, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r golangsdk.Result
+	_, err = c.Put(configurationsURL(c, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{204},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+func GetConfigurations(c *golangsdk.ServiceClient, instanceID string) (*Configuration, error) {
+	var rst golangsdk.Result
+	_, err := c.Get(configurationsURL(c, instanceID), &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err == nil {
+		var r Configuration
+		rst.ExtractInto(&r)
+		return &r, nil
+	}
+	return nil, err
+}
