@@ -138,6 +138,10 @@ type RootVolume struct {
 	ExtendParam *VolumeExtendParam `json:"extendparam,omitempty"`
 
 	Metadata *VolumeMetadata `json:"metadata,omitempty"`
+
+	ClusterId string `json:"cluster_id,omitempty"`
+	// The cluster type is default to DSS
+	ClusterType string `json:"cluster_type,omitempty"`
 }
 
 type DataVolume struct {
@@ -157,6 +161,10 @@ type DataVolume struct {
 	Extendparam *VolumeExtendParam `json:"extendparam,omitempty"`
 
 	Metadata *VolumeMetadata `json:"metadata,omitempty"`
+
+	ClusterId string `json:"cluster_id,omitempty"`
+	// The cluster type is default to DSS
+	ClusterType string `json:"cluster_type,omitempty"`
 }
 
 type VolumeExtendParam struct {
