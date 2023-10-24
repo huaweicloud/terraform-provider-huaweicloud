@@ -49,6 +49,34 @@ func DataSourceEcsFlavors() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"flavors": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"performance_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"generation": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"cpu_core_count": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"memory_size": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -81,6 +109,7 @@ func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	gen := d.Get("generation").(string)
 
 	var ids []string
+	var filteredFlavors []map[string]interface{}
 	for _, flavor := range allFlavors {
 		vCpu, _ := strconv.Atoi(flavor.Vcpus)
 		if cpu > 0 && vCpu != cpu {
@@ -100,10 +129,15 @@ func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 		}
 
 		ids = append(ids, flavor.ID)
-	}
 
-	if len(ids) < 1 {
-		return diag.Errorf("your query returned no results, please change your search criteria and try again.")
+		flavorToSet := map[string]interface{}{
+			"id":               flavor.ID,
+			"performance_type": flavor.OsExtraSpecs.PerformanceType,
+			"generation":       flavor.OsExtraSpecs.Generation,
+			"cpu_core_count":   vCpu,
+			"memory_size":      flavor.Ram / 1024,
+		}
+		filteredFlavors = append(filteredFlavors, flavorToSet)
 	}
 
 	d.SetId(hashcode.Strings(ids))
@@ -111,6 +145,7 @@ func dataSourceEcsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("ids", ids),
+		d.Set("flavors", filteredFlavors),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
