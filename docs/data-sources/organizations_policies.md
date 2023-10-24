@@ -31,7 +31,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The data source ID.
+* `id` - The resource ID.
 
 * `policies` - List of policies in an organization.
   The [policies](#Policies_Policy) structure is documented below.
