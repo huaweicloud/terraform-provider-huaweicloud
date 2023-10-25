@@ -41,9 +41,9 @@ The following arguments are supported:
 
 * `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique.
 
-* `log_group_id` - (Required, String, ForceNew) The lts log group ID.
+* `log_group_id` - (Required, String) The lts log group ID.
 
-* `log_stream_id` - (Required, String, ForceNew) The lts log stream ID.
+* `log_stream_id` - (Required, String) The lts log stream ID.
 
 ## Attribute Reference
 
