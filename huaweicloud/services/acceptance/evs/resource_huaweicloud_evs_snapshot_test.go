@@ -2,13 +2,11 @@ package evs
 
 import (
 	"fmt"
-
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/evs/v2/snapshots"
 
@@ -23,9 +21,9 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 	resourceName := "huaweicloud_evs_snapshot.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckEvsSnapshotV2Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckEvsSnapshotV2Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEvsSnapshotV2_basic(rName),
@@ -41,10 +39,10 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 }
 
 func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	evsClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	evsClient, err := cfg.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
+		return fmt.Errorf("error creating EVS storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -54,7 +52,7 @@ func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
 
 		_, err := snapshots.Get(evsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("EVS snapshot still exists")
+			return fmt.Errorf("EVS snapshot still exists")
 		}
 	}
 
@@ -65,17 +63,17 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		evsClient, err := config.BlockStorageV2Client(acceptance.HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		evsClient, err := cfg.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
+			return fmt.Errorf("error creating EVS storage client: %s", err)
 		}
 
 		found, err := snapshots.Get(evsClient, rs.Primary.ID).Extract()
@@ -84,7 +82,7 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("EVS snapshot not found")
+			return fmt.Errorf("EVS snapshot not found")
 		}
 
 		*sp = *found
