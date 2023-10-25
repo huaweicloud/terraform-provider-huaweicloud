@@ -61,6 +61,9 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the VPC endpoint service.
 
+* `enable_policy` - (Optional, Bool, ForceNew) Specifies whether the VPC endpoint policy is enabled. Defaults to **false**.
+  Changing this creates a new VPC endpoint service resource.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint service.
 
 The `port_mapping` block supports:
