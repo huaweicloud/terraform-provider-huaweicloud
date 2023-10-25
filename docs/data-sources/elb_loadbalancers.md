@@ -4,7 +4,7 @@ subcategory: Dedicated Load Balance (Dedicated ELB)
 
 # huaweicloud_elb_loadbalancers
 
-Use this data source to get the list of ELB loadbalancers.
+Use this data source to get the list of ELB load blancers.
 
 ## Example Usage
 
@@ -23,11 +23,11 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the data source.
   If omitted, the provider-level region will be used.
 
-* `name` - (Optional, String) Specifies the name of the ELB loadbalancer.
+* `name` - (Optional, String) Specifies the name of the ELB load balancer.
 
-* `loadbalancer_id` - (Optional, String) Specifies the ID of the ELB loadbalancer.
+* `loadbalancer_id` - (Optional, String) Specifies the ID of the ELB load balancer.
 
-* `description` - (Optional, String) Specifies the description of the ELB loadbalancer.
+* `description` - (Optional, String) Specifies the description of the ELB load balancer.
 
 * `share_type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options:
   **dedicated**, **share**.
@@ -46,17 +46,17 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `loadbalancers` - Lists the load balancers.
-  The [object](#loadbalancers_object) structure is documented below.
+* `loadbalancers` - Lists the loadalancers.
+  The [loadbalancers](#Elb_loadbalancer_loadbalancers) structure is documented below.
 
-<a name="loadbalancers_object"></a>
+<a name="Elb_loadbalancer_loadbalancers"></a>
 The `loadbalancers` block supports:
 
-* `id` - The loadbalancer ID.
+* `id` - The load balancer ID.
 
-* `name` - The loadbalancer name.
+* `name` - The load balancer name.
 
-* `description` - The description of loadbalancer.
+* `description` - The description of load balancer.
 
 * `availability_zone` - The list of AZs where the load balancer is created.
 
@@ -87,8 +87,6 @@ The `loadbalancers` block supports:
 
 * `backend_subnets` - Lists the IDs of subnets on the downstream plane.
 
-* `protection_status` - Modify the protection status, value: nonProtection: No protection, the default value is  
-  nonProtection, consoleProtection: console modification protection.
+* `protection_status` - The protection status for update.
 
-* `protection_reason` - Reasons for setting protection, illustrate: Only valid when protection_status is
-  consoleProtection, Minimum length=0, Maximum length=255.
+* `protection_reason` - The reason for update protection.

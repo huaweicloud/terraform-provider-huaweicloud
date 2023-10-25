@@ -19,7 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceElbLoadbalancesV3() *schema.Resource {
+func DataSourceElbLoadbalances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceElbLoadBalancersV3Read,
 
@@ -132,10 +132,6 @@ func loadbalancersSchema() *schema.Resource {
 				Computed: true,
 			},
 			"l7_flavor_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -285,7 +281,6 @@ func flattenListLoadBalancersBody(resp interface{}) []interface{} {
 			"l4_flavor_id":          utils.PathSearch("l4_flavor_id", v, nil),
 			"l7_flavor_id":          utils.PathSearch("l7_flavor_id", v, nil),
 			"min_l7_flavor_id":      utils.PathSearch("min_l7_flavor_id", v, nil),
-			"region":                utils.PathSearch("region", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"autoscaling_enabled":   utils.PathSearch("enable", v, nil),
 			"backend_subnets":       utils.PathSearch("elb_virsubnet_ids", v, nil),

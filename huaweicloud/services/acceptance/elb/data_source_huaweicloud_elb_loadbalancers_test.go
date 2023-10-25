@@ -37,6 +37,7 @@ func TestAccDatasourceLoadBalancers_basic(t *testing.T) {
 					resource.TestCheckOutput("description_filter_is_useful", "true"),
 					resource.TestCheckOutput("l4_flavor_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("l7_flavor_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("share_type_is_useful", "true"),
 				),
 			},
 		},
@@ -174,6 +175,15 @@ output "l7_flavor_id_filter_is_useful" {
   [for v in data.huaweicloud_elb_loadbalancers.l7_flavor_id_filter.loadbalancers[*].l7_flavor_id : 
   v == local.l7_flavor_id]
   ) 
+}
+
+
+data "huaweicloud_elb_loadbalancers" "share_type_is_useful" {
+  depends_on = [huaweicloud_elb_loadbalancer.test]
+}
+
+output "share_type_is_useful" {
+  value = length(data.huaweicloud_elb_loadbalancers.share_type_is_useful.loadbalancers) > 0 
 }
 
 `, testAccDatasourceLoadBalancers_base(name), name)
