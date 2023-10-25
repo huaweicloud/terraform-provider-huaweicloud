@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jmespath/go-jmespath"
 	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/smn/v2/logtank"
