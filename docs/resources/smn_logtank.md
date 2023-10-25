@@ -4,7 +4,7 @@ subcategory: "Simple Message Notification (SMN)"
 
 # huaweicloud_smn_logtank
 
-Manages an SMN logtankGet resource within HuaweiCloud.
+Manages a SMN logtank resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -51,9 +51,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `logtank_id` - The resource ID.
 
-* `created_at` - Time when the logtankGet was created.
+* `created_at` - Time when the logtank was created.
 
-* `updated_at` - Time when the logtankGet was updated.
+* `updated_at` - Time when the logtank was updated.
 
 ## Import
 
