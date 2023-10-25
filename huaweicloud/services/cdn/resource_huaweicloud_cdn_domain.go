@@ -663,7 +663,7 @@ func configOrUpdateCacheConfigOpts(hcCdnClient *cdnv1.CdnClient, rawCacheConfig 
 
 func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
+	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
@@ -673,7 +673,7 @@ func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta
 		BusinessType:        d.Get("type").(string),
 		Sources:             getDomainSources(d),
 		ServiceArea:         d.Get("service_area").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -936,18 +936,18 @@ func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[
 
 func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
+	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error creating CDN v1 client")
 	}
 
-	hcCdnClient, err := cfg.HcCdnV1Client(common.GetRegion(d, cfg))
+	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error creating HcCDN v1 client")
 	}
 
 	id := d.Id()
-	epsId := common.GetEnterpriseProjectID(d, cfg)
+	epsId := cfg.GetEnterpriseProjectID(d)
 
 	opts := getResourceExtensionOpts(d, cfg)
 	v, err := domains.Get(cdnClient, id, opts).Extract()
@@ -1005,19 +1005,19 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 
 func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
+	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	hcCdnClient, err := cfg.HcCdnV1Client(common.GetRegion(d, cfg))
+	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
 	domainName := d.Get("name").(string)
-	epsId := common.GetEnterpriseProjectID(d, cfg)
+	epsId := cfg.GetEnterpriseProjectID(d)
 	opts := getResourceExtensionOpts(d, cfg)
 	timeout := d.Timeout(schema.TimeoutCreate)
 
@@ -1117,7 +1117,7 @@ func waitDomainOnline(ctx context.Context, cdnClient *golangsdk.ServiceClient,
 
 func resourceCdnDomainV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
+	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
@@ -1161,7 +1161,7 @@ func resourceCdnDomainV1Delete(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func getResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {
-	epsID := common.GetEnterpriseProjectID(d, cfg)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	if epsID != "" {
 		return &domains.ExtensionOpts{
 			EnterpriseProjectId: epsID,
