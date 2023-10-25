@@ -20,6 +20,11 @@ type UpdateTrackerRequestBody struct {
 	// 标识追踪器状态，该接口中可修改的状态包括正常（enabled）和停止（disabled）。如果选择修改状态为停止，则修改成功后追踪器停止记录事件。
 	Status *UpdateTrackerRequestBodyStatus `json:"status,omitempty"`
 
+	// 是否应用到我的组织。 只针对管理类追踪器。设置为true时，ORG组织下所有成员当前区域的审计日志会转储到该追踪器配置的OBS桶或者LTS日志流，但是事件列表界面不支持查看其它组织成员的审计日志。
+	IsOrganizationTracker *bool `json:"is_organization_tracker,omitempty"`
+
+	ManagementEventSelector *ManagementEventSelector `json:"management_event_selector,omitempty"`
+
 	// 是否打开事件分析。
 	IsLtsEnabled *bool `json:"is_lts_enabled,omitempty"`
 

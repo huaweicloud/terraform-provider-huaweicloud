@@ -42,6 +42,7 @@ type ListFlavorsRequestDatabaseNameEnum struct {
 	MY_SQL      ListFlavorsRequestDatabaseName
 	POSTGRE_SQL ListFlavorsRequestDatabaseName
 	SQL_SERVER  ListFlavorsRequestDatabaseName
+	MARIA_DB    ListFlavorsRequestDatabaseName
 }
 
 func GetListFlavorsRequestDatabaseNameEnum() ListFlavorsRequestDatabaseNameEnum {
@@ -54,6 +55,9 @@ func GetListFlavorsRequestDatabaseNameEnum() ListFlavorsRequestDatabaseNameEnum 
 		},
 		SQL_SERVER: ListFlavorsRequestDatabaseName{
 			value: "SQLServer",
+		},
+		MARIA_DB: ListFlavorsRequestDatabaseName{
+			value: "MariaDB",
 		},
 	}
 }

@@ -19,6 +19,27 @@ func RdsClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+// AddPostgresqlHbaConf 在pg_hba.conf文件最后新增单个或多个配置
+//
+// 以传入配置全量覆盖当前pg_hba.conf文件内容，入参为空时用默认配置覆盖当前文件内容
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) AddPostgresqlHbaConf(request *model.AddPostgresqlHbaConfRequest) (*model.AddPostgresqlHbaConfResponse, error) {
+	requestDef := GenReqDefForAddPostgresqlHbaConf()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddPostgresqlHbaConfResponse), nil
+	}
+}
+
+// AddPostgresqlHbaConfInvoker 在pg_hba.conf文件最后新增单个或多个配置
+func (c *RdsClient) AddPostgresqlHbaConfInvoker(request *model.AddPostgresqlHbaConfRequest) *AddPostgresqlHbaConfInvoker {
+	requestDef := GenReqDefForAddPostgresqlHbaConf()
+	return &AddPostgresqlHbaConfInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ApplyConfigurationAsync 应用参数模板
 //
 // 应用参数模板。
@@ -313,6 +334,27 @@ func (c *RdsClient) CreateRestoreInstanceInvoker(request *model.CreateRestoreIns
 	return &CreateRestoreInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateXelLogDownload 获取扩展日志下载信息
+//
+// 获取扩展日志下载信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) CreateXelLogDownload(request *model.CreateXelLogDownloadRequest) (*model.CreateXelLogDownloadResponse, error) {
+	requestDef := GenReqDefForCreateXelLogDownload()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateXelLogDownloadResponse), nil
+	}
+}
+
+// CreateXelLogDownloadInvoker 获取扩展日志下载信息
+func (c *RdsClient) CreateXelLogDownloadInvoker(request *model.CreateXelLogDownloadRequest) *CreateXelLogDownloadInvoker {
+	requestDef := GenReqDefForCreateXelLogDownload()
+	return &CreateXelLogDownloadInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteConfiguration 删除参数模板
 //
 // 删除参数模板。
@@ -357,7 +399,6 @@ func (c *RdsClient) DeleteInstanceInvoker(request *model.DeleteInstanceRequest) 
 
 // DeleteJob 删除即时任务
 //
-//
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) DeleteJob(request *model.DeleteJobRequest) (*model.DeleteJobResponse, error) {
 	requestDef := GenReqDefForDeleteJob()
@@ -394,6 +435,27 @@ func (c *RdsClient) DeleteManualBackup(request *model.DeleteManualBackupRequest)
 func (c *RdsClient) DeleteManualBackupInvoker(request *model.DeleteManualBackupRequest) *DeleteManualBackupInvoker {
 	requestDef := GenReqDefForDeleteManualBackup()
 	return &DeleteManualBackupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeletePostgresqlHbaConf 删除pg_hba.conf文件的单个或多个配置
+//
+// 删除pg_hba.conf文件的单个或多个配置，以priority做唯一标识
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeletePostgresqlHbaConf(request *model.DeletePostgresqlHbaConfRequest) (*model.DeletePostgresqlHbaConfResponse, error) {
+	requestDef := GenReqDefForDeletePostgresqlHbaConf()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeletePostgresqlHbaConfResponse), nil
+	}
+}
+
+// DeletePostgresqlHbaConfInvoker 删除pg_hba.conf文件的单个或多个配置
+func (c *RdsClient) DeletePostgresqlHbaConfInvoker(request *model.DeletePostgresqlHbaConfRequest) *DeletePostgresqlHbaConfInvoker {
+	requestDef := GenReqDefForDeletePostgresqlHbaConf()
+	return &DeletePostgresqlHbaConfInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DownloadSlowlog 获取慢日志下载链接
@@ -732,6 +794,71 @@ func (c *RdsClient) ListInstancesInvoker(request *model.ListInstancesRequest) *L
 	return &ListInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListInstancesRecommendation 查询购买推荐
+//
+// 查询购买推荐
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListInstancesRecommendation(request *model.ListInstancesRecommendationRequest) (*model.ListInstancesRecommendationResponse, error) {
+	requestDef := GenReqDefForListInstancesRecommendation()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListInstancesRecommendationResponse), nil
+	}
+}
+
+// ListInstancesRecommendationInvoker 查询购买推荐
+func (c *RdsClient) ListInstancesRecommendationInvoker(request *model.ListInstancesRecommendationRequest) *ListInstancesRecommendationInvoker {
+	requestDef := GenReqDefForListInstancesRecommendation()
+	return &ListInstancesRecommendationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListInstancesResourceMetrics 查询监控大盘列表
+//
+// 查询监控大盘列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListInstancesResourceMetrics(request *model.ListInstancesResourceMetricsRequest) (*model.ListInstancesResourceMetricsResponse, error) {
+	requestDef := GenReqDefForListInstancesResourceMetrics()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListInstancesResourceMetricsResponse), nil
+	}
+}
+
+// ListInstancesResourceMetricsInvoker 查询监控大盘列表
+func (c *RdsClient) ListInstancesResourceMetricsInvoker(request *model.ListInstancesResourceMetricsRequest) *ListInstancesResourceMetricsInvoker {
+	requestDef := GenReqDefForListInstancesResourceMetrics()
+	return &ListInstancesResourceMetricsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListInstancesSupportFastRestore 获取实例是否能使用极速恢复
+//
+// 批量获取实例是否能在库表恢复时使用极速恢复。
+//
+// - 调用接口前，您需要了解API 认证鉴权。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListInstancesSupportFastRestore(request *model.ListInstancesSupportFastRestoreRequest) (*model.ListInstancesSupportFastRestoreResponse, error) {
+	requestDef := GenReqDefForListInstancesSupportFastRestore()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListInstancesSupportFastRestoreResponse), nil
+	}
+}
+
+// ListInstancesSupportFastRestoreInvoker 获取实例是否能使用极速恢复
+func (c *RdsClient) ListInstancesSupportFastRestoreInvoker(request *model.ListInstancesSupportFastRestoreRequest) *ListInstancesSupportFastRestoreInvoker {
+	requestDef := GenReqDefForListInstancesSupportFastRestore()
+	return &ListInstancesSupportFastRestoreInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListJobInfo 获取指定ID的任务信息
 //
 // 获取指定ID的任务信息。
@@ -836,6 +963,48 @@ func (c *RdsClient) ListOffSiteRestoreTimes(request *model.ListOffSiteRestoreTim
 func (c *RdsClient) ListOffSiteRestoreTimesInvoker(request *model.ListOffSiteRestoreTimesRequest) *ListOffSiteRestoreTimesInvoker {
 	requestDef := GenReqDefForListOffSiteRestoreTimes()
 	return &ListOffSiteRestoreTimesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPostgresqlHbaInfo 查询实例的pg_hba.conf文件配置
+//
+// 查询实例的pg_hba.conf文件配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListPostgresqlHbaInfo(request *model.ListPostgresqlHbaInfoRequest) (*model.ListPostgresqlHbaInfoResponse, error) {
+	requestDef := GenReqDefForListPostgresqlHbaInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPostgresqlHbaInfoResponse), nil
+	}
+}
+
+// ListPostgresqlHbaInfoInvoker 查询实例的pg_hba.conf文件配置
+func (c *RdsClient) ListPostgresqlHbaInfoInvoker(request *model.ListPostgresqlHbaInfoRequest) *ListPostgresqlHbaInfoInvoker {
+	requestDef := GenReqDefForListPostgresqlHbaInfo()
+	return &ListPostgresqlHbaInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPostgresqlHbaInfoHistory 查询实例的pg_hba.conf文件修改历史
+//
+// 查询实例的pg_hba.conf文件修改历史
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListPostgresqlHbaInfoHistory(request *model.ListPostgresqlHbaInfoHistoryRequest) (*model.ListPostgresqlHbaInfoHistoryResponse, error) {
+	requestDef := GenReqDefForListPostgresqlHbaInfoHistory()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPostgresqlHbaInfoHistoryResponse), nil
+	}
+}
+
+// ListPostgresqlHbaInfoHistoryInvoker 查询实例的pg_hba.conf文件修改历史
+func (c *RdsClient) ListPostgresqlHbaInfoHistoryInvoker(request *model.ListPostgresqlHbaInfoHistoryRequest) *ListPostgresqlHbaInfoHistoryInvoker {
+	requestDef := GenReqDefForListPostgresqlHbaInfoHistory()
+	return &ListPostgresqlHbaInfoHistoryInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListPredefinedTag
@@ -1113,6 +1282,28 @@ func (c *RdsClient) ListStorageTypesInvoker(request *model.ListStorageTypesReque
 	return &ListStorageTypesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListXellogFiles 查询扩展日志文件列表
+//
+// 查询扩展日志文件列表。
+// 查询扩展日志文件列表，可以调用接口/v3/{project_id}/instances/{instance_id}/xellog-download 获取扩展日志下载链接
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListXellogFiles(request *model.ListXellogFilesRequest) (*model.ListXellogFilesResponse, error) {
+	requestDef := GenReqDefForListXellogFiles()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListXellogFilesResponse), nil
+	}
+}
+
+// ListXellogFilesInvoker 查询扩展日志文件列表
+func (c *RdsClient) ListXellogFilesInvoker(request *model.ListXellogFilesRequest) *ListXellogFilesInvoker {
+	requestDef := GenReqDefForListXellogFiles()
+	return &ListXellogFilesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // MigrateFollower 迁移主备实例的备机
 //
 // 迁移主备实例的备机
@@ -1132,6 +1323,27 @@ func (c *RdsClient) MigrateFollower(request *model.MigrateFollowerRequest) (*mod
 func (c *RdsClient) MigrateFollowerInvoker(request *model.MigrateFollowerRequest) *MigrateFollowerInvoker {
 	requestDef := GenReqDefForMigrateFollower()
 	return &MigrateFollowerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ModifyPostgresqlHbaConf 修改pg_hba.conf文件的单个或多个配置
+//
+// 修改/新增pg_hba.conf文件的单个或多个配置，以priority做唯一标识，priority不存在的新增，存在的修改
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ModifyPostgresqlHbaConf(request *model.ModifyPostgresqlHbaConfRequest) (*model.ModifyPostgresqlHbaConfResponse, error) {
+	requestDef := GenReqDefForModifyPostgresqlHbaConf()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ModifyPostgresqlHbaConfResponse), nil
+	}
+}
+
+// ModifyPostgresqlHbaConfInvoker 修改pg_hba.conf文件的单个或多个配置
+func (c *RdsClient) ModifyPostgresqlHbaConfInvoker(request *model.ModifyPostgresqlHbaConfRequest) *ModifyPostgresqlHbaConfInvoker {
+	requestDef := GenReqDefForModifyPostgresqlHbaConf()
+	return &ModifyPostgresqlHbaConfInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // RestoreExistInstance 恢复到已有实例
@@ -1174,6 +1386,27 @@ func (c *RdsClient) RestoreTables(request *model.RestoreTablesRequest) (*model.R
 func (c *RdsClient) RestoreTablesInvoker(request *model.RestoreTablesRequest) *RestoreTablesInvoker {
 	requestDef := GenReqDefForRestoreTables()
 	return &RestoreTablesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RestoreTablesNew 表级时间点恢复(MySQL)
+//
+// 表级时间点恢复(MySQL)。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) RestoreTablesNew(request *model.RestoreTablesNewRequest) (*model.RestoreTablesNewResponse, error) {
+	requestDef := GenReqDefForRestoreTablesNew()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RestoreTablesNewResponse), nil
+	}
+}
+
+// RestoreTablesNewInvoker 表级时间点恢复(MySQL)
+func (c *RdsClient) RestoreTablesNewInvoker(request *model.RestoreTablesNewRequest) *RestoreTablesNewInvoker {
+	requestDef := GenReqDefForRestoreTablesNew()
+	return &RestoreTablesNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // RestoreToExistingInstance 恢复到已有实例
@@ -1350,7 +1583,7 @@ func (c *RdsClient) SetSecurityGroupInvoker(request *model.SetSecurityGroupReque
 
 // SetSensitiveSlowLog 慢日志敏感信息的开关
 //
-// V3慢日志敏感信息的开关
+// # V3慢日志敏感信息的开关
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *RdsClient) SetSensitiveSlowLog(request *model.SetSensitiveSlowLogRequest) (*model.SetSensitiveSlowLogResponse, error) {
@@ -2081,6 +2314,27 @@ func (c *RdsClient) UpgradeDbVersion(request *model.UpgradeDbVersionRequest) (*m
 func (c *RdsClient) UpgradeDbVersionInvoker(request *model.UpgradeDbVersionRequest) *UpgradeDbVersionInvoker {
 	requestDef := GenReqDefForUpgradeDbVersion()
 	return &UpgradeDbVersionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpgradeDbVersionNew 升级内核小版本
+//
+// 对实例进行小版本升级。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpgradeDbVersionNew(request *model.UpgradeDbVersionNewRequest) (*model.UpgradeDbVersionNewResponse, error) {
+	requestDef := GenReqDefForUpgradeDbVersionNew()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpgradeDbVersionNewResponse), nil
+	}
+}
+
+// UpgradeDbVersionNewInvoker 升级内核小版本
+func (c *RdsClient) UpgradeDbVersionNewInvoker(request *model.UpgradeDbVersionNewRequest) *UpgradeDbVersionNewInvoker {
+	requestDef := GenReqDefForUpgradeDbVersionNew()
+	return &UpgradeDbVersionNewInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListApiVersion 查询API版本列表

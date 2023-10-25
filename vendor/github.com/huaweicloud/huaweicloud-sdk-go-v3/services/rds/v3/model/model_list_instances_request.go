@@ -25,7 +25,7 @@ type ListInstancesRequest struct {
 	// 按照实例类型查询。取值Single、Ha、Replica，分别对应于单实例、主备实例和只读实例。
 	Type *ListInstancesRequestType `json:"type,omitempty"`
 
-	// 数据库类型，区分大小写。  - MySQL - PostgreSQL - SQLServer
+	// 数据库类型，区分大小写。 - MySQL - PostgreSQL - SQLServer - MariaDB
 	DatastoreType *ListInstancesRequestDatastoreType `json:"datastore_type,omitempty"`
 
 	// 虚拟私有云ID。
@@ -159,6 +159,7 @@ type ListInstancesRequestDatastoreTypeEnum struct {
 	MY_SQL      ListInstancesRequestDatastoreType
 	POSTGRE_SQL ListInstancesRequestDatastoreType
 	SQL_SERVER  ListInstancesRequestDatastoreType
+	MARIA_DB    ListInstancesRequestDatastoreType
 }
 
 func GetListInstancesRequestDatastoreTypeEnum() ListInstancesRequestDatastoreTypeEnum {
@@ -171,6 +172,9 @@ func GetListInstancesRequestDatastoreTypeEnum() ListInstancesRequestDatastoreTyp
 		},
 		SQL_SERVER: ListInstancesRequestDatastoreType{
 			value: "SQLServer",
+		},
+		MARIA_DB: ListInstancesRequestDatastoreType{
+			value: "MariaDB",
 		},
 	}
 }

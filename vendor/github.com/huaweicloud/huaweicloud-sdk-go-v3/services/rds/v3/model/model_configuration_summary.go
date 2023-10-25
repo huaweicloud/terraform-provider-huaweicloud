@@ -54,6 +54,7 @@ type ConfigurationSummaryDatastoreNameEnum struct {
 	MYSQL      ConfigurationSummaryDatastoreName
 	POSTGRESQL ConfigurationSummaryDatastoreName
 	SQLSERVER  ConfigurationSummaryDatastoreName
+	MARIADB    ConfigurationSummaryDatastoreName
 }
 
 func GetConfigurationSummaryDatastoreNameEnum() ConfigurationSummaryDatastoreNameEnum {
@@ -66,6 +67,9 @@ func GetConfigurationSummaryDatastoreNameEnum() ConfigurationSummaryDatastoreNam
 		},
 		SQLSERVER: ConfigurationSummaryDatastoreName{
 			value: "sqlserver",
+		},
+		MARIADB: ConfigurationSummaryDatastoreName{
+			value: "mariadb",
 		},
 	}
 }

@@ -32,6 +32,9 @@ type Urls struct {
 
 	// 文件类型，目录还是文件。
 	FileType *string `json:"file_type,omitempty"`
+
+	// 目录刷新方式，all：刷新目录下全部资源；detect_modify_refresh：刷新目录下已变更的资源，默认值为all。
+	Mode *string `json:"mode,omitempty"`
 }
 
 func (o Urls) String() string {

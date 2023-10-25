@@ -11,7 +11,7 @@ import (
 
 type BackupDatastore struct {
 
-	// 数据库引擎，不区分大小写：  - MySQL - PostgreSQL - SQLServer
+	// 数据库引擎，不区分大小写： - MySQL - PostgreSQL - SQLServer - MariaDB
 	Type BackupDatastoreType `json:"type"`
 
 	// 数据库版本。
@@ -35,6 +35,7 @@ type BackupDatastoreTypeEnum struct {
 	MY_SQL      BackupDatastoreType
 	POSTGRE_SQL BackupDatastoreType
 	SQL_SERVER  BackupDatastoreType
+	MARIA_DB    BackupDatastoreType
 }
 
 func GetBackupDatastoreTypeEnum() BackupDatastoreTypeEnum {
@@ -47,6 +48,9 @@ func GetBackupDatastoreTypeEnum() BackupDatastoreTypeEnum {
 		},
 		SQL_SERVER: BackupDatastoreType{
 			value: "SQLServer",
+		},
+		MARIA_DB: BackupDatastoreType{
+			value: "MariaDB",
 		},
 	}
 }

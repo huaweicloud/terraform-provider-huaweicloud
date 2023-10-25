@@ -486,7 +486,7 @@ github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 ## explicit
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.47
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.62
 ## explicit; go 1.14
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth
@@ -496,6 +496,7 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/internal
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/provider
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer
+github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer/algorithm
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def
@@ -504,6 +505,7 @@ github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker/retry
+github.com/huaweicloud/huaweicloud-sdk-go-v3/core/progress
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response
@@ -609,6 +611,10 @@ github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.8.4
 ## explicit; go 1.20
 github.com/stretchr/testify/assert
+# github.com/tjfoc/gmsm v1.4.1
+## explicit; go 1.14
+github.com/tjfoc/gmsm/sm2
+github.com/tjfoc/gmsm/sm3
 # github.com/vmihailenco/msgpack v4.0.4+incompatible
 ## explicit
 github.com/vmihailenco/msgpack

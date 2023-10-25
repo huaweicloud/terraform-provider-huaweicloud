@@ -23,6 +23,12 @@ type UpdateInstanceTopicReqTopics struct {
 
 	// 分区数。
 	NewPartitionNumbers *int32 `json:"new_partition_numbers,omitempty"`
+
+	// topic配置
+	TopicOtherConfigs *[]CreateInstanceTopicReqTopicOtherConfigs `json:"topic_other_configs,omitempty"`
+
+	// topic描述
+	TopicDesc *string `json:"topic_desc,omitempty"`
 }
 
 func (o UpdateInstanceTopicReqTopics) String() string {

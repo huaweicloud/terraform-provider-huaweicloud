@@ -20,7 +20,9 @@
 package request
 
 import (
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer/algorithm"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/progress"
 	"reflect"
 	"strings"
 )
@@ -55,6 +57,11 @@ func (builder *HttpRequestBuilder) WithPath(path string) *HttpRequestBuilder {
 
 func (builder *HttpRequestBuilder) WithMethod(method string) *HttpRequestBuilder {
 	builder.httpRequest.method = method
+	return builder
+}
+
+func (builder *HttpRequestBuilder) WithSigningAlgorithm(signingAlgorithm algorithm.SigningAlgorithm) *HttpRequestBuilder {
+	builder.httpRequest.signingAlgorithm = signingAlgorithm
 	return builder
 }
 
@@ -111,6 +118,16 @@ func (builder *HttpRequestBuilder) WithBody(kind string, body interface{}) *Http
 		builder.httpRequest.body = body
 	}
 
+	return builder
+}
+
+func (builder *HttpRequestBuilder) WithProgressListener(progressListener progress.Listener) *HttpRequestBuilder {
+	builder.httpRequest.progressListener = progressListener
+	return builder
+}
+
+func (builder *HttpRequestBuilder) WithProgressInterval(progressInterval int64) *HttpRequestBuilder {
+	builder.httpRequest.progressInterval = progressInterval
 	return builder
 }
 

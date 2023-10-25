@@ -24,10 +24,10 @@ type ShowInstanceMessagesRequest struct {
 	// 结束时间。  Unix毫秒时间戳。  查询消息偏移量时，为必选参数。
 	EndTime *string `json:"end_time,omitempty"`
 
-	// 分页大小。取值范围为0~50。
+	// 每一页显示的message数量。
 	Limit *string `json:"limit,omitempty"`
 
-	// 偏移量，表示从此偏移量开始查询， offset大于等于0。
+	// 页数。
 	Offset *string `json:"offset,omitempty"`
 
 	// 是否下载。
@@ -38,6 +38,9 @@ type ShowInstanceMessagesRequest struct {
 
 	// 分区。  **查询消息内容时，为必选参数。**  若start_time、end_time参数不为空，该参数无效。
 	Partition *string `json:"partition,omitempty"`
+
+	// 关键词。 取值范围为0~50。
+	Keyword *string `json:"keyword,omitempty"`
 }
 
 func (o ShowInstanceMessagesRequest) String() string {
