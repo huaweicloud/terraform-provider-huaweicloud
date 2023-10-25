@@ -1,8 +1,13 @@
 package cdn
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -12,11 +17,10 @@ import (
 
 	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var httpsConfig = schema.Schema{
@@ -196,12 +200,12 @@ var cacheUrlParameterFilter = schema.Schema{
 
 func ResourceCdnDomainV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCdnDomainV1Create,
-		Read:   resourceCdnDomainV1Read,
-		Update: resourceCdnDomainV1Update,
-		Delete: resourceCdnDomainV1Delete,
+		CreateContext: resourceCdnDomainV1Create,
+		ReadContext:   resourceCdnDomainV1Read,
+		UpdateContext: resourceCdnDomainV1Update,
+		DeleteContext: resourceCdnDomainV1Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -401,12 +405,12 @@ func getDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 	return sourceRequests
 }
 
-func buildHttpsOpts(rawHttps []interface{}) *model.HttpPutBody {
-	if len(rawHttps) != 1 {
+func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
+	if len(rawHTTPS) != 1 {
 		return nil
 	}
 
-	https := rawHttps[0].(map[string]interface{})
+	https := rawHTTPS[0].(map[string]interface{})
 	httpsStatus := ""
 	if https["https_enabled"].(bool) {
 		httpsStatus = "on"
@@ -529,19 +533,18 @@ func buildCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) 
 	}
 
 	cacheUrlParameterFilter := rawCacheUrlParameterFilter[0].(map[string]interface{})
-	CacheUrlParameterFilterOpts := model.CacheUrlParameterFilter{
+	cacheUrlParameterFilterOpts := model.CacheUrlParameterFilter{
 		Value: utils.StringIgnoreEmpty(cacheUrlParameterFilter["value"].(string)),
 		Type:  utils.StringIgnoreEmpty(cacheUrlParameterFilter["type"].(string)),
 	}
 
-	return &CacheUrlParameterFilterOpts
+	return &cacheUrlParameterFilterOpts
 }
 
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
 	}
-
 	sourcesOpts := make([]model.SourcesConfig, len(rawSources))
 	for i, v := range rawSources {
 		source := v.(map[string]interface{})
@@ -565,11 +568,11 @@ func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
 		}
 	}
-
 	return &sourcesOpts
 }
 
-func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []interface{}, rawConfigs []interface{}, domainName, epsId string) error {
+func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []interface{},
+	rawConfigs []interface{}, domainName, epsId string) error {
 	configsOpts := model.Configs{
 		Sources: buildSourcesOpts(rawSources),
 	}
@@ -587,7 +590,7 @@ func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []
 			originRangeStatus = "on"
 		}
 
-		configsOpts.Https = buildHttpsOpts(configs["https_settings"].([]interface{}))
+		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
 		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
 		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
 		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
@@ -662,11 +665,11 @@ func configOrUpdateCacheConfigOpts(hcCdnClient *cdnv1.CdnClient, rawCacheConfig 
 	return nil
 }
 
-func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
+func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
 	createOpts := &domains.CreateOpts{
@@ -674,31 +677,32 @@ func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 		BusinessType:        d.Get("type").(string),
 		Sources:             getDomainSources(d),
 		ServiceArea:         d.Get("service_area").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := domains.Create(cdnClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN Domain: %s", err)
+		return diag.Errorf("error creating CDN Domain: %s", err)
 	}
 
 	// Wait for CDN domain to become active again before continuing
-	opts := getResourceExtensionOpts(d, config)
+	opts := getResourceExtensionOpts(d, cfg)
 	timeout := d.Timeout(schema.TimeoutCreate)
-	logp.Printf("[INFO] Waiting for CDN domain %s to become online.", v.ID)
-	err = waitDomainOnlin(cdnClient, v.ID, opts, timeout)
+	log.Printf("[INFO] Waiting for CDN domain %s to become online.", v.ID)
+	err = waitDomainOnline(ctx, cdnClient, v.ID, opts, timeout)
 	if err != nil {
-		return err
+		return diag.Errorf("error waiting cdn domain online: %s", err)
 	}
 
 	// Store the ID now
 	d.SetId(v.ID)
 
-	return resourceCdnDomainV1Update(d, meta)
+	return resourceCdnDomainV1Update(ctx, d, meta)
 }
 
-func waitforCDNV1DomainStatus(c *golangsdk.ServiceClient, waitstatus *WaitDomainStatus, timeout time.Duration) error {
+func waitforCDNV1DomainStatus(ctx context.Context, c *golangsdk.ServiceClient,
+	waitstatus *WaitDomainStatus, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    waitstatus.Penging,
 		Target:     waitstatus.Target,
@@ -708,9 +712,9 @@ func waitforCDNV1DomainStatus(c *golangsdk.ServiceClient, waitstatus *WaitDomain
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error waiting for CDN domain %s to become %s: %s",
+		return fmt.Errorf("error waiting for CDN domain %s to become %s: %s",
 			waitstatus.ID, waitstatus.Target, err)
 	}
 	return nil
@@ -728,7 +732,7 @@ func resourceCDNV1DomainRefreshFunc(c *golangsdk.ServiceClient, id string, opts 
 	}
 }
 
-func flattenHttpsAttrs(https *model.HttpGetBody, privateKey string) []map[string]interface{} {
+func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey string) []map[string]interface{} {
 	if https == nil {
 		return nil
 	}
@@ -876,12 +880,12 @@ func getSourcesAndConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, 
 	}
 
 	if resp.Configs == nil {
-		return nil, nil, fmtp.Errorf("unbale to find the configs of domain: %s", domainName)
+		return nil, nil, fmt.Errorf("unbale to find the configs of domain: %s", domainName)
 	}
 
 	configs := resp.Configs
 	configsAttrs := map[string]interface{}{
-		"https_settings":                flattenHttpsAttrs(configs.Https, privateKey),
+		"https_settings":                flattenHTTPSAttrs(configs.Https, privateKey),
 		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configs.OriginRequestHeader),
 		"http_response_header":          flattenHttpResponseHeaderAttrs(configs.HttpResponseHeader),
 		"url_signing":                   flattenUrlAuthAttrs(configs.UrlAuth, urlAuthKey),
@@ -907,7 +911,7 @@ func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[
 	}
 
 	if resp.CacheConfig == nil {
-		return nil, fmtp.Errorf("unbale to find the cache config of domain: %s", domainId)
+		return nil, fmt.Errorf("unbale to find the cache config of domain: %s", domainId)
 	}
 
 	cacheConfig := resp.CacheConfig
@@ -916,7 +920,7 @@ func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[
 	}
 
 	if cacheConfig.Rules == nil {
-		return nil, fmtp.Errorf("unbale to find the cache config rules of domain: %s", domainId)
+		return nil, fmt.Errorf("unbale to find the cache config rules of domain: %s", domainId)
 	}
 	rules := make([]map[string]interface{}, len(*cacheConfig.Rules))
 	for i, v := range *cacheConfig.Rules {
@@ -934,55 +938,55 @@ func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[
 	return []map[string]interface{}{cacheAttrs}, nil
 }
 
-func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
+func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return common.CheckDeletedDiag(d, err, "error creating CDN v1 client")
 	}
 
-	hcCdnClient, err := config.HcCdnV1Client(common.GetRegion(d, config))
+	hcCdnClient, err := cfg.HcCdnV1Client(common.GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return common.CheckDeletedDiag(d, err, "error creating HcCDN v1 client")
 	}
 
 	id := d.Id()
-	epsId := common.GetEnterpriseProjectID(d, config)
+	epsId := common.GetEnterpriseProjectID(d, cfg)
 
-	opts := getResourceExtensionOpts(d, config)
+	opts := getResourceExtensionOpts(d, cfg)
 	v, err := domains.Get(cdnClient, id, opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error reading CDN Domain: %s", err)
+		return common.CheckDeletedDiag(d, err, "error reading CDN Domain")
 	}
 
-	logp.Printf("[DEBUG] Retrieved CDN domain %s: %+v", id, v)
-
-	d.Set("name", v.DomainName)
-	d.Set("type", v.BusinessType)
-	d.Set("cname", v.CName)
-	d.Set("domain_status", v.DomainStatus)
-	d.Set("service_area", v.ServiceArea)
+	log.Printf("[DEBUG] Retrieved CDN domain %s: %+v", id, v)
 
 	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
 	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
 	sources, configAttrs, err := getSourcesAndConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
 	if err != nil {
-		return fmtp.Errorf("Error reading CDN Domain configs settings: %s", err)
+		return common.CheckDeletedDiag(d, err, "error reading CDN Domain configs settings")
 	}
-
-	d.Set("sources", sources)
-	d.Set("configs", configAttrs)
 
 	cacheAttrs, err := getCacheAttrs(hcCdnClient, id, epsId)
 	if err != nil {
-		return fmtp.Errorf("Error reading CDN Domain cache settings: %s", err)
+		return common.CheckDeletedDiag(d, err, "error reading CDN Domain cache settings")
 	}
-	d.Set("cache_settings", cacheAttrs)
+	mErr := multierror.Append(nil,
+		d.Set("name", v.DomainName),
+		d.Set("type", v.BusinessType),
+		d.Set("cname", v.CName),
+		d.Set("domain_status", v.DomainStatus),
+		d.Set("service_area", v.ServiceArea),
+		d.Set("sources", sources),
+		d.Set("configs", configAttrs),
+		d.Set("cache_settings", cacheAttrs),
+	)
 
 	// Set domain tags
 	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: id})
 	if err != nil {
-		return fmtp.Errorf("error reading CDN Domain tags: %s", err)
+		return common.CheckDeletedDiag(d, err, "error reading CDN Domain tags: %s")
 	}
 	if tags.Tags != nil {
 		tagsToSet := make(map[string]interface{}, len(*tags.Tags))
@@ -994,56 +998,59 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 
-		d.Set("tags", tagsToSet)
+		mErr = multierror.Append(mErr, d.Set("tags", tagsToSet))
 	}
 
+	if mErr.ErrorOrNil() != nil {
+		return diag.FromErr(mErr)
+	}
 	return nil
 }
 
-func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
+func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	hcCdnClient, err := config.HcCdnV1Client(common.GetRegion(d, config))
+	hcCdnClient, err := cfg.HcCdnV1Client(common.GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
 	domainName := d.Get("name").(string)
-	epsId := common.GetEnterpriseProjectID(d, config)
-	opts := getResourceExtensionOpts(d, config)
+	epsId := common.GetEnterpriseProjectID(d, cfg)
+	opts := getResourceExtensionOpts(d, cfg)
 	timeout := d.Timeout(schema.TimeoutCreate)
 
 	if d.HasChanges("sources", "configs") || d.IsNewResource() {
 		err = configOrUpdateSourcesAndConfigs(hcCdnClient, d.Get("sources").([]interface{}),
 			d.Get("configs").([]interface{}), domainName, epsId)
 		if err != nil {
-			return fmtp.Errorf("Error updating CDN Domain configs settings: %s", err)
+			return diag.Errorf("error updating CDN Domain configs settings: %s", err)
 		}
 
 		// Wait for CDN domain to become active again before continuing
-		logp.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
-		err = waitDomainOnlin(cdnClient, id, opts, timeout)
+		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
+		err = waitDomainOnline(ctx, cdnClient, id, opts, timeout)
 		if err != nil {
-			return err
+			return diag.Errorf("error waiting cdn domain online: %s", err)
 		}
 	}
 
 	if d.HasChange("cache_settings") {
 		err = configOrUpdateCacheConfigOpts(hcCdnClient, d.Get("cache_settings").([]interface{}), id, epsId)
 		if err != nil {
-			return fmtp.Errorf("Error updating CDN Domain cache settings: %s", err)
+			return diag.Errorf("error updating CDN Domain cache settings: %s", err)
 		}
 
 		// Wait for CDN domain to become active again before continuing
-		logp.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
-		err = waitDomainOnlin(cdnClient, id, opts, timeout)
+		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
+		err = waitDomainOnline(ctx, cdnClient, id, opts, timeout)
 		if err != nil {
-			return err
+			return diag.Errorf("error waiting cdn domain online: %s", err)
 		}
 	}
 
@@ -1066,7 +1073,7 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 			}
 			_, err := hcCdnClient.BatchDeleteTags(&deleteTagsReq)
 			if err != nil {
-				return fmtp.Errorf("error deleting CDN Domain tags: %s", err)
+				return diag.Errorf("error deleting CDN Domain tags: %s", err)
 			}
 		}
 
@@ -1088,48 +1095,49 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 			}
 			_, err := hcCdnClient.CreateTags(&createTagsReq)
 			if err != nil {
-				return fmtp.Errorf("error creating CDN Domain tags: %s", err)
+				return diag.Errorf("error creating CDN Domain tags: %s", err)
 			}
 		}
 	}
 
-	return resourceCdnDomainV1Read(d, meta)
+	return resourceCdnDomainV1Read(ctx, d, meta)
 }
 
-func waitDomainOnlin(cdnClient *golangsdk.ServiceClient, id string, opts *domains.ExtensionOpts, timeout time.Duration) error {
+func waitDomainOnline(ctx context.Context, cdnClient *golangsdk.ServiceClient,
+	id string, opts *domains.ExtensionOpts, timeout time.Duration) error {
 	wait := &WaitDomainStatus{
 		ID:      id,
 		Penging: []string{"configuring"},
 		Target:  []string{"online"},
 		Opts:    opts,
 	}
-	err := waitforCDNV1DomainStatus(cdnClient, wait, timeout)
+	err := waitforCDNV1DomainStatus(ctx, cdnClient, wait, timeout)
 	if err != nil {
-		return fmtp.Errorf("Error waiting for CDN domain %s to become online: %s", id, err)
+		return fmt.Errorf("error waiting for CDN domain %s to become online: %s", id, err)
 	}
 
 	return nil
 }
 
-func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
+func resourceCdnDomainV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	cdnClient, err := cfg.CdnV1Client(common.GetRegion(d, cfg))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
-	opts := getResourceExtensionOpts(d, config)
+	opts := getResourceExtensionOpts(d, cfg)
 	timeout := d.Timeout(schema.TimeoutCreate)
 
 	if d.Get("domain_status").(string) == "online" {
 		// make sure the status has changed to offline
-		logp.Printf("[INFO] Disable CDN domain %s.", id)
+		log.Printf("[INFO] Disable CDN domain %s.", id)
 		if err = domains.Disable(cdnClient, id, opts).Err; err != nil {
-			return fmtp.Errorf("Error disable  HuaweiCloud CDN Domain %s: %s", id, err)
+			return diag.Errorf("error disable  CDN Domain %s: %s", id, err)
 		}
 
-		logp.Printf("[INFO] Waiting for disabling CDN domain %s.", id)
+		log.Printf("[INFO] Waiting for disabling CDN domain %s.", id)
 		wait := &WaitDomainStatus{
 			ID:      id,
 			Penging: []string{"configuring", "online"},
@@ -1137,27 +1145,27 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 			Opts:    opts,
 		}
 
-		err = waitforCDNV1DomainStatus(cdnClient, wait, timeout)
+		err = waitforCDNV1DomainStatus(ctx, cdnClient, wait, timeout)
 		if err != nil {
-			return fmtp.Errorf("Error waiting for CDN domain %s to become offline: %s", id, err)
+			return diag.Errorf("error waiting for CDN domain %s to become offline: %s", id, err)
 		}
 	}
 
-	logp.Printf("[INFO] Waiting for deleting CDN domain %s.", id)
+	log.Printf("[INFO] Waiting for deleting CDN domain %s.", id)
 	_, err = domains.Delete(cdnClient, id, opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error deleting CDN Domain %s: %s", id, err)
+		return diag.Errorf("error deleting CDN Domain %s: %s", id, err)
 	}
 
 	// an API issue will be raised in ForceNew scene, so wait for a while
-	time.Sleep(3 * time.Second) //lintignore:R018
+	time.Sleep(3 * time.Second) // lintignore:R018
 
 	d.SetId("")
 	return nil
 }
 
-func getResourceExtensionOpts(d *schema.ResourceData, config *config.Config) *domains.ExtensionOpts {
-	epsID := common.GetEnterpriseProjectID(d, config)
+func getResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {
+	epsID := common.GetEnterpriseProjectID(d, cfg)
 	if epsID != "" {
 		return &domains.ExtensionOpts{
 			EnterpriseProjectId: epsID,
