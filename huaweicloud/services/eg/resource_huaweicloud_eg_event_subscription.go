@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -23,6 +24,10 @@ func ResourceEventSubscription() *schema.Resource {
 		ReadContext:   resourceEventSubscriptionRead,
 		UpdateContext: resourceEventSubscriptionUpdate,
 		DeleteContext: resourceEventSubscriptionDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,7 +50,7 @@ func ResourceEventSubscription() *schema.Resource {
 				Description: "The name of the event subscription.",
 			},
 			"sources": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -66,12 +71,32 @@ func ResourceEventSubscription() *schema.Resource {
 							ValidateFunc: validation.StringIsJSON,
 							Description:  "The filter rule of the event source",
 						},
+						"id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"The ID of the event source.",
+								utils.SchemaDescInput{
+									Required: true,
+								}),
+						},
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The creation time of the event source.",
+						},
+						"updated_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The latest update time of the event source.",
+						},
 					},
 				},
 				Description: "The list of the event sources.",
 			},
 			"targets": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -114,6 +139,26 @@ func ResourceEventSubscription() *schema.Resource {
 							ValidateFunc: validation.StringIsJSON,
 							Description:  "The specified queue to which failure events sent, in JSON format.",
 						},
+						"id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"The ID of the event target.",
+								utils.SchemaDescInput{
+									Required: true,
+								}),
+						},
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The creation time of the event target.",
+						},
+						"updated_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The latest update time of the event target.",
+						},
 					},
 				},
 				Description: "The list of the event targets.",
@@ -152,38 +197,47 @@ func unmarshalEventSubscriptionParamsters(paramName, paramVal string) map[string
 	return parseResult
 }
 
-func buildEventSourcesOpts(sources []interface{}) []interface{} {
-	result := make([]interface{}, 0, len(sources))
-	for _, val := range sources {
-		source, ok := val.(map[string]interface{})
-		if !ok {
-			continue
-		}
-		result = append(result, map[string]interface{}{
-			"provider_type": source["provider_type"],
-			"name":          source["name"],
-			"filter":        unmarshalEventSubscriptionParamsters("filter rule of event source", source["filter_rule"].(string)),
-		})
-	}
-	return result
-}
-
-func buildEventTargetsOpts(targets []interface{}) []interface{} {
-	result := make([]interface{}, 0, len(targets))
-	for _, val := range targets {
-		target, ok := val.(map[string]interface{})
+func buildEventSourcesOpts(newSources *schema.Set) []interface{} {
+	result := make([]interface{}, 0, newSources.Len())
+	for _, val := range newSources.List() {
+		newSource, ok := val.(map[string]interface{})
 		if !ok {
 			continue
 		}
 		element := map[string]interface{}{
-			"provider_type":                target["provider_type"],
-			"name":                         target["name"],
-			"connection_id":                target["connection_id"],
-			target["detail_name"].(string): unmarshalEventSubscriptionParamsters("event target detail", target["detail"].(string)),
-			"transform":                    unmarshalEventSubscriptionParamsters("transform of event target", target["transform"].(string)),
+			"provider_type": newSource["provider_type"],
+			"name":          newSource["name"],
+			"filter":        unmarshalEventSubscriptionParamsters("filter rule of event source", newSource["filter_rule"].(string)),
 		}
-		if queueRaw := target["dead_letter_queue"].(string); queueRaw != "" {
+		if sourceId, ok := newSource["id"].(string); ok && sourceId != "" {
+			// The ID can be omitted, a new source will be created in this scenario.
+			element["id"] = sourceId
+		}
+		result = append(result, element)
+	}
+	return result
+}
+
+func buildEventTargetsOpts(newTargets *schema.Set) []interface{} {
+	result := make([]interface{}, 0, newTargets.Len())
+	for _, val := range newTargets.List() {
+		newTarget, ok := val.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		element := map[string]interface{}{
+			"provider_type":                   newTarget["provider_type"],
+			"name":                            newTarget["name"],
+			"connection_id":                   newTarget["connection_id"],
+			newTarget["detail_name"].(string): unmarshalEventSubscriptionParamsters("event target detail", newTarget["detail"].(string)),
+			"transform":                       unmarshalEventSubscriptionParamsters("transform of event target", newTarget["transform"].(string)),
+		}
+		if queueRaw := newTarget["dead_letter_queue"].(string); queueRaw != "" {
 			element["dead_letter_queue"] = unmarshalEventSubscriptionParamsters("dead letter queue of event target", queueRaw)
+		}
+		if targetId, ok := newTarget["id"].(string); ok && targetId != "" {
+			// The ID can be omitted, a new source will be created in this scenario.
+			element["id"] = targetId
 		}
 		result = append(result, element)
 	}
@@ -198,8 +252,8 @@ func resourceEventSubscriptionCreate(ctx context.Context, d *schema.ResourceData
 			ChannelId:   d.Get("channel_id").(string),
 			Name:        d.Get("name").(string),
 			Description: d.Get("description").(string),
-			Sources:     buildEventSourcesOpts(d.Get("sources").([]interface{})),
-			Targets:     buildEventTargetsOpts(d.Get("targets").([]interface{})),
+			Sources:     buildEventSourcesOpts(d.Get("sources").(*schema.Set)),
+			Targets:     buildEventTargetsOpts(d.Get("targets").(*schema.Set)),
 		}
 	)
 
@@ -215,6 +269,78 @@ func resourceEventSubscriptionCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(resp.ID)
 
 	return resourceEventSubscriptionRead(ctx, d, meta)
+}
+
+func flattenEventSources(sourcesResp []map[string]interface{}) []interface{} {
+	result := make([]interface{}, 0, len(sourcesResp))
+	for _, source := range sourcesResp {
+		element := map[string]interface{}{
+			"provider_type": source["provider_type"],
+			"name":          source["name"],
+			"id":            source["id"],
+			"created_at":    source["created_time"],
+			"updated_at":    source["updated_time"],
+		}
+
+		jsonFilter, err := json.Marshal(source["filter"])
+		if err != nil {
+			log.Printf("[ERROR] unable to convert the event target detail, not json format")
+		} else {
+			element["filter_rule"] = string(jsonFilter)
+		}
+
+		result = append(result, element)
+	}
+	return result
+}
+
+func flattenEventTargets(targetsResp []map[string]interface{}) []interface{} {
+	result := make([]interface{}, 0, len(targetsResp))
+	for _, target := range targetsResp {
+		element := map[string]interface{}{
+			"provider_type": target["provider_type"],
+			"name":          target["name"],
+			"connection_id": target["connection_id"],
+			"id":            target["id"],
+			"created_at":    target["created_time"],
+			"updated_at":    target["updated_time"],
+		}
+		// find the key name of the target details
+		for key, value := range target {
+			if target["provider_type"] == "OFFICIAL" && strings.Contains(key, "_detail") ||
+				target["provider_type"] == "CUSTOM" && strings.Contains(key, "detail") {
+				jsonDetail, err := json.Marshal(value)
+				if err != nil {
+					log.Printf("[ERROR] unable to convert the detail of the event target, not json format")
+				} else {
+					element["detail_name"] = key
+					element["detail"] = string(jsonDetail)
+				}
+				break
+			}
+		}
+
+		if deadLetterQueue, ok := target["dead_letter_queue"]; ok {
+			jsonQueue, err := json.Marshal(deadLetterQueue)
+			if err != nil {
+				log.Printf("[ERROR] unable to convert the dead letter queue of the event target, not json format")
+			} else {
+				element["dead_letter_queue"] = string(jsonQueue)
+			}
+		}
+
+		if transform, ok := target["transform"]; ok {
+			jsonTransform, err := json.Marshal(transform)
+			if err != nil {
+				log.Printf("[ERROR] unable to convert the transform configuration of the event target, not json format")
+			} else {
+				element["transform"] = string(jsonTransform)
+			}
+		}
+
+		result = append(result, element)
+	}
+	return result
 }
 
 func resourceEventSubscriptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -237,6 +363,8 @@ func resourceEventSubscriptionRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("channel_id", resp.ChannelId),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
+		d.Set("sources", flattenEventSources(resp.Sources)),
+		d.Set("targets", flattenEventTargets(resp.Targets)),
 		d.Set("status", resp.Status),
 		d.Set("created_at", resp.CreatedTime),
 		d.Set("updated_at", resp.UpdatedTime),
@@ -255,8 +383,8 @@ func resourceEventSubscriptionUpdate(ctx context.Context, d *schema.ResourceData
 		opts           = subscriptions.UpdateOpts{
 			SubscriptionId: subscriptionId,
 			Description:    utils.String(d.Get("description").(string)),
-			Sources:        buildEventSourcesOpts(d.Get("sources").([]interface{})),
-			Targets:        buildEventTargetsOpts(d.Get("targets").([]interface{})),
+			Sources:        buildEventSourcesOpts(d.Get("sources").(*schema.Set)),
+			Targets:        buildEventTargetsOpts(d.Get("targets").(*schema.Set)),
 		}
 	)
 	client, err := cfg.EgV1Client(region)
