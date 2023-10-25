@@ -124,6 +124,63 @@ func TestAccRulePreciseProtection_basic(t *testing.T) {
 	})
 }
 
+func TestAccRulePreciseProtection_knownAttackSourceId(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_waf_rule_precise_protection.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getRulePreciseProtectionResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testRulePreciseProtection_knownAttackSourceId(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "policy_id",
+						"huaweicloud_waf_policy.policy_1", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "priority", "20"),
+					resource.TestCheckResourceAttr(rName, "action", "block"),
+					resource.TestCheckResourceAttrPair(rName, "known_attack_source_id",
+						"huaweicloud_waf_rule_known_attack_source.test", "id"),
+					resource.TestCheckResourceAttr(rName, "description", "description information"),
+				),
+			},
+			{
+				Config: testRulePreciseProtection_updateKnownAttackSourceId(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "policy_id",
+						"huaweicloud_waf_policy.policy_1", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "priority", "20"),
+					resource.TestCheckResourceAttr(rName, "action", "log"),
+					resource.TestCheckResourceAttr(rName, "known_attack_source_id", ""),
+					resource.TestCheckResourceAttr(rName, "description", "description information"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFRuleImportState(rName),
+			},
+		},
+	})
+}
+
 func TestAccRulePreciseProtection_WithEpsID(t *testing.T) {
 	var obj interface{}
 
@@ -308,6 +365,69 @@ resource "huaweicloud_waf_rule_precise_protection" "test" {
   }
 }
 `, testAccWafPolicyV1_basic_withEpsID(name, epsID), name, epsID)
+}
+
+func testRulePreciseProtection_knownAttackSourceId(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_rule_known_attack_source" "test" {
+  policy_id   = huaweicloud_waf_policy.policy_1.id
+  block_type  = "long_ip_block"
+  block_time  = 500
+  description = "test description"
+}
+
+resource "huaweicloud_waf_rule_precise_protection" "test" {
+  policy_id              = huaweicloud_waf_policy.policy_1.id
+  name                   = "%s"
+  priority               = 20
+  action                 = "block"
+  known_attack_source_id = huaweicloud_waf_rule_known_attack_source.test.id
+  description            = "description information"
+
+  conditions {
+    field   = "method"
+    logic   = "equal"
+    content = "GET"
+  }
+
+  depends_on = [
+    huaweicloud_waf_dedicated_domain.domain_1
+  ]
+}
+`, testAccWafDedicatedDomainV1_policy(name), name)
+}
+
+func testRulePreciseProtection_updateKnownAttackSourceId(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_rule_known_attack_source" "test" {
+  policy_id   = huaweicloud_waf_policy.policy_1.id
+  block_type  = "long_ip_block"
+  block_time  = 500
+  description = "test description"
+}
+
+resource "huaweicloud_waf_rule_precise_protection" "test" {
+  policy_id              = huaweicloud_waf_policy.policy_1.id
+  name                   = "%s"
+  priority               = 20
+  action                 = "log"
+  description            = "description information"
+
+  conditions {
+    field   = "method"
+    logic   = "equal"
+    content = "GET"
+  }
+
+  depends_on = [
+    huaweicloud_waf_dedicated_domain.domain_1
+  ]
+}
+`, testAccWafDedicatedDomainV1_policy(name), name)
 }
 
 // testWAFRuleImportState use to return an id with format <policy_id>/<id> or <policy_id>/<id>/<enterprise_project_id>
