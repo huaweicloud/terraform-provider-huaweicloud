@@ -223,6 +223,8 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		SniContainerRefs:       sniContainerRefs,
 		Http2Enable:            &http2Enable,
 		EnhanceL7policy:        &enhanceL7policy,
+		ProtectionStatus:       d.Get("protection_status").(string),
+		ProtectionReason:       d.Get("protection_reason").(string),
 	}
 
 	if v, ok := d.GetOk("idle_timeout"); ok {
@@ -253,14 +255,6 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		ForwardedPort:    &forwardPort,
 		ForwardedForPort: &forwardRequestPort,
 		ForwardedHost:    &forwardHost,
-	}
-	if v, ok := d.GetOk("protection_status"); ok {
-		protectionStatus := v.(string)
-		createOpts.ProtectionStatus = &protectionStatus
-	}
-	if v, ok := d.GetOk("protection_reason"); ok {
-		protectionReason := v.(string)
-		createOpts.ProtectionReason = &protectionReason
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -480,8 +474,7 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 		updateOpts.EnhanceL7policy = &enhanceL7policy
 	}
 	if d.HasChange("protection_status") {
-		protectionStatus := d.Get("protection_status").(string)
-		updateOpts.ProtectionStatus = &protectionStatus
+		updateOpts.ProtectionStatus = d.Get("protection_status").(string)
 	}
 	if d.HasChange("protection_reason") {
 		protectionReason := d.Get("protection_reason").(string)

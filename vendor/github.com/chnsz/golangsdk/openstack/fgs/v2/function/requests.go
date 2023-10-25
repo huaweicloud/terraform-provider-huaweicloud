@@ -65,8 +65,9 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 
 // functions list struct
 type ListOpts struct {
-	Marker   string `q:"marker"`
-	MaxItems string `q:"maxitems"`
+	Marker      string `q:"marker"`
+	MaxItems    string `q:"maxitems"`
+	PackageName string `q:"package_name"`
 }
 
 func (opts ListOpts) ToMetricsListQuery() (string, error) {
