@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-  
+	
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
 
