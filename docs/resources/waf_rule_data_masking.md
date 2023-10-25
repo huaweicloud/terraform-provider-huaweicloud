@@ -21,6 +21,7 @@ resource "huaweicloud_waf_rule_data_masking" "rule_1" {
   path                  = "/login"
   field                 = "params"
   subfield              = "password"
+  description           = "test description"
 }
 ```
 
@@ -45,6 +46,15 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF data masking rule.
   Changing this parameter will create a new resource.
+
+* `description` - (Optional, String) Specifies the description of WAF data masking rule.
+
+* `status` - (Optional, Int) Specifies the status of WAF web tamper protection rule.
+  Valid values are as follows:
+  + **0**: Disabled.
+  + **1**: Enabled.
+
+  The default value is **1**.
 
 ## Attribute Reference
 
