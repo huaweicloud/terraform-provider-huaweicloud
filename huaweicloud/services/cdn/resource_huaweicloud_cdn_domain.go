@@ -1,4 +1,4 @@
-package huaweicloud
+package cdn
 
 import (
 	"time"
@@ -6,11 +6,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
+
+	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -192,7 +194,7 @@ var cacheUrlParameterFilter = schema.Schema{
 	},
 }
 
-func resourceCdnDomainV1() *schema.Resource {
+func ResourceCdnDomainV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCdnDomainV1Create,
 		Read:   resourceCdnDomainV1Read,
@@ -359,7 +361,11 @@ func resourceCdnDomainV1() *schema.Resource {
 					},
 				},
 			},
-			"tags": tagsSchema(),
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"cname": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -658,7 +664,7 @@ func configOrUpdateCacheConfigOpts(hcCdnClient *cdnv1.CdnClient, rawCacheConfig 
 
 func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
+	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
@@ -668,7 +674,7 @@ func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 		BusinessType:        d.Get("type").(string),
 		Sources:             getDomainSources(d),
 		ServiceArea:         d.Get("service_area").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -930,18 +936,18 @@ func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[
 
 func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
+	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
-	hcCdnClient, err := config.HcCdnV1Client(GetRegion(d, config))
+	hcCdnClient, err := config.HcCdnV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
-	epsId := GetEnterpriseProjectID(d, config)
+	epsId := common.GetEnterpriseProjectID(d, config)
 
 	opts := getResourceExtensionOpts(d, config)
 	v, err := domains.Get(cdnClient, id, opts).Extract()
@@ -996,19 +1002,19 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
+	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
-	hcCdnClient, err := config.HcCdnV1Client(GetRegion(d, config))
+	hcCdnClient, err := config.HcCdnV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
 	domainName := d.Get("name").(string)
-	epsId := GetEnterpriseProjectID(d, config)
+	epsId := common.GetEnterpriseProjectID(d, config)
 	opts := getResourceExtensionOpts(d, config)
 	timeout := d.Timeout(schema.TimeoutCreate)
 
@@ -1107,7 +1113,7 @@ func waitDomainOnlin(cdnClient *golangsdk.ServiceClient, id string, opts *domain
 
 func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
+	cdnClient, err := config.CdnV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
@@ -1151,7 +1157,7 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func getResourceExtensionOpts(d *schema.ResourceData, config *config.Config) *domains.ExtensionOpts {
-	epsID := GetEnterpriseProjectID(d, config)
+	epsID := common.GetEnterpriseProjectID(d, config)
 	if epsID != "" {
 		return &domains.ExtensionOpts{
 			EnterpriseProjectId: epsID,
