@@ -73,6 +73,11 @@ func ResourceRulePreciseProtection() *schema.Resource {
 				Default:     "block",
 				Description: `Specifies the protective action of the precise protection rule.`,
 			},
+			"known_attack_source_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the known attack source ID.`,
+			},
 			"status": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -231,6 +236,7 @@ func buildCreateOrUpdateBodyParams(d *schema.ResourceData) (map[string]interface
 		"conditions":  buildConditionBodyParam(d.Get("conditions")),
 		"action":      buildActionBodyParam(d),
 		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"time":        false,
 	}
 
 	if v, ok := d.GetOk("start_time"); ok {
@@ -255,9 +261,14 @@ func buildCreateOrUpdateBodyParams(d *schema.ResourceData) (map[string]interface
 
 func buildActionBodyParam(d *schema.ResourceData) map[string]interface{} {
 	if v, ok := d.GetOk("action"); ok {
-		return map[string]interface{}{
+		rst := map[string]interface{}{
 			"category": v,
 		}
+		// `known_attack_source_id` can only be configured when the category is `block`.
+		if knownAttackSourceId, valExist := d.GetOk("known_attack_source_id"); valExist {
+			rst["followed_action_id"] = knownAttackSourceId
+		}
+		return rst
 	}
 	return nil
 }
@@ -355,7 +366,8 @@ func resourceRulePreciseProtectionRead(_ context.Context, d *schema.ResourceData
 		d.Set("priority", utils.PathSearch("priority", getRuleRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getRuleRespBody, nil)),
 		d.Set("conditions", flattenRulePreciseProtectionConditions(getRuleRespBody)),
-		d.Set("action", flattenRulePreciseProtectionAction(getRuleRespBody)),
+		d.Set("action", utils.PathSearch("action.category", getRuleRespBody, nil)),
+		d.Set("known_attack_source_id", utils.PathSearch("action.followed_action_id", getRuleRespBody, nil)),
 		d.Set("start_time", flattenRulePreciseProtectionTime(getRuleRespBody, "start")),
 		d.Set("end_time", flattenRulePreciseProtectionTime(getRuleRespBody, "terminal")),
 	)
@@ -371,21 +383,6 @@ func flattenRulePreciseProtectionTime(resp interface{}, field string) string {
 		return ""
 	}
 	return utils.FormatTimeStampUTC(int64(timestamp.(float64)))
-}
-
-func flattenRulePreciseProtectionAction(resp interface{}) string {
-	if resp == nil {
-		return ""
-	}
-	customAction := utils.PathSearch("action", resp, nil)
-	if customAction == nil {
-		return ""
-	}
-	customActionMap := customAction.(map[string]interface{})
-	if v, ok := customActionMap["category"]; ok {
-		return v.(string)
-	}
-	return ""
 }
 
 func flattenRulePreciseProtectionConditions(resp interface{}) []interface{} {
@@ -421,6 +418,7 @@ func resourceRulePreciseProtectionUpdate(ctx context.Context, d *schema.Resource
 		"priority",
 		"conditions",
 		"action",
+		"known_attack_source_id",
 		"start_time",
 		"end_time",
 		"description",

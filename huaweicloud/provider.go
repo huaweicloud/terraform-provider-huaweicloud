@@ -106,6 +106,7 @@ import (
 const (
 	defaultCloud       string = "myhuaweicloud.com"
 	defaultEuropeCloud string = "myhuaweicloud.eu"
+	prefixEuropeRegion string = "eu-west-1"
 )
 
 // Provider returns a schema.Provider for HuaweiCloud.
@@ -466,6 +467,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
 			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
+			"huaweicloud_fgs_functions":    fgs.DataSourceFunctionGraphFunctions(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
@@ -592,6 +594,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_public_services": vpcep.DataSourceVPCEPPublicServices(),
 
 			"huaweicloud_vpn_gateway_availability_zones": vpn.DataSourceVpnGatewayAZs(),
+			"huaweicloud_vpn_gateways":                   vpn.DataSourceGateways(),
 
 			"huaweicloud_waf_certificate":         waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":            waf.DataSourceWafPoliciesV1(),
@@ -748,7 +751,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_notification": cts.ResourceCTSNotification(),
 			"huaweicloud_cci_namespace":    cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
-			"huaweicloud_cci_pvc":          ResourceCCIPersistentVolumeClaimV1(),
+			"huaweicloud_cci_pvc":          cci.ResourcePersistentVolumeClaimV1(),
 
 			"huaweicloud_cdm_cluster": cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
@@ -1447,8 +1450,13 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	diag.Diagnostics) {
 	var tenantName, tenantID, delegatedProject, identityEndpoint string
 	region := d.Get("region").(string)
-	isRegional := d.Get("regional").(bool)
 	cloud := getCloudDomain(d.Get("cloud").(string), region)
+
+	isRegional := d.Get("regional").(bool)
+	if strings.HasPrefix(region, prefixEuropeRegion) {
+		// the default format of endpoints in Europe site is xxx.{{region}}.{{cloud}}
+		isRegional = true
+	}
 
 	// project_name is prior to tenant_name
 	// if neither of them was set, use region as the default project
@@ -1590,7 +1598,7 @@ func getCloudDomain(cloud, region string) string {
 	}
 
 	// then check whether the region(eu-west-1xx) is located in Europe
-	if strings.HasPrefix(region, "eu-west-1") {
+	if strings.HasPrefix(region, prefixEuropeRegion) {
 		return defaultEuropeCloud
 	}
 	return defaultCloud
