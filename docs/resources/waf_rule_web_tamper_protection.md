@@ -20,6 +20,7 @@ resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
   enterprise_project_id = var.enterprise_project_id
   domain                = "www.your-domain.com"
   path                  = "/payment"
+  description           = "test description"
 }
 ```
 
@@ -39,6 +40,16 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF tamper protection
   rule. Changing this parameter will create a new resource.
+
+* `description` - (Optional, String, ForceNew) Specifies the description of WAF web tamper protection rule.
+  Changing this creates a new rule.
+
+* `status` - (Optional, Int) Specifies the status of WAF web tamper protection rule.
+  Valid values are as follows:
+  + **0**: Disabled.
+  + **1**: Enabled.
+
+  The default value is **1**.
 
 ## Attribute Reference
 

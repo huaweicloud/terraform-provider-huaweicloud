@@ -289,9 +289,31 @@ func ResourceChannel() *schema.Resource {
 										Description: "The workload type.",
 									},
 									"workload_name": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "The workload name.",
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: utils.SchemaDesc(
+											`The workload name.`,
+											utils.SchemaDescInput{
+												Deprecated: true,
+											}),
+									},
+									"label_key": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: utils.SchemaDesc(
+											`The service label key.`,
+											utils.SchemaDescInput{
+												Required: true,
+											}),
+									},
+									"label_value": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: utils.SchemaDesc(
+											`The service label value.`,
+											utils.SchemaDescInput{
+												Required: true,
+											}),
 									},
 								},
 							},
@@ -449,6 +471,8 @@ func buildChannelMicroserviceConfig(microserviceConfigs []interface{}) *channels
 					Namespace:    details["namespace"].(string),
 					WorkloadType: details["workload_type"].(string),
 					AppName:      details["workload_name"].(string),
+					LabelKey:     details["label_key"].(string),
+					LabelValue:   details["label_value"].(string),
 				},
 			}
 		}
@@ -534,6 +558,8 @@ func flattenChannelMicroserivceCceConfig(cceConfig *channels.MicroserviceCceInfo
 			"namespace":     cceConfig.Namespace,
 			"workload_type": cceConfig.WorkloadType,
 			"workload_name": cceConfig.AppName,
+			"label_key":     cceConfig.LabelKey,
+			"label_value":   cceConfig.LabelValue,
 		},
 	}
 	return result

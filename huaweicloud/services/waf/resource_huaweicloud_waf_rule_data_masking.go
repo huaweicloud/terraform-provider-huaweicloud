@@ -5,6 +5,10 @@
 package waf
 
 import (
+	"context"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -12,24 +16,21 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
-	FIELD_POSITION_HEADER = "header"
-	FIELD_POSITION_PARAMS = "params"
-	FIELD_POSITION_COOKIE = "cookie"
-	FIELD_POSITION_FORM   = "form"
+	fieldPositionHeader = "header"
+	fieldPositionParams = "params"
+	fieldPositionCookie = "cookie"
+	fieldPositionForm   = "form"
 )
 
-// ResourceWafRuleDataMaskingV1 the resource of managing a WAF Data Masking Rule within HuaweiCloud.
 func ResourceWafRuleDataMaskingV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafRuleDataMaskingCreate,
-		Read:   resourceWafRuleDataMaskingRead,
-		Update: resourceWafRuleDataMaskingUpdate,
-		Delete: resourceWafRuleDataMaskingDelete,
+		CreateContext: resourceWafRuleDataMaskingCreate,
+		ReadContext:   resourceWafRuleDataMaskingRead,
+		UpdateContext: resourceWafRuleDataMaskingUpdate,
+		DeleteContext: resourceWafRuleDataMaskingDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFRuleImportState,
 		},
@@ -54,7 +55,7 @@ func ResourceWafRuleDataMaskingV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					FIELD_POSITION_HEADER, FIELD_POSITION_PARAMS, FIELD_POSITION_COOKIE, FIELD_POSITION_FORM,
+					fieldPositionHeader, fieldPositionParams, fieldPositionCookie, fieldPositionForm,
 				}, false),
 			},
 			"subfield": {
@@ -66,16 +67,25 @@ func ResourceWafRuleDataMaskingV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"status": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
 
-// resourceWafRuleDataMaskingCreate create a rule
-func resourceWafRuleDataMaskingCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleDataMaskingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	policyID := d.Get("policy_id").(string)
@@ -83,87 +93,94 @@ func resourceWafRuleDataMaskingCreate(d *schema.ResourceData, meta interface{}) 
 		Path:                d.Get("path").(string),
 		Category:            d.Get("field").(string),
 		Index:               d.Get("subfield").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		Description:         d.Get("description").(string),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
-	logp.Printf("[DEBUG] WAF Data Masking Rule creating opts: %#v", createOpts)
 	rule, err := rules.Create(wafClient, policyID, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Data Masking Rule: %s", err)
+		return diag.Errorf("error creating WAF data masking rule: %s", err)
 	}
-
-	logp.Printf("[DEBUG] WAF data masking rule created: %#v", rule)
 	d.SetId(rule.Id)
 
-	return resourceWafRuleDataMaskingRead(d, meta)
+	if d.Get("status").(int) == 0 {
+		if err := updateRuleStatus(wafClient, d, cfg, "privacy"); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	return resourceWafRuleDataMaskingRead(ctx, d, meta)
 }
 
-// resourceWafRuleDataMaskingRead get rule detail from HuaweiCloud by id and policy_id
-func resourceWafRuleDataMaskingRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleDataMaskingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	wafClient, err := cfg.WafV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	policyID := d.Get("policy_id").(string)
-	epsID := config.GetEnterpriseProjectID(d)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	n, err := rules.GetWithEpsID(wafClient, policyID, d.Id(), epsID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "WAF Data Masking Rule")
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF data masking rule")
 	}
-	logp.Printf("[DEBUG] fetching WAF data masking rule: %#v", n)
 
-	d.SetId(n.Id)
-	d.Set("path", n.Path)
-	d.Set("field", n.Category)
-	d.Set("subfield", n.Index)
-
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("policy_id", n.PolicyID),
+		d.Set("path", n.Path),
+		d.Set("field", n.Category),
+		d.Set("subfield", n.Index),
+		d.Set("description", n.Description),
+		d.Set("status", n.Status),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// resourceWafRuleDataMaskingUpdate update the existing rules.
-// Supported fields: path, field, subfield
-func resourceWafRuleDataMaskingUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleDataMaskingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	if d.HasChanges("path", "field", "subfield") {
+	if d.HasChanges("path", "field", "subfield", "description") {
 		policyID := d.Get("policy_id").(string)
 		updateOpts := rules.UpdateOpts{
 			Path:                d.Get("path").(string),
 			Category:            d.Get("field").(string),
 			Index:               d.Get("subfield").(string),
-			EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+			Description:         d.Get("description").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
 
-		logp.Printf("[DEBUG] WAF Data Masking Rule updating opts: %#v", updateOpts)
 		_, err = rules.Update(wafClient, policyID, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("error updating HuaweiCloud WAF Data Masking Rule: %s", err)
+			return diag.Errorf("error updating WAF data masking rule: %s", err)
 		}
 	}
 
-	return resourceWafRuleDataMaskingRead(d, meta)
+	if d.HasChange("status") {
+		if err := updateRuleStatus(wafClient, d, cfg, "privacy"); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return resourceWafRuleDataMaskingRead(ctx, d, meta)
 }
 
-// resourceWafRuleDataMaskingDelete delete the rules from HuaweiCloud by id
-func resourceWafRuleDataMaskingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafRuleDataMaskingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	policyID := d.Get("policy_id").(string)
-	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), config.GetEnterpriseProjectID(d)).ExtractErr()
+	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), cfg.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("error deleting HuaweiCloud WAF Data Masking Rule: %s", err)
+		return diag.Errorf("error deleting WAF data masking rule: %s", err)
 	}
-
-	d.SetId("")
 	return nil
 }

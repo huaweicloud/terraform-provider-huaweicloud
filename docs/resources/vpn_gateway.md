@@ -17,12 +17,20 @@ variable "subnet_id" {}
 variable "eip_id1" {}
 variable "eip_id2" {}
 
+data "huaweicloud_vpn_gateway_availability_zones" "test" {
+  flavor          = "professional1"
+  attachment_type = "vpc"
+}
+
 resource "huaweicloud_vpn_gateway" "test" {
   name               = var.name
   vpc_id             = var.vpc_id
   local_subnets      = ["192.168.0.0/24", "192.168.1.0/24"]
   connect_subnet     = var.subnet_id
-  availability_zones = ["cn-north-4a", "cn-north-4b"]
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
 
   master_eip {
     id = var.eip_id1
@@ -43,12 +51,20 @@ variable "subnet_id" {}
 variable "bandwidth_name1" {}
 variable "bandwidth_name2" {}
 
+data "huaweicloud_vpn_gateway_availability_zones" "test" {
+  flavor          = "professional1"
+  attachment_type = "vpc"
+}
+
 resource "huaweicloud_vpn_gateway" "test" {
   name               = var.name
   vpc_id             = var.vpc_id
   local_subnets      = ["192.168.0.0/24", "192.168.1.0/24"]
   connect_subnet     = var.subnet_id
-  availability_zones = ["cn-north-4a", "cn-north-4b"]
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
 
   master_eip {
     bandwidth_name = var.bandwidth_name1
@@ -74,12 +90,21 @@ variable "er_id" {}
 variable "access_vpc_id" {}
 variable "access_subnet_id" {}
 
+data "huaweicloud_vpn_gateway_availability_zones" "test" {
+  flavor          = "professional1"
+  attachment_type = "er"
+}
+
 resource "huaweicloud_vpn_gateway" "test" {
   name               = var.name
   network_type       = "private"
   attachment_type    = "er"
   er_id              = var.er_id
-  availability_zones = ["cn-north-4a", "cn-north-4b"]
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
   access_vpc_id      = var.access_vpc_id
   access_subnet_id   = var.access_subnet_id
 }
@@ -99,7 +124,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `flavor` - (Optional, String, ForceNew) The flavor of the VPN gateway.
-  The value can be **Basic**, **Professional1** and **Professional2**. Defaults to **Professional1**.
+  The value can be **Basic**, **Professional1**, **Professional2** and **GM**. Defaults to **Professional1**.
 
   Changing this parameter will create a new resource.
 

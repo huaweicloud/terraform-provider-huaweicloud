@@ -221,6 +221,8 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the instance. The description consists of 0 to 85
   characters, and can't contain '<' or '>'.
 
+* `hostname` - (Optional, String) Specifies the hostname of the instance.
+
 * `admin_pass` - (Optional, String) Specifies the administrative password to assign to the instance.
 
 * `key_pair` - (Optional, String) Specifies the SSH keypair name used for logging in to the instance.

@@ -55,6 +55,9 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "1"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "timeout"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "100"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
 				),
@@ -71,6 +74,9 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.begin_at", "01:00-02:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.save_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.backup_at.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "10"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "latency-monitor-threshold"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "120"),
 				),
 			},
 			{
@@ -78,7 +84,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "parameters"},
 			},
 		},
 	})
@@ -986,6 +992,12 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     hgetall  = "hgetall001"
   }
 
+  parameters {
+    id    = "1"
+    name  = "timeout"
+    value = "100"
+  }
+
   tags = {
     key   = "value"
     owner = "terraform"
@@ -1039,6 +1051,12 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     flushall = "flushall001"
     flushdb  = "flushdb001"
     hgetall  = "hgetall001"
+  }
+
+  parameters {
+    id    = "10"
+    name  = "latency-monitor-threshold"
+    value = "120"
   }
 
   tags = {

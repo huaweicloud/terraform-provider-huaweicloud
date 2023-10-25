@@ -448,7 +448,7 @@ func addTags(client *golangsdk.ServiceClient, resourceType, resourceId string, t
 	addTagsOpt.JSONBody = utils.RemoveNil(buildTagsBodyParams(tagList))
 	_, err := client.Request("POST", addTagsToPath, &addTagsOpt)
 	if err != nil {
-		return fmt.Errorf("error creating Organizations tags: %s", err)
+		return fmt.Errorf("error creating tags of resourceType (%s): %s", resourceType, err)
 	}
 
 	return nil
@@ -472,7 +472,7 @@ func deleteTags(client *golangsdk.ServiceClient, resourceType, resourceId string
 	addTagsOpt.JSONBody = utils.RemoveNil(buildTagsBodyParams(tagList))
 	_, err := client.Request("POST", addTagsPath, &addTagsOpt)
 	if err != nil {
-		return fmt.Errorf("error deleting Organizations tags: %s", err)
+		return fmt.Errorf("error deleting tags of resourceType (%s): %s", resourceType, err)
 	}
 
 	return nil

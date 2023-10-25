@@ -5,13 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -182,8 +182,6 @@ func testBackup_mysql_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
-
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
   db_version    = "8.0"
@@ -195,9 +193,9 @@ resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
 
   db {
@@ -226,27 +224,13 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 // disable auto_backup to prevent the instance status from changing to "BACKING UP" before manual backup creation.
 func testBackup_sqlserver_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
@@ -291,15 +275,13 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 // disable auto_backup to prevent the instance status from changing to "BACKING UP" before manual backup creation.
 func testBackup_pg_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
-
-data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "PostgreSQL"
@@ -313,9 +295,9 @@ resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
 
   db {
@@ -344,7 +326,7 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccBackupImportStateFunc(name string) resource.ImportStateIdFunc {
@@ -354,7 +336,7 @@ func testAccBackupImportStateFunc(name string) resource.ImportStateIdFunc {
 			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
 		}
 		if rs.Primary.ID == "" || rs.Primary.Attributes["instance_id"] == "" {
-			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID), nil
 	}
