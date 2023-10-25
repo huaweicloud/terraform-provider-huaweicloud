@@ -28,7 +28,6 @@ var (
 	HW_ACCESS_KEY                 = os.Getenv("HW_ACCESS_KEY")
 	HW_SECRET_KEY                 = os.Getenv("HW_SECRET_KEY")
 	HW_VPC_ID                     = os.Getenv("HW_VPC_ID")
-	HW_CCI_NAMESPACE              = os.Getenv("HW_CCI_NAMESPACE")
 	HW_PROJECT_ID                 = os.Getenv("HW_PROJECT_ID")
 	HW_DOMAIN_ID                  = os.Getenv("HW_DOMAIN_ID")
 	HW_DOMAIN_NAME                = os.Getenv("HW_DOMAIN_NAME")
@@ -87,12 +86,6 @@ func testAccPreCheckCDN(t *testing.T) {
 func testAccPreCheckCERT(t *testing.T) {
 	if HW_CDN_CERT_PATH == "" || HW_CDN_PRIVATE_KEY_PATH == "" {
 		t.Skip("This environment does not support CDN certificate tests")
-	}
-}
-
-func testAccPreCheckCCINamespace(t *testing.T) {
-	if HW_CCI_NAMESPACE == "" {
-		t.Skip("This environment does not support CCI Namespace tests")
 	}
 }
 
