@@ -132,6 +132,8 @@ linters-settings:
         disabled: true
       - name: use-any
         disabled: true
+      - name: unchecked-type-assertion
+        disabled: true
 
 issues:
   # List of regexps of issue texts to exclude.

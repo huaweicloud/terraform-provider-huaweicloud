@@ -124,57 +124,48 @@ variable "subnet_id" {}
 resource "huaweicloud_mapreduce_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   name               = var.cluster_name
-  version            = "MRS 1.9.2"
+  version            = "MRS 3.1.5"
   type               = "MIXED"
-  component_list     = ["Hadoop", "Spark", "Hive", "Tez", "Storm"]
+  component_list     = ["Hadoop", "ZooKeeper", "Ranger", "Tez", "Spark2x", "Hive", "Kafka", "Flume"]
   manager_admin_pass = var.password
   node_admin_pass    = var.password
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
 
   master_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
     node_number       = 2
     root_volume_type  = "SAS"
-    root_volume_size  = 300
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 480
+    data_volume_size  = 200
     data_volume_count = 1
   }
   analysis_core_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = 2
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    node_number       = %d
     root_volume_type  = "SAS"
-    root_volume_size  = 300
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 480
+    data_volume_size  = 200
     data_volume_count = 1
   }
   streaming_core_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = 2
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    node_number       = %d
     root_volume_type  = "SAS"
-    root_volume_size  = 300
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 480
+    data_volume_size  = 200
     data_volume_count = 1
   }
   analysis_task_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = 1
+    flavor            = "ac7.4xlarge.4.linux.bigdata"
+    node_number       = %d
     root_volume_type  = "SAS"
-    root_volume_size  = 300
+    root_volume_size  = 100
     data_volume_type  = "SAS"
-    data_volume_size  = 480
-    data_volume_count = 1
-  }
-  streaming_task_nodes {
-    flavor            = "c6.2xlarge.4.linux.bigdata"
-    node_number       = 1
-    root_volume_type  = "SAS"
-    root_volume_size  = 300
-    data_volume_type  = "SAS"
-    data_volume_size  = 480
+    data_volume_size  = 200
     data_volume_count = 1
   }
 
@@ -434,8 +425,6 @@ The EIP must have been created and must be in the same region as the cluster.
 * `external_datasources` - (Optional, List, ForceNew) Specifies the external datasource configurations of the cluster.
   The [object](#ExternalDatasources) structure is documented below.
   Changing this will create a new MapReduce cluster resource.
-
-  -> Currently, this is supported only if the cluster version is **MRS 1.9.2**.
 
 * `bootstrap_scripts` - (Optional, List, ForceNew) Specifies the bootstrap action scripts.
   Bootstrap action scripts will be executed on specified cluster nodes before or after big data components are

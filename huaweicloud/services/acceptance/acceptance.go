@@ -95,6 +95,7 @@ var (
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 
+	HW_LTS_ENABLE_FLAG                 = os.Getenv("HW_LTS_ENABLE_FLAG")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_ID   = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME")
 
@@ -172,6 +173,9 @@ var (
 	HW_SECMASTER_WORKSPACE_ID = os.Getenv("HW_SECMASTER_WORKSPACE_ID")
 
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
+
+	// The CMDB sub-application ID of AOM service
+	HW_AOM_SUB_APPLICATION_ID = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
 
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
@@ -870,6 +874,13 @@ func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckAomSubApplicationId(t *testing.T) {
+	if HW_AOM_SUB_APPLICATION_ID == "" {
+		t.Skip("HW_AOM_SUB_APPLICATION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPrecheckKooGallery(t *testing.T) {
 	if HW_KOOGALLERY_ASSET == "" {
 		t.Skip("Skip the KooGallery acceptance tests.")
@@ -881,5 +892,12 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 	if HW_LTS_STRUCT_CONFIG_TEMPLATE_ID == "" || HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME == "" {
 		t.Skip("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID and HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME must be" +
 			" set for LTS struct config custom acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsEnableFlag(t *testing.T) {
+	if HW_LTS_ENABLE_FLAG == "" {
+		t.Skip("Skip the LTS acceptance tests.")
 	}
 }

@@ -93,7 +93,7 @@ resource "huaweicloud_apig_channel" "test" {
 variable "instance_id" {}
 variable "channel_name" {}
 variable "cluster_id" {}
-variable "workload_name" {}
+variable "stateless_workload_name" {}
 variable "member_groups_config" {
   type = list(object({
     name                 = string
@@ -141,7 +141,8 @@ resource "huaweicloud_apig_channel" "test" {
       cluster_id    = var.cluster_id
       namespace     = "default"
       workload_type = "deployment"
-      workload_name = var.workload_name
+      label_key     = "app"
+      label_value   = var.stateless_workload_name
     }
   }
 }
@@ -314,7 +315,9 @@ The `cce_config` block supports:
   + **statefulset**: Stateful load.
   + **daemonset**: Daemons set.
 
-* `workload_name` - (Required, String) Specifies the workload name.
+* `label_key` - (Required, String) Specifies the service label key.
+
+* `label_value` - (Required, String) Specifies the service label value.
 
 ## Attribute Reference
 
