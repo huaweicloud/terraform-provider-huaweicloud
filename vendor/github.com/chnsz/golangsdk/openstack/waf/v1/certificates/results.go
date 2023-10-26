@@ -10,8 +10,12 @@ type Certificate struct {
 	Id string `json:"id"`
 	// Certificate Name
 	Name string `json:"name"`
+	// Certificate content
+	Content string `json:"content"`
+	// Certificate key
+	Key string `json:"key"`
 	// the time when the certificate expires in unix timestamp
-	ExpireTime int `json:"expireTime"`
+	ExpireTime int `json:"expire_time"`
 	// the time when the certificate is uploaded in unix timestamp
 	TimeStamp int `json:"timestamp"`
 }

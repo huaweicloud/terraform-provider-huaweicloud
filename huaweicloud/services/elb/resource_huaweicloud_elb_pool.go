@@ -161,7 +161,6 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	protectionReason := d.Get("protection_reason").(string)
 	createOpts := pools.CreateOpts{
 		Name:             d.Get("name").(string),
 		Description:      d.Get("description").(string),
@@ -170,7 +169,7 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 		ListenerID:       d.Get("listener_id").(string),
 		LBMethod:         d.Get("lb_method").(string),
 		ProtectionStatus: d.Get("protection_status").(string),
-		ProtectionReason: &protectionReason,
+		ProtectionReason: d.Get("protection_reason").(string),
 		Type:             d.Get("type").(string),
 		VpcId:            d.Get("vpc_id").(string),
 	}

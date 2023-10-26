@@ -77,10 +77,10 @@ type CreateOpts struct {
 	// Autoscaling configuration
 	AutoScaling *AutoScaling `json:"autoscaling,omitempty"`
 
-	// Update protection status
+	// Protection status
 	ProtectionStatus string `json:"protection_status,omitempty"`
 
-	// Update protection reason
+	// Protection reason
 	ProtectionReason string `json:"protection_reason,omitempty"`
 }
 
