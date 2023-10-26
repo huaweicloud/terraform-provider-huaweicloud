@@ -18,10 +18,10 @@ type ResizeEngineInstanceReq struct {
 	// 当oper_type参数为horizontal时，该参数有效。  取值范围：最多支持30个broker。
 	NewBrokerNum *int32 `json:"new_broker_num,omitempty"`
 
-	// 垂直扩容时的新产品ID。  当oper_type类型是vertical时，该参数才有效且必填。
+	// 垂直扩容时的新产品ID。  当oper_type类型是vertical时，该参数才有效且必填。  产品ID可以从[查询产品规格列表](ListEngineProducts.xml)获取。
 	NewProductId *string `json:"new_product_id,omitempty"`
 
-	// 实例绑定的弹性IP地址的ID。 以英文逗号隔开多个弹性IP地址的ID。 当oper_type类型是horizontal时，该参数必填。
+	// 实例绑定的弹性IP地址的ID。  以英文逗号隔开多个弹性IP地址的ID。  当oper_type类型是horizontal时，该参数必填。
 	PublicipId *string `json:"publicip_id,omitempty"`
 }
 

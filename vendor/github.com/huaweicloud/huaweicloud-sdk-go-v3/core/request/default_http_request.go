@@ -20,19 +20,21 @@
 package request
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer/algorithm"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/progress"
 	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def"
@@ -50,6 +52,9 @@ type DefaultHttpRequest struct {
 	body         interface{}
 
 	autoFilledPathParams map[string]string
+	progressListener     progress.Listener
+	progressInterval     int64
+	signingAlgorithm     algorithm.SigningAlgorithm
 }
 
 func (httpRequest *DefaultHttpRequest) fillParamsInPath() *DefaultHttpRequest {
@@ -73,6 +78,10 @@ func (httpRequest *DefaultHttpRequest) GetEndpoint() string {
 
 func (httpRequest *DefaultHttpRequest) GetPath() string {
 	return httpRequest.path
+}
+
+func (httpRequest *DefaultHttpRequest) GetSigningAlgorithm() algorithm.SigningAlgorithm {
+	return httpRequest.signingAlgorithm
 }
 
 func (httpRequest *DefaultHttpRequest) GetMethod() string {
@@ -133,6 +142,14 @@ func (httpRequest *DefaultHttpRequest) GetBodyToBytes() (*bytes.Buffer, error) {
 	}
 
 	return buf, nil
+}
+
+func (httpRequest *DefaultHttpRequest) GetProgressListener() progress.Listener {
+	return httpRequest.progressListener
+}
+
+func (httpRequest *DefaultHttpRequest) GetProgressInterval() int64 {
+	return httpRequest.progressInterval
 }
 
 func (httpRequest *DefaultHttpRequest) AddQueryParam(key string, value string) {
@@ -223,21 +240,38 @@ func (httpRequest *DefaultHttpRequest) covertFormBody() (*http.Request, error) {
 	return req, nil
 }
 
-func (httpRequest *DefaultHttpRequest) convertStreamBody(err error, req *http.Request) (*http.Request, error) {
-	bodyBuffer := &bytes.Buffer{}
+func (httpRequest *DefaultHttpRequest) getContentLength() int64 {
+	contentLength := int64(-1)
+	if value, ok := httpRequest.GetHeaderParams()["Content-Length"]; ok {
+		parseInt, err := strconv.ParseInt(value, 10, 64)
+		if err == nil {
+			contentLength = parseInt
+		}
+	}
 
+	if contentLength == -1 {
+		if value, ok := httpRequest.GetBody().(os.File); ok {
+			if stat, err := value.Stat(); err == nil {
+				contentLength = stat.Size()
+			}
+		}
+	}
+
+	return contentLength
+}
+
+func (httpRequest *DefaultHttpRequest) convertStreamBody(err error, req *http.Request) (*http.Request, error) {
 	if f, ok := httpRequest.body.(os.File); !ok {
 		return nil, errors.New("failed to get stream request body")
 	} else {
-		buf := bufio.NewReader(&f)
-		writer := bufio.NewWriter(bodyBuffer)
-
-		_, err = io.Copy(writer, buf)
-		if err != nil {
-			return nil, err
+		var reader io.Reader
+		if httpRequest.progressListener != nil {
+			reader = progress.NewTeeReader(&f, nil, httpRequest.getContentLength(), httpRequest.progressListener, httpRequest.progressInterval)
+		} else {
+			reader = &f
 		}
 
-		req, err = http.NewRequest(httpRequest.GetMethod(), httpRequest.GetEndpoint(), bodyBuffer)
+		req, err = http.NewRequest(httpRequest.GetMethod(), httpRequest.GetEndpoint(), reader)
 		if err != nil {
 			return nil, err
 		}

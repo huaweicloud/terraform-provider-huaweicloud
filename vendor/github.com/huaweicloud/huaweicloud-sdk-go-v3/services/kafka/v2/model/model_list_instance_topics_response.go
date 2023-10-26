@@ -21,6 +21,9 @@ type ListInstanceTopicsResponse struct {
 	// 分区总数。
 	MaxPartitions *int32 `json:"max_partitions,omitempty"`
 
+	// 单个topic最大占用分区数。
+	TopicMaxPartitions *int32 `json:"topic_max_partitions,omitempty"`
+
 	// topic列表。
 	Topics         *[]TopicEntity `json:"topics,omitempty"`
 	HttpStatusCode int            `json:"-"`

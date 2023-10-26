@@ -5,6 +5,42 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
 )
 
+type BatchCreateResourceTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchCreateResourceTagsInvoker) Invoke() (*model.BatchCreateResourceTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchCreateResourceTagsResponse), nil
+	}
+}
+
+type BatchDeleteResourceTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteResourceTagsInvoker) Invoke() (*model.BatchDeleteResourceTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteResourceTagsResponse), nil
+	}
+}
+
+type CheckObsBucketsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CheckObsBucketsInvoker) Invoke() (*model.CheckObsBucketsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CheckObsBucketsResponse), nil
+	}
+}
+
 type CreateNotificationInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -65,6 +101,18 @@ func (i *ListNotificationsInvoker) Invoke() (*model.ListNotificationsResponse, e
 	}
 }
 
+type ListOperationsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListOperationsInvoker) Invoke() (*model.ListOperationsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListOperationsResponse), nil
+	}
+}
+
 type ListQuotasInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -74,6 +122,18 @@ func (i *ListQuotasInvoker) Invoke() (*model.ListQuotasResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListQuotasResponse), nil
+	}
+}
+
+type ListTraceResourcesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTraceResourcesInvoker) Invoke() (*model.ListTraceResourcesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTraceResourcesResponse), nil
 	}
 }
 
@@ -98,6 +158,18 @@ func (i *ListTrackersInvoker) Invoke() (*model.ListTrackersResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListTrackersResponse), nil
+	}
+}
+
+type ListUserResourcesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListUserResourcesInvoker) Invoke() (*model.ListUserResourcesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListUserResourcesResponse), nil
 	}
 }
 

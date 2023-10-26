@@ -19,6 +19,69 @@ func CtsClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+// BatchCreateResourceTags 批量添加CTS资源标签
+//
+// 批量添加CTS资源标签。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CtsClient) BatchCreateResourceTags(request *model.BatchCreateResourceTagsRequest) (*model.BatchCreateResourceTagsResponse, error) {
+	requestDef := GenReqDefForBatchCreateResourceTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchCreateResourceTagsResponse), nil
+	}
+}
+
+// BatchCreateResourceTagsInvoker 批量添加CTS资源标签
+func (c *CtsClient) BatchCreateResourceTagsInvoker(request *model.BatchCreateResourceTagsRequest) *BatchCreateResourceTagsInvoker {
+	requestDef := GenReqDefForBatchCreateResourceTags()
+	return &BatchCreateResourceTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchDeleteResourceTags 批量删除CTS资源标签
+//
+// 批量删除CTS资源标签。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CtsClient) BatchDeleteResourceTags(request *model.BatchDeleteResourceTagsRequest) (*model.BatchDeleteResourceTagsResponse, error) {
+	requestDef := GenReqDefForBatchDeleteResourceTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchDeleteResourceTagsResponse), nil
+	}
+}
+
+// BatchDeleteResourceTagsInvoker 批量删除CTS资源标签
+func (c *CtsClient) BatchDeleteResourceTagsInvoker(request *model.BatchDeleteResourceTagsRequest) *BatchDeleteResourceTagsInvoker {
+	requestDef := GenReqDefForBatchDeleteResourceTags()
+	return &BatchDeleteResourceTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CheckObsBuckets 检查已经配置OBS桶是否可以成功转储
+//
+// 检查已经配置OBS桶是否可以成功转储。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CtsClient) CheckObsBuckets(request *model.CheckObsBucketsRequest) (*model.CheckObsBucketsResponse, error) {
+	requestDef := GenReqDefForCheckObsBuckets()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CheckObsBucketsResponse), nil
+	}
+}
+
+// CheckObsBucketsInvoker 检查已经配置OBS桶是否可以成功转储
+func (c *CtsClient) CheckObsBucketsInvoker(request *model.CheckObsBucketsRequest) *CheckObsBucketsInvoker {
+	requestDef := GenReqDefForCheckObsBuckets()
+	return &CheckObsBucketsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateNotification 创建关键操作通知
 //
 // 配置关键操作通知，可在发生特定操作时，使用预先创建好的SMN主题，向用户手机、邮箱发送消息，也可直接发送http/https消息。常用于实时感知高危操作、触发特定操作或对接用户自有审计分析系统。
@@ -125,6 +188,27 @@ func (c *CtsClient) ListNotificationsInvoker(request *model.ListNotificationsReq
 	return &ListNotificationsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListOperations 查询云服务的全量操作列表
+//
+// 查询云服务的全量操作列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CtsClient) ListOperations(request *model.ListOperationsRequest) (*model.ListOperationsResponse, error) {
+	requestDef := GenReqDefForListOperations()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListOperationsResponse), nil
+	}
+}
+
+// ListOperationsInvoker 查询云服务的全量操作列表
+func (c *CtsClient) ListOperationsInvoker(request *model.ListOperationsRequest) *ListOperationsInvoker {
+	requestDef := GenReqDefForListOperations()
+	return &ListOperationsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListQuotas 查询租户追踪器配额信息
 //
 // 查询租户追踪器配额信息。
@@ -144,6 +228,27 @@ func (c *CtsClient) ListQuotas(request *model.ListQuotasRequest) (*model.ListQuo
 func (c *CtsClient) ListQuotasInvoker(request *model.ListQuotasRequest) *ListQuotasInvoker {
 	requestDef := GenReqDefForListQuotas()
 	return &ListQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTraceResources 查询事件的资源类型列表
+//
+// 查询事件的资源类型列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CtsClient) ListTraceResources(request *model.ListTraceResourcesRequest) (*model.ListTraceResourcesResponse, error) {
+	requestDef := GenReqDefForListTraceResources()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTraceResourcesResponse), nil
+	}
+}
+
+// ListTraceResourcesInvoker 查询事件的资源类型列表
+func (c *CtsClient) ListTraceResourcesInvoker(request *model.ListTraceResourcesRequest) *ListTraceResourcesInvoker {
+	requestDef := GenReqDefForListTraceResources()
+	return &ListTraceResourcesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListTraces 查询事件列表
@@ -186,6 +291,27 @@ func (c *CtsClient) ListTrackers(request *model.ListTrackersRequest) (*model.Lis
 func (c *CtsClient) ListTrackersInvoker(request *model.ListTrackersRequest) *ListTrackersInvoker {
 	requestDef := GenReqDefForListTrackers()
 	return &ListTrackersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListUserResources 查询30天事件的操作用户列表
+//
+// 查询30天事件的操作用户列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CtsClient) ListUserResources(request *model.ListUserResourcesRequest) (*model.ListUserResourcesResponse, error) {
+	requestDef := GenReqDefForListUserResources()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListUserResourcesResponse), nil
+	}
+}
+
+// ListUserResourcesInvoker 查询30天事件的操作用户列表
+func (c *CtsClient) ListUserResourcesInvoker(request *model.ListUserResourcesRequest) *ListUserResourcesInvoker {
+	requestDef := GenReqDefForListUserResources()
+	return &ListUserResourcesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateNotification 修改关键操作通知

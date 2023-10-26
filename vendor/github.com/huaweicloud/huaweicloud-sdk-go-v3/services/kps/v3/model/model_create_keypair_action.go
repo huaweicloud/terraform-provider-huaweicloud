@@ -15,13 +15,13 @@ type CreateKeypairAction struct {
 	// SSH密钥对的名称。 - 新创建的密钥对名称不能和已有密钥对的名称相同。 - SSH密钥对名称由英文字母、数字、下划线、中划线组成，长度不能超过64个字节
 	Name string `json:"name"`
 
-	// SSH密钥对的类型
+	// SSH密钥对的类型。ssh或x509。
 	Type *CreateKeypairActionType `json:"type,omitempty"`
 
 	// 导入公钥的字符串信息。
 	PublicKey *string `json:"public_key,omitempty"`
 
-	// 租户级或者用户级
+	// 租户级或者用户级。domain或user。
 	Scope *CreateKeypairActionScope `json:"scope,omitempty"`
 
 	// SSH密钥对所属的用户信息

@@ -100,12 +100,12 @@ The following arguments are supported:
   will create a new PVC resource.
 
 * `volume_type` - (Optional, String, ForceNew) Specifies the type of the storage bound to the CCI Namespace. The valid
-  values are *sas*, *ssd*, *sata*, *obs*, *nfs-rw*, *efs-standard* and *efs-performance*, Defalut to *sas*. Changing
-  this will create a new PVC resource.
+  values are **sas**, **ssd**, **sata**, **obs**, **nfs-rw**, **efs-standard** and **efs-performance**,
+  Default to **sas**. Changing this will create a new PVC resource.
 
 * `device_mount_path` - (Optional, String, ForceNew) Specifies the share path of the SFS storage bound to the CCI
-  Namespace. Required if `volume_type` is *nfs-rw*, *efs-standard* or *efs-performance*. Changing this will create a new
-  PVC resource.
+  Namespace. Required if `volume_type` is **nfs-rw**, **efs-standard** or **efs-performance**.
+  Changing this will create a new PVC resource.
 
 ## Attribute Reference
 
@@ -121,6 +121,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `enable` - Whether the PVC is available.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+* `delete` - Default is 3 minutes.
+
 ## Import
 
 PVCs can be imported using the `namespace`, `volume_type` and `id`, e.g.
@@ -128,10 +135,3 @@ PVCs can be imported using the `namespace`, `volume_type` and `id`, e.g.
 ```
 $ terraform import huaweicloud_cci_pvc.test <namespace>/<volume_type>/<id>
 ```
-
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 5 minutes.
-* `delete` - Default is 3 minutes.

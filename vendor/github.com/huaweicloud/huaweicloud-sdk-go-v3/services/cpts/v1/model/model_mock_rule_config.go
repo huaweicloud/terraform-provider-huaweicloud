@@ -21,7 +21,7 @@ type MockRuleConfig struct {
 	// 重定向地址
 	RedirectUrl *string `json:"redirect_url,omitempty"`
 
-	// mock策略（当前只支持redirect）
+	// mock策略（redirect/json）
 	MockStrategy *string `json:"mock_strategy,omitempty"`
 
 	// 是否启用
@@ -35,6 +35,18 @@ type MockRuleConfig struct {
 
 	// 规则id
 	Id *int32 `json:"id,omitempty"`
+
+	// 自定义响应头
+	ResponseHeader map[string]string `json:"response_header,omitempty"`
+
+	// 自定义响应体
+	ResponseBody *string `json:"response_body,omitempty"`
+
+	// 自定义响应时长
+	ResponseTime *int32 `json:"response_time,omitempty"`
+
+	// 自定义响应码
+	ResponseCode *int32 `json:"response_code,omitempty"`
 }
 
 func (o MockRuleConfig) String() string {

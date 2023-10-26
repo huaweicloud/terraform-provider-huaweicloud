@@ -6,65 +6,158 @@
 package signer
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"net/url"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 )
 
 const (
+	sdkHmacSha256     = "SDK-HMAC-SHA256"
+	xSdkContentSha256 = "X-Sdk-Content-Sha256"
+)
+
+type Signer struct {
+}
+
+// Sign SignRequest set Authorization header
+func (s Signer) Sign(req *request.DefaultHttpRequest, ak, sk string) (map[string]string, error) {
+	err := checkAKSK(ak, sk)
+	if err != nil {
+		return nil, err
+	}
+
+	processContentHeader(req, xSdkContentSha256)
+	originalHeaders := req.GetHeaderParams()
+	t := extractTime(originalHeaders)
+	headerDate := t.UTC().Format(BasicDateFormat)
+	originalHeaders[HeaderXDate] = headerDate
+	additionalHeaders := map[string]string{HeaderXDate: headerDate}
+
+	signedHeaders := extractSignedHeaders(originalHeaders)
+
+	cr, err := canonicalRequest(req, signedHeaders, xSdkContentSha256, sha256HasherInst)
+	if err != nil {
+		return nil, err
+	}
+
+	sts, err := stringToSign(sdkHmacSha256, cr, t, sha256HasherInst)
+	if err != nil {
+		return nil, err
+	}
+
+	sig, err := s.signStringToSign(sts, []byte(sk))
+	if err != nil {
+		return nil, err
+	}
+
+	additionalHeaders[HeaderAuthorization] = authHeaderValue(sdkHmacSha256, sig, ak, signedHeaders)
+	return additionalHeaders, nil
+}
+
+// signStringToSign Create the Signature.
+func (s Signer) signStringToSign(stringToSign string, signingKey []byte) (string, error) {
+	hmac, err := sha256HasherInst.hmac([]byte(stringToSign), signingKey)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(hmac), nil
+}
+
+const (
 	BasicDateFormat     = "20060102T150405Z"
-	Algorithm           = "SDK-HMAC-SHA256"
 	HeaderXDate         = "X-Sdk-Date"
 	HeaderHost          = "host"
 	HeaderAuthorization = "Authorization"
-	HeaderContentSha256 = "X-Sdk-Content-Sha256"
 )
 
-func hmacsha256(key []byte, data string) ([]byte, error) {
-	h := hmac.New(sha256.New, key)
-	if _, err := h.Write([]byte(data)); err != nil {
-		return nil, err
+func checkAKSK(ak, sk string) error {
+	if ak == "" {
+		return errors.New("ak is required in credentials")
 	}
-	return h.Sum(nil), nil
+	if sk == "" {
+		return errors.New("sk is required in credentials")
+	}
+
+	return nil
 }
 
-func CanonicalRequest(r *request.DefaultHttpRequest, signedHeaders []string) (string, error) {
-	var hexEncode string
+// stringToSign Create a "String to Sign".
+func stringToSign(alg, canonicalRequest string, t time.Time, hasher iHasher) (string, error) {
+	canonicalRequestHash, err := hasher.hashHexString([]byte(canonicalRequest))
+	if err != nil {
+		return "", err
+	}
 
-	userHeaders := r.GetHeaderParams()
-	if hex, ok := userHeaders[HeaderContentSha256]; ok {
-		hexEncode = hex
-	} else {
-		buffer, err := r.GetBodyToBytes()
-		if err != nil {
-			return "", err
-		}
-		data := buffer.Bytes()
+	return fmt.Sprintf("%s\n%s\n%s", alg, t.UTC().Format(BasicDateFormat), canonicalRequestHash), nil
+}
 
-		hexEncode, err = HexEncodeSHA256Hash(data)
-		if err != nil {
-			return "", err
-		}
+// authHeaderValue Get the finalized value for the "Authorization" header.
+// The signature parameter is the output from stringToSign
+func authHeaderValue(alg, sig, ak string, signedHeaders []string) string {
+	return fmt.Sprintf("%s Access=%s, SignedHeaders=%s, Signature=%s",
+		alg,
+		ak,
+		strings.Join(signedHeaders, ";"),
+		sig)
+}
+
+func processContentHeader(req *request.DefaultHttpRequest, contentHeader string) {
+	if contentType, ok := req.GetHeaderParams()["Content-Type"]; ok && !strings.Contains(contentType, "application/json") {
+		req.AddHeaderParam(contentHeader, "UNSIGNED-PAYLOAD")
+	}
+}
+
+func canonicalRequest(req *request.DefaultHttpRequest, signedHeaders []string, contentHeader string, hasher iHasher) (string, error) {
+	hexEncode, err := getContentHash(req, contentHeader, hasher)
+	if err != nil {
+		return "", err
 	}
 
 	return fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s",
-		r.GetMethod(),
-		CanonicalURI(r),
-		CanonicalQueryString(r),
-		CanonicalHeaders(r, signedHeaders),
+		req.GetMethod(),
+		canonicalURI(req),
+		canonicalQueryString(req),
+		canonicalHeaders(req, signedHeaders),
 		strings.Join(signedHeaders, ";"), hexEncode), nil
 }
 
-// CanonicalURI returns request uri
-func CanonicalURI(r *request.DefaultHttpRequest) string {
+func getContentHash(req *request.DefaultHttpRequest, contentHeader string, hasher iHasher) (string, error) {
+	if content, ok := req.GetHeaderParams()[contentHeader]; ok {
+		return content, nil
+	}
+
+	buffer, err := req.GetBodyToBytes()
+	if err != nil {
+		return "", err
+	}
+
+	data := buffer.Bytes()
+	hexEncode, err := hasher.hashHexString(data)
+	if err != nil {
+		return "", err
+	}
+	return hexEncode, nil
+}
+
+func extractTime(headers map[string]string) time.Time {
+	if date, ok := headers[HeaderXDate]; ok {
+		t, err := time.Parse(BasicDateFormat, date)
+		if date == "" || err != nil {
+			return time.Now()
+		}
+		return t
+	}
+	return time.Now()
+}
+
+// canonicalURI returns request uri
+func canonicalURI(r *request.DefaultHttpRequest) string {
 	pattens := strings.Split(r.GetPath(), "/")
 
 	var uri []string
@@ -80,8 +173,7 @@ func CanonicalURI(r *request.DefaultHttpRequest) string {
 	return urlPath
 }
 
-// CanonicalQueryString
-func CanonicalQueryString(r *request.DefaultHttpRequest) string {
+func canonicalQueryString(r *request.DefaultHttpRequest) string {
 	var query = make(map[string][]string, 0)
 	for key, value := range r.GetQueryParams() {
 		valueWithType, ok := value.(reflect.Value)
@@ -135,8 +227,7 @@ func CanonicalQueryString(r *request.DefaultHttpRequest) string {
 	return queryStr
 }
 
-// CanonicalHeaders
-func CanonicalHeaders(r *request.DefaultHttpRequest, signerHeaders []string) string {
+func canonicalHeaders(r *request.DefaultHttpRequest, signerHeaders []string) string {
 	var a []string
 	header := make(map[string][]string)
 	userHeaders := r.GetHeaderParams()
@@ -165,97 +256,52 @@ func CanonicalHeaders(r *request.DefaultHttpRequest, signerHeaders []string) str
 	return fmt.Sprintf("%s\n", strings.Join(a, "\n"))
 }
 
-// SignedHeaders
-func SignedHeaders(headers map[string]string) []string {
-	var signedHeaders []string
+func extractSignedHeaders(headers map[string]string) []string {
+	var sh []string
 	for key := range headers {
 		if strings.HasPrefix(strings.ToLower(key), "content-type") {
 			continue
 		}
-		signedHeaders = append(signedHeaders, strings.ToLower(key))
+		sh = append(sh, strings.ToLower(key))
 	}
-	sort.Strings(signedHeaders)
+	sort.Strings(sh)
 
-	return signedHeaders
+	return sh
 }
 
-// Create a "String to Sign".
-func StringToSign(canonicalRequest string, t time.Time) (string, error) {
-	hash := sha256.New()
-	_, err := hash.Write([]byte(canonicalRequest))
-	if err != nil {
-		return "", err
+func shouldEscape(c byte) bool {
+	if 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z' || '0' <= c && c <= '9' || c == '_' || c == '-' || c == '~' || c == '.' {
+		return false
 	}
-
-	return fmt.Sprintf("%s\n%s\n%x",
-		Algorithm, t.UTC().Format(BasicDateFormat), hash.Sum(nil)), nil
+	return true
 }
 
-// Create the HWS Signature.
-func SignStringToSign(stringToSign string, signingKey []byte) (string, error) {
-	hm, err := hmacsha256(signingKey, stringToSign)
-	return fmt.Sprintf("%x", hm), err
-}
-
-// HexEncodeSHA256Hash returns hexcode of sha256
-func HexEncodeSHA256Hash(body []byte) (string, error) {
-	hash := sha256.New()
-	_, err := hash.Write(body)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", hash.Sum(nil)), nil
-}
-
-// Get the finalized value for the "Authorization" header. The signature parameter is the output from SignStringToSign
-func AuthHeaderValue(signature, accessKey string, signedHeaders []string) string {
-	return fmt.Sprintf("%s Access=%s, SignedHeaders=%s, Signature=%s", Algorithm, accessKey, strings.Join(signedHeaders, ";"), signature)
-}
-
-// SignRequest set Authorization header
-func Sign(r *request.DefaultHttpRequest, ak string, sk string) (map[string]string, error) {
-	if ak == "" {
-		return nil, errors.New("ak is required in credentials")
-	}
-	if sk == "" {
-		return nil, errors.New("sk is required in credentials")
-	}
-
-	var err error
-	var t time.Time
-	var headerParams = make(map[string]string)
-
-	userHeaders := r.GetHeaderParams()
-	if date, ok := userHeaders[HeaderXDate]; ok {
-		t, err = time.Parse(BasicDateFormat, date)
-		if date == "" || err != nil {
-			t = time.Now()
-			userHeaders[HeaderXDate] = t.UTC().Format(BasicDateFormat)
-			headerParams[HeaderXDate] = t.UTC().Format(BasicDateFormat)
+func escape(s string) string {
+	hexCount := 0
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if shouldEscape(c) {
+			hexCount++
 		}
-	} else {
-		t = time.Now()
-		userHeaders[HeaderXDate] = t.UTC().Format(BasicDateFormat)
-		headerParams[HeaderXDate] = t.UTC().Format(BasicDateFormat)
 	}
 
-	signedHeaders := SignedHeaders(userHeaders)
-
-	canonicalRequest, err := CanonicalRequest(r, signedHeaders)
-	if err != nil {
-		return nil, err
+	if hexCount == 0 {
+		return s
 	}
 
-	stringToSign, err := StringToSign(canonicalRequest, t)
-	if err != nil {
-		return nil, err
+	t := make([]byte, len(s)+2*hexCount)
+	j := 0
+	for i := 0; i < len(s); i++ {
+		switch c := s[i]; {
+		case shouldEscape(c):
+			t[j] = '%'
+			t[j+1] = "0123456789ABCDEF"[c>>4]
+			t[j+2] = "0123456789ABCDEF"[c&15]
+			j += 3
+		default:
+			t[j] = s[i]
+			j++
+		}
 	}
-
-	signature, err := SignStringToSign(stringToSign, []byte(sk))
-	if err != nil {
-		return nil, err
-	}
-
-	headerParams[HeaderAuthorization] = AuthHeaderValue(signature, ak, signedHeaders)
-	return headerParams, nil
+	return string(t)
 }

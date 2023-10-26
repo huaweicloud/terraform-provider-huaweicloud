@@ -63,7 +63,7 @@ func (c *KafkaClient) BatchDeleteGroupInvoker(request *model.BatchDeleteGroupReq
 
 // BatchDeleteInstanceTopic Kafka实例批量删除Topic
 //
-// 该接口用于向Kafka实例批量删除Topic。批量删除多个消费组时，部分删除成功，部分失败，此时接口返回删除成功，并在返回中显示删除失败的消费组信息。
+// 该接口用于向Kafka实例批量删除Topic。批量删除多个Topic时，部分删除成功，部分失败，此时接口返回删除成功，并在返回中显示删除失败的Topic信息。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) BatchDeleteInstanceTopic(request *model.BatchDeleteInstanceTopicRequest) (*model.BatchDeleteInstanceTopicResponse, error) {
@@ -239,7 +239,7 @@ func (c *KafkaClient) CreateInstanceTopicInvoker(request *model.CreateInstanceTo
 
 // CreateInstanceUser 创建用户
 //
-// 创建Kafka实例的用户，用户可连接开启SASL的Kafka实例。
+// 创建Kafka实例的用户，用户可连接开启SASL的Kafka实例。 [ 2023年7月15日前创建的Kafka实例，一个实例最多创建20个用户。2023年7月15日及以后创建的Kafka实例，一个实例最多创建500个用户。](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) CreateInstanceUser(request *model.CreateInstanceUserRequest) (*model.CreateInstanceUserResponse, error) {
@@ -302,7 +302,7 @@ func (c *KafkaClient) CreatePartitionInvoker(request *model.CreatePartitionReque
 
 // CreatePostPaidInstance 创建实例
 //
-// [创建按需计费类型的Kafka实例。](tag:hc,hk,hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[创建kafka实例。](tag:otc,ocb,hws_ocb)
+// [创建按需计费类型的Kafka实例。](tag:sbc,hk_sbc,cmcc)[创建kafka实例。](tag:otc)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) CreatePostPaidInstance(request *model.CreatePostPaidInstanceRequest) (*model.CreatePostPaidInstanceResponse, error) {
@@ -581,7 +581,7 @@ func (c *KafkaClient) ListInstancesInvoker(request *model.ListInstancesRequest) 
 //
 // 同时，unavailable_zones字段表示资源不足的可用区列表，如果为空，则表示所有可用区都有资源，如果不为空，则表示字段值的可用区没有资源。所以必须确保您购买的资源所在的可用区有资源，不在该字段列表内。
 //
-// [例如，响应消息中bandwidth字段为1200MB的记录，unavailable_zones字段包含cn-east-2b、cn-east-2a和cn-east-2d，表示在华东-上海2的可用区1、可用区2、可用区3都没有该资源。](tag:hc,hws)
+// [例如，响应消息中bandwidth字段为1200MB的记录，unavailable_zones字段包含cn-east-2b、cn-east-2a和cn-east-2d，表示在华东-上海2的可用区1、可用区2、可用区3都没有该资源。](tag:hws)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) ListProducts(request *model.ListProductsRequest) (*model.ListProductsResponse, error) {
@@ -619,6 +619,48 @@ func (c *KafkaClient) ListSinkTasks(request *model.ListSinkTasksRequest) (*model
 func (c *KafkaClient) ListSinkTasksInvoker(request *model.ListSinkTasksRequest) *ListSinkTasksInvoker {
 	requestDef := GenReqDefForListSinkTasks()
 	return &ListSinkTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTopicPartitions 查询Topic的分区列表
+//
+// 查询Topic的分区列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) ListTopicPartitions(request *model.ListTopicPartitionsRequest) (*model.ListTopicPartitionsResponse, error) {
+	requestDef := GenReqDefForListTopicPartitions()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTopicPartitionsResponse), nil
+	}
+}
+
+// ListTopicPartitionsInvoker 查询Topic的分区列表
+func (c *KafkaClient) ListTopicPartitionsInvoker(request *model.ListTopicPartitionsRequest) *ListTopicPartitionsInvoker {
+	requestDef := GenReqDefForListTopicPartitions()
+	return &ListTopicPartitionsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTopicProducers 查询Topic的当前生产者列表
+//
+// 查询Topic的当前生产者列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) ListTopicProducers(request *model.ListTopicProducersRequest) (*model.ListTopicProducersResponse, error) {
+	requestDef := GenReqDefForListTopicProducers()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTopicProducersResponse), nil
+	}
+}
+
+// ListTopicProducersInvoker 查询Topic的当前生产者列表
+func (c *KafkaClient) ListTopicProducersInvoker(request *model.ListTopicProducersRequest) *ListTopicProducersInvoker {
+	requestDef := GenReqDefForListTopicProducers()
+	return &ListTopicProducersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ResetManagerPassword 重置Manager密码
@@ -1258,6 +1300,27 @@ func (c *KafkaClient) UpdateInstanceAutoCreateTopicInvoker(request *model.Update
 	return &UpdateInstanceAutoCreateTopicInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateInstanceConsumerGroup 编辑消费组
+//
+// 编辑消费组
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) UpdateInstanceConsumerGroup(request *model.UpdateInstanceConsumerGroupRequest) (*model.UpdateInstanceConsumerGroupResponse, error) {
+	requestDef := GenReqDefForUpdateInstanceConsumerGroup()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateInstanceConsumerGroupResponse), nil
+	}
+}
+
+// UpdateInstanceConsumerGroupInvoker 编辑消费组
+func (c *KafkaClient) UpdateInstanceConsumerGroupInvoker(request *model.UpdateInstanceConsumerGroupRequest) *UpdateInstanceConsumerGroupInvoker {
+	requestDef := GenReqDefForUpdateInstanceConsumerGroup()
+	return &UpdateInstanceConsumerGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateInstanceCrossVpcIp 修改实例跨VPC访问的内网IP
 //
 // 修改实例跨VPC访问的内网IP。
@@ -1300,9 +1363,32 @@ func (c *KafkaClient) UpdateInstanceTopicInvoker(request *model.UpdateInstanceTo
 	return &UpdateInstanceTopicInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateInstanceUser 修改用户参数
+//
+// 修改用户参数
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) UpdateInstanceUser(request *model.UpdateInstanceUserRequest) (*model.UpdateInstanceUserResponse, error) {
+	requestDef := GenReqDefForUpdateInstanceUser()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateInstanceUserResponse), nil
+	}
+}
+
+// UpdateInstanceUserInvoker 修改用户参数
+func (c *KafkaClient) UpdateInstanceUserInvoker(request *model.UpdateInstanceUserRequest) *UpdateInstanceUserInvoker {
+	requestDef := GenReqDefForUpdateInstanceUser()
+	return &UpdateInstanceUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateSinkTaskQuota 修改转储任务的配额
 //
 // 修改转储任务的配额。
+//
+// 2022年9月前创建的实例支持调用此接口新增转储任务配额，2022年9月及以后创建的实例，转储任务配额默认为最大值，由于转储任务配额不支持减少，调用此接口修改转储任务配额会报错。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) UpdateSinkTaskQuota(request *model.UpdateSinkTaskQuotaRequest) (*model.UpdateSinkTaskQuotaResponse, error) {

@@ -20,6 +20,9 @@ type ShowAgentConfigRequestBody struct {
 
 	// 探针id，非必填，不填是注册探针，填了是更新探针配置
 	AgentId *string `json:"agent_id,omitempty"`
+
+	// 探针别名
+	Alias *string `json:"alias,omitempty"`
 }
 
 func (o ShowAgentConfigRequestBody) String() string {

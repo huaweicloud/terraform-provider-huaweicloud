@@ -18,10 +18,10 @@ type KeypairDetail struct {
 	// SSH密钥对的ID
 	Id *int64 `json:"id,omitempty"`
 
-	// SSH密钥对的类型
+	// SSH密钥对的类型。ssh或x509。
 	Type *KeypairDetailType `json:"type,omitempty"`
 
-	// 租户级或者用户级
+	// 租户级或者用户级。domain或user。
 	Scope *KeypairDetailScope `json:"scope,omitempty"`
 
 	// SSH密钥对对应的publicKey信息
@@ -53,6 +53,12 @@ type KeypairDetail struct {
 
 	// 冻结状态 - 0：正常状态 - 1：普通冻结 - 2：公安冻结 - 3：普通冻结及公安冻结 - 4：违规冻结 - 5：普通冻结及违规冻结 - 6：公安冻结及违规冻结 - 7：普通冻结、公安冻结及违规冻结 - 8：未实名认证冻结 - 9：普通冻结及未实名认证冻结 - 10：公安冻结及未实名认证冻结
 	FrozenState *int32 `json:"frozen_state,omitempty"`
+
+	// 密钥ID。
+	KeyId *string `json:"key_id,omitempty"`
+
+	// 生成算法。
+	Algorithm *string `json:"algorithm,omitempty"`
 }
 
 func (o KeypairDetail) String() string {

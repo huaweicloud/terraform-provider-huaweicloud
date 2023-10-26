@@ -18,7 +18,7 @@ type Keypair struct {
 	// SSH密钥对的类型，值为“ssh”或“x509”
 	Type *KeypairType `json:"type,omitempty"`
 
-	// 租户级或者用户级
+	// 租户级或者用户级。domain或user。
 	Scope *KeypairScope `json:"scope,omitempty"`
 
 	// SSH密钥对对应的publicKey信息

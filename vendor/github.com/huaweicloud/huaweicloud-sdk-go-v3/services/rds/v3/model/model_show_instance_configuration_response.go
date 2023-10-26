@@ -46,6 +46,7 @@ type ShowInstanceConfigurationResponseDatastoreNameEnum struct {
 	MYSQL      ShowInstanceConfigurationResponseDatastoreName
 	POSTGRESQL ShowInstanceConfigurationResponseDatastoreName
 	SQLSERVER  ShowInstanceConfigurationResponseDatastoreName
+	MARIADB    ShowInstanceConfigurationResponseDatastoreName
 }
 
 func GetShowInstanceConfigurationResponseDatastoreNameEnum() ShowInstanceConfigurationResponseDatastoreNameEnum {
@@ -58,6 +59,9 @@ func GetShowInstanceConfigurationResponseDatastoreNameEnum() ShowInstanceConfigu
 		},
 		SQLSERVER: ShowInstanceConfigurationResponseDatastoreName{
 			value: "sqlserver",
+		},
+		MARIADB: ShowInstanceConfigurationResponseDatastoreName{
+			value: "mariadb",
 		},
 	}
 }

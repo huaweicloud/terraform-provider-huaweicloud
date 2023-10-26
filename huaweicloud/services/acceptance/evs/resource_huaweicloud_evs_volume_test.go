@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -14,7 +16,7 @@ import (
 func getVolumeResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.BlockStorageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud block storage v2 client: %s", err)
+		return nil, fmt.Errorf("error creating block storage v2 client: %s", err)
 	}
 	return cloudvolumes.Get(c, state.Primary.ID).Extract()
 }
@@ -210,7 +212,7 @@ func TestAccEvsVolume_prePaid(t *testing.T) {
 }
 
 func testAccEvsVolume_base() string {
-	return fmt.Sprintf(`
+	return `
 variable "volume_configuration" {
   type = list(object({
     suffix      = string
@@ -273,7 +275,7 @@ variable "volume_configuration" {
 }
 
 data "huaweicloud_availability_zones" "test" {}
-`)
+`
 }
 
 func testAccEvsVolume_basic(rName string) string {
@@ -342,7 +344,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_prepaid_base() string {
-	return fmt.Sprintf(`
+	return `
 variable "volume_configuration" {
   type = list(object({
     suffix      = string
@@ -367,7 +369,7 @@ variable "volume_configuration" {
 }
 
 data "huaweicloud_availability_zones" "test" {}
-`)
+`
 }
 
 func testAccEvsVolume_prePaid(rName string, isAutoRenew bool) string {

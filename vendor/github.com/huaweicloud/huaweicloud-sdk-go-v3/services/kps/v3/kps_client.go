@@ -40,6 +40,48 @@ func (c *KpsClient) AssociateKeypairInvoker(request *model.AssociateKeypairReque
 	return &AssociateKeypairInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// BatchAssociateKeypair 批量绑定SSH密钥对
+//
+// 给指定的虚拟机批量绑定新的SSH密钥对。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KpsClient) BatchAssociateKeypair(request *model.BatchAssociateKeypairRequest) (*model.BatchAssociateKeypairResponse, error) {
+	requestDef := GenReqDefForBatchAssociateKeypair()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchAssociateKeypairResponse), nil
+	}
+}
+
+// BatchAssociateKeypairInvoker 批量绑定SSH密钥对
+func (c *KpsClient) BatchAssociateKeypairInvoker(request *model.BatchAssociateKeypairRequest) *BatchAssociateKeypairInvoker {
+	requestDef := GenReqDefForBatchAssociateKeypair()
+	return &BatchAssociateKeypairInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ClearPrivateKey 清除私钥
+//
+// 清除SSH密钥对私钥。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KpsClient) ClearPrivateKey(request *model.ClearPrivateKeyRequest) (*model.ClearPrivateKeyResponse, error) {
+	requestDef := GenReqDefForClearPrivateKey()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ClearPrivateKeyResponse), nil
+	}
+}
+
+// ClearPrivateKeyInvoker 清除私钥
+func (c *KpsClient) ClearPrivateKeyInvoker(request *model.ClearPrivateKeyRequest) *ClearPrivateKeyInvoker {
+	requestDef := GenReqDefForClearPrivateKey()
+	return &ClearPrivateKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateKeypair 创建和导入SSH密钥对
 //
 // 创建和导入SSH密钥对
@@ -143,6 +185,48 @@ func (c *KpsClient) DisassociateKeypair(request *model.DisassociateKeypairReques
 func (c *KpsClient) DisassociateKeypairInvoker(request *model.DisassociateKeypairRequest) *DisassociateKeypairInvoker {
 	requestDef := GenReqDefForDisassociateKeypair()
 	return &DisassociateKeypairInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ExportPrivateKey 导出私钥
+//
+// 导出指定密钥对的私钥。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KpsClient) ExportPrivateKey(request *model.ExportPrivateKeyRequest) (*model.ExportPrivateKeyResponse, error) {
+	requestDef := GenReqDefForExportPrivateKey()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ExportPrivateKeyResponse), nil
+	}
+}
+
+// ExportPrivateKeyInvoker 导出私钥
+func (c *KpsClient) ExportPrivateKeyInvoker(request *model.ExportPrivateKeyRequest) *ExportPrivateKeyInvoker {
+	requestDef := GenReqDefForExportPrivateKey()
+	return &ExportPrivateKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ImportPrivateKey 导入私钥
+//
+// 导入私钥到指定密钥对。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KpsClient) ImportPrivateKey(request *model.ImportPrivateKeyRequest) (*model.ImportPrivateKeyResponse, error) {
+	requestDef := GenReqDefForImportPrivateKey()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ImportPrivateKeyResponse), nil
+	}
+}
+
+// ImportPrivateKeyInvoker 导入私钥
+func (c *KpsClient) ImportPrivateKeyInvoker(request *model.ImportPrivateKeyRequest) *ImportPrivateKeyInvoker {
+	requestDef := GenReqDefForImportPrivateKey()
+	return &ImportPrivateKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListFailedTask 查询失败的任务信息

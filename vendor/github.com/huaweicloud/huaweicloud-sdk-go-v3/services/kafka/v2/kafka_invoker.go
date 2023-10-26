@@ -341,6 +341,30 @@ func (i *ListSinkTasksInvoker) Invoke() (*model.ListSinkTasksResponse, error) {
 	}
 }
 
+type ListTopicPartitionsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTopicPartitionsInvoker) Invoke() (*model.ListTopicPartitionsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTopicPartitionsResponse), nil
+	}
+}
+
+type ListTopicProducersInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTopicProducersInvoker) Invoke() (*model.ListTopicProducersResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTopicProducersResponse), nil
+	}
+}
+
 type ResetManagerPasswordInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -701,6 +725,18 @@ func (i *UpdateInstanceAutoCreateTopicInvoker) Invoke() (*model.UpdateInstanceAu
 	}
 }
 
+type UpdateInstanceConsumerGroupInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateInstanceConsumerGroupInvoker) Invoke() (*model.UpdateInstanceConsumerGroupResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateInstanceConsumerGroupResponse), nil
+	}
+}
+
 type UpdateInstanceCrossVpcIpInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -722,6 +758,18 @@ func (i *UpdateInstanceTopicInvoker) Invoke() (*model.UpdateInstanceTopicRespons
 		return nil, err
 	} else {
 		return result.(*model.UpdateInstanceTopicResponse), nil
+	}
+}
+
+type UpdateInstanceUserInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateInstanceUserInvoker) Invoke() (*model.UpdateInstanceUserResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateInstanceUserResponse), nil
 	}
 }
 

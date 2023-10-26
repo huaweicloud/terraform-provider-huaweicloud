@@ -201,6 +201,8 @@ var (
 	HW_EG_CHANNEL_ID = os.Getenv("HW_EG_CHANNEL_ID")
 
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
+
+	HW_CCI_NAMESPACE = os.Getenv("HW_CCI_NAMESPACE")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -902,6 +904,13 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 func TestAccPreCheckLtsEnableFlag(t *testing.T) {
 	if HW_LTS_ENABLE_FLAG == "" {
 		t.Skip("Skip the LTS acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCINamespace(t *testing.T) {
+	if HW_CCI_NAMESPACE == "" {
+		t.Skip("This environment does not support CCI Namespace tests")
 	}
 }
 
