@@ -8,13 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/instances"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
 )
 
-func getMicroserviceInstanceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getMicroserviceInstanceFunc(_ *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	token, err := cse.GetAuthorizationToken(state.Primary.Attributes["connect_address"],
 		state.Primary.Attributes["admin_user"], state.Primary.Attributes["admin_pass"])
 	if err != nil {
