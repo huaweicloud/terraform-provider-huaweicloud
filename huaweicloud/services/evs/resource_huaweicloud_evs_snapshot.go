@@ -24,7 +24,7 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 		CreateContext: resourceEvsSnapshotV2Create,
 		ReadContext:   resourceEvsSnapshotV2Read,
 		UpdateContext: resourceEvsSnapshotV2Update,
-		DeleteContext: resourceApiDelete,
+		DeleteContext: resourceEvsSnapshotV2Delete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -112,7 +112,7 @@ func resourceEvsSnapshotV2Read(_ context.Context, d *schema.ResourceData, meta i
 
 	v, err := snapshots.Get(evsClient, d.Id()).Extract()
 	if err != nil {
-		return diag.FromErr(common.CheckDeleted(d, err, "snapshot"))
+		return common.CheckDeletedDiag(d, err, "snapshot")
 	}
 
 	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
@@ -151,7 +151,7 @@ func resourceEvsSnapshotV2Update(ctx context.Context, d *schema.ResourceData, me
 	return resourceEvsSnapshotV2Read(ctx, d, meta)
 }
 
-func resourceApiDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEvsSnapshotV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -159,7 +159,7 @@ func resourceApiDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	if err := snapshots.Delete(evsClient, d.Id()).ExtractErr(); err != nil {
-		return diag.FromErr(common.CheckDeleted(d, err, "snapshot"))
+		return common.CheckDeletedDiag(d, err, "snapshot")
 	}
 
 	// Wait for the snapshot to delete before moving on.
