@@ -67,6 +67,9 @@ type VulInfo struct {
 
 	// 忽略数量
 	IgnoredNum *int64 `json:"ignored_num,omitempty"`
+
+	// 验证数量
+	VerifyNum *int32 `json:"verify_num,omitempty"`
 }
 
 func (o VulInfo) String() string {

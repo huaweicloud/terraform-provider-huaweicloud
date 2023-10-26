@@ -9,11 +9,11 @@ import (
 // ListFailedTaskRequest Request Object
 type ListFailedTaskRequest struct {
 
-	// 每页返回的个数。 默认值：50。
-	Limit *string `json:"limit,omitempty"`
+	// 每页显示的条目数量。默认值1000。
+	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量，表示从此偏移量开始查询， offset大于等于0
-	Offset *string `json:"offset,omitempty"`
+	// 失败的任务信息列表的偏移量
+	Offset *int32 `json:"offset,omitempty"`
 }
 
 func (o ListFailedTaskRequest) String() string {

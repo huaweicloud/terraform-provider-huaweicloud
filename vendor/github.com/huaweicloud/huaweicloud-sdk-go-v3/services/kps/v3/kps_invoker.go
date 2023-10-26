@@ -17,6 +17,30 @@ func (i *AssociateKeypairInvoker) Invoke() (*model.AssociateKeypairResponse, err
 	}
 }
 
+type BatchAssociateKeypairInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchAssociateKeypairInvoker) Invoke() (*model.BatchAssociateKeypairResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchAssociateKeypairResponse), nil
+	}
+}
+
+type ClearPrivateKeyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ClearPrivateKeyInvoker) Invoke() (*model.ClearPrivateKeyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ClearPrivateKeyResponse), nil
+	}
+}
+
 type CreateKeypairInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -74,6 +98,30 @@ func (i *DisassociateKeypairInvoker) Invoke() (*model.DisassociateKeypairRespons
 		return nil, err
 	} else {
 		return result.(*model.DisassociateKeypairResponse), nil
+	}
+}
+
+type ExportPrivateKeyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ExportPrivateKeyInvoker) Invoke() (*model.ExportPrivateKeyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ExportPrivateKeyResponse), nil
+	}
+}
+
+type ImportPrivateKeyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ImportPrivateKeyInvoker) Invoke() (*model.ImportPrivateKeyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ImportPrivateKeyResponse), nil
 	}
 }
 

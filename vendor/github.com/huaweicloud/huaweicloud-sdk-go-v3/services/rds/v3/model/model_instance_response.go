@@ -21,7 +21,11 @@ type InstanceResponse struct {
 	// 实例内网IP地址列表。弹性云服务器创建成功后该值存在，其他情况下为空字符串。
 	PrivateIps []string `json:"private_ips"`
 
+	// 内网域名列表
 	PrivateDnsNames *[]string `json:"private_dns_names,omitempty"`
+
+	// 公网域名列表
+	PublicDnsNames *[]string `json:"public_dns_names,omitempty"`
 
 	// 实例外网IP地址列表。
 	PublicIps []string `json:"public_ips"`

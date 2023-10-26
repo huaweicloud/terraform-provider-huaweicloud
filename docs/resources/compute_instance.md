@@ -274,6 +274,9 @@ The following arguments are supported:
 
   Changing this creates a new instance.
 
+* `system_disk_dss_pool_id` - (Optional, String, ForceNew) Specifies the system disk DSS pool ID. This field is used
+  only for dedicated storage. Changing this parameter will create a new resource.
+
 * `data_disks` - (Optional, List, ForceNew) Specifies an array of one or more data disks to attach to the instance.
   The data_disks object structure is documented below. Changing this creates a new instance.
 
@@ -429,6 +432,9 @@ The `data_disks` block supports:
 
   Changing this creates a new instance.
 
+* `dss_pool_id` - (Optional, String, ForceNew) Specifies the data disk DSS pool ID. This field is used
+  only for dedicated storage. Changing this parameter will create a new resource.
+
 The `bandwidth` block supports:
 
 * `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type. Changing this creates a new instance.
@@ -508,7 +514,7 @@ This resource provides the following timeouts configuration options:
 
 Instances can be imported by their `id`. For example,
 
-```
+```shell
 terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc4-92398320b847
 ```
 

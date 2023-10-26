@@ -23,7 +23,7 @@ type ListAvailableZonesRespAvailableZones struct {
 	// 可用区端口号。
 	Port *string `json:"port,omitempty"`
 
-	// 分区上是否还有可用资源。
+	// 可用区上是否还有可用资源。
 	ResourceAvailability *string `json:"resource_availability,omitempty"`
 
 	// 是否为默认可用区。

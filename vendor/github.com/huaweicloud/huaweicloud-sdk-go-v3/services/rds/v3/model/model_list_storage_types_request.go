@@ -42,6 +42,7 @@ type ListStorageTypesRequestDatabaseNameEnum struct {
 	MY_SQL      ListStorageTypesRequestDatabaseName
 	POSTGRE_SQL ListStorageTypesRequestDatabaseName
 	SQL_SERVER  ListStorageTypesRequestDatabaseName
+	MARIA_DB    ListStorageTypesRequestDatabaseName
 }
 
 func GetListStorageTypesRequestDatabaseNameEnum() ListStorageTypesRequestDatabaseNameEnum {
@@ -54,6 +55,9 @@ func GetListStorageTypesRequestDatabaseNameEnum() ListStorageTypesRequestDatabas
 		},
 		SQL_SERVER: ListStorageTypesRequestDatabaseName{
 			value: "SQLServer",
+		},
+		MARIA_DB: ListStorageTypesRequestDatabaseName{
+			value: "MariaDB",
 		},
 	}
 }

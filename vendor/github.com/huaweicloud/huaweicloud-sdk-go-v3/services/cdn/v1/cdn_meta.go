@@ -583,6 +583,10 @@ func GenReqDefForShowHistoryTasks() *def.HttpRequestDef {
 		WithName("FileType").
 		WithJsonTag("file_type").
 		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("TaskType").
+		WithJsonTag("task_type").
+		WithLocationType(def.Query))
 
 	requestDef := reqDefBuilder.Build()
 	return requestDef

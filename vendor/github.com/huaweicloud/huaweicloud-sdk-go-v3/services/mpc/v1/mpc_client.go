@@ -346,7 +346,7 @@ func (c *MpcClient) CreateEncryptTaskInvoker(request *model.CreateEncryptTaskReq
 //
 // 约束：
 //
-//   只能取消正在任务队列中排队的任务。已开始加密或已完成的加密任务不能取消。
+//	只能取消正在任务队列中排队的任务。已开始加密或已完成的加密任务不能取消。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteEncryptTask(request *model.DeleteEncryptTaskRequest) (*model.DeleteEncryptTaskResponse, error) {
@@ -452,11 +452,16 @@ func (c *MpcClient) ListExtractTaskInvoker(request *model.ListExtractTaskRequest
 // CreateMbTasksReport 合并多声道任务、重置声轨任务上报接口
 //
 // ## 典型场景 ##
-//   合并音频多声道文件任务、重置音频文件声轨任务上报结果接口。
+//
+//	合并音频多声道文件任务、重置音频文件声轨任务上报结果接口。
+//
 // ## 接口功能 ##
-//   合并音频多声道文件任务、重置音频文件声轨任务上报结果接口。
+//
+//	合并音频多声道文件任务、重置音频文件声轨任务上报结果接口。
+//
 // ## 接口约束 ##
-//   无。
+//
+//	无。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMbTasksReport(request *model.CreateMbTasksReportRequest) (*model.CreateMbTasksReportResponse, error) {
@@ -606,13 +611,16 @@ func (c *MpcClient) ListResetTracksTaskInvoker(request *model.ListResetTracksTas
 // CreateMediaProcessTask 创建视频增强任务
 //
 // ## 典型场景 ##
-//   创建视频增强任务。
+//
+//	创建视频增强任务。
 //
 // ## 接口功能 ##
-//   创建视频增强任务。
+//
+//	创建视频增强任务。
 //
 // ## 接口约束 ##
-//   无。
+//
+//	无。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMediaProcessTask(request *model.CreateMediaProcessTaskRequest) (*model.CreateMediaProcessTaskResponse, error) {
@@ -634,13 +642,16 @@ func (c *MpcClient) CreateMediaProcessTaskInvoker(request *model.CreateMediaProc
 // DeleteMediaProcessTask 取消视频增强任务
 //
 // ## 典型场景 ##
-//   取消视频增强任务。
+//
+//	取消视频增强任务。
 //
 // ## 接口功能 ##
-//   取消视频增强任务。
+//
+//	取消视频增强任务。
 //
 // ## 接口约束 ##
-//   仅可删除正在排队中的任务。
+//
+//	仅可删除正在排队中的任务。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) DeleteMediaProcessTask(request *model.DeleteMediaProcessTaskRequest) (*model.DeleteMediaProcessTaskResponse, error) {
@@ -662,13 +673,16 @@ func (c *MpcClient) DeleteMediaProcessTaskInvoker(request *model.DeleteMediaProc
 // ListMediaProcessTask 查询视频增强任务
 //
 // ## 典型场景 ##
-//   查询视频增强任务。
+//
+//	查询视频增强任务。
 //
 // ## 接口功能 ##
-//   查询视频增强任务。
+//
+//	查询视频增强任务。
 //
 // ## 接口约束 ##
-//   无。
+//
+//	无。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) ListMediaProcessTask(request *model.ListMediaProcessTaskRequest) (*model.ListMediaProcessTaskResponse, error) {
@@ -690,11 +704,16 @@ func (c *MpcClient) ListMediaProcessTaskInvoker(request *model.ListMediaProcessT
 // CreateMpeCallBack mpe通知mpc
 //
 // ## 典型场景 ##
-//   mpe通知mpc。
+//
+//	mpe通知mpc。
+//
 // ## 接口功能 ##
-//   mpe调用此接口通知mpc转封装等结果。
+//
+//	mpe调用此接口通知mpc转封装等结果。
+//
 // ## 接口约束 ##
-//   无。
+//
+//	无。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateMpeCallBack(request *model.CreateMpeCallBackRequest) (*model.CreateMpeCallBackResponse, error) {
@@ -1014,7 +1033,8 @@ func (c *MpcClient) UpdateTemplateGroupInvoker(request *model.UpdateTemplateGrou
 // 待截图的视频文件需要存储在与媒体处理服务同区域的OBS桶中，且该OBS桶已授权。
 //
 // 约束：
-//   暂只支持生成JPG格式的图片文件。
+//
+//	暂只支持生成JPG格式的图片文件。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *MpcClient) CreateThumbnailsTask(request *model.CreateThumbnailsTaskRequest) (*model.CreateThumbnailsTaskResponse, error) {
