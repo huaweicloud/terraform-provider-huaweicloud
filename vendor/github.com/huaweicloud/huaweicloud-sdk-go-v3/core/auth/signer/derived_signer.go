@@ -32,42 +32,18 @@ import (
 )
 
 const (
-	DerivationAlgorithm = "V11-HMAC-SHA256"
-	DerivedDateFormat   = "20060102"
+	DerivedDateFormat = "20060102"
+	AlgorithmV11      = "V11-HMAC-SHA256"
 )
 
-// DerivationAuthHeaderValue Get the finalized value for the "Authorization" header. The signature parameter is the output from SignStringToSign
-func DerivationAuthHeaderValue(signature, accessKey string, info string, signedHeaders []string) string {
-	return fmt.Sprintf("%s Credential=%s/%s, SignedHeaders=%s, Signature=%s", DerivationAlgorithm, accessKey, info, strings.Join(signedHeaders, ";"), signature)
+type DerivedSigner struct {
 }
 
-// Get the derivation key for derived credential.
-func GetDerivationKey(accessKey string, secretKey string, info string) (string, error) {
-	hash := sha256.New
-	derivationKeyReader := hkdf.New(hash, []byte(secretKey), []byte(accessKey), []byte(info))
-	derivationKey := make([]byte, 32)
-	_, err := io.ReadFull(derivationKeyReader, derivationKey)
-	return hex.EncodeToString(derivationKey), err
-}
-
-// StringToSignDerived Create a "String to Sign".
-func StringToSignDerived(canonicalRequest string, info string, t time.Time) (string, error) {
-	hash := sha256.New()
-	_, err := hash.Write([]byte(canonicalRequest))
+// Sign SignRequest set Authorization header
+func (s DerivedSigner) Sign(r *request.DefaultHttpRequest, ak, sk, derivedAuthServiceName, regionId string) (map[string]string, error) {
+	err := checkAKSK(ak, sk)
 	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%s\n%s\n%s\n%x",
-		DerivationAlgorithm, t.UTC().Format(BasicDateFormat), info, hash.Sum(nil)), nil
-}
-
-// SignDerived SignRequest set Authorization header
-func SignDerived(r *request.DefaultHttpRequest, ak string, sk string, derivedAuthServiceName string, regionId string) (map[string]string, error) {
-	if ak == "" {
-		return nil, errors.New("AK is required in credentials")
-	}
-	if sk == "" {
-		return nil, errors.New("SK is required in credentials")
+		return nil, err
 	}
 	if derivedAuthServiceName == "" {
 		return nil, errors.New("DerivedAuthServiceName is required in credentials when using derived auth")
@@ -76,40 +52,66 @@ func SignDerived(r *request.DefaultHttpRequest, ak string, sk string, derivedAut
 		return nil, errors.New("RegionId is required in credentials when using derived auth")
 	}
 
-	var err error
-	var t time.Time
-	var headerParams = make(map[string]string)
-	userHeaders := r.GetHeaderParams()
-	if date, ok := userHeaders[HeaderXDate]; ok {
-		t, err = time.Parse(BasicDateFormat, date)
-		if date == "" || err != nil {
-			t = time.Now()
-			userHeaders[HeaderXDate] = t.UTC().Format(BasicDateFormat)
-			headerParams[HeaderXDate] = t.UTC().Format(BasicDateFormat)
-		}
-	} else {
-		t = time.Now()
-		userHeaders[HeaderXDate] = t.UTC().Format(BasicDateFormat)
-		headerParams[HeaderXDate] = t.UTC().Format(BasicDateFormat)
-	}
-	signedHeaders := SignedHeaders(userHeaders)
-	canonicalRequest, err := CanonicalRequest(r, signedHeaders)
+	originalHeaders := r.GetHeaderParams()
+	t := extractTime(originalHeaders)
+	headerDate := t.UTC().Format(BasicDateFormat)
+	originalHeaders[HeaderXDate] = headerDate
+	additionalHeaders := map[string]string{HeaderXDate: headerDate}
+
+	signedHeaders := extractSignedHeaders(originalHeaders)
+	cr, err := canonicalRequest(r, signedHeaders, xSdkContentSha256, sha256HasherInst)
 	if err != nil {
 		return nil, err
 	}
 	info := t.UTC().Format(DerivedDateFormat) + "/" + regionId + "/" + derivedAuthServiceName
-	stringToSign, err := StringToSignDerived(canonicalRequest, info, t)
+	sts, err := s.stringToSign(cr, info, t)
 	if err != nil {
 		return nil, err
 	}
-	derivedSk, err := GetDerivationKey(ak, sk, info)
+	derivationKey, err := s.getDerivationKey(ak, sk, info)
 	if err != nil {
 		return nil, err
 	}
-	signature, err := SignStringToSign(stringToSign, []byte(derivedSk))
+	sig, err := s.signStringToSign(sts, []byte(derivationKey))
 	if err != nil {
 		return nil, err
 	}
-	headerParams[HeaderAuthorization] = DerivationAuthHeaderValue(signature, ak, info, signedHeaders)
-	return headerParams, nil
+	additionalHeaders[HeaderAuthorization] = s.authHeaderValue(sig, ak, info, signedHeaders)
+	return additionalHeaders, nil
+}
+
+// signStringToSign Create the Signature.
+func (s DerivedSigner) signStringToSign(stringToSign string, signingKey []byte) (string, error) {
+	hm, err := sha256HasherInst.hmac([]byte(stringToSign), signingKey)
+	return fmt.Sprintf("%x", hm), err
+}
+
+// authHeaderValue Get the finalized value for the "Authorization" header.
+// The signature parameter is the output from signStringToSign
+func (s DerivedSigner) authHeaderValue(signature, accessKey, info string, signedHeaders []string) string {
+	return fmt.Sprintf("%s Credential=%s/%s, SignedHeaders=%s, Signature=%s",
+		AlgorithmV11,
+		accessKey,
+		info,
+		strings.Join(signedHeaders, ";"),
+		signature)
+}
+
+// getDerivationKey Get the derivation key for derived credential.
+func (s DerivedSigner) getDerivationKey(accessKey, secretKey, info string) (string, error) {
+	hash := sha256.New
+	derivationKeyReader := hkdf.New(hash, []byte(secretKey), []byte(accessKey), []byte(info))
+	derivationKey := make([]byte, 32)
+	_, err := io.ReadFull(derivationKeyReader, derivationKey)
+	return hex.EncodeToString(derivationKey), err
+}
+
+// stringToSign Create a "String to Sign".
+func (s DerivedSigner) stringToSign(canonicalRequest, info string, t time.Time) (string, error) {
+	canonicalRequestHash, err := sha256HasherInst.hashHexString([]byte(canonicalRequest))
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s\n%s\n%s\n%s", AlgorithmV11, t.UTC().Format(BasicDateFormat), info, canonicalRequestHash), nil
 }

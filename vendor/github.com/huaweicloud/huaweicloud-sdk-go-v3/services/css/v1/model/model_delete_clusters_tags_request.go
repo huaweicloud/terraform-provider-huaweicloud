@@ -15,7 +15,7 @@ type DeleteClustersTagsRequest struct {
 	// 资源类型，当前固定值为“css-cluster”，表示是集群类型。
 	ResourceType string `json:"resource_type"`
 
-	// 需要删除的标签名。
+	// 需要删除的标签名。如果标签名为中文需要经过url编码再调用该接口。
 	Key string `json:"key"`
 }
 

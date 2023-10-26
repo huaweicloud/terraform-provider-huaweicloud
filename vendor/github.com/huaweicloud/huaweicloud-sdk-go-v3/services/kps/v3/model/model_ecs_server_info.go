@@ -14,8 +14,11 @@ type EcsServerInfo struct {
 
 	Auth *Auth `json:"auth,omitempty"`
 
-	// - true：禁用虚拟机的ssh登陆。 - false：不禁用虚拟机的ssh登陆。
+	// - true：禁用虚拟机的ssh登录。 - false：不禁用虚拟机的ssh登录。
 	DisablePassword *bool `json:"disable_password,omitempty"`
+
+	// SSH监听端口。
+	Port *int64 `json:"port,omitempty"`
 }
 
 func (o EcsServerInfo) String() string {

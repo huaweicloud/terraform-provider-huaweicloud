@@ -149,6 +149,18 @@ func (i *CreateBatchTaskInvoker) Invoke() (*model.CreateBatchTaskResponse, error
 	}
 }
 
+type DeleteBatchTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteBatchTaskInvoker) Invoke() (*model.DeleteBatchTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteBatchTaskResponse), nil
+	}
+}
+
 type ListBatchTasksInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -926,5 +938,65 @@ func (i *UntagDeviceInvoker) Invoke() (*model.UntagDeviceResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.UntagDeviceResponse), nil
+	}
+}
+
+type AddTunnelInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddTunnelInvoker) Invoke() (*model.AddTunnelResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddTunnelResponse), nil
+	}
+}
+
+type CloseDeviceTunnelInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CloseDeviceTunnelInvoker) Invoke() (*model.CloseDeviceTunnelResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CloseDeviceTunnelResponse), nil
+	}
+}
+
+type DeleteDeviceTunnelInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteDeviceTunnelInvoker) Invoke() (*model.DeleteDeviceTunnelResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteDeviceTunnelResponse), nil
+	}
+}
+
+type ListDeviceTunnelsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListDeviceTunnelsInvoker) Invoke() (*model.ListDeviceTunnelsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListDeviceTunnelsResponse), nil
+	}
+}
+
+type ShowDeviceTunnelInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDeviceTunnelInvoker) Invoke() (*model.ShowDeviceTunnelResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDeviceTunnelResponse), nil
 	}
 }

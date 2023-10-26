@@ -15,7 +15,7 @@ type DeleteTrackerRequest struct {
 	// 标识追踪器名称。 在不传入该字段的情况下，将删除当前租户所有的数据类追踪器。
 	TrackerName *string `json:"tracker_name,omitempty"`
 
-	// 标识追踪器类型。 目前仅支持数据类追踪器（data）的删除，默认值为\"data\"。
+	// 标识追踪器类型。 默认值为\"data\"。传入\"system\"时，配合tracker_name参数可删除管理类追踪器。
 	TrackerType *DeleteTrackerRequestTrackerType `json:"tracker_type,omitempty"`
 }
 
@@ -33,13 +33,17 @@ type DeleteTrackerRequestTrackerType struct {
 }
 
 type DeleteTrackerRequestTrackerTypeEnum struct {
-	DATA DeleteTrackerRequestTrackerType
+	DATA   DeleteTrackerRequestTrackerType
+	SYSTEM DeleteTrackerRequestTrackerType
 }
 
 func GetDeleteTrackerRequestTrackerTypeEnum() DeleteTrackerRequestTrackerTypeEnum {
 	return DeleteTrackerRequestTrackerTypeEnum{
 		DATA: DeleteTrackerRequestTrackerType{
 			value: "data",
+		},
+		SYSTEM: DeleteTrackerRequestTrackerType{
+			value: "system",
 		},
 	}
 }

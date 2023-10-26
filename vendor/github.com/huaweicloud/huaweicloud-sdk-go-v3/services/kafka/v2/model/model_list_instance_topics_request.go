@@ -11,12 +11,6 @@ type ListInstanceTopicsRequest struct {
 
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
-
-	// 偏移量，表示从此偏移量开始查询， offset大于等于0。
-	Offset *string `json:"offset,omitempty"`
-
-	// 当次查询返回的最大Topic个数，默认值为10，取值范围为1~50。
-	Limit *string `json:"limit,omitempty"`
 }
 
 func (o ListInstanceTopicsRequest) String() string {

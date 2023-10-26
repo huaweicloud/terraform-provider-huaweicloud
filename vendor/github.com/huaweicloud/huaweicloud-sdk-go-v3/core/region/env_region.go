@@ -66,7 +66,8 @@ func (p *EnvProvider) GetRegion(regionId string) *Region {
 		return nil
 	}
 
-	reg := NewRegion(regionId, endpoint)
+	endpoints := strings.Split(endpoint, ",")
+	reg := NewRegion(regionId, endpoints...)
 	getEnvCache().value[p.serviceName+regionId] = reg
 	return reg
 }

@@ -80,8 +80,11 @@ type ShowClusterDetailResponse struct {
 	FailedReason *ClusterDetailFailedReasons `json:"failedReason,omitempty"`
 
 	// 是否为包周期集群。 - \"true\" 表示是包周期计费的集群。 - \"false\" 表示是按需计费的集群。
-	Period         *bool `json:"period,omitempty"`
-	HttpStatusCode int   `json:"-"`
+	Period *bool `json:"period,omitempty"`
+
+	// es公网访问的资源id
+	BandwidthResourceId *string `json:"bandwidthResourceId,omitempty"`
+	HttpStatusCode      int     `json:"-"`
 }
 
 func (o ShowClusterDetailResponse) String() string {

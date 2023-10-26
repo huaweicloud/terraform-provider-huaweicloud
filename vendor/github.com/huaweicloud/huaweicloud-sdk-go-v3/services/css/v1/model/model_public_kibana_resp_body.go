@@ -16,6 +16,9 @@ type PublicKibanaRespBody struct {
 
 	// kibana访问IP。
 	PublicKibanaIp *string `json:"publicKibanaIp,omitempty"`
+
+	// 当前kibana公网对应的资源Id。
+	BandwidthResourceId *string `json:"bandwidthResourceId,omitempty"`
 }
 
 func (o PublicKibanaRespBody) String() string {

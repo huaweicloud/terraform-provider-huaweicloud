@@ -105,7 +105,7 @@ func (c *LiveClient) CreateRecordCallbackConfigInvoker(request *model.CreateReco
 
 // CreateRecordIndex 创建录制视频索引文件
 //
-// Create Record Index
+// # Create Record Index
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *LiveClient) CreateRecordIndex(request *model.CreateRecordIndexRequest) (*model.CreateRecordIndexResponse, error) {
@@ -882,7 +882,7 @@ func (c *LiveClient) UpdateDomainHttpsCertInvoker(request *model.UpdateDomainHtt
 
 // UpdateObsBucketAuthorityPublic OBS桶授权及取消授权
 //
-// OBS桶授权及取消授权
+// # OBS桶授权及取消授权
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *LiveClient) UpdateObsBucketAuthorityPublic(request *model.UpdateObsBucketAuthorityPublicRequest) (*model.UpdateObsBucketAuthorityPublicResponse, error) {

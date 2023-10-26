@@ -41,6 +41,18 @@ func (i *ChangeSecurityGroupInvoker) Invoke() (*model.ChangeSecurityGroupRespons
 	}
 }
 
+type CreateAiOpsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAiOpsInvoker) Invoke() (*model.CreateAiOpsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAiOpsResponse), nil
+	}
+}
+
 type CreateAutoCreatePolicyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -89,6 +101,18 @@ func (i *CreateClustersTagsInvoker) Invoke() (*model.CreateClustersTagsResponse,
 	}
 }
 
+type CreateElbListenerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateElbListenerInvoker) Invoke() (*model.CreateElbListenerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateElbListenerResponse), nil
+	}
+}
+
 type CreateLoadIkThesaurusInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -122,6 +146,18 @@ func (i *CreateSnapshotInvoker) Invoke() (*model.CreateSnapshotResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.CreateSnapshotResponse), nil
+	}
+}
+
+type DeleteAiOpsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteAiOpsInvoker) Invoke() (*model.DeleteAiOpsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteAiOpsResponse), nil
 	}
 }
 
@@ -185,6 +221,30 @@ func (i *DownloadCertInvoker) Invoke() (*model.DownloadCertResponse, error) {
 	}
 }
 
+type EnableOrDisableElbInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *EnableOrDisableElbInvoker) Invoke() (*model.EnableOrDisableElbResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.EnableOrDisableElbResponse), nil
+	}
+}
+
+type ListAiOpsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAiOpsInvoker) Invoke() (*model.ListAiOpsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAiOpsResponse), nil
+	}
+}
+
 type ListClustersDetailsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -209,6 +269,30 @@ func (i *ListClustersTagsInvoker) Invoke() (*model.ListClustersTagsResponse, err
 	}
 }
 
+type ListElbCertsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListElbCertsInvoker) Invoke() (*model.ListElbCertsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListElbCertsResponse), nil
+	}
+}
+
+type ListElbsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListElbsInvoker) Invoke() (*model.ListElbsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListElbsResponse), nil
+	}
+}
+
 type ListFlavorsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -221,6 +305,18 @@ func (i *ListFlavorsInvoker) Invoke() (*model.ListFlavorsResponse, error) {
 	}
 }
 
+type ListImagesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListImagesInvoker) Invoke() (*model.ListImagesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListImagesResponse), nil
+	}
+}
+
 type ListLogsJobInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -230,6 +326,18 @@ func (i *ListLogsJobInvoker) Invoke() (*model.ListLogsJobResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListLogsJobResponse), nil
+	}
+}
+
+type ListSmnTopicsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSmnTopicsInvoker) Invoke() (*model.ListSmnTopicsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSmnTopicsResponse), nil
 	}
 }
 
@@ -305,6 +413,18 @@ func (i *RestoreSnapshotInvoker) Invoke() (*model.RestoreSnapshotResponse, error
 	}
 }
 
+type RetryUpgradeTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RetryUpgradeTaskInvoker) Invoke() (*model.RetryUpgradeTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RetryUpgradeTaskResponse), nil
+	}
+}
+
 type ShowAutoCreatePolicyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -338,6 +458,18 @@ func (i *ShowClusterTagInvoker) Invoke() (*model.ShowClusterTagResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.ShowClusterTagResponse), nil
+	}
+}
+
+type ShowElbDetailInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowElbDetailInvoker) Invoke() (*model.ShowElbDetailResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowElbDetailResponse), nil
 	}
 }
 
@@ -509,6 +641,18 @@ func (i *StopVpecpInvoker) Invoke() (*model.StopVpecpResponse, error) {
 	}
 }
 
+type UpdateAzByInstanceTypeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAzByInstanceTypeInvoker) Invoke() (*model.UpdateAzByInstanceTypeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAzByInstanceTypeResponse), nil
+	}
+}
+
 type UpdateBatchClustersTagsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -530,6 +674,18 @@ func (i *UpdateClusterNameInvoker) Invoke() (*model.UpdateClusterNameResponse, e
 		return nil, err
 	} else {
 		return result.(*model.UpdateClusterNameResponse), nil
+	}
+}
+
+type UpdateEsListenerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateEsListenerInvoker) Invoke() (*model.UpdateEsListenerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateEsListenerResponse), nil
 	}
 }
 
@@ -713,6 +869,30 @@ func (i *UpdateYmlsInvoker) Invoke() (*model.UpdateYmlsResponse, error) {
 	}
 }
 
+type UpgradeCoreInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeCoreInvoker) Invoke() (*model.UpgradeCoreResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeCoreResponse), nil
+	}
+}
+
+type UpgradeDetailInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeDetailInvoker) Invoke() (*model.UpgradeDetailResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeDetailResponse), nil
+	}
+}
+
 type StartKibanaPublicInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -809,6 +989,18 @@ func (i *DeleteConfInvoker) Invoke() (*model.DeleteConfResponse, error) {
 	}
 }
 
+type DeleteConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteConfigInvoker) Invoke() (*model.DeleteConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteConfigResponse), nil
+	}
+}
+
 type DeleteTemplateInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -830,6 +1022,18 @@ func (i *ListActionsInvoker) Invoke() (*model.ListActionsResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListActionsResponse), nil
+	}
+}
+
+type ListCertsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListCertsInvoker) Invoke() (*model.ListCertsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListCertsResponse), nil
 	}
 }
 
@@ -902,6 +1106,18 @@ func (i *StartPipelineInvoker) Invoke() (*model.StartPipelineResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.StartPipelineResponse), nil
+	}
+}
+
+type StopHotPipelineInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *StopHotPipelineInvoker) Invoke() (*model.StopHotPipelineResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.StopHotPipelineResponse), nil
 	}
 }
 

@@ -281,7 +281,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 
 		keyProtection := model.KeyProtection{
 			Encryption: &model.Encryption{
-				Type: &encryptionType,
+				Type: encryptionType,
 			},
 		}
 
@@ -289,7 +289,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		if k, kmsExist := d.GetOk("kms_key_name"); t == "kms" && !kmsExist {
 			return nil, fmtp.Errorf("kms_key_name is mandatory when the encryption_type is kms")
 		} else {
-			keyProtection.Encryption.KmsKeyName = utils.String(k.(string))
+			keyProtection.Encryption.KmsKeyName = k.(string)
 		}
 
 		createOpts.Body.Keypair.KeyProtection = &keyProtection
