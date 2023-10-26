@@ -66,7 +66,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 resource "huaweicloud_elb_listener" "test" {
- name                        = "%s"
+ name                        = "%[1]s"
  description                 = "test description"
  protocol                    = "HTTP"
  protocol_port               = 8080
