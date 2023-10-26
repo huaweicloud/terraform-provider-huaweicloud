@@ -228,6 +228,11 @@ func ResourceComputeInstance() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"system_disk_dss_pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"data_disks": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -262,6 +267,11 @@ func ResourceComputeInstance() *schema.Resource {
 						},
 						"throughput": {
 							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+						"dss_pool_id": {
+							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
@@ -1813,6 +1823,11 @@ func buildInstanceRootVolume(d *schema.ResourceData) cloudservers.RootVolume {
 		volRequest.Metadata = &matadata
 	}
 
+	if v, ok := d.GetOk("system_disk_dss_pool_id"); ok {
+		volRequest.ClusterType = "DSS"
+		volRequest.ClusterId = v.(string)
+	}
+
 	return volRequest
 }
 
@@ -1842,6 +1857,11 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 				SystemCmkid:     vol["kms_key_id"].(string),
 			}
 			volRequest.Metadata = &matadata
+		}
+
+		if vol["dss_pool_id"] != "" {
+			volRequest.ClusterType = "DSS"
+			volRequest.ClusterId = vol["dss_pool_id"].(string)
 		}
 
 		volRequests = append(volRequests, volRequest)

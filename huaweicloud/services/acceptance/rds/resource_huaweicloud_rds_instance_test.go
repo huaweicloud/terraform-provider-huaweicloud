@@ -11,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 )
 
@@ -178,7 +177,6 @@ func TestAccRdsInstance_ha(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "ha_replication_mode", "async"),
 				),
 			},
@@ -228,8 +226,6 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "500"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "20"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.67"),
-					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.67"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
 				),
@@ -260,27 +256,23 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstance_sqlserver(name, pwd, "192.168.0.56"),
+				Config: testAccRdsInstance_sqlserver(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.56"),
-					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.56"),
 				),
 			},
 			{
-				Config: testAccRdsInstance_sqlserver(name, pwd, "192.168.0.66"),
+				Config: testAccRdsInstance_sqlserver(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.66"),
-					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.66"),
 				),
 			},
 		},
@@ -553,20 +545,35 @@ func testAccCheckRdsInstanceExists(name string, instance *instances.RdsInstanceR
 	}
 }
 
+func testAccRdsInstance_base() string {
+	return `
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}`
+}
+
 func testAccRdsInstance_basic(name, password string) string {
 	return fmt.Sprintf(`
 %s
-
-data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
   description       = "test_description"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
   fixed_ip          = "192.168.0.52"
 
@@ -590,7 +597,7 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, common.TestBaseNetwork(name), name, password)
+`, testAccRdsInstance_base(), name, password)
 }
 
 // name, volume.size, backup_strategy, flavor, tags and password will be updated
@@ -598,15 +605,13 @@ func testAccRdsInstance_update(name, password string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s-update"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
   fixed_ip          = "192.168.0.62"
 
@@ -630,23 +635,21 @@ resource "huaweicloud_rds_instance" "test" {
     foo  = "bar_updated"
   }
 }
-`, common.TestBaseNetwork(name), name, password)
+`, testAccRdsInstance_base(), name, password)
 }
 
 func testAccRdsInstance_without_password(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
   description       = "test_description"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
 
   db {
@@ -660,23 +663,21 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccRdsInstance_without_password_update(name, password string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
   description       = "test_description"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
 
   db {
@@ -691,22 +692,20 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, common.TestBaseNetwork(name), name, password)
+`, testAccRdsInstance_base(), name, password)
 }
 
 func testAccRdsInstance_epsId(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name                  = "%s"
   flavor                = "rds.pg.n1.large.2"
   availability_zone     = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  vpc_id                = huaweicloud_vpc.test.id
+  security_group_id     = data.huaweicloud_networking_secgroup.test.id
+  subnet_id             = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                = data.huaweicloud_vpc.test.id
   enterprise_project_id = "%s"
 
   db {
@@ -724,23 +723,20 @@ resource "huaweicloud_rds_instance" "test" {
     keep_days  = 1
   }
 }
-`, common.TestBaseNetwork(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccRdsInstance_base(), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccRdsInstance_ha(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
   flavor              = "rds.pg.n1.large.2.ha"
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  subnet_id           = data.huaweicloud_vpc_subnet.test.id
+  vpc_id              = data.huaweicloud_vpc.test.id
   time_zone           = "UTC+08:00"
-  fixed_ip            = "192.168.0.58"
   ha_replication_mode = "async"
   availability_zone   = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -767,7 +763,7 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 // if the instance flavor has been changed, then a temp instance will be kept for 12 hours,
@@ -776,19 +772,7 @@ resource "huaweicloud_rds_instance" "test" {
 // security group in the test case, otherwise, they cannot be deleted when destroy the resource
 func testAccRdsInstance_mysql_step1(name, pwd string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+%[1]s
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
@@ -798,7 +782,7 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[1]s"
+  name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
@@ -807,7 +791,7 @@ resource "huaweicloud_rds_instance" "test" {
   ssl_enable        = true  
 
   db {
-    password = "%[2]s"
+    password = "%[3]s"
     type     = "MySQL"
     version  = "8.0"
     port     = 3306
@@ -826,24 +810,12 @@ resource "huaweicloud_rds_instance" "test" {
     trigger_threshold = 15
   }
 }
-`, name, pwd)
+`, testAccRdsInstance_base(), name, pwd)
 }
 
 func testAccRdsInstance_mysql_step2(name, pwd string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+%[1]s
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
@@ -853,17 +825,16 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[1]s"
+  name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = false
-  fixed_ip          = "192.168.0.67"
 
   db {
-    password = "%[2]s"
+    password = "%[3]s"
     type     = "MySQL"
     version  = "8.0"
     port     = 3308
@@ -882,24 +853,12 @@ resource "huaweicloud_rds_instance" "test" {
     trigger_threshold = 20
   }
 }
-`, name, pwd)
+`, testAccRdsInstance_base(), name, pwd)
 }
 
 func testAccRdsInstance_mysql_step3(name, pwd string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+%[1]s
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "MySQL"
@@ -909,17 +868,16 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[1]s"
+  name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = false
-  fixed_ip          = "192.168.0.67"
 
   db {
-    password = "%[2]s"
+    password = "%[3]s"
     type     = "MySQL"
     version  = "8.0"
     port     = 3308
@@ -930,24 +888,12 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, name, pwd)
+`, testAccRdsInstance_base(), name, pwd)
 }
 
-func testAccRdsInstance_sqlserver(name, pwd, fixedIp string) string {
+func testAccRdsInstance_sqlserver(name, pwd string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+%[1]s
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
@@ -958,20 +904,19 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%s"
+  name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   collation         = "Chinese_PRC_CI_AS"
-  fixed_ip          = "%s"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 
   db {
-    password = "%s"
+    password = "%[3]s"
     type     = "SQLServer"
     version  = "2017_EE"
     port     = 8635
@@ -982,24 +927,12 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, name, fixedIp, pwd)
+`, testAccRdsInstance_base(), name, pwd)
 }
 
 func testAccRdsInstance_prePaid(name, pwd string, isAutoRenew bool) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
+%[1]s
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
@@ -1018,12 +951,12 @@ resource "huaweicloud_rds_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 
-  name      = "%[1]s"
+  name      = "%[2]s"
   flavor    = data.huaweicloud_rds_flavors.test.flavors[0].name
   collation = "Chinese_PRC_CI_AS"
 
   db {
-    password = "%[2]s"
+    password = "%[3]s"
     type     = "SQLServer"
     version  = "2019_SE"
     port     = 8638
@@ -1037,24 +970,21 @@ resource "huaweicloud_rds_instance" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[3]v"
+  auto_renew    = "%[4]v"
 }
-`, name, pwd, isAutoRenew)
+`, testAccRdsInstance_base(), name, pwd, isAutoRenew)
 }
 
 func testAccRdsInstance_parameters(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
   flavor              = "rds.mysql.sld4.large.ha"
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
-  fixed_ip            = "192.168.0.58"
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  subnet_id           = data.huaweicloud_vpc_subnet.test.id
+  vpc_id              = data.huaweicloud_vpc.test.id
   ha_replication_mode = "semisync"
 
   availability_zone = [
@@ -1079,22 +1009,19 @@ resource "huaweicloud_rds_instance" "test" {
     value = "12"
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccRdsInstance_newParameters(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
   flavor              = "rds.mysql.sld4.large.ha"
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  subnet_id           = huaweicloud_vpc_subnet.test.id
-  vpc_id              = huaweicloud_vpc.test.id
-  fixed_ip            = "192.168.0.58"
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  subnet_id           = data.huaweicloud_vpc_subnet.test.id
+  vpc_id              = data.huaweicloud_vpc.test.id
   ha_replication_mode = "semisync"
 
   availability_zone = [
@@ -1119,31 +1046,19 @@ resource "huaweicloud_rds_instance" "test" {
     value = "14"
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccRdsInstance_restore_mysql(name, pwd string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_vpc" "test_update" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test_update" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test_update" {
-  name = "default"
-}
-
 resource "huaweicloud_rds_instance" "test_backup" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
-  vpc_id            = data.huaweicloud_vpc.test_update.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = true  
 
@@ -1179,24 +1094,12 @@ func testAccRdsInstance_restore_mysql_update(name, pwd string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_vpc" "test_update" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test_update" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test_update" {
-  name = "default"
-}
-
 resource "huaweicloud_rds_instance" "test_backup" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
-  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
-  vpc_id            = data.huaweicloud_vpc.test_update.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable        = false
 
@@ -1296,24 +1199,12 @@ func testAccRdsInstance_restore_pg(name, pwd string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_vpc" "test_update" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test_update" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test_update" {
-  name = "default"
-}
-
 resource "huaweicloud_rds_instance" "test_backup" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
-  vpc_id            = data.huaweicloud_vpc.test_update.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
 
   restore {
@@ -1340,24 +1231,12 @@ func testAccRdsInstance_restore_pg_update(name, pwd string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_vpc" "test_update" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test_update" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_networking_secgroup" "test_update" {
-  name = "default"
-}
-
 resource "huaweicloud_rds_instance" "test_backup" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
-  security_group_id = data.huaweicloud_networking_secgroup.test_update.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test_update.id
-  vpc_id            = data.huaweicloud_vpc.test_update.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
 
   restore {

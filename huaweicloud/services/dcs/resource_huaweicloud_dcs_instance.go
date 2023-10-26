@@ -31,6 +31,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+type ctxType string
+
 const (
 	chargeModePostPaid = "postPaid"
 	chargeModePrePaid  = "prePaid"
@@ -269,6 +271,27 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"parameters": {
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+				Optional: true,
 				Computed: true,
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
@@ -651,7 +674,125 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	// set parameters
+	if v, ok := d.GetOk("parameters"); ok {
+		parameters := v.(*schema.Set).List()
+		err = updateParameters(ctx, d.Timeout(schema.TimeoutCreate), client, id, parameters)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		restart, err := checkDcsInstanceRestart(client, id, parameters)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if restart {
+			if err = restartDcsInstance(ctx, d.Timeout(schema.TimeoutCreate), client, id); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceDcsInstancesRead(ctx, d, meta)
+}
+
+func updateParameters(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient, instanceID string,
+	parameters []interface{}) error {
+	parameterOpts := buildUpdateParametersOpt(parameters)
+	retryFunc := func() (interface{}, bool, error) {
+		log.Printf("[DEBUG] Update DCS instance parameters params: %#v", parameterOpts)
+		_, err := instances.ModifyConfiguration(client, instanceID, parameterOpts)
+		retry, err := handleOperationError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     refreshDcsInstanceState(client, instanceID),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modifying parameters for DCS instance (%s): %s", instanceID, err)
+	}
+	return nil
+}
+
+func buildUpdateParametersOpt(parameters []interface{}) instances.ModifyRedisConfigOpts {
+	parameterOpts := make([]instances.RedisConfigOpt, 0, len(parameters))
+	for _, parameter := range parameters {
+		if v, ok := parameter.(map[string]interface{}); ok {
+			parameterOpts = append(parameterOpts, instances.RedisConfigOpt{
+				ParamId:    v["id"].(string),
+				ParamName:  v["name"].(string),
+				ParamValue: v["value"].(string),
+			})
+		}
+	}
+	return instances.ModifyRedisConfigOpts{RedisConfig: parameterOpts}
+}
+
+func checkDcsInstanceRestart(client *golangsdk.ServiceClient, instanceID string, parameters []interface{}) (bool, error) {
+	_, needStartParams, err := getParameters(client, instanceID, parameters)
+	if err != nil {
+		return false, err
+	}
+	if len(needStartParams) > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func getParameters(client *golangsdk.ServiceClient, instanceID string, parameters []interface{}) ([]map[string]interface{},
+	[]string, error) {
+	configParameters, err := instances.GetConfigurations(client, instanceID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error fetching the DCS instance parameters (%s): %s", instanceID, err)
+	}
+	parametersMap := generateParametersMap(configParameters)
+	var params []map[string]interface{}
+	restartParams := make([]string, 0)
+	for _, parameter := range parameters {
+		paramId := parameter.(map[string]interface{})["id"]
+		if v, ok := parametersMap[paramId.(string)]; ok {
+			params = append(params, map[string]interface{}{
+				"id":    v.ParamId,
+				"name":  v.ParamName,
+				"value": v.ParamValue,
+			})
+			if v.NeedRestart {
+				restartParams = append(restartParams, v.ParamName)
+			}
+		}
+	}
+	return params, restartParams, nil
+}
+
+func restartDcsInstance(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient, instanceID string) error {
+	restartOpts := instances.RestartOrFlushInstanceOpts{
+		Instances: []string{instanceID},
+		Action:    "restart",
+	}
+	retryFunc := func() (interface{}, bool, error) {
+		log.Printf("[DEBUG] Restart DCS instance params: %#v", restartOpts)
+		_, err := instances.RestartOrFlushInstance(client, restartOpts)
+		retry, err := handleOperationError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     refreshDcsInstanceState(client, instanceID),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error waiting for DCS instance (%s) become running status: %s", instanceID, err)
+	}
+	return nil
 }
 
 func createRenameCommandsOpt(renameCmds map[string]interface{}) instances.RedisCommand {
@@ -721,7 +862,7 @@ func refreshDcsInstanceState(c *golangsdk.ServiceClient, id string) resource.Sta
 	}
 }
 
-func resourceDcsInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	regin := cfg.GetRegion(d)
 	client, err := cfg.DcsV2Client(regin)
@@ -836,7 +977,40 @@ func resourceDcsInstancesRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("whitelist_enable", wList.Enable),
 	)
 
-	return diag.FromErr(mErr.ErrorOrNil())
+	diagErr := setDcsInstanceParameters(ctx, d, client, d.Id())
+	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
+}
+
+func setDcsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) diag.Diagnostics {
+	params, needStartParams, err := getParameters(client, instanceID, d.Get("parameters").(*schema.Set).List())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if len(params) > 0 {
+		if err = d.Set("parameters", params); err != nil {
+			return diag.FromErr(err)
+		}
+		if len(needStartParams) > 0 && ctx.Value(ctxType("parametersChanged")) == "true" {
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Parameters Changed",
+					Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", needStartParams),
+				},
+			}
+		}
+	}
+	return nil
+}
+
+func generateParametersMap(configurations *instances.Configuration) map[string]instances.RedisConfig {
+	parametersMap := make(map[string]instances.RedisConfig)
+	for _, redisConfig := range configurations.RedisConfig {
+		parametersMap[redisConfig.ParamId] = redisConfig
+	}
+	return parametersMap
 }
 
 func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -939,6 +1113,17 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
+	}
+
+	if d.HasChange("parameters") {
+		oRaw, nRaw := d.GetChange("parameters")
+		changedParameters := nRaw.(*schema.Set).Difference(oRaw.(*schema.Set)).List()
+		err = updateParameters(ctx, d.Timeout(schema.TimeoutUpdate), client, d.Id(), changedParameters)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		// Sending parametersChanged to Read to warn users the instance needs a reboot.
+		ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
 	}
 
 	return resourceDcsInstancesRead(ctx, d, meta)

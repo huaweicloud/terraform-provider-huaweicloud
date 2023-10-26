@@ -1,18 +1,21 @@
-package huaweicloud
+package cci
 
 import (
-	"regexp"
+	"context"
+	"fmt"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cci/v1/persistentvolumeclaims"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cci/v1/persistentvolumeclaims"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 var (
@@ -44,13 +47,13 @@ type StateRefresh struct {
 	PollInterval time.Duration
 }
 
-func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
+func ResourcePersistentVolumeClaimV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCCIPersistentVolumeClaimV1Create,
-		Read:   resourceCCIPersistentVolumeClaimV1Read,
-		Delete: resourceCCIPersistentVolumeClaimV1Delete,
+		CreateContext: resourcePersistentVolumeClaimV1Create,
+		ReadContext:   resourcePersistentVolumeClaimV1Read,
+		DeleteContext: resourcePersistentVolumeClaimV1Delete,
 		Importer: &schema.ResourceImporter{
-			State: resourceCCIPvcImportState,
+			StateContext: resourcePersistentVolumeClaimV1ImportState,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -73,12 +76,6 @@ func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
-							"and it must start and end with a letter or digit."),
-					validation.StringLenBetween(1, 63),
-				),
 			},
 			"volume_id": {
 				Type:     schema.TypeString,
@@ -118,7 +115,7 @@ func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
 	}
 }
 
-func buildCCIPersistentVolumeClaimV1CreateParams(d *schema.ResourceData) (persistentvolumeclaims.CreateOpts, error) {
+func buildPersistentVolumeClaimV1CreateParams(d *schema.ResourceData) (persistentvolumeclaims.CreateOpts, error) {
 	createOpts := persistentvolumeclaims.CreateOpts{
 		Kind:       "PersistentVolumeClaim",
 		ApiVersion: "v1",
@@ -126,7 +123,7 @@ func buildCCIPersistentVolumeClaimV1CreateParams(d *schema.ResourceData) (persis
 	volumeType := d.Get("volume_type").(string)
 	fsType, ok := fsType[volumeType]
 	if !ok {
-		return createOpts, fmtp.Errorf("The volume type (%s) is not available", volumeType)
+		return createOpts, fmt.Errorf("the volume type (%s) is not available", volumeType)
 	}
 	createOpts.Metadata = persistentvolumeclaims.Metadata{
 		Namespace: d.Get("namespace").(string),
@@ -150,21 +147,20 @@ func buildCCIPersistentVolumeClaimV1CreateParams(d *schema.ResourceData) (persis
 	return createOpts, nil
 }
 
-func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CciV1Client(GetRegion(d, config))
+func resourcePersistentVolumeClaimV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.CciV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+		return diag.Errorf("error creating CCI v1 client: %s", err)
 	}
-
-	createOpts, err := buildCCIPersistentVolumeClaimV1CreateParams(d)
+	createOpts, err := buildPersistentVolumeClaimV1CreateParams(d)
 	if err != nil {
-		return fmtp.Errorf("Unable to build createOpts of the PVC: %s", err)
+		return diag.Errorf("unable to build createOpts of the PVC: %s", err)
 	}
-	ns := d.Get("namespace").(string)
-	create, err := persistentvolumeclaims.Create(client, createOpts, ns).Extract()
+	namespace := d.Get("namespace").(string)
+	create, err := persistentvolumeclaims.Create(client, createOpts, namespace).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCI PVC: %s", err)
+		return diag.Errorf("error creating CCI PVC: %s", err)
 	}
 	d.SetId(create.Metadata.UID)
 	stateRef := StateRefresh{
@@ -174,14 +170,14 @@ func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta inter
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	if err := waitForCCIPersistentVolumeClaimStateRefresh(d, client, ns, stateRef); err != nil {
-		return fmtp.Errorf("Create the specifies PVC (%s) timed out: %s", d.Id(), err)
+	if err := waitForPersistentVolumeClaimStateRefresh(ctx, d, client, namespace, stateRef); err != nil {
+		return diag.Errorf("create the specifies PVC (%s) timed out: %s", d.Id(), err)
 	}
 
-	return resourceCCIPersistentVolumeClaimV1Read(d, meta)
+	return resourcePersistentVolumeClaimV1Read(ctx, d, meta)
 }
 
-func saveCCIPersistentVolumeClaimV1State(d *schema.ResourceData, resp *persistentvolumeclaims.ListResp) error {
+func savePersistentVolumeClaimV1State(d *schema.ResourceData, resp *persistentvolumeclaims.ListResp) error {
 	spec := &resp.PersistentVolume.Spec
 	metadata := &resp.PersistentVolumeClaim.Metadata
 	mErr := multierror.Append(nil,
@@ -202,42 +198,44 @@ func saveCCIPersistentVolumeClaimV1State(d *schema.ResourceData, resp *persisten
 	return nil
 }
 
-func resourceCCIPersistentVolumeClaimV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	client, err := config.CciV1Client(GetRegion(d, config))
+func resourcePersistentVolumeClaimV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CciV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+		return diag.Errorf("error creating CCI v1 client: %s", err)
 	}
 
-	ns := d.Get("namespace").(string)
+	namespace := d.Get("namespace").(string)
 	volumeType := d.Get("volume_type").(string)
-	response, err := getCCIPvcInfoById(client, ns, volumeType, d.Id())
+	id := d.Id()
+
+	response, err := GetPvcInfoById(client, namespace, volumeType, id)
 	if err != nil {
-		return CheckDeleted(d, err, "Error getting the specifies PVC form server")
+		return common.CheckDeletedDiag(d, err, "error getting the specifies PVC form server")
 	}
 	if response != nil {
 		d.Set("region", region)
-		if err := saveCCIPersistentVolumeClaimV1State(d, response); err != nil {
-			return fmtp.Errorf("Error saving the specifies PVC (%s) to state: %s", d.Id(), err)
+		if err := savePersistentVolumeClaimV1State(d, response); err != nil {
+			return diag.Errorf("error saving the specifies PVC (%s) to state: %s", id, err)
 		}
 	}
 
 	return nil
 }
 
-func resourceCCIPersistentVolumeClaimV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.CciV1Client(GetRegion(d, config))
+func resourcePersistentVolumeClaimV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.CciV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
+		return diag.Errorf("error creating CCI v1 Client: %s", err)
 	}
 
 	name := d.Get("name").(string)
-	ns := d.Get("namespace").(string)
-	_, err = persistentvolumeclaims.Delete(client, ns, name).Extract()
+	namespace := d.Get("namespace").(string)
+	_, err = persistentvolumeclaims.Delete(client, namespace, name).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error deleting the specifies PVC (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting the specifies PVC (%s): %s", d.Id(), err)
 	}
 
 	stateRef := StateRefresh{
@@ -247,15 +245,14 @@ func resourceCCIPersistentVolumeClaimV1Delete(d *schema.ResourceData, meta inter
 		Delay:        3 * time.Second,
 		PollInterval: 2 * time.Second,
 	}
-	if err := waitForCCIPersistentVolumeClaimStateRefresh(d, client, ns, stateRef); err != nil {
-		return fmtp.Errorf("Delete the specifies PVC (%s) timed out: %s", d.Id(), err)
+	if err := waitForPersistentVolumeClaimStateRefresh(ctx, d, client, namespace, stateRef); err != nil {
+		return diag.Errorf("delete the specifies PVC (%s) timed out: %s", d.Id(), err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
-func waitForCCIPersistentVolumeClaimStateRefresh(d *schema.ResourceData, client *golangsdk.ServiceClient,
+func waitForPersistentVolumeClaimStateRefresh(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	ns string, s StateRefresh) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      s.Pending,
@@ -265,9 +262,9 @@ func waitForCCIPersistentVolumeClaimStateRefresh(d *schema.ResourceData, client 
 		Delay:        s.Delay,
 		PollInterval: s.PollInterval,
 	}
-	_, err := stateConf.WaitForState()
+	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Waiting for the status of the PVC (%s) to complete timeout: %s", d.Id(), err)
+		return fmt.Errorf("waiting for the status of the PVC (%s) to complete timeout: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -276,47 +273,50 @@ func pvcStateRefreshFunc(d *schema.ResourceData, client *golangsdk.ServiceClient
 	ns string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		volumeType := d.Get("volume_type").(string)
-		response, err := getCCIPvcInfoById(client, ns, volumeType, d.Id())
+		response, err := GetPvcInfoById(client, ns, volumeType, d.Id())
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return response, "DELETED", nil
+			}
 			return response, "ERROR", nil
 		}
 		if response != nil {
 			return response, response.PersistentVolumeClaim.Status.Phase, nil
 		}
-		return response, "DELETED", nil
+		return response, "ERROR", nil
 	}
 }
 
-func getCCIPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
+func GetPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
 	id string) (*persistentvolumeclaims.ListResp, error) {
 	// If the storage of listOpts is not set, the list method will search for all PVCs of evs type.
 	storageType, ok := volumeTypeForList[volumeType]
 	if !ok {
-		return nil, fmtp.Errorf("The volume type (%s) is not available", volumeType)
+		return nil, fmt.Errorf("the volume type (%s) is not available", volumeType)
 	}
 	listOpts := persistentvolumeclaims.ListOpts{
 		StorageType: storageType,
 	}
 	pages, err := persistentvolumeclaims.List(client, listOpts, ns).AllPages()
 	if err != nil {
-		return nil, fmtp.Errorf("Error finding the PVCs from the server: %s", err)
+		return nil, fmt.Errorf("error finding the PVCs from the server: %s", err)
 	}
 	responses, err := persistentvolumeclaims.ExtractPersistentVolumeClaims(pages)
 	if err != nil {
-		return nil, fmtp.Errorf("Error extracting HuaweiCloud CCI PVC list: %s", err)
+		return nil, fmt.Errorf("error extracting CCI PVC list: %s", err)
 	}
 	for _, v := range responses {
 		if v.PersistentVolumeClaim.Metadata.UID == id {
 			return &v, nil
 		}
 	}
-	return nil, nil
+	return nil, golangsdk.ErrDefault404{}
 }
 
-func resourceCCIPvcImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourcePersistentVolumeClaimV1ImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 3)
 	if len(parts) != 3 {
-		return nil, fmtp.Errorf("Invalid format specified for CCI PVC, must be <namespace>/<volume type>/<pvc id>")
+		return nil, fmt.Errorf("invalid format specified for CCI PVC, must be <namespace>/<volume type>/<pvc id>")
 	}
 	d.SetId(parts[2])
 	mErr := multierror.Append(nil,
