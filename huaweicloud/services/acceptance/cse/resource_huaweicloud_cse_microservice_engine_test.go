@@ -51,7 +51,7 @@ func TestAccMicroserviceEngine_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
 					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
-					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "instance_limit"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_limit"),
@@ -118,7 +118,7 @@ resource "huaweicloud_cse_microservice_engine" "test" {
   auth_type  = "RBAC"
   admin_pass = "AccTest!123"
 
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 3)
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
 }`, testAccMicroserviceEngine_base(rName), rName)
 }
@@ -154,7 +154,7 @@ func TestAccMicroserviceEngine_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
 					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
-					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "availability_zones.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
 						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrSet(resourceName, "instance_limit"),
@@ -207,7 +207,7 @@ resource "huaweicloud_cse_microservice_engine" "test" {
   auth_type  = "RBAC"
   admin_pass = "AccTest!123"
 
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 3)
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
 }`, testAccMicroserviceEngine_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

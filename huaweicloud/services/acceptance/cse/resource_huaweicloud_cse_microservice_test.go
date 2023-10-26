@@ -130,7 +130,7 @@ resource "huaweicloud_cse_microservice_engine" "test" {
   auth_type  = "RBAC"
   admin_pass = "AccTest!123"
 
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 3)
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 }
 `, rName)
 }
