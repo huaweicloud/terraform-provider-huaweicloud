@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the ELB load balancer.
 
-* `share_type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options:
+* `type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options:
   **dedicated**, **share**.
 
 * `vpc_id` - (Optional, String) Specifies the ID of the VPC where the load balancer resides.
@@ -45,6 +45,8 @@ The following arguments are supported:
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
+
+* `id` - The data source ID.
 
 * `loadbalancers` - Lists the loadalancers.
   The [loadbalancers](#Elb_loadbalancer_loadbalancers) structure is documented below.
@@ -90,3 +92,5 @@ The `loadbalancers` block supports:
 * `protection_status` - The protection status for update.
 
 * `protection_reason` - The reason for update protection.
+
+* `type` - Whether the load balancer is a dedicated load balancer.

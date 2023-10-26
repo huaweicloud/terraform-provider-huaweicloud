@@ -21,7 +21,7 @@ import (
 
 func DataSourceElbLoadbalances() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceElbLoadBalancersV3Read,
+		ReadContext: dataSourceElbLoadBalancersRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -41,7 +41,7 @@ func DataSourceElbLoadbalances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"share_type": {
+			"type": {
 				Type: schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{
 					"dedicated", "share",
@@ -148,7 +148,7 @@ func loadbalancersSchema() *schema.Resource {
 				Computed: true,
 			},
 			"backend_subnets": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -160,12 +160,16 @@ func loadbalancersSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 	return &sc
 }
 
-func dataSourceElbLoadBalancersV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceElbLoadBalancersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	var (
 		listLoadBalancersHttpUrl = "v3/{project_id}/elb/loadbalancers"
@@ -226,7 +230,7 @@ func buildListLoadBalancersQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("description"); ok {
 		res = fmt.Sprintf("%s&description=%v", res, v)
 	}
-	if v, ok := d.GetOk("share_type"); ok {
+	if v, ok := d.GetOk("type"); ok {
 		if v == "dedicated" {
 			res = fmt.Sprintf("%s&guaranteed=%v", res, "true")
 		}
@@ -286,7 +290,16 @@ func flattenListLoadBalancersBody(resp interface{}) []interface{} {
 			"backend_subnets":       utils.PathSearch("elb_virsubnet_ids", v, nil),
 			"protection_status":     utils.PathSearch("protection_status", v, nil),
 			"protection_reason":     utils.PathSearch("protection_reason", v, nil),
+			"type":                  getType(v),
 		})
 	}
 	return rst
+}
+
+func getType(v interface{}) string {
+	guaranteed := utils.PathSearch("guaranteed", v, false).(bool)
+	if guaranteed {
+		return "dedicated"
+	}
+	return "share"
 }
