@@ -216,7 +216,7 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, cfg *config.Config) cloudv
 		Multiattach:         d.Get("multiattach").(bool),
 		IOPS:                d.Get("iops").(int),
 		Throughput:          d.Get("throughput").(int),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		Tags:                resourceContainerTags(d),
 	}
 	m := map[string]string{

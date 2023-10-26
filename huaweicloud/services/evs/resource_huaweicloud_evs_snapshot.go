@@ -73,7 +73,7 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 
 func resourceEvsSnapshotV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(common.GetRegion(d, cfg))
+	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating EVS storage client: %s", err)
 	}
@@ -105,7 +105,7 @@ func resourceEvsSnapshotV2Create(ctx context.Context, d *schema.ResourceData, me
 
 func resourceEvsSnapshotV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(common.GetRegion(d, cfg))
+	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating EVS storage client: %s", err)
 	}
@@ -133,7 +133,7 @@ func resourceEvsSnapshotV2Read(_ context.Context, d *schema.ResourceData, meta i
 
 func resourceEvsSnapshotV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(common.GetRegion(d, cfg))
+	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating EVS storage client: %s", err)
 	}
@@ -153,7 +153,7 @@ func resourceEvsSnapshotV2Update(ctx context.Context, d *schema.ResourceData, me
 
 func resourceApiDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(common.GetRegion(d, cfg))
+	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating EVS storage client: %s", err)
 	}
