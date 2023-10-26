@@ -439,9 +439,9 @@ func (c *HssClient) ListHostVulsInvoker(request *model.ListHostVulsRequest) *Lis
 	return &ListHostVulsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListJarPackageHostInfo 资产管理-资产指纹-Jar包的服务器列表
+// ListJarPackageHostInfo 查询指定中间件的服务器列表
 //
-// 资产管理-资产指纹-Jar包的服务器列表
+// 查询指定中间件的服务器列表，通过传入中间件名称参数，返回对应的中间件服务器列表
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *HssClient) ListJarPackageHostInfo(request *model.ListJarPackageHostInfoRequest) (*model.ListJarPackageHostInfoResponse, error) {
@@ -454,7 +454,7 @@ func (c *HssClient) ListJarPackageHostInfo(request *model.ListJarPackageHostInfo
 	}
 }
 
-// ListJarPackageHostInfoInvoker 资产管理-资产指纹-Jar包的服务器列表
+// ListJarPackageHostInfoInvoker 查询指定中间件的服务器列表
 func (c *HssClient) ListJarPackageHostInfoInvoker(request *model.ListJarPackageHostInfoRequest) *ListJarPackageHostInfoInvoker {
 	requestDef := GenReqDefForListJarPackageHostInfo()
 	return &ListJarPackageHostInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -544,9 +544,9 @@ func (c *HssClient) ListPortStatisticsInvoker(request *model.ListPortStatisticsR
 	return &ListPortStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListPorts 查询开放端口的服务器列表
+// ListPorts 查询单服务器的开放端口列表
 //
-// 查询开放端口的服务器列表
+// 查询单服务器的开放端口列表
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *HssClient) ListPorts(request *model.ListPortsRequest) (*model.ListPortsResponse, error) {
@@ -559,7 +559,7 @@ func (c *HssClient) ListPorts(request *model.ListPortsRequest) (*model.ListPorts
 	}
 }
 
-// ListPortsInvoker 查询开放端口的服务器列表
+// ListPortsInvoker 查询单服务器的开放端口列表
 func (c *HssClient) ListPortsInvoker(request *model.ListPortsRequest) *ListPortsInvoker {
 	requestDef := GenReqDefForListPorts()
 	return &ListPortsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}

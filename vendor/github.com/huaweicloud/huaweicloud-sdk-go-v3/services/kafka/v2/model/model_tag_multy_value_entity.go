@@ -8,10 +8,10 @@ import (
 
 type TagMultyValueEntity struct {
 
-	// 键。  key不能为空，长度1~128个字符（中文也可以输入128个字符）。  可用UTF-8格式表示的字母、数字和空格，以及以下字符： _ . : = + - @  key两头不能有空格字符。
+	// 标签键。
 	Key *string `json:"key,omitempty"`
 
-	// 值列表。  值长度0~255个字符（中文也可以输入255个字符）。  值可用UTF-8格式表示的字母、数字和空格，以及以下字符： _ . : / = + - @。  值可以为空字符串。
+	// 标签值。
 	Values *[]string `json:"values,omitempty"`
 }
 

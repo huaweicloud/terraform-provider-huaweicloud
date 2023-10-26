@@ -22,6 +22,7 @@ package internal
 import (
 	"bytes"
 	"errors"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
@@ -61,11 +62,12 @@ func GetIamEndpoint() string {
 	return DefaultIamEndpoint
 }
 
-func GetKeystoneListProjectsRequest(iamEndpoint string, regionId string) *request.DefaultHttpRequest {
+func GetKeystoneListProjectsRequest(iamEndpoint string, regionId string, httpConfig config.HttpConfig) *request.DefaultHttpRequest {
 	return request.NewHttpRequestBuilder().
 		WithEndpoint(iamEndpoint).
 		WithPath(KeystoneListProjectsUri).
 		WithMethod("GET").
+		WithSigningAlgorithm(httpConfig.SigningAlgorithm).
 		AddQueryParam("name", reflect.ValueOf(regionId)).
 		Build()
 }
@@ -106,11 +108,12 @@ type Domains struct {
 	Name string `json:"name"`
 }
 
-func GetKeystoneListAuthDomainsRequest(iamEndpoint string) *request.DefaultHttpRequest {
+func GetKeystoneListAuthDomainsRequest(iamEndpoint string, httpConfig config.HttpConfig) *request.DefaultHttpRequest {
 	return request.NewHttpRequestBuilder().
 		WithEndpoint(iamEndpoint).
 		WithPath(KeystoneListAuthDomainsUri).
 		WithMethod("GET").
+		WithSigningAlgorithm(httpConfig.SigningAlgorithm).
 		Build()
 }
 
@@ -272,11 +275,12 @@ func getCreateTokenWithIdTokenRequestBody(idToken string, scope *GetIdTokenIdSco
 	return body
 }
 
-func getCreateTokenWithIdTokenRequest(iamEndpoint string, idpId string, body *GetIdTokenRequestBody) *request.DefaultHttpRequest {
+func getCreateTokenWithIdTokenRequest(iamEndpoint string, idpId string, body *GetIdTokenRequestBody, httpConfig config.HttpConfig) *request.DefaultHttpRequest {
 	req := request.NewHttpRequestBuilder().
 		WithEndpoint(iamEndpoint).
 		WithPath(CreateTokenWithIdTokenUri).
 		WithMethod("POST").
+		WithSigningAlgorithm(httpConfig.SigningAlgorithm).
 		WithBody("body", body).
 		Build()
 	req.AddHeaderParam("X-Idp-Id", idpId)
@@ -284,7 +288,7 @@ func getCreateTokenWithIdTokenRequest(iamEndpoint string, idpId string, body *Ge
 	return req
 }
 
-func GetProjectTokenWithIdTokenRequest(iamEndpoint, idpId, idToken, projectId string) *request.DefaultHttpRequest {
+func GetProjectTokenWithIdTokenRequest(iamEndpoint, idpId, idToken, projectId string, httpConfig config.HttpConfig) *request.DefaultHttpRequest {
 	projectScope := &GetIdTokenScopeDomainOrProjectBody{
 		Id: &projectId,
 	}
@@ -292,10 +296,10 @@ func GetProjectTokenWithIdTokenRequest(iamEndpoint, idpId, idToken, projectId st
 		Project: projectScope,
 	}
 	body := getCreateTokenWithIdTokenRequestBody(idToken, scopeAuth)
-	return getCreateTokenWithIdTokenRequest(iamEndpoint, idpId, body)
+	return getCreateTokenWithIdTokenRequest(iamEndpoint, idpId, body, httpConfig)
 }
 
-func GetDomainTokenWithIdTokenRequest(iamEndpoint, idpId, idToken, domainId string) *request.DefaultHttpRequest {
+func GetDomainTokenWithIdTokenRequest(iamEndpoint, idpId, idToken, domainId string, httpConfig config.HttpConfig) *request.DefaultHttpRequest {
 	domainScope := &GetIdTokenScopeDomainOrProjectBody{
 		Id: &domainId,
 	}
@@ -303,7 +307,7 @@ func GetDomainTokenWithIdTokenRequest(iamEndpoint, idpId, idToken, domainId stri
 		Domain: domainScope,
 	}
 	body := getCreateTokenWithIdTokenRequestBody(idToken, scopeAuth)
-	return getCreateTokenWithIdTokenRequest(iamEndpoint, idpId, body)
+	return getCreateTokenWithIdTokenRequest(iamEndpoint, idpId, body, httpConfig)
 }
 
 func CreateTokenWithIdToken(client *impl.DefaultHttpClient, req *request.DefaultHttpRequest) (*CreateTokenWithIdTokenResponse, error) {

@@ -36,8 +36,11 @@ type ShowHistoryTasksRequest struct {
 	// desc 或者asc。默认值desc。
 	OrderType *string `json:"order_type,omitempty"`
 
-	// 默认是文件file。file：文件,directory：目录。
+	// file：文件,directory：目录。
 	FileType *ShowHistoryTasksRequestFileType `json:"file_type,omitempty"`
+
+	// 任务类型，refresh：刷新任务；preheating：预热任务
+	TaskType *ShowHistoryTasksRequestTaskType `json:"task_type,omitempty"`
 }
 
 func (o ShowHistoryTasksRequest) String() string {
@@ -125,6 +128,53 @@ func (c ShowHistoryTasksRequestFileType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ShowHistoryTasksRequestFileType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type ShowHistoryTasksRequestTaskType struct {
+	value string
+}
+
+type ShowHistoryTasksRequestTaskTypeEnum struct {
+	REFRESH    ShowHistoryTasksRequestTaskType
+	PREHEATING ShowHistoryTasksRequestTaskType
+}
+
+func GetShowHistoryTasksRequestTaskTypeEnum() ShowHistoryTasksRequestTaskTypeEnum {
+	return ShowHistoryTasksRequestTaskTypeEnum{
+		REFRESH: ShowHistoryTasksRequestTaskType{
+			value: "refresh",
+		},
+		PREHEATING: ShowHistoryTasksRequestTaskType{
+			value: "preheating",
+		},
+	}
+}
+
+func (c ShowHistoryTasksRequestTaskType) Value() string {
+	return c.value
+}
+
+func (c ShowHistoryTasksRequestTaskType) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *ShowHistoryTasksRequestTaskType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

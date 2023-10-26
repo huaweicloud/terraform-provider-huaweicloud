@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// AssociateKeypairRequestBody 绑定密钥对描述消息体
+// AssociateKeypairRequestBody 绑定密钥对请求体。
 type AssociateKeypairRequestBody struct {
 
 	// SSH密钥对的名称

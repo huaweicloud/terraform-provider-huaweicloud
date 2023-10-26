@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-type EnlargeVolume struct {
+type EnlargeVolumeRequestBody struct {
 	EnlargeVolume *EnlargeVolumeObject `json:"enlarge_volume"`
 }
 
-func (o EnlargeVolume) String() string {
+func (o EnlargeVolumeRequestBody) String() string {
 	data, err := utils.Marshal(o)
 	if err != nil {
-		return "EnlargeVolume struct{}"
+		return "EnlargeVolumeRequestBody struct{}"
 	}
 
-	return strings.Join([]string{"EnlargeVolume", string(data)}, " ")
+	return strings.Join([]string{"EnlargeVolumeRequestBody", string(data)}, " ")
 }

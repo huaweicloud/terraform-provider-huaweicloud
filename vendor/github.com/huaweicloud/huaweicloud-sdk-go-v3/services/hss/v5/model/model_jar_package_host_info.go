@@ -73,7 +73,7 @@ type JarPackageHostInfo struct {
 	IsEmbedded *int32 `json:"is_embedded,omitempty"`
 
 	// 扫描时间
-	RecordTime *int32 `json:"record_time,omitempty"`
+	RecordTime *int64 `json:"record_time,omitempty"`
 }
 
 func (o JarPackageHostInfo) String() string {

@@ -19,7 +19,10 @@
 
 package request
 
-import "bytes"
+import (
+	"bytes"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/progress"
+)
 
 type HttpRequest interface {
 	Builder() *HttpRequestBuilder
@@ -31,4 +34,6 @@ type HttpRequest interface {
 	GetQueryParams() map[string]interface{}
 	GetBody() interface{}
 	GetBodyToBytes() (*bytes.Buffer, error)
+	GetProgressListener() progress.Listener
+	GetProgressInterval() int64
 }
