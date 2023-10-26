@@ -168,14 +168,16 @@ func DataSourceFunctionGraphFunctions() *schema.Resource {
 
 func dataSourceFunctionGraphFunctionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+
+	fgsClient, err := conf.FgsV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating FGS V2 client: %s", err)
+	}
+
 	// MaxItems and Marker use default values.
 	opts := function.ListOpts{
 		PackageName: d.Get("package_name").(string),
-	}
-
-	fgsClient, err := conf.FgsV2Client(conf.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating FGS V2 client: %s", err)
 	}
 	allPages, err := function.List(fgsClient, opts).AllPages()
 	if err != nil {
@@ -196,6 +198,7 @@ func dataSourceFunctionGraphFunctionsRead(_ context.Context, d *schema.ResourceD
 	}
 	d.SetId(uuid)
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("functions", flattenFunctions(filterResult)),
 	)
 

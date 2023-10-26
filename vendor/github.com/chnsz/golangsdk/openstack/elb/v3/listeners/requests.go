@@ -103,11 +103,11 @@ type CreateOpts struct {
 	// The SNI certificates used by the listener.
 	SniMatchAlgo *string `json:"sni_match_algo,omitempty"`
 
-	// Update protection status
-	ProtectionStatus *string `json:"protection_status,omitempty"`
+	// Protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
 
-	// Update protection reason
-	ProtectionReason *string `json:"protection_reason,omitempty"`
+	// Protection reason
+	ProtectionReason string `json:"protection_reason,omitempty"`
 }
 
 type IpGroup struct {
@@ -239,7 +239,7 @@ type UpdateOpts struct {
 	SniMatchAlgo *string `json:"sni_match_algo,omitempty"`
 
 	// Update protection status
-	ProtectionStatus *string `json:"protection_status,omitempty"`
+	ProtectionStatus string `json:"protection_status,omitempty"`
 
 	// Update protection reason
 	ProtectionReason *string `json:"protection_reason,omitempty"`

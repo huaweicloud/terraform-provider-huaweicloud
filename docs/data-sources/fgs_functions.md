@@ -18,7 +18,7 @@ data "huaweicloud_fgs_functions" "test" {}
 
 ```hcl
 data "huaweicloud_fgs_functions" "test" {
-  package name = "default"
+  package_name = "default"
 }
 ```
 
@@ -34,7 +34,6 @@ The following arguments are supported:
 * `urn` - (Optional, String) Specifies the function urn used to query specified function.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the function.
-  Changing this will create a new resource.
 
 * `runtime` - (Optional, String) Specifies the dependent package runtime to match. Valid values: **Java8**,
   **Node.js6.10**, **Node.js8.10**, **Node.js10.16**, **Node.js12.13**, **Python2.7**, **Python3.6**, **Go1.8**,
@@ -45,6 +44,8 @@ The following arguments are supported:
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
+
+* `id` - A data source ID.
 
 * `functions` - The filtered function. The object structure is documented below.
 

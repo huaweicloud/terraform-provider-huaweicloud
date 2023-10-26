@@ -1,5 +1,7 @@
 package backups
 
+import "github.com/chnsz/golangsdk/pagination"
+
 type getResp struct {
 	// The backup detail.
 	Backup BackupResp `json:"backup"`
@@ -129,4 +131,22 @@ type ReplicationRecordExtraInfo struct {
 	AutoTrigger bool `json:"auto_trigger"`
 	// The destination vault ID.
 	DestinationVaultId string `json:"destination_vault_id"`
+}
+
+// BackupPage is a single page maximum result representing a query by offset page.
+type BackupPage struct {
+	pagination.OffsetPageBase
+}
+
+// IsEmpty checks whether a ChannelPage struct is empty.
+func (b BackupPage) IsEmpty() (bool, error) {
+	arr, err := ExtractBackups(b)
+	return len(arr) == 0, err
+}
+
+// ExtractBackups is a method to extract the list of backups.
+func ExtractBackups(r pagination.Page) ([]BackupResp, error) {
+	var s []BackupResp
+	err := r.(BackupPage).Result.ExtractIntoSlicePtr(&s, "backups")
+	return s, err
 }

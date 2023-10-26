@@ -169,7 +169,7 @@ func removeEnvironmentVariables(client *golangsdk.ServiceClient, instanceId stri
 		envMap := env.(map[string]interface{})
 		for _, v := range envMap["variable"].(*schema.Set).List() {
 			variable := v.(map[string]interface{})
-			err := environments.DeleteVariable(client, instanceId, variable["variable_id"].(string)).ExtractErr()
+			err := environments.DeleteVariable(client, instanceId, variable["id"].(string)).ExtractErr()
 			if err != nil {
 				return err
 			}
@@ -233,9 +233,9 @@ func flattenEnvironmentVariables(variables []environments.Variable) []map[string
 	environmentMap := make(map[string]interface{})
 	for _, variable := range variables {
 		varMap := map[string]interface{}{
-			"name":        variable.Name,
-			"value":       variable.Value,
-			"variable_id": variable.Id,
+			"name":  variable.Name,
+			"value": variable.Value,
+			"id":    variable.Id,
 		}
 		if val, ok := environmentMap[variable.EnvId]; !ok {
 			environmentMap[variable.EnvId] = []map[string]interface{}{
