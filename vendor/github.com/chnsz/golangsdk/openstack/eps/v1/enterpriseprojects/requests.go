@@ -136,7 +136,10 @@ func Migrate(client *golangsdk.ServiceClient, opts MigrateResourceOpts, id strin
 	return
 }
 
-type ResourceOpts struct {
+type ListResourcesOpts struct {
+	// Target enterprise project ID.
+	EnterpriseProjectId string `json:"-" required:"true"`
+
 	ResourceTypes []string `json:"resource_types" required:"true"`
 
 	Projects []string `json:"projects,omitempty"`
@@ -154,15 +157,17 @@ type Match struct {
 	Value string `json:"value" required:"true"`
 }
 
-func ShowResource(client *golangsdk.ServiceClient, opts ResourceOpts, id string) (r ResourceResult) {
+// ListAssociatedResources is a method that used to query associated resources for specified enterprise project using
+// given parameters.
+func ListAssociatedResources(client *golangsdk.ServiceClient, opts ListResourcesOpts) (*FilterResult, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
-		r.Err = err
-		return
+		return nil, err
 	}
 
-	_, r.Err = client.Post(resourceFilterURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+	var r FilterResult
+	_, err = client.Post(resourceFilterURL(client, opts.EnterpriseProjectId), b, &r, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
-	return
+	return &r, err
 }

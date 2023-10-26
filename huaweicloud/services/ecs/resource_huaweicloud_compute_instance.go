@@ -1087,12 +1087,13 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		epsClient, err := cfg.EnterpriseProjectClient(region)
-		if err != nil {
-			return diag.Errorf("error creating EPS client: %s", err)
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "ecs",
+			RegionId:     region,
+			ProjectId:    ecsClient.ProjectID,
 		}
-
-		if err := migrateEnterpriseProject(ctx, d, ecsClient, epsClient, region); err != nil {
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1867,58 +1868,4 @@ func buildInstanceDataVolumes(d *schema.ResourceData) []cloudservers.DataVolume 
 		volRequests = append(volRequests, volRequest)
 	}
 	return volRequests
-}
-
-func waitForEnterpriseProjectIdChanged(client *golangsdk.ServiceClient, instanceID, epsID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		s, err := cloudservers.Get(client, instanceID).Extract()
-		if err != nil {
-			return nil, "ERROR", err
-		}
-
-		// get fault message when status is ERROR
-		if s.Status == "ERROR" {
-			fault := fmt.Errorf("error code: %d, message: %s", s.Fault.Code, s.Fault.Message)
-			return s, "ERROR", fault
-		}
-
-		if s.EnterpriseProjectID == epsID {
-			return s, "Success", nil
-		}
-		return s, "Pending", nil
-	}
-}
-
-func migrateEnterpriseProject(ctx context.Context, d *schema.ResourceData,
-	ecsClient, epsClient *golangsdk.ServiceClient, region string) error {
-	resourceID := d.Id()
-	targetEPSId := d.Get("enterprise_project_id").(string)
-
-	migrateOpts := enterpriseprojects.MigrateResourceOpts{
-		RegionId:     region,
-		ProjectId:    ecsClient.ProjectID,
-		ResourceType: "ecs",
-		ResourceId:   resourceID,
-	}
-
-	if err := common.MigrateEnterpriseProject(epsClient, targetEPSId, migrateOpts); err != nil {
-		return err
-	}
-
-	// wait for the Enterprise Project ID changed
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Pending"},
-		Target:       []string{"Success"},
-		Refresh:      waitForEnterpriseProjectIdChanged(ecsClient, resourceID, targetEPSId),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
-		PollInterval: 5 * time.Second,
-	}
-
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for migrating Enterprise Project ID: %s", err)
-	}
-
-	return nil
 }

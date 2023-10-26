@@ -58,12 +58,12 @@ type ResourceResult struct {
 }
 
 type FilterResult struct {
-	Resources  []Resources `json:"resources"`
-	Errors     []Errors    `json:"errors"`
-	TotalCount int32       `json:"total_count"`
+	Resources  []Resource `json:"resources"`
+	Errors     []Errors   `json:"errors"`
+	TotalCount int32      `json:"total_count"`
 }
 
-type Resources struct {
+type Resource struct {
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 
 	ProjectId string `json:"project_id"`
