@@ -17,6 +17,11 @@ type CreateTrackerRequestBody struct {
 	// 标识追踪器名称。 当\"tracker_type\"参数值为\"system\"时该参数为默认值\"system\"。 当\"tracker_type\"参数值为\"data\"时该参数需要指定追踪器名称\"。
 	TrackerName string `json:"tracker_name"`
 
+	// 是否应用到我的组织。 只针对管理类追踪器。设置为true时，ORG组织下所有成员当前区域的审计日志会转储到该追踪器配置的OBS桶或者LTS日志流，但是事件列表界面不支持查看其它组织成员的审计日志。
+	IsOrganizationTracker *bool `json:"is_organization_tracker,omitempty"`
+
+	ManagementEventSelector *ManagementEventSelector `json:"management_event_selector,omitempty"`
+
 	// 是否打开事件分析。
 	IsLtsEnabled *bool `json:"is_lts_enabled,omitempty"`
 

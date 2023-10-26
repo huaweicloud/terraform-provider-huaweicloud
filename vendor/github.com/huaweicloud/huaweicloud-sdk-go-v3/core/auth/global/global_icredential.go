@@ -30,14 +30,12 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	"io/ioutil"
 	"os"
-	"strings"
 	"time"
 )
 
 const (
 	DomainIdInHeader      = "X-Domain-Id"
 	SecurityTokenInHeader = "X-Security-Token"
-	ContentTypeInHeader   = "Content-Type"
 	GlobalRegionId        = "globe"
 	AuthTokenInHeader     = "X-Auth-Token"
 )
@@ -74,7 +72,7 @@ func (s *Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region s
 	derivedPredicate := s.DerivedPredicate
 	s.DerivedPredicate = nil
 
-	req, err := s.ProcessAuthRequest(client, internal.GetKeystoneListAuthDomainsRequest(s.IamEndpoint))
+	req, err := s.ProcessAuthRequest(client, internal.GetKeystoneListAuthDomainsRequest(s.IamEndpoint, client.GetHttpConfig()))
 	if err != nil {
 		panic(fmt.Sprintf("failed to get domain id, %s", err.Error()))
 	}
@@ -93,8 +91,6 @@ func (s *Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region s
 }
 
 func (s *Credentials) ProcessAuthRequest(client *impl.DefaultHttpClient, req *request.DefaultHttpRequest) (*request.DefaultHttpRequest, error) {
-	reqBuilder := req.Builder()
-
 	if s.needUpdateAuthToken() {
 		err := s.updateAuthTokenByIdToken(client)
 		if err != nil {
@@ -107,10 +103,9 @@ func (s *Credentials) ProcessAuthRequest(client *impl.DefaultHttpClient, req *re
 		}
 	}
 
+	reqBuilder := req.Builder()
 	if s.DomainId != "" {
-		reqBuilder = reqBuilder.
-			AddAutoFilledPathParam("domain_id", s.DomainId).
-			AddHeaderParam(DomainIdInHeader, s.DomainId)
+		reqBuilder = reqBuilder.AddAutoFilledPathParam("domain_id", s.DomainId).AddHeaderParam(DomainIdInHeader, s.DomainId)
 	}
 
 	if s.authToken != "" {
@@ -123,31 +118,25 @@ func (s *Credentials) ProcessAuthRequest(client *impl.DefaultHttpClient, req *re
 		reqBuilder.AddHeaderParam(SecurityTokenInHeader, s.SecurityToken)
 	}
 
-	if _, ok := req.GetHeaderParams()[ContentTypeInHeader]; ok {
-		if !strings.Contains(req.GetHeaderParams()[ContentTypeInHeader], "application/json") {
-			reqBuilder.AddHeaderParam("X-Sdk-Content-Sha256", "UNSIGNED-PAYLOAD")
-		}
-	}
-
-	var (
-		headerParams map[string]string
-		err          error
-	)
-
+	var additionalHeaders map[string]string
+	var err error
 	if s.IsDerivedAuth(req) {
-		headerParams, err = signer.SignDerived(reqBuilder.Build(), s.AK, s.SK, s.derivedAuthServiceName, s.regionId)
+		additionalHeaders, err = signer.GetDerivedSigner().Sign(reqBuilder.Build(), s.AK, s.SK, s.derivedAuthServiceName, s.regionId)
 	} else {
-		headerParams, err = signer.Sign(reqBuilder.Build(), s.AK, s.SK)
+		sn, err := signer.GetSigner(req.GetSigningAlgorithm())
+		if err != nil {
+			return nil, err
+		}
+		additionalHeaders, err = sn.Sign(reqBuilder.Build(), s.AK, s.SK)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	for key, value := range headerParams {
+	for key, value := range additionalHeaders {
 		req.AddHeaderParam(key, value)
 	}
-
 	return req, nil
 }
 
@@ -163,7 +152,7 @@ func (s *Credentials) ProcessDerivedAuthParams(derivedAuthServiceName, regionId 
 	return s
 }
 
-func (s Credentials) IsDerivedAuth(httpRequest *request.DefaultHttpRequest) bool {
+func (s *Credentials) IsDerivedAuth(httpRequest *request.DefaultHttpRequest) bool {
 	if s.DerivedPredicate == nil {
 		return false
 	}
@@ -171,7 +160,7 @@ func (s Credentials) IsDerivedAuth(httpRequest *request.DefaultHttpRequest) bool
 	return s.DerivedPredicate(httpRequest)
 }
 
-func (s Credentials) needUpdateSecurityToken() bool {
+func (s *Credentials) needUpdateSecurityToken() bool {
 	if s.authToken != "" {
 		return false
 	}
@@ -184,7 +173,7 @@ func (s Credentials) needUpdateSecurityToken() bool {
 	return s.expiredAt-time.Now().Unix() < 60
 }
 
-func (s Credentials) needUpdateAuthToken() bool {
+func (s *Credentials) needUpdateAuthToken() bool {
 	if s.IdpId == "" || s.IdTokenFile == "" {
 		return false
 	}
@@ -194,7 +183,7 @@ func (s Credentials) needUpdateAuthToken() bool {
 	return s.expiredAt-time.Now().Unix() < 60
 }
 
-func (s Credentials) getIdToken() (string, error) {
+func (s *Credentials) getIdToken() (string, error) {
 	_, err := os.Stat(s.IdTokenFile)
 	if err != nil {
 		return "", err
@@ -235,7 +224,7 @@ func (s *Credentials) updateAuthTokenByIdToken(client *impl.DefaultHttpClient) e
 		return err
 	}
 
-	req := internal.GetDomainTokenWithIdTokenRequest(s.IamEndpoint, s.IdpId, idToken, s.DomainId)
+	req := internal.GetDomainTokenWithIdTokenRequest(s.IamEndpoint, s.IdpId, idToken, s.DomainId, client.GetHttpConfig())
 	resp, err := internal.CreateTokenWithIdToken(client, req)
 	if err != nil {
 		return err

@@ -26,6 +26,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	"reflect"
 	"strings"
 )
@@ -37,11 +38,13 @@ type HcHttpClientBuilder struct {
 	endpoints              []string
 	httpConfig             *config.HttpConfig
 	region                 *region.Region
+	errorHandler           sdkerr.ErrorHandler
 }
 
 func NewHcHttpClientBuilder() *HcHttpClientBuilder {
 	hcHttpClientBuilder := &HcHttpClientBuilder{
 		CredentialsType: []string{"basic.Credentials"},
+		errorHandler:    sdkerr.DefaultErrorHandler{},
 	}
 	return hcHttpClientBuilder
 }
@@ -78,6 +81,11 @@ func (builder *HcHttpClientBuilder) WithHttpConfig(httpConfig *config.HttpConfig
 
 func (builder *HcHttpClientBuilder) WithCredential(iCredential auth.ICredential) *HcHttpClientBuilder {
 	builder.credentials = iCredential
+	return builder
+}
+
+func (builder *HcHttpClientBuilder) WithErrorHandler(errorHandler sdkerr.ErrorHandler) *HcHttpClientBuilder {
+	builder.errorHandler = errorHandler
 	return builder
 }
 
@@ -128,6 +136,9 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 		}
 	}
 
-	hcHttpClient := NewHcHttpClient(defaultHttpClient).WithEndpoints(builder.endpoints).WithCredential(builder.credentials)
+	hcHttpClient := NewHcHttpClient(defaultHttpClient).
+		WithEndpoints(builder.endpoints).
+		WithCredential(builder.credentials).
+		WithErrorHandler(builder.errorHandler)
 	return hcHttpClient
 }

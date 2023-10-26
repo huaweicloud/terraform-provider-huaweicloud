@@ -15,7 +15,7 @@ type CreateKeypairResp struct {
 	// SSH密钥对的名称
 	Name *string `json:"name,omitempty"`
 
-	// SSH密钥对的类型
+	// SSH密钥对的类型。ssh或x509。
 	Type *CreateKeypairRespType `json:"type,omitempty"`
 
 	// SSH密钥对对应的publicKey信息

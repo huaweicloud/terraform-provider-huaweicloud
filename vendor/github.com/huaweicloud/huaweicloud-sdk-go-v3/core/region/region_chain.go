@@ -20,20 +20,12 @@
 package region
 
 type ProviderChain struct {
-	serviceName string
-	providers   []IRegionProvider
-}
-
-func NewProviderChain(serviceName string, providers []IRegionProvider) *ProviderChain {
-	return &ProviderChain{
-		serviceName: serviceName,
-		providers:   providers,
-	}
+	providers []IRegionProvider
 }
 
 func DefaultProviderChain(serviceName string) *ProviderChain {
 	providers := []IRegionProvider{NewEnvProvider(serviceName), NewProfileProvider(serviceName)}
-	return NewProviderChain(serviceName, providers)
+	return &ProviderChain{providers: providers}
 }
 
 func (p *ProviderChain) GetRegion(regionId string) *Region {

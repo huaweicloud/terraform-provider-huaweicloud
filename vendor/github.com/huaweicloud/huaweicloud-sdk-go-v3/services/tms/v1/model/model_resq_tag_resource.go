@@ -18,6 +18,9 @@ type ResqTagResource struct {
 	// 标签列表
 	Tags []Tag `json:"tags"`
 
+	// 是否仅查询未带标签的资源。该字段为true时查询不带标签的资源。
+	WithoutAnyTag *bool `json:"without_any_tag,omitempty"`
+
 	// 索引位置， 从offset指定的下一条数据开始查询，必须为数字，不能为负数，默认为0。
 	Offset *int32 `json:"offset,omitempty"`
 

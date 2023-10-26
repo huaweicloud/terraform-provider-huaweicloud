@@ -5,6 +5,30 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 )
 
+type AddSourcesToTrafficMirrorSessionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddSourcesToTrafficMirrorSessionInvoker) Invoke() (*model.AddSourcesToTrafficMirrorSessionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddSourcesToTrafficMirrorSessionResponse), nil
+	}
+}
+
+type BatchCreateSecurityGroupRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchCreateSecurityGroupRulesInvoker) Invoke() (*model.BatchCreateSecurityGroupRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchCreateSecurityGroupRulesResponse), nil
+	}
+}
+
 type BatchCreateSubNetworkInterfaceInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -53,6 +77,42 @@ func (i *CreateSubNetworkInterfaceInvoker) Invoke() (*model.CreateSubNetworkInte
 	}
 }
 
+type CreateTrafficMirrorFilterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateTrafficMirrorFilterInvoker) Invoke() (*model.CreateTrafficMirrorFilterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateTrafficMirrorFilterResponse), nil
+	}
+}
+
+type CreateTrafficMirrorFilterRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateTrafficMirrorFilterRuleInvoker) Invoke() (*model.CreateTrafficMirrorFilterRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+type CreateTrafficMirrorSessionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateTrafficMirrorSessionInvoker) Invoke() (*model.CreateTrafficMirrorSessionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateTrafficMirrorSessionResponse), nil
+	}
+}
+
 type DeleteSecurityGroupInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -86,6 +146,42 @@ func (i *DeleteSubNetworkInterfaceInvoker) Invoke() (*model.DeleteSubNetworkInte
 		return nil, err
 	} else {
 		return result.(*model.DeleteSubNetworkInterfaceResponse), nil
+	}
+}
+
+type DeleteTrafficMirrorFilterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTrafficMirrorFilterInvoker) Invoke() (*model.DeleteTrafficMirrorFilterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTrafficMirrorFilterResponse), nil
+	}
+}
+
+type DeleteTrafficMirrorFilterRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTrafficMirrorFilterRuleInvoker) Invoke() (*model.DeleteTrafficMirrorFilterRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+type DeleteTrafficMirrorSessionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTrafficMirrorSessionInvoker) Invoke() (*model.DeleteTrafficMirrorSessionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTrafficMirrorSessionResponse), nil
 	}
 }
 
@@ -125,6 +221,42 @@ func (i *ListSubNetworkInterfacesInvoker) Invoke() (*model.ListSubNetworkInterfa
 	}
 }
 
+type ListTrafficMirrorFilterRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTrafficMirrorFilterRulesInvoker) Invoke() (*model.ListTrafficMirrorFilterRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTrafficMirrorFilterRulesResponse), nil
+	}
+}
+
+type ListTrafficMirrorFiltersInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTrafficMirrorFiltersInvoker) Invoke() (*model.ListTrafficMirrorFiltersResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTrafficMirrorFiltersResponse), nil
+	}
+}
+
+type ListTrafficMirrorSessionsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListTrafficMirrorSessionsInvoker) Invoke() (*model.ListTrafficMirrorSessionsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListTrafficMirrorSessionsResponse), nil
+	}
+}
+
 type MigrateSubNetworkInterfaceInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -134,6 +266,18 @@ func (i *MigrateSubNetworkInterfaceInvoker) Invoke() (*model.MigrateSubNetworkIn
 		return nil, err
 	} else {
 		return result.(*model.MigrateSubNetworkInterfaceResponse), nil
+	}
+}
+
+type RemoveSourcesFromTrafficMirrorSessionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RemoveSourcesFromTrafficMirrorSessionInvoker) Invoke() (*model.RemoveSourcesFromTrafficMirrorSessionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RemoveSourcesFromTrafficMirrorSessionResponse), nil
 	}
 }
 
@@ -185,6 +329,42 @@ func (i *ShowSubNetworkInterfacesQuantityInvoker) Invoke() (*model.ShowSubNetwor
 	}
 }
 
+type ShowTrafficMirrorFilterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTrafficMirrorFilterInvoker) Invoke() (*model.ShowTrafficMirrorFilterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTrafficMirrorFilterResponse), nil
+	}
+}
+
+type ShowTrafficMirrorFilterRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTrafficMirrorFilterRuleInvoker) Invoke() (*model.ShowTrafficMirrorFilterRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+type ShowTrafficMirrorSessionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTrafficMirrorSessionInvoker) Invoke() (*model.ShowTrafficMirrorSessionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTrafficMirrorSessionResponse), nil
+	}
+}
+
 type UpdateSecurityGroupInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -206,6 +386,162 @@ func (i *UpdateSubNetworkInterfaceInvoker) Invoke() (*model.UpdateSubNetworkInte
 		return nil, err
 	} else {
 		return result.(*model.UpdateSubNetworkInterfaceResponse), nil
+	}
+}
+
+type UpdateTrafficMirrorFilterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTrafficMirrorFilterInvoker) Invoke() (*model.UpdateTrafficMirrorFilterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTrafficMirrorFilterResponse), nil
+	}
+}
+
+type UpdateTrafficMirrorFilterRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTrafficMirrorFilterRuleInvoker) Invoke() (*model.UpdateTrafficMirrorFilterRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+type UpdateTrafficMirrorSessionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTrafficMirrorSessionInvoker) Invoke() (*model.UpdateTrafficMirrorSessionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTrafficMirrorSessionResponse), nil
+	}
+}
+
+type AddFirewallRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddFirewallRulesInvoker) Invoke() (*model.AddFirewallRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddFirewallRulesResponse), nil
+	}
+}
+
+type AssociateSubnetFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AssociateSubnetFirewallInvoker) Invoke() (*model.AssociateSubnetFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AssociateSubnetFirewallResponse), nil
+	}
+}
+
+type CreateFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateFirewallInvoker) Invoke() (*model.CreateFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateFirewallResponse), nil
+	}
+}
+
+type DeleteFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteFirewallInvoker) Invoke() (*model.DeleteFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteFirewallResponse), nil
+	}
+}
+
+type DisassociateSubnetFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DisassociateSubnetFirewallInvoker) Invoke() (*model.DisassociateSubnetFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DisassociateSubnetFirewallResponse), nil
+	}
+}
+
+type ListFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListFirewallInvoker) Invoke() (*model.ListFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListFirewallResponse), nil
+	}
+}
+
+type RemoveFirewallRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RemoveFirewallRulesInvoker) Invoke() (*model.RemoveFirewallRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RemoveFirewallRulesResponse), nil
+	}
+}
+
+type ShowFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowFirewallInvoker) Invoke() (*model.ShowFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowFirewallResponse), nil
+	}
+}
+
+type UpdateFirewallInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateFirewallInvoker) Invoke() (*model.UpdateFirewallResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateFirewallResponse), nil
+	}
+}
+
+type UpdateFirewallRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateFirewallRulesInvoker) Invoke() (*model.UpdateFirewallRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateFirewallRulesResponse), nil
 	}
 }
 

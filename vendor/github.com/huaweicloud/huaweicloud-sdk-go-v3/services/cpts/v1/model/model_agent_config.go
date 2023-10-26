@@ -56,6 +56,30 @@ type AgentConfig struct {
 
 	// mock规则列表
 	MockRuleList *[]MockRuleConfig `json:"mock_rule_list,omitempty"`
+
+	// clickhouse影子规则开关
+	ClickhouseEnable *bool `json:"clickhouse_enable,omitempty"`
+
+	// clickhouse影子规则类型
+	ClickhouseShadowType *string `json:"clickhouse_shadow_type,omitempty"`
+
+	// clickhouse影子库映射信息
+	ClickhouseShadowRepository *string `json:"clickhouse_shadow_repository,omitempty"`
+
+	// 是否开启pulsar影子库规则
+	PulsarEnable *bool `json:"pulsar_enable,omitempty"`
+
+	// pulsar影子库前缀
+	PulsarShadowTopicPrefix *string `json:"pulsar_shadow_topic_prefix,omitempty"`
+
+	// elasticsearch影子规则开关
+	ElasticsearchEnable *bool `json:"elasticsearch_enable,omitempty"`
+
+	// elasticsearch影子规则类型
+	ElasticsearchShadowType *string `json:"elasticsearch_shadow_type,omitempty"`
+
+	// elasticsearch影子库映射信息
+	ElasticsearchShadowRepository *string `json:"elasticsearch_shadow_repository,omitempty"`
 }
 
 func (o AgentConfig) String() string {

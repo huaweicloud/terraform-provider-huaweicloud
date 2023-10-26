@@ -25,6 +25,12 @@ type CreateInstanceTopicReq struct {
 
 	// 消息老化时间。默认值为72。 取值范围[1~168](tag:hws,hws_hk,hws_ocb,ctc,sbc,hk_sbc,hws_eu,g42,tm,hk_g42,hk_tm)[1-720](tag:ocb,otc)，单位小时。
 	RetentionTime *int32 `json:"retention_time,omitempty"`
+
+	// topic配置
+	TopicOtherConfigs *[]CreateInstanceTopicReqTopicOtherConfigs `json:"topic_other_configs,omitempty"`
+
+	// topic描述
+	TopicDesc *string `json:"topic_desc,omitempty"`
 }
 
 func (o CreateInstanceTopicReq) String() string {

@@ -31,6 +31,9 @@ type ClusterListInstances struct {
 	Ip *string `json:"ip,omitempty"`
 
 	Volume *ClusterVolumeRsp `json:"volume,omitempty"`
+
+	// 该实例对应的资源Id。
+	ResourceId *string `json:"resourceId,omitempty"`
 }
 
 func (o ClusterListInstances) String() string {

@@ -19,6 +19,48 @@ func VpcClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+// AddSourcesToTrafficMirrorSession 流量镜像会话添加镜像源
+//
+// 流量镜像会话添加镜像源
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) AddSourcesToTrafficMirrorSession(request *model.AddSourcesToTrafficMirrorSessionRequest) (*model.AddSourcesToTrafficMirrorSessionResponse, error) {
+	requestDef := GenReqDefForAddSourcesToTrafficMirrorSession()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddSourcesToTrafficMirrorSessionResponse), nil
+	}
+}
+
+// AddSourcesToTrafficMirrorSessionInvoker 流量镜像会话添加镜像源
+func (c *VpcClient) AddSourcesToTrafficMirrorSessionInvoker(request *model.AddSourcesToTrafficMirrorSessionRequest) *AddSourcesToTrafficMirrorSessionInvoker {
+	requestDef := GenReqDefForAddSourcesToTrafficMirrorSession()
+	return &AddSourcesToTrafficMirrorSessionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchCreateSecurityGroupRules 批量创建安全组规则
+//
+// 在特定安全组下批量创建安全组规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) BatchCreateSecurityGroupRules(request *model.BatchCreateSecurityGroupRulesRequest) (*model.BatchCreateSecurityGroupRulesResponse, error) {
+	requestDef := GenReqDefForBatchCreateSecurityGroupRules()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchCreateSecurityGroupRulesResponse), nil
+	}
+}
+
+// BatchCreateSecurityGroupRulesInvoker 批量创建安全组规则
+func (c *VpcClient) BatchCreateSecurityGroupRulesInvoker(request *model.BatchCreateSecurityGroupRulesRequest) *BatchCreateSecurityGroupRulesInvoker {
+	requestDef := GenReqDefForBatchCreateSecurityGroupRules()
+	return &BatchCreateSecurityGroupRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // BatchCreateSubNetworkInterface 批量创建辅助弹性网卡
 //
 // 批量创建辅助弹性网卡
@@ -103,6 +145,69 @@ func (c *VpcClient) CreateSubNetworkInterfaceInvoker(request *model.CreateSubNet
 	return &CreateSubNetworkInterfaceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateTrafficMirrorFilter 创建流量镜像筛选条件
+//
+// 创建流量镜像筛选条件
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) CreateTrafficMirrorFilter(request *model.CreateTrafficMirrorFilterRequest) (*model.CreateTrafficMirrorFilterResponse, error) {
+	requestDef := GenReqDefForCreateTrafficMirrorFilter()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateTrafficMirrorFilterResponse), nil
+	}
+}
+
+// CreateTrafficMirrorFilterInvoker 创建流量镜像筛选条件
+func (c *VpcClient) CreateTrafficMirrorFilterInvoker(request *model.CreateTrafficMirrorFilterRequest) *CreateTrafficMirrorFilterInvoker {
+	requestDef := GenReqDefForCreateTrafficMirrorFilter()
+	return &CreateTrafficMirrorFilterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTrafficMirrorFilterRule 创建流量镜像筛选规则
+//
+// 创建流量镜像筛选规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) CreateTrafficMirrorFilterRule(request *model.CreateTrafficMirrorFilterRuleRequest) (*model.CreateTrafficMirrorFilterRuleResponse, error) {
+	requestDef := GenReqDefForCreateTrafficMirrorFilterRule()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+// CreateTrafficMirrorFilterRuleInvoker 创建流量镜像筛选规则
+func (c *VpcClient) CreateTrafficMirrorFilterRuleInvoker(request *model.CreateTrafficMirrorFilterRuleRequest) *CreateTrafficMirrorFilterRuleInvoker {
+	requestDef := GenReqDefForCreateTrafficMirrorFilterRule()
+	return &CreateTrafficMirrorFilterRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateTrafficMirrorSession 创建流量镜像会话
+//
+// 创建流量镜像会话
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) CreateTrafficMirrorSession(request *model.CreateTrafficMirrorSessionRequest) (*model.CreateTrafficMirrorSessionResponse, error) {
+	requestDef := GenReqDefForCreateTrafficMirrorSession()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateTrafficMirrorSessionResponse), nil
+	}
+}
+
+// CreateTrafficMirrorSessionInvoker 创建流量镜像会话
+func (c *VpcClient) CreateTrafficMirrorSessionInvoker(request *model.CreateTrafficMirrorSessionRequest) *CreateTrafficMirrorSessionInvoker {
+	requestDef := GenReqDefForCreateTrafficMirrorSession()
+	return &CreateTrafficMirrorSessionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteSecurityGroup 删除安全组
 //
 // 删除安全组
@@ -164,6 +269,69 @@ func (c *VpcClient) DeleteSubNetworkInterface(request *model.DeleteSubNetworkInt
 func (c *VpcClient) DeleteSubNetworkInterfaceInvoker(request *model.DeleteSubNetworkInterfaceRequest) *DeleteSubNetworkInterfaceInvoker {
 	requestDef := GenReqDefForDeleteSubNetworkInterface()
 	return &DeleteSubNetworkInterfaceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTrafficMirrorFilter 删除流量镜像筛选条件
+//
+// 删除流量镜像筛选条件
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) DeleteTrafficMirrorFilter(request *model.DeleteTrafficMirrorFilterRequest) (*model.DeleteTrafficMirrorFilterResponse, error) {
+	requestDef := GenReqDefForDeleteTrafficMirrorFilter()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTrafficMirrorFilterResponse), nil
+	}
+}
+
+// DeleteTrafficMirrorFilterInvoker 删除流量镜像筛选条件
+func (c *VpcClient) DeleteTrafficMirrorFilterInvoker(request *model.DeleteTrafficMirrorFilterRequest) *DeleteTrafficMirrorFilterInvoker {
+	requestDef := GenReqDefForDeleteTrafficMirrorFilter()
+	return &DeleteTrafficMirrorFilterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTrafficMirrorFilterRule 删除流量镜像筛选规则
+//
+// 删除流量镜像筛选规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) DeleteTrafficMirrorFilterRule(request *model.DeleteTrafficMirrorFilterRuleRequest) (*model.DeleteTrafficMirrorFilterRuleResponse, error) {
+	requestDef := GenReqDefForDeleteTrafficMirrorFilterRule()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+// DeleteTrafficMirrorFilterRuleInvoker 删除流量镜像筛选规则
+func (c *VpcClient) DeleteTrafficMirrorFilterRuleInvoker(request *model.DeleteTrafficMirrorFilterRuleRequest) *DeleteTrafficMirrorFilterRuleInvoker {
+	requestDef := GenReqDefForDeleteTrafficMirrorFilterRule()
+	return &DeleteTrafficMirrorFilterRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteTrafficMirrorSession 删除流量镜像会话
+//
+// 删除流量镜像会话
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) DeleteTrafficMirrorSession(request *model.DeleteTrafficMirrorSessionRequest) (*model.DeleteTrafficMirrorSessionResponse, error) {
+	requestDef := GenReqDefForDeleteTrafficMirrorSession()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTrafficMirrorSessionResponse), nil
+	}
+}
+
+// DeleteTrafficMirrorSessionInvoker 删除流量镜像会话
+func (c *VpcClient) DeleteTrafficMirrorSessionInvoker(request *model.DeleteTrafficMirrorSessionRequest) *DeleteTrafficMirrorSessionInvoker {
+	requestDef := GenReqDefForDeleteTrafficMirrorSession()
+	return &DeleteTrafficMirrorSessionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListSecurityGroupRules 查询安全组规则列表
@@ -229,6 +397,69 @@ func (c *VpcClient) ListSubNetworkInterfacesInvoker(request *model.ListSubNetwor
 	return &ListSubNetworkInterfacesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListTrafficMirrorFilterRules 查询流量镜像筛选规则列表
+//
+// 查询流量镜像筛选规则列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ListTrafficMirrorFilterRules(request *model.ListTrafficMirrorFilterRulesRequest) (*model.ListTrafficMirrorFilterRulesResponse, error) {
+	requestDef := GenReqDefForListTrafficMirrorFilterRules()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTrafficMirrorFilterRulesResponse), nil
+	}
+}
+
+// ListTrafficMirrorFilterRulesInvoker 查询流量镜像筛选规则列表
+func (c *VpcClient) ListTrafficMirrorFilterRulesInvoker(request *model.ListTrafficMirrorFilterRulesRequest) *ListTrafficMirrorFilterRulesInvoker {
+	requestDef := GenReqDefForListTrafficMirrorFilterRules()
+	return &ListTrafficMirrorFilterRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTrafficMirrorFilters 查询流量镜像筛选条件列表
+//
+// 查询流量镜像筛选条件列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ListTrafficMirrorFilters(request *model.ListTrafficMirrorFiltersRequest) (*model.ListTrafficMirrorFiltersResponse, error) {
+	requestDef := GenReqDefForListTrafficMirrorFilters()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTrafficMirrorFiltersResponse), nil
+	}
+}
+
+// ListTrafficMirrorFiltersInvoker 查询流量镜像筛选条件列表
+func (c *VpcClient) ListTrafficMirrorFiltersInvoker(request *model.ListTrafficMirrorFiltersRequest) *ListTrafficMirrorFiltersInvoker {
+	requestDef := GenReqDefForListTrafficMirrorFilters()
+	return &ListTrafficMirrorFiltersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListTrafficMirrorSessions 查询流量镜像会话列表
+//
+// 查询流量镜像会话列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ListTrafficMirrorSessions(request *model.ListTrafficMirrorSessionsRequest) (*model.ListTrafficMirrorSessionsResponse, error) {
+	requestDef := GenReqDefForListTrafficMirrorSessions()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListTrafficMirrorSessionsResponse), nil
+	}
+}
+
+// ListTrafficMirrorSessionsInvoker 查询流量镜像会话列表
+func (c *VpcClient) ListTrafficMirrorSessionsInvoker(request *model.ListTrafficMirrorSessionsRequest) *ListTrafficMirrorSessionsInvoker {
+	requestDef := GenReqDefForListTrafficMirrorSessions()
+	return &ListTrafficMirrorSessionsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // MigrateSubNetworkInterface 迁移辅助弹性网卡
 //
 // 批量迁移辅助弹性网卡
@@ -248,6 +479,27 @@ func (c *VpcClient) MigrateSubNetworkInterface(request *model.MigrateSubNetworkI
 func (c *VpcClient) MigrateSubNetworkInterfaceInvoker(request *model.MigrateSubNetworkInterfaceRequest) *MigrateSubNetworkInterfaceInvoker {
 	requestDef := GenReqDefForMigrateSubNetworkInterface()
 	return &MigrateSubNetworkInterfaceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RemoveSourcesFromTrafficMirrorSession 流量镜像会话移除镜像源
+//
+// 流量镜像会话移除镜像源
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) RemoveSourcesFromTrafficMirrorSession(request *model.RemoveSourcesFromTrafficMirrorSessionRequest) (*model.RemoveSourcesFromTrafficMirrorSessionResponse, error) {
+	requestDef := GenReqDefForRemoveSourcesFromTrafficMirrorSession()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RemoveSourcesFromTrafficMirrorSessionResponse), nil
+	}
+}
+
+// RemoveSourcesFromTrafficMirrorSessionInvoker 流量镜像会话移除镜像源
+func (c *VpcClient) RemoveSourcesFromTrafficMirrorSessionInvoker(request *model.RemoveSourcesFromTrafficMirrorSessionRequest) *RemoveSourcesFromTrafficMirrorSessionInvoker {
+	requestDef := GenReqDefForRemoveSourcesFromTrafficMirrorSession()
+	return &RemoveSourcesFromTrafficMirrorSessionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowSecurityGroup 查询安全组
@@ -334,6 +586,69 @@ func (c *VpcClient) ShowSubNetworkInterfacesQuantityInvoker(request *model.ShowS
 	return &ShowSubNetworkInterfacesQuantityInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowTrafficMirrorFilter 查询流量镜像筛选条件详情
+//
+// 查询流量镜像筛选条件详情
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ShowTrafficMirrorFilter(request *model.ShowTrafficMirrorFilterRequest) (*model.ShowTrafficMirrorFilterResponse, error) {
+	requestDef := GenReqDefForShowTrafficMirrorFilter()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowTrafficMirrorFilterResponse), nil
+	}
+}
+
+// ShowTrafficMirrorFilterInvoker 查询流量镜像筛选条件详情
+func (c *VpcClient) ShowTrafficMirrorFilterInvoker(request *model.ShowTrafficMirrorFilterRequest) *ShowTrafficMirrorFilterInvoker {
+	requestDef := GenReqDefForShowTrafficMirrorFilter()
+	return &ShowTrafficMirrorFilterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowTrafficMirrorFilterRule 查询流量镜像筛选规则详情
+//
+// 查询流量镜像筛选规则详情
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ShowTrafficMirrorFilterRule(request *model.ShowTrafficMirrorFilterRuleRequest) (*model.ShowTrafficMirrorFilterRuleResponse, error) {
+	requestDef := GenReqDefForShowTrafficMirrorFilterRule()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+// ShowTrafficMirrorFilterRuleInvoker 查询流量镜像筛选规则详情
+func (c *VpcClient) ShowTrafficMirrorFilterRuleInvoker(request *model.ShowTrafficMirrorFilterRuleRequest) *ShowTrafficMirrorFilterRuleInvoker {
+	requestDef := GenReqDefForShowTrafficMirrorFilterRule()
+	return &ShowTrafficMirrorFilterRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowTrafficMirrorSession 查询流量镜像会话详情
+//
+// 查询流量镜像会话详情
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ShowTrafficMirrorSession(request *model.ShowTrafficMirrorSessionRequest) (*model.ShowTrafficMirrorSessionResponse, error) {
+	requestDef := GenReqDefForShowTrafficMirrorSession()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowTrafficMirrorSessionResponse), nil
+	}
+}
+
+// ShowTrafficMirrorSessionInvoker 查询流量镜像会话详情
+func (c *VpcClient) ShowTrafficMirrorSessionInvoker(request *model.ShowTrafficMirrorSessionRequest) *ShowTrafficMirrorSessionInvoker {
+	requestDef := GenReqDefForShowTrafficMirrorSession()
+	return &ShowTrafficMirrorSessionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateSecurityGroup 更新安全组
 //
 // 更新安全组
@@ -374,6 +689,279 @@ func (c *VpcClient) UpdateSubNetworkInterface(request *model.UpdateSubNetworkInt
 func (c *VpcClient) UpdateSubNetworkInterfaceInvoker(request *model.UpdateSubNetworkInterfaceRequest) *UpdateSubNetworkInterfaceInvoker {
 	requestDef := GenReqDefForUpdateSubNetworkInterface()
 	return &UpdateSubNetworkInterfaceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTrafficMirrorFilter 更新流量镜像筛选条件
+//
+// 更新流量镜像筛选条件
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) UpdateTrafficMirrorFilter(request *model.UpdateTrafficMirrorFilterRequest) (*model.UpdateTrafficMirrorFilterResponse, error) {
+	requestDef := GenReqDefForUpdateTrafficMirrorFilter()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTrafficMirrorFilterResponse), nil
+	}
+}
+
+// UpdateTrafficMirrorFilterInvoker 更新流量镜像筛选条件
+func (c *VpcClient) UpdateTrafficMirrorFilterInvoker(request *model.UpdateTrafficMirrorFilterRequest) *UpdateTrafficMirrorFilterInvoker {
+	requestDef := GenReqDefForUpdateTrafficMirrorFilter()
+	return &UpdateTrafficMirrorFilterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTrafficMirrorFilterRule 更新流量镜像筛选规则
+//
+// 更新流量镜像筛选规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) UpdateTrafficMirrorFilterRule(request *model.UpdateTrafficMirrorFilterRuleRequest) (*model.UpdateTrafficMirrorFilterRuleResponse, error) {
+	requestDef := GenReqDefForUpdateTrafficMirrorFilterRule()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTrafficMirrorFilterRuleResponse), nil
+	}
+}
+
+// UpdateTrafficMirrorFilterRuleInvoker 更新流量镜像筛选规则
+func (c *VpcClient) UpdateTrafficMirrorFilterRuleInvoker(request *model.UpdateTrafficMirrorFilterRuleRequest) *UpdateTrafficMirrorFilterRuleInvoker {
+	requestDef := GenReqDefForUpdateTrafficMirrorFilterRule()
+	return &UpdateTrafficMirrorFilterRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTrafficMirrorSession 更新流量镜像会话
+//
+// 更新流量镜像会话
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) UpdateTrafficMirrorSession(request *model.UpdateTrafficMirrorSessionRequest) (*model.UpdateTrafficMirrorSessionResponse, error) {
+	requestDef := GenReqDefForUpdateTrafficMirrorSession()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTrafficMirrorSessionResponse), nil
+	}
+}
+
+// UpdateTrafficMirrorSessionInvoker 更新流量镜像会话
+func (c *VpcClient) UpdateTrafficMirrorSessionInvoker(request *model.UpdateTrafficMirrorSessionRequest) *UpdateTrafficMirrorSessionInvoker {
+	requestDef := GenReqDefForUpdateTrafficMirrorSession()
+	return &UpdateTrafficMirrorSessionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AddFirewallRules 网络ACL插入规则
+//
+// 网络ACL插入规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) AddFirewallRules(request *model.AddFirewallRulesRequest) (*model.AddFirewallRulesResponse, error) {
+	requestDef := GenReqDefForAddFirewallRules()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddFirewallRulesResponse), nil
+	}
+}
+
+// AddFirewallRulesInvoker 网络ACL插入规则
+func (c *VpcClient) AddFirewallRulesInvoker(request *model.AddFirewallRulesRequest) *AddFirewallRulesInvoker {
+	requestDef := GenReqDefForAddFirewallRules()
+	return &AddFirewallRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// AssociateSubnetFirewall 网络ACL绑定子网
+//
+// 网络ACL绑定子网
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) AssociateSubnetFirewall(request *model.AssociateSubnetFirewallRequest) (*model.AssociateSubnetFirewallResponse, error) {
+	requestDef := GenReqDefForAssociateSubnetFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AssociateSubnetFirewallResponse), nil
+	}
+}
+
+// AssociateSubnetFirewallInvoker 网络ACL绑定子网
+func (c *VpcClient) AssociateSubnetFirewallInvoker(request *model.AssociateSubnetFirewallRequest) *AssociateSubnetFirewallInvoker {
+	requestDef := GenReqDefForAssociateSubnetFirewall()
+	return &AssociateSubnetFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateFirewall 创建网络ACL
+//
+// 创建网络ACL
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) CreateFirewall(request *model.CreateFirewallRequest) (*model.CreateFirewallResponse, error) {
+	requestDef := GenReqDefForCreateFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateFirewallResponse), nil
+	}
+}
+
+// CreateFirewallInvoker 创建网络ACL
+func (c *VpcClient) CreateFirewallInvoker(request *model.CreateFirewallRequest) *CreateFirewallInvoker {
+	requestDef := GenReqDefForCreateFirewall()
+	return &CreateFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteFirewall 删除网络ACL
+//
+// 删除网络ACL
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) DeleteFirewall(request *model.DeleteFirewallRequest) (*model.DeleteFirewallResponse, error) {
+	requestDef := GenReqDefForDeleteFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteFirewallResponse), nil
+	}
+}
+
+// DeleteFirewallInvoker 删除网络ACL
+func (c *VpcClient) DeleteFirewallInvoker(request *model.DeleteFirewallRequest) *DeleteFirewallInvoker {
+	requestDef := GenReqDefForDeleteFirewall()
+	return &DeleteFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DisassociateSubnetFirewall 网络ACL解绑子网
+//
+// 网络ACL解绑子网
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) DisassociateSubnetFirewall(request *model.DisassociateSubnetFirewallRequest) (*model.DisassociateSubnetFirewallResponse, error) {
+	requestDef := GenReqDefForDisassociateSubnetFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DisassociateSubnetFirewallResponse), nil
+	}
+}
+
+// DisassociateSubnetFirewallInvoker 网络ACL解绑子网
+func (c *VpcClient) DisassociateSubnetFirewallInvoker(request *model.DisassociateSubnetFirewallRequest) *DisassociateSubnetFirewallInvoker {
+	requestDef := GenReqDefForDisassociateSubnetFirewall()
+	return &DisassociateSubnetFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListFirewall 查询网络ACL列表
+//
+// 查询网络ACL列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ListFirewall(request *model.ListFirewallRequest) (*model.ListFirewallResponse, error) {
+	requestDef := GenReqDefForListFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListFirewallResponse), nil
+	}
+}
+
+// ListFirewallInvoker 查询网络ACL列表
+func (c *VpcClient) ListFirewallInvoker(request *model.ListFirewallRequest) *ListFirewallInvoker {
+	requestDef := GenReqDefForListFirewall()
+	return &ListFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RemoveFirewallRules 网络ACL移除规则
+//
+// 网络ACL移除规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) RemoveFirewallRules(request *model.RemoveFirewallRulesRequest) (*model.RemoveFirewallRulesResponse, error) {
+	requestDef := GenReqDefForRemoveFirewallRules()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RemoveFirewallRulesResponse), nil
+	}
+}
+
+// RemoveFirewallRulesInvoker 网络ACL移除规则
+func (c *VpcClient) RemoveFirewallRulesInvoker(request *model.RemoveFirewallRulesRequest) *RemoveFirewallRulesInvoker {
+	requestDef := GenReqDefForRemoveFirewallRules()
+	return &RemoveFirewallRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowFirewall 查询网络ACL详情
+//
+// 查询网络ACL详情
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) ShowFirewall(request *model.ShowFirewallRequest) (*model.ShowFirewallResponse, error) {
+	requestDef := GenReqDefForShowFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowFirewallResponse), nil
+	}
+}
+
+// ShowFirewallInvoker 查询网络ACL详情
+func (c *VpcClient) ShowFirewallInvoker(request *model.ShowFirewallRequest) *ShowFirewallInvoker {
+	requestDef := GenReqDefForShowFirewall()
+	return &ShowFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateFirewall 更新网络ACL
+//
+// 更新网络ACL
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) UpdateFirewall(request *model.UpdateFirewallRequest) (*model.UpdateFirewallResponse, error) {
+	requestDef := GenReqDefForUpdateFirewall()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateFirewallResponse), nil
+	}
+}
+
+// UpdateFirewallInvoker 更新网络ACL
+func (c *VpcClient) UpdateFirewallInvoker(request *model.UpdateFirewallRequest) *UpdateFirewallInvoker {
+	requestDef := GenReqDefForUpdateFirewall()
+	return &UpdateFirewallInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateFirewallRules 网络ACL更新规则
+//
+// 网络ACL更新规则
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) UpdateFirewallRules(request *model.UpdateFirewallRulesRequest) (*model.UpdateFirewallRulesResponse, error) {
+	requestDef := GenReqDefForUpdateFirewallRules()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateFirewallRulesResponse), nil
+	}
+}
+
+// UpdateFirewallRulesInvoker 网络ACL更新规则
+func (c *VpcClient) UpdateFirewallRulesInvoker(request *model.UpdateFirewallRulesRequest) *UpdateFirewallRulesInvoker {
+	requestDef := GenReqDefForUpdateFirewallRules()
+	return &UpdateFirewallRulesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateAddressGroup 创建地址组
