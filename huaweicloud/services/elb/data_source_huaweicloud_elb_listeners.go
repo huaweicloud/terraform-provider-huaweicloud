@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/chnsz/golangsdk/openstack/elb/v3/listeners"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -48,7 +49,7 @@ func DataSourceElbListeners() *schema.Resource {
 				Optional: true,
 			},
 			"protocol_port": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Optional: true,
 			},
 			"enterprise_project_id": {
@@ -80,11 +81,11 @@ func listenersSchema() *schema.Resource {
 				Computed: true,
 			},
 			"protocol": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"protocol_port": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"default_pool_id": {
@@ -172,16 +173,13 @@ func dataSourceElbListeners(_ context.Context, d *schema.ResourceData, meta inte
 	}
 	listLoadListenersPath := listLoadListenersClient.Endpoint + listLoadListenersHttpUrl
 	listLoadListenersPath = strings.ReplaceAll(listLoadListenersPath, "{project_id}", listLoadListenersClient.ProjectID)
-
 	listLoadListenersQueryParams := buildListListenersQueryParams(d)
 	listLoadListenersPath += listLoadListenersQueryParams
-
 	listLoadListenersResp, err := pagination.ListAllItems(
 		listLoadListenersClient,
 		"marker",
 		listLoadListenersPath,
 		&pagination.QueryOpts{MarkerField: ""})
-
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Listeners")
 	}
@@ -263,11 +261,20 @@ func flattenListListenersBody(resp interface{}) []interface{} {
 			"idle_timeout":                utils.PathSearch("keepalive_timeout", v, nil),
 			"request_timeout":             utils.PathSearch("client_timeout", v, nil),
 			"response_timeout":            utils.PathSearch("member_timeout", v, nil),
-			"loadbalancer_id":             utils.PathSearch("loadbalancers", v, nil),
+			"loadbalancer_id":             getLoadbalancerId(v),
 			"advanced_forwarding_enabled": utils.PathSearch("enhance_l7policy_enable", v, nil),
 			"protection_status":           utils.PathSearch("protection_status", v, nil),
 			"protection_reason":           utils.PathSearch("protection_reason", v, nil),
 		})
 	}
 	return rst
+}
+
+func getLoadbalancerId(v interface{}) string {
+	lis := utils.PathSearch("loadbalancers", v, nil)
+	if lis != nil {
+		listener := utils.PathSearch("loadbalancers", v, nil).(listeners.Listener)
+		return listener.Loadbalancers[0].ID
+	}
+	return ""
 }
