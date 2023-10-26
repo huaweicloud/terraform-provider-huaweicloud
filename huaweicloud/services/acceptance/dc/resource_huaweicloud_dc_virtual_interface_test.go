@@ -9,12 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk/openstack/dc/v3/interfaces"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getVirtualInterfaceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DcV3Client(acceptance.HW_REGION_NAME)
+func getVirtualInterfaceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.DcV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DC v3 client: %s", err)
 	}
