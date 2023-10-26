@@ -21,12 +21,12 @@ import (
 
 const TopicNotExistsCode = "SMN.00010008"
 
-func ResourceSmnLogTank() *schema.Resource {
+func ResourceSmnLogtank() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceSmnLogTankCreate,
-		UpdateContext: resourceSmnLogTankUpdate,
-		ReadContext:   ResourceSmnLogTankRead,
-		DeleteContext: resourceSmnLogTankDelete,
+		CreateContext: resourceSmnLogtankCreate,
+		UpdateContext: resourceSmnLogtankUpdate,
+		ReadContext:   ResourceSmnLogtankRead,
+		DeleteContext: resourceSmnLogtankDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceSmnLogtankImportState,
 		},
@@ -67,7 +67,7 @@ func ResourceSmnLogTank() *schema.Resource {
 	}
 }
 
-func resourceSmnLogTankCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSmnLogtankCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.SmnV2Client(region)
@@ -91,10 +91,10 @@ func resourceSmnLogTankCreate(ctx context.Context, d *schema.ResourceData, meta 
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error creating SMN logtank when set id: %s", mErr)
 	}
-	return ResourceSmnLogTankRead(ctx, d, meta)
+	return ResourceSmnLogtankRead(ctx, d, meta)
 }
 
-func resourceSmnLogTankUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSmnLogtankUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.SmnV2Client(region)
@@ -115,10 +115,10 @@ func resourceSmnLogTankUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
-	return ResourceSmnLogTankRead(ctx, d, meta)
+	return ResourceSmnLogtankRead(ctx, d, meta)
 }
 
-func ResourceSmnLogTankRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func ResourceSmnLogtankRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.SmnV2Client(region)
@@ -129,7 +129,7 @@ func ResourceSmnLogTankRead(_ context.Context, d *schema.ResourceData, meta inte
 	topicUrn := d.Id()
 	logtanks, err := logtank.List(client, topicUrn).Extract()
 	if err != nil {
-		if hasLogTopicNotExistsCode(err) {
+		if hasLogtankNotExistsCode(err) {
 			err = golangsdk.ErrDefault404{}
 		}
 		return common.CheckDeletedDiag(d, err, "error retrieving SMN logtank")
@@ -171,7 +171,7 @@ func getLogtankById(logtanks []logtank.LogtankGet, id string) *logtank.LogtankGe
 	return nil
 }
 
-func resourceSmnLogTankDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSmnLogtankDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.SmnV2Client(region)
@@ -204,7 +204,7 @@ func resourceSmnLogtankImportState(_ context.Context, d *schema.ResourceData, _ 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func hasLogTopicNotExistsCode(err error) bool {
+func hasLogtankNotExistsCode(err error) bool {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var response interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
