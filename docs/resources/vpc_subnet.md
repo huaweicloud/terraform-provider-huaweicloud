@@ -9,23 +9,33 @@ Provides a VPC subnet resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+
+variable "vpc_name" {}
+variable "vpc_cidr" {}
+variable "subnet_name" {}
+variable "subnet_cidr" {}
+variable "subnet_gateway_ip" {}
+variable "availability_zone" {}
+
 resource "huaweicloud_vpc" "vpc" {
   name = var.vpc_name
   cidr = var.vpc_cidr
 }
 
 resource "huaweicloud_vpc_subnet" "subnet" {
-  name       = var.subnet_name
-  cidr       = var.subnet_cidr
-  gateway_ip = var.subnet_gateway_ip
-  vpc_id     = huaweicloud_vpc.vpc.id
+  name              = var.subnet_name
+  cidr              = var.subnet_cidr
+  gateway_ip        = var.subnet_gateway_ip
+  vpc_id            = huaweicloud_vpc.vpc.id
+  availability_zone = var.availability_zone
 }
 
 resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
-  name       = var.subnet_name
-  cidr       = var.subnet_cidr
-  gateway_ip = var.subnet_gateway_ip
-  vpc_id     = huaweicloud_vpc.vpc.id
+  name              = var.subnet_name
+  cidr              = var.subnet_cidr
+  gateway_ip        = var.subnet_gateway_ip
+  vpc_id            = huaweicloud_vpc.vpc.id
+  availability_zone = var.availability_zone
 
   tags = {
     foo = "bar"
@@ -34,10 +44,11 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
 }
 
 resource "huaweicloud_vpc_subnet" "subnet_with_dhcp" {
-  name       = var.subnet_name
-  cidr       = var.subnet_cidr
-  gateway_ip = var.subnet_gateway_ip
-  vpc_id     = huaweicloud_vpc.vpc.id
+  name              = var.subnet_name
+  cidr              = var.subnet_cidr
+  gateway_ip        = var.subnet_gateway_ip
+  vpc_id            = huaweicloud_vpc.vpc.id
+  availability_zone = var.availability_zone
 
   dhcp_lease_time    = "24h"
   ntp_server_address = "10.100.0.33,10.100.0.34"
@@ -65,6 +76,9 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the subnet belongs. Changing this creates
   a new subnet.
 
+* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
+  The value must be an existing AZ in the system. Changing this creates a new subnet.
+
 * `description` - (Optional, String) Specifies supplementary information about the subnet. The value is a string of
   no more than 255 characters and cannot contain angle brackets (< or >).
 
@@ -78,20 +92,17 @@ The following arguments are supported:
 * `secondary_dns` - (Optional, String) Specifies the IP address of DNS server 2 on the subnet. The value must be a valid
   IP address.
 
-* `dhcp_lease_time` - (Optional, String) Specifies the DHCP lease expiration time. The value can be -1, which indicates
-  unlimited lease time, or Number+h. the number ranges from 1 to 30,000. For example, the value can be 5h. The default
-  value is 24h.
+* `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet. This field is required if you need to
+  use more than two DNS servers. This parameter value is the superset of both DNS server address 1 and DNS server
+  address 2.
 
 * `ntp_server_address` - (Optional, String) Specifies the NTP server address. Currently only IPv4 addresses are supported.
   A maximum of four IP addresses can be configured, and each address must be unique. Multiple IP addresses must be
   separated using commas(,). Removing this parameter indicates that no NTP server is configured.
 
-* `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet. This field is required if you need to
-  use more than two DNS servers. This parameter value is the superset of both DNS server address 1 and DNS server
-  address 2.
-
-* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
-  The value must be an existing AZ in the system. Changing this creates a new subnet.
+* `dhcp_lease_time` - (Optional, String) Specifies the DHCP lease expiration time. The value can be -1, which indicates
+  unlimited lease time, or Number+h. the number ranges from 1 to 30,000. For example, the value can be 5h. The default
+  value is 24h.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the subnet.
 
