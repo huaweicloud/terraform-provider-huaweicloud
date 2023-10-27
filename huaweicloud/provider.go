@@ -468,6 +468,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
 			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
+			"huaweicloud_fgs_functions":    fgs.DataSourceFunctionGraphFunctions(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
