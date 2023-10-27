@@ -19,7 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-const TopicNotExistsCode = "SMN.00010008"
+const LogtankNotExistsCode = "SMN.00010008"
 
 func ResourceSmnLogtank() *schema.Resource {
 	return &schema.Resource{
@@ -135,7 +135,7 @@ func ResourceSmnLogtankRead(_ context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, err, "error retrieving SMN logtank")
 	}
 	logtankID := d.Get("logtank_id").(string)
-	logtankGet := getLogtankById(logtanks, logtankID)
+	logtankGet := GetLogtankById(logtanks, logtankID)
 	if logtankGet == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving SMN logtank")
 	}
@@ -156,11 +156,11 @@ func ResourceSmnLogtankRead(_ context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func getLogtankById(logtanks []logtank.LogtankGet, id string) *logtank.LogtankGet {
+func GetLogtankById(logtanks []logtank.LogtankGet, id string) *logtank.LogtankGet {
 	if len(logtanks) == 0 {
 		return nil
 	}
-	if len(id) == 0 {
+	if id == "" {
 		return &logtanks[0]
 	}
 	for _, logtankItem := range logtanks {
@@ -187,6 +187,7 @@ func resourceSmnLogtankDelete(_ context.Context, d *schema.ResourceData, meta in
 	if result.ExtractErr() != nil {
 		return diag.Errorf("error deleting SMN log tank: %s", result.Err)
 	}
+	d.SetId("")
 
 	return nil
 }
@@ -195,11 +196,12 @@ func resourceSmnLogtankImportState(_ context.Context, d *schema.ResourceData, _ 
 	error) {
 	var mErr *multierror.Error
 	parts := strings.Split(d.Id(), "/")
+	if len(parts) < 1 || len(parts) > 2 {
+		return nil, fmt.Errorf("the imported ID specifies an invalid format, must be <topic_urn> or <topic_urn>/<id>")
+	}
 	d.SetId(parts[0])
 	if len(parts) == 2 {
 		mErr = multierror.Append(d.Set("logtank_id", parts[1]))
-	} else if len(parts) > 2 {
-		return nil, fmt.Errorf("the imported ID specifies an invalid format, must be <topic_urn> or <topic_urn>/<id>")
 	}
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
@@ -213,7 +215,7 @@ func hasLogtankNotExistsCode(err error) bool {
 				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
 			}
 
-			if errorCode == TopicNotExistsCode {
+			if errorCode == LogtankNotExistsCode {
 				return true
 			}
 		}

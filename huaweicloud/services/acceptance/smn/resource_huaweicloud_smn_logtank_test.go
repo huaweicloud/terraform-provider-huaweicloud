@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
 )
 
 func getResourceSMNLogtankFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,12 +20,18 @@ func getResourceSMNLogtankFunc(cfg *config.Config, state *terraform.ResourceStat
 		return nil, fmt.Errorf("error creating smn v2 client: %s", err)
 	}
 
-	return logtank.List(client, state.Primary.ID).Extract()
+	logtankGets, err := logtank.List(client, state.Primary.ID).Extract()
+	if err != nil {
+		return nil, fmt.Errorf("error list logtanks: %s", err)
+	}
+
+	logtankGet := smn.GetLogtankById(logtankGets, state.Primary.Attributes["logtank_id"])
+	return logtankGet, nil
 }
 
 func TestAccSMNV2Logtank_basic(t *testing.T) {
 	var (
-		logtankGet          []logtank.LogtankGet
+		logtankGet          logtank.LogtankGet
 		rName               = acceptance.RandomAccResourceNameWithDash()
 		logtankResourceName = fmt.Sprintf("huaweicloud_smn_logtank.%s", rName)
 	)
@@ -75,12 +82,12 @@ func TestAccSMNV2Logtank_basic(t *testing.T) {
 
 func testAccSMNV2ImportStateIdFunc(logtankResourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		logtank, ok := s.RootModule().Resources[logtankResourceName]
+		resourceLogtank, ok := s.RootModule().Resources[logtankResourceName]
 		if !ok {
-			return "", fmt.Errorf("Auto smn logtank not found: %s", logtank)
+			return "", fmt.Errorf("smn logtank not found: %s", resourceLogtank)
 		}
-		topicURN := logtank.Primary.ID
-		logtankID := logtank.Primary.Attributes["logtank_id"]
+		topicURN := resourceLogtank.Primary.ID
+		logtankID := resourceLogtank.Primary.Attributes["logtank_id"]
 		if len(topicURN) == 0 || len(logtankID) == 0 {
 			return "", fmt.Errorf("resource not found: %s/%s", topicURN, logtankID)
 		}

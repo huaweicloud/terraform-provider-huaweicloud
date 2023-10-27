@@ -39,7 +39,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the SMN topic resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique.
+* `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique. Changing this parameter will create a new resource.
 
 * `log_group_id` - (Required, String) The lts log group ID.
 
@@ -49,7 +49,9 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `logtank_id` - The resource ID.
+* `id` - The resource ID. The value is the topic URN.
+
+* `logtank_id` - The ID of the logtank.
 
 * `created_at` - Time when the logtank was created.
 
@@ -57,7 +59,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-SMN topic can be imported using the `topic_urn` or using the `topic_urn` / `logtank_id`.
+SMN topic can be imported using the `topic_urn` or using the `topic_urn` and `logtank_id` separated by a slash e.g.
 
 ```
 $ terraform import huaweicloud_smn_logtank.logtank_test urn:smn:cn-south-1:09f960944c80f4802f85c003e0ed1d98:logtank_test
