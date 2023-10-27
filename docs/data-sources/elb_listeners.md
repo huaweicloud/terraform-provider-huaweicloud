@@ -1,18 +1,18 @@
 ---
-subcategory: Dedicated Load Balance (Dedicated ELB)
+subcategory: Dedicated Listeners (Dedicated ELB)
 ---
 
-# huaweicloud_elb_loadbalancers
+# huaweicloud_elb_listeners
 
-Use this data source to get the list of ELB load blancers.
+Use this data source to get the list of ELB listeners.
 
 ## Example Usage
 
 ```hcl
-variable "loadbalancer_name" {}
+variable "listener_name" {}
 
-data "huaweicloud_elb_loadbalancers" "test" {
-  name = var.loadbalancer_name
+data "huaweicloud_elb_listeners" "test" {
+  name = var.listener_name
 }
 ```
 
@@ -23,72 +23,73 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the data source.
   If omitted, the provider-level region will be used.
 
-* `name` - (Optional, String) Specifies the name of the ELB load balancer.
+* `name` - (Optional, String) Specifies the name of the ELB listener.
 
-* `loadbalancer_id` - (Optional, String) Specifies the ID of the ELB load balancer.
+* `listener_id` - (Optional, String) Specifies the ID of the ELB listener.
 
-* `description` - (Optional, String) Specifies the description of the ELB load balancer.
+* `description` - (Optional, String) Specifies the description of the ELB listener.
 
-* `type` - (Optional, String) Specifies whether the load balancer is a dedicated load balancer, Value options:
-  **dedicated**, **share**.
+* `loadbalancer_id` - (Optional, String) Specifies the ID of the load balancer that the listener is added to.
 
-* `vpc_id` - (Optional, String) Specifies the ID of the VPC where the load balancer resides.
+* `protocol` - (Optional, String) Specifies the ID of the IPv4 subnet where the load balancer resides.
 
-* `ipv4_subnet_id` - (Optional, String) Specifies the ID of the IPv4 subnet where the load balancer resides.
+* `protocol_port` - (Optional, String) (Optional, String) Specifies the protocol of the ELB listener. Value options:
+  **TCP**, **UDP**, **HTTP**, **HTTPS** or **QUIC**.
 
-* `ipv6_network_id` - (Optional, String) Specifies the ID of the port bound to the IPv6 address of the load balancer.
-
-* `l4_flavor_id` - (Optional, String) Specifies the ID of a flavor at Layer 4.
-
-* `l7_flavor_id` - (Optional, String) Specifies the ID of a flavor at Layer 7.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `loadbalancers` - Lists the loadalancers.
-  The [loadbalancers](#Elb_loadbalancer_loadbalancers) structure is documented below.
-
-<a name="Elb_loadbalancer_loadbalancers"></a>
-The `loadbalancers` block supports:
-
 * `id` - The data source ID.
 
-* `name` - The load balancer name.
+* `listeners` - Lists the listeners.
+  The [listeners](#Elb_loadbalancer_listeners) structure is documented below.
 
-* `description` - The description of load balancer.
+<a name="Elb_loadbalancer_listeners"></a>
+The `listeners` block supports:
 
-* `availability_zone` - The list of AZs where the load balancer is created.
+* `id` - The listener ID.
 
-* `cross_vpc_backend` - Whether to enable IP as a Backend Server.
+* `name` - The listener name.
 
-* `vpc_id` - The ID of the VPC where the load balancer resides.
+* `description` - The description of listener.
 
-* `ipv4_subnet_id` - The  ID of the IPv4 subnet where the load balancer resides.
+* `protocol` - The protocol used by the listener.
 
-* `ipv6_network_id` - The ID of the IPv6 subnet where the load balancer resides.
+* `protocol_port` - The port used by the listener.
 
-* `ipv4_address` - The private IPv4 address bound to the load balancer.
+* `default_pool_id` - The ID of the default backend server group.
 
-* `ipv4_port_id` - The ID of the port bound to the private IPv4 address of the load balancer.
+* `http2_enable` - Whether to use HTTP/2 if you want the clients to use HTTP/2 to communicate with the listener.
 
-* `ipv6_address` - The IPv6 address bound to the load balancer.
+* `forward_eip` - Whether to transparently transmit the load balancer EIP to backend servers.
 
-* `l4_flavor_id` - The ID of a flavor at Layer 4.
+* `forward_port` - Whether to transparently transmit the listening port of the load balancer to backend servers.
 
-* `l7_flavor_id` - The ID of a flavor at Layer 7
+* `forward_request_port` - Whether to transparently transmit the source port of the client to backend servers.
 
-* `min_l7_flavor_id` - The minimum seven-layer specification ID (specification type L7_elastic) for elastic expansion
-  and contraction
+* `forward_host` -  Whether to rewrite the X-Forwarded-Host header.
 
-* `enterprise_project_id` - The enterprise project ID.
+* `sni_certificate` - The IDs of SNI certificates (server certificates with domain names) used by the listener.
 
-* `autoscaling_enabled` - Whether the current load balancer enables elastic expansion.
+* `ca_certificate` - The ID of the CA certificate used by the listener.
 
-* `backend_subnets` - Lists the IDs of subnets on the downstream plane.
+* `server_certificate` - The ID of the server certificate used by the listener.
+
+* `tls_ciphers_policy` - The security policy used by the listener.
+
+* `idle_timeout` - The idle timeout duration, in seconds.
+
+* `request_timeout` - The timeout duration for waiting for a response from a client, in seconds.
+
+* `response_timeout` -  The timeout duration for waiting for a response from a backend server, in seconds.
+
+* `loadbalancer_id` - The ID of the load balancer that the listener is added to.
+
+* `advanced_forwarding_enabled` - whether to enable advanced forwarding.
 
 * `protection_status` - The protection status for update.
 
 * `protection_reason` - The reason for update protection.
-
-* `type` - Whether the load balancer is a dedicated load balancer.
