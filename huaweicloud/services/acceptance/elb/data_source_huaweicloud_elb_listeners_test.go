@@ -23,12 +23,11 @@ func TestAccDatasourceListeners_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "listeners.#"),
 					resource.TestCheckResourceAttrSet(rName, "listeners.0.name"),
-					//resource.TestCheckResourceAttrSet(rName, "listeners.0.id"),
-					//resource.TestCheckResourceAttrSet(rName, "listeners.0.ipv4_address"),
-					//resource.TestCheckResourceAttrSet(rName, "listeners.0.ipv4_port_id"),
-					//resource.TestCheckResourceAttrSet(rName, "listeners.0.l4_flavor_id"),
-					//resource.TestCheckResourceAttrSet(rName, "listeners.0.l7_flavor_id"),
-					//resource.TestCheckResourceAttrSet(rName, "listeners.0.vpc_id"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.id"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.loadbalancer_id"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.description"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol_port"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					//resource.TestCheckOutput("vpc_id_filter_is_useful", "true"),
 					//resource.TestCheckOutput("ipv4_subnet_id_filter_is_useful", "true"),
@@ -44,7 +43,17 @@ func TestAccDatasourceListeners_basic(t *testing.T) {
 
 func testAccElbListenerConfig_basic(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {}
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+}
 
 data "huaweicloud_availability_zones" "test" {}
 

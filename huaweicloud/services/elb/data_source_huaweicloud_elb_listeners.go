@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/chnsz/golangsdk/openstack/elb/v3/listeners"
+	"github.com/hashicorp/go-uuid"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -72,6 +73,10 @@ func DataSourceElbListeners() *schema.Resource {
 func listenersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -130,7 +135,7 @@ func listenersSchema() *schema.Resource {
 				Computed: true,
 			},
 			"idle_timeout": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"request_timeout": {
@@ -194,10 +199,18 @@ func dataSourceElbListeners(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(dataSourceId)
+
 	mErr := multierror.Append(
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("loadbalancers", flattenListListenersBody(listListenersRespBody)),
+		d.Set("listeners", flattenListListenersBody(listListenersRespBody)),
 	)
+
+	log.Printf("listneres info: %#v", d.Get("listeners"))
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -243,7 +256,7 @@ func flattenListListenersBody(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"listener_id":                 utils.PathSearch("id", v, nil),
+			"id":                          utils.PathSearch("id", v, nil),
 			"name":                        utils.PathSearch("name", v, nil),
 			"description":                 utils.PathSearch("description", v, nil),
 			"protocol":                    utils.PathSearch("protocol", v, nil),
@@ -261,20 +274,12 @@ func flattenListListenersBody(resp interface{}) []interface{} {
 			"idle_timeout":                utils.PathSearch("keepalive_timeout", v, nil),
 			"request_timeout":             utils.PathSearch("client_timeout", v, nil),
 			"response_timeout":            utils.PathSearch("member_timeout", v, nil),
-			"loadbalancer_id":             getLoadbalancerId(v),
+			"loadbalancer_id":             utils.PathSearch("loadbalancers|[0].id", v, nil),
 			"advanced_forwarding_enabled": utils.PathSearch("enhance_l7policy_enable", v, nil),
 			"protection_status":           utils.PathSearch("protection_status", v, nil),
 			"protection_reason":           utils.PathSearch("protection_reason", v, nil),
 		})
 	}
+	log.Printf("get rst info: %#v", rst)
 	return rst
-}
-
-func getLoadbalancerId(v interface{}) string {
-	lis := utils.PathSearch("loadbalancers", v, nil)
-	if lis != nil {
-		listener := utils.PathSearch("loadbalancers", v, nil).(listeners.Listener)
-		return listener.Loadbalancers[0].ID
-	}
-	return ""
 }
