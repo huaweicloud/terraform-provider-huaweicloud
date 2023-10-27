@@ -39,7 +39,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the SMN topic resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique. Changing this parameter will create a new resource.
+* `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique.
+  Changing this parameter will create a new resource.
 
 * `log_group_id` - (Required, String) The lts log group ID.
 
