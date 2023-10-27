@@ -688,7 +688,7 @@ func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta
 	log.Printf("[INFO] Waiting for CDN domain %s to become online.", v.ID)
 	err = waitDomainOnline(ctx, cdnClient, v.ID, opts, timeout)
 	if err != nil {
-		return diag.Errorf("error waiting cdn domain online: %s", err)
+		return diag.FromErr(err)
 	}
 
 	// Store the ID now
@@ -1032,7 +1032,7 @@ func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta
 		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
 		err = waitDomainOnline(ctx, cdnClient, id, opts, timeout)
 		if err != nil {
-			return diag.Errorf("error waiting cdn domain online: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1046,7 +1046,7 @@ func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta
 		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
 		err = waitDomainOnline(ctx, cdnClient, id, opts, timeout)
 		if err != nil {
-			return diag.Errorf("error waiting cdn domain online: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 

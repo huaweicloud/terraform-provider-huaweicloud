@@ -80,7 +80,7 @@ func TestAccCdnDomain_retrievalHost(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain.domain_1", "sources.0.retrieval_host", "customize.test.acceptance.com"),
+						"huaweicloud_cdn_domain.domain_1", "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "sources.0.http_port", "8001"),
 					resource.TestCheckResourceAttr(
@@ -240,7 +240,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     active         = 1
     origin         = "100.254.53.75"
     origin_type    = "ipaddr"
-    retrieval_host = "customize.test.acceptance.com"
+    retrieval_host = "customize.test.huaweicloud.com"
     http_port      = 8001
     https_port     = 8002
   }
