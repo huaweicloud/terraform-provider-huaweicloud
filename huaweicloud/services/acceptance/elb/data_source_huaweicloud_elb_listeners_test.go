@@ -79,11 +79,6 @@ resource "huaweicloud_elb_listener" "test" {
  protocol_port               = 8080
  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
  advanced_forwarding_enabled = false
- 
- forward_eip          = true
- forward_port         = true
- forward_request_port = true
- forward_host         = false
 
  idle_timeout     = 62
  request_timeout  = 63
