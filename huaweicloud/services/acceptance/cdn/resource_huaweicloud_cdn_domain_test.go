@@ -171,7 +171,7 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 		cdnClient, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud CDN Domain client: %s", err)
+			return fmt.Errorf("error creating CDN Domain client: %s", err)
 		}
 
 		found, err := domains.Get(cdnClient, rs.Primary.ID, nil).Extract()

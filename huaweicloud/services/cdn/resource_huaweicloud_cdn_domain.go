@@ -938,12 +938,12 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 	cfg := meta.(*config.Config)
 	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error creating CDN v1 client")
+		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
 	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error creating HcCDN v1 client")
+		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
@@ -961,12 +961,12 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
 	sources, configAttrs, err := getSourcesAndConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error reading CDN Domain configs settings")
+		return diag.Errorf("error reading CDN Domain configs settings: %s", err)
 	}
 
 	cacheAttrs, err := getCacheAttrs(hcCdnClient, id, epsId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error reading CDN Domain cache settings")
+		return diag.Errorf("error reading CDN Domain cache settings: %s", err)
 	}
 	mErr := multierror.Append(nil,
 		d.Set("name", v.DomainName),
@@ -982,7 +982,7 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 	// Set domain tags
 	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: id})
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error reading CDN Domain tags: %s")
+		return diag.Errorf("error reading CDN Domain tags: %s", err)
 	}
 	if tags.Tags != nil {
 		tagsToSet := make(map[string]interface{}, len(*tags.Tags))
@@ -1130,7 +1130,7 @@ func resourceCdnDomainV1Delete(ctx context.Context, d *schema.ResourceData, meta
 		// make sure the status has changed to offline
 		log.Printf("[INFO] Disable CDN domain %s.", id)
 		if err = domains.Disable(cdnClient, id, opts).Err; err != nil {
-			return diag.Errorf("error disable  CDN Domain %s: %s", id, err)
+			return diag.Errorf("error disable CDN Domain %s: %s", id, err)
 		}
 
 		log.Printf("[INFO] Waiting for disabling CDN domain %s.", id)
