@@ -29,12 +29,12 @@ func TestAccDatasourceListeners_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol"),
 					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol_port"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
-					//resource.TestCheckOutput("vpc_id_filter_is_useful", "true"),
-					//resource.TestCheckOutput("ipv4_subnet_id_filter_is_useful", "true"),
-					//resource.TestCheckOutput("description_filter_is_useful", "true"),
-					//resource.TestCheckOutput("l4_flavor_id_filter_is_useful", "true"),
-					//resource.TestCheckOutput("l7_flavor_id_filter_is_useful", "true"),
-					//resource.TestCheckOutput("type_is_useful", "true"),
+					resource.TestCheckOutput("protocol_filter_is_useful", "true"),
+					resource.TestCheckOutput("protocol_port_filter_is_useful", "true"),
+					resource.TestCheckOutput("forward_eip_filter_is_useful", "true"),
+					resource.TestCheckOutput("forward_port_filter_is_useful", "true"),
+					resource.TestCheckOutput("forward_request_port_is_useful", "true"),
+					resource.TestCheckOutput("forward_host_is_useful", "true"),
 				),
 			},
 		},
@@ -82,6 +82,11 @@ resource "huaweicloud_elb_listener" "test" {
  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
  advanced_forwarding_enabled = false
 
+ forward_eip          = true
+ forward_port         = true
+ forward_request_port = true
+ forward_host         = false
+
  idle_timeout     = 62
  request_timeout  = 63
  response_timeout = 64
@@ -106,12 +111,101 @@ data "huaweicloud_elb_listeners" "name_filter" {
   name       = "%[2]s"
   depends_on = [huaweicloud_elb_listener.test]
 }
-
 output "name_filter_is_useful" {
   value = length(data.huaweicloud_elb_listeners.name_filter.listeners) > 0 && alltrue(
   [for v in data.huaweicloud_elb_listeners.name_filter.listeners[*].name :v == "%[2]s"]
   )  
 }
 
+data "huaweicloud_elb_listeners" "description_filter" {
+  description = huaweicloud_elb_listener.test.description
+  depends_on  = [huaweicloud_elb_listener.test]
+}
+locals {
+  description = huaweicloud_elb_listener.test.description
+}
+output "description_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.description_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].description :v == local.description]
+  )  
+}
+
+data "huaweicloud_elb_listeners" "protocol_filter" {
+  protocol = huaweicloud_elb_listener.test.protocol
+  depends_on  = [huaweicloud_elb_listener.test]
+}
+locals {
+  protocol = huaweicloud_elb_listener.test.protocol
+}
+output "protocol_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.protocol_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].protocol :v == local.protocol]
+  )  
+}
+
+data "huaweicloud_elb_listeners" "protocol_port_filter" {
+  protocol_port = huaweicloud_elb_listener.test.protocol_port
+  depends_on  = [huaweicloud_elb_listener.test]
+}
+locals {
+  protocol_port = huaweicloud_elb_listener.test.protocol_port
+}
+output "protocol_port_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.protocol_port_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].protocol_port :v == local.protocol_port]
+  )  
+}
+
+data "huaweicloud_elb_listeners" "forward_eip_filter" {
+   depends_on  = [huaweicloud_elb_listener.test]
+   forward_eip = huaweicloud_elb_listener.test.forward_eip
+}
+locals {
+  forward_eip = huaweicloud_elb_listener.test.forward_eip
+}
+output "forward_eip_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.forward_eip_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].forward_eip :v == local.forward_eip]
+  )  
+}
+
+data "huaweicloud_elb_listeners" "forward_port_filter" {
+  depends_on  = [huaweicloud_elb_listener.test]
+  forward_port = huaweicloud_elb_listener.test.forward_port
+}
+locals {
+  forward_port = huaweicloud_elb_listener.test.forward_port
+}
+output "forward_port_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.forward_port_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].forward_port :v == local.forward_port]
+  )  
+}
+
+data "huaweicloud_elb_listeners" "forward_request_port_filter" {
+  depends_on  = [huaweicloud_elb_listener.test]
+  forward_request_port = huaweicloud_elb_listener.test.forward_request_port
+}
+locals {
+  forward_request_port = huaweicloud_elb_listener.test.forward_request_port
+}
+output "forward_request_port_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.forward_request_port_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].forward_request_port :v == local.forward_request_port]
+  )  
+}
+
+data "huaweicloud_elb_listeners" "forward_host_filter" {
+  depends_on  = [huaweicloud_elb_listener.test]
+  forward_host = huaweicloud_elb_listener.test.forward_host
+}
+locals {
+  forward_host = huaweicloud_elb_listener.test.forward_host
+}
+output "forward_host_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.forward_port_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.description_filter.listeners[*].forward_host :v == local.forward_host]
+  )  
+}
 `, testAccElbListenerConfig_basic(name), name)
 }
