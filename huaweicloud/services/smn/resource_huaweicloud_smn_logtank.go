@@ -19,7 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-const LogtankNotExistsCode = "SMN.00010008"
+// TopicURNNotExistsCode is smn error code means `topic information is not found`
+const TopicURNNotExistsCode = "SMN.00010008"
 
 func ResourceSmnLogtank() *schema.Resource {
 	return &schema.Resource{
@@ -89,7 +90,7 @@ func resourceSmnLogtankCreate(ctx context.Context, d *schema.ResourceData, meta 
 	d.SetId(topicUrn)
 	mErr := multierror.Append(nil, d.Set("logtank_id", result.ID))
 	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error creating SMN logtank when set id: %s", mErr)
+		return diag.Errorf("error creating SMN logtank when set logtank_id: %s", mErr)
 	}
 	return ResourceSmnLogtankRead(ctx, d, meta)
 }
@@ -111,7 +112,7 @@ func resourceSmnLogtankUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 		_, err = logtank.Update(client, topicUrn, id, updateOpts).Extract()
 		if err != nil {
-			return diag.Errorf("error updating log tank: %s", err)
+			return diag.Errorf("error updating logtank: %s", err)
 		}
 	}
 
@@ -129,7 +130,7 @@ func ResourceSmnLogtankRead(_ context.Context, d *schema.ResourceData, meta inte
 	topicUrn := d.Id()
 	logtanks, err := logtank.List(client, topicUrn).Extract()
 	if err != nil {
-		if hasLogtankNotExistsCode(err) {
+		if hasTopicURNNotExistsCode(err) {
 			err = golangsdk.ErrDefault404{}
 		}
 		return common.CheckDeletedDiag(d, err, "error retrieving SMN logtank")
@@ -151,7 +152,7 @@ func ResourceSmnLogtankRead(_ context.Context, d *schema.ResourceData, meta inte
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting logtankGet: %s", err)
+		return diag.Errorf("error setting logtank: %s", err)
 	}
 	return nil
 }
@@ -182,10 +183,8 @@ func resourceSmnLogtankDelete(_ context.Context, d *schema.ResourceData, meta in
 	topicUrn := d.Id()
 	logtankID := d.Get("logtank_id").(string)
 
-	result := logtank.Delete(client, topicUrn, logtankID)
-
-	if result.ExtractErr() != nil {
-		return diag.Errorf("error deleting SMN log tank: %s", result.Err)
+	if err = logtank.Delete(client, topicUrn, logtankID).ExtractErr(); err != nil {
+		return diag.Errorf("error deleting SMN logtank: %s", err)
 	}
 	d.SetId("")
 
@@ -206,7 +205,7 @@ func resourceSmnLogtankImportState(_ context.Context, d *schema.ResourceData, _ 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func hasLogtankNotExistsCode(err error) bool {
+func hasTopicURNNotExistsCode(err error) bool {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var response interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
@@ -215,7 +214,7 @@ func hasLogtankNotExistsCode(err error) bool {
 				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
 			}
 
-			if errorCode == LogtankNotExistsCode {
+			if errorCode == TopicURNNotExistsCode {
 				return true
 			}
 		}

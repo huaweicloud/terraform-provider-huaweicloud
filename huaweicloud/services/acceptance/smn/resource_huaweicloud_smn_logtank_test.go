@@ -26,6 +26,9 @@ func getResourceSMNLogtankFunc(cfg *config.Config, state *terraform.ResourceStat
 	}
 
 	logtankGet := smn.GetLogtankById(logtankGets, state.Primary.Attributes["logtank_id"])
+	if logtankGet == nil {
+		return nil, fmt.Errorf("the logtank does not exist")
+	}
 	return logtankGet, nil
 }
 
@@ -95,44 +98,50 @@ func testAccSMNV2ImportStateIdFunc(logtankResourceName string) resource.ImportSt
 	}
 }
 
-func testAccSMNV2LogtankConfig_base(updateName string) string {
+func testAccSMNV2LogtankConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_smn_topic" "test" {
-  name = "test"
+  name = "%[1]s"
 }
 
-resource "huaweicloud_lts_group" "%[1]s" {
+resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
   ttl_in_days = 1
 }
 
-resource "huaweicloud_lts_stream" "%[1]s" {
-  group_id    = huaweicloud_lts_group.%[1]s.id
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[1]s"
 }
-`, updateName)
-}
 
-func testAccSMNV2LogtankConfig_basic(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_smn_logtank" "%[2]s" {
+resource "huaweicloud_smn_logtank" "%[1]s" {
   topic_urn      = huaweicloud_smn_topic.test.topic_urn
   log_group_id   = huaweicloud_lts_group.test.id
   log_stream_id  = huaweicloud_lts_stream.test.id
 }
-`, testAccSMNV2LogtankConfig_base("test"), rName)
+`, rName)
 }
 
 func testAccSMNV2LogtankConfig_update(rName string) string {
 	return fmt.Sprintf(`
-%[1]s
+resource "huaweicloud_smn_topic" "test" {
+  name = "%[1]s"
+}
 
-resource "huaweicloud_smn_logtank" "%[2]s" {
+resource "huaweicloud_lts_group" "test_update" {
+  group_name  = "%[1]s_update"
+  ttl_in_days = 1
+}
+
+resource "huaweicloud_lts_stream" "test_update" {
+  group_id    = huaweicloud_lts_group.test_update.id
+  stream_name = "%[1]s_update"
+}
+
+resource "huaweicloud_smn_logtank" "%[1]s" {
   topic_urn     = huaweicloud_smn_topic.test.topic_urn
   log_group_id  = huaweicloud_lts_group.test_update.id
   log_stream_id = huaweicloud_lts_stream.test_update.id
 }
-`, testAccSMNV2LogtankConfig_base("test_update"), rName)
+`, rName)
 }
