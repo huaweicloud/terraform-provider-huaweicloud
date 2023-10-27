@@ -56,8 +56,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the VPC.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the VPC. Changing this
-  creates a new VPC resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the VPC.
 
 ## Attribute Reference
 
