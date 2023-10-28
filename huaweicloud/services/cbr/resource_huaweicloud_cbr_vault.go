@@ -178,6 +178,13 @@ func ResourceVault() *schema.Resource {
 				ForceNew:    true,
 				Description: "The backup name prefix.",
 			},
+			"is_multi_az": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "Whether multiple availability zones are used for backing up.",
+			},
 			// Public parameters.
 			"tags":          common.TagsSchema(),
 			"charging_mode": common.SchemaChargingMode(nil),
@@ -357,6 +364,7 @@ func buildBillingStructure(d *schema.ResourceData) *vaults.BillingCreate {
 		ConsistentLevel: d.Get("consistent_level").(string),
 		ProtectType:     d.Get("protection_type").(string),
 		Size:            d.Get("size").(int),
+		IsMultiAz:       d.Get("is_multi_az").(bool),
 	}
 
 	if isPrePaid(d) {
@@ -602,6 +610,7 @@ func resourceVaultRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("auto_bind", resp.AutoBind),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
 		d.Set("backup_name_prefix", resp.BackupNamePrefix),
+		d.Set("is_multi_az", resp.Billing.IsMultiAz),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("bind_rules", utils.TagsToMap(resp.BindRules.Tags)),
 		d.Set("policy", flattenPolicies(client, vaultId)),
