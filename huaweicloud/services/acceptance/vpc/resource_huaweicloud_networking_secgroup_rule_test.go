@@ -16,7 +16,7 @@ import (
 func getNetworkSecGroupRuleResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud VPC network v1 client: %s", err)
+		return nil, fmt.Errorf("error creating VPC network v1 client: %s", err)
 	}
 
 	return rules.Get(client, state.Primary.ID)
@@ -43,6 +43,44 @@ func TestAccNetworkingSecGroupRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "direction", "ingress"),
+					resource.TestCheckResourceAttr(resourceName, "description", "This is a basic acc test"),
+					resource.TestCheckResourceAttr(resourceName, "ports", "80"),
+					resource.TestCheckResourceAttr(resourceName, "ethertype", "IPv4"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "tcp"),
+					resource.TestCheckResourceAttr(resourceName, "remote_ip_prefix", "0.0.0.0/0"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccNetworkingSecGroupRule_Egress(t *testing.T) {
+	var secgroupRule rules.SecurityGroupRule
+	resourceName := "huaweicloud_networking_secgroup_rule.secgroup_rule_test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&secgroupRule,
+		getNetworkSecGroupRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingSecGroupRule_egress(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "direction", "egress"),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a basic acc test"),
 					resource.TestCheckResourceAttr(resourceName, "ports", "80"),
 					resource.TestCheckResourceAttr(resourceName, "ethertype", "IPv4"),
@@ -328,6 +366,22 @@ func testAccNetworkingSecGroupRule_basic(rName string) string {
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
   direction         = "ingress"
+  description       = "This is a basic acc test"
+  ethertype         = "IPv4"
+  ports             = 80
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.secgroup_test.id
+}
+`, testAccNetworkingSecGroupRule_base(rName))
+}
+
+func testAccNetworkingSecGroupRule_egress(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
+  direction         = "egress"
   description       = "This is a basic acc test"
   ethertype         = "IPv4"
   ports             = 80
