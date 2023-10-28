@@ -437,9 +437,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_secret_version": dew.DataSourceDewCsmsSecret(),
 			"huaweicloud_css_flavors":         css.DataSourceCssFlavors(),
 
-			"huaweicloud_dcs_flavors":        dcs.DataSourceDcsFlavorsV2(),
-			"huaweicloud_dcs_maintainwindow": dcs.DataSourceDcsMaintainWindow(),
-			"huaweicloud_dcs_instances":      dcs.DataSourceDcsInstance(),
+			"huaweicloud_dcs_flavors":         dcs.DataSourceDcsFlavorsV2(),
+			"huaweicloud_dcs_maintainwindow":  dcs.DataSourceDcsMaintainWindow(),
+			"huaweicloud_dcs_instances":       dcs.DataSourceDcsInstance(),
+			"huaweicloud_dcs_templates":       dcs.DataSourceTemplates(),
+			"huaweicloud_dcs_template_detail": dcs.DataSourceTemplateDetail(),
 
 			"huaweicloud_dds_flavors":   dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_instances": dds.DataSourceDdsInstance(),
