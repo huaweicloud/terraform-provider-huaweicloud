@@ -468,6 +468,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
 			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
+			"huaweicloud_fgs_functions":    fgs.DataSourceFunctionGraphFunctions(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
@@ -523,9 +524,10 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_lts_structuring_custom_templates": lts.DataSourceCustomTemplates(),
 
-			"huaweicloud_elb_certificate": elb.DataSourceELBCertificateV3(),
-			"huaweicloud_elb_flavors":     elb.DataSourceElbFlavorsV3(),
-			"huaweicloud_elb_pools":       elb.DataSourcePools(),
+			"huaweicloud_elb_certificate":   elb.DataSourceELBCertificateV3(),
+			"huaweicloud_elb_flavors":       elb.DataSourceElbFlavorsV3(),
+			"huaweicloud_elb_pools":         elb.DataSourcePools(),
+			"huaweicloud_elb_loadbalancers": elb.DataSourceElbLoadbalances(),
 
 			"huaweicloud_nat_gateway": nat.DataSourcePublicGateway(),
 
@@ -727,8 +729,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": resourceBCSInstanceV2(),
 
-			"huaweicloud_cbr_policy": cbr.ResourcePolicy(),
-			"huaweicloud_cbr_vault":  cbr.ResourceVault(),
+			"huaweicloud_cbr_checkpoint": cbr.ResourceCheckpoint(),
+			"huaweicloud_cbr_policy":     cbr.ResourcePolicy(),
+			"huaweicloud_cbr_vault":      cbr.ResourceVault(),
 
 			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),
 

@@ -47,10 +47,13 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the certificate name. The maximum length is 256 characters. Only digits,
   letters, underscores(`_`), and hyphens(`-`) are allowed.
 
-* `certificate` - (Required, String, ForceNew) Specifies the certificate content. Changing this creates a new
-  certificate.
+* `certificate` - (Required, String) Specifies the certificate content.
 
-* `private_key` - (Required, String, ForceNew) Specifies the private key. Changing this creates a new certificate.
+* `private_key` - (Required, String) Specifies the private key. This field does not support individual editing.
+  Changes to this field will only take effect when `certificate` changes.
+
+-> Only `PEM` format supported for `certificate` and `private_key`, and the newline characters in the file must be
+replaced with `\n`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF certificate.
   Changing this parameter will create a new resource.

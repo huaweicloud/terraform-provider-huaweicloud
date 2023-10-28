@@ -39,6 +39,8 @@ type Service struct {
 	Error []ErrorInfo `json:"error"`
 	// the description of the VPC endpoint service
 	Description string `json:"description"`
+	// whether the VPC endpoint policy is enabled.
+	EnablePolicy bool `json:"enable_policy"`
 	// the creation time of the VPC endpoint service
 	Created string `json:"created_at"`
 	// the update time of the VPC endpoint service
