@@ -9,6 +9,7 @@ Using this resource to manage an EG event subscription within Huaweicloud.
 ## Example Usage
 
 ```hcl
+variable "subscription_name" {}
 variable "source_channel_id" {}
 variable "target_channel_id" {}
 variable "custom_event_source_id" {}
@@ -21,7 +22,7 @@ variable "smn_topic_urn" {}
 
 resource "huaweicloud_eg_event_subscription" "test" {
   channel_id = var.source_channel_id
-  name       = var.subscription
+  name       = var.subscription_name
 
   sources {
     id            = var.custom_event_source_id
@@ -110,7 +111,6 @@ The `sources` block supports:
   The valid values are as follows:
   + **CUSTOM**
   + **OFFICIAL**
-  + **PARTNER**
 
 * `name` - (Required, String) Specifies the name of the event source.
   The valid length is limited from `1` to `128`.
