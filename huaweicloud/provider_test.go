@@ -34,9 +34,6 @@ var (
 	HW_MRS_ENVIRONMENT            = os.Getenv("HW_MRS_ENVIRONMENT")
 	HW_KMS_ENVIRONMENT            = os.Getenv("HW_KMS_ENVIRONMENT")
 	HW_CCI_ENVIRONMENT            = os.Getenv("HW_CCI_ENVIRONMENT")
-	HW_CDN_DOMAIN_NAME            = os.Getenv("HW_CDN_DOMAIN_NAME")
-	HW_CDN_CERT_PATH              = os.Getenv("HW_CDN_CERT_PATH")
-	HW_CDN_PRIVATE_KEY_PATH       = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
 	HW_ENTERPRISE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_USER_ID                    = os.Getenv("HW_USER_ID")
 	HW_CHARGING_MODE              = os.Getenv("HW_CHARGING_MODE")
@@ -74,18 +71,6 @@ func testAccPreCheckMrs(t *testing.T) {
 func testAccPreCheckKms(t *testing.T) {
 	if HW_KMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support KMS tests")
-	}
-}
-
-func testAccPreCheckCDN(t *testing.T) {
-	if HW_CDN_DOMAIN_NAME == "" {
-		t.Skip("This environment does not support CDN tests")
-	}
-}
-
-func testAccPreCheckCERT(t *testing.T) {
-	if HW_CDN_CERT_PATH == "" || HW_CDN_PRIVATE_KEY_PATH == "" {
-		t.Skip("This environment does not support CDN certificate tests")
 	}
 }
 

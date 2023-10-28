@@ -1,31 +1,32 @@
-package huaweicloud
+package cdn
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccCdnDomain_basic(t *testing.T) {
 	var domain domains.CdnDomain
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCDN(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCdnDomainV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCdnDomainV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCdnDomainV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+						"huaweicloud_cdn_domain.domain_1", "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "tags.key", "val"),
 					resource.TestCheckResourceAttr(
@@ -40,16 +41,16 @@ func TestAccCdnDomain_cache(t *testing.T) {
 	var domain domains.CdnDomain
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCDN(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCdnDomainV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCdnDomainV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCdnDomainV1_cache,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+						"huaweicloud_cdn_domain.domain_1", "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "cache_settings.0.rules.0.rule_type", "0"),
 					resource.TestCheckResourceAttr(
@@ -68,16 +69,16 @@ func TestAccCdnDomain_retrievalHost(t *testing.T) {
 	var domain domains.CdnDomain
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCDN(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCdnDomainV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCdnDomainV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCdnDomainV1_retrievalHost,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+						"huaweicloud_cdn_domain.domain_1", "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(
@@ -95,18 +96,18 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckCDN(t)
-			testAccPreCheckCERT(t)
+			acceptance.TestAccPreCheckCDN(t)
+			acceptance.TestAccPreCheckCERT(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCdnDomainV1Destroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCdnDomainV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCdnDomainV1_configs,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
+						"huaweicloud_cdn_domain.domain_1", "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cdn_domain.domain_1", "configs.0.origin_protocol", "http"),
 					resource.TestCheckResourceAttr(
@@ -136,10 +137,10 @@ func TestAccCdnDomain_configs(t *testing.T) {
 }
 
 func testAccCheckCdnDomainV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	cdnClient, err := config.CdnV1Client(HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	cdnClient, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
+		return fmt.Errorf("error creating HuaweiCloud CDN Domain client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -149,7 +150,7 @@ func testAccCheckCdnDomainV1Destroy(s *terraform.State) error {
 
 		found, err := domains.Get(cdnClient, rs.Primary.ID, nil).Extract()
 		if err == nil && found.DomainStatus != "deleting" {
-			return fmtp.Errorf("Destroying CDN domain failed or domain still exists")
+			return fmt.Errorf("destroying CDN domain failed or domain still exists")
 		}
 	}
 
@@ -160,17 +161,17 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("CDN Domain Resource not found: %s", n)
+			return fmt.Errorf("CDN Domain Resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		cdnClient, err := config.CdnV1Client(HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		cdnClient, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
+			return fmt.Errorf("error creating CDN Domain client: %s", err)
 		}
 
 		found, err := domains.Get(cdnClient, rs.Primary.ID, nil).Extract()
@@ -179,7 +180,7 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("CDN Domain not found")
+			return fmt.Errorf("CDN Domain not found")
 		}
 
 		*domain = *found
@@ -204,7 +205,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     foo = "bar"
   }
 }
-`, HW_CDN_DOMAIN_NAME)
+`, acceptance.HW_CDN_DOMAIN_NAME)
 
 var testAccCdnDomainV1_cache = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
@@ -227,7 +228,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     }
   }
 }
-`, HW_CDN_DOMAIN_NAME)
+`, acceptance.HW_CDN_DOMAIN_NAME)
 
 var testAccCdnDomainV1_retrievalHost = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
@@ -244,7 +245,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     https_port     = 8002
   }
 }
-`, HW_CDN_DOMAIN_NAME)
+`, acceptance.HW_CDN_DOMAIN_NAME)
 
 var testAccCdnDomainV1_configs = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
@@ -301,4 +302,4 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     }
   }
 }
-`, HW_CDN_DOMAIN_NAME, HW_CDN_CERT_PATH, HW_CDN_PRIVATE_KEY_PATH)
+`, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
