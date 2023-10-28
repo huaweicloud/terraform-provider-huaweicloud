@@ -284,7 +284,7 @@ func flattenEventSources(sourcesResp []map[string]interface{}) []interface{} {
 
 		jsonFilter, err := json.Marshal(source["filter"])
 		if err != nil {
-			log.Printf("[ERROR] unable to convert the event target detail, not json format")
+			log.Printf("[ERROR] unable to convert the event source filter rule, not json format")
 		} else {
 			element["filter_rule"] = string(jsonFilter)
 		}
