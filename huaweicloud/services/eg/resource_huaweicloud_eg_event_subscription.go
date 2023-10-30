@@ -52,7 +52,6 @@ func ResourceEventSubscription() *schema.Resource {
 			"sources": {
 				Type:     schema.TypeSet,
 				Required: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"provider_type": {
