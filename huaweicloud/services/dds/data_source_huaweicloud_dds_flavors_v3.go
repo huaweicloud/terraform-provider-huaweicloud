@@ -116,7 +116,7 @@ func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta i
 		flavorList = append(flavorList, flavor)
 	}
 
-	log.Printf("Extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
+	log.Printf("[DEBUG] extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
 	if len(flavorList) < 1 {
 		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")

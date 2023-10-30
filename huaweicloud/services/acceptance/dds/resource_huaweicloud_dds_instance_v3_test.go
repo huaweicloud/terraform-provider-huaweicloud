@@ -306,7 +306,7 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 				}
 				if len(groupIDs) != v.(int) {
 					return fmt.Errorf(
-						"Error updating HuaweiCloud DDS instance: num of shard groups expect %d, but got %d",
+						"Error updating DDS instance: num of shard groups expect %d, but got %d",
 						v.(int), len(groupIDs))
 				}
 				return nil
@@ -316,7 +316,7 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 				if group.Type == "mongos" {
 					if len(group.Nodes) != v.(int) {
 						return fmt.Errorf(
-							"Error updating HuaweiCloud DDS instance: num of mongos nodes expect %d, but got %d",
+							"Error updating DDS instance: num of mongos nodes expect %d, but got %d",
 							v.(int), len(group.Nodes))
 					}
 					return nil
@@ -329,7 +329,7 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 				if group.Type == groupType {
 					if group.Volume.Size != v.(string) {
 						return fmt.Errorf(
-							"Error updating HuaweiCloud DDS instance: size expect %s, but got %s",
+							"Error updating DDS instance: size expect %s, but got %s",
 							v.(string), group.Volume.Size)
 					}
 					return nil
@@ -343,7 +343,7 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 					for _, node := range group.Nodes {
 						if node.SpecCode != v.(string) {
 							return fmt.Errorf(
-								"Error updating HuaweiCloud DDS instance: spec_code expect %s, but got %s",
+								"Error updating DDS instance: spec_code expect %s, but got %s",
 								v.(string), node.SpecCode)
 						}
 					}
