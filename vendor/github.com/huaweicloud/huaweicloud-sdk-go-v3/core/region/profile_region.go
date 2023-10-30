@@ -44,6 +44,12 @@ type ProfileCache struct {
 	value map[string]*Region
 }
 
+type regionInfo struct {
+	Id        string   `yaml:"id"`
+	Endpoint  string   `yaml:"endpoint"`
+	Endpoints []string `yaml:"endpoints"`
+}
+
 func getProfileCache() *ProfileCache {
 	profileOnce.Do(func() {
 		profileCache = &ProfileCache{value: resolveProfile()}
@@ -86,20 +92,29 @@ func resolveProfile() map[string]*Region {
 		panic(fmt.Sprintf("failed to read file: '%s'\n%s", path, err.Error()))
 	}
 
-	var tempMap map[string][]map[string]string
-	err = yaml.Unmarshal(bytes, &tempMap)
+	var servReg map[string][]*regionInfo
+	err = yaml.Unmarshal(bytes, &servReg)
 	if err != nil {
 		panic(fmt.Sprintf("failed to resolve file: '%s'\n%s", path, err.Error()))
 	}
 
-	for service, list := range tempMap {
-		for _, m := range list {
-			id := m["id"]
-			endpoint := m["endpoint"]
-			if id == "" || endpoint == "" {
+	for serv, regInfos := range servReg {
+		for _, regInfo := range regInfos {
+			if regInfo.Id == "" {
 				continue
 			}
-			result[strings.ToUpper(service)+id] = NewRegion(id, endpoint)
+
+			endpoints := make([]string, 0, len(regInfo.Endpoints)+1)
+			if regInfo.Endpoint != "" {
+				endpoints = append(endpoints, regInfo.Endpoint)
+			}
+			if regInfo.Endpoints != nil {
+				endpoints = append(endpoints, regInfo.Endpoints...)
+			}
+
+			if len(endpoints) != 0 {
+				result[strings.ToUpper(serv)+regInfo.Id] = NewRegion(regInfo.Id, endpoints...)
+			}
 		}
 	}
 	return result

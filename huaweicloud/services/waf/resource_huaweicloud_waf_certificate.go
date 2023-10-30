@@ -1,10 +1,13 @@
 package waf
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -12,16 +15,15 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceWafCertificateV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafCertificateV1Create,
-		Read:   resourceWafCertificateV1Read,
-		Update: resourceWafCertificateV1Update,
-		Delete: resourceWafCertificateV1Delete,
+		CreateContext: resourceWafCertificateV1Create,
+		ReadContext:   resourceWafCertificateV1Read,
+		UpdateContext: resourceWafCertificateV1Update,
+		DeleteContext: resourceWafCertificateV1Delete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -45,14 +47,15 @@ func ResourceWafCertificateV1() *schema.Resource {
 					"The maximum length is 256 characters. Only digits, letters, underscores (_), and hyphens (-) are allowed"),
 			},
 			"certificate": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: utils.SuppressTrimSpace,
+				Sensitive:        true,
 			},
 			"private_key": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -67,85 +70,90 @@ func ResourceWafCertificateV1() *schema.Resource {
 	}
 }
 
-func resourceWafCertificateV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafCertificateV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	createOpts := certificates.CreateOpts{
 		Name:                d.Get("name").(string),
 		Content:             strings.TrimSpace(d.Get("certificate").(string)),
 		Key:                 strings.TrimSpace(d.Get("private_key").(string)),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
-	certificate, err := certificates.Create(wafClient, createOpts).Extract()
+	certificate, err := certificates.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("error creating WAF Certificate: %w", err)
+		return diag.Errorf("error creating WAF certificate: %s", err)
 	}
-
-	logp.Printf("[DEBUG] Waf certificate created: %#v", certificate)
 	d.SetId(certificate.Id)
 
-	return resourceWafCertificateV1Read(d, meta)
+	return resourceWafCertificateV1Read(ctx, d, meta)
 }
 
-func resourceWafCertificateV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.WafV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	epsID := config.GetEnterpriseProjectID(d)
-	n, err := certificates.GetWithEpsID(wafClient, d.Id(), epsID).Extract()
+	epsID := cfg.GetEnterpriseProjectID(d)
+	n, err := certificates.GetWithEpsID(client, d.Id(), epsID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain WAF certificate information")
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF certificate")
 	}
 
 	expires := time.Unix(int64(n.ExpireTime/1000), 0).UTC().Format("2006-01-02 15:04:05 MST")
-
-	d.Set("region", config.GetRegion(d))
-	d.Set("name", n.Name)
-	d.Set("expiration", expires)
-
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", n.Name),
+		d.Set("expiration", expires),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceWafCertificateV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+// Field `name` is required for updating operation.
+// Field `certificate` and `private_key` must be specified together.
+// Ignore the updating operation when field `certificate` does not change.
+func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	updateOpts := certificates.UpdateOpts{
-		Name:                d.Get("name").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+	if d.HasChanges("name", "certificate") {
+		updateOpts := certificates.UpdateOpts{
+			Name:                d.Get("name").(string),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+		if d.HasChange("certificate") {
+			updateOpts.Content = strings.TrimSpace(d.Get("certificate").(string))
+			updateOpts.Key = strings.TrimSpace(d.Get("private_key").(string))
+		}
+		_, err = certificates.Update(client, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating WAF certificate: %s", err)
+		}
 	}
-
-	_, err = certificates.Update(wafClient, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmtp.Errorf("error updating WAF Certificate: %w", err)
-	}
-	return resourceWafCertificateV1Read(d, meta)
+	return resourceWafCertificateV1Read(ctx, d, meta)
 }
 
-func resourceWafCertificateV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafCertificateV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	epsID := config.GetEnterpriseProjectID(d)
-	err = certificates.DeleteWithEpsID(wafClient, d.Id(), epsID).ExtractErr()
+	epsID := cfg.GetEnterpriseProjectID(d)
+	err = certificates.DeleteWithEpsID(client, d.Id(), epsID).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("error deleting WAF Certificate: %s", err)
+		return diag.Errorf("error deleting WAF certificate: %s", err)
 	}
-
-	d.SetId("")
 	return nil
 }

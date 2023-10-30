@@ -12,7 +12,7 @@ type ShowKafkaTopicPartitionDiskusageRequest struct {
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
-	// 占用磁盘大小，默认值1G (1K ,1M , 1G)。
+	// 占用磁盘大小，默认值1G (1K，1M，1G)。
 	MinSize *string `json:"minSize,omitempty"`
 
 	// 占用磁盘大小，查询top N。

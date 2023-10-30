@@ -11,8 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
+
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -186,13 +188,12 @@ func resourceTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 	// Enable or stop task
 	if d.HasChange("operation") {
 		op := d.Get("operation").(string)
-		//Enable task
+		// Enable task
 		if op == operationEnable {
 			updateStatusRequest := model.UpdateTaskStatusRequest{
 				TestSuiteId: projectId,
 				TaskId:      int32(id),
 			}
-
 			clusterId := int32(d.Get("cluster_id").(int))
 			if clusterId > 0 {
 				updateStatusRequest.Body = &model.UpdateTaskStatusRequestBody{
@@ -211,12 +212,10 @@ func resourceTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 					},
 				}
 			}
-
 			_, err := client.UpdateTaskStatus(&updateStatusRequest)
 			if err != nil {
 				return diag.Errorf("error starting the task %q: %s", id, err)
 			}
-
 		}
 
 		// stop task

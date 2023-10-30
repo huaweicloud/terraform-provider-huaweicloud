@@ -9,18 +9,23 @@ Using this resource to manage an EG event subscription within Huaweicloud.
 ## Example Usage
 
 ```hcl
+variable "subscription_name" {}
 variable "source_channel_id" {}
 variable "target_channel_id" {}
+variable "custom_event_source_id" {}
 variable "custom_event_source_name" {}
+variable "official_eg_event_target_id" {}
+variable "official_smn_event_target_id" {}
 variable "project_id" {}
 variable "region_name" {}
 variable "smn_topic_urn" {}
 
 resource "huaweicloud_eg_event_subscription" "test" {
   channel_id = var.source_channel_id
-  name       = var.subscription
+  name       = var.subscription_name
 
   sources {
+    id            = var.custom_event_source_id
     provider_type = "CUSTOM"
     name          = var.custom_event_source_name
     filter_rule   = jsonencode({
@@ -32,6 +37,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
+    id            = var.official_eg_event_target_id
     provider_type = "OFFICIAL"
     name          = "HC.EG"
     detail_name   = "eg_detail"
@@ -50,6 +56,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
+    id            = var.official_smn_event_target_id
     provider_type = "OFFICIAL"
     name          = "HC.SMN"
     detail_name   = "smn_detail"
@@ -95,11 +102,15 @@ The following arguments are supported:
 <a name="subscription_sources"></a>
 The `sources` block supports:
 
+* `id` - (Required, String) Specifies the custom ID of the event source, in UUID format.
+
+  -> This `id` field is only used for internal management of event subscription resource and has no association with the
+     parameters or attributes of other resources.
+
 * `provider_type` - (Required, String) Specifies the provider type of the event source.
   The valid values are as follows:
   + **CUSTOM**
   + **OFFICIAL**
-  + **PARTNER**
 
 * `name` - (Required, String) Specifies the name of the event source.
   The valid length is limited from `1` to `128`.
@@ -109,6 +120,8 @@ The `sources` block supports:
 
 <a name="subscription_targets"></a>
 The `targets` block supports:
+
+* `id` - (Required, String) Specifies the custom ID of the event target, in UUID format.
 
 * `provider_type` - (Required, String) Specifies the provider type of the event target.
   The valid values are as follows:
@@ -142,6 +155,34 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the event subscription.
 
+* `sources` - The list of the event sources.
+  The [sources](#subscription_sources_attr) structure is documented below.
+
+* `targets` - The list of the event targets.
+  The [targets](#subscription_targets_attr) structure is documented below.
+
 * `created_at` - The (UTC) creation time of the event subscription, in RFC3339 format.
 
 * `updated_at` - The (UTC) update time of the event subscription, in RFC3339 format.
+
+<a name="subscription_sources_attr"></a>
+The `sources` block supports:
+
+* `created_at` - The (UTC) creation time of the event source, in RFC3339 format.
+
+* `updated_at` - The (UTC) update time of the event source, in RFC3339 format.
+
+<a name="subscription_targets_attr"></a>
+The `targets` block supports:
+
+* `created_at` - The (UTC) creation time of the event target, in RFC3339 format.
+
+* `updated_at` - The (UTC) update time of the event target, in RFC3339 format.
+
+## Import
+
+Subscriptions can be imported using their `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_eg_event_subscription.test <id>
+```

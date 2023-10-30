@@ -56,6 +56,10 @@ func SuppressUserData(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+func SuppressTrimSpace(_, old, new string, _ *schema.ResourceData) bool {
+	return strings.TrimSpace(old) == strings.TrimSpace(new)
+}
+
 func SuppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {
 	if len(old) != len(new) {
 		return false

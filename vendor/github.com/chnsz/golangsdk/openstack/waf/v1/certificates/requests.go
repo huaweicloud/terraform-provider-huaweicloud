@@ -61,6 +61,10 @@ type UpdateOptsBuilder interface {
 type UpdateOpts struct {
 	// Certificate name
 	Name string `json:"name,omitempty"`
+	// Certificate content
+	Content string `json:"content,omitempty"`
+	// Private Key
+	Key string `json:"key,omitempty"`
 	// The ID of the enterprise project
 	EnterpriseProjectId string `q:"enterprise_project_id" json:"-"`
 }

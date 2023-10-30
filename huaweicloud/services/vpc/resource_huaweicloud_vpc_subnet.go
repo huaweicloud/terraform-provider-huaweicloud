@@ -124,16 +124,23 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: utils.ValidateCIDR,
 			},
-			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"gateway_ip": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: utils.ValidateIP,
+			},
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"availability_zone": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -168,12 +175,6 @@ func ResourceVpcSubnetV1() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: utils.ValidateIP,
 				},
-				Computed: true,
-			},
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"ntp_server_address": {

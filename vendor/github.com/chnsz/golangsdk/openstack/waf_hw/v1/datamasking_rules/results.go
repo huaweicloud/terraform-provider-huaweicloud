@@ -11,12 +11,18 @@ import (
 type DataMasking struct {
 	// DataMasking Rule ID
 	Id string `json:"id"`
+	// DataMasking policy ID
+	PolicyID string `json:"policyid"`
 	// DataMaksing Rule URL
 	Path string `json:"url"`
 	// Masked Field
 	Category string `json:"category"`
 	// Masked Subfield
 	Index string `json:"index"`
+	// DataMasking description
+	Description string `json:"description"`
+	// DataMasking status. Valid values are `0` and `1`
+	Status int `json:"status"`
 }
 
 type commonResult struct {

@@ -106,6 +106,7 @@ import (
 const (
 	defaultCloud       string = "myhuaweicloud.com"
 	defaultEuropeCloud string = "myhuaweicloud.eu"
+	prefixEuropeRegion string = "eu-west-1"
 )
 
 // Provider returns a schema.Provider for HuaweiCloud.
@@ -389,6 +390,7 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_apig_environments": apig.DataSourceEnvironments(),
+			"huaweicloud_apig_groups":       apig.DataSourceGroups(),
 
 			"huaweicloud_as_configurations": as.DataSourceASConfigurations(),
 			"huaweicloud_as_groups":         as.DataSourceASGroups(),
@@ -466,6 +468,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
 			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
+			"huaweicloud_fgs_functions":    fgs.DataSourceFunctionGraphFunctions(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
@@ -593,6 +596,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_public_services": vpcep.DataSourceVPCEPPublicServices(),
 
 			"huaweicloud_vpn_gateway_availability_zones": vpn.DataSourceVpnGatewayAZs(),
+			"huaweicloud_vpn_gateways":                   vpn.DataSourceGateways(),
 
 			"huaweicloud_waf_certificate":         waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":            waf.DataSourceWafPoliciesV1(),
@@ -640,6 +644,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_organization":         organizations.DataSourceOrganization(),
 			"huaweicloud_organizations_organizational_units": organizations.DataSourceOrganizationalUnits(),
 			"huaweicloud_organizations_accounts":             organizations.DataSourceAccounts(),
+			"huaweicloud_organizations_policies":             organizations.DataSourcePolicies(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
@@ -683,6 +688,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_aom_cmdb_application": aom.ResourceCmdbApplication(),
 			"huaweicloud_aom_cmdb_component":   aom.ResourceCmdbComponent(),
+			"huaweicloud_aom_cmdb_environment": aom.ResourceCmdbEnvironment(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
@@ -723,8 +729,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": resourceBCSInstanceV2(),
 
-			"huaweicloud_cbr_policy": cbr.ResourcePolicy(),
-			"huaweicloud_cbr_vault":  cbr.ResourceVault(),
+			"huaweicloud_cbr_checkpoint": cbr.ResourceCheckpoint(),
+			"huaweicloud_cbr_policy":     cbr.ResourcePolicy(),
+			"huaweicloud_cbr_vault":      cbr.ResourceVault(),
 
 			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),
 
@@ -747,13 +754,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_notification": cts.ResourceCTSNotification(),
 			"huaweicloud_cci_namespace":    cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
-			"huaweicloud_cci_pvc":          ResourceCCIPersistentVolumeClaimV1(),
+			"huaweicloud_cci_pvc":          cci.ResourcePersistentVolumeClaimV1(),
 
 			"huaweicloud_cdm_cluster": cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
 			"huaweicloud_cdm_link":    cdm.ResourceCdmLink(),
 
-			"huaweicloud_cdn_domain":         resourceCdnDomainV1(),
+			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
 			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 			"huaweicloud_ces_alarm_template": ces.ResourceCesAlarmTemplate(),
@@ -883,7 +890,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_er_static_route":   er.ResourceStaticRoute(),
 			"huaweicloud_er_vpc_attachment": er.ResourceVpcAttachment(),
 
-			"huaweicloud_evs_snapshot": ResourceEvsSnapshotV2(),
+			"huaweicloud_evs_snapshot": evs.ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":   evs.ResourceEvsVolume(),
 
 			"huaweicloud_fgs_async_invoke_configuration": fgs.ResourceAsyncInvokeConfiguration(),
@@ -1294,12 +1301,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_account_invite_accepter": organizations.ResourceAccountInviteAccepter(),
 			"huaweicloud_organizations_trusted_service":         organizations.ResourceTrustedService(),
 			"huaweicloud_organizations_policy":                  organizations.ResourcePolicy(),
+			"huaweicloud_organizations_policy_attach":           organizations.ResourcePolicyAttach(),
 
 			"huaweicloud_dli_queue_v1":                dli.ResourceDliQueue(),
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate_v2": vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunctionV2(),
-			"huaweicloud_cdn_domain_v1":               resourceCdnDomainV1(),
+			"huaweicloud_cdn_domain_v1":               cdn.ResourceCdnDomainV1(),
 
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),
@@ -1445,8 +1453,13 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	diag.Diagnostics) {
 	var tenantName, tenantID, delegatedProject, identityEndpoint string
 	region := d.Get("region").(string)
-	isRegional := d.Get("regional").(bool)
 	cloud := getCloudDomain(d.Get("cloud").(string), region)
+
+	isRegional := d.Get("regional").(bool)
+	if strings.HasPrefix(region, prefixEuropeRegion) {
+		// the default format of endpoints in Europe site is xxx.{{region}}.{{cloud}}
+		isRegional = true
+	}
 
 	// project_name is prior to tenant_name
 	// if neither of them was set, use region as the default project
@@ -1588,7 +1601,7 @@ func getCloudDomain(cloud, region string) string {
 	}
 
 	// then check whether the region(eu-west-1xx) is located in Europe
-	if strings.HasPrefix(region, "eu-west-1") {
+	if strings.HasPrefix(region, prefixEuropeRegion) {
 		return defaultEuropeCloud
 	}
 	return defaultCloud

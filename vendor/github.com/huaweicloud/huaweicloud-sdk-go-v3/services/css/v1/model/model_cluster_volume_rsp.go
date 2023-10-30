@@ -14,6 +14,9 @@ type ClusterVolumeRsp struct {
 
 	// 实例磁盘大小。
 	Size *int32 `json:"size,omitempty"`
+
+	// 该实例拥有的磁盘对应的资源Id。
+	ResourceIds *[]string `json:"resourceIds,omitempty"`
 }
 
 func (o ClusterVolumeRsp) String() string {

@@ -18,7 +18,7 @@ type StartInstanceEnlargeVolumeActionRequest struct {
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
-	Body *EnlargeVolume `json:"body,omitempty"`
+	Body *EnlargeVolumeRequestBody `json:"body,omitempty"`
 }
 
 func (o StartInstanceEnlargeVolumeActionRequest) String() string {

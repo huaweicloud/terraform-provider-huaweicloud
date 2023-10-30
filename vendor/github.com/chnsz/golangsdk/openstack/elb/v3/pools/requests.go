@@ -103,11 +103,11 @@ type CreateOpts struct {
 	// Whether enable port transparent transmission.
 	AnyPortEnable *bool `json:"any_port_enable,omitempty"`
 
-	// Update protection status
+	// Protection status
 	ProtectionStatus string `json:"protection_status,omitempty"`
 
-	// Update protection reason
-	ProtectionReason *string `json:"protection_reason,omitempty"`
+	// Protection reason
+	ProtectionReason string `json:"protection_reason,omitempty"`
 
 	// Slow start.
 	SlowStart *SlowStart `json:"slow_start,omitempty"`

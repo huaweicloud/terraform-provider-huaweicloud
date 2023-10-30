@@ -12,10 +12,10 @@ type PageInfo struct {
 	// 返回下一页的查询地址
 	NextMarker *string `json:"next_marker,omitempty"`
 
-	// 返回前一页查询地址
+	// 返回上一页的查询地址
 	PreviousMarker *string `json:"previous_marker,omitempty"`
 
-	// 本页返回条目数量
+	// 返回条目数量
 	CurrentCount *int32 `json:"current_count,omitempty"`
 }
 

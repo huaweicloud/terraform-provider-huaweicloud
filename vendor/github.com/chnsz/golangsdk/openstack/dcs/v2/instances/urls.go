@@ -17,3 +17,11 @@ func resizeResourceURL(c *golangsdk.ServiceClient, id string) string {
 func updatePasswordURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(c.ProjectID, "instances", id, "password")
 }
+
+func restartOrFlushInstanceURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL(c.ProjectID, "instances/status")
+}
+
+func configurationsURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL(c.ProjectID, "instances", instancesId, "configs")
+}

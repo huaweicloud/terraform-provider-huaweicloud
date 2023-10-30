@@ -30,6 +30,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/exchange"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/progress"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/response"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
@@ -57,6 +58,7 @@ type HcHttpClient struct {
 	credential    auth.ICredential
 	extraHeader   map[string]string
 	httpClient    *impl.DefaultHttpClient
+	errorHandler  sdkerr.ErrorHandler
 }
 
 func NewHcHttpClient(httpClient *impl.DefaultHttpClient) *HcHttpClient {
@@ -70,6 +72,11 @@ func (hc *HcHttpClient) WithEndpoints(endpoints []string) *HcHttpClient {
 
 func (hc *HcHttpClient) WithCredential(credential auth.ICredential) *HcHttpClient {
 	hc.credential = credential
+	return hc
+}
+
+func (hc *HcHttpClient) WithErrorHandler(errorHandler sdkerr.ErrorHandler) *HcHttpClient {
+	hc.errorHandler = errorHandler
 	return hc
 }
 
@@ -92,9 +99,14 @@ func (hc *HcHttpClient) Sync(req interface{}, reqDef *def.HttpRequestDef) (inter
 
 func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 	exchange *exchange.SdkExchange) (interface{}, error) {
-	var resp *response.DefaultHttpResponse
+	var (
+		httpRequest *request.DefaultHttpRequest
+		resp        *response.DefaultHttpResponse
+		err         error
+	)
+
 	for {
-		httpRequest, err := hc.buildRequest(req, reqDef)
+		httpRequest, err = hc.buildRequest(req, reqDef)
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +123,7 @@ func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 		}
 	}
 
-	return hc.extractResponse(resp, reqDef)
+	return hc.extractResponse(httpRequest, resp, reqDef)
 }
 
 func (hc *HcHttpClient) extractEndpoint(req interface{}, reqDef *def.HttpRequestDef, attrMaps map[string]string) (string, error) {
@@ -149,13 +161,11 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 		return nil, err
 	}
 
-	builder := request.NewHttpRequestBuilder().
-		WithEndpoint(endpoint).
-		WithMethod(reqDef.Method).
-		WithPath(reqDef.Path)
+	builder := request.NewHttpRequestBuilder().WithEndpoint(endpoint).WithMethod(reqDef.Method).WithPath(reqDef.Path).
+		WithSigningAlgorithm(hc.httpClient.GetHttpConfig().SigningAlgorithm)
 
-	if reqDef.ContentType != "" {
-		builder.AddHeaderParam(contentType, reqDef.ContentType)
+	if pq, ok := req.(progress.Request); ok {
+		builder.WithProgressListener(pq.GetProgressListener()).WithProgressInterval(pq.GetProgressInterval())
 	}
 
 	uaValue := "huaweicloud-usdk-go/3.0"
@@ -188,7 +198,7 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 
 func (hc *HcHttpClient) fillParamsFromReq(req interface{}, t reflect.Type, reqDef *def.HttpRequestDef,
 	attrMaps map[string]string, builder *request.HttpRequestBuilder) (*request.HttpRequestBuilder, error) {
-
+	hasBody := false
 	for _, fieldDef := range reqDef.RequestFields {
 		value, err := hc.getFieldValueByName(fieldDef.Name, attrMaps, req)
 		if err != nil {
@@ -217,9 +227,14 @@ func (hc *HcHttpClient) fillParamsFromReq(req interface{}, t reflect.Type, reqDe
 			} else {
 				builder.WithBody("", value.Interface())
 			}
+			hasBody = true
 		case def.Form:
 			builder.AddFormParam(fieldDef.JsonTag, value.Interface().(def.FormData))
 		}
+	}
+
+	if reqDef.ContentType != "" && !(hc.httpClient.GetHttpConfig().IgnoreContentTypeForGetRequest && reqDef.Method == "GET" && !hasBody) {
+		builder.AddHeaderParam(contentType, reqDef.ContentType)
 	}
 
 	return builder, nil
@@ -282,14 +297,17 @@ func flattenEnumStruct(value reflect.Value) (reflect.Value, error) {
 	return value, nil
 }
 
-func (hc *HcHttpClient) extractResponse(resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef) (interface{},
+func (hc *HcHttpClient) extractResponse(req *request.DefaultHttpRequest, resp *response.DefaultHttpResponse, reqDef *def.HttpRequestDef) (interface{},
 	error) {
-	if resp.GetStatusCode() >= 400 {
-		return nil, sdkerr.NewServiceResponseError(resp.Response)
+	if hc.errorHandler == nil {
+		hc.errorHandler = sdkerr.DefaultErrorHandler{}
+	}
+	err := hc.errorHandler.HandleError(req, resp)
+	if err != nil {
+		return nil, err
 	}
 
-	if err := hc.deserializeResponse(resp, reqDef); err != nil {
-
+	if err = hc.deserializeResponse(resp, reqDef); err != nil {
 		return nil, err
 	}
 

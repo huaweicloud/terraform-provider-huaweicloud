@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -23,8 +24,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceEvsVolume() *schema.Resource {
@@ -35,7 +34,7 @@ func ResourceEvsVolume() *schema.Resource {
 		DeleteContext: resourceEvsVolumeDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -204,7 +203,7 @@ func validateParameter(d *schema.ResourceData) error {
 	return nil
 }
 
-func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) cloudvolumes.CreateOpts {
+func buildEvsVolumeCreateOpts(d *schema.ResourceData, cfg *config.Config) cloudvolumes.CreateOpts {
 	volumeOpts := cloudvolumes.VolumeOpts{
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		VolumeType:          d.Get("volume_type").(string),
@@ -217,7 +216,7 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 		Multiattach:         d.Get("multiattach").(bool),
 		IOPS:                d.Get("iops").(int),
 		Throughput:          d.Get("throughput").(int),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		Tags:                resourceContainerTags(d),
 	}
 	m := map[string]string{
@@ -249,41 +248,41 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, config *config.Config) clo
 }
 
 func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 	// The v2 client is used to obtain the volume detail.
-	evsV2Client, err := config.BlockStorageV2Client(config.GetRegion(d))
+	evsV2Client, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2 client: %s", err)
+		return diag.Errorf("error creating block storage v2 client: %s", err)
 	}
 	// The v2.1 client is used to create the volume.
-	evsV21Client, err := config.BlockStorageV21Client(config.GetRegion(d))
+	evsV21Client, err := cfg.BlockStorageV21Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2.1 client: %s", err)
+		return diag.Errorf("error creating block storage v2.1 client: %s", err)
 	}
 	if err := validateParameter(d); err != nil {
 		return diag.FromErr(err)
 	}
 
-	opt := buildEvsVolumeCreateOpts(d, config)
-	logp.Printf("[DEBUG] Create Options: %#v", opt)
+	opt := buildEvsVolumeCreateOpts(d, cfg)
+	log.Printf("[DEBUG] Create Options: %#v", opt)
 	job, err := cloudvolumes.Create(evsV21Client, opt).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud EVS volume: %s", err)
+		return diag.Errorf("error creating EVS volume: %s", err)
 	}
 	if len(job.VolumeIDs) < 1 {
-		return fmtp.DiagErrorf("The volume ID was not included in the response to the request to create the volume.")
+		return diag.Errorf("the volume ID was not included in the response to the request to create the volume.")
 	}
 	d.SetId(job.VolumeIDs[0])
 
 	// If charging mode is PrePaid, wait for the order to be completed.
 	if job.OrderID != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return fmtp.DiagErrorf("The order is not completed while creating EVS volume (%s): %#v", d.Id(), err)
+			return diag.Errorf("the order is not completed while creating EVS volume (%s): %#v", d.Id(), err)
 		}
 		_, err = common.WaitOrderResourceComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
@@ -294,7 +293,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	// If charging mode is postPaid, wait for the job status to SUCCESS
 	if jobId := job.JobID; jobId != "" {
 		// The v1 client is used to query the EVS job detail.
-		evsV1Client, err := config.BlockStorageV1Client(config.GetRegion(d))
+		evsV1Client, err := cfg.BlockStorageV1Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating EVS v1 client: %s", err)
 		}
@@ -304,7 +303,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	logp.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
+	log.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:                   []string{"creating"},
 		Target:                    []string{"available"},
@@ -316,7 +315,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error waiting for the creation of EVS volume (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the creation of EVS volume (%s) to complete: %s", d.Id(), err)
 	}
 
 	return resourceEvsVolumeRead(ctx, d, meta)
@@ -377,7 +376,7 @@ func setEvsVolumeAttachment(d *schema.ResourceData, resp *cloudvolumes.Volume) e
 		attachments[i]["instance_id"] = attachment.ServerID
 		attachments[i]["device"] = attachment.Device
 	}
-	logp.Printf("[DEBUG] The relevant attach information for EVS volume is: %v", attachments)
+	log.Printf("[DEBUG] The relevant attach information for EVS volume is: %v", attachments)
 	return d.Set("attachment", attachments)
 }
 
@@ -389,10 +388,10 @@ func setEvsVolumeChargingInfo(d *schema.ResourceData, resp *cloudvolumes.Volume)
 }
 
 func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	evsV2Client, err := config.BlockStorageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	evsV2Client, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2 client: %s", err)
+		return diag.Errorf("error creating block storage v2 client: %s", err)
 	}
 
 	resp, err := cloudvolumes.Get(evsV2Client, d.Id()).Extract()
@@ -400,7 +399,7 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, err, "EVS volume")
 	}
 
-	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), resp)
+	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), resp)
 	mErr := multierror.Append(
 		d.Set("name", resp.Name),
 		d.Set("size", resp.Size),
@@ -411,7 +410,7 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("iops", resp.IOPS.TotalVal),
 		d.Set("throughput", resp.Throughput.TotalVal),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("wwn", resp.WWN),
 		d.Set("multiattach", resp.Multiattach),
 		d.Set("tags", resp.Tags),
@@ -423,17 +422,17 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		setEvsVolumeAttachment(d, resp),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting volume fields: %s", err)
+		return diag.Errorf("error setting volume fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	evsV2Client, err := config.BlockStorageV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	evsV2Client, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2 client: %s", err)
+		return diag.Errorf("error creating block storage v2 client: %s", err)
 	}
 
 	if d.HasChanges("name", "description") {
@@ -444,21 +443,21 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 		_, err = cloudvolumes.Update(evsV2Client, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating HuaweiCloud volume: %s", err)
+			return diag.Errorf("error updating volume: %s", err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(evsV2Client, d, "cloudvolumes", d.Id())
 		if tagErr != nil {
-			return fmtp.DiagErrorf("Error updating tags of HuaweiCloud volume:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of volume:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
 	if d.HasChange("size") {
-		evsV21Client, err := config.BlockStorageV21Client(config.GetRegion(d))
+		evsV21Client, err := cfg.BlockStorageV21Client(cfg.GetRegion(d))
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2.1 client: %s", err)
+			return diag.Errorf("error creating block storage v2.1 client: %s", err)
 		}
 		extendOpts := cloudvolumes.ExtendOpts{
 			SizeOpts: cloudvolumes.ExtendSizeOpts{
@@ -475,24 +474,24 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		resp, err := cloudvolumes.ExtendSize(evsV21Client, d.Id(), extendOpts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error extending EVS volume (%s) size: %s", d.Id(), err)
+			return diag.Errorf("error extending EVS volume (%s) size: %s", d.Id(), err)
 		}
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 			if err != nil {
 				return diag.Errorf("error creating BSS v2 client: %s", err)
 			}
 			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
-				return fmtp.DiagErrorf("The order (%s) is not completed while extending EVS volume (%s) size: %#v",
+				return diag.Errorf("the order (%s) is not completed while extending EVS volume (%s) size: %#v",
 					resp.OrderID, d.Id(), err)
 			}
 		}
 
 		if jobId := resp.JobID; jobId != "" {
 			// The v1 client is used to query the EVS job detail.
-			evsV1Client, err := config.BlockStorageV1Client(config.GetRegion(d))
+			evsV1Client, err := cfg.BlockStorageV1Client(cfg.GetRegion(d))
 			if err != nil {
 				return diag.Errorf("error creating EVS v1 client: %s", err)
 			}
@@ -513,17 +512,17 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return fmtp.DiagErrorf("Error waiting for EVS volume (%s) to become ready: %s", d.Id(), err)
+			return diag.Errorf("error waiting for EVS volume (%s) to become ready: %s", d.Id(), err)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return fmtp.DiagErrorf("error creating BSS V2 client: %s", err)
+			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return fmtp.DiagErrorf("error updating the auto-renew of the volume (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating the auto-renew of the volume (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -539,11 +538,11 @@ func resourceContainerTags(d *schema.ResourceData) map[string]string {
 }
 
 func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	evsV2Client, err := config.BlockStorageV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	evsV2Client, err := cfg.BlockStorageV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud block storage v2 client: %s", err)
+		return diag.Errorf("eError creating block storage v2 client: %s", err)
 	}
 
 	v, err := cloudvolumes.Get(evsV2Client, d.Id()).Extract()
@@ -553,13 +552,13 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	// Make sure this volume is detached from all instances before deleting.
 	if len(v.Attachments) > 0 {
-		logp.Printf("[DEBUG] Start to detaching volumes.")
-		computeClient, err := config.ComputeV1Client(region)
+		log.Printf("[DEBUG] Start to detaching volumes.")
+		computeClient, err := cfg.ComputeV1Client(region)
 		if err != nil {
-			return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v2 client: %s", err)
+			return diag.Errorf("error creating ECS v2 client: %s", err)
 		}
 		for _, attachment := range v.Attachments {
-			logp.Printf("[DEBUG] The attachment is: %v", attachment)
+			log.Printf("[DEBUG] The attachment is: %v", attachment)
 			opts := block_devices.DetachOpts{
 				ServerId: attachment.ServerID,
 			}
@@ -575,16 +574,16 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 				Delay:      10 * time.Second,
 				MinTimeout: 3 * time.Second,
 			}
-			if _, err = stateConf.WaitForState(); err != nil {
+			if _, err = stateConf.WaitForStateContext(ctx); err != nil {
 				return diag.FromErr(err)
 			}
 		}
 	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
-		err = common.UnsubscribePrePaidResource(d, config, []string{d.Id()})
+		err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
 		if err != nil {
-			return fmtp.DiagErrorf("error unsubscribing HuaweiCloud EVS volume : %s", err)
+			return diag.Errorf("error unsubscribing EVS volume : %s", err)
 		}
 	} else {
 		// The snapshots associated with the disk are deleted together with the EVS disk if cascade value is true
@@ -602,7 +601,7 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	// Wait for the volume to delete before moving on.
-	logp.Printf("[DEBUG] Waiting for the EVS volume (%s) to delete", d.Id())
+	log.Printf("[DEBUG] Waiting for the EVS volume (%s) to delete", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"deleting", "downloading", "available"},
 		Target:     []string{"deleted"},
@@ -612,9 +611,9 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf("Error waiting for the EVS volume (%s) to delete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the EVS volume (%s) to delete: %s", d.Id(), err)
 	}
 
 	d.SetId("")

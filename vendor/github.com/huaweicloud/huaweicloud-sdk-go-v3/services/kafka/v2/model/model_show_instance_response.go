@@ -42,7 +42,7 @@ type ShowInstanceResponse struct {
 	// 实例连接端口。
 	Port *int32 `json:"port,omitempty"`
 
-	// 实例的状态。 [详细状态说明见[实例状态说明](https://support.huaweicloud.com/api-kafka/kafka-api-180514012.html)。](tag:hws)[详细状态说明见[实例状态说明](https://support.huaweicloud.com/intl/zh-cn/api-kafka/kafka-api-180514012.html)。](tag:hws_hk)
+	// 实例的状态。详细状态说明请参考[实例状态说明](kafka-api-180514012.xml)。
 	Status *string `json:"status,omitempty"`
 
 	// 实例ID。
@@ -51,7 +51,7 @@ type ShowInstanceResponse struct {
 	// 资源规格标识。   - dms.instance.kafka.cluster.c3.mini：Kafka实例的基准带宽为100MByte/秒。   - dms.instance.kafka.cluster.c3.small.2：Kafka实例的基准带宽为300MByte/秒。   - dms.instance.kafka.cluster.c3.middle.2：Kafka实例的基准带宽为600MByte/秒。   - dms.instance.kafka.cluster.c3.high.2：Kafka实例的基准带宽为1200MByte/秒。
 	ResourceSpecCode *string `json:"resource_spec_code,omitempty"`
 
-	// '[付费模式，1表示按需计费，0表示包年/包月计费。](tag:hc,hk,hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[付费模式，暂未使用。](tag:hws_ocb,ocb) [付费模式，1表示按需计费。](tag:otc,dt,g42,tm,hk_g42,hk_tm)'
+	// [付费模式，1表示按需计费，0表示包年/包月计费。](tag:hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[付费模式，暂未使用。](tag:hws_ocb,ocb) [付费模式，1表示按需计费。](tag:otc,dt,g42,tm,hk_g42,hk_tm)
 	ChargingMode *int32 `json:"charging_mode,omitempty"`
 
 	// VPC ID。

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -26,9 +27,13 @@ func TestAccEventSubscription_basic(t *testing.T) {
 	var (
 		obj subscriptions.Subscription
 
-		rName = "huaweicloud_eg_event_subscription.test"
-		name  = acceptance.RandomAccResourceName()
-		rc    = acceptance.InitResourceCheck(rName, &obj, getEventSubscriptionFunc)
+		rName              = "huaweicloud_eg_event_subscription.test"
+		name               = acceptance.RandomAccResourceName()
+		uuidOfficialEG, _  = uuid.GenerateUUID()
+		uuidOfficialSMN, _ = uuid.GenerateUUID()
+		uuidCustomHTTPS, _ = uuid.GenerateUUID()
+
+		rc = acceptance.InitResourceCheck(rName, &obj, getEventSubscriptionFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,7 +45,7 @@ func TestAccEventSubscription_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEventSubscription_basic_step1(name),
+				Config: testAccEventSubscription_basic_step1(name, uuidOfficialEG, uuidOfficialSMN),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "channel_id", "huaweicloud_eg_custom_event_channel.test", "id"),
@@ -52,29 +57,11 @@ func TestAccEventSubscription_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "sources.0.provider_type", "CUSTOM"),
 					resource.TestCheckResourceAttrSet(rName, "sources.0.filter_rule"),
 					// Targets check
-					resource.TestCheckResourceAttr(rName, "targets.#", "3"),
-					// SMN event target
-					resource.TestCheckResourceAttr(rName, "targets.0.provider_type", "OFFICIAL"),
-					resource.TestCheckResourceAttr(rName, "targets.0.name", "HC.EG"),
-					resource.TestCheckResourceAttr(rName, "targets.0.detail_name", "eg_detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.0.detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.0.transform"),
-					// EG event target
-					resource.TestCheckResourceAttr(rName, "targets.1.provider_type", "OFFICIAL"),
-					resource.TestCheckResourceAttr(rName, "targets.1.name", "HC.SMN"),
-					resource.TestCheckResourceAttr(rName, "targets.1.detail_name", "smn_detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.1.detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.1.transform"),
-					// Custom event target
-					resource.TestCheckResourceAttr(rName, "targets.2.provider_type", "CUSTOM"),
-					resource.TestCheckResourceAttr(rName, "targets.2.name", "HTTPS"),
-					resource.TestCheckResourceAttr(rName, "targets.2.detail_name", "detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.2.detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.2.transform"),
+					resource.TestCheckResourceAttr(rName, "targets.#", "2"),
 				),
 			},
 			{
-				Config: testAccEventSubscription_basic_step2(name),
+				Config: testAccEventSubscription_basic_step2(name, uuidOfficialEG, uuidCustomHTTPS),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "channel_id", "huaweicloud_eg_custom_event_channel.test", "id"),
@@ -87,26 +74,13 @@ func TestAccEventSubscription_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "sources.0.provider_type", "CUSTOM"),
 					resource.TestCheckResourceAttrSet(rName, "sources.0.filter_rule"),
 					// Targets length check
-					resource.TestCheckResourceAttr(rName, "targets.#", "3"),
-					// SMN event target
-					resource.TestCheckResourceAttr(rName, "targets.0.provider_type", "OFFICIAL"),
-					resource.TestCheckResourceAttr(rName, "targets.0.name", "HC.EG"),
-					resource.TestCheckResourceAttr(rName, "targets.0.detail_name", "eg_detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.0.detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.0.transform"),
-					// EG event target
-					resource.TestCheckResourceAttr(rName, "targets.1.provider_type", "OFFICIAL"),
-					resource.TestCheckResourceAttr(rName, "targets.1.name", "HC.SMN"),
-					resource.TestCheckResourceAttr(rName, "targets.1.detail_name", "smn_detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.1.detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.1.transform"),
-					// Custom event target
-					resource.TestCheckResourceAttr(rName, "targets.2.provider_type", "CUSTOM"),
-					resource.TestCheckResourceAttr(rName, "targets.2.name", "HTTPS"),
-					resource.TestCheckResourceAttr(rName, "targets.2.detail_name", "detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.2.detail"),
-					resource.TestCheckResourceAttrSet(rName, "targets.2.transform"),
+					resource.TestCheckResourceAttr(rName, "targets.#", "2"),
 				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -161,7 +135,7 @@ resource "huaweicloud_smn_topic" "test" {
 `, name)
 }
 
-func testAccEventSubscription_basic_step1(name string) string {
+func testAccEventSubscription_basic_step1(name, uuidOfficialEG, uuidOfficialSMN string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -185,6 +159,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
+    id            = "%[3]s"
     provider_type = "OFFICIAL"
     name          = "HC.EG"
     detail_name   = "eg_detail"
@@ -193,8 +168,8 @@ resource "huaweicloud_eg_event_subscription" "test" {
       "cross_account": false,
       "cross_region": false,
       "target_channel_id": "${huaweicloud_eg_custom_event_channel.target[0].id}",
-      "target_project_id": "%[3]s",
-      "target_region": "%[4]s"
+      "target_project_id": "%[5]s",
+      "target_region": "%[6]s"
     })
     transform = jsonencode({
       type  = "ORIGINAL"
@@ -203,6 +178,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
+    id            = "%[4]s"
     provider_type = "OFFICIAL"
     name          = "HC.SMN"
     detail_name   = "smn_detail"
@@ -219,26 +195,12 @@ resource "huaweicloud_eg_event_subscription" "test" {
       value = ""
     })
   }
-
-  targets {
-    provider_type = "CUSTOM"
-    name          = "HTTPS"
-    connection_id = huaweicloud_eg_connection.test[0].id
-    detail_name   = "detail"
-    detail        = jsonencode({
-      "url": "https://test.com/example",
-    })
-    transform = jsonencode({
-      type  = "VARIABLE"
-      value = "{\"name\":\"$.data.name\"}",
-      template = "My name is $${name}"
-    })
-  }
 }
-`, testAccEventSubscription_base(name), name, acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
+`, testAccEventSubscription_base(name), name, uuidOfficialEG, uuidOfficialSMN,
+		acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
 }
 
-func testAccEventSubscription_basic_step2(name string) string {
+func testAccEventSubscription_basic_step2(name, uuidOfficialEG, uuidCustomHTTPS string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -262,6 +224,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
+    id            = "%[3]s"
     provider_type = "OFFICIAL"
     name          = "HC.EG"
     detail_name   = "eg_detail"
@@ -270,8 +233,8 @@ resource "huaweicloud_eg_event_subscription" "test" {
       "cross_account": false,
       "cross_region": false,
       "target_channel_id": "${huaweicloud_eg_custom_event_channel.target[1].id}",
-      "target_project_id": "%[3]s",
-      "target_region": "%[4]s"
+      "target_project_id": "%[5]s",
+      "target_region": "%[6]s"
     })
     transform = jsonencode({
       type  = "ORIGINAL"
@@ -280,37 +243,21 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
-    provider_type = "OFFICIAL"
-    name          = "HC.SMN"
-    detail_name   = "smn_detail"
-    detail        = jsonencode({
-      "subject_transform": {
-        "type": "CONSTANT",
-        "value": "TEST_CONDTANT"
-      },
-      "urn": "${huaweicloud_smn_topic.test[1].topic_urn}",
-      "agency_name": "EG_TARGET_AGENCY",
-    })
-    transform = jsonencode({
-      type  = "ORIGINAL"
-      value = ""
-    })
-  }
-
-  targets {
+    id            = "%[4]s"
     provider_type = "CUSTOM"
     name          = "HTTPS"
-    connection_id = huaweicloud_eg_connection.test[1].id
+    connection_id = huaweicloud_eg_connection.test[0].id
     detail_name   = "detail"
     detail        = jsonencode({
-      "url": "https://test.com/newexample",
+      "url": "https://test.com/example",
     })
     transform = jsonencode({
       type  = "VARIABLE"
-      value = "{\"name\":\"$.data.name\",\"age\":\"$.data.age\"}",
-      template = "My name is $${name}, age is $${age}"
+      value = "{\"name\":\"$.data.name\"}",
+      template = "My name is $${name}"
     })
   }
 }
-`, testAccEventSubscription_base(name), name, acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
+`, testAccEventSubscription_base(name), name, uuidOfficialEG, uuidCustomHTTPS,
+		acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
 }

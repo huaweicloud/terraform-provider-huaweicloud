@@ -110,6 +110,12 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"enable_policy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"tags": common.TagsSchema(),
 			"service_name": {
 				Type:     schema.TypeString,
@@ -189,15 +195,16 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	createOpts := services.CreateOpts{
-		VpcID:       d.Get("vpc_id").(string),
-		PortID:      d.Get("port_id").(string),
-		ServerType:  d.Get("server_type").(string),
-		ServiceName: d.Get("name").(string),
-		ServiceType: d.Get("service_type").(string),
-		Description: d.Get("description").(string),
-		Approval:    utils.Bool(d.Get("approval").(bool)),
-		Ports:       buildPortMappingOpts(d),
-		Tags:        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		VpcID:        d.Get("vpc_id").(string),
+		PortID:       d.Get("port_id").(string),
+		ServerType:   d.Get("server_type").(string),
+		ServiceName:  d.Get("name").(string),
+		ServiceType:  d.Get("service_type").(string),
+		Description:  d.Get("description").(string),
+		Approval:     utils.Bool(d.Get("approval").(bool)),
+		Ports:        buildPortMappingOpts(d),
+		Tags:         utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		EnablePolicy: utils.Bool(d.Get("enable_policy").(bool)),
 	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := services.Create(vpcepClient, createOpts).Extract()
@@ -257,6 +264,7 @@ func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("description", n.Description),
 		d.Set("port_mapping", flattenVPCEndpointServicePorts(n)),
 		d.Set("tags", utils.TagsToMap(n.Tags)),
+		d.Set("enable_policy", n.EnablePolicy),
 	)
 
 	nameList := strings.Split(n.ServiceName, ".")

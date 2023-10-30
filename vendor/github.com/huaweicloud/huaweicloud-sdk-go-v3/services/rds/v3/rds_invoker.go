@@ -5,6 +5,18 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
 )
 
+type AddPostgresqlHbaConfInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddPostgresqlHbaConfInvoker) Invoke() (*model.AddPostgresqlHbaConfResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddPostgresqlHbaConfResponse), nil
+	}
+}
+
 type ApplyConfigurationAsyncInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -173,6 +185,18 @@ func (i *CreateRestoreInstanceInvoker) Invoke() (*model.CreateRestoreInstanceRes
 	}
 }
 
+type CreateXelLogDownloadInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateXelLogDownloadInvoker) Invoke() (*model.CreateXelLogDownloadResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateXelLogDownloadResponse), nil
+	}
+}
+
 type DeleteConfigurationInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -218,6 +242,18 @@ func (i *DeleteManualBackupInvoker) Invoke() (*model.DeleteManualBackupResponse,
 		return nil, err
 	} else {
 		return result.(*model.DeleteManualBackupResponse), nil
+	}
+}
+
+type DeletePostgresqlHbaConfInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeletePostgresqlHbaConfInvoker) Invoke() (*model.DeletePostgresqlHbaConfResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeletePostgresqlHbaConfResponse), nil
 	}
 }
 
@@ -413,6 +449,42 @@ func (i *ListInstancesInvoker) Invoke() (*model.ListInstancesResponse, error) {
 	}
 }
 
+type ListInstancesRecommendationInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListInstancesRecommendationInvoker) Invoke() (*model.ListInstancesRecommendationResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListInstancesRecommendationResponse), nil
+	}
+}
+
+type ListInstancesResourceMetricsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListInstancesResourceMetricsInvoker) Invoke() (*model.ListInstancesResourceMetricsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListInstancesResourceMetricsResponse), nil
+	}
+}
+
+type ListInstancesSupportFastRestoreInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListInstancesSupportFastRestoreInvoker) Invoke() (*model.ListInstancesSupportFastRestoreResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListInstancesSupportFastRestoreResponse), nil
+	}
+}
+
 type ListJobInfoInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -470,6 +542,30 @@ func (i *ListOffSiteRestoreTimesInvoker) Invoke() (*model.ListOffSiteRestoreTime
 		return nil, err
 	} else {
 		return result.(*model.ListOffSiteRestoreTimesResponse), nil
+	}
+}
+
+type ListPostgresqlHbaInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPostgresqlHbaInfoInvoker) Invoke() (*model.ListPostgresqlHbaInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPostgresqlHbaInfoResponse), nil
+	}
+}
+
+type ListPostgresqlHbaInfoHistoryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPostgresqlHbaInfoHistoryInvoker) Invoke() (*model.ListPostgresqlHbaInfoHistoryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPostgresqlHbaInfoHistoryResponse), nil
 	}
 }
 
@@ -629,6 +725,18 @@ func (i *ListStorageTypesInvoker) Invoke() (*model.ListStorageTypesResponse, err
 	}
 }
 
+type ListXellogFilesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListXellogFilesInvoker) Invoke() (*model.ListXellogFilesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListXellogFilesResponse), nil
+	}
+}
+
 type MigrateFollowerInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -638,6 +746,18 @@ func (i *MigrateFollowerInvoker) Invoke() (*model.MigrateFollowerResponse, error
 		return nil, err
 	} else {
 		return result.(*model.MigrateFollowerResponse), nil
+	}
+}
+
+type ModifyPostgresqlHbaConfInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyPostgresqlHbaConfInvoker) Invoke() (*model.ModifyPostgresqlHbaConfResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyPostgresqlHbaConfResponse), nil
 	}
 }
 
@@ -662,6 +782,18 @@ func (i *RestoreTablesInvoker) Invoke() (*model.RestoreTablesResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.RestoreTablesResponse), nil
+	}
+}
+
+type RestoreTablesNewInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RestoreTablesNewInvoker) Invoke() (*model.RestoreTablesNewResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RestoreTablesNewResponse), nil
 	}
 }
 
@@ -1178,6 +1310,18 @@ func (i *UpgradeDbVersionInvoker) Invoke() (*model.UpgradeDbVersionResponse, err
 		return nil, err
 	} else {
 		return result.(*model.UpgradeDbVersionResponse), nil
+	}
+}
+
+type UpgradeDbVersionNewInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeDbVersionNewInvoker) Invoke() (*model.UpgradeDbVersionNewResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeDbVersionNewResponse), nil
 	}
 }
 
