@@ -228,15 +228,15 @@ func flattenDatabaseRoles(roleList []roles.RoleDetail) []map[string]interface{} 
 	return result
 }
 
-func flattenDatabasePrivilegeResource(resources roles.Resource) []map[string]interface{} {
-	if (resources == roles.Resource{}) {
+func flattenDatabasePrivilegeResource(roleResource roles.Resource) []map[string]interface{} {
+	if (roleResource == roles.Resource{}) {
 		return nil
 	}
 
 	return []map[string]interface{}{
 		{
-			"collection": resources.Collection,
-			"db_name":    resources.DbName,
+			"collection": roleResource.Collection,
+			"db_name":    roleResource.DbName,
 		},
 	}
 }

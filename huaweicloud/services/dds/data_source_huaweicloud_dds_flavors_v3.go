@@ -76,13 +76,14 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 
 func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	ddsClient, err := conf.DdsV3Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	ddsClient, err := conf.DdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating DDS client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{
-		Region:     conf.GetRegion(d),
+		Region:     region,
 		EngineName: d.Get("engine_name").(string),
 	}
 
@@ -123,7 +124,7 @@ func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta i
 
 	d.SetId("dds flavors")
 	mErr := multierror.Append(
-		d.Set("region", conf.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("flavors", flavorList),
 	)
 

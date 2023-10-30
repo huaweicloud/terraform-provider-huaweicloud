@@ -17,7 +17,7 @@ import (
 func getDdsResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DdsV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return nil, fmt.Errorf("Error creating DDS client: %s", err)
 	}
 
 	opts := instances.ListInstanceOpts{
@@ -32,7 +32,7 @@ func getDdsResourceFunc(c *config.Config, state *terraform.ResourceState) (inter
 		return nil, err
 	}
 	if instanceList.TotalCount == 0 {
-		return nil, fmt.Errorf("dds instance not found ")
+		return nil, fmt.Errorf("dds instance not found")
 	}
 
 	insts := instanceList.Instances
