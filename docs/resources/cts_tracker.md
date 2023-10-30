@@ -12,9 +12,10 @@ Manages CTS **system** tracker resource within HuaweiCloud.
 variable "bucket_name" {}
 
 resource "huaweicloud_cts_tracker" "tracker" {
-  bucket_name = var.bucket_name
-  file_prefix = "cts"
-  lts_enabled = true
+  bucket_name          = var.bucket_name
+  file_prefix          = "cts"
+  lts_enabled          = true
+  organization_enabled = true
 }
 ```
 
@@ -32,6 +33,11 @@ The following arguments are supported:
   and periods (.) are allowed.
 
 * `lts_enabled` - (Optional, Bool) Specifies whether trace analysis is enabled.
+
+* `organization_enabled` - (Optional, Bool) Specifies whether to apply the tracker configuration to the organization. 
+  This parameter is valid only for the management tracker. If the value is set to true, the audit logs of all members 
+  in the ORG organization in the current region will be transferred to the OBS bucket or LTS log stream configured for 
+  the management tracker. However, audit logs of other members cannot be viewed on the Trace List page.
 
 * `validate_file` - (Optional, Bool) Specifies whether trace file verification is enabled during trace transfer.
 
