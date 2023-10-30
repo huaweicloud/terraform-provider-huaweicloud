@@ -24,6 +24,22 @@ resource "huaweicloud_networking_secgroup_rule" "test" {
 }
 ```
 
+### Create an egress rule that opens TCP port 8080 with port range parameters
+
+```hcl
+variable "security_group_id" {}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = var.security_group_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 8080
+  port_range_max    = 8080
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+```
+
 ### Create an ingress rule that enable the remote address group and open some TCP ports
 
 ```hcl
@@ -42,6 +58,33 @@ resource "huaweicloud_vpc_address_group" "test" {
 resource "huaweicloud_networking_secgroup_rule" "test" {
   security_group_id       = var.security_group_id
   direction               = "ingress"
+  action                  = "allow"
+  ethertype               = "IPv4"
+  ports                   = "80,500,600-800"
+  protocol                = "tcp"
+  priority                = 5
+  remote_address_group_id = huaweicloud_vpc_address_group.test.id
+}
+```
+
+### Create an egress rule that enable the remote address group and open some TCP ports
+
+```hcl
+variable "group_name" {}
+variable "security_group_id" {}
+
+resource "huaweicloud_vpc_address_group" "test" {
+  name = var.group_name
+
+  addresses = [
+    "192.168.10.12",
+    "192.168.11.0-192.168.11.240",
+  ]
+}
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id       = var.security_group_id
+  direction               = "egress"
   action                  = "allow"
   ethertype               = "IPv4"
   ports                   = "80,500,600-800"
