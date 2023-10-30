@@ -5,12 +5,13 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/auth"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 )
 
-// getAuthorizationToken is a method to request the CSE API and get the authorization token.
+// getToken is a method to request the CSE API and get the authorization token.
 // The format of is "Bearer {token}".
-func getAuthorizationToken(c *golangsdk.ServiceClient, username, password string) (string, error) {
+func getToken(c *golangsdk.ServiceClient, username, password string) (string, error) {
 	tokenOpts := auth.CreateOpts{
 		Name:     username,
 		Password: password,
@@ -30,5 +31,5 @@ func GetAuthorizationToken(connAddr, username, password string) (string, error) 
 		return "", nil
 	}
 	client := common.NewCustomClient(true, connAddr, "v4")
-	return getAuthorizationToken(client, username, password)
+	return getToken(client, username, password)
 }
