@@ -8,6 +8,7 @@ package dsc
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -39,13 +40,6 @@ const (
 
 	resourceSpecCodeProObs      = "OBS_professional"
 	resourceSpecCodeStandardObs = "OBS_standard"
-
-	dscBaseProductIdStandard = "OFFI571544772268847116"
-	dscBaseProductIdPro      = "OFFI571544772268847108"
-	dscObsProductIdStandard  = "OFFI571545095458668555"
-	dscObsProductIdPro       = "OFFI571545095458668547"
-	dscDBProductIdStandard   = "OFFI571544962480533516"
-	dscDBProductIdPro        = "OFFI571544962480533508"
 
 	resourceSizeMeasureIdObs = 47
 	resourceSizeMeasureIdDB  = 30
@@ -151,7 +145,11 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			200,
 		},
 	}
-	createDscInstanceOpt.JSONBody = utils.RemoveNil(buildCreateDscInstanceBodyParams(d, config))
+	bodyParams, err := buildCreateDscInstanceBodyParams(d, config)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	createDscInstanceOpt.JSONBody = utils.RemoveNil(bodyParams)
 	createDscInstanceResp, err := createDscInstanceClient.Request("POST", createDscInstancePath, &createDscInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating DscInstance: %s", err)
@@ -208,12 +206,16 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceDscInstanceRead(ctx, d, meta)
 }
 
-func buildCreateDscInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateDscInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
+	productInfos, err := buildCreateDscInstanceRequestBodyProductInfos(d, cfg)
+	if err != nil {
+		return nil, err
+	}
 	bodyParams := map[string]interface{}{
-		"regionId":         config.GetRegion(d),
+		"regionId":         cfg.GetRegion(d),
 		"cloudServiceType": cloudServiceType,
 		"periodNum":        utils.ValueIngoreEmpty(d.Get("period")),
-		"productInfos":     buildCreateDscInstanceRequestBodyProductInfos(d),
+		"productInfos":     productInfos,
 	}
 
 	chargingMode := d.Get("charging_mode").(string)
@@ -235,17 +237,16 @@ func buildCreateDscInstanceBodyParams(d *schema.ResourceData, config *config.Con
 		bodyParams["isAutoRenew"] = 0
 	}
 
-	return bodyParams
+	return bodyParams, nil
 }
 
-func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map[string]interface{} {
-	rst := make([]map[string]interface{}, 0, 3)
+func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData, cfg *config.Config) ([]map[string]interface{}, error) {
+	rst := make([]map[string]interface{}, 0)
 	edition := d.Get("edition").(string)
 
 	if edition == resourceSpecCodeStandardBase {
 		rst = append(rst, map[string]interface{}{
 			"cloudServiceType": cloudServiceType,
-			"productId":        dscBaseProductIdStandard,
 			"resourceType":     resourceTypeBase,
 			"resourceSpecCode": resourceSpecCodeStandardBase,
 		})
@@ -253,7 +254,6 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map
 		if size, ok := d.GetOk("obs_expansion_package"); ok {
 			rst = append(rst, map[string]interface{}{
 				"cloudServiceType":      cloudServiceType,
-				"productId":             dscObsProductIdStandard,
 				"resourceType":          resourceTypeObs,
 				"resourceSpecCode":      resourceSpecCodeStandardObs,
 				"resourceSize":          utils.ValueIngoreEmpty(size),
@@ -264,7 +264,6 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map
 		if size, ok := d.GetOk("database_expansion_package"); ok {
 			rst = append(rst, map[string]interface{}{
 				"cloudServiceType":      cloudServiceType,
-				"productId":             dscDBProductIdStandard,
 				"resourceType":          resourceTypeDB,
 				"resourceSpecCode":      resourceSpecCodeStandardDB,
 				"resourceSize":          utils.ValueIngoreEmpty(size),
@@ -274,7 +273,6 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map
 	} else {
 		rst = append(rst, map[string]interface{}{
 			"cloudServiceType": cloudServiceType,
-			"productId":        dscBaseProductIdPro,
 			"resourceType":     resourceTypeBase,
 			"resourceSpecCode": resourceSpecCodeProBase,
 		})
@@ -282,7 +280,6 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map
 		if size, ok := d.GetOk("obs_expansion_package"); ok {
 			rst = append(rst, map[string]interface{}{
 				"cloudServiceType":      cloudServiceType,
-				"productId":             dscObsProductIdPro,
 				"resourceType":          resourceTypeObs,
 				"resourceSpecCode":      resourceSpecCodeProObs,
 				"resourceSize":          utils.ValueIngoreEmpty(size),
@@ -293,7 +290,6 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map
 		if size, ok := d.GetOk("database_expansion_package"); ok {
 			rst = append(rst, map[string]interface{}{
 				"cloudServiceType":      cloudServiceType,
-				"productId":             dscDBProductIdPro,
 				"resourceType":          resourceTypeDB,
 				"resourceSpecCode":      resourceSpecCodeProDB,
 				"resourceSize":          utils.ValueIngoreEmpty(size),
@@ -301,8 +297,113 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData) []map
 			})
 		}
 	}
+	if err := addProductIdToProductInfo(d, cfg, rst); err != nil {
+		return nil, err
+	}
 
+	return rst, nil
+}
+
+func addProductIdToProductInfo(d *schema.ResourceData, cfg *config.Config, rst []map[string]interface{}) error {
+	region := cfg.GetRegion(d)
+	productInfos := make([]map[string]interface{}, len(rst))
+	period := d.Get("period").(int)
+	periodUnit := d.Get("period_unit").(string)
+	for i, product := range rst {
+		// The ID is used to identify the mapping between the inquiry result and the request
+		// and must be unique in an inquiry.
+		id := strconv.Itoa(i + 1)
+		productInfos[i] = buildProductInfo(region, periodUnit, id, period, product)
+	}
+	products, err := getOrderProducts(cfg, region, productInfos)
+	if err != nil {
+		return fmt.Errorf("error getting DSC order product ID infos: %s", err)
+	}
+	productInfoMap := buildProductInfoMap(products)
+	for i, v := range rst {
+		if productId, ok := productInfoMap[strconv.Itoa(i+1)]; ok {
+			v["productId"] = productId
+			continue
+		}
+		return fmt.Errorf("error getting DSC order product ID by product(%#v): %s", v, err)
+	}
+	return nil
+}
+
+func buildProductInfoMap(products []interface{}) map[string]string {
+	rst := make(map[string]string)
+	for _, product := range products {
+		id := utils.PathSearch("id", product, "").(string)
+		productId := utils.PathSearch("product_id", product, "").(string)
+		rst[id] = productId
+	}
 	return rst
+}
+
+func getOrderProducts(cfg *config.Config, region string, productInfos []map[string]interface{}) ([]interface{}, error) {
+	var (
+		getOrderProductsHttpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
+		getOrderProductsProduct = "bss"
+	)
+	getOrderProductsClient, err := cfg.NewServiceClient(getOrderProductsProduct, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating BSS Client: %s", err)
+	}
+
+	getOrderProductsPath := getOrderProductsClient.Endpoint + getOrderProductsHttpUrl
+
+	getOrderProductsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getOrderProductsOpt.JSONBody = utils.RemoveNil(buildGetProductIdBodyParams(getOrderProductsClient.ProjectID,
+		productInfos))
+	getOrderProductResp, err := getOrderProductsClient.Request("POST", getOrderProductsPath, &getOrderProductsOpt)
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting DSC order product infos: %s", err)
+	}
+
+	getOrderProductRespBody, err := utils.FlattenResponse(getOrderProductResp)
+	if err != nil {
+		return nil, err
+	}
+	curJson := utils.PathSearch("official_website_rating_result.product_rating_results",
+		getOrderProductRespBody, make([]interface{}, 0))
+	return curJson.([]interface{}), nil
+}
+
+func buildGetProductIdBodyParams(projectId string, productInfos []map[string]interface{}) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"project_id":    projectId,
+		"product_infos": productInfos,
+	}
+	return bodyParams
+}
+
+func buildProductInfo(region, periodUnit, id string, periodNum int, resourceInfo map[string]interface{}) map[string]interface{} {
+	var periodType string
+	if periodUnit == "month" {
+		periodType = "2"
+	} else {
+		periodType = "3"
+	}
+
+	params := make(map[string]interface{})
+	params["id"] = id
+	params["cloud_service_type"] = resourceInfo["cloudServiceType"]
+	params["resource_type"] = resourceInfo["resourceType"]
+	params["resource_spec"] = resourceInfo["resourceSpecCode"]
+	params["region"] = region
+	params["period_type"] = periodType
+	params["period_num"] = periodNum
+	params["subscription_num"] = "1"
+	if resourceSize, ok := resourceInfo["resourceSize"]; ok {
+		params["resource_size"] = resourceSize
+	}
+	if resourceSizeMeasureId, ok := resourceInfo["resourceSizeMeasureId"]; ok {
+		params["size_measure_id"] = resourceSizeMeasureId
+	}
+	return params
 }
 
 func buildPayOrderBodyParams(orderId string) map[string]interface{} {
