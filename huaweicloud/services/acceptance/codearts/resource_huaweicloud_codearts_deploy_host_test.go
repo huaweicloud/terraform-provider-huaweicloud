@@ -242,7 +242,7 @@ resource "huaweicloud_compute_instance" "test" {
 
   name                        = "%[2]s"
   image_id                    = data.huaweicloud_images_image.test.id
-  flavor_id                   = "sn3.large.2"
+  flavor_id                   = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone           = data.huaweicloud_availability_zones.test.names[0]
   admin_pass                  = "Test@123"
   delete_disks_on_termination = true
