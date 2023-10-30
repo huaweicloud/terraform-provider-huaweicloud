@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDatasourceListeners_basic(t *testing.T) {
@@ -27,12 +28,18 @@ func TestAccDatasourceListeners_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "listeners.0.loadbalancer_id"),
 					resource.TestCheckResourceAttrSet(rName, "listeners.0.description"),
 					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol"),
-					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol_port"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.forward_eip"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.forward_host"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.forward_port"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.forward_request_port"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.request_timeout"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.response_timeout"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("protocol_filter_is_useful", "true"),
 					resource.TestCheckOutput("protocol_port_filter_is_useful", "true"),
 					resource.TestCheckOutput("description_filter_is_useful", "true"),
 					resource.TestCheckOutput("loadbalancer_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("listener_id_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -41,18 +48,7 @@ func TestAccDatasourceListeners_basic(t *testing.T) {
 
 func testAccElbListenerConfig_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-}
-
+%[1]s
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
@@ -69,15 +65,14 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 resource "huaweicloud_elb_listener" "test" {
- name                        = "%[1]s"
+ name                        = "%[2]s"
  description                 = "test description"
  protocol                    = "HTTP"
  protocol_port               = 8080
  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
  advanced_forwarding_enabled = false
-
 }
-`, name, name)
+`, common.TestVpc(name), name)
 }
 
 func testAccDatasourceListeners_basic(name string) string {
@@ -112,8 +107,8 @@ output "description_filter_is_useful" {
 }
 
 data "huaweicloud_elb_listeners" "protocol_filter" {
-  protocol = huaweicloud_elb_listener.test.protocol
-  depends_on  = [huaweicloud_elb_listener.test]
+  protocol   = huaweicloud_elb_listener.test.protocol
+  depends_on = [huaweicloud_elb_listener.test]
 }
 locals {
   protocol = huaweicloud_elb_listener.test.protocol
@@ -126,7 +121,7 @@ output "protocol_filter_is_useful" {
 
 data "huaweicloud_elb_listeners" "protocol_port_filter" {
   protocol_port = huaweicloud_elb_listener.test.protocol_port
-  depends_on  = [huaweicloud_elb_listener.test]
+  depends_on    = [huaweicloud_elb_listener.test]
 }
 locals {
   protocol_port = huaweicloud_elb_listener.test.protocol_port
@@ -138,7 +133,7 @@ output "protocol_port_filter_is_useful" {
 }
 
 data "huaweicloud_elb_listeners" "loadbalancer_id_filter" {
-   depends_on  = [huaweicloud_elb_listener.test]
+   depends_on      = [huaweicloud_elb_listener.test]
    loadbalancer_id = huaweicloud_elb_listener.test.loadbalancer_id
 }
 locals {
@@ -150,5 +145,17 @@ output "loadbalancer_id_filter_is_useful" {
   )  
 }
 
+data "huaweicloud_elb_listeners" "listener_id_filter" {
+   depends_on  = [huaweicloud_elb_listener.test]
+   listener_id = huaweicloud_elb_listener.test.id
+}
+locals {
+   listener_id = huaweicloud_elb_listener.test.id
+}
+output "listener_id_filter_is_useful" {
+  value = length(data.huaweicloud_elb_listeners.listener_id_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_listeners.listener_id_filter.listeners[*].id :v == local.listener_id]
+  )  
+}
 `, testAccElbListenerConfig_basic(name), name)
 }

@@ -1,5 +1,5 @@
 ---
-subcategory: Dedicated Listeners (Dedicated ELB)
+subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
 # huaweicloud_elb_listeners
@@ -54,7 +54,7 @@ The `listeners` block supports:
 
 * `name` - The listener name.
 
-* `description` - The description of listener.
+* `description` - The description of the listener.
 
 * `protocol` - The protocol used by the listener.
 
@@ -64,7 +64,7 @@ The `listeners` block supports:
 
 * `http2_enable` - Whether to use HTTP/2 if you want the clients to use HTTP/2 to communicate with the listener.
 
-* `forward_eip` -  whether to transparently transmit the load balancer EIP to backend servers.
+* `forward_eip` -  Whether to transparently transmit the load balancer EIP to backend servers.
 
 * `forward_port` - Whether to transparently transmit the listening port of the load balancer to backend servers.
 
@@ -88,7 +88,7 @@ The `listeners` block supports:
 
 * `loadbalancer_id` - The ID of the load balancer that the listener is added to.
 
-* `advanced_forwarding_enabled` - whether to enable advanced forwarding.
+* `advanced_forwarding_enabled` - Whether to enable advanced forwarding.
 
 * `protection_status` - The protection status for update.
 

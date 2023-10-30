@@ -4,14 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -43,10 +41,7 @@ func DataSourceElbListeners() *schema.Resource {
 				Optional: true,
 			},
 			"protocol": {
-				Type: schema.TypeString,
-				ValidateFunc: validation.StringInSlice([]string{
-					"TCP", "UDP", "HTTP", "HTTPS",
-				}, false),
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"protocol_port": {
@@ -153,7 +148,8 @@ func listenersSchema() *schema.Resource {
 			"advanced_forwarding_enabled": {
 				Type:     schema.TypeBool,
 				Computed: true,
-			}, "protection_status": {
+			},
+			"protection_status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -168,28 +164,29 @@ func listenersSchema() *schema.Resource {
 
 func dataSourceElbListenersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	var (
-		listLoadListenersHttpUrl = "v3/{project_id}/elb/listeners"
-		listLoadListenersProduct = "elb"
+		listListenersHttpUrl = "v3/{project_id}/elb/listeners"
+		listListenersProduct = "elb"
 	)
-	listLoadListenersClient, err := cfg.NewServiceClient(listLoadListenersProduct, cfg.GetRegion(d))
+	listListenersClient, err := cfg.NewServiceClient(listListenersProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
-	listLoadListenersPath := listLoadListenersClient.Endpoint + listLoadListenersHttpUrl
-	listLoadListenersPath = strings.ReplaceAll(listLoadListenersPath, "{project_id}", listLoadListenersClient.ProjectID)
-	listLoadListenersQueryParams := buildListListenersQueryParams(d, cfg.DataGetEnterpriseProjectID(d))
-	listLoadListenersPath += listLoadListenersQueryParams
-	listLoadListenersResp, err := pagination.ListAllItems(
-		listLoadListenersClient,
+	listListenersPath := listListenersClient.Endpoint + listListenersHttpUrl
+	listListenersPath = strings.ReplaceAll(listListenersPath, "{project_id}", listListenersClient.ProjectID)
+	listListenersQueryParams := buildListListenersQueryParams(d, cfg.DataGetEnterpriseProjectID(d))
+	listListenersPath += listListenersQueryParams
+	listListenersResp, err := pagination.ListAllItems(
+		listListenersClient,
 		"marker",
-		listLoadListenersPath,
+		listListenersPath,
 		&pagination.QueryOpts{MarkerField: ""})
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Listeners")
+		return common.CheckDeletedDiag(d, err, "error retrieving ELB listeners")
 	}
 
-	listListenersRespJson, err := json.Marshal(listLoadListenersResp)
+	listListenersRespJson, err := json.Marshal(listListenersResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -206,16 +203,14 @@ func dataSourceElbListenersRead(_ context.Context, d *schema.ResourceData, meta 
 	d.SetId(dataSourceId)
 
 	mErr := multierror.Append(
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("listeners", flattenListListenersBody(listListenersRespBody)),
 	)
-
-	log.Printf("listneres info: %#v", d.Get("listeners"))
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListListenersQueryParams(d *schema.ResourceData, enterprise_project_id string) string {
+func buildListListenersQueryParams(d *schema.ResourceData, enterpriseProjectId string) string {
 	res := ""
 	if v, ok := d.GetOk("loadbalancer_id"); ok {
 		res = fmt.Sprintf("%s&loadbalancer_id=%v", res, v)
@@ -227,7 +222,7 @@ func buildListListenersQueryParams(d *schema.ResourceData, enterprise_project_id
 		res = fmt.Sprintf("%s&description=%v", res, v)
 	}
 	if v, ok := d.GetOk("listener_id"); ok {
-		res = fmt.Sprintf("%s&listener_id=%v", res, v)
+		res = fmt.Sprintf("%s&id=%v", res, v)
 	}
 	if v, ok := d.GetOk("protocol"); ok {
 		res = fmt.Sprintf("%s&protocol=%v", res, v)
@@ -235,8 +230,8 @@ func buildListListenersQueryParams(d *schema.ResourceData, enterprise_project_id
 	if v, ok := d.GetOk("protocol_port"); ok {
 		res = fmt.Sprintf("%s&protocol_port=%v", res, v)
 	}
-	if enterprise_project_id != "all_granted_eps" {
-		res = fmt.Sprintf("%senterprise_project_id%v", res, enterprise_project_id)
+	if enterpriseProjectId != "all_granted_eps" {
+		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, enterpriseProjectId)
 	}
 	if res != "" {
 		res = "?" + res[1:]
@@ -263,10 +258,10 @@ func flattenListListenersBody(resp interface{}) []interface{} {
 			"protocol_port":               utils.PathSearch("protocol_port", v, nil),
 			"default_pool_id":             utils.PathSearch("default_pool_id", v, nil),
 			"http2_enable":                utils.PathSearch("http2_enable", v, nil),
-			"forward_eip":                 utils.PathSearch("X-Forwarded-ELB-IP", v, nil),
-			"forward_port":                utils.PathSearch("X-Forwarded-Port", v, nil),
-			"forward_request_port":        utils.PathSearch("X-Forwarded-For-Port", v, nil),
-			"forward_host":                utils.PathSearch("X-Forwarded-Host", v, nil),
+			"forward_eip":                 utils.PathSearch("insert_headers.X-Forwarded-ELB-IP", v, nil),
+			"forward_port":                utils.PathSearch("insert_headers.X-Forwarded-Port", v, nil),
+			"forward_request_port":        utils.PathSearch("insert_headers.X-Forwarded-For-Port", v, nil),
+			"forward_host":                utils.PathSearch("insert_headers.X-Forwarded-Host", v, nil),
 			"sni_certificate":             utils.PathSearch("sni_container_refs", v, nil),
 			"server_certificate":          utils.PathSearch("default_tls_container_ref", v, nil),
 			"ca_certificate":              utils.PathSearch("client_ca_tls_container_ref", v, nil),
@@ -280,6 +275,5 @@ func flattenListListenersBody(resp interface{}) []interface{} {
 			"protection_reason":           utils.PathSearch("protection_reason", v, nil),
 		})
 	}
-	log.Printf("get rst info: %#v", rst)
 	return rst
 }
