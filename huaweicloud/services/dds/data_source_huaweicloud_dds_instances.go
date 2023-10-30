@@ -18,14 +18,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func DataSourceDdsInstance() *schema.Resource {
@@ -62,7 +63,7 @@ func DataSourceDdsInstance() *schema.Resource {
 			},
 			"instances": {
 				Type:        schema.TypeList,
-				Elem:        DdsInstanceInstanceSchema(),
+				Elem:        ddsInstanceInstanceSchema(),
 				Computed:    true,
 				Description: `Indicates the list of DDS instances.`,
 			},
@@ -70,7 +71,7 @@ func DataSourceDdsInstance() *schema.Resource {
 	}
 }
 
-func DdsInstanceInstanceSchema() *schema.Resource {
+func ddsInstanceInstanceSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -95,12 +96,12 @@ func DdsInstanceInstanceSchema() *schema.Resource {
 			},
 			"datastore": {
 				Type:     schema.TypeList,
-				Elem:     DdsInstanceInstanceDatastoreSchema(),
+				Elem:     ddsInstanceInstanceDatastoreSchema(),
 				Computed: true,
 			},
 			"backup_strategy": {
 				Type:     schema.TypeList,
-				Elem:     DdsInstanceInstanceBackupStrategySchema(),
+				Elem:     ddsInstanceInstanceBackupStrategySchema(),
 				Computed: true,
 			},
 			"vpc_id": {
@@ -145,7 +146,7 @@ func DdsInstanceInstanceSchema() *schema.Resource {
 			},
 			"nodes": {
 				Type:        schema.TypeList,
-				Elem:        DdsInstanceInstanceNodeSchema(),
+				Elem:        ddsInstanceInstanceNodeSchema(),
 				Computed:    true,
 				Description: `Indicates the instance nodes information.`,
 			},
@@ -155,7 +156,7 @@ func DdsInstanceInstanceSchema() *schema.Resource {
 	return &sc
 }
 
-func DdsInstanceInstanceDatastoreSchema() *schema.Resource {
+func ddsInstanceInstanceDatastoreSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
@@ -178,7 +179,7 @@ func DdsInstanceInstanceDatastoreSchema() *schema.Resource {
 	return &sc
 }
 
-func DdsInstanceInstanceBackupStrategySchema() *schema.Resource {
+func ddsInstanceInstanceBackupStrategySchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"start_time": {
@@ -196,7 +197,7 @@ func DdsInstanceInstanceBackupStrategySchema() *schema.Resource {
 	return &sc
 }
 
-func DdsInstanceInstanceNodeSchema() *schema.Resource {
+func ddsInstanceInstanceNodeSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -239,9 +240,9 @@ func DdsInstanceInstanceNodeSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceDdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDdsInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -250,7 +251,7 @@ func resourceDdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		getDDSInstancesHttpUrl = "v3/{project_id}/instances"
 		getDDSInstancesProduct = "dds"
 	)
-	getDDSInstancesClient, err := config.NewServiceClient(getDDSInstancesProduct, region)
+	getDDSInstancesClient, err := conf.NewServiceClient(getDDSInstancesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DdsInstance Client: %s", err)
 	}

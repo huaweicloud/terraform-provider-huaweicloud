@@ -7,19 +7,19 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
-	"github.com/chnsz/golangsdk/openstack/dds/v3/jobs"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/dds/v3/jobs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDdsInstanceV3() *schema.Resource {
@@ -249,13 +249,13 @@ func ResourceDdsInstanceV3() *schema.Resource {
 func resourceDdsDataStore(d *schema.ResourceData) instances.DataStore {
 	var dataStore instances.DataStore
 	datastoreRaw := d.Get("datastore").([]interface{})
-	logp.Printf("[DEBUG] datastoreRaw: %+v", datastoreRaw)
+	log.Printf("[DEBUG] datastoreRaw: %+v", datastoreRaw)
 	if len(datastoreRaw) == 1 {
 		dataStore.Type = datastoreRaw[0].(map[string]interface{})["type"].(string)
 		dataStore.Version = datastoreRaw[0].(map[string]interface{})["version"].(string)
 		dataStore.StorageEngine = datastoreRaw[0].(map[string]interface{})["storage_engine"].(string)
 	}
-	logp.Printf("[DEBUG] datastore: %+v", dataStore)
+	log.Printf("[DEBUG] datastore: %+v", dataStore)
 	return dataStore
 }
 
@@ -278,7 +278,7 @@ func resourceDdsConfiguration(d *schema.ResourceData) []instances.Configuration 
 func resourceDdsFlavors(d *schema.ResourceData) []instances.Flavor {
 	var flavors []instances.Flavor
 	flavorRaw := d.Get("flavor").([]interface{})
-	logp.Printf("[DEBUG] flavorRaw: %+v", flavorRaw)
+	log.Printf("[DEBUG] flavorRaw: %+v", flavorRaw)
 	for i := range flavorRaw {
 		flavor := flavorRaw[i].(map[string]interface{})
 		flavorReq := instances.Flavor{
@@ -290,14 +290,14 @@ func resourceDdsFlavors(d *schema.ResourceData) []instances.Flavor {
 		}
 		flavors = append(flavors, flavorReq)
 	}
-	logp.Printf("[DEBUG] flavors: %+v", flavors)
+	log.Printf("[DEBUG] flavors: %+v", flavors)
 	return flavors
 }
 
 func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy {
 	var backupStrategy instances.BackupStrategy
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
-	logp.Printf("[DEBUG] backupStrategyRaw: %+v", backupStrategyRaw)
+	log.Printf("[DEBUG] backupStrategyRaw: %+v", backupStrategyRaw)
 	startTime := "00:00-01:00"
 	keepDays := 7
 	if len(backupStrategyRaw) == 1 {
@@ -306,11 +306,11 @@ func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy 
 	}
 	backupStrategy.StartTime = startTime
 	backupStrategy.KeepDays = &keepDays
-	logp.Printf("[DEBUG] backupStrategy: %+v", backupStrategy)
+	log.Printf("[DEBUG] backupStrategy: %+v", backupStrategy)
 	return backupStrategy
 }
 
-func DdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func ddsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := instances.ListInstanceOpts{
 			Id: instanceID,
@@ -355,16 +355,16 @@ func buildChargeInfoParams(d *schema.ResourceData) instances.ChargeInfo {
 }
 
 func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
 
 	createOpts := instances.CreateOpts{
 		Name:                d.Get("name").(string),
 		DataStore:           resourceDdsDataStore(d),
-		Region:              config.GetRegion(d),
+		Region:              conf.GetRegion(d),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
@@ -374,7 +374,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		Configuration:       resourceDdsConfiguration(d),
 		Flavor:              resourceDdsFlavors(d),
 		BackupStrategy:      resourceDdsBackupStrategy(d),
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
 	}
 	if d.Get("ssl").(bool) {
 		createOpts.Ssl = "1"
@@ -385,7 +385,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		chargeInfo := buildChargeInfoParams(d)
 		createOpts.ChargeInfo = &chargeInfo
 	}
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
@@ -395,12 +395,12 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting instance from result: %s ", err)
+		return diag.Errorf("Error getting instance from result: %s ", err)
 	}
-	logp.Printf("[DEBUG] Create : instance %s: %#v", instance.Id, instance)
+	log.Printf("[DEBUG] Create : instance %s: %#v", instance.Id, instance)
 
 	if instance.OrderId != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -422,7 +422,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating", "updating"},
 		Target:     []string{"normal"},
-		Refresh:    DdsInstanceStateRefreshFunc(client, instance.Id),
+		Refresh:    ddsInstanceStateRefreshFunc(client, instance.Id),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      120 * time.Second,
 		MinTimeout: 20 * time.Second,
@@ -430,17 +430,17 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
+		return diag.Errorf(
 			"Error waiting for instance (%s) to become ready: %s ",
 			instance.Id, err)
 	}
 
-	//set tags
+	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", instance.Id, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.DiagErrorf("Error setting tags of DDS instance %s: %s", instance.Id, tagErr)
+			return diag.Errorf("Error setting tags of DDS instance %s: %s", instance.Id, tagErr)
 		}
 	}
 
@@ -448,10 +448,10 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s", err)
+		return diag.Errorf("Error creating DDS client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -460,61 +460,61 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 	}
 	allPages, err := instances.List(client, &opts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Error fetching DDS instance: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving DdsInstance")
 	}
-	instances, err := instances.ExtractInstances(allPages)
+	instanceList, err := instances.ExtractInstances(allPages)
 	if err != nil {
-		return fmtp.DiagErrorf("Error extracting DDS instance: %s", err)
+		return diag.Errorf("Error extracting DDS instance: %s", err)
 	}
-	if instances.TotalCount == 0 {
-		logp.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+	if instanceList.TotalCount == 0 {
+		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
 		d.SetId("")
 		return nil
 	}
-	insts := instances.Instances
-	instance := insts[0]
+	insts := instanceList.Instances
+	instanceObj := insts[0]
 
-	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instanceObj)
 
 	mErr := multierror.Append(
-		d.Set("region", instance.Region),
-		d.Set("name", instance.Name),
-		d.Set("vpc_id", instance.VpcId),
-		d.Set("subnet_id", instance.SubnetId),
-		d.Set("security_group_id", instance.SecurityGroupId),
-		d.Set("disk_encryption_id", instance.DiskEncryptionId),
-		d.Set("mode", instance.Mode),
-		d.Set("db_username", instance.DbUserName),
-		d.Set("status", instance.Status),
-		d.Set("enterprise_project_id", instance.EnterpriseProjectID),
-		d.Set("nodes", flattenDdsInstanceV3Nodes(instance)),
+		d.Set("region", instanceObj.Region),
+		d.Set("name", instanceObj.Name),
+		d.Set("vpc_id", instanceObj.VpcId),
+		d.Set("subnet_id", instanceObj.SubnetId),
+		d.Set("security_group_id", instanceObj.SecurityGroupId),
+		d.Set("disk_encryption_id", instanceObj.DiskEncryptionId),
+		d.Set("mode", instanceObj.Mode),
+		d.Set("db_username", instanceObj.DbUserName),
+		d.Set("status", instanceObj.Status),
+		d.Set("enterprise_project_id", instanceObj.EnterpriseProjectID),
+		d.Set("nodes", flattenDdsInstanceV3Nodes(instanceObj)),
 	)
 
-	port, err := strconv.Atoi(instance.Port)
+	port, err := strconv.Atoi(instanceObj.Port)
 	if err != nil {
-		logp.Printf("[WARNING] Port %s invalid, Type conversion error: %s", instance.Port, err)
+		log.Printf("[WARNING] Port %s invalid, Type conversion error: %s", instanceObj.Port, err)
 	}
 	mErr = multierror.Append(mErr, d.Set("port", port))
 
 	sslEnable := true
-	if instance.Ssl == 0 {
+	if instanceObj.Ssl == 0 {
 		sslEnable = false
 	}
 	mErr = multierror.Append(mErr, d.Set("ssl", sslEnable))
 
 	datastoreList := make([]map[string]interface{}, 0, 1)
 	datastore := map[string]interface{}{
-		"type":           instance.DataStore.Type,
-		"version":        instance.DataStore.Version,
-		"storage_engine": instance.Engine,
+		"type":           instanceObj.DataStore.Type,
+		"version":        instanceObj.DataStore.Version,
+		"storage_engine": instanceObj.Engine,
 	}
 	datastoreList = append(datastoreList, datastore)
 	mErr = multierror.Append(mErr, d.Set("datastore", datastoreList))
 
 	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
-		"start_time": instance.BackupStrategy.StartTime,
-		"keep_days":  instance.BackupStrategy.KeepDays,
+		"start_time": instanceObj.BackupStrategy.StartTime,
+		"keep_days":  instanceObj.BackupStrategy.KeepDays,
 	}
 	backupStrategyList = append(backupStrategyList, backupStrategy)
 	mErr = multierror.Append(mErr, d.Set("backup_strategy", backupStrategyList))
@@ -524,11 +524,11 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
 	} else {
-		logp.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
 	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting dds instance fields: %s", err)
+		return diag.Errorf("Error setting dds instance fields: %s", err)
 	}
 
 	return nil
@@ -549,7 +549,7 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"updating"},
 		Target:     []string{"normal"},
-		Refresh:    DdsInstanceStateRefreshFunc(client, instanceId),
+		Refresh:    ddsInstanceStateRefreshFunc(client, instanceId),
 		Timeout:    timeout,
 		Delay:      15 * time.Second,
 		MinTimeout: 10 * time.Second,
@@ -557,7 +557,7 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
+		return fmt.Errorf(
 			"Error waiting for instance (%s) to become ready: %s ",
 			instanceId, err)
 	}
@@ -566,10 +566,10 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 }
 
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
 
 	err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
@@ -637,10 +637,10 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	if len(opts) > 0 {
 		resp, err := instances.Update(client, d.Id(), opts).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating instance from result: %s ", err)
+			return diag.Errorf("Error updating instance from result: %s ", err)
 		}
 		if resp.OrderId != "" {
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 			if err != nil {
 				return diag.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -671,7 +671,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
-			return fmtp.DiagErrorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
+			return diag.Errorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
 		}
 
 		err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutCreate))
@@ -683,7 +683,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
-			return fmtp.DiagErrorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
 		}
 
 		err := waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
@@ -704,19 +704,19 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			// For example, when the number is increased from 2 to 3, and the size of all nodes is increased from 20 to
 			// 30, the newly added node will prompt that the storage update failed and cannot be updated from 30 to 30.
 			if d.HasChange(volumeSizeIndex) {
-				err := flavorSizeUpdate(ctx, config, client, d, i)
+				err := flavorSizeUpdate(ctx, conf, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(numIndex) {
-				err := flavorNumUpdate(ctx, config, client, d, i)
+				err := flavorNumUpdate(ctx, conf, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(specCodeIndex) {
-				err := flavorSpecCodeUpdate(ctx, config, client, d, i)
+				err := flavorSpecCodeUpdate(ctx, conf, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -728,16 +728,16 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == "prePaid" {
-		err = common.UnsubscribePrePaidResource(d, config, []string{instanceId})
+		err = common.UnsubscribePrePaidResource(d, conf, []string{instanceId})
 		if err != nil {
 			return diag.Errorf("error unsubscribing DDS instance : %s", err)
 		}
@@ -751,7 +751,7 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"normal", "abnormal", "frozen", "createfail", "enlargefail", "data_disk_full"},
 		Target:     []string{"deleted"},
-		Refresh:    DdsInstanceStateRefreshFunc(client, instanceId),
+		Refresh:    ddsInstanceStateRefreshFunc(client, instanceId),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      15 * time.Second,
 		MinTimeout: 10 * time.Second,
@@ -759,11 +759,11 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.DiagErrorf(
+		return diag.Errorf(
 			"Error waiting for instance (%s) to be deleted: %s ",
 			instanceId, err)
 	}
-	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	return nil
 }
 
@@ -796,29 +796,28 @@ func getDdsInstanceV3ShardGroupID(client *golangsdk.ServiceClient, d *schema.Res
 	}
 	allPages, err := instances.List(client, &opts).AllPages()
 	if err != nil {
-		return groupIDs, fmtp.Errorf("Error fetching DDS instance: %s", err)
+		return groupIDs, fmt.Errorf("Error fetching DDS instance: %s", err)
 	}
-	instances, err := instances.ExtractInstances(allPages)
+	instanceList, err := instances.ExtractInstances(allPages)
 	if err != nil {
-		return groupIDs, fmtp.Errorf("Error extracting DDS instance: %s", err)
+		return groupIDs, fmt.Errorf("Error extracting DDS instance: %s", err)
 	}
-	if instances.TotalCount == 0 {
-		logp.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+	if instanceList.TotalCount == 0 {
+		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
 		return groupIDs, nil
 	}
-	insts := instances.Instances
-	instance := insts[0]
+	insts := instanceList.Instances
+	instanceObj := insts[0]
 
-	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instanceObj)
 
-	for _, group := range instance.Groups {
+	for _, group := range instanceObj.Groups {
 		if group.Type == "shard" {
 			groupIDs = append(groupIDs, group.Id)
 		}
 	}
 
 	return groupIDs, nil
-
 }
 
 func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]string, error) {
@@ -830,22 +829,22 @@ func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.Res
 	}
 	allPages, err := instances.List(client, &opts).AllPages()
 	if err != nil {
-		return nodeIDs, fmtp.Errorf("Error fetching DDS instance: %s", err)
+		return nodeIDs, fmt.Errorf("Error fetching DDS instance: %s", err)
 	}
-	instances, err := instances.ExtractInstances(allPages)
+	instanceList, err := instances.ExtractInstances(allPages)
 	if err != nil {
-		return nodeIDs, fmtp.Errorf("Error extracting DDS instance: %s", err)
+		return nodeIDs, fmt.Errorf("Error extracting DDS instance: %s", err)
 	}
-	if instances.TotalCount == 0 {
-		logp.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+	if instanceList.TotalCount == 0 {
+		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
 		return nodeIDs, nil
 	}
-	insts := instances.Instances
-	instance := insts[0]
+	insts := instanceList.Instances
+	instanceObj := insts[0]
 
-	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instanceObj)
 
-	for _, group := range instance.Groups {
+	for _, group := range instanceObj.Groups {
 		if group.Type == "mongos" {
 			for _, node := range group.Nodes {
 				nodeIDs = append(nodeIDs, node.Id)
@@ -854,18 +853,17 @@ func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.Res
 	}
 
 	return nodeIDs, nil
-
 }
 
-func flavorUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
+func flavorUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	opts []instances.UpdateOpt) error {
 	resp, err := instances.Update(client, d.Id(), opts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating instance from result: %s ", err)
+		return fmt.Errorf("Error updating instance from result: %s ", err)
 	}
 
 	if resp.OrderId != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 		if err != nil {
 			return fmt.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -883,11 +881,11 @@ func flavorUpdate(ctx context.Context, config *config.Config, client *golangsdk.
 	return nil
 }
 
-func flavorNumUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
 	if groupType != "mongos" && groupType != "shard" {
-		return fmtp.Errorf("Error updating instance: %s does not support adding nodes", groupType)
+		return fmt.Errorf("Error updating instance: %s does not support adding nodes", groupType)
 	}
 	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
 	volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
@@ -897,7 +895,7 @@ func flavorNumUpdate(ctx context.Context, config *config.Config, client *golangs
 	oldNum := oldNumRaw.(int)
 	newNum := newNumRaw.(int)
 	if newNum < oldNum {
-		return fmtp.Errorf("Error updating instance: the new num(%d) must be greater than the old num(%d)", newNum, oldNum)
+		return fmt.Errorf("Error updating instance: the new num(%d) must be greater than the old num(%d)", newNum, oldNum)
 	}
 
 	var numUpdateOpts []instances.UpdateOpt
@@ -910,7 +908,6 @@ func flavorNumUpdate(ctx context.Context, config *config.Config, client *golangs
 		}
 		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 			updateNodeNumOpts.IsAutoPay = true
-
 		}
 		opt := instances.UpdateOpt{
 			Param:  "",
@@ -932,7 +929,6 @@ func flavorNumUpdate(ctx context.Context, config *config.Config, client *golangs
 		}
 		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 			updateNodeNumOpts.IsAutoPay = true
-
 		}
 		opt := instances.UpdateOpt{
 			Param:  "",
@@ -942,25 +938,25 @@ func flavorNumUpdate(ctx context.Context, config *config.Config, client *golangs
 		}
 		numUpdateOpts = append(numUpdateOpts, opt)
 	}
-	err := flavorUpdate(ctx, config, client, d, numUpdateOpts)
+	err := flavorUpdate(ctx, conf, client, d, numUpdateOpts)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+func flavorSizeUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
 	oldSizeRaw, newSizeRaw := d.GetChange(volumeSizeIndex)
 	oldSize := oldSizeRaw.(int)
 	newSize := newSizeRaw.(int)
 	if newSize < oldSize {
-		return fmtp.Errorf("Error updating instance: the new size(%d) must be greater than the old size(%d)", newSize, oldSize)
+		return fmt.Errorf("Error updating instance: the new size(%d) must be greater than the old size(%d)", newSize, oldSize)
 	}
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
 	if groupType != "replica" && groupType != "single" && groupType != "shard" {
-		return fmtp.Errorf("Error updating instance: %s does not support scaling up storage space", groupType)
+		return fmt.Errorf("Error updating instance: %s does not support scaling up storage space", groupType)
 	}
 
 	if groupType == "shard" {
@@ -979,7 +975,6 @@ func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golang
 			}
 			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 				updateVolumeOpts.IsAutoPay = true
-
 			}
 			opt := instances.UpdateOpt{
 				Param:  "",
@@ -988,7 +983,7 @@ func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golang
 				Method: "post",
 			}
 			sizeUpdateOpts = append(sizeUpdateOpts, opt)
-			err := flavorUpdate(ctx, config, client, d, sizeUpdateOpts)
+			err := flavorUpdate(ctx, conf, client, d, sizeUpdateOpts)
 			if err != nil {
 				return err
 			}
@@ -1002,7 +997,6 @@ func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golang
 		}
 		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 			updateVolumeOpts.IsAutoPay = true
-
 		}
 		opt := instances.UpdateOpt{
 			Param:  "volume",
@@ -1011,7 +1005,7 @@ func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golang
 			Method: "post",
 		}
 		sizeUpdateOpts = append(sizeUpdateOpts, opt)
-		err := flavorUpdate(ctx, config, client, d, sizeUpdateOpts)
+		err := flavorUpdate(ctx, conf, client, d, sizeUpdateOpts)
 		if err != nil {
 			return err
 		}
@@ -1019,14 +1013,15 @@ func flavorSizeUpdate(ctx context.Context, config *config.Config, client *golang
 	return nil
 }
 
-func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
 	if groupType == "config" {
-		return fmtp.Errorf("Error updating instance: %s does not support updating spec_code", groupType)
+		return fmt.Errorf("Error updating instance: %s does not support updating spec_code", groupType)
 	}
-	if groupType == "mongos" {
+	switch groupType {
+	case "mongos":
 		nodeIDs, err := getDdsInstanceV3MongosNodeID(client, d)
 		if err != nil {
 			return err
@@ -1042,7 +1037,6 @@ func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *go
 			}
 			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 				updateSpecOpts.IsAutoPay = true
-
 			}
 			opt := instances.UpdateOpt{
 				Param:  "",
@@ -1051,12 +1045,12 @@ func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *go
 				Method: "post",
 			}
 			specUpdateOpts = append(specUpdateOpts, opt)
-			err := flavorUpdate(ctx, config, client, d, specUpdateOpts)
+			err := flavorUpdate(ctx, conf, client, d, specUpdateOpts)
 			if err != nil {
 				return err
 			}
 		}
-	} else if groupType == "shard" {
+	case "shard":
 		groupIDs, err := getDdsInstanceV3ShardGroupID(client, d)
 		if err != nil {
 			return err
@@ -1073,7 +1067,6 @@ func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *go
 			}
 			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 				updateSpecOpts.IsAutoPay = true
-
 			}
 			opt := instances.UpdateOpt{
 				Param:  "resize",
@@ -1082,12 +1075,12 @@ func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *go
 				Method: "post",
 			}
 			specUpdateOpts = append(specUpdateOpts, opt)
-			err := flavorUpdate(ctx, config, client, d, specUpdateOpts)
+			err := flavorUpdate(ctx, conf, client, d, specUpdateOpts)
 			if err != nil {
 				return err
 			}
 		}
-	} else {
+	default:
 		var specUpdateOpts []instances.UpdateOpt
 		updateSpecOpts := instances.UpdateSpecOpts{
 			Resize: instances.SpecOpts{
@@ -1097,7 +1090,6 @@ func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *go
 		}
 		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 			updateSpecOpts.IsAutoPay = true
-
 		}
 		opt := instances.UpdateOpt{
 			Param:  "resize",
@@ -1106,10 +1098,11 @@ func flavorSpecCodeUpdate(ctx context.Context, config *config.Config, client *go
 			Method: "post",
 		}
 		specUpdateOpts = append(specUpdateOpts, opt)
-		err := flavorUpdate(ctx, config, client, d, specUpdateOpts)
+		err := flavorUpdate(ctx, conf, client, d, specUpdateOpts)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }

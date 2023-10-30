@@ -8,14 +8,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
-	"github.com/chnsz/golangsdk/openstack/dds/v3/roles"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/dds/v3/roles"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -226,15 +228,15 @@ func flattenDatabaseRoles(roleList []roles.RoleDetail) []map[string]interface{} 
 	return result
 }
 
-func flattenDatabasePrivilegeResource(resource roles.Resource) []map[string]interface{} {
-	if (resource == roles.Resource{}) {
+func flattenDatabasePrivilegeResource(roleResource roles.Resource) []map[string]interface{} {
+	if (roleResource == roles.Resource{}) {
 		return nil
 	}
 
 	return []map[string]interface{}{
 		{
-			"collection": resource.Collection,
-			"db_name":    resource.DbName,
+			"collection": roleResource.Collection,
+			"db_name":    roleResource.DbName,
 		},
 	}
 }

@@ -2,15 +2,15 @@ package dds
 
 import (
 	"context"
+	"log"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/chnsz/golangsdk/openstack/dds/v3/flavors"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/dds/v3/flavors"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -75,25 +75,26 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 }
 
 func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	ddsClient, err := config.DdsV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	ddsClient, err := conf.DdsV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s", err)
+		return diag.Errorf("Error creating DDS client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{
-		Region:     config.GetRegion(d),
+		Region:     region,
 		EngineName: d.Get("engine_name").(string),
 	}
 
 	pages, err := flavors.List(ddsClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve flavors: %s", err)
+		return diag.Errorf("Unable to retrieve flavors: %s", err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to extract flavors: %s", err)
+		return diag.Errorf("Unable to extract flavors: %s", err)
 	}
 
 	flavorList := make([]map[string]interface{}, 0)
@@ -115,20 +116,20 @@ func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta i
 		flavorList = append(flavorList, flavor)
 	}
 
-	logp.Printf("Extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
+	log.Printf("[DEBUG] extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
 	if len(flavorList) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId("dds flavors")
 	mErr := multierror.Append(
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("flavors", flavorList),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting dds instance fields: %s", err)
+		return diag.Errorf("Error setting dds instance fields: %s", err)
 	}
 
 	return nil

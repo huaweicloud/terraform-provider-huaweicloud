@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getDdsResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DdsV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return nil, fmt.Errorf("Error creating DDS client: %s", err)
 	}
 
 	opts := instances.ListInstanceOpts{
@@ -27,18 +27,17 @@ func getDdsResourceFunc(c *config.Config, state *terraform.ResourceState) (inter
 	if err != nil {
 		return nil, err
 	}
-	instances, err := instances.ExtractInstances(allPages)
+	instanceList, err := instances.ExtractInstances(allPages)
 	if err != nil {
 		return nil, err
 	}
-	if instances.TotalCount == 0 {
-		return nil, fmtp.Errorf("dds instance not found.")
+	if instanceList.TotalCount == 0 {
+		return nil, fmt.Errorf("dds instance not found")
 	}
 
-	insts := instances.Instances
+	insts := instanceList.Instances
 	found := insts[0]
 	return &found, nil
-
 }
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
@@ -298,18 +297,7 @@ func TestAccDDSV3Instance_withConfigurationSingle(t *testing.T) {
 func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, groupType, key string, v interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if key == "num" {
-			if groupType == "mongos" {
-				for _, group := range instance.Groups {
-					if group.Type == "mongos" {
-						if len(group.Nodes) != v.(int) {
-							return fmtp.Errorf(
-								"Error updating HuaweiCloud DDS instance: num of mongos nodes expect %d, but got %d",
-								v.(int), len(group.Nodes))
-						}
-						return nil
-					}
-				}
-			} else {
+			if groupType != "mongos" {
 				groupIDs := make([]string, 0)
 				for _, group := range instance.Groups {
 					if group.Type == "shard" {
@@ -317,11 +305,22 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 					}
 				}
 				if len(groupIDs) != v.(int) {
-					return fmtp.Errorf(
-						"Error updating HuaweiCloud DDS instance: num of shard groups expect %d, but got %d",
+					return fmt.Errorf(
+						"Error updating DDS instance: num of shard groups expect %d, but got %d",
 						v.(int), len(groupIDs))
 				}
 				return nil
+			}
+
+			for _, group := range instance.Groups {
+				if group.Type == "mongos" {
+					if len(group.Nodes) != v.(int) {
+						return fmt.Errorf(
+							"Error updating DDS instance: num of mongos nodes expect %d, but got %d",
+							v.(int), len(group.Nodes))
+					}
+					return nil
+				}
 			}
 		}
 
@@ -329,8 +328,8 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 			for _, group := range instance.Groups {
 				if group.Type == groupType {
 					if group.Volume.Size != v.(string) {
-						return fmtp.Errorf(
-							"Error updating HuaweiCloud DDS instance: size expect %s, but got %s",
+						return fmt.Errorf(
+							"Error updating DDS instance: size expect %s, but got %s",
 							v.(string), group.Volume.Size)
 					}
 					return nil
@@ -343,8 +342,8 @@ func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, group
 				if group.Type == groupType {
 					for _, node := range group.Nodes {
 						if node.SpecCode != v.(string) {
-							return fmtp.Errorf(
-								"Error updating HuaweiCloud DDS instance: spec_code expect %s, but got %s",
+							return fmt.Errorf(
+								"Error updating DDS instance: spec_code expect %s, but got %s",
 								v.(string), node.SpecCode)
 						}
 					}
