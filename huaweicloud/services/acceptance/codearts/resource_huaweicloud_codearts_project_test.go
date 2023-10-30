@@ -5,29 +5,30 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getProjectResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getProjectResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getProject: Query the Project
 	var (
 		getProjectHttpUrl = "v4/projects/{id}"
 		getProjectProduct = "projectman"
 	)
-	getProjectClient, err := config.NewServiceClient(getProjectProduct, region)
+	getProjectClient, err := cfg.NewServiceClient(getProjectProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Project Client: %s", err)
 	}
 
 	getProjectPath := getProjectClient.Endpoint + getProjectHttpUrl
-	getProjectPath = strings.Replace(getProjectPath, "{id}", state.Primary.ID, -1)
+	getProjectPath = strings.ReplaceAll(getProjectPath, "{id}", state.Primary.ID)
 
 	getProjectOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
