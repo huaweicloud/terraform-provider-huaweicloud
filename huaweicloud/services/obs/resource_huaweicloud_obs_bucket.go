@@ -446,16 +446,11 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("enterprise_project_id") && !d.IsNewResource() {
-		epsClient, err := conf.EnterpriseProjectClient(region)
-		if err != nil {
-			return diag.Errorf("error creating EPS client: %s", err)
-		}
-
 		// API Limitations: still requires `project_id` field when migrating the EPS of OBS bucket
-		projectID := conf.GetProjectID(region)
-		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, obsClient, epsClient, region, projectID); err != nil {
+		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, conf, obsClient, region); err != nil {
 			return diag.FromErr(err)
 		}
+
 	}
 
 	if d.HasChange("user_domain_names") {
@@ -1004,37 +999,37 @@ func deleteObsBucketUserDomainNames(obsClient *obs.ObsClient, bucket string, dom
 	return nil
 }
 
-func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData,
-	obsClient *obs.ObsClient, epsClient *golangsdk.ServiceClient, region, projectID string) error {
-	bucket := d.Get("bucket").(string)
-	targetEPSId := d.Get("enterprise_project_id").(string)
-
-	migrateOpts := enterpriseprojects.MigrateResourceOpts{
-		RegionId:     region,
-		ProjectId:    projectID,
-		ResourceType: "bucket",
-		ResourceId:   bucket,
-	}
-
-	if err := common.MigrateEnterpriseProject(epsClient, targetEPSId, migrateOpts); err != nil {
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+	obsClient *obs.ObsClient, region string) error {
+	var (
+		projectId   = conf.GetProjectID(region)
+		bucket      = d.Get("bucket").(string)
+		migrateOpts = enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   bucket,
+			ResourceType: "bucket",
+			RegionId:     region,
+			ProjectId:    projectId,
+		}
+	)
+	err := common.MigrateEnterpriseProjectWithoutWait(conf, d, migrateOpts)
+	if err != nil {
 		return err
 	}
 
-	// wait for the Enterprise Project ID changed in OBS
+	// After the EPS service side updates enterprise project ID, it will take a few time to wait the OBS service
+	// read the data back into the database.
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Pending"},
 		Target:       []string{"Success"},
-		Refresh:      waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, targetEPSId),
+		Refresh:      waitForOBSEnterpriseProjectIdChanged(obsClient, bucket, d.Get("enterprise_project_id").(string)),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return getObsError("Error waiting for obs Enterprise Project ID changed", bucket, err)
+		return getObsError("error waiting for obs enterprise project ID changed", bucket, err)
 	}
-
 	return nil
 }
 

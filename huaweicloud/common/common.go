@@ -21,7 +21,6 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/resources"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -54,35 +53,6 @@ func GetRegion(d *schema.ResourceData, config *config.Config) string {
 	}
 
 	return config.Region
-}
-
-// GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
-// If it was not set, the provider-level value is checked. The provider-level value can
-// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
-func GetEnterpriseProjectID(d *schema.ResourceData, config *config.Config) string {
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		return v.(string)
-	}
-
-	return config.EnterpriseProjectID
-}
-
-func MigrateEnterpriseProject(client *golangsdk.ServiceClient, targetEPSId string, migrateOpts enterpriseprojects.MigrateResourceOpts) error {
-	if targetEPSId == "" {
-		targetEPSId = "0"
-	} else {
-		// check enterprise_project_id existed
-		if result := enterpriseprojects.Get(client, targetEPSId); result.Err != nil {
-			return fmt.Errorf("failed to query the target enterprise project %s: %s", targetEPSId, result.Err)
-		}
-	}
-
-	migrateResult := enterpriseprojects.Migrate(client, migrateOpts, targetEPSId)
-	if err := migrateResult.Err; err != nil {
-		return fmt.Errorf("failed to migrate %s to enterprise project %s, err: %s", migrateOpts.ResourceId, targetEPSId, err)
-	}
-
-	return nil
 }
 
 // GetEipIDbyAddress returns the EIP ID of address when success.

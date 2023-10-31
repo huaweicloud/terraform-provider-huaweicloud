@@ -115,18 +115,31 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 	resourceName := "huaweicloud_vpc.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcV1_epsId(rName),
+				Config: testAccVpcV1_epsId(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists(resourceName, &vpc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testAccVpcV1_epsId(rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -307,14 +320,14 @@ resource "huaweicloud_vpc" "test" {
 `, rName)
 }
 
-func testAccVpcV1_epsId(rName string) string {
+func testAccVpcV1_epsId(rName, epsId string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   cidr                  = "192.168.0.0/16"
-  enterprise_project_id = "%s"
+  enterprise_project_id = "%[2]s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, epsId)
 }
 
 func testAccVpcV1_WithCustomRegion(name1, name2, region string) string {
