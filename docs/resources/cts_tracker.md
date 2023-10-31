@@ -33,6 +33,10 @@ The following arguments are supported:
 
 * `lts_enabled` - (Optional, Bool) Specifies whether trace analysis is enabled.
 
+* `organization_enabled` - (Optional, Bool) Specifies whether to apply the tracker configuration to the organization.
+  If the value is set to **true**, the audit logs of all members in the organization in the current region will be
+  transferred to the OBS bucket or LTS log stream configured for the management tracker.
+
 * `validate_file` - (Optional, Bool) Specifies whether trace file verification is enabled during trace transfer.
 
 * `kms_id` - (Optional, String) Specifies the ID of KMS key used for trace file encryption.
