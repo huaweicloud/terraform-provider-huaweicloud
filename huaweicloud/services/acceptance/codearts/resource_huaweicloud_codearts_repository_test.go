@@ -5,29 +5,30 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRepositoryResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getRepositoryResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getRepository: Query the resource detail of the CodeHub repository
 	var (
 		getRepositoryHttpUrl = "v2/repositories/{repository_uuid}"
 		getRepositoryProduct = "codehub"
 	)
-	getRepositoryClient, err := config.NewServiceClient(getRepositoryProduct, region)
+	getRepositoryClient, err := cfg.NewServiceClient(getRepositoryProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating repository client: %s", err)
 	}
 
 	getRepositoryPath := getRepositoryClient.Endpoint + getRepositoryHttpUrl
-	getRepositoryPath = strings.Replace(getRepositoryPath, "{repository_uuid}", state.Primary.ID, -1)
+	getRepositoryPath = strings.ReplaceAll(getRepositoryPath, "{repository_uuid}", state.Primary.ID)
 
 	getRepositoryOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
