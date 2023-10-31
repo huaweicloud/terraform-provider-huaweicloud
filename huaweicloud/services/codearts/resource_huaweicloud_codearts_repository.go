@@ -228,7 +228,7 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta 
 			200,
 		},
 	}
-	createRepositoryOpt.JSONBody = buildCreateRepositoryBodyParams(d, cfg)
+	createRepositoryOpt.JSONBody = buildCreateRepositoryBodyParams(d)
 	createRepositoryResp, err := createRepositoryClient.Request("POST", createRepositoryPath, &createRepositoryOpt)
 	if err != nil {
 		return diag.Errorf("error creating CodeHub repository: %s", err)
@@ -250,7 +250,7 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceRepositoryRead(ctx, d, meta)
 }
 
-func buildCreateRepositoryBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
+func buildCreateRepositoryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":             utils.ValueIngoreEmpty(d.Get("name")),
 		"project_uuid":     utils.ValueIngoreEmpty(d.Get("project_id")),

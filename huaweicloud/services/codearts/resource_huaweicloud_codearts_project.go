@@ -233,7 +233,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				204,
 			},
 		}
-		updateProjectOpt.JSONBody = utils.RemoveNil(buildUpdateProjectBodyParams(d, cfg))
+		updateProjectOpt.JSONBody = utils.RemoveNil(buildUpdateProjectBodyParams(d))
 		_, err = updateProjectClient.Request("PUT", updateProjectPath, &updateProjectOpt)
 		if err != nil {
 			return diag.Errorf("error updating Project: %s", err)
@@ -242,7 +242,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceProjectRead(ctx, d, meta)
 }
 
-func buildUpdateProjectBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
+func buildUpdateProjectBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"project_name": utils.ValueIngoreEmpty(d.Get("name")),
 		"description":  utils.ValueIngoreEmpty(d.Get("description")),
