@@ -12,9 +12,9 @@ Manages CTS **system** tracker resource within HuaweiCloud.
 variable "bucket_name" {}
 
 resource "huaweicloud_cts_tracker" "tracker" {
-  bucket_name          = var.bucket_name
-  file_prefix          = "cts"
-  lts_enabled          = true
+  bucket_name = var.bucket_name
+  file_prefix = "cts"
+  lts_enabled = true
 }
 ```
 
