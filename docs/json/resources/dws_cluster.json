@@ -95,7 +95,6 @@
               },
               "number_of_cn": {
                 "type": "number",
-                "description": "schema: Required",
                 "required": true,
                 "forcenew": true
               },
@@ -191,7 +190,6 @@
               },
               "version": {
                 "type": "string",
-                "description": "schema: Required",
                 "required": true,
                 "forcenew": true
               },

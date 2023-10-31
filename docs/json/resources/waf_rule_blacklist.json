@@ -41,7 +41,6 @@
               },
               "name": {
                 "type": "string",
-                "description": "schema: Required",
                 "required": true
               },
               "policy_id": {
@@ -52,6 +51,11 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "status": {
+                "type": "number",
+                "optional": true,
+                "default": 1
               }
             }
           },

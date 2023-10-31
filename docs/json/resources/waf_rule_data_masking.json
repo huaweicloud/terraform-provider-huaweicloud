@@ -5,6 +5,11 @@
         "huaweicloud_waf_rule_data_masking": {
           "block": {
             "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
@@ -30,6 +35,11 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "status": {
+                "type": "number",
+                "optional": true,
+                "default": 1
               },
               "subfield": {
                 "type": "string",

@@ -32,6 +32,11 @@
                 "type": "string",
                 "computed": true
               },
+              "known_attack_source_id": {
+                "type": "string",
+                "description": "Specifies the known attack source ID.",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of WAF precise protection rule.",

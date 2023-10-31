@@ -79,12 +79,15 @@
               },
               "flavor_id": {
                 "type": "string",
-                "description": "schema: Required",
                 "required": true
               },
               "flavor_name": {
                 "type": "string",
-                "description": "schema: Computed",
+                "computed": true
+              },
+              "hostname": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "id": {
@@ -159,7 +162,6 @@
                   "set",
                   "string"
                 ],
-                "description": "schema: Computed",
                 "computed": true
               },
               "spot_duration": {
@@ -186,6 +188,11 @@
                 "type": "bool",
                 "optional": true,
                 "default": false
+              },
+              "system_disk_dss_pool_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "system_disk_id": {
                 "type": "string",
@@ -292,6 +299,11 @@
               "data_disks": {
                 "block": {
                   "attributes": {
+                    "dss_pool_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "iops": {
                       "type": "number",
                       "optional": true,
@@ -344,7 +356,6 @@
                     },
                     "fixed_ip_v6": {
                       "type": "string",
-                      "description": "schema: Computed",
                       "computed": true
                     },
                     "ipv6_enable": {
@@ -358,7 +369,6 @@
                     },
                     "port": {
                       "type": "string",
-                      "description": "schema: Computed",
                       "computed": true
                     },
                     "source_dest_check": {
@@ -368,7 +378,6 @@
                     },
                     "uuid": {
                       "type": "string",
-                      "description": "schema: Required",
                       "required": true,
                       "forcenew": true
                     }

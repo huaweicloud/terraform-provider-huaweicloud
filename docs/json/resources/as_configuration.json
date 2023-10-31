@@ -81,7 +81,6 @@
                         "list",
                         "string"
                       ],
-                      "description": "schema: Required",
                       "required": true,
                       "forcenew": true
                     },

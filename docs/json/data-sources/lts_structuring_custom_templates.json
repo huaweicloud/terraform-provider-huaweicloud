@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_structuring_custom_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the custom template name to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the template to be queried.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "demo_log": "string",
+                      "id": "string",
+                      "name": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of structuring custom templates",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the custom template type to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

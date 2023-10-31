@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_custom_template": {
+          "block": {
+            "attributes": {
+              "cache_mode": {
+                "type": "string",
+                "description": "Indicates the DCS instance type.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the template.",
+                "optional": true
+              },
+              "engine": {
+                "type": "string",
+                "description": "Indicates the cache engine.",
+                "computed": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Indicates the cache engine version.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the template.",
+                "required": true
+              },
+              "product_type": {
+                "type": "string",
+                "description": "Indicates the product edition.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "Specifies the type of the source template.",
+                "required": true,
+                "forcenew": true
+              },
+              "storage_type": {
+                "type": "string",
+                "description": "Indicates the storage type.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the source template.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the type of the template.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "params": {
+                "block": {
+                  "attributes": {
+                    "default_value": {
+                      "type": "string",
+                      "description": "Indicates the default value of the param.",
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Indicates the description of the param.",
+                      "computed": true
+                    },
+                    "need_restart": {
+                      "type": "bool",
+                      "description": "Indicates whether the DCS instance need restart.",
+                      "computed": true
+                    },
+                    "param_id": {
+                      "type": "string",
+                      "description": "Indicates the ID of the param.",
+                      "computed": true
+                    },
+                    "param_name": {
+                      "type": "string",
+                      "description": "Indicates the name of the param.",
+                      "required": true
+                    },
+                    "param_value": {
+                      "type": "string",
+                      "description": "Indicates the value of the param.",
+                      "required": true
+                    },
+                    "value_range": {
+                      "type": "string",
+                      "description": "Indicates the value range of the param.",
+                      "computed": true
+                    },
+                    "value_type": {
+                      "type": "string",
+                      "description": "Indicates the value type of the param.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the list of the template params."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

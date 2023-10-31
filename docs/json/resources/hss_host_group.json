@@ -16,7 +16,7 @@
                   "set",
                   "string"
                 ],
-                "description": "schema: Required; The list of host IDs.",
+                "description": "The list of host IDs.",
                 "required": true
               },
               "host_num": {

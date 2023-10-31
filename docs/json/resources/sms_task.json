@@ -99,7 +99,6 @@
                     },
                     "disk_id": {
                       "type": "string",
-                      "description": "schema: Required",
                       "required": true,
                       "forcenew": true
                     },

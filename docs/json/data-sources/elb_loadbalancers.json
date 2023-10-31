@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_loadbalancers": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv4_subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ipv6_network_id": {
+                "type": "string",
+                "optional": true
+              },
+              "l4_flavor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "l7_flavor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "optional": true
+              },
+              "loadbalancers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "autoscaling_enabled": "bool",
+                      "availability_zone": [
+                        "list",
+                        "string"
+                      ],
+                      "backend_subnets": [
+                        "list",
+                        "string"
+                      ],
+                      "cross_vpc_backend": "bool",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "ipv4_address": "string",
+                      "ipv4_port_id": "string",
+                      "ipv4_subnet_id": "string",
+                      "ipv6_address": "string",
+                      "ipv6_network_id": "string",
+                      "l4_flavor_id": "string",
+                      "l7_flavor_id": "string",
+                      "min_l7_flavor_id": "string",
+                      "name": "string",
+                      "protection_reason": "string",
+                      "protection_status": "string",
+                      "type": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

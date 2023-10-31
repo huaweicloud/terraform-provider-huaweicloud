@@ -13,6 +13,22 @@
                 "type": "number",
                 "optional": true
               },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cpu_core_count": "number",
+                      "generation": "string",
+                      "id": "string",
+                      "memory_size": "number",
+                      "performance_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "generation": {
                 "type": "string",
                 "optional": true

@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_gateway_availability_zones": {
+          "block": {
+            "attributes": {
+              "attachment_type": {
+                "type": "string",
+                "description": "Specifies the attachment type.",
+                "optional": true,
+                "default": "vpc"
+              },
+              "flavor": {
+                "type": "string",
+                "description": "Specifies the flavor name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The names of the availability zones.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

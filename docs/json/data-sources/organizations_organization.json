@@ -10,6 +10,14 @@
                 "description": "Indicates the time when the organization was created.",
                 "computed": true
               },
+              "enabled_policy_types": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Indicates the list of enabled Organizations policy types in the Organization Root.",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

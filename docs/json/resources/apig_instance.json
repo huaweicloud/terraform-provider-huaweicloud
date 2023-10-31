@@ -10,7 +10,7 @@
                   "list",
                   "string"
                 ],
-                "description": "schema: Required; The name list of availability zones for the dedicated instance.",
+                "description": "The name list of availability zones for the dedicated instance.",
                 "required": true,
                 "forcenew": true
               },

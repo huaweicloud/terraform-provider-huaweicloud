@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_gateways": {
+          "block": {
+            "attributes": {
+              "attachment_type": {
+                "type": "string",
+                "description": "Specifies the attachment type of the gateway.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of the gateway.",
+                "optional": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "Specifies the ID of the gateway.",
+                "optional": true
+              },
+              "gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_private_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "access_subnet_id": "string",
+                      "access_vpc_id": "string",
+                      "attachment_type": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "bgp_asn": "number",
+                      "connect_subnet": "string",
+                      "connection_number": "number",
+                      "created_at": "string",
+                      "eips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth_billing_info": "string",
+                            "bandwidth_id": "string",
+                            "bandwidth_name": "string",
+                            "bandwidth_size": "number",
+                            "billing_info": "string",
+                            "charge_mode": "string",
+                            "id": "string",
+                            "ip_address": "string",
+                            "ip_version": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "er_id": "string",
+                      "flavor": "string",
+                      "ha_mode": "string",
+                      "id": "string",
+                      "local_subnets": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "network_type": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "used_connection_group": "number",
+                      "used_connection_number": "number",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of gateways.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the gateway.",
+                "optional": true
+              },
+              "network_type": {
+                "type": "string",
+                "description": "Specifies the network type of the gateway.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

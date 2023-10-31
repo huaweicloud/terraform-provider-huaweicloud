@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_organizations_policy": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "Specifies the policy text content to be added to the new policy.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description to be assigned to the policy.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name to be assigned to the policy.",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the policy to be created.",
+                "required": true,
+                "forcenew": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "Indicates the uniform resource name of the policy.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -106,6 +106,14 @@
                 ],
                 "optional": true
               },
+              "user_domain_names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "versioning": {
                 "type": "bool",
                 "optional": true,

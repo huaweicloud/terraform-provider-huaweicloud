@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_structuring_custom_configuration": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "Specifies a sample log event.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "layers": {
+                "type": "number",
+                "description": "Specifies the maximum parsing layers.",
+                "optional": true
+              },
+              "log_format": {
+                "type": "string",
+                "description": "Specifies the nginx configuration.",
+                "optional": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "Specifies the log group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "Specifies the log stream ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "regex_rules": {
+                "type": "string",
+                "description": "Specifies the regular expression.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tokenizer": {
+                "type": "string",
+                "description": "Specifies the delimiter.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "demo_fields": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the content.",
+                      "optional": true
+                    },
+                    "field_name": {
+                      "type": "string",
+                      "description": "Specifies the field name.",
+                      "optional": true
+                    },
+                    "is_analysis": {
+                      "type": "bool",
+                      "description": "Specifies whether quick analysis is enabled.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the field data type.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the list of example fields."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "tag_fields": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the field content.",
+                      "optional": true
+                    },
+                    "field_name": {
+                      "type": "string",
+                      "description": "Specifies the field name.",
+                      "required": true
+                    },
+                    "is_analysis": {
+                      "type": "bool",
+                      "description": "Specifies whether quick analysis is enabled.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the field data type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tag field list."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

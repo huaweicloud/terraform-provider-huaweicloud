@@ -28,12 +28,10 @@
               },
               "device_id": {
                 "type": "string",
-                "description": "schema: Computed",
                 "computed": true
               },
               "device_owner": {
                 "type": "string",
-                "description": "schema: Computed",
                 "computed": true
               },
               "fixed_ip": {
@@ -51,7 +49,6 @@
               },
               "name": {
                 "type": "string",
-                "description": "schema: Computed",
                 "computed": true
               },
               "network_id": {

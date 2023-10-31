@@ -65,7 +65,6 @@
                           },
                           "priority": {
                             "type": "number",
-                            "description": "schema: Required",
                             "required": true
                           },
                           "rule_type": {
@@ -74,12 +73,10 @@
                           },
                           "ttl": {
                             "type": "number",
-                            "description": "schema: Required",
                             "required": true
                           },
                           "ttl_type": {
                             "type": "number",
-                            "description": "schema: Required",
                             "required": true
                           }
                         }

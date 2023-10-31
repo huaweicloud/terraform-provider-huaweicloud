@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_tms_resource_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The project ID of the resources.",
+                "optional": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The resource tags for batch management.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "resources": {
+                "block": {
+                  "attributes": {
+                    "resource_id": {
+                      "type": "string",
+                      "description": "The resource ID.",
+                      "required": true
+                    },
+                    "resource_type": {
+                      "type": "string",
+                      "description": "The resource type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The managed resource configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "TMS",
+            "name": "Tag Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "标签管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -118,7 +118,6 @@
               },
               "scaling_configuration_id": {
                 "type": "string",
-                "description": "schema: Required",
                 "required": true
               },
               "scaling_group_name": {

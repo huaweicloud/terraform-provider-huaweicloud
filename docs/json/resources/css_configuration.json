@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_configuration": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "The CSS cluster ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "http_cors_allow_credetials": {
+                "type": "string",
+                "description": "Whether to return the Access-Control-Allow-Credentials of the header during cross-domain access.",
+                "optional": true,
+                "computed": true
+              },
+              "http_cors_allow_headers": {
+                "type": "string",
+                "description": "Headers allowed for cross-domain access.",
+                "optional": true,
+                "computed": true
+              },
+              "http_cors_allow_methods": {
+                "type": "string",
+                "description": "Methods allowed for cross-domain access.",
+                "optional": true,
+                "computed": true
+              },
+              "http_cors_allow_origin": {
+                "type": "string",
+                "description": "Origin IP address allowed for cross-domain access, for example, **122.122.122.122:9200**.",
+                "optional": true,
+                "computed": true
+              },
+              "http_cors_enabled": {
+                "type": "string",
+                "description": "Whether to allow cross-domain access.",
+                "optional": true,
+                "computed": true
+              },
+              "http_cors_max_age": {
+                "type": "string",
+                "description": "Cache duration of the browser. The cache is automatically cleared after the time range you specify.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "indices_queries_cache_size": {
+                "type": "string",
+                "description": "Cache size in the query phase. Value range: **1** to **100**.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "reindex_remote_whitelist": {
+                "type": "string",
+                "description": "Configured for migrating data from the current cluster to the target cluster through the reindex API.",
+                "optional": true,
+                "computed": true
+              },
+              "thread_pool_force_merge_size": {
+                "type": "string",
+                "description": "Queue size in the force merge thread pool.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

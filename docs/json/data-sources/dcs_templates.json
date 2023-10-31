@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_templates": {
+          "block": {
+            "attributes": {
+              "cache_mode": {
+                "type": "string",
+                "description": "Specifies the DCS instance type.",
+                "optional": true
+              },
+              "engine": {
+                "type": "string",
+                "description": "Specifies the cache engine.",
+                "optional": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the cache engine version.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the template.",
+                "optional": true
+              },
+              "product_type": {
+                "type": "string",
+                "description": "Specifies the product edition.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_type": {
+                "type": "string",
+                "description": "Specifies the storage type.",
+                "optional": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the template.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cache_mode": "string",
+                      "description": "string",
+                      "engine": "string",
+                      "engine_version": "string",
+                      "name": "string",
+                      "product_type": "string",
+                      "storage_type": "string",
+                      "template_id": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DCS templates.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the template.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

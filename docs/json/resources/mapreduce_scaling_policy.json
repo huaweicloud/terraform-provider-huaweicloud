@@ -1,0 +1,204 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_mapreduce_scaling_policy": {
+          "block": {
+            "attributes": {
+              "auto_scaling_enable": {
+                "type": "bool",
+                "description": "Whether to enable the auto scaling rule.",
+                "required": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "The MRS cluster ID to which the auto scaling policy applies.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_capacity": {
+                "type": "number",
+                "description": "Maximum number of nodes in the node group. Value range: 0 to 500.",
+                "required": true
+              },
+              "min_capacity": {
+                "type": "number",
+                "description": "Minimum number of nodes in the node group. Value range: 0 to 500.",
+                "required": true
+              },
+              "node_group": {
+                "type": "string",
+                "description": "Name of the node to which an auto scaling rule applies.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "exec_scripts": {
+                "block": {
+                  "attributes": {
+                    "action_stage": {
+                      "type": "string",
+                      "description": "Time when a script is executed.",
+                      "required": true
+                    },
+                    "active_master": {
+                      "type": "bool",
+                      "description": "Whether the custom automation script runs only on the active Master node.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "fail_action": {
+                      "type": "string",
+                      "description": "Whether to continue to execute subsequent scripts and create a cluster after\n\t\t\t\t\t the custom automation script fails to be executed.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of a custom automation script.",
+                      "required": true
+                    },
+                    "nodes": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Type of a node where the custom automation script is executed.",
+                      "required": true
+                    },
+                    "parameters": {
+                      "type": "string",
+                      "description": "Parameters of a custom automation script.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "uri": {
+                      "type": "string",
+                      "description": "Path of a custom automation script.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of custom scaling automation scripts."
+                },
+                "nesting_mode": "list"
+              },
+              "resources_plans": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "description": "End time of a resource plan.",
+                      "required": true
+                    },
+                    "max_capacity": {
+                      "type": "number",
+                      "description": "Maximum number of the preserved nodes in a node group in a resource plan. Value range: 0 to 500.",
+                      "required": true
+                    },
+                    "min_capacity": {
+                      "type": "number",
+                      "description": "Minimum number of the preserved nodes in a node group in a resource plan. Value range: 0 to 500.",
+                      "required": true
+                    },
+                    "period_type": {
+                      "type": "string",
+                      "description": "Cycle type of a resource plan.",
+                      "required": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "description": "The start time of a resource plan.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of resources plans."
+                },
+                "nesting_mode": "list"
+              },
+              "rules": {
+                "block": {
+                  "attributes": {
+                    "adjustment_type": {
+                      "type": "string",
+                      "description": "Auto scaling rule adjustment type.",
+                      "required": true
+                    },
+                    "cool_down_minutes": {
+                      "type": "number",
+                      "description": "Cluster cooling time after an auto scaling rule is triggered, when no auto scaling \n\t\t\t\t\toperation is performed.",
+                      "required": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description about an auto scaling rule.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of an auto scaling rule.",
+                      "required": true
+                    },
+                    "scaling_adjustment": {
+                      "type": "number",
+                      "description": "Number of nodes that can be adjusted once. Value range: 1 to 100.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "trigger": {
+                      "block": {
+                        "attributes": {
+                          "comparison_operator": {
+                            "type": "string",
+                            "description": "Metric judgment logic operator.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "evaluation_periods": {
+                            "type": "number",
+                            "description": "Number of consecutive five-minute periods, during which a metric threshold is reached.",
+                            "required": true
+                          },
+                          "metric_name": {
+                            "type": "string",
+                            "description": "Metric name.",
+                            "required": true
+                          },
+                          "metric_value": {
+                            "type": "string",
+                            "description": "Metric threshold to trigger a rule.",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The list of auto scaling rules."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Analytics",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

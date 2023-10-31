@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_waf_access": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lts_access_stream_id": {
+                "type": "string",
+                "description": "Specifies the log stream ID for access logs.",
+                "optional": true
+              },
+              "lts_attack_stream_id": {
+                "type": "string",
+                "description": "Specifies the log stream ID for attack logs.",
+                "optional": true
+              },
+              "lts_group_id": {
+                "type": "string",
+                "description": "Specifies the log group ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

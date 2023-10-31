@@ -242,14 +242,19 @@
                             "description": "The ID of the CCE cluster.",
                             "required": true
                           },
+                          "label_key": {
+                            "type": "string",
+                            "description": "The service label key.",
+                            "required": true
+                          },
+                          "label_value": {
+                            "type": "string",
+                            "description": "The service label value.",
+                            "required": true
+                          },
                           "namespace": {
                             "type": "string",
                             "description": "The name of the CCE namespace.",
-                            "required": true
-                          },
-                          "workload_name": {
-                            "type": "string",
-                            "description": "The workload name.",
                             "required": true
                           },
                           "workload_type": {

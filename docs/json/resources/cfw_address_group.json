@@ -7,7 +7,7 @@
             "attributes": {
               "address_type": {
                 "type": "number",
-                "description": "schema: Computed; Specifies the Address type.",
+                "description": "Specifies the Address type.",
                 "computed": true
               },
               "description": {

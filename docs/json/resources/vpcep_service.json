@@ -31,6 +31,12 @@
                 "optional": true,
                 "computed": true
               },
+              "enable_policy": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -65,7 +71,6 @@
               },
               "service_type": {
                 "type": "string",
-                "description": "schema: Computed",
                 "computed": true,
                 "default": "interface"
               },
@@ -97,12 +102,10 @@
                     },
                     "service_port": {
                       "type": "number",
-                      "description": "schema: Required",
                       "required": true
                     },
                     "terminal_port": {
                       "type": "number",
-                      "description": "schema: Required",
                       "required": true
                     }
                   }

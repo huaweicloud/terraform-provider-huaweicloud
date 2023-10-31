@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_mapreduce_clusters": {
+          "block": {
+            "attributes": {
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "billing_type": "string",
+                      "component_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "component_desc": "string",
+                            "component_id": "string",
+                            "component_name": "string",
+                            "component_version": "string"
+                          }
+                        ]
+                      ],
+                      "core_data_volume_count": "number",
+                      "core_data_volume_size": "number",
+                      "core_data_volume_type": "string",
+                      "core_node_num": "string",
+                      "core_node_product_id": "string",
+                      "core_node_size": "string",
+                      "core_node_spec_id": "string",
+                      "deployment_id": "string",
+                      "description": "string",
+                      "duration": "string",
+                      "eip_address": "string",
+                      "eip_id": "string",
+                      "eipv6_address": "string",
+                      "enterprise_project_id": "string",
+                      "external_alternate_ip": "string",
+                      "external_ip": "string",
+                      "fee": "string",
+                      "hadoop_version": "string",
+                      "id": "string",
+                      "internal_ip": "string",
+                      "log_collection": "number",
+                      "master_data_volume_count": "number",
+                      "master_data_volume_size": "number",
+                      "master_data_volume_type": "string",
+                      "master_node_ip": "string",
+                      "master_node_num": "string",
+                      "master_node_product_id": "string",
+                      "master_node_size": "string",
+                      "master_node_spec_id": "string",
+                      "name": "string",
+                      "node_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_volume_count": "number",
+                            "data_volume_product_id": "string",
+                            "data_volume_resource_spec_code": "string",
+                            "data_volume_resource_type": "string",
+                            "data_volume_size": "number",
+                            "data_volume_type": "string",
+                            "group_name": "string",
+                            "node_num": "number",
+                            "node_product_id": "string",
+                            "node_size": "string",
+                            "node_spec_id": "string",
+                            "root_volume_product_id": "string",
+                            "root_volume_resource_spec_code": "string",
+                            "root_volume_resource_type": "string",
+                            "root_volume_size": "number",
+                            "root_volume_type": "string",
+                            "vm_product_id": "string",
+                            "vm_spec_code": "string"
+                          }
+                        ]
+                      ],
+                      "node_public_cert_name": "string",
+                      "order_id": "string",
+                      "period_type": "number",
+                      "private_ip_first": "string",
+                      "safe_mode": "number",
+                      "scale": "string",
+                      "security_group_id": "string",
+                      "slave_security_group_id": "string",
+                      "stage_desc": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "task_node_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_volume_count": "number",
+                            "data_volume_product_id": "string",
+                            "data_volume_resource_spec_code": "string",
+                            "data_volume_resource_type": "string",
+                            "data_volume_size": "number",
+                            "data_volume_type": "string",
+                            "group_name": "string",
+                            "node_num": "number",
+                            "node_product_id": "string",
+                            "node_size": "string",
+                            "node_spec_id": "string",
+                            "root_volume_product_id": "string",
+                            "root_volume_resource_spec_code": "string",
+                            "root_volume_resource_type": "string",
+                            "root_volume_size": "number",
+                            "root_volume_type": "string",
+                            "vm_product_id": "string",
+                            "vm_spec_code": "string"
+                          }
+                        ]
+                      ],
+                      "total_node_num": "string",
+                      "type": "number",
+                      "version": "string",
+                      "vnc": "string",
+                      "volume_size": "number",
+                      "volume_type": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of clusters.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID used to query clusters in a specified enterprise project.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of cluster.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of cluster.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "You can search for a cluster by its tags.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Analytics",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -51,9 +51,19 @@
               "sources": {
                 "block": {
                   "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "The creation time of the event source.",
+                      "computed": true
+                    },
                     "filter_rule": {
                       "type": "string",
                       "description": "The filter rule of the event source",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the event source.",
                       "required": true
                     },
                     "name": {
@@ -65,13 +75,17 @@
                       "type": "string",
                       "description": "The provider type of the event source.",
                       "required": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "The latest update time of the event source.",
+                      "computed": true
                     }
                   },
                   "description": "The list of the event sources."
                 },
-                "nesting_mode": "list",
-                "min_items": 1,
-                "max_items": 1
+                "nesting_mode": "set",
+                "min_items": 1
               },
               "targets": {
                 "block": {
@@ -80,6 +94,11 @@
                       "type": "string",
                       "description": "The connection ID of the EG event target.",
                       "optional": true
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "description": "The creation time of the event target.",
+                      "computed": true
                     },
                     "dead_letter_queue": {
                       "type": "string",
@@ -97,6 +116,11 @@
                       "description": "The name (key) of the target configuration detail.",
                       "required": true
                     },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the event target.",
+                      "required": true
+                    },
                     "name": {
                       "type": "string",
                       "description": "The name of the event target.",
@@ -111,11 +135,16 @@
                       "type": "string",
                       "description": "The transform configuration of the event target, in JSON format.",
                       "required": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "The latest update time of the event target.",
+                      "computed": true
                     }
                   },
                   "description": "The list of the event targets."
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "min_items": 1
               }
             }

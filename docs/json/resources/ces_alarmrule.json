@@ -104,7 +104,6 @@
                     },
                     "metric_name": {
                       "type": "string",
-                      "description": "schema: Required",
                       "required": true
                     },
                     "period": {

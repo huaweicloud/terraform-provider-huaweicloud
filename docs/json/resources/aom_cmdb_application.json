@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_cmdb_application": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "display_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "register_type": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

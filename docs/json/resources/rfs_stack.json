@@ -80,13 +80,13 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "description": "schema: Required; The name of IAM agency authorized to IAC account for resources modification.",
+                      "description": "The name of IAM agency authorized to IAC account for resources modification.",
                       "required": true,
                       "forcenew": true
                     },
                     "provider_name": {
                       "type": "string",
-                      "description": "schema: Required; The name of the provider corresponding to the IAM agency.",
+                      "description": "The name of the provider corresponding to the IAM agency.",
                       "required": true,
                       "forcenew": true
                     }

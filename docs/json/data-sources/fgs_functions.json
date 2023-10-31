@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_functions": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "functions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency": "string",
+                      "app_agency": "string",
+                      "code_filename": "string",
+                      "code_type": "string",
+                      "code_url": "string",
+                      "description": "string",
+                      "encrypted_user_data": "string",
+                      "enterprise_project_id": "string",
+                      "functiongraph_version": "string",
+                      "handler": "string",
+                      "initializer_handler": "string",
+                      "initializer_timeout": "number",
+                      "log_group_id": "string",
+                      "log_stream_id": "string",
+                      "max_instance_num": "string",
+                      "memory_size": "number",
+                      "name": "string",
+                      "network_id": "string",
+                      "package": "string",
+                      "runtime": "string",
+                      "timeout": "number",
+                      "urn": "string",
+                      "user_data": "string",
+                      "version": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "package_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "optional": true
+              },
+              "urn": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

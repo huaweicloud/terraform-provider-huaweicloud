@@ -23,8 +23,7 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "schema:{\"Computed\":true};The enterprise project ID.",
-                "optional": true,
+                "description": "The enterprise project ID.",
                 "computed": true
               },
               "gateway_id": {
@@ -156,12 +155,6 @@
                     "peer_id_type": {
                       "type": "string",
                       "description": "The peer ID type.",
-                      "optional": true,
-                      "computed": true
-                    },
-                    "pfs": {
-                      "type": "string",
-                      "description": "schema:{\"Deprecated\":true};The DH key group used by PFS.",
                       "optional": true,
                       "computed": true
                     },

@@ -10,7 +10,6 @@
                   "list",
                   "string"
                 ],
-                "description": "schema: Required",
                 "required": true
               },
               "creation_time": {

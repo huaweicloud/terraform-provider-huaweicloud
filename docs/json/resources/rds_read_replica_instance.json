@@ -160,7 +160,6 @@
                   "attributes": {
                     "disk_encryption_id": {
                       "type": "string",
-                      "description": "schema: Computed",
                       "computed": true
                     },
                     "limit_size": {

@@ -39,7 +39,6 @@
               },
               "ip_version": {
                 "type": "number",
-                "description": "schema: Computed",
                 "computed": true,
                 "default": 4
               },

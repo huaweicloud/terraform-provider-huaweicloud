@@ -134,7 +134,6 @@
               },
               "eni_subnet_cidr": {
                 "type": "string",
-                "description": "schema: Computed",
                 "computed": true
               },
               "eni_subnet_id": {

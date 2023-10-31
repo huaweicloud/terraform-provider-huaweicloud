@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_smn_message_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the message template.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "Specifies the protocol of the message template.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the message template ID.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "protocol": "string",
+                      "tag_names": [
+                        "list",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of message templates.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

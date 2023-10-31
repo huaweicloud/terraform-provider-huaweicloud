@@ -5,6 +5,12 @@
         "huaweicloud_waf_rule_web_tamper_protection": {
           "block": {
             "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "domain": {
                 "type": "string",
                 "required": true,
@@ -32,6 +38,11 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "status": {
+                "type": "number",
+                "optional": true,
+                "default": 1
               }
             }
           },

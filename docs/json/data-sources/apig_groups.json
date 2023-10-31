@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_groups": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "environment": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "environment_id": "string",
+                            "variable": [
+                              "set",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "is_default": "number",
+                      "name": "string",
+                      "on_sell_status": "number",
+                      "sl_domain": "string",
+                      "sl_domains": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "number",
+                      "updated_at": "string",
+                      "url_domains": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cname_status": "number",
+                            "id": "string",
+                            "is_has_trusted_root_ca": "bool",
+                            "min_ssl_version": "string",
+                            "name": "string",
+                            "ssl_id": "string",
+                            "ssl_name": "string",
+                            "verified_client_certificate_enabled": "bool"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

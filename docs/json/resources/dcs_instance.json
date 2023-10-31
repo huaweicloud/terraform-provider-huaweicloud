@@ -20,7 +20,6 @@
                   "list",
                   "string"
                 ],
-                "description": "schema: Required",
                 "required": true,
                 "forcenew": true
               },
@@ -68,7 +67,6 @@
               },
               "flavor": {
                 "type": "string",
-                "description": "schema: Required",
                 "required": true
               },
               "id": {
@@ -225,6 +223,25 @@
                 },
                 "nesting_mode": "list",
                 "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               },
               "whitelists": {
                 "block": {

@@ -7,8 +7,7 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "required": true,
                 "forcenew": true
               },
               "cidr": {

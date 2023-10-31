@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_mapreduce_versions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "List of available cluster versions",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "MRS",
+            "name": "MapReduce Service",
+            "catalog": "Analytics",
+            "name_cn": "MapReduce服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

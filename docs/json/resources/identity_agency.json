@@ -18,7 +18,6 @@
               },
               "delegated_domain_name": {
                 "type": "string",
-                "description": "schema: Required",
                 "required": true
               },
               "description": {

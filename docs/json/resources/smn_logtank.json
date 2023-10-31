@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_smn_logtank": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "required": true
+              },
+              "logtank_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

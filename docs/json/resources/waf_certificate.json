@@ -8,7 +8,7 @@
               "certificate": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "sensitive": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -30,7 +30,7 @@
               "private_key": {
                 "type": "string",
                 "required": true,
-                "forcenew": true
+                "sensitive": true
               },
               "region": {
                 "type": "string",
