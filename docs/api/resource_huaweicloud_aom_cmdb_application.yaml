@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_aom_cmdb_application
+    description: Manages an AOM application resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: AOM
+servers:
+    - url: https://aom.cn-east-3.myhuaweicloud.com
+paths:
+    /v1/applications:
+        POST:
+            tag: AOM
+            operationId: CreateApplication
+            x-ref-api: POST /v1/applications
+    /v1/applications/{id}:
+        DELETE:
+            tag: AOM
+            operationId: DeleteApplication
+            x-ref-api: DELETE /v1/applications/{id}
+        GET:
+            tag: AOM
+            operationId: GetApplication
+            x-ref-api: GET /v1/applications/{id}
+        PUT:
+            tag: AOM
+            operationId: UpdateApplication
+            x-ref-api: PUT /v1/applications/{id}

@@ -107,6 +107,16 @@ paths:
     get:
       tag: OBS
       operationId: GetBucketWebsiteConfiguration
+  ?customdomain:
+    put:
+      tag: OBS
+      operationId: SetBucketCustomDomain
+    delete:
+      tag: OBS
+      operationId: DeleteBucketCustomDomain
+    get:
+      tag: OBS
+      operationId: GetBucketCustomDomain
   ?delete:
     post:
       tag: OBS

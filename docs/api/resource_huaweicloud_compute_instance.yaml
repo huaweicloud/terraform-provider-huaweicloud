@@ -48,9 +48,6 @@ paths:
     get:
       tag: ECS
       operationId: Get
-    get:
-      tag: ECS
-      operationId: Get
     put:
       tag: ECS
       operationId: Update

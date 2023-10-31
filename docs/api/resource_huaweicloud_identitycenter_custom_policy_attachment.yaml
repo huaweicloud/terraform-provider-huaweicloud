@@ -1,0 +1,22 @@
+info:
+    title: resource_huaweicloud_identitycenter_custom_policy_attachment
+    description: Manages an Identity Center custom policy attachment resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: IdentityCenter
+servers:
+    - url: https://identitycenter.myhuaweicloud.com
+paths:
+    /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy:
+        DELETE:
+            tag: IdentityCenter
+            operationId: DeleteCustomPolicyAttachment
+            x-ref-api: DELETE /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy
+        GET:
+            tag: IdentityCenter
+            operationId: GetCustomPolicyAttachment
+            x-ref-api: GET /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy
+        PUT:
+            tag: IdentityCenter
+            operationId: AddCustomPolicyAttachment
+            x-ref-api: PUT /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy

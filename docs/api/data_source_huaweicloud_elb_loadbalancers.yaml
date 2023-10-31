@@ -1,0 +1,9 @@
+info:
+  version: 
+  title: data_source_huaweicloud_elb_loadbalancers
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+paths:

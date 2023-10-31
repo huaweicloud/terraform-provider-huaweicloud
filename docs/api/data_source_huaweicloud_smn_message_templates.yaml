@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_smn_message_templates
+    description: Use this data source to get the list of SMN message templates.
+host: myhuaweicloud.com
+tags:
+    - name: SMN
+servers:
+    - url: https://smn.cn-north-4.myhuaweicloud.com
+paths:
+    /v2/{project_id}/notifications/message_template:
+        GET:
+            tag: SMN
+            operationId: GetMessageTemplate
+            x-ref-api: GET /v2/{project_id}/notifications/message_template

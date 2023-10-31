@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_vpn_gateways
+    description: Use this data source to get the list of VPN gateways.
+host: myhuaweicloud.com
+tags:
+    - name: VPN
+servers:
+    - url: https://vpn.cn-north-4.myhuaweicloud.com
+paths:
+    /v5/{project_id}/vpn-gateways:
+        GET:
+            tag: VPN
+            operationId: GetGateways
+            x-ref-api: GET /v5/{project_id}/vpn-gateways

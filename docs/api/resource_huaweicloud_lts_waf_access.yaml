@@ -1,0 +1,19 @@
+info:
+    title: resource_huaweicloud_lts_waf_access
+    description: Manages an LTS access WAF logs configuration resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: LTS
+servers:
+    - url: https://waf.cn-north-4.myhuaweicloud.com
+paths:
+    /v1/{project_id}/waf/config/lts:
+        GET:
+            tag: WAF
+            operationId: GetWAFAccess
+            x-ref-api: GET /v1/{project_id}/waf/config/lts
+    /v1/{project_id}/waf/config/lts/{ltsconfig_id}:
+        PUT:
+            tag: WAF
+            operationId: CreateWAFAccess
+            x-ref-api: PUT /v1/{project_id}/waf/config/lts/{ltsconfig_id}

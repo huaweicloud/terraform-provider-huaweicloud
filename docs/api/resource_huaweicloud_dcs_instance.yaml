@@ -31,6 +31,10 @@ paths:
     put:
       tag: DCS
       operationId: Put
+  /v2/{project_id}/instances/status:
+    put:
+      tag: DCS
+      operationId: RestartOrFlushInstance
   /v2/{project_id}/instances/{id}/password:
     put:
       tag: DCS
@@ -49,6 +53,13 @@ paths:
     put:
       tag: DCS
       operationId: Update
+  /v2/{project_id}/instances/{instancesId}/configs:
+    get:
+      tag: DCS
+      operationId: GetConfigurations
+    put:
+      tag: DCS
+      operationId: ModifyConfiguration
   /v2/{project_id}/instances:
     post:
       tag: DCS
