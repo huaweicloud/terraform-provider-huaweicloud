@@ -67,6 +67,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/identitycenter"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iec"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/koogallery"
@@ -960,8 +961,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_security_group_rule": resourceIecSecurityGroupRule(),
 			"huaweicloud_iec_server":              resourceIecServer(),
 			"huaweicloud_iec_vip":                 resourceIecVipV1(),
-			"huaweicloud_iec_vpc":                 ResourceIecVpc(),
-			"huaweicloud_iec_vpc_subnet":          resourceIecSubnet(),
+			"huaweicloud_iec_vpc":                 iec.ResourceIecVpc(),
+			"huaweicloud_iec_vpc_subnet":          iec.ResourceIecSubnet(),
 
 			"huaweicloud_images_image":                ims.ResourceImsImage(),
 			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
