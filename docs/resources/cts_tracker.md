@@ -15,7 +15,6 @@ resource "huaweicloud_cts_tracker" "tracker" {
   bucket_name          = var.bucket_name
   file_prefix          = "cts"
   lts_enabled          = true
-  organization_enabled = true
 }
 ```
 
