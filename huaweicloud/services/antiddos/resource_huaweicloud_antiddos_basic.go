@@ -97,6 +97,42 @@ func ResourceCloudNativeAntiDdos() *schema.Resource {
 	}
 }
 
+func waitForAntiDDoSAvailable(ctx context.Context, client *golangsdk.ServiceClient, antiDDoSId string,
+	timeout time.Duration, isDeleteCheck bool) (*antiddossdk.GetResponse, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			resp, err := antiddossdk.Get(client, antiDDoSId).Extract()
+			if err != nil {
+				analyzedErr := parseAntiDDoSQueryError(err)
+				if _, ok := analyzedErr.(golangsdk.ErrDefault404); !ok {
+					return resp, "ERROR", analyzedErr
+				}
+				// For deletion operations, the 404 error returned by the query is considered to be the completion of
+				// the deletion, while for other operations, this error is considered to require continued waiting.
+				if !isDeleteCheck {
+					return resp, "PENDING", nil
+				}
+			}
+			return resp, "COMPLETED", ResourceCloudNativeAntiDdos().Importer.InternalValidate()
+		},
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	resp, stateErr := stateConf.WaitForStateContext(ctx)
+	if stateErr != nil {
+		return nil, fmt.Errorf("error waiting for AntiDDoS (%s) to become expected status: %s", antiDDoSId, stateErr)
+	}
+	preProtection, ok := resp.(*antiddossdk.GetResponse)
+	if !ok || resp == nil {
+		return preProtection, fmt.Errorf("invalid result type of the AntiDDoS query, want '*antiddossdk.GetResponse', but got '%T'", resp)
+	}
+	return preProtection, nil
+}
+
 func resourceCloudNativeAntiDdosUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -108,7 +144,7 @@ func resourceCloudNativeAntiDdosUpdate(ctx context.Context, d *schema.ResourceDa
 	eipID := d.Get("eip_id").(string)
 	thresholdID := getTrafficThresholdID(d.Get("traffic_threshold").(int))
 
-	if err := updateAntiDdosTrafficThreshold(ctx, d, client, eipID, thresholdID, true); err != nil {
+	if err := updateAntiDdosTrafficThreshold(ctx, d, client, eipID, thresholdID, false); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -170,7 +206,7 @@ func resourceCloudNativeAntiDdosDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating antiddos client: %s", err)
 	}
 
-	if err := updateAntiDdosTrafficThreshold(ctx, d, client, d.Id(), 99, false); err != nil {
+	if err := updateAntiDdosTrafficThreshold(ctx, d, client, d.Id(), 99, true); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
@@ -189,15 +225,10 @@ func getTrafficThresholdBandwidth(id int) int {
 }
 
 func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
-	antiddosID string, threshold int, check bool) error {
-	// calling antiddossdk.Get method to get other requied parameters
-	preProtection, err := antiddossdk.Get(client, antiddosID).Extract()
+	antiDDoSId string, threshold int, check bool) error {
+	preProtection, err := waitForAntiDDoSAvailable(ctx, client, antiDDoSId, d.Timeout(schema.TimeoutUpdate), check)
 	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok && !check {
-			return nil
-		}
-
-		return fmt.Errorf("error retrieving cloud native AntiDdos: %s", err)
+		return err
 	}
 
 	if preProtection.TrafficPosId != threshold {
@@ -213,14 +244,14 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 		}
 
 		log.Printf("[DEBUG] AntiDdos updating options: %#v", updateOpts)
-		if _, err := antiddossdk.Update(client, antiddosID, updateOpts).Extract(); err != nil {
+		if _, err := antiddossdk.Update(client, antiDDoSId, updateOpts).Extract(); err != nil {
 			return fmt.Errorf("error updating AntiDdos: %s", err)
 		}
 
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"configging"},
 			Target:       []string{"normal"},
-			Refresh:      getAntiDdosStatus(client, antiddosID),
+			Refresh:      getAntiDdosStatus(client, antiDDoSId),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        5 * time.Second,
 			PollInterval: 5 * time.Second,
@@ -244,4 +275,14 @@ func getAntiDdosStatus(client *golangsdk.ServiceClient, antiddosID string) resou
 
 		return s, s.Status, nil
 	}
+}
+
+func parseAntiDDoSQueryError(respErr error) error {
+	if errCode, ok := respErr.(golangsdk.ErrDefault403); ok {
+		resp, err := common.ParseErrorMsg(errCode.Body)
+		if err == nil && (resp.ErrorCode == "10001020" && resp.ErrorMsg == "IPID is invalid") {
+			return golangsdk.ErrDefault404(errCode)
+		}
+	}
+	return respErr
 }
