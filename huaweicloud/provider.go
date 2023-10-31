@@ -806,8 +806,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_virtual_gateway":   dc.ResourceVirtualGateway(),
 			"huaweicloud_dc_virtual_interface": dc.ResourceVirtualInterface(),
 
-			"huaweicloud_dcs_instance": dcs.ResourceDcsInstance(),
-			"huaweicloud_dcs_backup":   dcs.ResourceDcsBackup(),
+			"huaweicloud_dcs_instance":        dcs.ResourceDcsInstance(),
+			"huaweicloud_dcs_backup":          dcs.ResourceDcsBackup(),
+			"huaweicloud_dcs_custom_template": dcs.ResourceCustomTemplate(),
 
 			"huaweicloud_dds_database_role":      dds.ResourceDatabaseRole(),
 			"huaweicloud_dds_database_user":      dds.ResourceDatabaseUser(),
