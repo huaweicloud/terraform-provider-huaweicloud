@@ -223,7 +223,7 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 	d.Set("region", region)
 	d.Set("name", ctsTracker.TrackerName)
 	d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled)
-	d.Set("organization_enabled", ctsTracker.Lts.IsLtsEnabled)
+	d.Set("organization_enabled", ctsTracker.IsOrganizationTracker)
 	d.Set("validate_file", ctsTracker.IsSupportValidate)
 	d.Set("kms_id", ctsTracker.KmsId)
 
