@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 1.57.0 (October 31, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_mapreduce_scaling_policy` [GH-3472]
+  + `huaweicloud_lts_structuring_custom_configuration` [GH-3480]
+  + `huaweicloud_organizations_policy` [GH-3491]
+  + `huaweicloud_tms_resource_tags` [GH-3494]
+  + `huaweicloud_lts_waf_access` [GH-3517]
+  + `huaweicloud_css_configuration` [GH-3529]
+  + `huaweicloud_organizations_policy_attach` [GH-3523]
+  + `huaweicloud_cbr_checkpoint` [GH-3536]
+  + `huaweicloud_smn_logtank` [GH-3567]
+  + `huaweicloud_dcs_custom_template` [GH-3583]
+
+  + `huaweicloud_aom_cmdb_application` [GH-3508]
+  + `huaweicloud_aom_cmdb_component` [GH-3522]
+  + `huaweicloud_aom_cmdb_environment` [GH-3537]
+
+* **New Data Source:**
+  + `huaweicloud_mapreduce_clusters` [GH-3488]
+  + `huaweicloud_mapreduce_versions` [GH-3509]
+  + `huaweicloud_lts_structuring_custom_templates` [GH-3496]
+  + `huaweicloud_tms_resource_types` [GH-3499]
+  + `huaweicloud_smn_message_templates` [GH-3514]
+  + `huaweicloud_organizations_policies` [GH-3525]
+  + `huaweicloud_apig_groups` [GH-3534]
+  + `huaweicloud_vpn_gateway_availability_zones` [GH-3535]
+  + `huaweicloud_vpn_gateways` [GH-3538]
+  + `huaweicloud_fgs_functions` [GH-3540]
+  + `huaweicloud_rds_sqlserver_collations` [GH-3542]
+  + `huaweicloud_elb_loadbalancers` [GH-3544]
+  + `huaweicloud_dcs_templates` [GH-3585]
+  + `huaweicloud_dcs_template_detail` [GH-3585]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: Support updating `hostname` [GH-3476]
+* resource/huaweicloud_organizations_organization: Support enable service conrtol policy [GH-3481]
+* resource/huaweicloud_obs_bucket: Support user domain names [GH-3501]
+* resource/huaweicloud_apig_channel: Add `label_key` and `label_value` params [GH-3510]
+* resource/huaweicloud_compute_instance: Support creating system disk and data disks in DSS pool  [GH-3546]
+* resource/huaweicloud_dcs_instance: Add `parameters` param [GH-3533]
+* resource/huaweicloud_waf_certificate: Support updating certificate and private key [GH-3553]
+* resource/huaweicloud_vpcep_service: Add `enable_policy` param [GH-3568]
+* resource/huaweicloud_cts_tracker: Support the cross account feature [GH-3588]
+* resource/huaweicloud_vpc: Support migrating enterprise_project_id [GH-3573]
+
+BUG FIXES:
+
+* resource/huaweicloud_antiddos_basic: Waiting a while for the immediately created EIP [GH-3576]
+
 ## 1.56.1 (October 13, 2023)
 
 ENHANCEMENTS:
