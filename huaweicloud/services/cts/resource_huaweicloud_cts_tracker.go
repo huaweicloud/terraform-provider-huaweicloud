@@ -205,7 +205,6 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	var mErr *multierror.Error
 	ctsClient, err := cfg.HcCtsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
@@ -222,9 +221,8 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.SetId("system")
 	}
 
-
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
+		nil,
 		d.Set("region", region),
 		d.Set("name", ctsTracker.TrackerName),
 		d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled),
@@ -260,7 +258,7 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

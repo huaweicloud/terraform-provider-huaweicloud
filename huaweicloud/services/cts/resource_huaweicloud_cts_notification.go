@@ -6,13 +6,15 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
+
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -118,7 +120,6 @@ func ResourceCTSNotification() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func buildNotificationCreateRequestBody(d *schema.ResourceData) *cts.CreateNotificationRequestBody {
@@ -348,7 +349,6 @@ func formatCreateNotificationType(operationType string) cts.CreateNotificationRe
 		return allTypes.COMPLETE
 	}
 	return allTypes.CUSTOMIZED
-
 }
 
 func formatUpdateNotificationType(operationType string) cts.UpdateNotificationRequestBodyOperationType {

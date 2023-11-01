@@ -14,6 +14,7 @@ import (
 
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -112,7 +113,6 @@ func ResourceCTSDataTracker() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func buildCreateRequestBody(d *schema.ResourceData) *cts.CreateTrackerRequestBody {
@@ -253,7 +253,6 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	var mErr *multierror.Error
 	ctsClient, err := cfg.HcCtsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
@@ -285,8 +284,8 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 	allTrackers := *response.Trackers
 	ctsTracker := allTrackers[0]
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
+		nil,
 		d.Set("region", region),
 		d.Set("name", ctsTracker.TrackerName),
 		d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled),
@@ -319,7 +318,6 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 				d.Set("transfer_enabled", true),
 				d.Set("obs_retention_period", ctsTracker.ObsInfo.BucketLifecycle),
 			)
-
 		} else {
 			mErr = multierror.Append(mErr, d.Set("transfer_enabled", false))
 		}
@@ -337,7 +335,7 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 		)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceCTSDataTrackerDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
