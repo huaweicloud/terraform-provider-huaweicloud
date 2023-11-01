@@ -1106,6 +1106,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_secmaster_incident":  secmaster.ResourceIncident(),
 			"huaweicloud_secmaster_indicator": secmaster.ResourceIndicator(),
+			"huaweicloud_secmaster_alert":     secmaster.ResourceAlert(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
