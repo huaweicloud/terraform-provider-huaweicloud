@@ -1074,6 +1074,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_account":                rds.ResourceMysqlAccount(),
 			"huaweicloud_rds_mysql_database":               rds.ResourceMysqlDatabase(),
 			"huaweicloud_rds_mysql_database_privilege":     rds.ResourceMysqlDatabasePrivilege(),
+			"huaweicloud_rds_pg_account":                   rds.ResourcePgAccount(),
 			"huaweicloud_rds_instance":                     rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup":               rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_read_replica_instance":        rds.ResourceRdsReadReplicaInstance(),
