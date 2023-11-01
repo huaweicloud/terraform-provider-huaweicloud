@@ -588,6 +588,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_eip":       eip.DataSourceVpcEip(),
 			"huaweicloud_vpc_eips":      eip.DataSourceVpcEips(),
 
+			"huaweicloud_vpn_customer_gateways": vpn.DataSourceCustomerGateways(),
+
 			"huaweicloud_vpc":                    vpc.DataSourceVpcV1(),
 			"huaweicloud_vpcs":                   vpc.DataSourceVpcs(),
 			"huaweicloud_vpc_ids":                vpc.DataSourceVpcIdsV1(),
