@@ -67,6 +67,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/identitycenter"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iec"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/koogallery"
@@ -955,7 +956,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identitycenter_account_assignment":       identitycenter.ResourceIdentityCenterAccountAssignment(),
 			"huaweicloud_identitycenter_custom_policy_attachment": identitycenter.ResourceCustomPolicyAttachment(),
 
-			"huaweicloud_iec_eip":                 resourceIecNetworkEip(),
+			"huaweicloud_iec_eip":                 iec.ResourceIecNetworkEip(),
 			"huaweicloud_iec_keypair":             resourceIecKeypair(),
 			"huaweicloud_iec_network_acl":         resourceIecNetworkACL(),
 			"huaweicloud_iec_network_acl_rule":    resourceIecNetworkACLRule(),
@@ -1074,6 +1075,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_account":                rds.ResourceMysqlAccount(),
 			"huaweicloud_rds_mysql_database":               rds.ResourceMysqlDatabase(),
 			"huaweicloud_rds_mysql_database_privilege":     rds.ResourceMysqlDatabasePrivilege(),
+			"huaweicloud_rds_pg_account":                   rds.ResourcePgAccount(),
 			"huaweicloud_rds_instance":                     rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup":               rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_read_replica_instance":        rds.ResourceRdsReadReplicaInstance(),
