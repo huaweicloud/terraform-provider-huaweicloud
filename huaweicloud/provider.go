@@ -67,6 +67,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/identitycenter"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iec"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/koogallery"
@@ -951,7 +952,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identitycenter_account_assignment":       identitycenter.ResourceIdentityCenterAccountAssignment(),
 			"huaweicloud_identitycenter_custom_policy_attachment": identitycenter.ResourceCustomPolicyAttachment(),
 
-			"huaweicloud_iec_eip":                 resourceIecNetworkEip(),
+			"huaweicloud_iec_eip":                 iec.ResourceIecNetworkEip(),
 			"huaweicloud_iec_keypair":             resourceIecKeypair(),
 			"huaweicloud_iec_network_acl":         resourceIecNetworkACL(),
 			"huaweicloud_iec_network_acl_rule":    resourceIecNetworkACLRule(),
