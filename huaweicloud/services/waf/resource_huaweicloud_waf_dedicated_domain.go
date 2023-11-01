@@ -1,10 +1,14 @@
 package waf
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -16,21 +20,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
-	// protectStatusEnable 1: protection status enabled.
 	protectStatusEnable = 1
 )
 
 func ResourceWafDedicatedDomainV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafDedicatedDomainV1Create,
-		Read:   resourceWafDedicatedDomainV1Read,
-		Update: resourceWafDedicatedDomainV1Update,
-		Delete: resourceWafDedicatedDomainV1Delete,
+		CreateContext: resourceWafDedicatedDomainV1Create,
+		ReadContext:   resourceWafDedicatedDomainV1Read,
+		UpdateContext: resourceWafDedicatedDomainV1Update,
+		DeleteContext: resourceWafDedicatedDomainV1Delete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
@@ -184,27 +185,25 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 	}
 }
 
-// getCertificateNameById get certificate id from HuaweiCloud.
 func getCertificateNameById(d *schema.ResourceData, meta interface{}) (string, error) {
-	config := meta.(*config.Config)
-	c, err := config.WafV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return "", fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return "", fmt.Errorf("error creating WAF client: %s", err)
 	}
+
 	if _, ok := d.GetOk("certificate_id"); ok {
-		epsID := common.GetEnterpriseProjectID(d, config)
+		epsID := cfg.GetEnterpriseProjectID(d)
 		certificateId := d.Get("certificate_id").(string)
-		r, err := certificates.GetWithEpsID(c, certificateId, epsID).Extract()
+		r, err := certificates.GetWithEpsID(client, certificateId, epsID).Extract()
 		if err != nil {
-			return "", fmtp.Errorf("error obtain WAF certificate name according id: %s, error:",
-				d.Get("certificate_id").(string), err)
+			return "", fmt.Errorf("error retrieving WAF certificate name according ID: %s, error: %s", certificateId, err)
 		}
 		return r.Name, nil
 	}
 	return "", nil
 }
 
-// buildCreatePremiumHostOpts build the options for creating premium domains.
 func buildCreatePremiumHostOpts(d *schema.ResourceData, meta interface{}) (*domains.CreateOpts, error) {
 	certName, err := getCertificateNameById(d, meta)
 	if err != nil {
@@ -234,50 +233,45 @@ func buildCreatePremiumHostOpts(d *schema.ResourceData, meta interface{}) (*doma
 		PolicyId:        d.Get("policy_id").(string),
 		Servers:         serverOpts,
 	}
-
-	logp.Printf("[DEBUG] build WAF dedicated domain creation options: %#v", serverOpts)
 	return &opts, nil
 }
 
-// resourceWafDedicatedDomainV1Create create a premium domain name in HuaweiCloud.
-func resourceWafDedicatedDomainV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafDedicatedClient, err := config.WafDedicatedV1Client(config.GetRegion(d))
+func resourceWafDedicatedDomainV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF dedicated Client: %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
 	createOpts, err := buildCreatePremiumHostOpts(d, meta)
-	epsID := common.GetEnterpriseProjectID(d, config)
-	createOpts.EnterpriseProjectID = epsID
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	logp.Printf("[DEBUG] The options of creating WAF dedicated domain: %#v", createOpts)
 
-	domain, err := domains.Create(wafDedicatedClient, *createOpts)
+	epsID := cfg.GetEnterpriseProjectID(d)
+	createOpts.EnterpriseProjectID = epsID
+	domain, err := domains.Create(client, *createOpts)
 	if err != nil {
-		return fmtp.Errorf("error creating WAF Domain: %s", err)
+		return diag.Errorf("error creating WAF dedicated domain: %s", err)
 	}
-	logp.Printf("[DEBUG] Waf dedicated domain has been created: %#v", domain)
 	d.SetId(domain.Id)
 
 	if d.Get("protect_status").(int) != protectStatusEnable {
 		protectStatus := d.Get("protect_status").(int)
-		_, err = domains.UpdateProtectStatusWithWpsID(wafDedicatedClient, protectStatus, d.Id(), epsID)
+		_, err = domains.UpdateProtectStatusWithWpsID(client, protectStatus, d.Id(), epsID)
 		if err != nil {
 			// If the protection status update fails, it will be managed by terraform, and only print log.
-			logp.Printf("[ERROR] error change the protection status of WAF dedicate domain %s: %s", d.Id(), err)
+			log.Printf("[ERROR] error updating the protection status of WAF dedicate domain %s: %s", d.Id(), err)
 		}
 	}
 
 	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
-		if err := updateWafDedicatedDomain(wafDedicatedClient, meta, d); err != nil {
-			return fmtp.Errorf("error updating WAF dedicated domain: %s", err)
+		if err := updateWafDedicatedDomain(client, meta, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceWafDedicatedDomainV1Read(d, meta)
+	return resourceWafDedicatedDomainV1Read(ctx, d, meta)
 }
 
 func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{}, d *schema.ResourceData) error {
@@ -285,7 +279,7 @@ func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{},
 	updateOpts := domains.UpdatePremiumHostOpts{
 		Tls:                 d.Get("tls").(string),
 		Cipher:              d.Get("cipher").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
 	}
 
 	if d.HasChange("proxy") && !d.IsNewResource() {
@@ -310,10 +304,9 @@ func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{},
 		}
 		updateOpts.Flag = flag
 	}
-	logp.Printf("[DEBUG] Waf dedicated domain update: %#v", updateOpts)
 	_, err := domains.Update(client, d.Id(), updateOpts)
 	if err != nil {
-		return fmtp.Errorf("error updating WAF dedicated domain: %s", err)
+		return fmt.Errorf("error updating WAF dedicated domain: %s", err)
 	}
 	return nil
 }
@@ -327,7 +320,7 @@ func getHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
 
 	// required tls="TLS v1.2" && cipher="cipher_2"
 	if d.Get("tls").(string) != "TLS v1.2" || d.Get("cipher").(string) != "cipher_2" {
-		return nil, fmtp.Errorf("pci_3ds and pci_dss must be used together with tls and cipher. " +
+		return nil, fmt.Errorf("pci_3ds and pci_dss must be used together with tls and cipher. " +
 			"Tls must be set to TLS v1.2, and cipher must be set to cipher_2")
 	}
 	return &domains.Flag{
@@ -336,7 +329,6 @@ func getHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
 	}, nil
 }
 
-// buildDomainServerAttributes build the 'server' attribute after querying a domain.
 func buildDomainServerAttribute(domain *domains.PremiumHost) []map[string]interface{} {
 	servers := make([]map[string]interface{}, 0, len(domain.Servers))
 	for _, s := range domain.Servers {
@@ -352,7 +344,6 @@ func buildDomainServerAttribute(domain *domains.PremiumHost) []map[string]interf
 	return servers
 }
 
-// buildDomainServerAttributes build the 'traffic_identifier' attribute after querying a domain.
 func buildComplianceCertificationAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	f := domain.Flag
 
@@ -364,7 +355,6 @@ func buildComplianceCertificationAttribute(domain *domains.PremiumHost) map[stri
 	}
 }
 
-// buildDomainServerAttributes build the 'compliance_certification' attribute after querying a domain.
 func buildTrafficIdentifierAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	t := domain.TrafficMark
 	return map[string]interface{}{
@@ -374,7 +364,6 @@ func buildTrafficIdentifierAttribute(domain *domains.PremiumHost) map[string]int
 	}
 }
 
-// buildAlarmPageAttribute build the 'alarm_page' attribute after querying a domain.
 func buildAlarmPageAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	t := domain.BlockPage
 	return map[string]interface{}{
@@ -383,26 +372,23 @@ func buildAlarmPageAttribute(domain *domains.PremiumHost) map[string]interface{}
 	}
 }
 
-// resourceWafDedicatedDomainV1Read query a domain detail by id.
-func resourceWafDedicatedDomainV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafDedicatedV1Client(config.GetRegion(d))
+func resourceWafDedicatedDomainV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
-	epsID := common.GetEnterpriseProjectID(d, config)
-	dm, err := domains.GetWithEpsID(wafClient, d.Id(), epsID)
+	epsID := cfg.GetEnterpriseProjectID(d)
+	dm, err := domains.GetWithEpsID(client, d.Id(), epsID)
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain WAF dedicated domain information")
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF dedicated domain")
 	}
-	logp.Printf("[DEBUG] Get the WAF dedicated domain : %#v", dm)
 
-	servers := buildDomainServerAttribute(dm)
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("domain", dm.HostName),
-		d.Set("server", servers),
+		d.Set("server", buildDomainServerAttribute(dm)),
 		d.Set("certificate_id", dm.CertificateId),
 		d.Set("certificate_name", dm.CertificateName),
 		d.Set("policy_id", dm.PolicyId),
@@ -412,12 +398,15 @@ func resourceWafDedicatedDomainV1Read(d *schema.ResourceData, meta interface{}) 
 		d.Set("protocol", dm.Protocol),
 		d.Set("tls", dm.Tls),
 		d.Set("cipher", dm.Cipher),
+		d.Set("compliance_certification", buildComplianceCertificationAttribute(dm)),
+		d.Set("traffic_identifier", buildTrafficIdentifierAttribute(dm)),
+		d.Set("alarm_page", buildAlarmPageAttribute(dm)),
 	)
 
 	if dm.Flag["pci_3ds"] != "" {
 		pci3ds, err := strconv.ParseBool(dm.Flag["pci_3ds"])
 		if err != nil {
-			logp.Printf("[WARN] error parse bool pci 3ds, %s", err)
+			log.Printf("[WARN] error parse bool pci 3ds, %s", err)
 		}
 		mErr = multierror.Append(mErr, d.Set("pci_3ds", pci3ds))
 	}
@@ -425,47 +414,36 @@ func resourceWafDedicatedDomainV1Read(d *schema.ResourceData, meta interface{}) 
 	if dm.Flag["pci_dss"] != "" {
 		pciDss, err := strconv.ParseBool(dm.Flag["pci_dss"])
 		if err != nil {
-			logp.Printf("[WARN] error parse bool pci dss, %s", err)
+			log.Printf("[WARN] error parse bool pci dss, %s", err)
 		}
 		mErr = multierror.Append(mErr, d.Set("pci_dss", pciDss))
 	}
-
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.Errorf("error setting WAF fields: %s", err)
-	}
-
-	// The resources of compliance_certification, alarm_page and traffic_identifier may be empty.
-	d.Set("compliance_certification", buildComplianceCertificationAttribute(dm))
-	d.Set("traffic_identifier", buildTrafficIdentifierAttribute(dm))
-	d.Set("alarm_page", buildAlarmPageAttribute(dm))
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// resourceWafDedicatedDomainV1Update modify some fields of domain: certificate_id, proxy, protect_status and policy_id.
-func resourceWafDedicatedDomainV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafDedicatedClient, err := config.WafDedicatedV1Client(config.GetRegion(d))
+func resourceWafDedicatedDomainV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	dedicatedClient, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF dedicated Client: %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	if d.HasChanges("tls", "cipher", "proxy", "certificate_id", "pci_3ds", "pci_dss") {
-		if err := updateWafDedicatedDomain(wafDedicatedClient, meta, d); err != nil {
-			return fmtp.Errorf("error updating WAF dedicated domain: %s", err)
+		if err := updateWafDedicatedDomain(dedicatedClient, meta, d); err != nil {
+			return diag.Errorf("error updating WAF dedicated domain: %s", err)
 		}
 	}
 
 	if d.HasChanges("protect_status") {
 		protectStatus := d.Get("protect_status").(int)
-		epsID := common.GetEnterpriseProjectID(d, config)
-		_, err = domains.UpdateProtectStatusWithWpsID(wafDedicatedClient, protectStatus, d.Id(), epsID)
+		epsID := cfg.GetEnterpriseProjectID(d)
+		_, err = domains.UpdateProtectStatusWithWpsID(dedicatedClient, protectStatus, d.Id(), epsID)
 		if err != nil {
-			return fmtp.Errorf("[ERROR] error change the protection status of WAF dedicate domain %s: %s",
+			return diag.Errorf("error updating the protection status of WAF dedicate domain %s: %s",
 				d.Id(), err)
 		}
 	}
@@ -473,44 +451,40 @@ func resourceWafDedicatedDomainV1Update(d *schema.ResourceData, meta interface{}
 	if d.HasChanges("policy_id") {
 		oVal, nVal := d.GetChange("policy_id")
 		policyId := nVal.(string)
-		epsID := common.GetEnterpriseProjectID(d, config)
+		epsID := cfg.GetEnterpriseProjectID(d)
 		updateHostsOpts := policies.UpdateHostsOpts{
 			Hosts:               []string{d.Id()},
 			EnterpriseProjectId: epsID,
 		}
-		logp.Printf("[DEBUG] Bind Waf dedicated domain %s to policy %s", d.Id(), policyId)
-
+		log.Printf("[DEBUG] Bind WAF dedicated domain %s to policy %s", d.Id(), policyId)
 		_, err = policies.UpdateHosts(wafClient, policyId, updateHostsOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("error updating WAF Policy Hosts: %s", err)
+			return diag.Errorf("error updating WAF policy hosts: %s", err)
 		}
 
 		// delete the old policy
 		err = policies.DeleteWithEpsID(wafClient, oVal.(string), epsID).ExtractErr()
 		if err != nil {
 			// If other domains are using this policy, the deletion will fail.
-			logp.Printf("[WARN] error deleting WAF Policy %s: %s", oVal.(string), err)
+			log.Printf("[WARN] error deleting WAF policy %s: %s", oVal.(string), err)
 		}
 	}
-	return resourceWafDedicatedDomainV1Read(d, meta)
+	return resourceWafDedicatedDomainV1Read(ctx, d, meta)
 }
 
-// resourceWafDedicatedDomainV1Delete delete a domain by id.
-func resourceWafDedicatedDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafDedicatedClient, err := config.WafDedicatedV1Client(config.GetRegion(d))
+func resourceWafDedicatedDomainV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Delete WAF dedicated domain(keep_policy: %v).", d.Get("keep_policy"))
+	log.Printf("[DEBUG] Delete WAF dedicated domain (keep_policy: %v).", d.Get("keep_policy"))
 	keepPolicy := d.Get("keep_policy").(bool)
-	epsID := common.GetEnterpriseProjectID(d, config)
-	_, err = domains.DeleteWithEpsID(wafDedicatedClient, keepPolicy, d.Id(), epsID)
+	epsID := cfg.GetEnterpriseProjectID(d)
+	_, err = domains.DeleteWithEpsID(client, keepPolicy, d.Id(), epsID)
 	if err != nil {
-		return fmtp.Errorf("error deleting WAF dedicated domain: %s", err)
+		return diag.Errorf("error deleting WAF dedicated domain: %s", err)
 	}
-
-	d.SetId("")
 	return nil
 }
