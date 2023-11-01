@@ -26,12 +26,12 @@ const (
 	protectStatusEnable = 1
 )
 
-func ResourceWafDedicatedDomainV1() *schema.Resource {
+func ResourceWafDedicatedDomain() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWafDedicatedDomainV1Create,
-		ReadContext:   resourceWafDedicatedDomainV1Read,
-		UpdateContext: resourceWafDedicatedDomainV1Update,
-		DeleteContext: resourceWafDedicatedDomainV1Delete,
+		CreateContext: resourceWafDedicatedDomainCreate,
+		ReadContext:   resourceWafDedicatedDomainRead,
+		UpdateContext: resourceWafDedicatedDomainUpdate,
+		DeleteContext: resourceWafDedicatedDomainDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
@@ -185,16 +185,15 @@ func ResourceWafDedicatedDomainV1() *schema.Resource {
 	}
 }
 
-func getCertificateNameById(d *schema.ResourceData, meta interface{}) (string, error) {
-	cfg := meta.(*config.Config)
+func getCertificateNameById(d *schema.ResourceData, cfg *config.Config) (string, error) {
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return "", fmt.Errorf("error creating WAF client: %s", err)
 	}
 
-	if _, ok := d.GetOk("certificate_id"); ok {
+	if v, ok := d.GetOk("certificate_id"); ok {
 		epsID := cfg.GetEnterpriseProjectID(d)
-		certificateId := d.Get("certificate_id").(string)
+		certificateId := v.(string)
 		r, err := certificates.GetWithEpsID(client, certificateId, epsID).Extract()
 		if err != nil {
 			return "", fmt.Errorf("error retrieving WAF certificate name according ID: %s, error: %s", certificateId, err)
@@ -204,12 +203,19 @@ func getCertificateNameById(d *schema.ResourceData, meta interface{}) (string, e
 	return "", nil
 }
 
-func buildCreatePremiumHostOpts(d *schema.ResourceData, meta interface{}) (*domains.CreateOpts, error) {
-	certName, err := getCertificateNameById(d, meta)
-	if err != nil {
-		return nil, err
+func buildCreatePremiumHostOpts(d *schema.ResourceData, cfg *config.Config, certName string) *domains.CreateOpts {
+	return &domains.CreateOpts{
+		CertificateId:       d.Get("certificate_id").(string),
+		CertificateName:     certName,
+		HostName:            d.Get("domain").(string),
+		Proxy:               utils.Bool(d.Get("proxy").(bool)),
+		PolicyId:            d.Get("policy_id").(string),
+		Servers:             buildCreatePremiumHostServerOpts(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
+}
 
+func buildCreatePremiumHostServerOpts(d *schema.ResourceData) []domains.Server {
 	servers := d.Get("server").([]interface{})
 	serverOpts := make([]domains.Server, len(servers))
 	for i, v := range servers {
@@ -223,63 +229,68 @@ func buildCreatePremiumHostOpts(d *schema.ResourceData, meta interface{}) (*doma
 			VpcId:         s["vpc_id"].(string),
 		}
 	}
-
-	proxy := d.Get("proxy").(bool)
-	opts := domains.CreateOpts{
-		CertificateId:   d.Get("certificate_id").(string),
-		CertificateName: certName,
-		HostName:        d.Get("domain").(string),
-		Proxy:           &proxy,
-		PolicyId:        d.Get("policy_id").(string),
-		Servers:         serverOpts,
-	}
-	return &opts, nil
+	return serverOpts
 }
 
-func resourceWafDedicatedDomainV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
+	dedicatedClient, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
-	createOpts, err := buildCreatePremiumHostOpts(d, meta)
+	certName, err := getCertificateNameById(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	epsID := cfg.GetEnterpriseProjectID(d)
-	createOpts.EnterpriseProjectID = epsID
-	domain, err := domains.Create(client, *createOpts)
+	createOpts := buildCreatePremiumHostOpts(d, cfg, certName)
+	domain, err := domains.Create(dedicatedClient, *createOpts)
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated domain: %s", err)
 	}
 	d.SetId(domain.Id)
 
-	if d.Get("protect_status").(int) != protectStatusEnable {
-		protectStatus := d.Get("protect_status").(int)
-		_, err = domains.UpdateProtectStatusWithWpsID(client, protectStatus, d.Id(), epsID)
-		if err != nil {
-			// If the protection status update fails, it will be managed by terraform, and only print log.
-			log.Printf("[ERROR] error updating the protection status of WAF dedicate domain %s: %s", d.Id(), err)
-		}
+	if err := updateWafDedicatedDomain(dedicatedClient, d, cfg); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
-		if err := updateWafDedicatedDomain(client, meta, d); err != nil {
+	if d.Get("protect_status").(int) != protectStatusEnable {
+		if err := updateWafDedicatedDomainProtectStatus(dedicatedClient, d, cfg); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	return resourceWafDedicatedDomainV1Read(ctx, d, meta)
+	return resourceWafDedicatedDomainRead(ctx, d, meta)
 }
 
-func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{}, d *schema.ResourceData) error {
-	conf := meta.(*config.Config)
+func updateWafDedicatedDomainProtectStatus(dedicatedClient *golangsdk.ServiceClient, d *schema.ResourceData,
+	cfg *config.Config) error {
+	protectStatus := d.Get("protect_status").(int)
+	epsID := cfg.GetEnterpriseProjectID(d)
+	_, err := domains.UpdateProtectStatusWithWpsID(dedicatedClient, protectStatus, d.Id(), epsID)
+	if err != nil {
+		return fmt.Errorf("error updating WAF dedicated domain protect status: %s", err)
+	}
+	return nil
+}
+
+func updateWafDedicatedDomain(dedicatedClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
 	updateOpts := domains.UpdatePremiumHostOpts{
-		Tls:                 d.Get("tls").(string),
-		Cipher:              d.Get("cipher").(string),
-		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+	}
+
+	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
+		updateOpts.Tls = d.Get("tls").(string)
+		updateOpts.Cipher = d.Get("cipher").(string)
+		// `pci_3ds` and `pci_dss` must be used together with `tls` and `cipher`.
+		if d.HasChanges("pci_3ds", "pci_dss") {
+			flag, err := buildHostFlag(d)
+			if err != nil {
+				return err
+			}
+			updateOpts.Flag = flag
+		}
 	}
 
 	if d.HasChange("proxy") && !d.IsNewResource() {
@@ -288,7 +299,7 @@ func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{},
 
 	if d.HasChange("certificate_id") && !d.IsNewResource() {
 		if v, ok := d.GetOk("certificate_id"); ok {
-			certName, err := getCertificateNameById(d, meta)
+			certName, err := getCertificateNameById(d, cfg)
 			if err != nil {
 				return err
 			}
@@ -297,21 +308,14 @@ func updateWafDedicatedDomain(client *golangsdk.ServiceClient, meta interface{},
 		}
 	}
 
-	if d.HasChanges("pci_3ds", "pci_dss") {
-		flag, err := getHostFlag(d)
-		if err != nil {
-			return err
-		}
-		updateOpts.Flag = flag
-	}
-	_, err := domains.Update(client, d.Id(), updateOpts)
+	_, err := domains.Update(dedicatedClient, d.Id(), updateOpts)
 	if err != nil {
 		return fmt.Errorf("error updating WAF dedicated domain: %s", err)
 	}
 	return nil
 }
 
-func getHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
+func buildHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
 	pci3ds := d.Get("pci_3ds").(bool)
 	pciDss := d.Get("pci_dss").(bool)
 	if !pci3ds && !pciDss {
@@ -329,7 +333,35 @@ func getHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
 	}, nil
 }
 
-func buildDomainServerAttribute(domain *domains.PremiumHost) []map[string]interface{} {
+func updateWafDedicatedDomainPolicyHost(d *schema.ResourceData, cfg *config.Config) error {
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating WAF client: %s", err)
+	}
+
+	oVal, nVal := d.GetChange("policy_id")
+	newPolicyId := nVal.(string)
+	oldPolicyId := oVal.(string)
+
+	epsID := cfg.GetEnterpriseProjectID(d)
+	updateHostsOpts := policies.UpdateHostsOpts{
+		Hosts:               []string{d.Id()},
+		EnterpriseProjectId: epsID,
+	}
+	log.Printf("[DEBUG] Bind WAF dedicated domain %s to policy %s", d.Id(), newPolicyId)
+
+	if _, err := policies.UpdateHosts(client, newPolicyId, updateHostsOpts).Extract(); err != nil {
+		return fmt.Errorf("error updating WAF policy hosts: %s", err)
+	}
+
+	if err := policies.DeleteWithEpsID(client, oldPolicyId, epsID).ExtractErr(); err != nil {
+		// If other domains are using this policy, the deletion will fail.
+		log.Printf("[WARN] error deleting WAF policy %s: %s", oldPolicyId, err)
+	}
+	return nil
+}
+
+func flattenDomainServerAttribute(domain *domains.PremiumHost) []map[string]interface{} {
 	servers := make([]map[string]interface{}, 0, len(domain.Servers))
 	for _, s := range domain.Servers {
 		servers = append(servers, map[string]interface{}{
@@ -344,7 +376,7 @@ func buildDomainServerAttribute(domain *domains.PremiumHost) []map[string]interf
 	return servers
 }
 
-func buildComplianceCertificationAttribute(domain *domains.PremiumHost) map[string]interface{} {
+func flattenComplianceCertificationAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	f := domain.Flag
 
 	pciDss, _ := strconv.ParseBool(f["pci_dss"])
@@ -355,7 +387,7 @@ func buildComplianceCertificationAttribute(domain *domains.PremiumHost) map[stri
 	}
 }
 
-func buildTrafficIdentifierAttribute(domain *domains.PremiumHost) map[string]interface{} {
+func flattenTrafficIdentifierAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	t := domain.TrafficMark
 	return map[string]interface{}{
 		"ip_tag":      strings.Join(t.Sip, ","),
@@ -364,7 +396,7 @@ func buildTrafficIdentifierAttribute(domain *domains.PremiumHost) map[string]int
 	}
 }
 
-func buildAlarmPageAttribute(domain *domains.PremiumHost) map[string]interface{} {
+func flattenAlarmPageAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	t := domain.BlockPage
 	return map[string]interface{}{
 		"template_name": t.Template,
@@ -372,23 +404,24 @@ func buildAlarmPageAttribute(domain *domains.PremiumHost) map[string]interface{}
 	}
 }
 
-func resourceWafDedicatedDomainV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	dedicatedClient, err := cfg.WafDedicatedV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
 	epsID := cfg.GetEnterpriseProjectID(d)
-	dm, err := domains.GetWithEpsID(client, d.Id(), epsID)
+	dm, err := domains.GetWithEpsID(dedicatedClient, d.Id(), epsID)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF dedicated domain")
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("domain", dm.HostName),
-		d.Set("server", buildDomainServerAttribute(dm)),
+		d.Set("server", flattenDomainServerAttribute(dm)),
 		d.Set("certificate_id", dm.CertificateId),
 		d.Set("certificate_name", dm.CertificateName),
 		d.Set("policy_id", dm.PolicyId),
@@ -398,9 +431,9 @@ func resourceWafDedicatedDomainV1Read(_ context.Context, d *schema.ResourceData,
 		d.Set("protocol", dm.Protocol),
 		d.Set("tls", dm.Tls),
 		d.Set("cipher", dm.Cipher),
-		d.Set("compliance_certification", buildComplianceCertificationAttribute(dm)),
-		d.Set("traffic_identifier", buildTrafficIdentifierAttribute(dm)),
-		d.Set("alarm_page", buildAlarmPageAttribute(dm)),
+		d.Set("compliance_certification", flattenComplianceCertificationAttribute(dm)),
+		d.Set("traffic_identifier", flattenTrafficIdentifierAttribute(dm)),
+		d.Set("alarm_page", flattenAlarmPageAttribute(dm)),
 	)
 
 	if dm.Flag["pci_3ds"] != "" {
@@ -421,68 +454,41 @@ func resourceWafDedicatedDomainV1Read(_ context.Context, d *schema.ResourceData,
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceWafDedicatedDomainV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafDedicatedDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	dedicatedClient, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
-	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating WAF client: %s", err)
-	}
 
-	if d.HasChanges("tls", "cipher", "proxy", "certificate_id", "pci_3ds", "pci_dss") {
-		if err := updateWafDedicatedDomain(dedicatedClient, meta, d); err != nil {
-			return diag.Errorf("error updating WAF dedicated domain: %s", err)
-		}
+	if err := updateWafDedicatedDomain(dedicatedClient, d, cfg); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if d.HasChanges("protect_status") {
-		protectStatus := d.Get("protect_status").(int)
-		epsID := cfg.GetEnterpriseProjectID(d)
-		_, err = domains.UpdateProtectStatusWithWpsID(dedicatedClient, protectStatus, d.Id(), epsID)
-		if err != nil {
-			return diag.Errorf("error updating the protection status of WAF dedicate domain %s: %s",
-				d.Id(), err)
+		if err := updateWafDedicatedDomainProtectStatus(dedicatedClient, d, cfg); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChanges("policy_id") {
-		oVal, nVal := d.GetChange("policy_id")
-		policyId := nVal.(string)
-		epsID := cfg.GetEnterpriseProjectID(d)
-		updateHostsOpts := policies.UpdateHostsOpts{
-			Hosts:               []string{d.Id()},
-			EnterpriseProjectId: epsID,
-		}
-		log.Printf("[DEBUG] Bind WAF dedicated domain %s to policy %s", d.Id(), policyId)
-		_, err = policies.UpdateHosts(wafClient, policyId, updateHostsOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating WAF policy hosts: %s", err)
-		}
-
-		// delete the old policy
-		err = policies.DeleteWithEpsID(wafClient, oVal.(string), epsID).ExtractErr()
-		if err != nil {
-			// If other domains are using this policy, the deletion will fail.
-			log.Printf("[WARN] error deleting WAF policy %s: %s", oVal.(string), err)
+		if err := updateWafDedicatedDomainPolicyHost(d, cfg); err != nil {
+			return diag.FromErr(err)
 		}
 	}
-	return resourceWafDedicatedDomainV1Read(ctx, d, meta)
+	return resourceWafDedicatedDomainRead(ctx, d, meta)
 }
 
-func resourceWafDedicatedDomainV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafDedicatedDomainDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
+	dedicatedClient, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Delete WAF dedicated domain (keep_policy: %v).", d.Get("keep_policy"))
 	keepPolicy := d.Get("keep_policy").(bool)
 	epsID := cfg.GetEnterpriseProjectID(d)
-	_, err = domains.DeleteWithEpsID(client, keepPolicy, d.Id(), epsID)
+	_, err = domains.DeleteWithEpsID(dedicatedClient, keepPolicy, d.Id(), epsID)
 	if err != nil {
 		return diag.Errorf("error deleting WAF dedicated domain: %s", err)
 	}
