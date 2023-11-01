@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -252,6 +253,7 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	var mErr *multierror.Error
 	ctsClient, err := cfg.HcCtsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
@@ -283,43 +285,56 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 	allTrackers := *response.Trackers
 	ctsTracker := allTrackers[0]
 
-	d.Set("region", region)
-	d.Set("name", ctsTracker.TrackerName)
-	d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled)
-	d.Set("validate_file", ctsTracker.IsSupportValidate)
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", ctsTracker.TrackerName),
+		d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled),
+		d.Set("validate_file", ctsTracker.IsSupportValidate),
+	)
 
 	if ctsTracker.DataBucket != nil {
-		d.Set("data_bucket", ctsTracker.DataBucket.DataBucketName)
+		mErr = multierror.Append(mErr, d.Set("data_bucket", ctsTracker.DataBucket.DataBucketName))
 
 		if ctsTracker.DataBucket.DataEvent != nil {
 			operations := make([]string, len(*ctsTracker.DataBucket.DataEvent))
 			for i, event := range *ctsTracker.DataBucket.DataEvent {
 				operations[i] = formatValue(event)
 			}
-			d.Set("data_operation", operations)
+			mErr = multierror.Append(mErr, d.Set("data_operation", operations))
 		}
 	}
 
 	if ctsTracker.ObsInfo != nil {
 		bucketName := ctsTracker.ObsInfo.BucketName
-		d.Set("bucket_name", bucketName)
-		d.Set("file_prefix", ctsTracker.ObsInfo.FilePrefixName)
+		mErr = multierror.Append(
+			mErr,
+			d.Set("bucket_name", bucketName),
+			d.Set("file_prefix", ctsTracker.ObsInfo.FilePrefixName),
+		)
 
 		if *bucketName != "" {
-			d.Set("transfer_enabled", true)
-			d.Set("obs_retention_period", ctsTracker.ObsInfo.BucketLifecycle)
+			mErr = multierror.Append(
+				mErr,
+				d.Set("transfer_enabled", true),
+				d.Set("obs_retention_period", ctsTracker.ObsInfo.BucketLifecycle),
+			)
+
 		} else {
-			d.Set("transfer_enabled", false)
+			mErr = multierror.Append(mErr, d.Set("transfer_enabled", false))
 		}
 	}
 
 	if ctsTracker.TrackerType != nil {
-		d.Set("type", formatValue(ctsTracker.TrackerType))
+		mErr = multierror.Append(mErr, d.Set("type", formatValue(ctsTracker.TrackerType)))
 	}
 	if ctsTracker.Status != nil {
 		status := formatValue(ctsTracker.Status)
-		d.Set("status", status)
-		d.Set("enabled", status == "enabled")
+		mErr = multierror.Append(
+			mErr,
+			d.Set("status", status),
+			d.Set("enabled", status == "enabled"),
+		)
 	}
 
 	return nil
