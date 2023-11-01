@@ -287,9 +287,9 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 		"cloud_service_type":    "hws.service.type.dbss",
 		"flavor_ref":            utils.ValueIngoreEmpty(d.Get("flavor")),
 		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"nics":                  buildCreateInstanceRequestBodyCreateInstanceRequestBodyNics(d),
-		"security_groups":       buildCreateInstanceRequestBodyCreateInstanceRequestBodySecurityGroups(d),
-		"product_infos":         buildCreateInstanceRequestBodyCreateInstanceRequestBodyProductInfos(d),
+		"nics":                  buildCreateInstanceNicsRequestBody(d),
+		"security_groups":       buildCreateInstanceSecurityGroupsRequestBody(d),
+		"product_infos":         buildCreateInstanceProductInfosRequestBody(d),
 		"subscription_num":      1,
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
@@ -317,7 +317,7 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 	return bodyParams
 }
 
-func buildCreateInstanceRequestBodyCreateInstanceRequestBodyNics(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceNicsRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
@@ -326,7 +326,7 @@ func buildCreateInstanceRequestBodyCreateInstanceRequestBodyNics(d *schema.Resou
 	}
 }
 
-func buildCreateInstanceRequestBodyCreateInstanceRequestBodySecurityGroups(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceSecurityGroupsRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
@@ -334,7 +334,7 @@ func buildCreateInstanceRequestBodyCreateInstanceRequestBodySecurityGroups(d *sc
 	}
 }
 
-func buildCreateInstanceRequestBodyCreateInstanceRequestBodyProductInfos(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"cloud_service_type": "hws.service.type.dbss",
