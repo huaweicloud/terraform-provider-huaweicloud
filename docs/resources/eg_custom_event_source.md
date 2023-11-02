@@ -8,15 +8,69 @@ Using this resource to manage an EG custom event source within Huaweicloud.
 
 ## Example Usage
 
+### Create a custom event source for the application type
+
 ```hcl
 variable "channel_id" {}
 variable "source_name" {}
 
 resource "huaweicloud_eg_custom_event_source" "test" {
   channel_id  = var.channel_id
-  type        = "RABBITMQ"
+  type        = "APPLICATION"
   name        = var.source_name
   description = "Created by script"
+}
+```
+
+### Create a custom event source for the RabbitMQ type
+
+```hcl
+variable "channel_id" {}
+variable "source_name" {}
+variable "rabbitmq_instance_id" {}
+variable "rabbitmq_user_name" {}
+variable "rabbitmq_user_password" {}
+variable "rabbitmq_vhost_name" {}
+variable "rabbitmq_queue_name" {}
+
+resource "huaweicloud_eg_custom_event_source" "test" {
+  channel_id = var.channel_id
+  type       = "RABBITMQ"
+  name       = var.source_name
+  detail     = jsonencode({
+    instance_id = var.rabbitmq_instance_id
+    user_name   = var.rabbitmq_user_name
+    password    = var.rabbitmq_user_password
+    vhost_name  = var.rabbitmq_vhost_name
+    queue_name  = var.rabbitmq_queue_name
+  })
+}
+```
+
+### Create a custom event source for the RocketMQ type
+
+```hcl
+variable "channel_id" {}
+variable "source_name" {}
+variable "rocketmq_instance_id" {}
+variable "rocketmq_instance_name" {}
+variable "rocketmq_instance_namesrv_address" {}
+variable "rocketmq_consumer_group_id" {}
+variable "rocketmq_topic_id" {}
+
+resource "huaweicloud_eg_custom_event_source" "test" {
+  channel_id = var.channel_id
+  type       = "ROCKETMQ"
+  name       = var.source_name
+  detail     = jsonencode({
+    instance_id     = var.rocketmq_instance_id
+    name            = var.rocketmq_instance_name
+    namesrv_address = var.rocketmq_instance_namesrv_address
+    group           = var.rocketmq_consumer_group_id
+    topic           = var.rocketmq_topic_id
+    enable_acl      = false
+    ssl_enable      = false
+  })
 }
 ```
 
@@ -46,7 +100,12 @@ The following arguments are supported:
   Defaults to **APPLICATION**.  
   Changing this will create a new resource.
 
+  -> Before creating a **RocketMQ** event source, you need to open ingress rule for TCP `8,100` and `10,100`-`10,103`
+     ports for the security group.
+
 * `description` - (Optional, String) Specifies the description of the custom event source.
+
+* `detail` - (Optional, String) Specifies the configuration detail of the event source, in JSON format.
 
 ## Attribute Reference
 

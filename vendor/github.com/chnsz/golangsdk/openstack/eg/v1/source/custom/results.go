@@ -31,6 +31,8 @@ type Source struct {
 	// + RABBITMQ
 	// + ROCKETMQ
 	Type string `json:"type"`
+	// The configuration detail of the event source, in JSON format.
+	Detail interface{} `json:"detail"`
 	// The status of the event source
 	Status string `json:"status"`
 }
