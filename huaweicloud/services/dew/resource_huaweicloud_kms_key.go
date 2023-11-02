@@ -135,9 +135,9 @@ func resourceKmsKeyValidation(d *schema.ResourceData) error {
 }
 
 func ResourceKmsKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
+	configuration := meta.(*config.Config)
+	region := configuration.GetRegion(d)
+	kmsKeyV1Client, err := configuration.KmsKeyV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating KMS client: %s", err)
 	}
@@ -150,7 +150,7 @@ func ResourceKmsKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		KeyAlias:            d.Get("key_alias").(string),
 		KeyDescription:      d.Get("key_description").(string),
 		KeySpec:             d.Get("key_algorithm").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: common.GetEnterpriseProjectID(d, configuration),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -224,9 +224,9 @@ func ResourceKmsKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func ResourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
+	configuration := meta.(*config.Config)
+	region := configuration.GetRegion(d)
+	kmsKeyV1Client, err := configuration.KmsKeyV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating KMS key client: %s", err)
 	}
@@ -279,9 +279,9 @@ func ResourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interfac
 }
 
 func ResourceKmsKeyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
+	configuration := meta.(*config.Config)
+	region := configuration.GetRegion(d)
+	kmsKeyV1Client, err := configuration.KmsKeyV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating KMS key client: %s", err)
 	}
@@ -398,9 +398,9 @@ func updateRotation(d *schema.ResourceData, client *golangsdk.ServiceClient, key
 }
 
 func ResourceKmsKeyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
+	configuration := meta.(*config.Config)
+	region := configuration.GetRegion(d)
+	kmsKeyV1Client, err := configuration.KmsKeyV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating KMS key client: %s", err)
 	}

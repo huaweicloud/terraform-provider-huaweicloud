@@ -99,21 +99,21 @@ func DataSourceKmsKey() *schema.Resource {
 }
 
 func dataSourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	kmsKeyV1Client, err := config.KmsKeyV1Client(region)
+	configuration := meta.(*config.Config)
+	region := configuration.GetRegion(d)
+	kmsKeyV1Client, err := configuration.KmsKeyV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating kms key client: %s", err)
 	}
 
-	is_list_key := true
-	next_marker := ""
+	isListKey := true
+	nextMarker := ""
 	allKeys := []keys.Key{}
-	for is_list_key {
+	for isListKey {
 		req := &keys.ListOpts{
 			KeyState: d.Get("key_state").(string),
 			Limit:    "",
-			Marker:   next_marker,
+			Marker:   nextMarker,
 		}
 
 		v, err := keys.List(kmsKeyV1Client, req).ExtractListKey()
@@ -121,8 +121,8 @@ func dataSourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interf
 			return diag.FromErr(err)
 		}
 
-		is_list_key = v.Truncated == "true"
-		next_marker = v.NextMarker
+		isListKey = v.Truncated == "true"
+		nextMarker = v.NextMarker
 		allKeys = append(allKeys, v.KeyDetails...)
 	}
 
