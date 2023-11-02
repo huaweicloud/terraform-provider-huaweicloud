@@ -19,10 +19,10 @@ import (
 
 func ResourceDliSqlDatabaseV1() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: ResourceDliSqlDatabaseV1Create,
-		ReadContext:   ResourceDliSqlDatabaseV1Read,
-		UpdateContext: ResourceDliSqlDatabaseV1Update,
-		DeleteContext: ResourceDliSqlDatabaseV1Delete,
+		CreateContext: resourceDliSQLDatabaseCreate,
+		ReadContext:   resourceDliSQLDatabaseRead,
+		UpdateContext: resourceDliSQLDatabaseUpdate,
+		DeleteContext: resourceDliSQLDatabaseDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDatabaseImportState,
@@ -66,9 +66,10 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 	}
 }
 
-func ResourceDliSqlDatabaseV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV1Client(config.GetRegion(d))
+func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
@@ -77,7 +78,7 @@ func ResourceDliSqlDatabaseV1Create(ctx context.Context, d *schema.ResourceData,
 	opts := databases.CreateOpts{
 		Name:                dbName,
 		Description:         d.Get("description").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
 	}
 	_, err = databases.Create(c, opts)
 	if err != nil {
@@ -87,10 +88,10 @@ func ResourceDliSqlDatabaseV1Create(ctx context.Context, d *schema.ResourceData,
 	// in the READ method.
 	d.SetId(dbName)
 
-	return ResourceDliSqlDatabaseV1Read(ctx, d, meta)
+	return resourceDliSQLDatabaseRead(ctx, d, meta)
 }
 
-func GetDliSqlDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databases.Database, error) {
+func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databases.Database, error) {
 	resp, err := databases.List(c, databases.ListOpts{
 		Keyword: dbName, // Fuzzy matching.
 	})
@@ -110,15 +111,16 @@ func GetDliSqlDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 	return databases.Database{}, golangsdk.ErrDefault404{}
 }
 
-func ResourceDliSqlDatabaseV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV1Client(config.GetRegion(d))
+func resourceDliSQLDatabaseRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	dbName := d.Get("name").(string)
-	db, err := GetDliSqlDatabaseByName(c, dbName)
+	db, err := GetDliSQLDatabaseByName(c, dbName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DLI database")
 	}
@@ -133,9 +135,10 @@ func ResourceDliSqlDatabaseV1Read(_ context.Context, d *schema.ResourceData, met
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func ResourceDliSqlDatabaseV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV1Client(config.GetRegion(d))
+func resourceDliSQLDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
@@ -148,12 +151,13 @@ func ResourceDliSqlDatabaseV1Update(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error updating SQL database owner: %s", err)
 	}
 
-	return ResourceDliSqlDatabaseV1Read(ctx, d, meta)
+	return resourceDliSQLDatabaseRead(ctx, d, meta)
 }
 
-func ResourceDliSqlDatabaseV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV1Client(config.GetRegion(d))
+func resourceDliSQLDatabaseDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}

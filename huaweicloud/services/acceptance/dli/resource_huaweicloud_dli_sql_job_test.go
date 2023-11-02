@@ -13,8 +13,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getDliSqlJobResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
+func getDliSQLJobResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
@@ -30,13 +30,13 @@ func TestAccResourceDliSqlJob_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&sqlJobObj,
-		getDliSqlJobResourceFunc,
+		getDliSQLJobResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDliSqlJobDestroy,
+		CheckDestroy:      testAccCheckDliSQLJobDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSqlJobBaseResource_basic(name),
@@ -65,16 +65,16 @@ func TestAccResourceDliSqlJob_query(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&sqlJobObj,
-		getDliSqlJobResourceFunc,
+		getDliSQLJobResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDliSqlJobDestroy,
+		CheckDestroy:      testAccCheckDliSQLJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSqlJobBaseResource_query(name),
+				Config: testAccSQLJobBaseResource_query(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "sql", fmt.Sprint("SELECT * FROM ", name)),
@@ -101,16 +101,16 @@ func TestAccResourceDliSqlJob_async(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&sqlJobObj,
-		getDliSqlJobResourceFunc,
+		getDliSQLJobResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckDliSqlJobDestroy,
+		CheckDestroy:      testAccCheckDliSQLJobDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSqlJobResource_aync(name),
+				Config: testAccSQLJobResource_aync(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "sql", fmt.Sprint("SELECT * FROM ", name)),
@@ -137,10 +137,10 @@ resource "huaweicloud_dli_sql_job" "test" {
   sql           = "DESC ${huaweicloud_dli_table.test.name}"
   database_name = huaweicloud_dli_database.test.name
 }
-`, testAccSqlJobBaseResource(name))
+`, testAccSQLJobBaseResource(name))
 }
 
-func testAccSqlJobBaseResource(name string) string {
+func testAccSQLJobBaseResource(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_database" "test" {
   name        = "%s"
@@ -168,7 +168,7 @@ resource "huaweicloud_dli_table" "test" {
 `, name, name)
 }
 
-func testAccSqlJobBaseResource_query(name string) string {
+func testAccSQLJobBaseResource_query(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -177,10 +177,10 @@ resource "huaweicloud_dli_sql_job" "test" {
   database_name = huaweicloud_dli_database.test.name
 
 }
-`, testAccSqlJobBaseResource(name))
+`, testAccSQLJobBaseResource(name))
 }
 
-func testAccSqlJobResource_aync(name string) string {
+func testAccSQLJobResource_aync(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -192,12 +192,12 @@ resource "huaweicloud_dli_sql_job" "test" {
     dli_sql_sqlasync_enabled = true
   }
 }
-`, testAccSqlJobBaseResource(name))
+`, testAccSQLJobBaseResource(name))
 }
 
-func testAccCheckDliSqlJobDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
+func testAccCheckDliSQLJobDestroy(s *terraform.State) error {
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating Dli client, err=%s", err)
 	}

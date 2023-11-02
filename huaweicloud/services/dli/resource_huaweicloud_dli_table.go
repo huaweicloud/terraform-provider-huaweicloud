@@ -143,9 +143,9 @@ func ResourceDliTable() *schema.Resource {
 }
 
 func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -185,9 +185,9 @@ func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta in
 }
 
 func resourceDliTableRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -278,10 +278,10 @@ func setStoragePropertiesToState(d *schema.ResourceData, storageProperties []map
 	return mErr.ErrorOrNil()
 }
 
-func resourceDliTableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+func resourceDliTableDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -305,16 +305,15 @@ func buildColumnParam(d *schema.ResourceData) []tables.ColumnOpts {
 	columns := d.Get("columns").([]interface{})
 	if len(columns) > 0 {
 		for _, raw := range columns {
-			config := raw.(map[string]interface{})
+			columnRaw := raw.(map[string]interface{})
 			column := tables.ColumnOpts{
-				ColumnName:        config["name"].(string),
-				Type:              config["type"].(string),
-				Description:       config["description"].(string),
-				IsPartitionColumn: utils.Bool(config["is_partition"].(bool)),
+				ColumnName:        columnRaw["name"].(string),
+				Type:              columnRaw["type"].(string),
+				Description:       columnRaw["description"].(string),
+				IsPartitionColumn: utils.Bool(columnRaw["is_partition"].(bool)),
 			}
 			rt = append(rt, column)
 		}
-
 	}
 
 	return rt
@@ -335,5 +334,4 @@ func filterByTableName(tablesResp []tables.Table4List, tableName string) (*table
 		}
 	}
 	return &tables.Table4List{}, golangsdk.ErrDefault404{}
-
 }
