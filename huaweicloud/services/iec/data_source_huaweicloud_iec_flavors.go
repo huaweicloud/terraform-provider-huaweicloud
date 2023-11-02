@@ -1,19 +1,21 @@
-package huaweicloud
+package iec
 
 import (
 	"strconv"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/flavors"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIecFlavors() *schema.Resource {
+func DataSourceIecFlavors() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIecFlavorsV1Read,
+		Read: dataSourceIecFlavorsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -73,10 +75,10 @@ func dataSourceIecFlavors() *schema.Resource {
 	}
 }
 
-func dataSourceIecFlavorsV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceIecFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+	iecClient, err := config.IECV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}

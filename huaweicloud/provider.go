@@ -40,6 +40,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dbss"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iec"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ddm"
@@ -500,9 +502,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_iec_bandwidths":     dataSourceIECBandWidths(),
 			"huaweicloud_iec_eips":           dataSourceIECNetworkEips(),
-			"huaweicloud_iec_flavors":        dataSourceIecFlavors(),
-			"huaweicloud_iec_images":         dataSourceIecImages(),
-			"huaweicloud_iec_keypair":        dataSourceIECKeypair(),
+			"huaweicloud_iec_flavors":        iec.DataSourceIecFlavors(),
+			"huaweicloud_iec_images":         iec.DataSourceIecImages(),
+			"huaweicloud_iec_keypair":        iec.DataSourceIECKeypair(),
 			"huaweicloud_iec_network_acl":    dataSourceIECNetworkACL(),
 			"huaweicloud_iec_port":           DataSourceIECPort(),
 			"huaweicloud_iec_security_group": dataSourceIECSecurityGroup(),

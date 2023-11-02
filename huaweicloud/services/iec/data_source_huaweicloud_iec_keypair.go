@@ -1,17 +1,18 @@
-package huaweicloud
+package iec
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/keypairs"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIECKeypair() *schema.Resource {
+func DataSourceIECKeypair() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceIECKeypairRead,
 
@@ -34,7 +35,7 @@ func dataSourceIECKeypair() *schema.Resource {
 
 func dataSourceIECKeypairRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+	iecClient, err := config.IECV1Client(common.GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
