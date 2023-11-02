@@ -9,15 +9,16 @@ import (
 	"context"
 	"strings"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceAssetObs() *schema.Resource {
@@ -59,15 +60,15 @@ func ResourceAssetObs() *schema.Resource {
 }
 
 func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createAssetObs: create an OBS asset.
 	var (
 		createAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
 		createAssetObsProduct = "dsc"
 	)
-	createAssetObsClient, err := config.NewServiceClient(createAssetObsProduct, region)
+	createAssetObsClient, err := cfg.NewServiceClient(createAssetObsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating AssetObs Client: %s", err)
 	}
@@ -81,7 +82,7 @@ func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta in
 			200,
 		},
 	}
-	createAssetObsOpt.JSONBody = utils.RemoveNil(buildCreateAssetObsBodyParams(d, config))
+	createAssetObsOpt.JSONBody = utils.RemoveNil(buildCreateAssetObsBodyParams(d, cfg))
 	_, err = createAssetObsClient.Request("POST", createAssetObsPath, &createAssetObsOpt)
 	if err != nil {
 		return diag.Errorf("error creating AssetObs: %s", err)
@@ -92,7 +93,7 @@ func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta in
 		getAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
 		getAssetObsProduct = "dsc"
 	)
-	getAssetObsClient, err := config.NewServiceClient(getAssetObsProduct, region)
+	getAssetObsClient, err := cfg.NewServiceClient(getAssetObsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating AssetObs Client: %s", err)
 	}
@@ -127,11 +128,11 @@ func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceAssetObsRead(ctx, d, meta)
 }
 
-func buildCreateAssetObsBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateAssetObsBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"buckets": []map[string]interface{}{{
 			"asset_name":    utils.ValueIngoreEmpty(d.Get("name")),
-			"location":      config.GetRegion(d),
+			"location":      cfg.GetRegion(d),
 			"bucket_name":   utils.ValueIngoreEmpty(d.Get("bucket_name")),
 			"bucket_policy": utils.ValueIngoreEmpty(d.Get("bucket_policy")),
 		},
@@ -140,9 +141,9 @@ func buildCreateAssetObsBodyParams(d *schema.ResourceData, config *config.Config
 	return bodyParams
 }
 
-func resourceAssetObsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceAssetObsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -151,7 +152,7 @@ func resourceAssetObsRead(ctx context.Context, d *schema.ResourceData, meta inte
 		getAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
 		getAssetObsProduct = "dsc"
 	)
-	getAssetObsClient, err := config.NewServiceClient(getAssetObsProduct, region)
+	getAssetObsClient, err := cfg.NewServiceClient(getAssetObsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating AssetObs Client: %s", err)
 	}
@@ -206,8 +207,8 @@ func FilterAssetObs(resp interface{}, val string, path string) interface{} {
 }
 
 func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	updateAssetObshasChanges := []string{
 		"name",
@@ -219,7 +220,7 @@ func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			updateAssetObsHttpUrl = "v1/{project_id}/sdg/asset/{id}/name"
 			updateAssetObsProduct = "dsc"
 		)
-		updateAssetObsClient, err := config.NewServiceClient(updateAssetObsProduct, region)
+		updateAssetObsClient, err := cfg.NewServiceClient(updateAssetObsProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating AssetObs Client: %s", err)
 		}
@@ -234,7 +235,7 @@ func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta in
 				200,
 			},
 		}
-		updateAssetObsOpt.JSONBody = utils.RemoveNil(buildUpdateAssetObsBodyParams(d, config))
+		updateAssetObsOpt.JSONBody = utils.RemoveNil(buildUpdateAssetObsBodyParams(d, cfg))
 		_, err = updateAssetObsClient.Request("PUT", updateAssetObsPath, &updateAssetObsOpt)
 		if err != nil {
 			return diag.Errorf("error updating AssetObs: %s", err)
@@ -243,22 +244,22 @@ func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceAssetObsRead(ctx, d, meta)
 }
 
-func buildUpdateAssetObsBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateAssetObsBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name": utils.ValueIngoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }
 
-func resourceAssetObsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceAssetObsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var (
 		deleteAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/bucket/{id}"
 		deleteAssetObsProduct = "dsc"
 	)
-	deleteAssetObsClient, err := config.NewServiceClient(deleteAssetObsProduct, region)
+	deleteAssetObsClient, err := cfg.NewServiceClient(deleteAssetObsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating AssetObs Client: %s", err)
 	}

@@ -12,17 +12,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 const (
@@ -123,15 +124,15 @@ func ResourceDscInstance() *schema.Resource {
 }
 
 func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createDscInstance: create a DSC.
 	var (
 		createDscInstanceHttpUrl = "v1/{project_id}/period/order"
 		createDscInstanceProduct = "dsc"
 	)
-	createDscInstanceClient, err := config.NewServiceClient(createDscInstanceProduct, region)
+	createDscInstanceClient, err := cfg.NewServiceClient(createDscInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DscInstance Client: %s", err)
 	}
@@ -145,7 +146,7 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			200,
 		},
 	}
-	bodyParams, err := buildCreateDscInstanceBodyParams(d, config)
+	bodyParams, err := buildCreateDscInstanceBodyParams(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -170,7 +171,7 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		payOrderHttpUrl = "v3/orders/customer-orders/pay"
 		payOrderProduct = "bss"
 	)
-	payOrderClient, err := config.NewServiceClient(payOrderProduct, region)
+	payOrderClient, err := cfg.NewServiceClient(payOrderProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating BSS Client: %s", err)
 	}
@@ -189,7 +190,7 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error pay order=%s: %s", d.Id(), err)
 	}
 
-	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
@@ -415,9 +416,9 @@ func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 	return bodyParams
 }
 
-func resourceDscInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceDscInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -426,7 +427,7 @@ func resourceDscInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		getDscInstanceHttpUrl = "v1/{project_id}/period/product/specification"
 		getDscInstanceProduct = "dsc"
 	)
-	getDscInstanceClient, err := config.NewServiceClient(getDscInstanceProduct, region)
+	getDscInstanceClient, err := cfg.NewServiceClient(getDscInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DscInstance Client: %s", err)
 	}
@@ -471,16 +472,14 @@ func parsePeriodUnit(periodType interface{}) string {
 	pUnit := fmt.Sprintf("%v", periodType)
 	if pUnit == "3" {
 		return "year"
-
-	} else {
-		return "month"
 	}
+	return "month"
 }
 
 func resourceDscInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 
-	if err := common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+	if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
 		return diag.Errorf("Error unsubscribing DSC order = %s: %s", d.Id(), err)
 	}
 
@@ -501,9 +500,9 @@ func resourceDscInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func waitForBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func waitForBmsInstanceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	return func() (interface{}, string, error) {
 		// getDscInstance: Query the DSC instance
@@ -511,7 +510,7 @@ func waitForBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta 
 			getDscInstanceHttpUrl = "v1/{project_id}/period/product/specification"
 			getDscInstanceProduct = "dsc"
 		)
-		getDscInstanceClient, err := config.NewServiceClient(getDscInstanceProduct, region)
+		getDscInstanceClient, err := cfg.NewServiceClient(getDscInstanceProduct, region)
 		if err != nil {
 			return nil, "error", fmt.Errorf("error creating DscInstance Client: %s", err)
 		}
@@ -540,8 +539,7 @@ func waitForBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta 
 		orders := orderInfo.([]interface{})
 		if len(orders) == 0 {
 			return orders, "COMPLETE", nil
-		} else {
-			return nil, "PENDING", nil
 		}
+		return nil, "PENDING", nil
 	}
 }
