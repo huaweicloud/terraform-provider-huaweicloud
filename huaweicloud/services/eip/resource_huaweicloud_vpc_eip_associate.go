@@ -3,6 +3,7 @@ package eip
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -15,10 +16,9 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 	"github.com/chnsz/golangsdk/pagination"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // ResourceEIPAssociate is the impl for huaweicloud_vpc_eip_associate resource
@@ -120,17 +120,18 @@ func waitForStateCompleted(ctx context.Context, f resource.StateRefreshFunc, t t
 }
 
 func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	publicIP := d.Get("public_ip").(string)
 	epsID := "all_granted_eps"
 	publicID, err := common.GetEipIDbyAddress(vpcClient, publicIP, epsID)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to get ID of public IP %s: %s", publicIP, err)
+		return diag.Errorf("unable to get ID of public IP %s: %s", publicIP, err)
 	}
 
 	var portID string
@@ -141,7 +142,7 @@ func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, met
 		fixedIP := d.Get("fixed_ip").(string)
 		portID, err = getPortbyFixedIP(vpcClient, networkID, fixedIP)
 		if err != nil {
-			return fmtp.DiagErrorf("Unable to get port ID of %s: %s", fixedIP, err)
+			return diag.Errorf("unable to get port ID of %s: %s", fixedIP, err)
 		}
 	}
 
@@ -149,7 +150,7 @@ func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, met
 	t := d.Timeout(schema.TimeoutCreate)
 	err = bindPort(vpcClient, publicID, portID, t)
 	if err != nil {
-		return fmtp.DiagErrorf("Error associating EIP %s to port %s: %s", publicID, portID, err)
+		return diag.Errorf("error associating EIP %s to port %s: %s", publicID, portID, err)
 	}
 
 	d.SetId(publicID)
@@ -162,11 +163,11 @@ func resourceEIPAssociateCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcClient, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	eIP, err := eips.Get(vpcClient, d.Id()).Extract()
@@ -202,23 +203,24 @@ func resourceEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta in
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting eip associate fields: %s", err)
+		return diag.Errorf("error setting eip associate fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceEIPAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	portID := d.Get("port_id").(string)
 	err = unbindPort(vpcClient, d.Id(), portID, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return fmtp.DiagErrorf("Error disassociating EIP %s from port %s: %s",
+		return diag.Errorf("error disassociating EIP %s from port %s: %s",
 			d.Id(), portID, err)
 	}
 
@@ -226,12 +228,12 @@ func resourceEIPAssociateDelete(_ context.Context, d *schema.ResourceData, meta 
 }
 
 func bindPort(client *golangsdk.ServiceClient, eipID, portID string, timeout time.Duration) error {
-	logp.Printf("[DEBUG] Bind EIP %s to port %s", eipID, portID)
+	log.Printf("[DEBUG] Bind EIP %s to port %s", eipID, portID)
 	return actionOnPort(client, eipID, portID, timeout)
 }
 
 func unbindPort(client *golangsdk.ServiceClient, eipID, portID string, timeout time.Duration) error {
-	logp.Printf("[DEBUG] Unbind EIP %s from port: %s", eipID, portID)
+	log.Printf("[DEBUG] Unbind EIP %s from port: %s", eipID, portID)
 	return actionOnPort(client, eipID, "", timeout)
 }
 
@@ -283,11 +285,11 @@ func getPortbyFixedIP(client *golangsdk.ServiceClient, networkID, fixedIP string
 	})
 
 	if err != nil {
-		return "", fmtp.Errorf("Unable to list ports: %s", err)
+		return "", fmt.Errorf("unable to list ports: %s", err)
 	}
 
 	if portID == "" {
-		return "", fmtp.Errorf("can not find %s in subnet %s", fixedIP, networkID)
+		return "", fmt.Errorf("can not find %s in subnet %s", fixedIP, networkID)
 	}
 
 	return portID, nil

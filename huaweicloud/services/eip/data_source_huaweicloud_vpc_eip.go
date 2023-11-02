@@ -3,12 +3,13 @@ package eip
 import (
 	"context"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceVpcEip() *schema.Resource {
@@ -74,10 +75,11 @@ func DataSourceVpcEip() *schema.Resource {
 }
 
 func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC client: %s", err)
 	}
 
 	var listOpts eips.ListOpts
@@ -89,7 +91,7 @@ func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interf
 		listOpts.PublicIp = []string{publicIp.(string)}
 	}
 
-	listOpts.EnterpriseProjectId = config.DataGetEnterpriseProjectID(d)
+	listOpts.EnterpriseProjectId = cfg.DataGetEnterpriseProjectID(d)
 
 	pages, err := eips.List(vpcClient, listOpts).AllPages()
 	if err != nil {
@@ -98,40 +100,40 @@ func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve eips: %s ", err)
+		return diag.Errorf("unable to retrieve eips: %s ", err)
 	}
 
 	if len(allEips) < 1 {
-		return fmtp.DiagErrorf("Your query returned no results. " +
+		return diag.Errorf("your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allEips) > 1 {
-		return fmtp.DiagErrorf("Your query returned more than one result." +
+		return diag.Errorf("your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
-	Eip := allEips[0]
+	eipInfo := allEips[0]
 
-	d.SetId(Eip.ID)
+	d.SetId(eipInfo.ID)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
-		d.Set("status", NormalizeEipStatus(Eip.Status)),
-		d.Set("public_ip", Eip.PublicAddress),
-		d.Set("ipv6_address", Eip.PublicIpv6Address),
-		d.Set("ip_version", Eip.IpVersion),
-		d.Set("port_id", Eip.PortID),
-		d.Set("type", Eip.Type),
-		d.Set("private_ip", Eip.PrivateAddress),
-		d.Set("bandwidth_id", Eip.BandwidthID),
-		d.Set("bandwidth_size", Eip.BandwidthSize),
-		d.Set("bandwidth_share_type", Eip.BandwidthShareType),
-		d.Set("enterprise_project_id", Eip.EnterpriseProjectID),
+		d.Set("region", region),
+		d.Set("status", NormalizeEipStatus(eipInfo.Status)),
+		d.Set("public_ip", eipInfo.PublicAddress),
+		d.Set("ipv6_address", eipInfo.PublicIpv6Address),
+		d.Set("ip_version", eipInfo.IpVersion),
+		d.Set("port_id", eipInfo.PortID),
+		d.Set("type", eipInfo.Type),
+		d.Set("private_ip", eipInfo.PrivateAddress),
+		d.Set("bandwidth_id", eipInfo.BandwidthID),
+		d.Set("bandwidth_size", eipInfo.BandwidthSize),
+		d.Set("bandwidth_share_type", eipInfo.BandwidthShareType),
+		d.Set("enterprise_project_id", eipInfo.EnterpriseProjectID),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting eip fields: %s", err)
+		return diag.Errorf("error setting eip fields: %s", err)
 	}
 
 	return nil

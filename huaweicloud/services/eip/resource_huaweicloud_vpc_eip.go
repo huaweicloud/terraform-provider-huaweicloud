@@ -16,7 +16,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
-	sdk_structs "github.com/chnsz/golangsdk/openstack/common/structs"
+	sdkstructs "github.com/chnsz/golangsdk/openstack/common/structs"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
@@ -228,12 +228,12 @@ func validatePrePaidBandWidth(bandwidth eips.BandwidthOpts) error {
 	return nil
 }
 
-func buildVpcEipCreateOpts(config *config.Config, d *schema.ResourceData, isPrePaid bool) (eips.ApplyOpts, error) {
+func buildVpcEipCreateOpts(cfg *config.Config, d *schema.ResourceData, isPrePaid bool) (eips.ApplyOpts, error) {
 	bandwidth := resourceBandWidth(d)
 	result := eips.ApplyOpts{
 		IP:                  resourcePublicIP(d),
 		Bandwidth:           bandwidth,
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	if isPrePaid {
@@ -244,7 +244,7 @@ func buildVpcEipCreateOpts(config *config.Config, d *schema.ResourceData, isPreP
 			return result, err
 		}
 
-		result.ExtendParam = &sdk_structs.ChargeInfo{
+		result.ExtendParam = &sdkstructs.ChargeInfo{
 			ChargeMode:  d.Get("charging_mode").(string),
 			PeriodType:  d.Get("period_unit").(string),
 			PeriodNum:   d.Get("period").(int),
@@ -255,10 +255,10 @@ func buildVpcEipCreateOpts(config *config.Config, d *schema.ResourceData, isPreP
 	return result, nil
 }
 
-func createPrePaidEip(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+func createPrePaidEip(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient,
 	d *schema.ResourceData) error {
 	timeout := d.Timeout(schema.TimeoutCreate)
-	createOpts, err := buildVpcEipCreateOpts(config, d, true)
+	createOpts, err := buildVpcEipCreateOpts(cfg, d, true)
 	if err != nil {
 		return err
 	}
@@ -270,7 +270,7 @@ func createPrePaidEip(ctx context.Context, config *config.Config, client *golang
 	}
 
 	// Waiting for EIP creation completed.
-	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating BSS v2 client: %s", err)
 	}
@@ -286,9 +286,9 @@ func createPrePaidEip(ctx context.Context, config *config.Config, client *golang
 	return nil
 }
 
-func createPostPaidEip(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+func createPostPaidEip(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient,
 	d *schema.ResourceData) error {
-	createOpts, err := buildVpcEipCreateOpts(config, d, false)
+	createOpts, err := buildVpcEipCreateOpts(cfg, d, false)
 	if err != nil {
 		return err
 	}
@@ -318,25 +318,25 @@ func createPostPaidEip(ctx context.Context, config *config.Config, client *golan
 }
 
 func resourceVpcEipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	vpcV1Client, err := config.NetworkingV1Client(region)
+	vpcV1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
-	vpcV2Client, err := config.NetworkingV2Client(region)
+	vpcV2Client, err := cfg.NetworkingV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v2.0 client: %s", err)
 	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
-		err := createPrePaidEip(ctx, config, vpcV2Client, d)
+		err := createPrePaidEip(ctx, cfg, vpcV2Client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	} else {
-		err := createPostPaidEip(ctx, config, vpcV1Client, d)
+		err := createPostPaidEip(ctx, cfg, vpcV1Client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -432,10 +432,10 @@ func flattenEipBandwidthDetails(publicIp eips.PublicIp, bandWidth bandwidths.Ban
 	}
 }
 
-func resourceVpcEipRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	networkingClient, err := config.NetworkingV1Client(region)
+func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	networkingClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
@@ -464,7 +464,7 @@ func resourceVpcEipRead(ctx context.Context, d *schema.ResourceData, meta interf
 	)
 
 	// Save tags via EIP API.
-	if vpcV2Client, err := config.NetworkingV2Client(region); err == nil {
+	if vpcV2Client, err := cfg.NetworkingV2Client(region); err == nil {
 		if resourceTags, err := tags.Get(vpcV2Client, "publicips", resourceId).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
@@ -526,7 +526,7 @@ func updateEipPortId(vpcV1Client *golangsdk.ServiceClient, d *schema.ResourceDat
 	return nil
 }
 
-func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, config *config.Config, d *schema.ResourceData) error {
+func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
 	old, new := d.GetChange("bandwidth")
 	oldRaw := old.([]interface{})
 	newRaw := new.([]interface{})
@@ -536,7 +536,7 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, config *config.Con
 
 	bandwidthId := oldMap["id"].(string)
 	if d.Get("charging_mode").(string) == "prePaid" {
-		vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
+		vpcV2Client, err := cfg.NetworkingV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return fmt.Errorf("error creating VPC v2.0 client: %s", err)
 		}
@@ -559,7 +559,7 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, config *config.Con
 		if resp.OrderID != "" {
 			log.Printf("[DEBUG] The order ID of updating bandwidth is: %s", resp.OrderID)
 			// Wait for order success.
-			bssClient, err := config.BssV2Client(config.GetRegion(d))
+			bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 			if err != nil {
 				return fmt.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -586,9 +586,9 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, config *config.Con
 }
 
 func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	vpcV1Client, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	vpcV1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
@@ -609,7 +609,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if d.HasChange("bandwidth") {
-		err = updateEipBandwidth(vpcV1Client, config, d)
+		err = updateEipBandwidth(vpcV1Client, cfg, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -617,7 +617,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// update tags
 	if d.HasChange("tags") {
-		vpcV2Client, err := config.NetworkingV2Client(region)
+		vpcV2Client, err := cfg.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v2 client: %s", err)
 		}
@@ -629,7 +629,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(region)
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -642,8 +642,9 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceVpcEipDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	networkingClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -662,12 +663,12 @@ func resourceVpcEipDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		portID := v.(string)
 		err = unbindPort(networkingClient, resourceId, portID, timeout)
 		if err != nil {
-			log.Printf("[WARN] Error trying to unbind eip %s :%s", resourceId, err)
+			log.Printf("[WARN] error trying to unbind eip %s :%s", resourceId, err)
 		}
 	}
 
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		if err := common.UnsubscribePrePaidResource(d, config, []string{resourceId}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{resourceId}); err != nil {
 			return diag.Errorf("error unsubscribe publicip: %s", err)
 		}
 	} else {
