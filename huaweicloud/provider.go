@@ -40,8 +40,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dbss"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iec"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ddm"

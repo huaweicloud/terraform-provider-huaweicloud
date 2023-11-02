@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccIECFlavorsDataSource_basic(t *testing.T) {
@@ -23,7 +22,7 @@ func TestAccIECFlavorsDataSource_basic(t *testing.T) {
 				Config: testAccIECFlavorsConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIECFlavorsDataSourceID(resourceName),
-					resource.TestMatchResourceAttr(resourceName, "flavors.#", regexp.MustCompile("[1-9]\\d*")),
+					resource.TestMatchResourceAttr(resourceName, "flavors.#", regexp.MustCompile(`[1-9]\d*`)),
 					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
 				),
 			},
@@ -54,11 +53,11 @@ func testAccCheckIECFlavorsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Root module has no resource called %s", n)
+			return fmt.Errorf("root module has no resource called %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("IEC flavors data source ID not set")
+			return fmt.Errorf("IEC flavors data source ID not set")
 		}
 		return nil
 	}

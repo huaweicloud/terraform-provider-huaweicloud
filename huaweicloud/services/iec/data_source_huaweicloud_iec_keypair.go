@@ -1,20 +1,22 @@
 package iec
 
 import (
+	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/keypairs"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceIECKeypair() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECKeypairRead,
+		ReadContext: dataSourceIECKeypairRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -33,27 +35,28 @@ func DataSourceIECKeypair() *schema.Resource {
 	}
 }
 
-func dataSourceIECKeypairRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(common.GetRegion(d, config))
+func dataSourceIECKeypairRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	keyName := d.Get("name").(string)
 	kp, err := keypairs.Get(iecClient, keyName).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return fmtp.Errorf("Your query returned no results. " +
-				"Please change your search criteria and try again.")
+			return diag.Errorf("your query returned no results, " +
+				"please change your search criteria and try again")
 		}
-		return fmtp.Errorf("fetching IEC keypair error: %s", err)
+		return diag.Errorf("fetching IEC keypair error: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved IEC keypair %s: %+v", kp.Name, kp)
+	log.Printf("[DEBUG] Retrieved IEC keypair %s: %+v", kp.Name, kp)
 	d.SetId(kp.Name)
-	d.Set("public_key", kp.PublicKey)
-	d.Set("fingerprint", kp.Fingerprint)
-
-	return nil
+	mErr := multierror.Append(
+		d.Set("public_key", kp.PublicKey),
+		d.Set("fingerprint", kp.Fingerprint),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

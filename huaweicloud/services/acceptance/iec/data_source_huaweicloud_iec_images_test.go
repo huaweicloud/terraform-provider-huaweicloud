@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccIECImagesDataSource_basic(t *testing.T) {
@@ -23,7 +22,7 @@ func TestAccIECImagesDataSource_basic(t *testing.T) {
 				Config: testAccIECImagesConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIECImagesDataSourceID(resourceName),
-					resource.TestMatchResourceAttr(resourceName, "images.#", regexp.MustCompile("[1-9]\\d*")),
+					resource.TestMatchResourceAttr(resourceName, "images.#", regexp.MustCompile(`[1-9]\d*`)),
 					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
 				),
 			},
@@ -35,11 +34,11 @@ func testAccCheckIECImagesDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Root module has no resource called %s", n)
+			return fmt.Errorf("root module has no resource called %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("IEC images data source ID not set")
+			return fmt.Errorf("IEC images data source ID not set")
 		}
 		return nil
 	}
