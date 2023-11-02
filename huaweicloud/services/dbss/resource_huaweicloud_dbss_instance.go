@@ -11,17 +11,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/jmespath/go-jmespath"
 )
 
 func ResourceInstance() *schema.Resource {
@@ -184,15 +185,15 @@ func ResourceInstance() *schema.Resource {
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createInstance: Create a DBSS instance.
 	var (
 		createInstanceHttpUrl = "v2/{project_id}/dbss/audit/charge/period/order"
 		createInstanceProduct = "dbss"
 	)
-	createInstanceClient, err := config.NewServiceClient(createInstanceProduct, region)
+	createInstanceClient, err := cfg.NewServiceClient(createInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Instance Client: %s", err)
 	}
@@ -206,7 +207,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 			200,
 		},
 	}
-	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, config))
+	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg))
 	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating Instance: %s", err)
@@ -227,7 +228,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		payOrderHttpUrl = "v3/orders/customer-orders/pay"
 		payOrderProduct = "bss"
 	)
-	payOrderClient, err := config.NewServiceClient(payOrderProduct, region)
+	payOrderClient, err := cfg.NewServiceClient(payOrderProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating BSS Client: %s", err)
 	}
@@ -246,7 +247,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error pay order=%s: %s", d.Id(), err)
 	}
 
-	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
@@ -277,20 +278,20 @@ func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 	return bodyParams
 }
 
-func buildCreateInstanceBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"region":                config.GetRegion(d),
+		"region":                cfg.GetRegion(d),
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"comment":               utils.ValueIngoreEmpty(d.Get("description")),
 		"availability_zone":     utils.ValueIngoreEmpty(d.Get("availability_zone")),
 		"cloud_service_type":    "hws.service.type.dbss",
 		"flavor_ref":            utils.ValueIngoreEmpty(d.Get("flavor")),
 		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"nics":                  buildCreateInstanceRequestBodyCreateInstanceRequestBody_nics(d),
-		"security_groups":       buildCreateInstanceRequestBodyCreateInstanceRequestBody_security_groups(d),
-		"product_infos":         buildCreateInstanceRequestBodyCreateInstanceRequestBody_product_infos(d),
+		"nics":                  buildCreateInstanceNicsRequestBody(d),
+		"security_groups":       buildCreateInstanceSecurityGroupsRequestBody(d),
+		"product_infos":         buildCreateInstanceProductInfosRequestBody(d),
 		"subscription_num":      1,
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		"period_num":            utils.ValueIngoreEmpty(d.Get("period")),
 	}
@@ -316,7 +317,7 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, config *config.Config
 	return bodyParams
 }
 
-func buildCreateInstanceRequestBodyCreateInstanceRequestBody_nics(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceNicsRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
@@ -325,7 +326,7 @@ func buildCreateInstanceRequestBodyCreateInstanceRequestBody_nics(d *schema.Reso
 	}
 }
 
-func buildCreateInstanceRequestBodyCreateInstanceRequestBody_security_groups(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceSecurityGroupsRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
@@ -333,7 +334,7 @@ func buildCreateInstanceRequestBodyCreateInstanceRequestBody_security_groups(d *
 	}
 }
 
-func buildCreateInstanceRequestBodyCreateInstanceRequestBody_product_infos(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"cloud_service_type": "hws.service.type.dbss",
@@ -350,13 +351,13 @@ func createInstaceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
 			var (
 				createInstaceWaitingHttpUrl = "v1/{project_id}/dbss/audit/jobs/{resource_id}"
 				createInstaceWaitingProduct = "dbss"
 			)
-			createInstaceWaitingClient, err := config.NewServiceClient(createInstaceWaitingProduct, region)
+			createInstaceWaitingClient, err := cfg.NewServiceClient(createInstaceWaitingProduct, region)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error creating Instance Client: %s", err)
 			}
@@ -403,7 +404,6 @@ func createInstaceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			}
 
 			return createInstaceWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -413,9 +413,9 @@ func createInstaceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 	return err
 }
 
-func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -424,7 +424,7 @@ func resourceInstanceRead(ctx context.Context, d *schema.ResourceData, meta inte
 		getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
 		getInstanceProduct = "dbss"
 	)
-	getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Instance Client: %s", err)
 	}
@@ -494,16 +494,16 @@ func FilterInstances(instances []interface{}, id string) (interface{}, error) {
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 
-	if err := common.UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+	if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
 		return diag.Errorf("Error unsubscribing DBSS order = %s: %s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETE"},
-		Refresh:      waitForInstanceDelete(ctx, d, meta),
+		Refresh:      waitForInstanceDelete(d, meta),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        20 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -517,16 +517,16 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func waitForInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func waitForInstanceDelete(d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	return func() (interface{}, string, error) {
 		var (
 			getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
 			getInstanceProduct = "dbss"
 		)
-		getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+		getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
 		if err != nil {
 			return nil, "error", fmt.Errorf("error creating Instance Client: %s", err)
 		}

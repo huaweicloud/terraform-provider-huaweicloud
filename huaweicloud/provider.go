@@ -493,6 +493,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_group":       iam.DataSourceIdentityGroup(),
 			"huaweicloud_identity_projects":    iam.DataSourceIdentityProjects(),
 			"huaweicloud_identity_users":       iam.DataSourceIdentityUsers(),
+			"huaweicloud_identity_agencies":    iam.DataSourceIdentityAgencies(),
 
 			"huaweicloud_identitycenter_instance": identitycenter.DataSourceIdentityCenter(),
 			"huaweicloud_identitycenter_groups":   identitycenter.DataSourceIdentityCenterGroups(),
@@ -964,8 +965,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_security_group_rule": resourceIecSecurityGroupRule(),
 			"huaweicloud_iec_server":              resourceIecServer(),
 			"huaweicloud_iec_vip":                 resourceIecVipV1(),
-			"huaweicloud_iec_vpc":                 ResourceIecVpc(),
-			"huaweicloud_iec_vpc_subnet":          resourceIecSubnet(),
+			"huaweicloud_iec_vpc":                 iec.ResourceIecVpc(),
+			"huaweicloud_iec_vpc_subnet":          iec.ResourceIecSubnet(),
 
 			"huaweicloud_images_image":                ims.ResourceImsImage(),
 			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
@@ -1179,7 +1180,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_rule_geolocation_access_control":     waf.ResourceRuleGeolocation(),
 			"huaweicloud_waf_rule_information_leakage_prevention": waf.ResourceRuleLeakagePrevention(),
 			"huaweicloud_waf_dedicated_instance":                  waf.ResourceWafDedicatedInstance(),
-			"huaweicloud_waf_dedicated_domain":                    waf.ResourceWafDedicatedDomainV1(),
+			"huaweicloud_waf_dedicated_domain":                    waf.ResourceWafDedicatedDomain(),
 			"huaweicloud_waf_instance_group":                      waf.ResourceWafInstanceGroup(),
 			"huaweicloud_waf_instance_group_associate":            waf.ResourceWafInstGroupAssociate(),
 			"huaweicloud_waf_reference_table":                     waf.ResourceWafReferenceTableV1(),
