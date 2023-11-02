@@ -2,6 +2,7 @@ package agency
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 type CreateOpts struct {
@@ -118,4 +119,34 @@ func ListRolesAttachedOnDomain(c *golangsdk.ServiceClient, agencyID, domainID st
 func ListRolesAttachedOnAllResources(c *golangsdk.ServiceClient, agencyID, domainID string) (r ListInheritedRolesResult) {
 	_, r.Err = c.Get(listInheritedURL(c, domainID, agencyID), &r.Body, nil)
 	return
+}
+
+type ListOpts struct {
+	Name          string `q:"name"`
+	DomainID      string `q:"domain_id"`
+	TrustDomainId string `q:"trust_domain_id"`
+}
+
+func (opts ListOpts) ToMetricsListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+type ListOptsBuilder interface {
+	ToMetricsListQuery() (string, error)
+}
+
+// Agency List.
+func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
+	url := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToMetricsListQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return AgencyPage{pagination.SinglePageBase(r)}
+	})
 }

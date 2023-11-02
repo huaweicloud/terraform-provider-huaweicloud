@@ -63,6 +63,7 @@ type Billing struct {
 	StorageUnit     string `json:"storage_unit"`
 	Used            int    `json:"used"`
 	FrozenScene     string `json:"frozen_scene"`
+	IsMultiAz       bool   `json:"is_multi_az"`
 }
 
 type ResourceResp struct {

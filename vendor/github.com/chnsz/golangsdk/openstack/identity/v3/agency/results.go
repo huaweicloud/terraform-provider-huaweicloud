@@ -3,6 +3,7 @@ package agency
 import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/roles"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 type Agency struct {
@@ -78,4 +79,16 @@ func (r ListInheritedRolesResult) ExtractRoles() ([]InheritedRole, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Roles, err
+}
+
+type AgencyPage struct {
+	pagination.SinglePageBase
+}
+
+func ExtractList(r pagination.Page) ([]Agency, error) {
+	var s struct {
+		Agencies []Agency `json:"agencies"`
+	}
+	err := (r.(AgencyPage)).ExtractInto(&s)
+	return s.Agencies, err
 }
