@@ -25,9 +25,9 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of the ELB listener.
 
-* `listener_id` - (Optional, String) Specifies the ID of the ELB listener.
-
 * `description` - (Optional, String) Specifies the description of the ELB listener.
+
+* `listener_id` - (Optional, String) Specifies the ID of the ELB listener.
 
 * `loadbalancer_id` - (Optional, String) Specifies the ID of the load balancer that the listener is added to.
 

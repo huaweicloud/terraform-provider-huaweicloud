@@ -175,7 +175,7 @@ func dataSourceElbListenersRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 	listListenersPath := listListenersClient.Endpoint + listListenersHttpUrl
 	listListenersPath = strings.ReplaceAll(listListenersPath, "{project_id}", listListenersClient.ProjectID)
-	listListenersQueryParams := buildListListenersQueryParams(d, cfg.DataGetEnterpriseProjectID(d))
+	listListenersQueryParams := buildListListenersQueryParams(d, cfg.GetEnterpriseProjectID(d))
 	listListenersPath += listListenersQueryParams
 	listListenersResp, err := pagination.ListAllItems(
 		listListenersClient,
@@ -230,7 +230,7 @@ func buildListListenersQueryParams(d *schema.ResourceData, enterpriseProjectId s
 	if v, ok := d.GetOk("protocol_port"); ok {
 		res = fmt.Sprintf("%s&protocol_port=%v", res, v)
 	}
-	if enterpriseProjectId != "all_granted_eps" {
+	if enterpriseProjectId != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, enterpriseProjectId)
 	}
 	if res != "" {
