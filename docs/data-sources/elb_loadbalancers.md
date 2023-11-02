@@ -42,6 +42,8 @@ The following arguments are supported:
 
 * `l7_flavor_id` - (Optional, String) Specifies the ID of a flavor at Layer 7.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

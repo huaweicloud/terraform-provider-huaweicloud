@@ -31,6 +31,7 @@ func TestAccDatasourceLoadBalancers_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.l4_flavor_id"),
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.l7_flavor_id"),
 					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.vpc_id"),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.enterprise_project_id"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("vpc_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("ipv4_subnet_id_filter_is_useful", "true"),
@@ -38,6 +39,7 @@ func TestAccDatasourceLoadBalancers_basic(t *testing.T) {
 					resource.TestCheckOutput("l4_flavor_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("l7_flavor_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_is_useful", "true"),
+					resource.TestCheckOutput("enterprise_project_id_is_useful", "true"),
 				),
 			},
 		},
@@ -189,6 +191,19 @@ output "type_is_useful" {
   value = length(data.huaweicloud_elb_loadbalancers.type_filter.loadbalancers) > 0 && alltrue(
   [for v in data.huaweicloud_elb_loadbalancers.type_filter.loadbalancers[*].type : 
   v == local.type]
+  ) 
+}
+
+data "huaweicloud_elb_loadbalancers" "enterprise_project_id_filter" {
+  depends_on = [huaweicloud_elb_loadbalancer.test]
+}
+locals {
+  enterprise_project_id = huaweicloud_elb_loadbalancer.test.enterprise_project_id
+}
+output "enterprise_project_id_is_useful" {
+  value = length(data.huaweicloud_elb_loadbalancers.enterprise_project_id_filter.loadbalancers) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_loadbalancers.enterprise_project_id_filter.loadbalancers[*].enterprise_project_id : 
+  v == local.enterprise_project_id]
   ) 
 }
 
