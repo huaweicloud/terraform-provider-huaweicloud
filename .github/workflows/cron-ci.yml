@@ -29,33 +29,16 @@ jobs:
       run: make vet
 
   # This workflow contains a job called "tfproviderlint"
-  # Ignoring bflad/tfproviderlint until https://github.com/bflad/tfproviderlint/issues/255 is fixed...
-  # using ShiChangkuo/tfproviderlint instead
   tfproviderlint:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/setup-go@v3
-        with:
-          go-version: ">=1.18"
+      - uses: actions/checkout@v3
 
-      - name: Checkout provider
-        uses: actions/checkout@v3
+      - uses: bflad/tfproviderlint-github-action@master
         with:
-          path: terraform-provider-huaweicloud
+          args: -R019=false -S018=false -V011=false -V012=false -V013=false -V014=false ./...
 
-      - name: Checkout tfproviderlint
-        uses: actions/checkout@v3
-        with:
-          repository: ShiChangkuo/tfproviderlint
-          path: tfproviderlint
-
-      - name: Install tfproviderlint and Check
-        run: |
-          cd ${{ github.workspace }}/tfproviderlint/cmd/tfproviderlint
-          go install
-          cd ${{ github.workspace }}/terraform-provider-huaweicloud
-          tfproviderlint -V011=false -V012=false -V013=false -V014=false -R019=false ./...
 
   # This workflow contains a job called "acc-test"
   acc-test:
