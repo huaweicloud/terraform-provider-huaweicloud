@@ -15,13 +15,28 @@ var RequestOpts = golangsdk.RequestOpts{
 
 // CreatePremiumHostOpts the options for creating premium domains.
 type CreateOpts struct {
-	CertificateId       string   `json:"certificateid,omitempty"`
-	CertificateName     string   `json:"certificatename,omitempty"`
-	HostName            string   `json:"hostname" required:"true"`
-	Proxy               *bool    `json:"proxy,omitempty"`
-	PolicyId            string   `json:"policyid,omitempty"`
-	Servers             []Server `json:"server,omitempty"`
-	EnterpriseProjectID string   `q:"enterprise_project_id" json:"-"`
+	CertificateId       string            `json:"certificateid,omitempty"`
+	CertificateName     string            `json:"certificatename,omitempty"`
+	HostName            string            `json:"hostname" required:"true"`
+	Proxy               *bool             `json:"proxy,omitempty"`
+	PolicyId            string            `json:"policyid,omitempty"`
+	Servers             []Server          `json:"server,omitempty"`
+	BlockPage           *BlockPage        `json:"block_page,omitempty"`
+	ForwardHeaderMap    map[string]string `json:"forward_header_map,omitempty"`
+	Description         string            `json:"description,omitempty"`
+	EnterpriseProjectID string            `q:"enterprise_project_id" json:"-"`
+}
+
+type BlockPage struct {
+	Template    string      `json:"template,omitempty"`
+	CustomPage  *CustomPage `json:"custom_page,omitempty"`
+	RedirectUrl string      `json:"redirect_url,omitempty"`
+}
+
+type CustomPage struct {
+	StatusCode  string `json:"status_code,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+	Content     string `json:"content,omitempty"`
 }
 
 // PremiumDomainServer the options of domain server for creating premium domains.
@@ -109,13 +124,42 @@ func List(c *golangsdk.ServiceClient, opts ListPremiumHostOpts) (*PremiumHostLis
 
 // UpdatePremiumHostOpts the options for updating premium domains.
 type UpdatePremiumHostOpts struct {
-	Proxy               *bool  `json:"proxy,omitempty"`
-	CertificateId       string `json:"certificateid,omitempty"`
-	CertificateName     string `json:"certificatename,omitempty"`
-	Tls                 string `json:"tls,omitempty"`
-	Cipher              string `json:"cipher,omitempty"`
-	Flag                *Flag  `json:"flag,omitempty"`
-	EnterpriseProjectID string `q:"enterprise_project_id" json:"-"`
+	Proxy               *bool             `json:"proxy,omitempty"`
+	CertificateId       string            `json:"certificateid,omitempty"`
+	CertificateName     string            `json:"certificatename,omitempty"`
+	Tls                 string            `json:"tls,omitempty"`
+	Cipher              string            `json:"cipher,omitempty"`
+	Description         *string           `json:"description,omitempty"`
+	WebTag              *string           `json:"web_tag,omitempty"`
+	BlockPage           *BlockPage        `json:"block_page,omitempty"`
+	TrafficMark         *TrafficMark      `json:"traffic_mark,omitempty"`
+	CircuitBreaker      *CircuitBreaker   `json:"circuit_breaker,omitempty"`
+	TimeoutConfig       *TimeoutConfig    `json:"timeout_config,omitempty"`
+	Flag                *Flag             `json:"flag,omitempty"`
+	ForwardHeaderMap    map[string]string `json:"forward_header_map,omitempty"`
+	EnterpriseProjectID string            `q:"enterprise_project_id" json:"-"`
+}
+
+type TrafficMark struct {
+	Sip    []string `json:"sip,omitempty"`
+	Cookie string   `json:"cookie,omitempty"`
+	Params string   `json:"params,omitempty"`
+}
+
+type CircuitBreaker struct {
+	Switch           *bool    `json:"switch,omitempty"`
+	DeadNum          *int     `json:"dead_num,omitempty"`
+	DeadRatio        *float64 `json:"dead_ratio,omitempty"`
+	BlockTime        *int     `json:"block_time,omitempty"`
+	SuperpositionNum *int     `json:"superposition_num,omitempty"`
+	SuspendNum       *int     `json:"suspend_num,omitempty"`
+	SusBlockTime     *int     `json:"sus_block_time,omitempty"`
+}
+
+type TimeoutConfig struct {
+	ConnectTimeout *int `json:"connect_timeout,omitempty"`
+	SendTimeout    *int `json:"send_timeout,omitempty"`
+	ReadTimeout    *int `json:"read_timeout,omitempty"`
 }
 
 type Flag struct {

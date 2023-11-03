@@ -20,6 +20,9 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   domain                = "www.example.com"
   certificate_id        = var.certificated_id
   enterprise_project_id = var.enterprise_project_id
+  protect_status        = 1
+  website_name          = "websiteName"
+  description           = "test description"
 
   server {
     client_protocol = "HTTPS"
@@ -28,6 +31,22 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     port            = 8080
     type            = "ipv4"
     vpc_id          = var.vpc_id
+  }
+  
+  custom_page {
+    http_return_code = "404"
+    block_page_type  = "application/json"
+    page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
+  }
+
+  forward_header_map = {
+    "key1" = "$time_local"
+    "key2" = "$tenant_id"
   }
 }
 ```
@@ -64,7 +83,7 @@ The following arguments are supported:
   Defaults to `true`.
 
 * `protect_status` - (Optional, Int) The protection status of domain, `0`: suspended, `1`: enabled.
-  Default value is `1`.
+  Default value is `0`.
 
 * `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
   `TLS v1.2`.
@@ -82,6 +101,42 @@ The following arguments are supported:
   include `true` and `false`. This parameter must be used together with tls and cipher.
 
   -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2.
+
+* `website_name` - (Optional, String) Specifies the website name. This website name must start with a letter and only
+  letters, digits, underscores (_), hyphens (-), colons (:) and periods (.) are allowed. The value contains 1 to 128
+  characters. The website name must be unique within this account.
+
+* `custom_page` - (Optional, List) Specifies the custom page. Only supports one custom alarm page.
+  The [custom_page](#DedicatedDomain_custom_page) structure is documented below.
+
+* `redirect_url` - (Optional, String) Specifies the URL of the redirected page. The root domain name of the redirection
+  address must be the name of the currently protected domain (including a wildcard domain name).
+  The available **${http_host}** can be used to indicate the currently protected domain name and port.
+  For example: **${http_host}/error.html**.
+
+-> The fields `redirect_url` and `custom_page` are mutually exclusive and cannot be specified simultaneously.
+
+* `description` - (Optional, String) Specifies the description of the WAF dedicated domain.
+
+* `forward_header_map` - (Optional, Map) Specifies the field forwarding configuration. WAF inserts the added fields into
+  the header and forwards the header to the origin server. The key cannot be the same as the native Nginx field.
+  The options of value are as follows:
+  + **$time_local**
+  + **$request_id**
+  + **$connection_requests**
+  + **$tenant_id**
+  + **$project_id**
+  + **$remote_addr**
+  + **$remote_port**
+  + **$scheme**
+  + **$request_method**
+  + **$http_host**
+  + **$origin_uri**
+  + **$request_length**
+  + **$ssl_server_name**
+  + **$ssl_protocol**
+  + **$ssl_curves**
+  + **$ssl_session_reused**
 
 The `server` block supports:
 
@@ -101,6 +156,19 @@ The `server` block supports:
 
 * `port` - (Required, Int, ForceNew) Port number used by the web server. The value ranges from 0 to 65535. Changing this
   creates a new service.
+
+<a name="DedicatedDomain_custom_page"></a>
+The `custom_page` block supports:
+
+* `http_return_code` - (Required, String) Specifies the HTTP return code.
+  The value can be a positive integer in the range of 200-599 except 408, 444 and 499.
+
+* `block_page_type` - (Required, String) Specifies the content type of the custom alarm page.
+  The value can be **text/html**, **text/xml** or **application/json**.
+
+* `page_content` - (Required, String) Specifies the page content. The page content based on the selected page type.
+  The available **${waf_event_id}** in the page content indicates an event ID, and only one **${waf_event_id}** variable
+  can be available.
 
 ## Attribute Reference
 

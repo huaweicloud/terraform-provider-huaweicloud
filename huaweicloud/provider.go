@@ -603,6 +603,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_vpn_gateway_availability_zones": vpn.DataSourceVpnGatewayAZs(),
 			"huaweicloud_vpn_gateways":                   vpn.DataSourceGateways(),
+			"huaweicloud_vpn_customer_gateways":          vpn.DataSourceVpnCustomerGateways(),
 
 			"huaweicloud_waf_certificate":         waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":            waf.DataSourceWafPoliciesV1(),
@@ -964,7 +965,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_network_acl_rule":    resourceIecNetworkACLRule(),
 			"huaweicloud_iec_security_group":      resourceIecSecurityGroup(),
 			"huaweicloud_iec_security_group_rule": resourceIecSecurityGroupRule(),
-			"huaweicloud_iec_server":              resourceIecServer(),
+			"huaweicloud_iec_server":              iec.ResourceIecServer(),
 			"huaweicloud_iec_vip":                 resourceIecVipV1(),
 			"huaweicloud_iec_vpc":                 iec.ResourceIecVpc(),
 			"huaweicloud_iec_vpc_subnet":          iec.ResourceIecSubnet(),
@@ -1078,6 +1079,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_database":               rds.ResourceMysqlDatabase(),
 			"huaweicloud_rds_mysql_database_privilege":     rds.ResourceMysqlDatabasePrivilege(),
 			"huaweicloud_rds_pg_account":                   rds.ResourcePgAccount(),
+			"huaweicloud_rds_pg_database":                  rds.ResourcePgDatabase(),
+			"huaweicloud_rds_sqlserver_account":            rds.ResourceSQLServerAccount(),
 			"huaweicloud_rds_sqlserver_database":           rds.ResourceSQLServerDatabase(),
 			"huaweicloud_rds_instance":                     rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup":               rds.ResourceRdsConfiguration(),
@@ -1099,7 +1102,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_protected_instance": sdrs.ResourceProtectedInstance(),
 			"huaweicloud_sdrs_replication_attach": sdrs.ResourceReplicationAttach(),
 
-			"huaweicloud_secmaster_incident": secmaster.ResourceIncident(),
+			"huaweicloud_secmaster_incident":  secmaster.ResourceIncident(),
+			"huaweicloud_secmaster_indicator": secmaster.ResourceIndicator(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),

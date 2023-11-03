@@ -5,9 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -15,14 +16,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getAssetObsResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getAssetObsResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getAssetObs: Query the asset OBS
 	var (
 		getAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
 		getAssetObsProduct = "dsc"
 	)
-	getAssetObsClient, err := config.NewServiceClient(getAssetObsProduct, region)
+	getAssetObsClient, err := cfg.NewServiceClient(getAssetObsProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating AssetObs Client: %s", err)
 	}

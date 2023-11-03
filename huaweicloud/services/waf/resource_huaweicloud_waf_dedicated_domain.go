@@ -24,6 +24,10 @@ import (
 
 const (
 	protectStatusEnable = 1
+
+	defaultBlockPageTemplate  = "default"
+	customBlockPageTemplate   = "custom"
+	redirectBlockPageTemplate = "redirect"
 )
 
 func ResourceWafDedicatedDomain() *schema.Resource {
@@ -54,44 +58,7 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				MaxItems: 80,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"client_protocol": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
-						},
-						"server_protocol": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
-						},
-						"address": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"port": {
-							Type:         schema.TypeInt,
-							ValidateFunc: validation.IntBetween(0, 65535),
-							Required:     true,
-							ForceNew:     true,
-						},
-						"type": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ipv4", "ipv6"}, false),
-						},
-						"vpc_id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-					},
-				},
+				Elem:     dedicatedDomainServerSchema(),
 			},
 			"certificate_id": {
 				Type:     schema.TypeString,
@@ -154,6 +121,37 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"website_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"custom_page": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainCustomPageSchema(),
+			},
+			"redirect_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ConflictsWith: []string{
+					"custom_page",
+				},
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"forward_header_map": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"access_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -185,6 +183,68 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 	}
 }
 
+func dedicatedDomainServerSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"client_protocol": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
+			},
+			"server_protocol": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
+			},
+			"address": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"port": {
+				Type:         schema.TypeInt,
+				ValidateFunc: validation.IntBetween(0, 65535),
+				Required:     true,
+				ForceNew:     true,
+			},
+			"type": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ipv4", "ipv6"}, false),
+			},
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func dedicatedDomainCustomPageSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"http_return_code": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"block_page_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"page_content": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func getCertificateNameById(d *schema.ResourceData, cfg *config.Config) (string, error) {
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -212,7 +272,49 @@ func buildCreatePremiumHostOpts(d *schema.ResourceData, cfg *config.Config, cert
 		PolicyId:            d.Get("policy_id").(string),
 		Servers:             buildCreatePremiumHostServerOpts(d),
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		BlockPage:           buildPremiumHostBlockPageOpts(d),
+		ForwardHeaderMap:    buildPremiumHostForwardHeaderMapOpts(d),
+		Description:         d.Get("description").(string),
 	}
+}
+
+func buildPremiumHostBlockPageOpts(d *schema.ResourceData) *domains.BlockPage {
+	if v, ok := d.GetOk("redirect_url"); ok {
+		return &domains.BlockPage{
+			Template:    redirectBlockPageTemplate,
+			RedirectUrl: v.(string),
+		}
+	}
+
+	if v, ok := d.GetOk("custom_page"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+		return &domains.BlockPage{
+			Template: customBlockPageTemplate,
+			CustomPage: &domains.CustomPage{
+				StatusCode:  raw["http_return_code"].(string),
+				ContentType: raw["block_page_type"].(string),
+				Content:     raw["page_content"].(string),
+			},
+		}
+	}
+	return &domains.BlockPage{
+		Template: defaultBlockPageTemplate,
+	}
+}
+
+func buildPremiumHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
+	if v, ok := d.GetOk("forward_header_map"); ok {
+		return utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+	return nil
 }
 
 func buildCreatePremiumHostServerOpts(d *schema.ResourceData) []domains.Server {
@@ -293,6 +395,10 @@ func updateWafDedicatedDomain(dedicatedClient *golangsdk.ServiceClient, d *schem
 		}
 	}
 
+	if d.HasChange("website_name") {
+		updateOpts.WebTag = utils.String(d.Get("website_name").(string))
+	}
+
 	if d.HasChange("proxy") && !d.IsNewResource() {
 		updateOpts.Proxy = utils.Bool(d.Get("proxy").(bool))
 	}
@@ -306,6 +412,18 @@ func updateWafDedicatedDomain(dedicatedClient *golangsdk.ServiceClient, d *schem
 			updateOpts.CertificateName = certName
 			updateOpts.CertificateId = v.(string)
 		}
+	}
+
+	if d.HasChanges("custom_page", "redirect_url") && !d.IsNewResource() {
+		updateOpts.BlockPage = buildPremiumHostBlockPageOpts(d)
+	}
+
+	if d.HasChange("description") && !d.IsNewResource() {
+		updateOpts.Description = utils.String(d.Get("description").(string))
+	}
+
+	if d.HasChange("forward_header_map") && !d.IsNewResource() {
+		updateOpts.ForwardHeaderMap = buildPremiumHostForwardHeaderMapOpts(d)
 	}
 
 	_, err := domains.Update(dedicatedClient, d.Id(), updateOpts)
@@ -376,6 +494,21 @@ func flattenDomainServerAttribute(domain *domains.PremiumHost) []map[string]inte
 	return servers
 }
 
+func flattenBlockPageCustomPage(domain *domains.PremiumHost) []map[string]interface{} {
+	if domain.BlockPage.Template != customBlockPageTemplate {
+		return nil
+	}
+
+	customPage := domain.BlockPage.CustomPage
+	return []map[string]interface{}{
+		{
+			"http_return_code": customPage.StatusCode,
+			"block_page_type":  customPage.ContentType,
+			"page_content":     customPage.Content,
+		},
+	}
+}
+
 func flattenComplianceCertificationAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	f := domain.Flag
 
@@ -431,25 +564,22 @@ func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("protocol", dm.Protocol),
 		d.Set("tls", dm.Tls),
 		d.Set("cipher", dm.Cipher),
+		d.Set("website_name", dm.WebTag),
+		d.Set("description", dm.Description),
+		d.Set("forward_header_map", dm.ForwardHeaderMap),
+		d.Set("custom_page", flattenBlockPageCustomPage(dm)),
+		d.Set("redirect_url", dm.BlockPage.RedirectUrl),
 		d.Set("compliance_certification", flattenComplianceCertificationAttribute(dm)),
 		d.Set("traffic_identifier", flattenTrafficIdentifierAttribute(dm)),
 		d.Set("alarm_page", flattenAlarmPageAttribute(dm)),
 	)
 
 	if dm.Flag["pci_3ds"] != "" {
-		pci3ds, err := strconv.ParseBool(dm.Flag["pci_3ds"])
-		if err != nil {
-			log.Printf("[WARN] error parse bool pci 3ds, %s", err)
-		}
-		mErr = multierror.Append(mErr, d.Set("pci_3ds", pci3ds))
+		mErr = multierror.Append(mErr, d.Set("pci_3ds", utils.StringToBool(dm.Flag["pci_3ds"])))
 	}
 
 	if dm.Flag["pci_dss"] != "" {
-		pciDss, err := strconv.ParseBool(dm.Flag["pci_dss"])
-		if err != nil {
-			log.Printf("[WARN] error parse bool pci dss, %s", err)
-		}
-		mErr = multierror.Append(mErr, d.Set("pci_dss", pciDss))
+		mErr = multierror.Append(mErr, d.Set("pci_dss", utils.StringToBool(dm.Flag["pci_dss"])))
 	}
 	return diag.FromErr(mErr.ErrorOrNil())
 }
