@@ -129,7 +129,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	createOpts, err := buildCreateParams(d)
@@ -141,7 +141,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	response, err := client.CreateKeypair(createOpts)
 	if err != nil {
-		return diag.Errorf("Error creating KeyPair: %s", err)
+		return diag.Errorf("error creating KeyPair: %s", err)
 	}
 
 	d.SetId(*response.Keypair.Name)
@@ -157,7 +157,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 	// write private key to local. only when it is not import public_key and the key_file is not empty
 	if fp, ok := d.GetOk("key_file"); ok {
 		if err = utils.WriteToPemFile(fp.(string), *response.Keypair.PrivateKey); err != nil {
-			return diag.Errorf("Unable to generate private key: %s", err)
+			return diag.Errorf("unable to generate private key: %s", err)
 		}
 		d.Set("key_file", fp)
 	}
@@ -170,7 +170,7 @@ func resourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interfa
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	response, err := client.ListKeypairDetail(&model.ListKeypairDetailRequest{
@@ -182,7 +182,7 @@ func resourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	scope, err := parseEncodeValue(response.Keypair.Scope.MarshalJSON())
 	if err != nil {
-		return diag.Errorf("Can not parse the value of %q from response: %s", "scope", err)
+		return diag.Errorf("can not parse the value of %q from response: %s", "scope", err)
 	}
 	if scope == scopeDomainValue {
 		scope = scopeDomainLabel
@@ -200,7 +200,7 @@ func resourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interfa
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("Error saving keypair fields: %s", err)
+		return diag.Errorf("error saving keypair fields: %s", err)
 	}
 
 	return nil
@@ -211,7 +211,7 @@ func resourceKeypairUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	desc := d.Get("description").(string)
@@ -228,7 +228,7 @@ func resourceKeypairDelete(_ context.Context, d *schema.ResourceData, meta inter
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	deleteOpts := &model.DeleteKeypairRequest{
@@ -237,7 +237,7 @@ func resourceKeypairDelete(_ context.Context, d *schema.ResourceData, meta inter
 
 	_, err = client.DeleteKeypair(deleteOpts)
 	if err != nil {
-		return diag.Errorf("Error deleting keypair: %s", err)
+		return diag.Errorf("error deleting keypair: %s", err)
 	}
 
 	return nil
@@ -268,7 +268,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		}
 		err := actionScope.UnmarshalJSON([]byte(value))
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing the argument %q: %s", "scope", err)
+			return nil, fmt.Errorf("error parsing the argument %q: %s", "scope", err)
 		}
 		createOpts.Body.Keypair.Scope = &actionScope
 	}
@@ -278,7 +278,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		var encryptionType model.EncryptionType
 		err := encryptionType.UnmarshalJSON([]byte(t))
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing the argument %q: %s", "encryption_type", err)
+			return nil, fmt.Errorf("error parsing the argument %q: %s", "encryption_type", err)
 		}
 
 		keyProtection := model.KeyProtection{
@@ -325,7 +325,7 @@ func updateDesc(client *kps.KpsClient, id, desc string) diag.Diagnostics {
 
 	_, err := client.UpdateKeypairDescription(updateOpts)
 	if err != nil {
-		return diag.Errorf("Error updating keypair: %s", err)
+		return diag.Errorf("error updating keypair: %s", err)
 	}
 
 	return nil

@@ -119,7 +119,7 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 		tagMaps := utils.ExpandResourceTags(tMaps)
 		err = tags.Create(client, serviceType, rst.ID, tagMaps).ExtractErr()
 		if err != nil {
-			log.Printf("[WARN] Error add tags to CSMS secret: %s, err=%s", rst.ID, err)
+			log.Printf("[WARN] error add tags to CSMS secret: %s, err=%s", rst.ID, err)
 		}
 	}
 
@@ -177,7 +177,7 @@ func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta inte
 			d.Set("tags", tagMap),
 		)
 	} else {
-		log.Printf("[WARN] Error querying CSMS secret tags (%s): %s", id, err)
+		log.Printf("[WARN] error querying CSMS secret tags (%s): %s", id, err)
 	}
 
 	if mErr.ErrorOrNil() != nil {
@@ -298,7 +298,7 @@ func resourceCsmsSecretImport(_ context.Context, d *schema.ResourceData, _ inter
 	error) {
 	id, name := parseID(d.Id())
 	if id == "" {
-		err := fmt.Errorf("Invalid format specified for the ID of CSMS secret. " +
+		err := fmt.Errorf("invalid format specified for the ID of CSMS secret. " +
 			"Format must be <id>/<name>")
 		return nil, err
 	}

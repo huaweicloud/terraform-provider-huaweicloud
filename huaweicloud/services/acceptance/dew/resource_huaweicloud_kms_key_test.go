@@ -18,7 +18,7 @@ import (
 func getKmsKeyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.KmsKeyV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating kms client: %s", err)
+		return nil, fmt.Errorf("error creating kms client: %s", err)
 	}
 	key, err := keys.Get(client, state.Primary.ID).ExtractKeyInfo()
 

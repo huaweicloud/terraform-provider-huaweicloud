@@ -171,7 +171,7 @@ func dataSourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interf
 			return diag.Errorf("error saving tags to state for kms key(%s): %s", key.KeyID, err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
+		log.Printf("[WARN] error fetching tags of kms key(%s): %s", key.KeyID, err)
 	}
 
 	// Set KMS rotation
@@ -186,7 +186,7 @@ func dataSourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interf
 			d.Set("rotation_number", r.NumberOfRotations)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching details about key rotation: %s", err)
+		log.Printf("[WARN] error fetching details about key rotation: %s", err)
 	}
 
 	return nil

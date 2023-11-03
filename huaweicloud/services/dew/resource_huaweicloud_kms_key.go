@@ -238,7 +238,7 @@ func ResourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] Kms key %s: %+v", d.Id(), v)
 	if v.KeyState == PendingDeletionState {
-		log.Printf("[WARN] Removing KMS key %s because it's already gone", d.Id())
+		log.Printf("[WARN] removing KMS key %s because it's already gone", d.Id())
 		d.SetId("")
 		return nil
 	}
