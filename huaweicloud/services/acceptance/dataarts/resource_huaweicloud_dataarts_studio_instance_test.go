@@ -9,13 +9,14 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dayu/v1/instances"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func getInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DataArtsV1Client(acceptance.HW_REGION_NAME)
+func getInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.DataArtsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DataArts Studio v1 client, err=%s", err)
 	}

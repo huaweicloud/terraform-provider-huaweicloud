@@ -119,7 +119,7 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 		tagMaps := utils.ExpandResourceTags(tMaps)
 		err = tags.Create(client, serviceType, rst.ID, tagMaps).ExtractErr()
 		if err != nil {
-			log.Printf("[WARN] error add tags to CSMS secret: %s, err=%s", rst.ID, err)
+			log.Printf("[WARN] Error add tags to CSMS secret: %s, err=%s", rst.ID, err)
 		}
 	}
 
@@ -230,7 +230,6 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
-	var mErr *multierror.Error
 	id, name := parseID(d.Id())
 	// Update secret basic-info
 	if d.HasChanges("kms_key_id", "description") {
@@ -244,8 +243,7 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		_, err = secrets.Update(client, name, opts)
 		if err != nil {
-			e := fmt.Errorf("failed to update the base-info of CSMS secret: %s", err)
-			mErr = multierror.Append(mErr, e)
+			return diag.Errorf("failed to update the base-info of CSMS secret: %s", err)
 		}
 	}
 
@@ -256,8 +254,7 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 		_, err = secrets.CreateSecretVersion(client, name, opts)
 		if err != nil {
-			e := fmt.Errorf("failed to create a new version of CSMS secret: %s", err)
-			mErr = multierror.Append(mErr, e)
+			return diag.Errorf("failed to create a new version of CSMS secret: %s", err)
 		}
 	}
 
@@ -265,13 +262,8 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChange("tags") {
 		err = utils.UpdateResourceTags(client, d, serviceType, id)
 		if err != nil {
-			e := fmt.Errorf("failed to update CSMS secret tags: %s", err)
-			mErr = multierror.Append(mErr, e)
+			return diag.Errorf("failed to update CSMS secret tags: %s", err)
 		}
-	}
-
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("failed to update CSMS secret: %s", mErr)
 	}
 	return resourceCsmsSecretRead(ctx, d, meta)
 }
@@ -308,8 +300,8 @@ func resourceCsmsSecretImport(_ context.Context, d *schema.ResourceData, _ inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func parseID(id string) (str1 string, str2 string) {
-	parts := strings.SplitN(id, "/", 2)
+func parseID(id string) (string, string) {
+	parts := strings.Split(id, "/")
 	if len(parts) != 2 {
 		return "", ""
 	}
