@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/drs/v3/jobs"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/drs/v3/jobs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func getDrsJobResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DrsV3Client(acceptance.HW_REGION_NAME)
+func getDrsJobResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.DrsV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating DRS client, err=%s", err)
+		return nil, fmt.Errorf("error creating DRS client, err: %s", err)
 	}
 	return jobs.Get(client, jobs.QueryJobReq{Jobs: []string{state.Primary.ID}})
 }
@@ -120,7 +120,7 @@ resource "huaweicloud_rds_instance" "test%d" {
     huaweicloud_networking_secgroup_rule.egress,
   ]
   name                = "%s%d"
-  flavor              = "rds.mysql.sld4.large.ha"
+  flavor              = "rds.mysql.x1.large.2.ha"
   security_group_id   = huaweicloud_networking_secgroup.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   vpc_id              = huaweicloud_vpc.test.id
@@ -140,7 +140,7 @@ resource "huaweicloud_rds_instance" "test%d" {
   }
 
   volume {
-    type = "LOCALSSD"
+    type = "CLOUDSSD"
     size = 40
   }
 }
