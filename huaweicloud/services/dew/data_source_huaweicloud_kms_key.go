@@ -99,9 +99,9 @@ func DataSourceKmsKey() *schema.Resource {
 }
 
 func dataSourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	configuration := meta.(*config.Config)
-	region := configuration.GetRegion(d)
-	kmsKeyV1Client, err := configuration.KmsKeyV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	kmsKeyV1Client, err := cfg.KmsKeyV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating kms key client: %s", err)
 	}
