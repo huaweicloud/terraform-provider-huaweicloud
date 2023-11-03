@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceDewCsmsSecret() *schema.Resource {
@@ -56,17 +56,17 @@ func DataSourceDewCsmsSecret() *schema.Resource {
 }
 
 func dataSourceDewCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var version *secrets.Version
 	var err error
 
 	secretName := d.Get("secret_name").(string)
 	if ver, ok := d.GetOk("version"); ok {
-		version, err = queryVersion(config, region, secretName, ver.(string))
+		version, err = queryVersion(cfg, region, secretName, ver.(string))
 	} else {
-		version, err = queryLatestVersion(config, region, secretName)
+		version, err = queryLatestVersion(cfg, region, secretName)
 	}
 	if err != nil {
 		return diag.FromErr(err)
@@ -88,7 +88,7 @@ func dataSourceDewCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("error setting CSMS secret attributes: %s", mErr)
+		return diag.Errorf("error setting CSMS secret attributes: %s", mErr)
 	}
 	return nil
 }

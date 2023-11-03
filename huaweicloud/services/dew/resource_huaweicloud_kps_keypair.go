@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -11,13 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	kps "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -127,7 +129,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	createOpts, err := buildCreateParams(d)
@@ -135,11 +137,11 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Create KeyPair : %#v", createOpts)
+	log.Printf("[DEBUG] Create KeyPair : %#v", createOpts)
 
 	response, err := client.CreateKeypair(createOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating KeyPair: %s", err)
+		return diag.Errorf("error creating KeyPair: %s", err)
 	}
 
 	d.SetId(*response.Keypair.Name)
@@ -155,7 +157,7 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 	// write private key to local. only when it is not import public_key and the key_file is not empty
 	if fp, ok := d.GetOk("key_file"); ok {
 		if err = utils.WriteToPemFile(fp.(string), *response.Keypair.PrivateKey); err != nil {
-			return fmtp.DiagErrorf("Unable to generate private key: %s", err)
+			return diag.Errorf("unable to generate private key: %s", err)
 		}
 		d.Set("key_file", fp)
 	}
@@ -163,12 +165,12 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceKeypairRead(ctx, d, meta)
 }
 
-func resourceKeypairRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	response, err := client.ListKeypairDetail(&model.ListKeypairDetailRequest{
@@ -180,7 +182,7 @@ func resourceKeypairRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	scope, err := parseEncodeValue(response.Keypair.Scope.MarshalJSON())
 	if err != nil {
-		return fmtp.DiagErrorf("Can not parse the value of %q from response: %s", "scope", err)
+		return diag.Errorf("can not parse the value of %q from response: %s", "scope", err)
 	}
 	if scope == scopeDomainValue {
 		scope = scopeDomainLabel
@@ -198,7 +200,7 @@ func resourceKeypairRead(ctx context.Context, d *schema.ResourceData, meta inter
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error saving keypair fields: %s", err)
+		return diag.Errorf("error saving keypair fields: %s", err)
 	}
 
 	return nil
@@ -209,7 +211,7 @@ func resourceKeypairUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	desc := d.Get("description").(string)
@@ -221,12 +223,12 @@ func resourceKeypairUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceKeypairRead(ctx, d, meta)
 }
 
-func resourceKeypairDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKeypairDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcKmsV3Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating KMS v3 client: %s", err)
+		return diag.Errorf("error creating KMS v3 client: %s", err)
 	}
 
 	deleteOpts := &model.DeleteKeypairRequest{
@@ -235,7 +237,7 @@ func resourceKeypairDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 	_, err = client.DeleteKeypair(deleteOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting keypair: %s", err)
+		return diag.Errorf("error deleting keypair: %s", err)
 	}
 
 	return nil
@@ -266,7 +268,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		}
 		err := actionScope.UnmarshalJSON([]byte(value))
 		if err != nil {
-			return nil, fmtp.Errorf("Error parsing the argument %q: %s", "scope", err)
+			return nil, fmt.Errorf("error parsing the argument %q: %s", "scope", err)
 		}
 		createOpts.Body.Keypair.Scope = &actionScope
 	}
@@ -276,7 +278,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		var encryptionType model.EncryptionType
 		err := encryptionType.UnmarshalJSON([]byte(t))
 		if err != nil {
-			return nil, fmtp.Errorf("Error parsing the argument %q: %s", "encryption_type", err)
+			return nil, fmt.Errorf("error parsing the argument %q: %s", "encryption_type", err)
 		}
 
 		keyProtection := model.KeyProtection{
@@ -286,12 +288,11 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		}
 
 		// the kms key name is required when encryption_type="kms"
-		if k, kmsExist := d.GetOk("kms_key_name"); t == "kms" && !kmsExist {
-			return nil, fmtp.Errorf("kms_key_name is mandatory when the encryption_type is kms")
-		} else {
-			keyProtection.Encryption.KmsKeyName = k.(string)
+		k, kmsExist := d.GetOk("kms_key_name")
+		if t == "kms" && !kmsExist {
+			return nil, fmt.Errorf("kms_key_name is mandatory when the encryption_type is kms")
 		}
-
+		keyProtection.Encryption.KmsKeyName = k.(string)
 		createOpts.Body.Keypair.KeyProtection = &keyProtection
 	}
 
@@ -324,7 +325,7 @@ func updateDesc(client *kps.KpsClient, id, desc string) diag.Diagnostics {
 
 	_, err := client.UpdateKeypairDescription(updateOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating keypair: %s", err)
+		return diag.Errorf("error updating keypair: %s", err)
 	}
 
 	return nil
