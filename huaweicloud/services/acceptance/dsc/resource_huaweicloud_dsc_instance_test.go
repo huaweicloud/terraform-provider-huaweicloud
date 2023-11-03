@@ -5,23 +5,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDscInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDscInstanceResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getDscInstance: Query the DSC instance
 	var (
 		getDscInstanceHttpUrl = "v1/{project_id}/period/product/specification"
 		getDscInstanceProduct = "dsc"
 	)
-	getDscInstanceClient, err := config.NewServiceClient(getDscInstanceProduct, region)
+	getDscInstanceClient, err := cfg.NewServiceClient(getDscInstanceProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DscInstance Client: %s", err)
 	}
@@ -49,10 +50,8 @@ func getDscInstanceResourceFunc(config *config.Config, state *terraform.Resource
 	orders := orderInfo.([]interface{})
 	if len(orders) == 0 {
 		return nil, fmt.Errorf("error retrieving DscInstance: %s", err)
-	} else {
-		return orderInfo, nil
 	}
-
+	return orderInfo, nil
 }
 
 func TestAccDscInstance_basic(t *testing.T) {
