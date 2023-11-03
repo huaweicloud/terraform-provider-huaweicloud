@@ -1,29 +1,29 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
+	ieccommon "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/ports"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIecVipResource_basic(t *testing.T) {
-	var iecPort iec_common.Port
+	var iecPort ieccommon.Port
 	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecVipDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIecVipDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIecVip_basic(rName),
@@ -43,14 +43,14 @@ func TestAccIecVipResource_basic(t *testing.T) {
 }
 
 func TestAccIecVipResource_associate(t *testing.T) {
-	var iecPort iec_common.Port
+	var iecPort ieccommon.Port
 	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecVipDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIecVipDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIecVip_associate(rName),
@@ -72,10 +72,10 @@ func TestAccIecVipResource_associate(t *testing.T) {
 }
 
 func testAccCheckIecVipDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmt.Errorf("Error creating IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -85,28 +85,28 @@ func testAccCheckIecVipDestroy(s *terraform.State) error {
 
 		_, err := ports.Get(iecV1Client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("IEC Vip still exists")
+			return fmt.Errorf("IEC Vip still exists")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.TestCheckFunc {
+func testAccCheckIecVipExists(n string, vipResource *ieccommon.Port) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		iecV1Client, err := config.IECV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmt.Errorf("Error creating IEC client: %s", err)
 		}
 
 		found, err := ports.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -115,10 +115,10 @@ func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.Test
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("IEC Vip not found")
+			return fmt.Errorf("IEC Vip not found")
 		}
 
-		*resource = *found
+		*vipResource = *found
 
 		return nil
 	}
