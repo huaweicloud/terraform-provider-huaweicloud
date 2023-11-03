@@ -188,6 +188,30 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 	}
 }
 
+func TestAccCdnDomain_standby(t *testing.T) {
+	var domain domains.CdnDomain
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCdnDomainV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCdnDomainV1_standby,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_standby", &domain),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_standby", "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_standby", "sources.0.active", "1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cdn_domain.domain_standby", "sources.1.active", "0"),
+				),
+			},
+		},
+	})
+}
+
 var testAccCdnDomainV1_basic = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "domain_1" {
   name                  = "%s"
@@ -303,3 +327,21 @@ resource "huaweicloud_cdn_domain" "domain_1" {
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
+
+var testAccCdnDomainV1_standby = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "domain_standby" {
+  name = "%s"
+  type = "wholeSite"
+
+  sources {
+    active      = 1
+    origin      = "14.215.177.39"
+    origin_type = "ipaddr"
+  }
+  sources {
+    active      = 0
+    origin      = "220.181.28.52"
+    origin_type = "ipaddr"
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
