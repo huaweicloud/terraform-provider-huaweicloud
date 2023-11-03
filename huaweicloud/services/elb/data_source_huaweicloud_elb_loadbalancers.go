@@ -68,6 +68,10 @@ func DataSourceElbLoadbalances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"loadbalancers": {
 				Type:     schema.TypeList,
 				Elem:     loadbalancersSchema(),
@@ -182,7 +186,7 @@ func dataSourceElbLoadBalancersRead(_ context.Context, d *schema.ResourceData, m
 	listLoadBalancersPath := listLoadBalancersClient.Endpoint + listLoadBalancersHttpUrl
 	listLoadBalancersPath = strings.ReplaceAll(listLoadBalancersPath, "{project_id}", listLoadBalancersClient.ProjectID)
 
-	listLoadBalancersQueryParams := buildListLoadBalancersQueryParams(d)
+	listLoadBalancersQueryParams := buildListLoadBalancersQueryParams(d, cfg.GetEnterpriseProjectID(d))
 	listLoadBalancersPath += listLoadBalancersQueryParams
 
 	listLoadBalancersResp, err := pagination.ListAllItems(
@@ -219,7 +223,7 @@ func dataSourceElbLoadBalancersRead(_ context.Context, d *schema.ResourceData, m
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListLoadBalancersQueryParams(d *schema.ResourceData) string {
+func buildListLoadBalancersQueryParams(d *schema.ResourceData, enterpriseProjectId string) string {
 	res := ""
 	if v, ok := d.GetOk("loadbalancer_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -252,6 +256,9 @@ func buildListLoadBalancersQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("l7_flavor_id"); ok {
 		res = fmt.Sprintf("%s&l7_flavor_id=%v", res, v)
+	}
+	if enterpriseProjectId != "" {
+		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, enterpriseProjectId)
 	}
 	if res != "" {
 		res = "?" + res[1:]
