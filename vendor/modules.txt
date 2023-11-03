@@ -31,6 +31,7 @@ github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/authorizers
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/certificates
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels
+github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/endpoints
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/plugins
