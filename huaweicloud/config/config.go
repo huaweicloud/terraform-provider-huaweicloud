@@ -953,3 +953,7 @@ func (c *Config) NatV2Client(region string) (*golangsdk.ServiceClient, error) {
 func (c *Config) KooGalleryV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mkt", region)
 }
+
+func (c *Config) VpnV5Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("vpn", region)
+}
