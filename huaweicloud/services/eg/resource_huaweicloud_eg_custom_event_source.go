@@ -2,10 +2,13 @@ package eg
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/eg/v1/source/custom"
 
@@ -57,6 +60,13 @@ func ResourceCustomEventSource() *schema.Resource {
 				Optional:    true,
 				Description: "The description of the custom event source.",
 			},
+			"detail": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Description:  "The configuration detail of the event source, in JSON format.",
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -86,6 +96,7 @@ func resourceCustomEventSourceCreate(ctx context.Context, d *schema.ResourceData
 			Type:        d.Get("type").(string),
 			Name:        d.Get("name").(string),
 			Description: d.Get("description").(string),
+			Detail:      unmarshalEventSubscriptionParamsters("event source detail", d.Get("detail").(string)),
 		}
 	)
 	client, err := cfg.EgV1Client(region)
@@ -99,6 +110,15 @@ func resourceCustomEventSourceCreate(ctx context.Context, d *schema.ResourceData
 	}
 	d.SetId(resp.ID)
 	return resourceCustomEventSourceRead(ctx, d, meta)
+}
+
+func parseCustomEventSourceDetail(detail interface{}) interface{} {
+	jsonDetail, err := json.Marshal(detail)
+	if err != nil {
+		log.Printf("[ERROR] unable to convert the detail of the custom event source, not json format")
+		return nil
+	}
+	return string(jsonDetail)
 }
 
 func resourceCustomEventSourceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -124,6 +144,7 @@ func resourceCustomEventSourceRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("type", resp.Type),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
+		d.Set("detail", parseCustomEventSourceDetail(resp.Detail)),
 		d.Set("status", resp.Status),
 		d.Set("created_at", resp.CreatedTime),
 		d.Set("updated_at", resp.UpdatedTime),
@@ -141,6 +162,7 @@ func resourceCustomEventSourceUpdate(ctx context.Context, d *schema.ResourceData
 		opts   = custom.UpdateOpts{
 			SourceId:    d.Id(),
 			Description: utils.String(d.Get("description").(string)),
+			Detail:      unmarshalEventSubscriptionParamsters("event source detail", d.Get("detail").(string)),
 		}
 	)
 	client, err := cfg.EgV1Client(region)

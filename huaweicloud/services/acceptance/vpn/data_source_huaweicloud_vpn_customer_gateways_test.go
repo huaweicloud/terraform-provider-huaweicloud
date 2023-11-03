@@ -26,10 +26,12 @@ func TestAccVPNCustomerGatewaysDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "customer_gateways.0.asn", "65000"),
 					resource.TestCheckResourceAttr(resourceName, "customer_gateways.0.ip", ipAddress),
 					resource.TestCheckResourceAttr(resourceName, "customer_gateways.0.route_mode", "bgp"),
+					resource.TestCheckResourceAttr(resourceName, "customer_gateways.0.id_type", "ip"),
+					resource.TestCheckResourceAttr(resourceName, "customer_gateways.0.id_value", ipAddress),
 					resource.TestCheckResourceAttrSet(resourceName, "customer_gateways.0.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "customer_gateways.0.region"),
 					resource.TestCheckResourceAttrSet(resourceName, "customer_gateways.0.created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "customer_gateways.0.updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "customer_gateways.0.ca_certificate.#", "1"),
 				),
 			},
 		},
@@ -44,10 +46,10 @@ resource "huaweicloud_vpn_customer_gateway" "test" {
 }
 
 data "huaweicloud_vpn_customer_gateways" "services" {
-  customer_gateway_id  = huaweicloud_vpn_customer_gateway.test.id
-  route_mode           = "bgp"
-  name       		   = huaweicloud_vpn_customer_gateway.test.name
-  asn                  = 65000
-  ip                   = huaweicloud_vpn_customer_gateway.test.ip
+  asn                 = 65000
+  route_mode          = "bgp"
+  customer_gateway_id = huaweicloud_vpn_customer_gateway.test.id
+  name                = huaweicloud_vpn_customer_gateway.test.name
+  ip                  = huaweicloud_vpn_customer_gateway.test.ip
 }`, rName, ipAddress)
 }

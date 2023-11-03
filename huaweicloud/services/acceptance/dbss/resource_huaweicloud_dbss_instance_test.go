@@ -5,10 +5,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -16,14 +17,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getInstance: Query the DBSS instance detail
 	var (
 		getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
 		getInstanceProduct = "dbss"
 	)
-	getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Instance Client: %s", err)
 	}

@@ -4,7 +4,7 @@ subcategory: "Virtual Private Network (VPN)"
 
 # huaweicloud_vpn_customer_gateways
 
-Use this data source to get a list of VPN customer gateway.
+Use this data source to get a list of VPN customer gateways.
 
 ## Example Usage
 
@@ -26,16 +26,16 @@ data "huaweicloud_vpn_customer_gateways" "services" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to obtain the VPN. If omitted, the provider-level region
-  will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the VPN customer gateways.
+  If omitted, the provider-level region will be used.
 
-* `name` - (Optional, String) The customer gateway name.
+* `name` - (Optional, String) Specifies the customer gateway name.
 
-* `ip` - (Optional, String) The IP address of the customer gateway.
+* `ip` - (Optional, String) Specifies the IP address of the customer gateway.
 
-* `route_mode` - (Optional, String) The route mode of the customer gateway. The value can be **static** and **bgp**.
+* `route_mode` - (Optional, String) Specifies the route mode of the customer gateway. The value can be **static** and **bgp**.
 
-* `asn` - (Optional, Int) The BGP ASN number of the customer gateway, only works when the route_mode is
+* `asn` - (Optional, Int) Specifies the BGP ASN number of the customer gateway, only works when the route_mode is
   **bgp**. The value ranges from **1** to **4294967295**.
 
 * `customer_gateway_id` - (Optional, String) Specifies the customer gateway ID used as the query filter.
@@ -53,8 +53,6 @@ In addition to all arguments above, the following attributes are exported:
 The `customer_gateways` block supports:
 
 * `id` - Indicates the ID of the customer gateway.
-
-* `region` - Indicates the region of the customer gateway.
 
 * `name` - Indicates the name of the customer gateway.
 
@@ -86,6 +84,6 @@ The `ca_certificate` block supports:
 
 * `subject` - Indicates the subject of the customer gateway certificate.
 
-* `expire_time` - Indicates the expire_time of the customer gateway certificate.
+* `expire_time` - Indicates the expire time of the customer gateway certificate.
 
-* `is_updatable` - Indicates the is_updatable of the customer gateway certificate.
+* `is_updatable` - Indicates whether the customer gateway certificate is updatable.

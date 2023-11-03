@@ -12,11 +12,10 @@ import (
 	"github.com/chnsz/golangsdk/openstack/vpn/v5/customer_gateways"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceCustomerGateways() *schema.Resource {
+func DataSourceVpnCustomerGateways() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: datasourceCustomerGatewaysRead,
 		Schema: map[string]*schema.Schema{
@@ -50,10 +49,6 @@ func DataSourceCustomerGateways() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"region": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -93,40 +88,45 @@ func DataSourceCustomerGateways() *schema.Resource {
 						"ca_certificate": {
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"serial_number": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"signature_algorithm": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"issuer": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"subject": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"expire_time": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"is_updatable": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-								},
-							},
+							Elem:     caCertificateSchema(),
 						},
 					},
 				},
 			},
 		},
 	}
+}
+
+func caCertificateSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"serial_number": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"signature_algorithm": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"issuer": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"subject": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_updatable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func datasourceCustomerGatewaysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -156,23 +156,17 @@ func datasourceCustomerGatewaysRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("filter customer gateways failed: %s", err)
 	}
 
-	var ids []string
 	var customerGateways []map[string]interface{}
 	for _, item := range filterCustomerGateways {
 		customerGateway := item.(customer_gateways.CustomerGateway)
-		uuidStr, err := uuid.GenerateUUID()
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		ids = append(ids, uuidStr)
-		customerGateways = append(customerGateways, flattenSourceCustomerGateway(customerGateway, region))
+		customerGateways = append(customerGateways, flattenSourceCustomerGateway(customerGateway))
 	}
 
-	if len(ids) == 1 {
-		d.SetId(ids[0])
-	} else {
-		d.SetId(hashcode.Strings(ids))
+	uuidStr, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
+	d.SetId(uuidStr)
 
 	mErr := multierror.Append(
 		d.Set("region", region),
@@ -182,7 +176,7 @@ func datasourceCustomerGatewaysRead(_ context.Context, d *schema.ResourceData, m
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenSourceCustomerGateway(gateway customer_gateways.CustomerGateway, region string) map[string]interface{} {
+func flattenSourceCustomerGateway(gateway customer_gateways.CustomerGateway) map[string]interface{} {
 	certificate := gateway.CaCertificate
 
 	caCertificate := []map[string]interface{}{
@@ -197,7 +191,6 @@ func flattenSourceCustomerGateway(gateway customer_gateways.CustomerGateway, reg
 	}
 
 	resourceCustomerGateway := map[string]interface{}{
-		"region":         region,
 		"id":             gateway.ID,
 		"name":           gateway.Name,
 		"ip":             gateway.IP,
