@@ -1,30 +1,34 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
+	ieccommon "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/ports"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/subnets"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceIecVipV1() *schema.Resource {
-
+func ResourceIecVip() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIecVIPV1Create,
-		Update: resourceIecVIPV1Update,
-		Read:   resourceIecVIPV1Read,
-		Delete: resourceIecVIPV1Delete,
+		CreateContext: resourceIecVIPCreate,
+		UpdateContext: resourceIecVIPUpdate,
+		ReadContext:   resourceIecVIPRead,
+		DeleteContext: resourceIecVIPDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -71,17 +75,18 @@ func getIecVipPortIDs(d *schema.ResourceData) []string {
 	return portids
 }
 
-func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceIecVIPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	iecClient, err := conf.IECV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	networkID := d.Get("subnet_id").(string)
 	n, err := subnets.Get(iecClient, networkID).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving IEC subnet %s: %s", networkID, err)
+		return diag.Errorf("error retrieving IEC subnet %s: %s", networkID, err)
 	}
 
 	createOpts := ports.CreateOpts{
@@ -89,7 +94,7 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		DeviceOwner: "neutron:VIP_PORT",
 	}
 
-	// Contruct fixed ip
+	// Construct fixed ip
 	if fixedIP := d.Get("ip_address").(string); fixedIP != "" {
 		fixip := make([]ports.FixIPEntity, 1)
 		fixip[0] = ports.FixIPEntity{
@@ -101,10 +106,11 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	p, err := ports.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC port: %s", err)
+		return diag.Errorf("error creating IEC port: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Waiting for HuaweiCloud IEC Port (%s) to become available.", p.ID)
+	d.SetId(p.ID)
+	log.Printf("[DEBUG] Waiting for IEC Port (%s) to become available.", p.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitingForIECVIPActive(iecClient, p.ID),
@@ -112,76 +118,83 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
-	d.SetId(p.ID)
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error Waiting for IEC Port (%s) to become available: %s", p.ID, err)
+	}
 
 	// associate ports with the vip
 	portids := getIecVipPortIDs(d)
 	if len(portids) > 0 {
 		if err = updateIecVipAssociate(iecClient, p.ID, portids); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceIecVIPV1Read(d, meta)
+	return resourceIecVIPRead(ctx, d, meta)
 }
 
-func resourceIecVIPV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceIecVIPRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	iecClient, err := conf.IECV1Client(region)
+	var mErr *multierror.Error
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	vip, err := ports.Get(iecClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Error retrieving Huaweicloud IEC VPC")
+		return common.CheckDeletedDiag(d, err, "error retrieving IEC VPC")
 	}
-
-	d.Set("subnet_id", vip.NetworkID)
-	d.Set("mac_address", vip.MacAddress)
 
 	var ipAddr string
 	if len(vip.FixedIPs) > 0 {
 		ipAddr = vip.FixedIPs[0].IpAddress
 	}
-	d.Set("ip_address", ipAddr)
 
 	allPortAddrs := make([]string, len(vip.AllowedAddressPairs))
 	for i, pair := range vip.AllowedAddressPairs {
 		allPortAddrs[i] = pair.IpAddress
 	}
-	d.Set("allowed_addresses", allPortAddrs)
-
-	return nil
+	mErr = multierror.Append(
+		mErr,
+		d.Set("subnet_id", vip.NetworkID),
+		d.Set("mac_address", vip.MacAddress),
+		d.Set("ip_address", ipAddr),
+		d.Set("allowed_addresses", allPortAddrs),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceIecVIPV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceIecVIPUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	iecClient, err := conf.IECV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	portids := getIecVipPortIDs(d)
 	if err = updateIecVipAssociate(iecClient, d.Id(), portids); err != nil {
-		return err
+		return diag.Errorf("error updateIecVipAssociate: %s", err)
 	}
 
-	return resourceIecVIPV1Read(d, meta)
+	return resourceIecVIPRead(ctx, d, meta)
 }
 
-func resourceIecVIPV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceIecVIPDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	iecClient, err := conf.IECV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	if len(getIecVipPortIDs(d)) > 0 {
 		// disassociate ports
 		if err := updateIecVipAssociate(iecClient, d.Id(), []string{}); err != nil {
-			return err
+			return diag.Errorf("error updateIecVipAssociate: %s", err)
 		}
 	}
 
@@ -194,11 +207,11 @@ func resourceIecVIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud IEC Network: %s", err)
+		return diag.Errorf("error waiting for IEC vip ports (%s) to become deleted: %s", d.Id(), err)
 	}
-	d.SetId("")
+
 	return nil
 }
 
@@ -209,7 +222,7 @@ func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) reso
 			return nil, "", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Neutron Port: %+v", p)
+		log.Printf("[DEBUG] Neutron Port: %+v", p)
 		if p.Status == "DOWN" || p.Status == "ACTIVE" {
 			return p, "ACTIVE", nil
 		}
@@ -219,13 +232,12 @@ func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) reso
 }
 
 func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) resource.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud IEC Port %s", portID)
+		log.Printf("[DEBUG] Attempting to delete IEC Port %s", portID)
 		port, err := ports.Get(client, portID).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Port %s", portID)
+				log.Printf("[DEBUG] Successfully deleted IEC Port %s", portID)
 				return port, "DELETED", nil
 			}
 			return port, "ACTIVATE", err
@@ -234,11 +246,11 @@ func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) reso
 
 		// remote service will return code 204 when delete success
 		if err == nil {
-			logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Port %s", portID)
+			log.Printf("[DEBUG] Successfully deleted IEC Port %s", portID)
 			return port, "DELETED", nil
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud IEC Port %s still active.\n", portID)
+		log.Printf("[DEBUG] IEC Port %s still active.\n", portID)
 		return port, "ACTIVE", nil
 	}
 }
@@ -254,20 +266,19 @@ func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portID
 	for i, portid := range portIDs {
 		port, err := ports.Get(client, portid).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error fetching port %s: %s", portid, err)
+			return fmt.Errorf("error fetching port %s: %s", portid, err)
 		}
 
-		if len(port.FixedIPs) > 0 {
-			allAddrs[i] = port.FixedIPs[0].IpAddress
-		} else {
-			return fmtp.Errorf("port %s has no ip address, Error associate it", portid)
+		if len(port.FixedIPs) == 0 {
+			return fmt.Errorf("port %s has no ip address, Error associate it", portid)
 		}
+		allAddrs[i] = port.FixedIPs[0].IpAddress
 	}
 
 	// construct allowed address pairs
-	allowedPairs := make([]iec_common.AllowedAddressPair, len(allAddrs))
+	allowedPairs := make([]ieccommon.AllowedAddressPair, len(allAddrs))
 	for i, addr := range allAddrs {
-		allowedPairs[i] = iec_common.AllowedAddressPair{
+		allowedPairs[i] = ieccommon.AllowedAddressPair{
 			IpAddress: addr,
 		}
 	}
@@ -275,16 +286,16 @@ func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portID
 	associateOpts := ports.UpdateOpts{
 		AllowedAddressPairs: &allowedPairs,
 	}
-	logp.Printf("[DEBUG] VIP %s %s with options: %#v", action, vipID, associateOpts)
+	log.Printf("[DEBUG] VIP %s %s with options: %#v", action, vipID, associateOpts)
 	_, err := ports.Update(client, vipID, associateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error %s vip: %s", action, err)
+		return fmt.Errorf("error %s vip: %s", action, err)
 	}
 
 	// Update the allowed-address-pairs of the port to 1.1.1.1/0
 	// to disable the source/destination check
-	portpairs := make([]iec_common.AllowedAddressPair, 1)
-	portpairs[0] = iec_common.AllowedAddressPair{
+	portpairs := make([]ieccommon.AllowedAddressPair, 1)
+	portpairs[0] = ieccommon.AllowedAddressPair{
 		IpAddress: "1.1.1.1/0",
 	}
 	portUpdateOpts := ports.UpdateOpts{
@@ -294,7 +305,7 @@ func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portID
 	for _, portid := range portIDs {
 		_, err = ports.Update(client, portid, portUpdateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("Error update port %s: %s", portid, err)
+			return fmt.Errorf("error update port %s: %s", portid, err)
 		}
 	}
 
