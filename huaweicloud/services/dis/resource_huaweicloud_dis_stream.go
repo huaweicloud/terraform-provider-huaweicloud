@@ -2,31 +2,33 @@ package dis
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dis/v2/streams"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dis/v2/streams"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const disSysTagKeyEnterpriseProjectId = "_sys_enterprise_project_id"
 
 func ResourceDisStream() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDisStreamCreate,
-		ReadContext:   resourceDisStreamRead,
-		DeleteContext: resourceDisStreamDelete,
-		UpdateContext: resourceDisStreamUpdate,
+		CreateContext: resourceStreamCreate,
+		ReadContext:   resourceStreamRead,
+		DeleteContext: resourceStreamDelete,
+		UpdateContext: resourceStreamUpdate,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -173,12 +175,12 @@ func ResourceDisStream() *schema.Resource {
 	}
 }
 
-func resourceDisStreamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DisV2Client(region)
+func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DisV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DIS v2 client, err=%s", err)
+		return diag.Errorf("error creating DIS v2 client, err: %s", err)
 	}
 
 	opts := streams.CreateOpts{
@@ -196,7 +198,7 @@ func resourceDisStreamCreate(ctx context.Context, d *schema.ResourceData, meta i
 		opts.CsvProperties = &streams.CsvProperty{Delimiter: v.(string)}
 	}
 
-	// scale partitions
+	// Scale partitions
 	autoScaleMinPartitionCount := d.Get("auto_scale_min_partition_count").(int)
 	autoScaleMaxPartitionCount := d.Get("auto_scale_max_partition_count").(int)
 	if autoScaleMinPartitionCount > 0 && autoScaleMaxPartitionCount > 0 {
@@ -207,7 +209,7 @@ func resourceDisStreamCreate(ctx context.Context, d *schema.ResourceData, meta i
 		opts.AutoScaleEnabled = utils.Bool(false)
 	}
 
-	enterpriseProjectID := config.GetEnterpriseProjectID(d)
+	enterpriseProjectID := conf.GetEnterpriseProjectID(d)
 	if enterpriseProjectID != "" {
 		opts.SysTags = []tags.ResourceTag{
 			{
@@ -217,28 +219,28 @@ func resourceDisStreamCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	logp.Printf("[DEBUG] Creating new Cluster: %#v", opts)
+	log.Printf("[DEBUG] creating new Cluster: %#v", opts)
 	_, createErr := streams.Create(client, opts)
 	if createErr != nil {
-		return fmtp.DiagErrorf("Error creating DIS streams: %s", createErr)
+		return diag.Errorf("error creating DIS streams: %s", createErr)
 	}
 
 	d.SetId(opts.StreamName)
 
-	return resourceDisStreamRead(ctx, d, meta)
+	return resourceStreamRead(ctx, d, meta)
 }
 
-func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DisV2Client(region)
+func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DisV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DIS v2 client, err=%s", err)
+		return diag.Errorf("error creating DIS v2 client, err: %s", err)
 	}
 
 	detail, dErr := streams.Get(client, d.Id(), streams.GetOpts{})
 	if dErr != nil {
-		return fmtp.DiagErrorf("Error query DisStream %q:%s", d.Id(), dErr)
+		return common.CheckDeletedDiag(d, dErr, "error query DIS Stream")
 	}
 
 	mErr := multierror.Append(
@@ -269,34 +271,33 @@ func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceDisStreamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DisV2Client(region)
+func resourceStreamDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DisV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DIS v2 client, err=%s", err)
+		return diag.Errorf("error creating DIS v2 client, err: %s", err)
 	}
 
 	name := d.Id()
 	errResult := streams.Delete(client, name)
 	if errResult.Err != nil {
-		return fmtp.DiagErrorf("Delete DIS streams failed.stream_name:%s,error:%s", name, errResult.Err)
+		return diag.Errorf("error deleting DIS stream %s: %s", name, errResult.Err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
-func resourceDisStreamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DisV2Client(region)
+func resourceStreamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DisV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DIS v2 client, err=%s", err)
+		return diag.Errorf("error creating DIS v2 client, err: %s", err)
 	}
 	name := d.Id()
 
-	// Update partition count
+	// Update partition count.
 	if d.HasChange("partition_count") {
 		newValue := d.Get("partition_count").(int)
 		updateOpts := streams.UpdatePartitionOpt{
@@ -305,12 +306,12 @@ func resourceDisStreamUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 		_, extendErr := streams.UpdatePartition(client, name, updateOpts)
 		if extendErr != nil {
-			return fmtp.DiagErrorf("Update DIS stream failed.stream_name=%s,error=%s", name, extendErr)
+			return diag.Errorf("update DIS stream failed.stream_name: %s,error: %s", name, extendErr)
 		}
 
 		checkErr := checkPartitionUpdateResult(ctx, client, name, newValue, d.Timeout(schema.TimeoutUpdate))
 		if checkErr != nil {
-			return fmtp.DiagErrorf("Update DIS stream failed.stream_name=%s,error=%s", name, checkErr)
+			return diag.Errorf("update DIS stream failed.stream_name: %s,error: %s", name, checkErr)
 		}
 	}
 
@@ -318,11 +319,11 @@ func resourceDisStreamUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		streamId := d.Get("stream_id").(string)
 		tagErr := utils.UpdateResourceTags(client, d, "stream", streamId)
 		if tagErr != nil {
-			return fmtp.DiagErrorf("Error updating tags of DIS stream:%s,streamId=%s, err:%s", name, streamId, tagErr)
+			return diag.Errorf("error updating tags of DIS stream:%s,streamId: %s, err: %s", name, streamId, tagErr)
 		}
 	}
 
-	return resourceDisStreamRead(ctx, d, meta)
+	return resourceStreamRead(ctx, d, meta)
 }
 
 func parseEnterpriseProjectIdFromSysTags(value []tags.ResourceTag) (r string) {
@@ -349,7 +350,7 @@ func checkPartitionUpdateResult(ctx context.Context, client *golangsdk.ServiceCl
 			if err != nil {
 				return nil, "failed", err
 			}
-			logp.Printf("WritablePartitionCount=", resp.WritablePartitionCount, targetValue)
+			log.Printf("[DEBUG] writablePartitionCount: %d, targetValue: %d", resp.WritablePartitionCount, targetValue)
 			if resp.WritablePartitionCount == targetValue {
 				return resp, "Done", nil
 			}
@@ -361,7 +362,7 @@ func checkPartitionUpdateResult(ctx context.Context, client *golangsdk.ServiceCl
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("waiting for DIS stream (%s) to update partition failed: %s", name, err)
+		return fmt.Errorf("waiting for DIS stream (%s) to update partition failed: %s", name, err)
 	}
 	return nil
 }
@@ -372,7 +373,7 @@ func queryAndSetPartitionsToState(client *golangsdk.ServiceClient, d *schema.Res
 	for {
 		rst, gErr := streams.Get(client, streamName, opts)
 		if gErr != nil {
-			return fmtp.Errorf("Error query the partitions of DIS stream, err=%s", gErr)
+			return fmt.Errorf("error query the partitions of DIS stream, err: %s", gErr)
 		}
 
 		for _, partition := range rst.Partitions {

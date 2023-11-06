@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func geCsmsSecretFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.KmsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating HuaweiCloud CSMS(KMS) client: %s", err)
+		return nil, fmt.Errorf("error creating CSMS(KMS) client: %s", err)
 	}
 	name := state.Primary.Attributes["name"]
 	return secrets.Get(client, name)

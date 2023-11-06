@@ -8,7 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	kps_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model"
+	kps "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -19,7 +20,7 @@ func getKpsKeypairResourceFunc(conf *config.Config, state *terraform.ResourceSta
 		return nil, fmt.Errorf("error creating KMS v3 client: %s", err)
 	}
 
-	request := &kps_model.ListKeypairDetailRequest{
+	request := &kps.ListKeypairDetailRequest{
 		KeypairName: state.Primary.ID,
 	}
 
@@ -27,7 +28,7 @@ func getKpsKeypairResourceFunc(conf *config.Config, state *terraform.ResourceSta
 }
 
 func TestAccKpsKeypair_basic(t *testing.T) {
-	var group kps_model.ListKeypairDetailResponse
+	var group kps.ListKeypairDetailResponse
 
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_kps_keypair.test"
@@ -76,7 +77,7 @@ func TestAccKpsKeypair_basic(t *testing.T) {
 }
 
 func TestAccKpsKeypair_domain(t *testing.T) {
-	var group kps_model.ListKeypairDetailResponse
+	var group kps.ListKeypairDetailResponse
 
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_kps_keypair.test"
@@ -117,7 +118,7 @@ func TestAccKpsKeypair_domain(t *testing.T) {
 }
 
 func TestAccKpsKeypair_publicKey(t *testing.T) {
-	var group kps_model.ListKeypairDetailResponse
+	var group kps.ListKeypairDetailResponse
 
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_kps_keypair.test"

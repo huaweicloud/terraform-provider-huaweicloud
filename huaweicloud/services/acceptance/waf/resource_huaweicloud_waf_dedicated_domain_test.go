@@ -4,18 +4,36 @@ import (
 	"fmt"
 	"testing"
 
-	domains "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	domains "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getWafDedicateDomainResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating WAF dedicated client: %s", err)
+	}
+
+	epsID := state.Primary.Attributes["enterprise_project_id"]
+	return domains.GetWithEpsID(client, state.Primary.ID, epsID)
+}
+
 func TestAccWafDedicateDomainV1_basic(t *testing.T) {
-	var domain domains.PremiumHost
-	resourceName := "huaweicloud_waf_dedicated_domain.domain_1"
+	var obj interface{}
+
 	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_waf_dedicated_domain.domain_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getWafDedicateDomainResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -23,22 +41,30 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafDedicatedDomainV1Destroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafDedicatedDomainV1_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.1"),
 					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_1"),
+					resource.TestCheckResourceAttr(resourceName, "protect_status", "1"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.http_return_code", "404"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.block_page_type", "application/json"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key1", "$time_local"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$tenant_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "custom_page.0.page_content"),
 					resource.TestCheckResourceAttrSet(resourceName, "server.0.vpc_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "certificate_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "certificate_name"),
@@ -55,24 +81,30 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 			{
 				Config: testAccWafDedicatedDomainV1_update(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
 					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_2"),
 					resource.TestCheckResourceAttr(resourceName, "pci_3ds", "true"),
 					resource.TestCheckResourceAttr(resourceName, "pci_dss", "true"),
+					resource.TestCheckResourceAttr(resourceName, "protect_status", "0"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName_update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
+					resource.TestCheckResourceAttr(resourceName, "redirect_url", "${http_host}/error.html"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
 					resource.TestCheckResourceAttr(resourceName, "server.1.address", "119.8.0.15"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
 				),
 			},
 			{
 				Config: testAccWafDedicatedDomainV1_policy(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
@@ -97,9 +129,16 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 }
 
 func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
-	var domain domains.PremiumHost
-	resourceName := "huaweicloud_waf_dedicated_domain.domain_1"
+	var obj interface{}
+
 	randName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_waf_dedicated_domain.domain_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getWafDedicateDomainResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -108,17 +147,20 @@ func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckWafDedicatedDomainV1Destroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafDedicatedDomainV1_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.1"),
 					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_1"),
+					resource.TestCheckResourceAttr(resourceName, "redirect_url", "${http_host}/error.html"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
@@ -141,11 +183,14 @@ func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
 			{
 				Config: testAccWafDedicatedDomainV1_update_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
 					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_2"),
+					resource.TestCheckResourceAttr(resourceName, "redirect_url", ""),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "pci_3ds", "true"),
 					resource.TestCheckResourceAttr(resourceName, "pci_dss", "true"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
@@ -154,12 +199,14 @@ func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
 					resource.TestCheckResourceAttr(resourceName, "server.1.address", "119.8.0.15"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
 				),
 			},
 			{
 				Config: testAccWafDedicatedDomainV1_policy_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
@@ -185,53 +232,6 @@ func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
 	})
 }
 
-func testAccCheckWafDedicatedDomainV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	c, err := config.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_dedicated_domain" {
-			continue
-		}
-
-		_, err := domains.GetWithEpsID(c, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"])
-		if err == nil {
-			return fmt.Errorf("WAF dedicated mode domain still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckWafDedicatedDomainV1Exists(n string, domain *domains.PremiumHost) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		c, err := config.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
-		}
-		found, err := domains.GetWithEpsID(c, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"])
-		if err != nil {
-			return err
-		}
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("WAF dedicated domain not found")
-		}
-		*domain = *found
-		return nil
-	}
-}
-
 func testAccWafDedicatedDomainV1_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -243,6 +243,9 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   proxy          = false
   tls            = "TLS v1.1"
   cipher         = "cipher_1"
+  protect_status = 1
+  website_name   = "websiteName"
+  description    = "test description"
 
   server {
     client_protocol = "HTTPS"
@@ -251,6 +254,22 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     port            = 8080
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
+  }
+
+  custom_page {
+    http_return_code = "404"
+    block_page_type  = "application/json"
+    page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
+  }
+
+  forward_header_map = {
+    "key1" = "$time_local"
+    "key2" = "$tenant_id"
   }
 
   depends_on = [
@@ -273,6 +292,10 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   cipher         = "cipher_2"
   pci_3ds        = true
   pci_dss        = true
+  protect_status = 0
+  website_name   = "websiteName_update"
+  description    = "test description update"
+  redirect_url   = "$${http_host}/error.html"
 
   server {
     client_protocol = "HTTPS"
@@ -290,6 +313,11 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     port            = 8443
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
+  }
+
+  forward_header_map = {
+    "key2" = "$request_length"
+    "key3" = "$remote_addr"
   }
 
   depends_on = [
@@ -347,6 +375,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   proxy                 = false
   tls                   = "TLS v1.1"
   cipher                = "cipher_1"
+  redirect_url          = "$${http_host}/error.html"
   enterprise_project_id = "%s"
 
   server {
@@ -374,6 +403,8 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
   cipher                = "cipher_2"
   pci_3ds               = true
   pci_dss               = true
+  website_name          = "websiteName"
+  description           = "test description"
   enterprise_project_id = "%s"
 
   server {
@@ -392,6 +423,11 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     port            = 8443
     type            = "ipv4"
     vpc_id          = huaweicloud_vpc.test.id
+  }
+
+  forward_header_map = {
+    "key2" = "$request_length"
+    "key3" = "$remote_addr"
   }
 }
 `, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)

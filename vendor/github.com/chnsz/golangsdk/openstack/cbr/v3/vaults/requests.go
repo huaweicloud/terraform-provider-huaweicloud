@@ -36,6 +36,7 @@ type BillingCreate struct {
 	PeriodType      string                  `json:"period_type,omitempty"`
 	IsAutoRenew     bool                    `json:"is_auto_renew,omitempty"`
 	IsAutoPay       bool                    `json:"is_auto_pay,omitempty"`
+	IsMultiAz       bool                    `json:"is_multi_az,omitempty"`
 }
 
 type BillingCreateExtraInfo struct {

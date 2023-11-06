@@ -1,18 +1,21 @@
-package huaweicloud
+package iec
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"fmt"
+	"log"
 
-	"github.com/chnsz/golangsdk/openstack/iec/v1/images"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk/openstack/iec/v1/images"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceIecImages() *schema.Resource {
+func DataSourceIecImages() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIecImagesV1Read,
+		Read: dataSourceIecImagesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -59,12 +62,12 @@ func dataSourceIecImages() *schema.Resource {
 	}
 }
 
-func dataSourceIecImagesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+func dataSourceIecImagesRead(d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
 
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmt.Errorf("error creating IEC client: %s", err)
 	}
 
 	listOpts := images.ListOpts{
@@ -75,20 +78,20 @@ func dataSourceIecImagesV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	pages, err := images.List(iecClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve iec images: %s", err)
+		return fmt.Errorf("unable to retrieve IEC images: %s", err)
 	}
 
 	allImages, err := images.ExtractImages(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to extract iec images: %s", err)
+		return fmt.Errorf("unable to extract IEC images: %s", err)
 	}
 	total := len(allImages.Images)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results of huaweicloud_iec_images. " +
-			"Please change your search criteria and try again.")
+		return fmt.Errorf("your query returned no results of iec_images, " +
+			"please change your search criteria and try again")
 	}
 
-	logp.Printf("[INFO] Retrieved [%d] IEC images using given filter", total)
+	log.Printf("[INFO] Retrieved [%d] IEC images using given filter", total)
 	edgeImages := make([]map[string]interface{}, 0, total)
 	for _, item := range allImages.Images {
 		val := map[string]interface{}{
@@ -99,8 +102,9 @@ func dataSourceIecImagesV1Read(d *schema.ResourceData, meta interface{}) error {
 		}
 		edgeImages = append(edgeImages, val)
 	}
-	if err := d.Set("images", edgeImages); err != nil {
-		return fmtp.Errorf("Error saving IEC iamges: %s", err)
+	mErr := multierror.Append(d.Set("images", edgeImages))
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmt.Errorf("error saving IEC iamges: %s", err)
 	}
 
 	d.SetId(allImages.Images[0].ID)

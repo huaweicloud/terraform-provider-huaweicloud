@@ -188,6 +188,9 @@ The following arguments are supported:
 
 -> If configured, the names of all automatic backups generated for the vault will use this prefix.
 
+* `is_multi_az` - (Optional, Bool, ForceNew) Specifies whether multiple availability zones are used for backing up.
+  Defaults to **false**.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBR vault.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the vault.

@@ -4,29 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/drs/v3/jobs"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/drs/v3/jobs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDrsJob() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDrsJobCreate,
-		ReadContext:   resourceDrsJobRead,
-		UpdateContext: resourceDrsJobUpdate,
-		DeleteContext: resourceDrsJobDelete,
+		CreateContext: resourceJobCreate,
+		ReadContext:   resourceJobRead,
+		UpdateContext: resourceJobUpdate,
+		DeleteContext: resourceJobDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -308,22 +309,22 @@ func dbInfoSchemaResource() *schema.Resource {
 	return &nodeResource
 }
 
-func resourceDrsJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DrsV3Client(region)
+func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DrsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating DRS v3 client, error=%s", err)
+		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
 
-	opts, err := buildCreateParamter(d, client.ProjectID, config.GetEnterpriseProjectID(d))
+	opts, err := buildCreateParamter(d, client.ProjectID, conf.GetEnterpriseProjectID(d))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	rst, err := jobs.Create(client, *opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating DRS job: %s", err)
+		return diag.Errorf("error creating DRS job: %s", err)
 	}
 
 	jobId := rst.Results[0].Id
@@ -337,7 +338,7 @@ func resourceDrsJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	valid := testConnections(client, jobId, opts.Jobs[0])
 	if !valid {
-		return fmtp.DiagErrorf("Test db connection of job=%s failed", jobId)
+		return diag.Errorf("test db connection of job: %s failed", jobId)
 	}
 
 	err = reUpdateJob(client, jobId, opts.Jobs[0], d.Get("migrate_definer").(bool))
@@ -345,7 +346,7 @@ func resourceDrsJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	//configTransSpeed
+	// Configure the transmission speed for the job.
 	if v, ok := d.GetOk("limit_speed"); ok {
 		configRaw := v.([]interface{})
 		speedLimits := make([]jobs.SpeedLimitInfo, len(configRaw))
@@ -367,7 +368,7 @@ func resourceDrsJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		})
 
 		if err != nil {
-			return fmtp.DiagErrorf("Limit speed of job=%s failed, error: %s", jobId, err)
+			return diag.Errorf("limit speed of job: %s failed, error: %s", jobId, err)
 		}
 	}
 
@@ -387,31 +388,31 @@ func resourceDrsJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	_, err = jobs.Start(client, startReq)
 
 	if err != nil {
-		return fmtp.DiagErrorf("start DRS job failed,error: %s", err)
+		return diag.Errorf("start DRS job failed,error: %s", err)
 	}
 
 	err = waitingforJobStatus(ctx, client, jobId, "start", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	return resourceDrsJobRead(ctx, d, meta)
+	return resourceJobRead(ctx, d, meta)
 }
 
-func resourceDrsJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DrsV3Client(region)
+func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DrsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating DRS v3 client, error: %s", err)
+		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
 
 	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "Error retrieving DRS job")
+		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
 	detail := detailResp.Results[0]
 
-	// net_type is not in detail, so query by list
+	// Net_type is not in detail, so query by list.
 	listResp, err := jobs.List(client, jobs.ListJobsReq{
 		CurPage:   1,
 		PerPage:   1,
@@ -420,7 +421,7 @@ func resourceDrsJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 	})
 
 	if err != nil {
-		return fmtp.DiagErrorf("Query the job list by jobId=%s, error: %s", d.Id(), err)
+		return diag.Errorf("query the job list by jobId: %s, error: %s", d.Id(), err)
 	}
 
 	mErr := multierror.Append(
@@ -443,23 +444,23 @@ func resourceDrsJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("Error setting DRS job fields: %s", mErr)
+		return diag.Errorf("error setting DRS job fields: %s", mErr)
 	}
 
 	return nil
 }
 
-func resourceDrsJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DrsV3Client(region)
+func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DrsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating DRS v3 client, error: %s", err)
+		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
 
 	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "Error retrieving DRS job")
+		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
 	detail := detailResp.Results[0]
 
@@ -480,31 +481,31 @@ func resourceDrsJobUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	_, err = jobs.Update(client, updateParams)
 	if err != nil {
-		return fmtp.DiagErrorf("Update job=%s failed,error: %s", d.Id(), err)
+		return diag.Errorf("update job: %s failed,error: %s", d.Id(), err)
 	}
 
-	return resourceDrsJobRead(ctx, d, meta)
+	return resourceJobRead(ctx, d, meta)
 }
 
-func resourceDrsJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DrsV3Client(region)
+func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DrsV3Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating DRS v3 client, error: %s", err)
+		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
 
 	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "Error retrieving DRS job")
+		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
 
 	// force terminate
 	if !utils.StrSliceContains([]string{"CREATE_FAILED", "RELEASE_RESOURCE_COMPLETE", "RELEASE_CHILD_TRANSFER_COMPLETE"},
 		detailResp.Results[0].Status) {
 		if !d.Get("force_destroy").(bool) {
-			return fmtp.DiagErrorf("The job=%s cannot be deleted when it is running. If you want to forcibly delete " +
-				"the job please set force_destroy to True.")
+			return diag.Errorf("the job: %s cannot be deleted when it is running. "+
+				"If you want to forcibly delete the job please set force_destroy to True", d.Id())
 		}
 
 		dErr := jobs.Delete(client, jobs.BatchDeleteJobReq{
@@ -517,7 +518,7 @@ func resourceDrsJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		})
 
 		if dErr.Err != nil {
-			return fmtp.DiagErrorf("Terminate DRS job failed. %q: %s", d.Id(), dErr)
+			return diag.Errorf("terminate DRS job failed. %q: %s", d.Id(), dErr)
 		}
 
 		err = waitingforJobStatus(ctx, client, d.Id(), "terminate", d.Timeout(schema.TimeoutDelete))
@@ -526,7 +527,6 @@ func resourceDrsJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	//delete
 	dErr := jobs.Delete(client, jobs.BatchDeleteJobReq{
 		Jobs: []jobs.DeleteJobReq{
 			{
@@ -536,10 +536,8 @@ func resourceDrsJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		},
 	})
 	if dErr.Err != nil {
-		return fmtp.DiagErrorf("Delete DRS job failed. %q: %s", d.Id(), dErr)
+		return diag.Errorf("delete DRS job failed. %q: %s", d.Id(), dErr)
 	}
-
-	d.SetId("")
 
 	return nil
 }
@@ -570,11 +568,11 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 				return nil, "", err
 			}
 			if resp.Count == 0 || resp.Results[0].ErrorCode != "" {
-				return resp, "failed", fmtp.Errorf("%s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMessage)
+				return resp, "failed", fmt.Errorf("%s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMessage)
 			}
 
 			if resp.Results[0].Status == "CREATE_FAILED" || resp.Results[0].Status == "RELEASE_RESOURCE_FAILED" {
-				return resp, "failed", fmtp.Errorf("%s", resp.Results[0].Status)
+				return resp, "failed", fmt.Errorf("%s", resp.Results[0].Status)
 			}
 
 			return resp, resp.Results[0].Status, nil
@@ -586,7 +584,7 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error waiting for DRS job (%s) to be %s: %s", id, statusType, err)
+		return fmt.Errorf("error waiting for DRS job: %s to be %s: %s", id, statusType, err)
 	}
 	return nil
 }
@@ -607,13 +605,12 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 	var subnetId string
 	if jobDirection == "up" {
 		if targetDb.InstanceId == "" {
-			return nil, fmtp.Errorf("destination_db.0.instance_id is required When diretion is down.")
+			return nil, fmt.Errorf("destination_db.0.instance_id is required When diretion is down")
 		}
 		subnetId = targetDb.SubnetId
-
 	} else {
 		if sourceDb.InstanceId == "" {
-			return nil, fmtp.Errorf("source_db.0.instance_id is required When diretion is down.")
+			return nil, fmt.Errorf("source_db.0.instance_id is required When diretion is down")
 		}
 		subnetId = sourceDb.SubnetId
 	}
@@ -700,7 +697,7 @@ func setDbInfoToState(d *schema.ResourceData, endpoint jobs.Endpoint, fieldName 
 		"ssl_enabled":        endpoint.SslLink,
 	}
 	result[0] = item
-	//lintignore:R001
+	// lintignore:R001
 	return d.Set(fieldName, result)
 }
 
@@ -743,7 +740,7 @@ func testConnections(client *golangsdk.ServiceClient, jobId string, opts jobs.Cr
 	}
 	rsp, err := jobs.TestConnections(client, reqParams)
 	if err != nil || rsp.Count != 2 {
-		logp.Printf("[ERROR]Test connections of job=%s failed,error: %s", jobId, err)
+		log.Printf("[ERROR] test connections of job: %s failed,error: %s", jobId, err)
 		return false
 	}
 
@@ -776,7 +773,7 @@ func reUpdateJob(client *golangsdk.ServiceClient, jobId string, opts jobs.Create
 
 	_, err := jobs.Update(client, reqParams)
 	if err != nil {
-		return fmtp.Errorf("Update job failed,error: %s", err)
+		return fmt.Errorf("update job failed,error: %s", err)
 	}
 
 	return nil
@@ -792,7 +789,7 @@ func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string
 		},
 	})
 	if err != nil {
-		return fmtp.Errorf("Start job=%s preCheck failed,error: %s", jobId, err)
+		return fmt.Errorf("start job: %s preCheck failed,error: %s", jobId, err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -806,7 +803,7 @@ func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string
 				return nil, "", err
 			}
 			if resp.Count == 0 || resp.Results[0].ErrorCode != "" {
-				return resp, "failed", fmtp.Errorf("%s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMsg)
+				return resp, "failed", fmt.Errorf("%s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMsg)
 			}
 
 			if resp.Results[0].Process != "100%" {
@@ -817,7 +814,7 @@ func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string
 				return resp, "complete", nil
 			}
 
-			return resp, "failed", fmtp.Errorf("Some preCheck item failed: %s", resp)
+			return resp, "failed", fmt.Errorf("some preCheck item failed: %v", resp)
 		},
 		Timeout:      timeout,
 		PollInterval: 20 * timeout,
@@ -825,7 +822,7 @@ func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error waiting for DRS job (%s) to be terminate: %s", jobId, err)
+		return fmt.Errorf("error waiting for DRS job: %s to be terminate: %s", jobId, err)
 	}
 	return nil
 }

@@ -3,23 +3,23 @@ package dew
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -88,12 +88,12 @@ func ResourceCsmsSecret() *schema.Resource {
 }
 
 func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	// The endpoint of CSMS is the endpoint of KMS.
-	client, err := config.KmsV1Client(region)
+	client, err := cfg.KmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("failed to create HuaweiCloud CSMS(KMS) client: %s", err)
+		return diag.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -102,12 +102,12 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 		KmsKeyID:    d.Get("kms_key_id").(string),
 		Description: d.Get("description").(string),
 	}
-	logp.Printf("[DEBUG] Create CSMS secret options: %s", createOpts)
+	log.Printf("[DEBUG] Create CSMS secret options: %s", createOpts)
 	createOpts.SecretString = d.Get("secret_text").(string)
 
 	rst, err := secrets.Create(client, createOpts)
 	if err != nil {
-		return fmtp.DiagErrorf("failed to create the CSMS secret: %s", err)
+		return diag.Errorf("failed to create the CSMS secret: %s", err)
 	}
 
 	id := fmt.Sprintf("%s/%s", rst.ID, name)
@@ -119,7 +119,7 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 		tagMaps := utils.ExpandResourceTags(tMaps)
 		err = tags.Create(client, serviceType, rst.ID, tagMaps).ExtractErr()
 		if err != nil {
-			logp.Printf("[WARN] Error add tags to CSMS secret: %s, err=%s", rst.ID, err)
+			log.Printf("[WARN] Error add tags to CSMS secret: %s, err=%s", rst.ID, err)
 		}
 	}
 
@@ -127,12 +127,12 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	// The endpoint of CSMS is the endpoint of KMS.
-	client, err := config.KmsV1Client(region)
+	client, err := cfg.KmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("failed to create HuaweiCloud CSMS(KMS) client: %s", err)
+		return diag.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
 	id, name := parseID(d.Id())
@@ -154,7 +154,7 @@ func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta inte
 	)
 
 	// Query secret version
-	version, err := queryLatestVersion(config, region, name)
+	version, err := queryLatestVersion(cfg, region, name)
 	if err != nil {
 		mErr = multierror.Append(
 			mErr,
@@ -177,25 +177,25 @@ func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta inte
 			d.Set("tags", tagMap),
 		)
 	} else {
-		logp.Printf("[WARN] Error querying CSMS secret tags (%s): %s", id, err)
+		log.Printf("[WARN] error querying CSMS secret tags (%s): %s", id, err)
 	}
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("failed to set attributes for CSMS secret: %s", mErr)
+		return diag.Errorf("failed to set attributes for CSMS secret: %s", mErr)
 	}
 	return nil
 }
 
-func queryLatestVersion(config *config.Config, region, name string) (*secrets.Version, error) {
-	client, err := config.KmsV1Client(region)
+func queryLatestVersion(cfg *config.Config, region, name string) (*secrets.Version, error) {
+	client, err := cfg.KmsV1Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("failed to create HuaweiCloud CSMS(KMS) client: %s", err)
+		return nil, fmt.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
 	// Query the version list
 	versions, err := secrets.ListSecretVersions(client, name)
 	if err != nil {
-		return nil, fmtp.Errorf("failed to query the list of secret versions: %s", err)
+		return nil, fmt.Errorf("failed to query the list of secret versions: %s", err)
 	}
 	// Sort by created time in descending order.
 	sort.Slice(versions, func(i, j int) bool {
@@ -204,33 +204,32 @@ func queryLatestVersion(config *config.Config, region, name string) (*secrets.Ve
 
 	versionID := versions[0].ID
 
-	return queryVersion(config, region, name, versionID)
+	return queryVersion(cfg, region, name, versionID)
 }
 
-func queryVersion(config *config.Config, region, name, versionID string) (*secrets.Version, error) {
-	client, err := config.KmsV1Client(region)
+func queryVersion(cfg *config.Config, region, name, versionID string) (*secrets.Version, error) {
+	client, err := cfg.KmsV1Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("failed to create HuaweiCloud CSMS(KMS) client: %s", err)
+		return nil, fmt.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
 	// Query version
 	version, err := secrets.ShowSecretVersion(client, name, versionID)
 	if err != nil {
-		return nil, fmtp.Errorf("failed to query secret version: %s", err)
+		return nil, fmt.Errorf("failed to query secret version: %s", err)
 	}
 	return version, nil
 }
 
 func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	// The endpoint of CSMS is the endpoint of KMS.
-	client, err := config.KmsV1Client(region)
+	client, err := cfg.KmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("failed to create HuaweiCloud CSMS(KMS) client: %s", err)
+		return diag.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
-	var mErr *multierror.Error
 	id, name := parseID(d.Id())
 	// Update secret basic-info
 	if d.HasChanges("kms_key_id", "description") {
@@ -240,12 +239,11 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			KmsKeyID:    kmsKeyID,
 			Description: &desc,
 		}
-		logp.Printf("[DEBUG] The option to update the basic information of the CSMS secret is: %#v", opts)
+		log.Printf("[DEBUG] The option to update the basic information of the CSMS secret is: %#v", opts)
 
 		_, err = secrets.Update(client, name, opts)
 		if err != nil {
-			e := fmtp.Errorf("failed to update the base-info of CSMS secret: %s", err)
-			mErr = multierror.Append(mErr, e)
+			return diag.Errorf("failed to update the base-info of CSMS secret: %s", err)
 		}
 	}
 
@@ -256,8 +254,7 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 		_, err = secrets.CreateSecretVersion(client, name, opts)
 		if err != nil {
-			e := fmtp.Errorf("failed to create a new version of CSMS secret: %s", err)
-			mErr = multierror.Append(mErr, e)
+			return diag.Errorf("failed to create a new version of CSMS secret: %s", err)
 		}
 	}
 
@@ -265,40 +262,35 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChange("tags") {
 		err = utils.UpdateResourceTags(client, d, serviceType, id)
 		if err != nil {
-			e := fmtp.Errorf("failed to update CSMS secret tags: %s", err)
-			mErr = multierror.Append(mErr, e)
+			return diag.Errorf("failed to update CSMS secret tags: %s", err)
 		}
-	}
-
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("failed to update CSMS secret: %s", mErr)
 	}
 	return resourceCsmsSecretRead(ctx, d, meta)
 }
 
 func resourceCsmsSecretDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	// The endpoint of CSMS is the endpoint of KMS.
-	client, err := config.KmsV1Client(region)
+	client, err := cfg.KmsV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("failed to create HuaweiCloud CSMS(KMS) client: %s", err)
+		return diag.Errorf("failed to create CSMS(KMS) client: %s", err)
 	}
 
 	name := d.Get("name").(string)
 	err = secrets.Delete(client, name)
 	if err != nil {
-		return fmtp.DiagErrorf("failed to delete CSMS secret: %s", err)
+		return diag.Errorf("failed to delete CSMS secret: %s", err)
 	}
 	d.SetId("")
 	return nil
 }
 
-func resourceCsmsSecretImport(ctx context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+func resourceCsmsSecretImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	id, name := parseID(d.Id())
 	if id == "" {
-		err := fmtp.Errorf("Invalid format specified for the ID of CSMS secret. " +
+		err := fmt.Errorf("invalid format specified for the ID of CSMS secret. " +
 			"Format must be <id>/<name>")
 		return nil, err
 	}
@@ -309,7 +301,7 @@ func resourceCsmsSecretImport(ctx context.Context, d *schema.ResourceData, _ int
 }
 
 func parseID(id string) (string, string) {
-	parts := strings.SplitN(id, "/", 2)
+	parts := strings.Split(id, "/")
 	if len(parts) != 2 {
 		return "", ""
 	}

@@ -21,7 +21,7 @@ func (opts ExtensionOpts) ToExtensionQuery() (string, error) {
 type SourcesOpts struct {
 	IporDomain    string `json:"ip_or_domain" required:"true"`
 	OriginType    string `json:"origin_type" required:"true"`
-	ActiveStandby int    `json:"active_standby" required:"true"`
+	ActiveStandby int    `json:"active_standby"`
 }
 
 // CreateOpts specifies the attributes used to create a CDN domain.

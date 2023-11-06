@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/chnsz/golangsdk/openstack/dis/v2/streams"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/chnsz/golangsdk/openstack/dis/v2/streams"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getDisStreamsResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DisV2Client(acceptance.HW_REGION_NAME)
+func getDisStreamsResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.DisV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("error creating DIS V2 client, err=%s", err)
+		return nil, fmt.Errorf("error creating DIS V2 client, err: %s", err)
 	}
 
 	return streams.Get(client, state.Primary.ID, streams.GetOpts{})

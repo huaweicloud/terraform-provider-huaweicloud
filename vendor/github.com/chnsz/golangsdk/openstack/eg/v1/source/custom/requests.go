@@ -19,6 +19,8 @@ type CreateOpts struct {
 	Type string `json:"type,omitempty"`
 	// The description of the custom event source.
 	Description string `json:"description,omitempty"`
+	// The configuration detail of the event source, in JSON format.
+	Detail interface{} `json:"detail,omitempty"`
 }
 
 var requestOpts = golangsdk.RequestOpts{
@@ -101,6 +103,8 @@ type UpdateOpts struct {
 	SourceId string `json:"-" required:"true"`
 	// The description of the event source.
 	Description *string `json:"description,omitempty"`
+	// The configuration detail of the event source, in JSON format.
+	Detail interface{} `json:"detail,omitempty"`
 }
 
 // Update is a method used to modify an existing custom event source using given parameters.
