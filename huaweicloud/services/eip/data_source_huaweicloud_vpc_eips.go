@@ -2,18 +2,20 @@ package eip
 
 import (
 	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVpcEips() *schema.Resource {
@@ -130,16 +132,16 @@ func DataSourceVpcEips() *schema.Resource {
 }
 
 func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud Networking client: %s", err)
+		return diag.Errorf("error creating Networking client: %s", err)
 	}
 
-	clientV2, err := config.NetworkingV2Client(region)
+	clientV2, err := cfg.NetworkingV2Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud Networking V2 client: %s", err)
+		return diag.Errorf("error creating Networking V2 client: %s", err)
 	}
 
 	listOpts := &eips.ListOpts{
@@ -147,22 +149,22 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 		PublicIp:            utils.ExpandToStringList(d.Get("public_ips").([]interface{})),
 		PortId:              utils.ExpandToStringList(d.Get("port_ids").([]interface{})),
 		IPVersion:           d.Get("ip_version").(int),
-		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.DataGetEnterpriseProjectID(d),
 	}
 
 	pages, err := eips.List(client, listOpts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve eips: %s ", err)
+		return diag.Errorf("unable to retrieve eips: %s ", err)
 	}
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve eips: %s ", err)
+		return diag.Errorf("unable to retrieve eips: %s ", err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved eips using given filter: %+v", allEips)
+	log.Printf("[DEBUG] Retrieved eips using given filter: %+v", allEips)
 
-	var eips []map[string]interface{}
+	var eipList []map[string]interface{}
 	tagFilter := d.Get("tags").(map[string]interface{})
 	var ids []string
 	for _, item := range allEips {
@@ -178,9 +180,9 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 		} else {
 			// The tags api does not support eps authorization, so don't return 403 to avoid error
 			if _, ok := err.(golangsdk.ErrDefault403); ok {
-				logp.Printf("[WARN] Error query tags of EIP (%s): %s", item.ID, err)
+				log.Printf("[WARN] Error query tags of EIP (%s): %s", item.ID, err)
 			} else {
-				return fmtp.DiagErrorf("Error query tags of EIP (%s): %s", item.ID, err)
+				return diag.Errorf("error query tags of EIP (%s): %s", item.ID, err)
 			}
 		}
 
@@ -202,14 +204,16 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 			"tags":                  tagRst,
 		}
 
-		eips = append(eips, eip)
+		eipList = append(eipList, eip)
 		ids = append(ids, item.ID)
 	}
-	logp.Printf("[DEBUG]Eips List after filter, count=%d :%+v", len(eips), eips)
+	log.Printf("[DEBUG]Eips List after filter, count=%d :%+v", len(eipList), eipList)
 
-	mErr := d.Set("eips", eips)
-	if mErr != nil {
-		return fmtp.DiagErrorf("set eips err:%s", mErr)
+	mErr := multierror.Append(nil,
+		d.Set("eips", eipList),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("set eips err:%s", err)
 	}
 
 	d.SetId(hashcode.Strings(ids))
