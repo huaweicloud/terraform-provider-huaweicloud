@@ -1,19 +1,21 @@
-package huaweicloud
+package iec
 
 import (
+	"fmt"
+	"log"
 	"strconv"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/flavors"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceIecFlavors() *schema.Resource {
+func DataSourceIecFlavors() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIecFlavorsV1Read,
+		Read: dataSourceIecFlavorsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -73,12 +75,12 @@ func dataSourceIecFlavors() *schema.Resource {
 	}
 }
 
-func dataSourceIecFlavorsV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+func dataSourceIecFlavorsRead(d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
 
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmt.Errorf("error creating IEC client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{
@@ -90,18 +92,18 @@ func dataSourceIecFlavorsV1Read(d *schema.ResourceData, meta interface{}) error 
 		Operator: d.Get("operator").(string),
 	}
 
-	logp.Printf("[DEBUG] fetching IEC flavors by filter: %#v", listOpts)
+	log.Printf("[DEBUG] fetching IEC flavors by filter: %#v", listOpts)
 	allFlavors, err := flavors.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to extract iec flavors: %s", err)
+		return fmt.Errorf("unable to extract IEC flavors: %s", err)
 	}
 	total := len(allFlavors.Flavors)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results of huaweicloud_iec_flavors. " +
-			"Please change your search criteria and try again.")
+		return fmt.Errorf("your query returned no results of iec_flavors, " +
+			"please change your search criteria and try again")
 	}
 
-	logp.Printf("[INFO] Retrieved [%d] IEC flavors using given filter", total)
+	log.Printf("[INFO] Retrieved [%d] IEC flavors using given filter", total)
 	iecFlavors := make([]map[string]interface{}, 0, total)
 	for _, item := range allFlavors.Flavors {
 		val := map[string]interface{}{
@@ -114,8 +116,9 @@ func dataSourceIecFlavorsV1Read(d *schema.ResourceData, meta interface{}) error 
 		}
 		iecFlavors = append(iecFlavors, val)
 	}
-	if err := d.Set("flavors", iecFlavors); err != nil {
-		return fmtp.Errorf("Error saving IEC flavors: %s", err)
+	mErr := multierror.Append(d.Set("flavors", iecFlavors))
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmt.Errorf("error saving IEC flavors: %s", err)
 	}
 
 	d.SetId(allFlavors.Flavors[0].ID)
