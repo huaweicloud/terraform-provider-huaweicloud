@@ -48,6 +48,28 @@ EOF
     "key1" = "$time_local"
     "key2" = "$tenant_id"
   }
+  
+  connection_protection {
+    error_threshold                       = 1000
+    error_percentage                      = 90
+    initial_downtime                      = 200
+    multiplier_for_consecutive_breakdowns = 5
+    pending_url_request_threshold         = 7000
+    duration                              = 10000
+    status                                = true
+  }
+  
+  timeout_settings {
+    connection_timeout = 100
+    read_timeout       = 1000
+    write_timeout      = 1000
+  }
+  
+  traffic_mark {
+    ip_tags     = ["ip_tag"]
+    session_tag = "session_tag"
+    user_tag    = "user_tag"
+  }
 }
 ```
 
@@ -138,6 +160,20 @@ The following arguments are supported:
   + **$ssl_curves**
   + **$ssl_session_reused**
 
+* `connection_protection` - (Optional, List) Specifies the connection protection configuration to let WAF protect your
+  origin servers from being crashed when WAF detects a large number of 502/504 error codes or pending requests.
+  Only supports one protection configuration.
+  The [connection_protection](#DedicatedDomain_connection_protection) structure is documented below.
+
+* `timeout_settings` - (Optional, List) Specifies the timeout setting. Only supports one timeout setting.
+  The [timeout_settings](#DedicatedDomain_timeout_settings) structure is documented below.
+
+* `traffic_mark` - (Optional, List) Specifies the traffic identifier. WAF uses the configurations to identify the
+  malicious client IP address (proxy mode) in the header, session in the cookie, and user attribute in the parameter,
+  and then triggers the corresponding known attack source rules to block attack sources.
+  Only supports one traffic identifier.
+  The [traffic_mark](#DedicatedDomain_traffic_mark) structure is documented below.
+
 The `server` block supports:
 
 * `client_protocol` - (Required, String, ForceNew) Protocol type of the client. The options include `HTTP` and `HTTPS`.
@@ -169,6 +205,64 @@ The `custom_page` block supports:
 * `page_content` - (Required, String) Specifies the page content. The page content based on the selected page type.
   The available **${waf_event_id}** in the page content indicates an event ID, and only one **${waf_event_id}** variable
   can be available.
+
+<a name="DedicatedDomain_connection_protection"></a>
+The `connection_protection` block supports:
+
+* `error_threshold` - (Optional, Int) Specifies the 502/504 error threshold for every 30 seconds. Valid value ranges
+  from `0` to `2,147,483,647`.
+
+* `error_percentage` - (Optional, Float) Specifies the 502/504 error percentage. A breakdown protection is triggered
+  when the 502/504 error threshold and percentage threshold have been reached. Valid value ranges from `0` to `99`.
+
+* `initial_downtime` - (Optional, Int) Specifies the breakdown duration (s) when the breakdown is triggered for the first
+  time. Valid value ranges from `0` to `2,147,483,647`.
+
+* `multiplier_for_consecutive_breakdowns` - (Optional, Int) Specifies the maximum multiplier for consecutive breakdowns
+  that occur within an hour. Valid value ranges from `0` to `2,147,483,647`.
+  For example: Assume that you set the initial downtime to `180s` and the maximum multiplier to `3`. If the breakdown
+  protection is triggered for the second time, the website downtime is 360s (180s X 2).
+  If the breakdown protection is triggered for the third or fourth time, the website downtime is 540s (180s x 3).
+  The breakdowns are calculated every one hour.
+
+* `pending_url_request_threshold` - (Optional, Int) Specifies the pending URL request threshold. Connection protection
+  is triggered when the number of read URL requests reaches the threshold you configure. Valid value ranges from `0` to
+  `2,147,483,647`.
+
+* `duration` - (Optional, Int) Specifies the protection duration (s) for connection protection. During this period, WAF
+  stops forwarding website requests. Valid value ranges from `0` to `2,147,483,647`.
+
+* `status` - (Optional, Bool) Specifies whether to enable connection protection. Defaults to **false**.
+
+<a name="DedicatedDomain_timeout_settings"></a>
+The `timeout_settings` block supports:
+
+* `connection_timeout` - (Optional, Int) Specifies the timeout for WAF to connect to the origin server. The unit is second.
+  Valid value ranges from `0` to `180`.
+
+* `read_timeout` - (Optional, Int) Specifies the timeout for WAF to receive responses from the origin server.
+  The unit is second. Valid value ranges from `0` to `3,600`.
+
+* `write_timeout` - (Optional, Int) Specifies the timeout for WAF to send requests to the origin server. The unit is second.
+  Valid value ranges from `0` to `3,600`.
+
+<a name="DedicatedDomain_traffic_mark"></a>
+The `traffic_mark` block supports:
+
+* `ip_tags` - (Optional, List) Specifies the IP tags. HTTP request header field of the original client IP address.
+  This field is used to store the real IP address of the client. After the configuration, WAF preferentially reads the
+  configured field to obtain the real IP address of the client. If multiple fields are configured, WAF reads the IP
+  address list in order. Note:
+  + If you want to use a TCP connection IP address as the client IP address, set IP Tag to `$remote_addr`.
+  + If WAF does not obtain the real IP address of a client from fields you configure, WAF reads the `cdn-src-ip`,
+    `x-real-ip`, `x-forwarded-for` and `$remote_addr` fields in sequence to read the client IP address.
+
+* `session_tag` - (Optional, String) Specifies the session tag. This tag is used by known attack source rules to block
+  malicious attacks based on cookie attributes. This parameter must be configured in known attack source rules to block
+  requests based on cookie attributes.
+
+* `user_tag` - (Optional, String) Specifies the user tag. This tag is used by known attack source rules to block malicious
+  attacks based on params attributes. This parameter must be configured to block requests based on the params attributes.
 
 ## Attribute Reference
 
