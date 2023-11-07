@@ -962,7 +962,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identitycenter_custom_policy_attachment": identitycenter.ResourceCustomPolicyAttachment(),
 
 			"huaweicloud_iec_eip":                 iec.ResourceIecNetworkEip(),
-			"huaweicloud_iec_keypair":             resourceIecKeypair(),
+			"huaweicloud_iec_keypair":             iec.ResourceKeypair(),
 			"huaweicloud_iec_network_acl":         resourceIecNetworkACL(),
 			"huaweicloud_iec_network_acl_rule":    resourceIecNetworkACLRule(),
 			"huaweicloud_iec_security_group":      resourceIecSecurityGroup(),

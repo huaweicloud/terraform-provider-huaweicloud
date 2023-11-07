@@ -1,22 +1,26 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/keypairs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceIecKeypair() *schema.Resource {
+func ResourceKeypair() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIecKeypairCreate,
-		Read:   resourceIecKeypairRead,
-		Delete: resourceIecKeypairDelete,
+		CreateContext: resourceKeypairCreate,
+		ReadContext:   resourceKeypairRead,
+		DeleteContext: resourceKeypairDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -45,11 +49,11 @@ func resourceIecKeypair() *schema.Resource {
 	}
 }
 
-func resourceIecKeypairCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	createOpts := keypairs.CreateOpts{
@@ -57,47 +61,51 @@ func resourceIecKeypairCreate(d *schema.ResourceData, meta interface{}) error {
 		PublicKey: d.Get("public_key").(string),
 	}
 
-	logp.Printf("[DEBUG] Create iec keypair Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create IEC keypair options: %#v", createOpts)
 	kp, err := keypairs.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud iec keypair: %s", err)
+		return diag.Errorf("error creating IEC keypair: %s", err)
 	}
 
 	d.SetId(kp.Name)
 
-	return resourceIecKeypairRead(d, meta)
+	return resourceKeypairRead(ctx, d, meta)
 }
 
-func resourceIecKeypairRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	kp, err := keypairs.Get(iecClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "keypair")
+		return common.CheckDeletedDiag(d, err, "IEC keypair")
 	}
 
-	d.Set("name", kp.Name)
-	d.Set("public_key", kp.PublicKey)
-	d.Set("fingerprint", kp.Fingerprint)
-
+	mErr := multierror.Append(
+		nil,
+		d.Set("name", kp.Name),
+		d.Set("public_key", kp.PublicKey),
+		d.Set("fingerprint", kp.Fingerprint),
+	)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting IEC keypair: %s", err)
+	}
 	return nil
 }
 
-func resourceIecKeypairDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func resourceKeypairDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	err = keypairs.Delete(iecClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud iec keypair: %s", err)
+		return diag.Errorf("error deleting IEC keypair: %s", err)
 	}
-	d.SetId("")
 	return nil
 }

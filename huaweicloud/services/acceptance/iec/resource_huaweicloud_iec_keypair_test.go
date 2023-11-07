@@ -1,10 +1,9 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -12,23 +11,42 @@ import (
 	"github.com/chnsz/golangsdk/openstack/iec/v1/keypairs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECKeypairResource_basic(t *testing.T) {
-	var keypair common.KeyPair
-	resourceName := "huaweicloud_iec_keypair.kp_1"
-	rName := fmt.Sprintf("KeyPair-%s", acctest.RandString(4))
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIECKeypairDestroy,
+func getKeypairResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IEC v1 client: %s", err)
+	}
+	return keypairs.Get(c, state.Primary.ID).Extract()
+}
+
+func TestAccKeypairResource_basic(t *testing.T) {
+	var (
+		keypair      common.KeyPair
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_iec_keypair.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&keypair,
+		getKeypairResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIECKeypair_basic(rName),
+				Config: testAccKeypair_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIECKeypairExists(resourceName, &keypair),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "fingerprint"),
 				),
@@ -42,63 +60,10 @@ func TestAccIECKeypairResource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIECKeypairDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	iecClient, err := config.IECV1Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_iec_keypair" {
-			continue
-		}
-
-		_, err := keypairs.Get(iecClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Keypair still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIECKeypairExists(n string, kp *common.KeyPair) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		iecClient, err := config.IECV1Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
-		}
-
-		found, err := keypairs.Get(iecClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != rs.Primary.ID {
-			return fmtp.Errorf("Keypair not found")
-		}
-
-		*kp = *found
-
-		return nil
-	}
-}
-
-func testAccIECKeypair_basic(rName string) string {
+func testAccKeypair_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_iec_keypair" "kp_1" {
+resource "huaweicloud_iec_keypair" "test" {
   name = "%s"
 }
-`, rName)
+`, name)
 }
