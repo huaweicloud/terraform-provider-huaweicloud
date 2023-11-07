@@ -9,6 +9,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/networks"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/subnets"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -305,6 +306,7 @@ resource "huaweicloud_networking_port_v2" "port_1" {
   }
 }
 `
+
 const testAccNetworkingV2Port_allowedAddressPairs = `
 resource "huaweicloud_networking_network_v2" "vrrp_network" {
   name = "vrrp_network"

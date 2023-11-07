@@ -1,8 +1,9 @@
 package deprecated
 
 import (
-	"github.com/chnsz/golangsdk/openstack/dcs/v1/products"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk/openstack/dcs/v1/products"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"

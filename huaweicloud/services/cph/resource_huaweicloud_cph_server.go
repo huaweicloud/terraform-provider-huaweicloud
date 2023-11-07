@@ -507,6 +507,7 @@ func createCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
 }
+
 func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

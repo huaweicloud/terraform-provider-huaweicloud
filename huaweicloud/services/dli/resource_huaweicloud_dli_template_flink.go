@@ -194,6 +194,7 @@ func buildGetFlinkTemplateQueryParams(d *schema.ResourceData) string {
 
 	return res
 }
+
 func resourceFlinkTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

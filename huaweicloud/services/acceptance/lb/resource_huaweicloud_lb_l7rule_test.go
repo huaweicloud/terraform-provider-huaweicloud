@@ -5,13 +5,13 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	l7rules "github.com/chnsz/golangsdk/openstack/elb/v2/l7policies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func getL7RuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {

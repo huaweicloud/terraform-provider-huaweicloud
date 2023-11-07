@@ -4,14 +4,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"

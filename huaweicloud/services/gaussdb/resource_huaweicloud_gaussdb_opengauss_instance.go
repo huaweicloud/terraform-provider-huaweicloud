@@ -18,12 +18,14 @@ import (
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 type HaMode string
+
 type ConsistencyType string
 
 const (

@@ -10,13 +10,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/domains"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 	"github.com/chnsz/golangsdk/openstack/obs"
-	"github.com/hashicorp/go-uuid"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 )
 

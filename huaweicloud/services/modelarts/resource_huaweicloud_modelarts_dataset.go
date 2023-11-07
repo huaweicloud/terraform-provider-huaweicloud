@@ -523,6 +523,7 @@ func buildLabelsParamter(v interface{}) (labels []dataset.Label) {
 	}
 	return
 }
+
 func buildSchemaParamter(v interface{}, dataType int) (schemas []dataset.Field, err error) {
 	if v != nil && dataType == 400 {
 		configRaw := v.([]interface{})

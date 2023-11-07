@@ -146,9 +146,11 @@ func (s *Signer) Sign(r *http.Request) error {
 	r.Header.Set(HeaderAuthorization, authValue)
 	return nil
 }
+
 func AuthHeaderValue(signature, accessKey string, signedHeaders []string) string {
 	return fmt.Sprintf("%s Access=%s, SignedHeaders=%s, Signature=%s", Algorithm, accessKey, strings.Join(signedHeaders, ";"), signature)
 }
+
 func SignedHeaders(r *http.Request) []string {
 	var a []string
 	for key := range r.Header {

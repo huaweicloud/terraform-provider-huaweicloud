@@ -3,10 +3,12 @@ package deprecated
 import (
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -349,6 +351,7 @@ func resourceIPSecPolicyV2TransformProtocol(trp string) ipsecpolicies.TransformP
 	return protocol
 
 }
+
 func resourceIPSecPolicyV2PFS(pfsString string) ipsecpolicies.PFS {
 	var pfs ipsecpolicies.PFS
 	switch pfsString {
@@ -362,6 +365,7 @@ func resourceIPSecPolicyV2PFS(pfsString string) ipsecpolicies.PFS {
 	return pfs
 
 }
+
 func resourceIPSecPolicyV2EncryptionAlgorithm(encryptionAlgo string) ipsecpolicies.EncryptionAlgorithm {
 	var alg ipsecpolicies.EncryptionAlgorithm
 	switch encryptionAlgo {
@@ -376,6 +380,7 @@ func resourceIPSecPolicyV2EncryptionAlgorithm(encryptionAlgo string) ipsecpolici
 	}
 	return alg
 }
+
 func resourceIPSecPolicyV2AuthAlgorithm(authAlgo string) ipsecpolicies.AuthAlgorithm {
 	var alg ipsecpolicies.AuthAlgorithm
 	switch authAlgo {
@@ -392,6 +397,7 @@ func resourceIPSecPolicyV2AuthAlgorithm(authAlgo string) ipsecpolicies.AuthAlgor
 	}
 	return alg
 }
+
 func resourceIPSecPolicyV2EncapsulationMode(encMode string) ipsecpolicies.EncapsulationMode {
 	var mode ipsecpolicies.EncapsulationMode
 	switch encMode {

@@ -7,16 +7,18 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/chnsz/golangsdk"
 	dedicatedGroups "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
 	dedicatedEnvs "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/environments"
 	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/groups"
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/trigger"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"

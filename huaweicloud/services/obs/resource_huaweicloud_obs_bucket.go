@@ -18,6 +18,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/obs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
@@ -1695,6 +1696,7 @@ type Redirect struct {
 	ReplaceKeyWith       string `json:"ReplaceKeyWith,omitempty"`
 	HttpRedirectCode     string `json:"HttpRedirectCode,omitempty"`
 }
+
 type WebsiteRoutingRule struct {
 	Condition Condition `json:"Condition,omitempty"`
 	Redirect  Redirect  `json:"Redirect"`

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
@@ -95,6 +96,7 @@ func ResourceAomMappingRule() *schema.Resource {
 		},
 	}
 }
+
 func buildLogStreamOpts(rawRule []interface{}) entity.AomMappingLogStreamInfo {
 	s := rawRule[0].(map[string]interface{})
 	rst := entity.AomMappingLogStreamInfo{

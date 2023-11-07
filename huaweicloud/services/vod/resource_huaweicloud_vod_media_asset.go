@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1"
 	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
 

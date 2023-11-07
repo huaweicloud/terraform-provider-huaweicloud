@@ -3,6 +3,7 @@ package entity
 type CreateLogtankRequestBody struct {
 	Logtank *CreateLogTankOption `json:"logtank"`
 }
+
 type CreateLogTankOption struct {
 	LoadBalancerId string `json:"loadbalancer_id"`
 
@@ -10,6 +11,7 @@ type CreateLogTankOption struct {
 
 	LogTopicId string `json:"log_topic_id"`
 }
+
 type CreateLogtankResponse struct {
 	Logtank *Logtank `json:"logtank,omitempty"`
 

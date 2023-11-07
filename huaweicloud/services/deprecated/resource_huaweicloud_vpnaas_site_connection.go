@@ -3,11 +3,13 @@ package deprecated
 import (
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -501,6 +503,7 @@ func resourceSiteConnectionV2DPDCreateOpts(d *schema.Set) siteconnections.DPDCre
 	}
 	return dpd
 }
+
 func resourceSiteConnectionV2Action(actionString string) siteconnections.Action {
 	var act siteconnections.Action
 	switch actionString {

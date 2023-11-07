@@ -9,6 +9,7 @@ import (
 
 	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/publicips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const SysTagKeyEnterpriseProjectId = "_sys_enterprise_project_id"

@@ -268,6 +268,7 @@ func resourceTaskDelete(_ context.Context, d *schema.ResourceData, meta interfac
 
 	return nil
 }
+
 func waitingforTaskFinished(ctx context.Context, client *v1.CptsClient, id int64, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{fmt.Sprint(runStatusRunning), fmt.Sprint(runStatusToRunning)},

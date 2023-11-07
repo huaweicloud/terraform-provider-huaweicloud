@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/obs"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
