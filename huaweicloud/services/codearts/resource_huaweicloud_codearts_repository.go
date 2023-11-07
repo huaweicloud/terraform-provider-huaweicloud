@@ -182,6 +182,8 @@ func waitForRepositoryActive(ctx context.Context, cfg *config.Config, d *schema.
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
+		// We can't query the repository after it becomes ACTIVE immediately
+		ContinuousTargetOccurence: 2,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	return err
