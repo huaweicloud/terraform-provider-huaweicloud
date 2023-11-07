@@ -315,6 +315,7 @@ func flattenGetDatasourceConnectionResponseBodyRoute(resp interface{}) []interfa
 	}
 	return rst
 }
+
 func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)

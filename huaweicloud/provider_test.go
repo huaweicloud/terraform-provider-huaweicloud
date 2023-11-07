@@ -40,6 +40,7 @@ var (
 )
 
 var testAccProviders map[string]*schema.Provider
+
 var testAccProvider *schema.Provider
 
 func init() {

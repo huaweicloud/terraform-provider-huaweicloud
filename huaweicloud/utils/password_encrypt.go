@@ -8,7 +8,6 @@ import (
 
 	"github.com/GehirnInc/crypt"
 
-	// call init function to register sha512 crypt
 	_ "github.com/GehirnInc/crypt/sha512_crypt"
 )
 

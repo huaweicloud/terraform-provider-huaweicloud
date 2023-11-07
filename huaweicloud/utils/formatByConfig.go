@@ -1,6 +1,8 @@
 package utils
 
-import "regexp"
+import (
+	"regexp"
+)
 
 const REPLACE_REG = "(?i)huaweicloud"
 

@@ -113,6 +113,7 @@ data "huaweicloud_dws_flavors" "test" {
   memory = 64
 }
 `
+
 const testAccDwsFlavorsDataSource_all = `
 data "huaweicloud_availability_zones" "test" {}
 

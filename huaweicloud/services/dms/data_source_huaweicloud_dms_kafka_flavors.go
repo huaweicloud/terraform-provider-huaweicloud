@@ -21,6 +21,7 @@ import (
 )
 
 type InstanceType string
+
 type ChargingMode string
 
 var (

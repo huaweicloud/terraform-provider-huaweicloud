@@ -8,14 +8,16 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -24,9 +26,13 @@ import (
 var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
 
 const CU_16, CU_64, CU_256 = 16, 64, 256
+
 const RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE = 0, 1
+
 const QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL = "sql", "general"
+
 const QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI = "basic", "ai"
+
 const QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64 = "x86_64", "aarch64"
 
 const (

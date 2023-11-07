@@ -509,6 +509,7 @@ func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId("")
 	return nil
 }
+
 func resourceBmsInstanceNicsV1(d *schema.ResourceData) []baremetalservers.Nic {
 	var nicRequests []baremetalservers.Nic
 

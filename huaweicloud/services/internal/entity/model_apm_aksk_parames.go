@@ -1,6 +1,8 @@
 package entity
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type CreateAkSkParam struct {
 	Descp string `json:"descp,omitempty"`

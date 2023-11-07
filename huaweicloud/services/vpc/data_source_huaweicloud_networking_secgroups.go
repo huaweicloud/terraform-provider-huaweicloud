@@ -12,11 +12,13 @@ import (
 	"github.com/chnsz/golangsdk"
 	v1groups "github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
 	v3groups "github.com/chnsz/golangsdk/openstack/networking/v3/security/groups"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
 type v1Group = v1groups.SecurityGroup
+
 type v3Group = v3groups.SecurityGroup
 
 func DataSourceNetworkingSecGroups() *schema.Resource {

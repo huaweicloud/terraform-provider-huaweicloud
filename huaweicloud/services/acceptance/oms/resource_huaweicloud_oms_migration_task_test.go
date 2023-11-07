@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"

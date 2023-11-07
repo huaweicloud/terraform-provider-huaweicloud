@@ -16,6 +16,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/er/v3/propagations"
 	"github.com/chnsz/golangsdk/openstack/er/v3/routes"
 	"github.com/chnsz/golangsdk/openstack/er/v3/routetables"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"

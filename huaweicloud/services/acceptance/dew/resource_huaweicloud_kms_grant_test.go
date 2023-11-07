@@ -59,6 +59,7 @@ func getKmsGrantResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 
 	return r, nil
 }
+
 func TestAccKmsGrant_basic(t *testing.T) {
 	var obj interface{}
 

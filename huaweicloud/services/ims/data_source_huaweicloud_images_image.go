@@ -314,8 +314,10 @@ func dataSourceImagesImageV2Attributes(_ context.Context, d *schema.ResourceData
 
 type imageSort []cloudimages.Image
 
-func (a imageSort) Len() int      { return len(a) }
+func (a imageSort) Len() int { return len(a) }
+
 func (a imageSort) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
 func (a imageSort) Less(i, j int) bool {
 	iTime := a[i].UpdatedAt
 	jTime := a[j].UpdatedAt

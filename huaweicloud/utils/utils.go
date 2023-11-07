@@ -16,10 +16,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
 )
 
 // ConvertStructToMap converts an instance of struct to a map object, and

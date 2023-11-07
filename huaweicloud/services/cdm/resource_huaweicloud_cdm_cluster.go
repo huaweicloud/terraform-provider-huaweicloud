@@ -398,6 +398,7 @@ func waitingforClusterCreated(ctx context.Context, client *golangsdk.ServiceClie
 	}
 	return nil
 }
+
 func waitingforClusterDeleted(ctx context.Context, client *golangsdk.ServiceClient, id string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{

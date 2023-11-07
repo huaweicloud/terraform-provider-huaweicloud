@@ -11,13 +11,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/jmespath/go-jmespath"
+	"github.com/mitchellh/go-homedir"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/auth"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
 
 	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
-	"github.com/jmespath/go-jmespath"
-	"github.com/mitchellh/go-homedir"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
 )
