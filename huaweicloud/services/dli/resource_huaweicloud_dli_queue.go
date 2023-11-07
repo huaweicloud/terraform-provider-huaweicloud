@@ -25,17 +25,20 @@ import (
 
 var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
 
-const CU_16, CU_64, CU_256 = 16, 64, 256
-
-const RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE = 0, 1
-
-const QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL = "sql", "general"
-
-const QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI = "basic", "ai"
-
-const QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64 = "x86_64", "aarch64"
-
 const (
+	CU16                  = 16
+	CU64                  = 64
+	CU256                 = 256
+	resourceModeShared    = 0
+	resourceModeExclusive = 1
+
+	QueueTypeSQL         = "sql"
+	QueueTypeGeneral     = "general"
+	queueFeatureBasic    = "basic"
+	queueFeatureAI       = "ai"
+	queuePlatformX86     = "x86_64"
+	queuePlatformAARCH64 = "aarch64"
+
 	actionRestart  = "restart"
 	actionScaleOut = "scale_out"
 	actionScaleIn  = "scale_in"
@@ -72,8 +75,8 @@ func ResourceDliQueue() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      QUEUE_TYPE_SQL,
-				ValidateFunc: validation.StringInSlice([]string{QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL}, false),
+				Default:      QueueTypeSQL,
+				ValidateFunc: validation.StringInSlice([]string{QueueTypeSQL, QueueTypeGeneral}, false),
 			},
 
 			"description": {
@@ -100,22 +103,22 @@ func ResourceDliQueue() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      QUEUE_PLATFORM_X86,
-				ValidateFunc: validation.StringInSlice([]string{QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64}, false),
+				Default:      queuePlatformX86,
+				ValidateFunc: validation.StringInSlice([]string{queuePlatformX86, queuePlatformAARCH64}, false),
 			},
 
 			"resource_mode": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.IntInSlice([]int{RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE}),
+				ValidateFunc: validation.IntInSlice([]int{resourceModeShared, resourceModeExclusive}),
 			},
 
 			"feature": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI}, false),
+				ValidateFunc: validation.StringInSlice([]string{queueFeatureBasic, queueFeatureAI}, false),
 			},
 
 			"tags": {
@@ -160,8 +163,9 @@ func ResourceDliQueue() *schema.Resource {
 }
 
 func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	dliClient, err := config.DliV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	dliClient, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("creating dli client failed: %s", err)
 	}
@@ -174,7 +178,7 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 		QueueType:           d.Get("queue_type").(string),
 		Description:         d.Get("description").(string),
 		CuCount:             d.Get("cu_count").(int),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		Platform:            d.Get("platform").(string),
 		ResourceMode:        d.Get("resource_mode").(int),
 		Feature:             d.Get("feature").(string),
@@ -192,7 +196,7 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 	d.SetId(queueName)
 
 	// This is a workaround to avoid issue: the queue is assigning, which is not available
-	time.Sleep(4 * time.Minute) //lintignore:R018
+	time.Sleep(4 * time.Minute) // lintignore:R018
 
 	if v, ok := d.GetOk("vpc_cidr"); ok {
 		err = updateVpcCidrOfQueue(dliClient, queueName, v.(string))
@@ -211,13 +215,12 @@ func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.Resourc
 		return taglist
 	}
 	return nil
-
 }
 
 func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DliV1Client, err=%s", err)
 	}
@@ -235,7 +238,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("query queues failed: %s", queryAllResult.Err)
 	}
 
-	//filter by queue_name
+	// filter by queue_name
 	queueDetail, err := filterByQueueName(queryAllResult.Body, queueName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DLI queue")
@@ -271,15 +274,16 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 			}
 		}
 		return nil, golangsdk.ErrDefault404{}
-
 	}
+
 	return nil, fmt.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
 		body)
 }
 
 func resourceDliQueueDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DliV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DliV1Client, err=%s", err)
 	}
@@ -295,12 +299,11 @@ func resourceDliQueueDelete(_ context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-/*
-support cu_count scaling
-*/
+// support cu_count scaling
 func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.DliV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DliV1Client: %s", err)
 	}
@@ -338,7 +341,6 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return diag.Errorf("error waiting for dli.queue (%s) to be scale: %s", queueName, err)
 		}
-
 	}
 
 	if d.HasChange("vpc_cidr") {
@@ -355,9 +357,8 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 func buildScaleActionParam(oldValue, newValue int) string {
 	if oldValue > newValue {
 		return actionScaleIn
-	} else {
-		return actionScaleOut
 	}
+	return actionScaleOut
 }
 
 func validCuCount(val interface{}, key string) (warns []string, errs []error) {

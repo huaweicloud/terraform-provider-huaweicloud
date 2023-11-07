@@ -15,8 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 )
 
-func getDliQueueResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.DliV1Client(acceptance.HW_REGION_NAME)
+func getDliQueueResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.DliV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Dli v1 client, err=%s", err)
 	}
@@ -42,12 +42,12 @@ func TestAccDliQueue_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDliQueue_basic(rName, dli.CU_16),
+				Config: testAccDliQueue_basic(rName, dli.CU16),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
-					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QueueTypeSQL),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU16)),
 					resource.TestCheckResourceAttrSet(resourceName, "resource_mode"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
@@ -96,12 +96,12 @@ func TestAccDliQueue_withGeneral(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDliQueue_withGeneral(rName, dli.CU_16),
+				Config: testAccDliQueue_withGeneral(rName, dli.CU16),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_GENERAL),
-					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QueueTypeGeneral),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU16)),
 					resource.TestCheckResourceAttrSet(resourceName, "resource_mode"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
@@ -158,7 +158,7 @@ func TestAccDliQueue_cidr(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QueueTypeSQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", "16"),
 					resource.TestCheckResourceAttr(resourceName, "resource_mode", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/21"),
@@ -171,7 +171,7 @@ func TestAccDliQueue_cidr(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QueueTypeSQL),
 					resource.TestCheckResourceAttr(resourceName, "cu_count", "16"),
 					resource.TestCheckResourceAttr(resourceName, "resource_mode", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpc_cidr", "172.16.0.0/18"),
