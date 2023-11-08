@@ -63,12 +63,6 @@ func ResourceInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the flavor.`,
 			},
-			"product_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The product ID.`,
-			},
 			"resource_spec_code": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -180,6 +174,14 @@ func ResourceInstance() *schema.Resource {
 				Computed:    true,
 				Description: `The instance status.`,
 			},
+
+			// Deprecated
+			"product_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: `product_id is deprecated.`,
+			},
 		},
 	}
 }
@@ -207,7 +209,11 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 			200,
 		},
 	}
-	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg))
+	productId, err := getOrderProductId(d, cfg, region)
+	if err != nil {
+		return diag.Errorf("error getting product ID: %s", err)
+	}
+	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, productId, cfg))
 	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating Instance: %s", err)
@@ -223,39 +229,8 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating DBSS instance: ID is not found in API response")
 	}
 
-	// auto pay
-	var (
-		payOrderHttpUrl = "v3/orders/customer-orders/pay"
-		payOrderProduct = "bss"
-	)
-	payOrderClient, err := cfg.NewServiceClient(payOrderProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating BSS Client: %s", err)
-	}
-
-	payOrderPath := payOrderClient.Endpoint + payOrderHttpUrl
-
-	payOrderOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-	}
-	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId.(string)))
-	_, err = payOrderClient.Request("POST", payOrderPath, &payOrderOpt)
-	if err != nil {
-		return diag.Errorf("error pay order=%s: %s", d.Id(), err)
-	}
-
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating BSS v2 client: %s", err)
-	}
-	err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	// pay order
+	resourceId, err := payOrder(ctx, d, cfg, orderId.(string))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -269,6 +244,105 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceInstanceRead(ctx, d, meta)
 }
 
+func getOrderProductId(d *schema.ResourceData, cfg *config.Config, region string) (string, error) {
+	var (
+		getOrderProductIdHttpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
+		getOrderProductIdProduct = "bss"
+	)
+	getOrderProductIdClient, err := cfg.NewServiceClient(getOrderProductIdProduct, region)
+	if err != nil {
+		return "", fmt.Errorf("error creating BSS Client: %s", err)
+	}
+
+	getOrderProductIdPath := getOrderProductIdClient.Endpoint + getOrderProductIdHttpUrl
+
+	getOrderProductIdOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getOrderProductIdOpt.JSONBody = utils.RemoveNil(buildGetFlavorsBodyParams(d,
+		getOrderProductIdClient.ProjectID, region))
+	getOrderProductIdResp, err := getOrderProductIdClient.Request("POST",
+		getOrderProductIdPath, &getOrderProductIdOpt)
+
+	if err != nil {
+		return "", fmt.Errorf("error getting DBSS order product id: %s", err)
+	}
+
+	getCbhOrderProductIdRespBody, err := utils.FlattenResponse(getOrderProductIdResp)
+	if err != nil {
+		return "", err
+	}
+	curJson := utils.PathSearch("official_website_rating_result.product_rating_results",
+		getCbhOrderProductIdRespBody, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return "", fmt.Errorf("fail to get DBSS order product id")
+	}
+	productId := utils.PathSearch("product_id", curArray[0], "")
+	return productId.(string), nil
+}
+
+func buildGetFlavorsBodyParams(d *schema.ResourceData, projectId, region string) map[string]interface{} {
+	periodUnit := d.Get("period_unit").(string)
+	var periodType string
+	if periodUnit == "month" {
+		periodType = "2"
+	} else {
+		periodType = "3"
+	}
+
+	params := make(map[string]interface{})
+	params["id"] = "1"
+	params["cloud_service_type"] = "hws.service.type.dbss"
+	params["resource_type"] = "hws.resource.type.dbss"
+	params["resource_spec"] = d.Get("resource_spec_code")
+	params["region"] = region
+	params["period_type"] = periodType
+	params["period_num"] = utils.ValueIngoreEmpty(d.Get("period"))
+	params["subscription_num"] = "1"
+
+	bodyParams := map[string]interface{}{
+		"project_id":    projectId,
+		"product_infos": []map[string]interface{}{params},
+	}
+	return bodyParams
+}
+
+func payOrder(ctx context.Context, d *schema.ResourceData, cfg *config.Config, orderId string) (string, error) {
+	region := cfg.GetRegion(d)
+	var (
+		payOrderHttpUrl = "v3/orders/customer-orders/pay"
+		payOrderProduct = "bssv2"
+	)
+	bssClient, err := cfg.NewServiceClient(payOrderProduct, region)
+	if err != nil {
+		return "", fmt.Errorf("error creating BSS Client: %s", err)
+	}
+
+	payOrderPath := bssClient.Endpoint + payOrderHttpUrl
+	payOrderOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId))
+	_, err = bssClient.Request("POST", payOrderPath, &payOrderOpt)
+	if err != nil {
+		return "", fmt.Errorf("error pay DBSS order(%s): %s", orderId, err)
+	}
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return "", err
+	}
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return "", fmt.Errorf("error waiting for DBSS instance order %s complete: %s", orderId, err)
+	}
+	return resourceId, err
+}
+
 func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"order_id":     orderId,
@@ -278,7 +352,7 @@ func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 	return bodyParams
 }
 
-func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+func buildCreateInstanceBodyParams(d *schema.ResourceData, productId string, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"region":                cfg.GetRegion(d),
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
@@ -289,7 +363,7 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
 		"nics":                  buildCreateInstanceNicsRequestBody(d),
 		"security_groups":       buildCreateInstanceSecurityGroupsRequestBody(d),
-		"product_infos":         buildCreateInstanceProductInfosRequestBody(d),
+		"product_infos":         buildCreateInstanceProductInfosRequestBody(d, productId),
 		"subscription_num":      1,
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
@@ -334,11 +408,11 @@ func buildCreateInstanceSecurityGroupsRequestBody(d *schema.ResourceData) []map[
 	}
 }
 
-func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData) []map[string]interface{} {
+func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData, productId string) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"cloud_service_type": "hws.service.type.dbss",
-			"product_id":         utils.ValueIngoreEmpty(d.Get("product_id")),
+			"product_id":         productId,
 			"product_spec_desc":  utils.ValueIngoreEmpty(d.Get("resource_spec_code")),
 			"resource_spec_code": utils.ValueIngoreEmpty(d.Get("resource_spec_code")),
 			"resource_type":      "hws.resource.type.dbss",

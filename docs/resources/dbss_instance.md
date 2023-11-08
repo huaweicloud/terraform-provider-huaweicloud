@@ -25,7 +25,6 @@ resource "huaweicloud_dbss_instance" "test" {
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
-  product_id         = "00301-225396-0--0"
   resource_spec_code = "dbss.bypassaudit.low"
 }
 ```
@@ -51,13 +50,6 @@ The following arguments are supported:
   + **c3ne.xlarge.4**: for basic version.
   + **c3ne.2xlarge.4**: for professional version.
   + **c6.4xlarge.4**: for advanced version.
-
-  Changing this parameter will create a new resource.
-
-* `product_id` - (Required, String, ForceNew) The product ID. Possible values are:
-  + **00301-225396-0--0**: for basic version.
-  + **00301-231172-0--0**: for professional version.
-  + **00301-231174-0--0**: for advanced version.
 
   Changing this parameter will create a new resource.
 
@@ -162,10 +154,10 @@ $ terraform import huaweicloud_dbss_instance.test f440a6c3fab9be5aa8b2a139fc6fdf
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `charging_mode`, `enterprise_project_id`, `flavor`, `period`, `period_unit`,
-and `product_id` . It is generally recommended running `terraform plan` after importing an instance.
-You can then decide if changes should be applied to the instance, or the resource definition should be updated to
-align with the instance. Also you can ignore changes as below.
+API response. The missing attributes include: `charging_mode`, `enterprise_project_id`, `flavor`, `period`, and
+`period_unit`. It is generally recommended running `terraform plan` after importing an instance. You can then decide if
+changes should be applied to the instance, or the resource definition should be updated to align with the instance. Also
+you can ignore changes as below.
 
 ```
 resource "huaweicloud_dbss_instance" "test" {
@@ -173,7 +165,7 @@ resource "huaweicloud_dbss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, enterprise_project_id, flavor, period, period_unit, product_id
+      charging_mode, enterprise_project_id, flavor, period, period_unit,
     ]
   }
 }

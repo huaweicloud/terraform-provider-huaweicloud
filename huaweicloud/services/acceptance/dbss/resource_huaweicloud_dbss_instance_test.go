@@ -79,8 +79,8 @@ func TestAccInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "terraform test"),
-					resource.TestCheckResourceAttr(rName, "flavor", "c3ne.xlarge.4"),
-					resource.TestCheckResourceAttr(rName, "product_id", "00301-225396-0--0"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
+						"data.huaweicloud_dbss_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttr(rName, "resource_spec_code", "dbss.bypassaudit.low"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 				),
@@ -91,7 +91,6 @@ func TestAccInstance_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"charging_mode", "enterprise_project_id", "flavor", "period", "period_unit",
-					"product_id",
 				},
 			},
 		},
@@ -115,7 +114,9 @@ data "huaweicloud_networking_secgroup" "test" {
 
 data "huaweicloud_availability_zones" "test" {
   region = "%s"
-} 
+}
+
+data "huaweicloud_dbss_flavors" "test" {} 
 `, acceptance.HW_REGION_NAME)
 }
 
@@ -126,8 +127,7 @@ func testInstance_basic(name string) string {
 resource "huaweicloud_dbss_instance" "test" {
   name               = "%s"
   description        = "terraform test"
-  flavor             = "c3ne.xlarge.4"
-  product_id         = "00301-225396-0--0"
+  flavor             = data.huaweicloud_dbss_flavors.test.flavors[0].id
   resource_spec_code = "dbss.bypassaudit.low"
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   vpc_id             = data.huaweicloud_vpc.test.id
