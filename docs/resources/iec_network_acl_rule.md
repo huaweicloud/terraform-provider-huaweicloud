@@ -31,23 +31,23 @@ The following arguments are supported:
 
 * `network_acl_id` - (Required, String) Specifies a unique id for the iec network ACL.
 
-* `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are *ingress* or *egress*
-  . Changing this parameter creates a new iec network ACL rule resource.
+* `direction` - (Required, String, ForceNew) Specifies the direction of the rule, valid values are **ingress** or **egress**.
+  Changing this parameter creates a new iec network ACL rule resource.
 
 * `description` - (Optional, String) Specifies the description for the iec network ACL rule.
 
-* `protocol` - (Optional, String) Specifies the protocol supported by the iec network ACL rule. Valid values are: *tcp*
-  , *udp*, *icmp* and *any*.
+* `protocol` - (Optional, String) Specifies the protocol supported by the iec network ACL rule.Valid values are: **tcp**,
+  **udp**, **icmp** and **any**.
 
-* `action` - (Optional, String) Specifies the action in the iec network ACL rule. Currently, the value can be *allow*
-  or *deny*.
+* `action` - (Optional, String) Specifies the action in the iec network ACL rule. Currently, the value can be **allow**
+  or **deny**.
 
 * `source_ip_address` - (Optional, String) Specifies the source IP address that the traffic is allowed from. The default
-  value is *0.0.0.0/0*. For example:
+  value is **0.0.0.0/0**. For example:
   xxx.xxx.xxx.xxx (IP address), xxx.xxx.xxx.0/24 (CIDR block).
 
 * `destination_ip_address` - (Optional, String) Specifies the destination IP address to which the traffic is allowed.
-  The default value is *0.0.0.0/0*. For example: xxx.xxx.xxx.xxx (IP address), xxx.xxx.xxx.0/24 (CIDR block).
+  The default value is **0.0.0.0/0**. For example: xxx.xxx.xxx.xxx (IP address), xxx.xxx.xxx.0/24 (CIDR block).
 
 * `source_port` - (Optional, String) Specifies the source port number or port number range. The value ranges from 1 to
   65535. For a port number range, enter two port numbers connected by a hyphen (-). For example, 1-100.

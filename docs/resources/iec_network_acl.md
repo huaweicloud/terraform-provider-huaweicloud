@@ -65,6 +65,6 @@ This resource provides the following timeouts configuration options:
 
 Network ACL can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_iec_network_acl.acl_test 40b1159c-4e6e-11eb-a00e-fa165c365e51
+```bash
+$ terraform import huaweicloud_iec_network_acl.acl_test <id>
 ```
