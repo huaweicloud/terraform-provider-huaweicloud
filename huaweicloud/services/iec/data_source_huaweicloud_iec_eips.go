@@ -1,19 +1,22 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/publicips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIECNetworkEips() *schema.Resource {
+func DataSourceNetworkEips() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECNetworkEipsRead,
+		ReadContext: dataSourceNetworkEipsRead,
 
 		Schema: map[string]*schema.Schema{
 			"site_id": {
@@ -81,11 +84,11 @@ func dataSourceIECNetworkEips() *schema.Resource {
 	}
 }
 
-func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	eipClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceNetworkEipsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	eipClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	listpts := publicips.ListOpts{
@@ -95,18 +98,17 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 
 	allEips, err := publicips.List(eipClient, listpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to extract iec public ips: %s", err)
-	}
-	total := len(allEips.PublicIPs)
-	if total < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("unable to extract IEC public IPs: %s", err)
 	}
 
-	logp.Printf("[INFO] Retrieved [%d] IEC public IPs using given filter", total)
+	total := len(allEips.PublicIPs)
+	if total < 1 {
+		return diag.Errorf("your query returned no results, please change your search criteria and try again")
+	}
+
+	log.Printf("[INFO] Retrieved [%d] IEC public IPs using given filter", total)
 	firstEip := allEips.PublicIPs[0]
 	d.SetId(firstEip.ID)
-	d.Set("site_info", firstEip.SiteInfo)
 
 	iecEips := make([]map[string]interface{}, 0, total)
 	for _, item := range allEips.PublicIPs {
@@ -125,8 +127,14 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 
 		iecEips = append(iecEips, val)
 	}
-	if err := d.Set("eips", iecEips); err != nil {
-		return fmtp.Errorf("Error saving IEC public IPs: %s", err)
+
+	mErr := multierror.Append(nil,
+		d.Set("site_info", firstEip.SiteInfo),
+		d.Set("eips", iecEips),
+	)
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving IEC public IPs: %s", err)
 	}
 
 	return nil

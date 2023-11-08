@@ -1,59 +1,65 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECBandWidthsDataSource_basic(t *testing.T) {
-	resourceName := "data.huaweicloud_iec_bandwidths.bandwidths"
+func TestAccBandWidthsDataSource_basic(t *testing.T) {
+	var (
+		dataSourceName = "data.huaweicloud_iec_bandwidths.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheck(t) },
-		Providers:                 testAccProviders,
-		CheckDestroy:              testAccCheckIecEIPDestroy,
-		PreventPostDestroyRefresh: true,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIECBWsDataSource_config,
+				Config: testAccBWsDataSource_config,
 			},
 			{
-				Config: testAccIECBWsDataSource_basic(),
+				Config: testAccBWsDataSource_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccIECBandWidthsDataSourceID(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "bandwidths.#", "2"),
-					resource.TestCheckResourceAttrSet(resourceName, "site_info"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidths.0.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidths.1.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidths.0.name"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidths.0.size"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidths.0.line"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidths.0.status"),
+					dc.CheckResourceExists(),
+					testAccBandWidthsDataSourceID(dataSourceName),
+					resource.TestMatchResourceAttr(dataSourceName, "bandwidths.#", regexp.MustCompile(`[1-9]\d*`)),
+					resource.TestCheckResourceAttrSet(dataSourceName, "site_info"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "bandwidths.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "bandwidths.0.name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "bandwidths.0.size"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "bandwidths.0.line"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "bandwidths.0.status"),
 				),
 			},
 		},
 	})
 }
 
-func testAccIECBandWidthsDataSourceID(n string) resource.TestCheckFunc {
+func testAccBandWidthsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find IEC public IPs data source: %s", n)
+			return fmt.Errorf("can't find IEC public IPs data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("IEC public IPs data source ID not set")
+			return fmt.Errorf("the ID of the IEC public IPs data source not set")
 		}
 
 		return nil
 	}
 }
 
-var testAccIECBWsDataSource_config string = `
+var testAccBWsDataSource_config = `
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_eip" "eip_test1" {
@@ -62,16 +68,21 @@ resource "huaweicloud_iec_eip" "eip_test1" {
 
 resource "huaweicloud_iec_eip" "eip_test2" {
   site_id = data.huaweicloud_iec_sites.sites_test.sites[0].id
-  line_id = data.huaweicloud_iec_sites.sites_test.sites[0].lines[1].id
+  line_id = data.huaweicloud_iec_sites.sites_test.sites[0].lines[0].id
 }
 `
 
-func testAccIECBWsDataSource_basic() string {
+func testAccBWsDataSource_basic() string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_iec_bandwidths" "bandwidths" {
+data "huaweicloud_iec_bandwidths" "test" {
+  depends_on = [
+    huaweicloud_iec_eip.eip_test1,
+    huaweicloud_iec_eip.eip_test2,
+  ]
+
   site_id = data.huaweicloud_iec_sites.sites_test.sites[0].id
 }
-`, testAccIECBWsDataSource_config)
+`, testAccBWsDataSource_config)
 }
