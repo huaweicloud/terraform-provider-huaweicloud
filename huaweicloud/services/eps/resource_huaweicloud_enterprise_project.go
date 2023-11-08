@@ -15,7 +15,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceEnterpriseProject() *schema.Resource {
@@ -34,7 +33,7 @@ func ResourceEnterpriseProject() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		//request and response parameters
+		// Request and response parameters.
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -83,11 +82,11 @@ func ResourceEnterpriseProject() *schema.Resource {
 }
 
 func resourceEnterpriseProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	epsClient, err := config.EnterpriseProjectClient(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	epsClient, err := conf.EnterpriseProjectClient(conf.GetRegion(d))
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud EPS client : %s", err)
+		return diag.Errorf("unable to create EPS client: %s", err)
 	}
 
 	createOpts := enterpriseprojects.CreateOpts{
@@ -99,7 +98,7 @@ func resourceEnterpriseProjectCreate(ctx context.Context, d *schema.ResourceData
 	project, err := enterpriseprojects.Create(epsClient, createOpts).Extract()
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud Enterprise Project: %s", err)
+		return diag.Errorf("error creating Enterprise Project: %s", err)
 	}
 
 	d.SetId(project.ID)
@@ -108,11 +107,11 @@ func resourceEnterpriseProjectCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	epsClient, err := config.EnterpriseProjectClient(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	epsClient, err := conf.EnterpriseProjectClient(conf.GetRegion(d))
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud EPS client : %s", err)
+		return diag.Errorf("unable to create EPS client: %s", err)
 	}
 
 	project, err := enterpriseprojects.Get(epsClient, d.Id()).Extract()
@@ -136,18 +135,18 @@ func resourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, me
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting HuaweiCloud enterprise project fields: %w", err)
+		return diag.Errorf("error setting enterprise project fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	epsClient, err := config.EnterpriseProjectClient(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	epsClient, err := conf.EnterpriseProjectClient(conf.GetRegion(d))
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud EPS client : %s", err)
+		return diag.Errorf("unable to create EPS client: %s", err)
 	}
 
 	if d.HasChange("enable") {
@@ -160,9 +159,8 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 
 		_, err = enterpriseprojects.Action(epsClient, actionOpts, d.Id()).Extract()
 		if err != nil {
-			return fmtp.DiagErrorf("Error enabling/disabling HuaweiCloud Enterprise Project: %s", err)
+			return diag.Errorf("error enabling/disabling Enterprise Project: %s", err)
 		}
-
 	}
 
 	if d.HasChanges("name", "description", "type") {
@@ -175,7 +173,7 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 		_, err = enterpriseprojects.Update(epsClient, updateOpts, d.Id()).Extract()
 
 		if err != nil {
-			return fmtp.DiagErrorf("Error updating HuaweiCloud Enterprise Project: %s", err)
+			return diag.Errorf("error updating Enterprise Project: %s", err)
 		}
 	}
 
@@ -183,15 +181,15 @@ func resourceEnterpriseProjectUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceEnterpriseProjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	epsClient, err := config.EnterpriseProjectClient(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	epsClient, err := conf.EnterpriseProjectClient(conf.GetRegion(d))
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud EPS client : %s", err)
+		return diag.Errorf("unable to create EPS client: %s", err)
 	}
 
 	if d.Get("skip_disable_on_destroy").(bool) {
-		log.Printf("[DEBUG] Skip disable on destroy for %s", d.Id())
+		log.Printf("[DEBUG] skip disable on destroy for %s", d.Id())
 		return nil
 	}
 
@@ -201,7 +199,7 @@ func resourceEnterpriseProjectDelete(_ context.Context, d *schema.ResourceData, 
 
 	_, err = enterpriseprojects.Action(epsClient, actionOpts, d.Id()).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error disabling HuaweiCloud Enterprise Project: %s", err)
+		return diag.Errorf("error disabling Enterprise Project: %s", err)
 	}
 
 	d.SetId("")

@@ -53,7 +53,7 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	region := cfg.GetRegion(d)
 	epsClient, err := cfg.EnterpriseProjectClient(region)
 	if err != nil {
-		return diag.Errorf("Error creating EPS client %s", err)
+		return diag.Errorf("error creating EPS client: %s", err)
 	}
 
 	listOpts := enterpriseprojects.ListOpts{
@@ -64,7 +64,7 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	projects, err := enterpriseprojects.List(epsClient, listOpts).Extract()
 
 	if err != nil {
-		return diag.Errorf("Error retrieving enterprise projects %s", err)
+		return diag.Errorf("error retrieving enterprise projects: %s", err)
 	}
 
 	project, err := flattenEnterpriseProject(d, projects)
@@ -81,7 +81,7 @@ func dataSourceEnterpriseProjectRead(_ context.Context, d *schema.ResourceData, 
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("Error setting enterprise project fields: %s", err)
+		return diag.Errorf("error setting enterprise project fields: %s", err)
 	}
 
 	return nil
@@ -96,7 +96,7 @@ func flattenEnterpriseProject(d *schema.ResourceData, projects []enterpriseproje
 
 	if len(projects) > 1 {
 		name := d.Get("name").(string)
-		// there is no condition to find the target enterprise project
+		// There is no condition to find the target enterprise project.
 		if name == "" {
 			return nil, fmt.Errorf("your query returned more than one result." +
 				" Please specify your enterprise project name or enterprise project id")
@@ -104,7 +104,7 @@ func flattenEnterpriseProject(d *schema.ResourceData, projects []enterpriseproje
 
 		for _, v := range projects {
 			if v.Name == name {
-				// use name to find the target enterprise project
+				// Use name to find the target enterprise project.
 				return &v, nil
 			}
 		}
