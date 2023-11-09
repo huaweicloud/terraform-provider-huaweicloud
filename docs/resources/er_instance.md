@@ -35,6 +35,8 @@ The following arguments are supported:
   allowed.
 
 * `availability_zones` - (Required, List) The availability zone list where the ER instance is located.
+  The maximum number of availability zone is two. Select two AZs to configure active-active deployment for high
+  availability which will ensure reliability and disaster recovery.
 
 * `asn` - (Required, Int, ForceNew) The BGP AS number of the ER instance.  
   The valid value is range from `64,512` to `65534` or range from `4,200,000,000` to `4,294,967,294`.
@@ -46,7 +48,6 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID to which the ER instance
 belongs.
-
   Changing this parameter will create a new resource.
 
 * `enable_default_propagation` - (Optional, Bool) Whether to enable the propagation of the default route table.  
