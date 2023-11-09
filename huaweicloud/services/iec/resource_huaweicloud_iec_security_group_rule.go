@@ -161,10 +161,10 @@ func resourceIecSecurityGroupRuleV1Read(_ context.Context, d *schema.ResourceDat
 	}
 
 	if ret, err := strconv.Atoi(rule.SecurityGroupRule.PortRangeMin.(string)); err == nil {
-		d.Set("port_range_min", ret)
+		mErr = multierror.Append(d.Set("port_range_min", ret))
 	}
 	if ret, err := strconv.Atoi(rule.SecurityGroupRule.PortRangeMax.(string)); err == nil {
-		d.Set("port_range_max", ret)
+		mErr = multierror.Append(d.Set("port_range_max", ret))
 	}
 
 	return nil
