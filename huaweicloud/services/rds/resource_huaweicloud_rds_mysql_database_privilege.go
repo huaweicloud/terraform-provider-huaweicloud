@@ -168,12 +168,17 @@ func resourceMysqlDatabasePrivilegeRead(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
+	users := flattenGetMysqlDatabasePrivilegeResponseBodyGetUser(getMysqlDatabasePrivilegeRespBody)
+	if len(users) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
 		d.Set("instance_id", instanceId),
 		d.Set("db_name", dbName),
-		d.Set("users", flattenGetMysqlDatabasePrivilegeResponseBodyGetUser(getMysqlDatabasePrivilegeRespBody)),
+		d.Set("users", users),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

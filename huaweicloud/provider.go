@@ -465,9 +465,10 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_enterprise_project": eps.DataSourceEnterpriseProject(),
 
-			"huaweicloud_er_attachments":  er.DataSourceAttachments(),
-			"huaweicloud_er_instances":    er.DataSourceInstances(),
-			"huaweicloud_er_route_tables": er.DataSourceRouteTables(),
+			"huaweicloud_er_attachments":        er.DataSourceAttachments(),
+			"huaweicloud_er_instances":          er.DataSourceInstances(),
+			"huaweicloud_er_route_tables":       er.DataSourceRouteTables(),
+			"huaweicloud_er_availability_zones": er.DataSourceAvailabilityZones(),
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
 			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
@@ -1084,6 +1085,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_pg_database":                  rds.ResourcePgDatabase(),
 			"huaweicloud_rds_sqlserver_account":            rds.ResourceSQLServerAccount(),
 			"huaweicloud_rds_sqlserver_database":           rds.ResourceSQLServerDatabase(),
+			"huaweicloud_rds_sqlserver_database_privilege": rds.ResourceSQLServerDatabasePrivilege(),
 			"huaweicloud_rds_instance":                     rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup":               rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_read_replica_instance":        rds.ResourceRdsReadReplicaInstance(),

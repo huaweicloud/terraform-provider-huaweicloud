@@ -21,7 +21,7 @@ resource "huaweicloud_enterprise_project" "test" {
 ## Argument Reference
 
 * `name` - (Required, String) Specifies the name of the enterprise project.
-  This parameter can contain `1` to `64` characters. Only letters, digits, underscores (_), and hyphens (-) are allowed.
+  This parameter can contain **1** to **64** characters. Only letters, digits, underscores (_), and hyphens (-) are allowed.
   The name must be unique in the domain and cannot include any form of the word "default" ("deFaulT", for instance).
 
 * `description` - (Optional, String) Specifies the description of the enterprise project.
@@ -44,17 +44,9 @@ In addition to all arguments above, the following attributes are exported:
   + **1**: Indicates enabled.
   + **2**: Indicates disabled.
 
-* `created_at` - Indicates the time (UTC) when the enterprise project was created. Example: `2018-05-18T06:49:06Z`.
+* `created_at` - Indicates the time (UTC) when the enterprise project was created. Example: **2018-05-18T06:49:06Z**.
 
-* `updated_at` - Indicates the time (UTC) when the enterprise project was modified. Example: `2018-05-28T02:21:36Z`.
-
-## Import
-
-Enterprise projects can be imported using their `id`, e.g.
-
-```bash
-$ terraform import huaweicloud_enterprise_project.test 88f889c7-270e-4e77-8230-bf7db08d9b0e
-```
+* `updated_at` - Indicates the time (UTC) when the enterprise project was modified. Example: **2018-05-28T02:21:36Z**.
 
 ## Timeouts
 
@@ -63,3 +55,11 @@ This resource provides the following timeouts configuration options:
 * `create` - Default is 5 minutes.
 * `update` - Default is 5 minutes.
 * `delete` - Default is 5 minutes.
+
+## Import
+
+Enterprise projects can be imported using their `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_enterprise_project.test <id>
+```

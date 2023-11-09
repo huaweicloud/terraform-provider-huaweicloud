@@ -11,17 +11,15 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func getResourceEnterpriseProject(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	epsClient, err := config.EnterpriseProjectClient(acceptance.HW_REGION_NAME)
+func getResourceEnterpriseProject(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	epsClient, err := conf.EnterpriseProjectClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Unable to create HuaweiCloud EPS client : %s", err)
+		return nil, fmt.Errorf("unable to create EPS client: %s", err)
 	}
 
 	return enterpriseprojects.Get(epsClient, state.Primary.ID).Extract()
-
 }
 
 func TestAccEnterpriseProject_basic(t *testing.T) {
@@ -71,10 +69,10 @@ func TestAccEnterpriseProject_basic(t *testing.T) {
 }
 
 func testAccCheckEnterpriseProjectDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	epsClient, err := config.EnterpriseProjectClient(acceptance.HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	epsClient, err := conf.EnterpriseProjectClient(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Unable to create HuaweiCloud EPS client : %s", err)
+		return fmt.Errorf("unable to create EPS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -85,7 +83,7 @@ func testAccCheckEnterpriseProjectDestroy(s *terraform.State) error {
 		project, err := enterpriseprojects.Get(epsClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if project.Status != 2 {
-				return fmtp.Errorf("Project still active")
+				return fmt.Errorf("project still active")
 			}
 		}
 	}

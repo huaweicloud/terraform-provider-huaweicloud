@@ -21,9 +21,9 @@ import (
 
 func ResourceSqlJob() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceSqlJobCreate,
-		ReadContext:   resourceSqlJobRead,
-		DeleteContext: resourceSqlJobDelete,
+		CreateContext: resourceSQLJobCreate,
+		ReadContext:   resourceSQLJobRead,
+		DeleteContext: resourceSQLJobDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -149,10 +149,10 @@ func ResourceSqlJob() *schema.Resource {
 	}
 }
 
-func resourceSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+func resourceSQLJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -187,13 +187,13 @@ func resourceSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	return resourceSqlJobRead(ctx, d, meta)
+	return resourceSQLJobRead(ctx, d, meta)
 }
 
-func resourceSqlJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+func resourceSQLJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -232,10 +232,10 @@ func resourceSqlJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 }
 
 // This API is used to cancel a submitted job. If execution of a job completes or fails, this job cannot be canceled.
-func resourceSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
+func resourceSQLJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client, err=%s", err)
 	}
@@ -252,7 +252,6 @@ func resourceSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	if detail.Status != sqljob.JobStatusFinished &&
 		detail.Status != sqljob.JobStatusFailed &&
 		detail.Status != sqljob.JobStatusCancelled {
-
 		cancelRst, err := sqljob.Cancel(client, jobId)
 		if err != nil {
 			return diag.Errorf("cancel DLI sql job failed. %q:%s", jobId, err)
@@ -260,10 +259,9 @@ func resourceSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		if cancelRst == nil || !cancelRst.IsSuccess {
 			return diag.Errorf("cancel DLI sql job failed. %q", jobId)
 		}
-
 	}
 
-	err = checkSqlJobCancelledResult(ctx, client, jobId, d.Timeout(schema.TimeoutDelete))
+	err = checkSQLJobCancelledResult(ctx, client, jobId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("failed to check the result of deletion %s", err)
 	}
@@ -302,7 +300,7 @@ func buildConfParam(d *schema.ResourceData) []string {
 	return rt
 }
 
-func checkSqlJobCancelledResult(ctx context.Context, client *golangsdk.ServiceClient, id string,
+func checkSQLJobCancelledResult(ctx context.Context, client *golangsdk.ServiceClient, id string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"Pending"},

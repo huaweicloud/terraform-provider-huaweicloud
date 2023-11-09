@@ -152,6 +152,27 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"connection_protection": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainConnectionProtectionSchema(),
+			},
+			"timeout_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainTimeoutSettingSchema(),
+			},
+			"traffic_mark": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainTrafficMarkSchema(),
+			},
 			"access_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -245,6 +266,96 @@ func dedicatedDomainCustomPageSchema() *schema.Resource {
 	return &sc
 }
 
+func dedicatedDomainConnectionProtectionSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"error_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"error_percentage": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Computed: true,
+			},
+			"initial_downtime": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"multiplier_for_consecutive_breakdowns": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"pending_url_request_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"duration": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func dedicatedDomainTimeoutSettingSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"connection_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"read_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"write_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func dedicatedDomainTrafficMarkSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"ip_tags": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
+			"session_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"user_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func getCertificateNameById(d *schema.ResourceData, cfg *config.Config) (string, error) {
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -313,6 +424,73 @@ func buildPremiumHostBlockPageOpts(d *schema.ResourceData) *domains.BlockPage {
 func buildPremiumHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
 	if v, ok := d.GetOk("forward_header_map"); ok {
 		return utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+	return nil
+}
+
+func buildPremiumHostConnectionProtectionOpts(d *schema.ResourceData) *domains.CircuitBreaker {
+	if v, ok := d.GetOk("connection_protection"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return &domains.CircuitBreaker{
+			DeadNum:          utils.Int(raw["error_threshold"].(int)),
+			DeadRatio:        utils.Float64(raw["error_percentage"].(float64)),
+			BlockTime:        utils.Int(raw["initial_downtime"].(int)),
+			SuperpositionNum: utils.Int(raw["multiplier_for_consecutive_breakdowns"].(int)),
+			SuspendNum:       utils.Int(raw["pending_url_request_threshold"].(int)),
+			SusBlockTime:     utils.Int(raw["duration"].(int)),
+			Switch:           utils.Bool(raw["status"].(bool)),
+		}
+	}
+	return nil
+}
+
+func buildPremiumHostTimeoutSettingOpts(d *schema.ResourceData) *domains.TimeoutConfig {
+	if v, ok := d.GetOk("timeout_settings"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return &domains.TimeoutConfig{
+			ConnectTimeout: utils.Int(raw["connection_timeout"].(int)),
+			ReadTimeout:    utils.Int(raw["read_timeout"].(int)),
+			SendTimeout:    utils.Int(raw["write_timeout"].(int)),
+		}
+	}
+	return nil
+}
+
+func buildPremiumHostTrafficMarkOpts(d *schema.ResourceData) *domains.TrafficMark {
+	if v, ok := d.GetOk("traffic_mark"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return &domains.TrafficMark{
+			Sip:    utils.ExpandToStringList(raw["ip_tags"].([]interface{})),
+			Cookie: raw["session_tag"].(string),
+			Params: raw["user_tag"].(string),
+		}
 	}
 	return nil
 }
@@ -397,6 +575,26 @@ func updateWafDedicatedDomain(dedicatedClient *golangsdk.ServiceClient, d *schem
 
 	if d.HasChange("website_name") {
 		updateOpts.WebTag = utils.String(d.Get("website_name").(string))
+	}
+
+	if d.HasChange("connection_protection") {
+		updateOpts.CircuitBreaker = buildPremiumHostConnectionProtectionOpts(d)
+	}
+
+	if d.IsNewResource() && updateOpts.CircuitBreaker == nil {
+		// When creating new resource, if field `connection_protection` is empty, make configure `switch` to false.
+		// Otherwise, when querying the details interface, the corresponding field will be empty.
+		updateOpts.CircuitBreaker = &domains.CircuitBreaker{
+			Switch: utils.Bool(false),
+		}
+	}
+
+	if d.HasChange("timeout_settings") {
+		updateOpts.TimeoutConfig = buildPremiumHostTimeoutSettingOpts(d)
+	}
+
+	if d.HasChange("traffic_mark") {
+		updateOpts.TrafficMark = buildPremiumHostTrafficMarkOpts(d)
 	}
 
 	if d.HasChange("proxy") && !d.IsNewResource() {
@@ -509,6 +707,43 @@ func flattenBlockPageCustomPage(domain *domains.PremiumHost) []map[string]interf
 	}
 }
 
+func flattenConnectionProtection(domain *domains.PremiumHost) []map[string]interface{} {
+	circuitBreaker := domain.CircuitBreaker
+	return []map[string]interface{}{
+		{
+			"error_threshold":                       circuitBreaker.DeadNum,
+			"error_percentage":                      circuitBreaker.DeadRatio,
+			"initial_downtime":                      circuitBreaker.BlockTime,
+			"multiplier_for_consecutive_breakdowns": circuitBreaker.SuperpositionNum,
+			"pending_url_request_threshold":         circuitBreaker.SuspendNum,
+			"duration":                              circuitBreaker.SusBlockTime,
+			"status":                                circuitBreaker.Switch,
+		},
+	}
+}
+
+func flattenTimeoutSetting(domain *domains.PremiumHost) []map[string]interface{} {
+	timeoutConfig := domain.TimeoutConfig
+	return []map[string]interface{}{
+		{
+			"connection_timeout": timeoutConfig.ConnectTimeout,
+			"read_timeout":       timeoutConfig.ReadTimeout,
+			"write_timeout":      timeoutConfig.SendTimeout,
+		},
+	}
+}
+
+func flattenTrafficMark(domain *domains.PremiumHost) []map[string]interface{} {
+	trafficMark := domain.TrafficMark
+	return []map[string]interface{}{
+		{
+			"ip_tags":     trafficMark.Sip,
+			"session_tag": trafficMark.Cookie,
+			"user_tag":    trafficMark.Params,
+		},
+	}
+}
+
 func flattenComplianceCertificationAttribute(domain *domains.PremiumHost) map[string]interface{} {
 	f := domain.Flag
 
@@ -569,6 +804,9 @@ func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("forward_header_map", dm.ForwardHeaderMap),
 		d.Set("custom_page", flattenBlockPageCustomPage(dm)),
 		d.Set("redirect_url", dm.BlockPage.RedirectUrl),
+		d.Set("connection_protection", flattenConnectionProtection(dm)),
+		d.Set("timeout_settings", flattenTimeoutSetting(dm)),
+		d.Set("traffic_mark", flattenTrafficMark(dm)),
 		d.Set("compliance_certification", flattenComplianceCertificationAttribute(dm)),
 		d.Set("traffic_identifier", flattenTrafficIdentifierAttribute(dm)),
 		d.Set("alarm_page", flattenAlarmPageAttribute(dm)),

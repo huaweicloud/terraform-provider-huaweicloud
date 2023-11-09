@@ -22,9 +22,12 @@ import (
 
 func ResourceDliSparkJobV2() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: ResourceDliSparkJobV2Create,
-		ReadContext:   ResourceDliSparkJobV2Read,
-		DeleteContext: ResourceDliSparkJobV2Delete,
+		CreateContext: resourceDliSparkJobCreate,
+		ReadContext:   resourceDliSparkJobRead,
+		DeleteContext: resourceDliSparkJobDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Delete: schema.DefaultTimeout(5 * time.Minute),
@@ -241,9 +244,10 @@ func buildDliSaprkJobCreateOpts(d *schema.ResourceData) batches.CreateOpts {
 	return result
 }
 
-func ResourceDliSparkJobV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV2Client(config.GetRegion(d))
+func resourceDliSparkJobCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
@@ -255,12 +259,13 @@ func ResourceDliSparkJobV2Create(ctx context.Context, d *schema.ResourceData, me
 
 	d.SetId(resp.ID)
 
-	return ResourceDliSparkJobV2Read(ctx, d, meta)
+	return resourceDliSparkJobRead(ctx, d, meta)
 }
 
-func ResourceDliSparkJobV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV2Client(config.GetRegion(d))
+func resourceDliSparkJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
@@ -279,9 +284,10 @@ func ResourceDliSparkJobV2Read(_ context.Context, d *schema.ResourceData, meta i
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func ResourceDliSparkJobV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	c, err := config.DliV2Client(config.GetRegion(d))
+func resourceDliSparkJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
