@@ -156,15 +156,16 @@ func resourceIecSecurityGroupRuleV1Read(_ context.Context, d *schema.ResourceDat
 		d.Set("remote_ip_prefix", rule.SecurityGroupRule.RemoteIPPrefix),
 		d.Set("remote_group_id", rule.SecurityGroupRule.RemoteGroupID),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting fields: %s", err)
-	}
 
 	if ret, err := strconv.Atoi(rule.SecurityGroupRule.PortRangeMin.(string)); err == nil {
 		mErr = multierror.Append(d.Set("port_range_min", ret))
 	}
 	if ret, err := strconv.Atoi(rule.SecurityGroupRule.PortRangeMax.(string)); err == nil {
 		mErr = multierror.Append(d.Set("port_range_max", ret))
+	}
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting fields: %s", err)
 	}
 
 	return nil
