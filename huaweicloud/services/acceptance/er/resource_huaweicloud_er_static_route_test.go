@@ -129,7 +129,7 @@ func testAccStaticRouteImportStateFunc(rsName string) resource.ImportStateIdFunc
 
 func testAccStaticRoute_base(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 variable "base_vpc_cidr" {
   type    = string
@@ -163,7 +163,7 @@ resource "huaweicloud_vpc_subnet" "destination" {
 }
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
   name               = "%[1]s"
   asn                = %[2]d
 }

@@ -335,9 +335,9 @@ func flattenRouteTables(client *golangsdk.ServiceClient, instanceId string,
 }
 
 func dataSourceRouteTablesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.ErV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.ErV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ER v3 client: %s", err)
 	}

@@ -16,21 +16,21 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getInstanceResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getInstance: Query the Enterprise router instance detail
 	var (
 		getInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
 		getInstanceProduct = "er"
 	)
-	getInstanceClient, err := config.NewServiceClient(getInstanceProduct, region)
+	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Instance Client: %s", err)
 	}
 
 	getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
-	getInstancePath = strings.Replace(getInstancePath, "{project_id}", getInstanceClient.ProjectID, -1)
-	getInstancePath = strings.Replace(getInstancePath, "{id}", state.Primary.ID, -1)
+	getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
+	getInstancePath = strings.ReplaceAll(getInstancePath, "{id}", state.Primary.ID)
 
 	getInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -71,7 +71,7 @@ func TestAccInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
-						"data.huaweicloud_availability_zones.test", "names.0"),
+						"data.huaweicloud_er_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(rName, "asn", fmt.Sprintf("%v", bgpAsNum)),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
@@ -101,10 +101,10 @@ func TestAccInstance_basic(t *testing.T) {
 
 func testInstance_basic_step1(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
 
   name = "%[1]s"
   asn  = %[2]d
@@ -119,10 +119,10 @@ resource "huaweicloud_er_instance" "test" {
 
 func testInstance_basic_step2(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
 
   name = "%[1]s"
   asn  = %[2]d
