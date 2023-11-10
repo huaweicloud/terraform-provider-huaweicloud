@@ -47,6 +47,8 @@ export AWS_SECRET_ACCESS_KEY="your secretkey"
 
 The backend configuration as follows:
 
+* The following example should be applied when using Terraform version before **v1.6.0**:
+
 ```hcl
 terraform {
   backend "s3" {
@@ -58,6 +60,25 @@ terraform {
     skip_region_validation      = true
     skip_credentials_validation = true
     skip_metadata_api_check     = true
+  }
+}
+```
+
+* The following example should be applied when using Terraform version after **v1.6.3**:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket   = "terraformbucket"
+    key      = "terraform.tfstate"
+    region   = "cn-north-1"
+    endpoint = "https://obs.cn-north-1.myhuaweicloud.com"
+
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
   }
 }
 ```
@@ -91,6 +112,12 @@ The following arguments are supported:
 * `skip_region_validation` - (Required) Skip validation of provided region name. It's mandatory for HuaweiCloud.
 
 * `skip_metadata_api_check` - (Required) Skip usage of EC2 Metadata API. It's mandatory for HuaweiCloud.
+
+* `skip_requesting_account_id` - (Optional) Skip requesting the account ID. It's mandatory for HuaweiCloud and
+  **only available** when using Terraform version after **v1.6.3**.
+
+* `skip_s3_checksum` - (Optional) Do not include checksum when uploading S3 Objects. It's mandatory for HuaweiCloud and
+  **only available** when using Terraform version after **v1.6.3**.
 
 * `workspace_key_prefix` - (Optional) Specifies the prefix applied to the state path inside the bucket. This parameter
   is only valid when using a non-default [workspace](https://www.terraform.io/docs/language/state/workspaces.html).
