@@ -14,8 +14,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getVpcAttachmentResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.ErV3Client(acceptance.HW_REGION_NAME)
+func getVpcAttachmentResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ErV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating ER v3 client: %s", err)
 	}
@@ -96,7 +96,7 @@ func testAccVpcAttachmentImportStateFunc() resource.ImportStateIdFunc {
 
 func testVpcAttachment_base(name string, bgpAsNum int) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 	
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
@@ -112,7 +112,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
 
   name = "%[1]s"
   asn  = %[2]d
