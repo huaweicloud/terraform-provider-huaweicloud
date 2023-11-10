@@ -14,9 +14,8 @@ func TestAccIECSecurityGroupDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_iec_security_group.by_name"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecSecurityGroupV1Destory,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceIECSecurityGroup_basic(rName, description),
