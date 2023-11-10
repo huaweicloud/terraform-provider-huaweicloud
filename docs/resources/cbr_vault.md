@@ -133,6 +133,48 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 ```
 
+### Create a Workspace type vault
+
+```hcl
+variable "vault_name" {}
+
+resource "huaweicloud_cbr_vault" "test" {
+  name             = var.vault_name
+  type             = "workspace"
+  protection_type  = "backup"
+  size             = 100
+  consistent_level = "crash_consistent"
+}
+```
+
+### Create a VMware type vault
+
+```hcl
+variable "vault_name" {}
+
+resource "huaweicloud_cbr_vault" "test" {
+  name             = var.vault_name
+  type             = "vmware"
+  protection_type  = "backup"
+  size             = 100
+  consistent_level = "crash_consistent"
+}
+```
+
+### Create a file type vault
+
+```hcl
+variable "vault_name" {}
+
+resource "huaweicloud_cbr_vault" "test" {
+  name             = var.vault_name
+  type             = "file"
+  protection_type  = "backup"
+  size             = 100
+  consistent_level = "crash_consistent"
+}
+```
+
 ## Argument reference
 
 The following arguments are supported:
@@ -145,9 +187,12 @@ The following arguments are supported:
 
 * `type` - (Required, String, ForceNew) Specifies the object type of the CBR vault.
   Changing this will create a new vault. Vaild values are as follows:
-  + **server** (Cloud Servers)
-  + **disk** (EVS Disks)
-  + **turbo** (SFS Turbo file systems)
+  + **server** (Elastic Cloud Server)
+  + **disk** (EVS Disk)
+  + **turbo** (SFS Turbo file system)
+  + **workspace** (Workspace Desktop)
+  + **vmware** (VMware)
+  + **file** (File System)
 
 * `protection_type` - (Required, String, ForceNew) Specifies the protection type of the CBR vault.
   The valid values are **backup** and **replication**. Vaults of type **disk** don't support **replication**.
@@ -163,7 +208,8 @@ The following arguments are supported:
   + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
 
   Only **server** type vaults support application consistent and defaults to **crash_consistent**, and only
-  **crash_consistent** can be updated to **app_consistent**.
+  **crash_consistent** can be updated to **app_consistent**.  
+  The **workspace** type vaults does not support application consistent.
 
 * `auto_expand` - (Optional, Bool) Specifies to enable auto capacity expansion for the backup protection type vault.
   Defaults to **false**.
@@ -180,7 +226,8 @@ The following arguments are supported:
 * `policy` - (Optional, List) Specifies the policy details to associate with the CBR vault.
   The [object](#cbr_vault_policies) structure is documented below.
 
-* `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.
+* `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.  
+  This feature is not supported for the **vmware** type and the **file** type.  
   The [object](#cbr_vault_resources) structure is documented below.
 
 * `backup_name_prefix` - (Optional, String, ForceNew) Specifies the backup name prefix.

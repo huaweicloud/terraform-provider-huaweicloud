@@ -28,6 +28,12 @@ const (
 	VaultTypeDisk = "disk"
 	// VaultTypeTurbo is the object type of the SFS Turbo Backups.
 	VaultTypeTurbo = "turbo"
+	// VaultTypeTurbo is the object type of the Cloud desktop Backups.
+	VaultTypeWorkspace = "workspace"
+	// VaultTypeTurbo is the object type of the VM Ware Backups.
+	VaultTypeVMware = "vmware"
+	// VaultTypeTurbo is the object type of the Cloud files Backups.
+	VaultTypeFile = "file"
 
 	// ResourceTypeServer is the type of the Cloud Server resources to be backed up.
 	ResourceTypeServer = "OS::Nova::Server"
@@ -35,13 +41,20 @@ const (
 	ResourceTypeDisk = "OS::Cinder::Volume"
 	// ResourceTypeTurbo is the type of the SFS Turbo resources to be backed up.
 	ResourceTypeTurbo = "OS::Sfs::Turbo"
+	// ResourceTypeWorkspace is the type of the Cloud desktop resources to be backed up.
+	ResourceTypeWorkspace = "OS::Workspace::DesktopV2"
+	// ResourceTypeNone is the type that used to mark no resource needs to be backed up.
+	ResourceTypeNone = "No resource to backup"
 )
 
 var (
 	resourceType = map[string]string{
-		VaultTypeServer: ResourceTypeServer,
-		VaultTypeDisk:   ResourceTypeDisk,
-		VaultTypeTurbo:  ResourceTypeTurbo,
+		VaultTypeServer:    ResourceTypeServer,
+		VaultTypeDisk:      ResourceTypeDisk,
+		VaultTypeTurbo:     ResourceTypeTurbo,
+		VaultTypeWorkspace: ResourceTypeWorkspace,
+		VaultTypeVMware:    ResourceTypeNone,
+		VaultTypeFile:      ResourceTypeNone,
 	}
 )
 
@@ -229,6 +242,7 @@ func ResourceVault() *schema.Resource {
 }
 
 func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]vaults.ResourceCreate, error) {
+	// If no resource is set, send an empty slice to the CBR service.
 	results := make([]vaults.ResourceCreate, len(resources))
 
 	for i, val := range resources {
@@ -263,7 +277,8 @@ func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]va
 	if len(resources) > 1 {
 		return nil, fmt.Errorf("the size of resources cannot grant than one for disk and turbo vault")
 	} else if len(resources) == 0 {
-		return []vaults.ResourceCreate{}, nil
+		// If no resource is set, send an empty slice to the CBR service.
+		return make([]vaults.ResourceCreate, 0), nil
 	}
 
 	res, ok := resources[0].(map[string]interface{})
@@ -285,7 +300,7 @@ func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]va
 }
 
 func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.ResourceCreate, error) {
-	var result []vaults.ResourceCreate
+	var result = make([]vaults.ResourceCreate, 0)
 	var err error
 	rType, ok := resourceType[vType]
 	if !ok {
@@ -293,12 +308,14 @@ func buildAssociateResources(vType string, resources *schema.Set) ([]vaults.Reso
 	}
 	log.Printf("[DEBUG] The resource type is: %s", rType)
 	switch rType {
-	case ResourceTypeServer:
+	case ResourceTypeServer, ResourceTypeWorkspace:
 		result, err = buildAssociateResourcesForServer(rType, resources.List())
 	case ResourceTypeDisk, ResourceTypeTurbo:
 		result, err = buildAssociateResourcesForDisk(rType, resources.List())
+	case ResourceTypeNone:
+		// Nothing to do.
 	default:
-		err = fmt.Errorf("the vault type only support server, disk and turbo")
+		err = fmt.Errorf("invalid vault type: %s", vType)
 	}
 	return result, err
 }
@@ -339,19 +356,24 @@ func buildDissociateResourcesForDisk(resources []interface{}) ([]string, error) 
 }
 
 func buildDissociateResources(vType string, resources *schema.Set) ([]string, error) {
+	var result []string
+	var err error
 	rType, ok := resourceType[vType]
 	if !ok {
 		return nil, fmt.Errorf("invalid resource type: %s", vType)
 	}
 	log.Printf("[DEBUG] The resource type is %s", rType)
 	switch rType {
-	case ResourceTypeServer:
-		return buildDissociateResourcesForServer(resources.List())
+	case ResourceTypeServer, ResourceTypeWorkspace:
+		result, err = buildDissociateResourcesForServer(resources.List())
 	case ResourceTypeDisk, ResourceTypeTurbo:
 		return buildDissociateResourcesForDisk(resources.List())
+	case ResourceTypeNone:
+		// Nothing to do.
 	default:
-		return nil, fmt.Errorf("the vault type only support server, disk and turbo")
+		err = fmt.Errorf("invalid vault type: %s", vType)
 	}
+	return result, err
 }
 
 func isPrePaid(d *schema.ResourceData) bool {
@@ -512,11 +534,12 @@ func parseVaultResourcesForDisk(resources []vaults.ResourceResp) []map[string]in
 
 func flattenVaultResources(vType string, resources []vaults.ResourceResp) []map[string]interface{} {
 	switch vType {
-	case VaultTypeServer:
+	case VaultTypeServer, VaultTypeWorkspace:
 		return parseVaultResourcesForServer(resources)
 	case VaultTypeDisk, VaultTypeTurbo:
 		return parseVaultResourcesForDisk(resources)
 	default:
+		// Nothing to do for type file and type vmware.
 	}
 	return nil
 }
