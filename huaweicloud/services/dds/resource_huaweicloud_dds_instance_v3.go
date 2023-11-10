@@ -33,9 +33,9 @@ func ResourceDdsInstanceV3() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -572,11 +572,6 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
 
-	err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
 	var opts []instances.UpdateOpt
 	if d.HasChange("name") {
 		opt := instances.UpdateOpt{
@@ -594,20 +589,6 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			Value:  d.Get("password").(string),
 			Action: "reset-password",
 			Method: "put",
-		}
-		opts = append(opts, opt)
-	}
-
-	if d.HasChange("ssl") {
-		opt := instances.UpdateOpt{
-			Param:  "ssl_option",
-			Action: "switch-ssl",
-			Method: "post",
-		}
-		if d.Get("ssl").(bool) {
-			opt.Value = "1"
-		} else {
-			opt.Value = "0"
 		}
 		opts = append(opts, opt)
 	}
@@ -634,11 +615,40 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		opts = append(opts, opt)
 	}
 
+	if d.HasChange("ssl") {
+		opt := instances.UpdateOpt{
+			Param:  "ssl_option",
+			Action: "switch-ssl",
+			Method: "post",
+		}
+		if d.Get("ssl").(bool) {
+			opt.Value = "1"
+		} else {
+			opt.Value = "0"
+		}
+		opts = append(opts, opt)
+	}
+
 	if len(opts) > 0 {
-		resp, err := instances.Update(client, d.Id(), opts).Extract()
+		retryFunc := func() (interface{}, bool, error) {
+			resp, err := instances.Update(client, d.Id(), opts).Extract()
+			retry, err := handleMultiOperationsError(err)
+			return resp, retry, err
+		}
+		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+
 		if err != nil {
 			return diag.Errorf("Error updating instance from result: %s ", err)
 		}
+		resp := r.(*instances.UpdateResp)
 		if resp.OrderId != "" {
 			bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 			if err != nil {
@@ -649,18 +659,27 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 				return diag.FromErr(err)
 			}
 		}
-
-		err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.FromErr(err)
-		}
 	}
 
 	if d.HasChange("port") {
-		resp, err := instances.UpdatePort(client, d.Id(), d.Get("port").(int))
+		retryFunc := func() (interface{}, bool, error) {
+			resp, err := instances.UpdatePort(client, d.Id(), d.Get("port").(int))
+			retry, err := handleMultiOperationsError(err)
+			return resp, retry, err
+		}
+		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			return diag.Errorf("error updating database access port: %s", err)
 		}
+		resp := r.(*instances.PortUpdateResp)
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"Running"},
 			Target:       []string{"Completed"},
@@ -673,22 +692,12 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		if err != nil {
 			return diag.Errorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
 		}
-
-		err = waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.FromErr(err)
-		}
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
-		}
-
-		err := waitForInstanceReady(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.FromErr(err)
 		}
 	}
 
@@ -737,14 +746,40 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	instanceId := d.Id()
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == "prePaid" {
-		err = common.UnsubscribePrePaidResource(d, conf, []string{instanceId})
+		retryFunc := func() (interface{}, bool, error) {
+			err = common.UnsubscribePrePaidResource(d, conf, []string{instanceId})
+			retry, err := handleDeletionError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			return diag.Errorf("error unsubscribing DDS instance : %s", err)
 		}
 	} else {
-		result := instances.Delete(client, instanceId)
-		if result.Err != nil {
-			return diag.FromErr(result.Err)
+		retryFunc := func() (interface{}, bool, error) {
+			result := instances.Delete(client, instanceId)
+			retry, err := handleDeletionError(result.Err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -857,11 +892,24 @@ func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.Res
 
 func flavorUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	opts []instances.UpdateOpt) error {
-	resp, err := instances.Update(client, d.Id(), opts).Extract()
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := instances.Update(client, d.Id(), opts).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"normal"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
 	if err != nil {
 		return fmt.Errorf("Error updating instance from result: %s ", err)
 	}
-
+	resp := r.(*instances.UpdateResp)
 	if resp.OrderId != "" {
 		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 		if err != nil {

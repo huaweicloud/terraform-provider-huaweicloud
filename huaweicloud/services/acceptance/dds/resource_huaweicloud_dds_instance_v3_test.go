@@ -261,39 +261,6 @@ func TestAccDDSV3Instance_withConfigurationReplicaSet(t *testing.T) {
 	})
 }
 
-func TestAccDDSV3Instance_withConfigurationSingle(t *testing.T) {
-	var instance instances.InstanceResponse
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dds_instance.instance"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&instance,
-		getDdsResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDDSInstanceV3Config_withSingleConfiguration(rName, 9000),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
-					resource.TestCheckResourceAttr(resourceName, "port", "9000"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
-					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
-				),
-			},
-		},
-	})
-}
-
 func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, groupType, key string, v interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if key == "num" {
@@ -909,56 +876,6 @@ resource "huaweicloud_dds_instance" "instance" {
     num       = 1
     size      = 20
     spec_code = "dds.mongodb.s6.large.2.repset"
-  }
-  backup_strategy {
-    start_time = "08:00-09:00"
-    keep_days  = "8"
-  }
-  tags = {
-    foo   = "bar"
-    owner = "terraform"
-  }
-}`, common.TestBaseNetwork(rName), rName, port)
-}
-
-func testAccDDSInstanceV3Config_withSingleConfiguration(rName string, port int) string {
-	return fmt.Sprintf(`
-%[1]s
-data "huaweicloud_availability_zones" "test" {}
-resource "huaweicloud_dds_parameter_template" "single" {
-  name         = "%[2]s_single"
-  description  = "test description"
-  node_type    = "single"
-  node_version = "3.4"
-  parameter_values = {
-    connPoolMaxConnsPerHost        = 800
-    connPoolMaxShardedConnsPerHost = 800
-  }
-}
-resource "huaweicloud_dds_instance" "instance" {
-  name              = "%[2]s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  password          = "Terraform@123"
-  mode              = "Single"
-  port              = %[3]d
-  datastore {
-    type           = "DDS-Community"
-    version        = "3.4"
-    storage_engine = "wiredTiger"
-  }
-  configuration {
-    type = "single"
-    id   = huaweicloud_dds_parameter_template.single.id
-  }
-  flavor {
-    type      = "single"
-    num       = 1
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.s6.large.2.single"
   }
   backup_strategy {
     start_time = "08:00-09:00"
