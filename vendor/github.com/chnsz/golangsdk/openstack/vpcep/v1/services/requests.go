@@ -256,10 +256,12 @@ func ListConnections(client *golangsdk.ServiceClient, serviceID string, opts Lis
 
 // PermActionOpts used to add to or delete whitelist records from a VPC endpoint service.
 type PermActionOpts struct {
-	// Specifies the operation to be performed: dd or remove.
+	// Specifies the operation to be performed: add or remove.
 	Action string `json:"action" required:"true"`
-	// Lists the whitelist records. The record is in the iam:domain::domain_id format.
+	// Lists the whitelist records. The record is in the iam:domain::domain_id format or organizations:orgPath::org_path.
 	Permissions []string `json:"permissions" required:"true"`
+	// Specifies the type of the whitelist: domainId or orgPath.
+	PermissionType string `json:"permission_type,omitempty"`
 }
 
 // ToServicePostMap assembles a request body based on the contents of a PermActionOpts.

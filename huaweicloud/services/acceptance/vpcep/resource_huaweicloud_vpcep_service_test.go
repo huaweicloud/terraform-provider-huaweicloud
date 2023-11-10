@@ -46,6 +46,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.service_port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.terminal_port", "80"),
 					resource.TestCheckResourceAttr(resourceName, "permissions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "organization_permissions.#", "2"),
 				),
 			},
 			{
@@ -59,7 +60,8 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.protocol", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.service_port", "8088"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.terminal_port", "80"),
-					resource.TestCheckResourceAttr(resourceName, "permissions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "permissions.0", "*"),
+					resource.TestCheckResourceAttr(resourceName, "organization_permissions.0", "organizations:orgPath::*"),
 				),
 			},
 			{
@@ -157,6 +159,7 @@ resource "huaweicloud_vpcep_service" "test" {
   approval    = false
   description = "test description"
   permissions = ["iam:domain::1234", "iam:domain::5678"]
+  organization_permissions = ["organizations:orgPath::1234", "organizations:orgPath::5678"]
 
   port_mapping {
     service_port  = 8080
@@ -180,7 +183,8 @@ resource "huaweicloud_vpcep_service" "test" {
   port_id     = huaweicloud_compute_instance.ecs.network[0].port
   approval    = true
   description = "test description update"
-  permissions = ["iam:domain::abcd"]
+  permissions = ["*"]
+  organization_permissions = ["organizations:orgPath::*"]
 
   port_mapping {
     service_port  = 8088
