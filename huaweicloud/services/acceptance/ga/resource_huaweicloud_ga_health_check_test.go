@@ -15,14 +15,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getHealthCheckResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getHealthCheckResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getHealthCheck: Query the GA Health Check detail
 	var (
 		getHealthCheckHttpUrl = "v1/health-checks/{id}"
 		getHealthCheckProduct = "ga"
 	)
-	getHealthCheckClient, err := config.NewServiceClient(getHealthCheckProduct, region)
+	getHealthCheckClient, err := conf.NewServiceClient(getHealthCheckProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating HealthCheck Client: %s", err)
 	}

@@ -128,6 +128,6 @@ This resource provides the following timeouts configuration options:
 
 The accelerator can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_ga_accelerator.test ac1bf54f-6a23-4074-af77-800648d25bc8
+```bash
+$ terraform import huaweicloud_ga_accelerator.test <id>
 ```

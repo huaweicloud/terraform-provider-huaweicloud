@@ -15,14 +15,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getListenerResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getListenerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getListener: Query the GA Listener detail
 	var (
 		getListenerHttpUrl = "v1/listeners/{id}"
 		getListenerProduct = "ga"
 	)
-	getListenerClient, err := config.NewServiceClient(getListenerProduct, region)
+	getListenerClient, err := conf.NewServiceClient(getListenerProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Listener Client: %s", err)
 	}

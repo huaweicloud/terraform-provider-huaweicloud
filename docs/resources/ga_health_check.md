@@ -76,6 +76,6 @@ This resource provides the following timeouts configuration options:
 
 The healthcheck can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_ga_health_check.test 30a04052-b553-4292-af4e-a483106653ce
+```bash
+$ terraform import huaweicloud_ga_health_check.test <id>
 ```

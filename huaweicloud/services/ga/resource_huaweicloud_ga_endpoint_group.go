@@ -127,15 +127,15 @@ func EndpointGroupIdSchema() *schema.Resource {
 }
 
 func resourceEndpointGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createEndpointGroup: Create a GA endpoint group.
 	var (
 		createEndpointGroupHttpUrl = "v1/endpoint-groups"
 		createEndpointGroupProduct = "ga"
 	)
-	createEndpointGroupClient, err := config.NewServiceClient(createEndpointGroupProduct, region)
+	createEndpointGroupClient, err := conf.NewServiceClient(createEndpointGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating EndpointGroup Client: %s", err)
 	}
@@ -148,7 +148,7 @@ func resourceEndpointGroupCreate(ctx context.Context, d *schema.ResourceData, me
 			201,
 		},
 	}
-	createEndpointGroupOpt.JSONBody = utils.RemoveNil(buildCreateEndpointGroupBodyParams(d, config))
+	createEndpointGroupOpt.JSONBody = utils.RemoveNil(buildCreateEndpointGroupBodyParams(d))
 	createEndpointGroupResp, err := createEndpointGroupClient.Request("POST", createEndpointGroupPath, &createEndpointGroupOpt)
 	if err != nil {
 		return diag.Errorf("error creating EndpointGroup: %s", err)
@@ -172,7 +172,7 @@ func resourceEndpointGroupCreate(ctx context.Context, d *schema.ResourceData, me
 	return resourceEndpointGroupRead(ctx, d, meta)
 }
 
-func buildCreateEndpointGroupBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateEndpointGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint_group": map[string]interface{}{
 			"description":             utils.ValueIngoreEmpty(d.Get("description")),
@@ -229,7 +229,8 @@ func createEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 					200,
 				},
 			}
-			createEndpointGroupWaitingResp, err := createEndpointGroupWaitingClient.Request("GET", createEndpointGroupWaitingPath, &createEndpointGroupWaitingOpt)
+			createEndpointGroupWaitingResp, err := createEndpointGroupWaitingClient.Request("GET",
+				createEndpointGroupWaitingPath, &createEndpointGroupWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -260,7 +261,6 @@ func createEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 			}
 
 			return createEndpointGroupWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -270,9 +270,9 @@ func createEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 	return err
 }
 
-func resourceEndpointGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceEndpointGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -281,7 +281,7 @@ func resourceEndpointGroupRead(ctx context.Context, d *schema.ResourceData, meta
 		getEndpointGroupHttpUrl = "v1/endpoint-groups/{id}"
 		getEndpointGroupProduct = "ga"
 	)
-	getEndpointGroupClient, err := config.NewServiceClient(getEndpointGroupProduct, region)
+	getEndpointGroupClient, err := conf.NewServiceClient(getEndpointGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating EndpointGroup Client: %s", err)
 	}
@@ -337,8 +337,8 @@ func flattenGetEndpointGroupResponseBodyId(resp interface{}) []interface{} {
 }
 
 func resourceEndpointGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateEndpointGrouphasChanges := []string{
 		"description",
@@ -352,7 +352,7 @@ func resourceEndpointGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 			updateEndpointGroupHttpUrl = "v1/endpoint-groups/{id}"
 			updateEndpointGroupProduct = "ga"
 		)
-		updateEndpointGroupClient, err := config.NewServiceClient(updateEndpointGroupProduct, region)
+		updateEndpointGroupClient, err := conf.NewServiceClient(updateEndpointGroupProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating EndpointGroup Client: %s", err)
 		}
@@ -366,7 +366,7 @@ func resourceEndpointGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 				200,
 			},
 		}
-		updateEndpointGroupOpt.JSONBody = utils.RemoveNil(buildUpdateEndpointGroupBodyParams(d, config))
+		updateEndpointGroupOpt.JSONBody = utils.RemoveNil(buildUpdateEndpointGroupBodyParams(d))
 		_, err = updateEndpointGroupClient.Request("PUT", updateEndpointGroupPath, &updateEndpointGroupOpt)
 		if err != nil {
 			return diag.Errorf("error updating EndpointGroup: %s", err)
@@ -379,7 +379,7 @@ func resourceEndpointGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 	return resourceEndpointGroupRead(ctx, d, meta)
 }
 
-func buildUpdateEndpointGroupBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateEndpointGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint_group": map[string]interface{}{
 			"description":             d.Get("description"),
@@ -416,7 +416,8 @@ func updateEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 					200,
 				},
 			}
-			updateEndpointGroupWaitingResp, err := updateEndpointGroupWaitingClient.Request("GET", updateEndpointGroupWaitingPath, &updateEndpointGroupWaitingOpt)
+			updateEndpointGroupWaitingResp, err := updateEndpointGroupWaitingClient.Request("GET",
+				updateEndpointGroupWaitingPath, &updateEndpointGroupWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -447,7 +448,6 @@ func updateEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 			}
 
 			return updateEndpointGroupWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -458,15 +458,15 @@ func updateEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 }
 
 func resourceEndpointGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteEndpointGroup: Delete an existing GA Endpoint Group
 	var (
 		deleteEndpointGroupHttpUrl = "v1/endpoint-groups/{id}"
 		deleteEndpointGroupProduct = "ga"
 	)
-	deleteEndpointGroupClient, err := config.NewServiceClient(deleteEndpointGroupProduct, region)
+	deleteEndpointGroupClient, err := conf.NewServiceClient(deleteEndpointGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating EndpointGroup Client: %s", err)
 	}
@@ -518,7 +518,8 @@ func deleteEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 					200,
 				},
 			}
-			deleteEndpointGroupWaitingResp, err := deleteEndpointGroupWaitingClient.Request("GET", deleteEndpointGroupWaitingPath, &deleteEndpointGroupWaitingOpt)
+			deleteEndpointGroupWaitingResp, err := deleteEndpointGroupWaitingClient.Request("GET",
+				deleteEndpointGroupWaitingPath, &deleteEndpointGroupWaitingOpt)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					return deleteEndpointGroupWaitingResp, "COMPLETED", nil
@@ -546,7 +547,6 @@ func deleteEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 			}
 
 			return deleteEndpointGroupWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
