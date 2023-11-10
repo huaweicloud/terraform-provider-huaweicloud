@@ -969,7 +969,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_network_acl":         resourceIecNetworkACL(),
 			"huaweicloud_iec_network_acl_rule":    resourceIecNetworkACLRule(),
 			"huaweicloud_iec_security_group":      resourceIecSecurityGroup(),
-			"huaweicloud_iec_security_group_rule": resourceIecSecurityGroupRule(),
+			"huaweicloud_iec_security_group_rule": iec.ResourceIecSecurityGroupRule(),
 			"huaweicloud_iec_server":              iec.ResourceIecServer(),
 			"huaweicloud_iec_vip":                 iec.ResourceIecVip(),
 			"huaweicloud_iec_vpc":                 iec.ResourceIecVpc(),
