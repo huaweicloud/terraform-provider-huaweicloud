@@ -69,10 +69,12 @@ terraform {
 ```hcl
 terraform {
   backend "s3" {
-    bucket   = "terraformbucket"
-    key      = "terraform.tfstate"
-    region   = "cn-north-1"
-    endpoint = "https://obs.cn-north-1.myhuaweicloud.com"
+    bucket    = "terraformbucket"
+    key       = "terraform.tfstate"
+    region    = "cn-north-1"
+    endpoints = {
+      s3 = "https://obs.cn-north-1.myhuaweicloud.com"
+    }
 
     skip_region_validation      = true
     skip_credentials_validation = true
@@ -102,9 +104,15 @@ The following arguments are supported:
 * `region` - (Required) Specifies the region where the bucket is located. This can also be sourced from the
   *AWS_DEFAULT_REGION* and *AWS_REGION* environment variables.
 
-* `endpoint` - (Required) Specifies the endpoint for HuaweiCloud OBS.
+* `endpoint` - (**Required before v1.6.0**) Specifies the endpoint for HuaweiCloud OBS.
   The value is `https://obs.{{region}}.myhuaweicloud.com`.
   This can also be sourced from the *AWS_S3_ENDPOINT* environment variable.
+  Use `endpoints.s3` instead when using Terraform version after **v1.6.3**.
+
+* `endpoints.s3` - (**Required after v1.6.3**) Specifies the endpoint for HuaweiCloud OBS.
+  The value is `https://obs.{{region}}.myhuaweicloud.com`.
+  This can also be sourced from the environment variable *AWS_ENDPOINT_URL_S3* or the deprecated environment variable
+  *AWS_S3_ENDPOINT*.
 
 * `skip_credentials_validation` - (Required) Skip credentials validation via the STS API.
   It's mandatory for HuaweiCloud.
