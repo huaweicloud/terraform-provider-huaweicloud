@@ -1,9 +1,12 @@
 package waf
 
 import (
+	"context"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -12,23 +15,21 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var PaidType = "prePaid"
 
 const (
-	PROTOCOL_HTTP  = "HTTP"
-	PROTOCOL_HTTPS = "HTTPS"
+	protocolHttp  = "HTTP"
+	protocolHttps = "HTTPS"
 )
 
-func ResourceWafDomainV1() *schema.Resource {
+func ResourceWafDomain() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafDomainV1Create,
-		Read:   resourceWafDomainV1Read,
-		Update: resourceWafDomainV1Update,
-		Delete: resourceWafDomainV1Delete,
+		CreateContext: resourceWafDomainCreate,
+		ReadContext:   resourceWafDomainRead,
+		UpdateContext: resourceWafDomainUpdate,
+		DeleteContext: resourceWafDomainDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -60,14 +61,14 @@ func ResourceWafDomainV1() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								PROTOCOL_HTTP, PROTOCOL_HTTPS,
+								protocolHttp, protocolHttps,
 							}, false),
 						},
 						"server_protocol": {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								PROTOCOL_HTTP, PROTOCOL_HTTPS,
+								protocolHttp, protocolHttps,
 							}, false),
 						},
 						"address": {
@@ -150,15 +151,15 @@ func buildWafDomainServers(d *schema.ResourceData) []domains.ServerOpts {
 		}
 	}
 
-	logp.Printf("[DEBUG] build WAF domain ServerOpts: %#v", serverOpts)
+	log.Printf("[DEBUG] build WAF domain ServerOpts: %#v", serverOpts)
 	return serverOpts
 }
 
-func resourceWafDomainV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF Client: %s", err)
 	}
 
 	proxy := d.Get("proxy").(bool)
@@ -170,58 +171,58 @@ func resourceWafDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 		Servers:             buildWafDomainServers(d),
 		Proxy:               &proxy,
 		PaidType:            d.Get("charging_mode").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	logp.Printf("[DEBUG] CreateOpts: %#v", createOpts)
+	log.Printf("[DEBUG] CreateOpts: %#v", createOpts)
 
 	domain, err := domains.Create(wafClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("error creating WAF Domain: %s", err)
+		return diag.Errorf("error creating WAF Domain: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Waf domain created: %#v", domain)
+	log.Printf("[DEBUG] Waf domain created: %#v", domain)
 	d.SetId(domain.Id)
 
 	if v, ok := d.GetOk("policy_id"); ok {
 		policyID := v.(string)
 		hosts := []string{d.Id()}
-		epsID := config.GetEnterpriseProjectID(d)
+		epsID := cfg.GetEnterpriseProjectID(d)
 		updateHostsOpts := policies.UpdateHostsOpts{
 			Hosts:               hosts,
 			EnterpriseProjectId: epsID,
 		}
 
-		logp.Printf("[DEBUG] Bind Waf domain %s to policy %s", d.Id(), policyID)
+		log.Printf("[DEBUG] Bind Waf domain %s to policy %s", d.Id(), policyID)
 		_, err = policies.UpdateHosts(wafClient, policyID, updateHostsOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("error updating WAF Policy Hosts: %s", err)
+			return diag.Errorf("error updating WAF Policy Hosts: %s", err)
 		}
 
 		// delete the policy that was auto-created by domain
 		err = policies.DeleteWithEpsID(wafClient, domain.PolicyId, epsID).ExtractErr()
 		if err != nil {
-			logp.Printf("[WARN] error deleting WAF Policy %s: %s", domain.PolicyId, err)
+			log.Printf("[WARN] error deleting WAF Policy %s: %s", domain.PolicyId, err)
 		}
 	}
 
-	return resourceWafDomainV1Read(d, meta)
+	return resourceWafDomainRead(ctx, d, meta)
 }
 
-func resourceWafDomainV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	n, err := domains.GetWithEpsID(wafClient, d.Id(), config.GetEnterpriseProjectID(d)).Extract()
+	n, err := domains.GetWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain WAF domain information")
+		return common.CheckDeletedDiag(d, err, "Error obtain WAF domain information")
 	}
 
 	// keep_policy and charging_mode not returned by API
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("domain", n.HostName),
 		d.Set("certificate_id", n.CertificateId),
 		d.Set("certificate_name", n.CertificateName),
@@ -233,7 +234,7 @@ func resourceWafDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("error setting WAF fields: %s", err)
+		return diag.Errorf("error setting WAF fields: %s", err)
 	}
 
 	servers := make([]map[string]interface{}, len(n.Servers))
@@ -250,11 +251,11 @@ func resourceWafDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceWafDomainV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
+		return diag.Errorf("error creating WAF Client: %s", err)
 	}
 
 	if d.HasChanges("certificate_id", "server", "proxy") {
@@ -265,55 +266,55 @@ func resourceWafDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 			CertificateName:     d.Get("certificate_name").(string),
 			Servers:             buildWafDomainServers(d),
 			Proxy:               &proxy,
-			EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		}
 
-		logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
+		log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
 
 		_, err = domains.Update(wafClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("error updating WAF Domain: %s", err)
+			return diag.Errorf("error updating WAF Domain: %s", err)
 		}
 	}
 	if d.HasChanges("proxy_id") {
 		oVal, nVal := d.GetChange("proxy_id")
 		policyId := nVal.(string)
-		epsID := config.GetEnterpriseProjectID(d)
+		epsID := cfg.GetEnterpriseProjectID(d)
 		updateHostsOpts := policies.UpdateHostsOpts{
 			Hosts:               []string{policyId},
 			EnterpriseProjectId: epsID,
 		}
 
-		logp.Printf("[DEBUG] Bind Waf domain %s to policy %s", d.Id(), policyId)
+		log.Printf("[DEBUG] Bind Waf domain %s to policy %s", d.Id(), policyId)
 		_, err = policies.UpdateHosts(wafClient, policyId, updateHostsOpts).Extract()
 		if err != nil {
-			return fmtp.Errorf("error updating WAF Policy Hosts: %s", err)
+			return diag.Errorf("error updating WAF Policy Hosts: %s", err)
 		}
 
 		// delete the old policy
 		err = policies.DeleteWithEpsID(wafClient, oVal.(string), epsID).ExtractErr()
 		if err != nil {
-			logp.Printf("[WARN] error deleting WAF Policy %s: %s", oVal.(string), err)
+			log.Printf("[WARN] error deleting WAF Policy %s: %s", oVal.(string), err)
 		}
 	}
-	return resourceWafDomainV1Read(d, meta)
+	return resourceWafDomainRead(ctx, d, meta)
 }
 
-func resourceWafDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	wafClient, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafDomainDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating  WAF client: %s", err)
 	}
 
 	delOpts := domains.DeleteOpts{
 		KeepPolicy:          d.Get("keep_policy").(bool),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	logp.Printf("[DEBUG] delete WAF Domain: %#v", d.Get("keep_policy"))
+	log.Printf("[DEBUG] delete WAF Domain: %#v", d.Get("keep_policy"))
 	err = domains.Delete(wafClient, d.Id(), delOpts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("error deleting WAF Domain: %s", err)
+		return diag.Errorf("error deleting WAF Domain: %s", err)
 	}
 
 	d.SetId("")
