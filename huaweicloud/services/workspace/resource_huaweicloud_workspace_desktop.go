@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -601,7 +602,7 @@ func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string)
 			return resp, "deleting", nil
 		}
 
-		return resp, resp.TaskStatus, nil
+		return resp, strings.ToLower(resp.TaskStatus), nil
 	}
 }
 
