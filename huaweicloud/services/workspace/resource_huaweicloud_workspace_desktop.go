@@ -17,6 +17,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/workspace/v2/desktops"
 	"github.com/chnsz/golangsdk/openstack/workspace/v2/jobs"
+	"github.com/chnsz/golangsdk/openstack/workspace/v2/users"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -575,8 +576,8 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient, desktopId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"deleting"},
-		Target:       []string{"deleted"},
+		Pending:      []string{"ACTIVE", "DELETING"},
+		Target:       []string{"DELETED"},
 		Refresh:      refreshDesktopStatusFunc(client, desktopId),
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
@@ -592,18 +593,44 @@ func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string)
 		resp, err := desktops.Get(client, desktopId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return resp, "deleted", nil
+				return resp, "DELETED", nil
 			}
-			return resp, "", err
+			return resp, "ERROR", err
 		}
 		// During the removal process of desktop, the workspace service cannot perceive the ECS mechine and the API will
 		// return an empty status.
 		if resp.Status == "" {
-			return resp, "deleting", nil
+			return resp, "DELETING", nil
 		}
-
-		return resp, strings.ToLower(resp.TaskStatus), nil
+		// The uppercase characters is the default format for attribute 'status' in the API response.
+		return resp, strings.ToUpper(resp.Status), nil
 	}
+}
+
+func waitForDesktopUserDeleted(ctx context.Context, client *golangsdk.ServiceClient, userName string, timeout time.Duration) error {
+	listOpts := users.ListOpts{
+		Name: userName,
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"ACTIVE"},
+		Target:  []string{"DELETED"},
+		Refresh: func() (interface{}, string, error) {
+			resp, err := users.List(client, listOpts)
+			if err != nil {
+				return resp, "ERROR", err
+			}
+			if len(resp.Users) < 1 {
+				return resp, "DELETED", nil
+			}
+			return resp, "ACTIVE", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func resourceDesktopDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -613,17 +640,27 @@ func resourceDesktopDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
 	}
 
+	isDeleteUser := d.Get("delete_user").(bool)
 	opts := desktops.DeleteOpts{
-		DeleteUser:        d.Get("delete_user").(bool),
+		DeleteUser:        isDeleteUser,
 		EmailNotification: d.Get("email_notification").(bool),
 	}
 	err = desktops.Delete(client, d.Id(), opts)
 	if err != nil {
 		return diag.Errorf("error deleting desktop (%s): %s", d.Id(), err)
 	}
+	// Make sure the desktop has been deleted.
 	err = waitForDesktopDeleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("an error occur when delete desktop: %s", err)
+	}
+	if isDeleteUser {
+		// Make sure the related user has been deleted.
+		userName := d.Get("user_name").(string)
+		err = waitForDesktopUserDeleted(ctx, client, userName, d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return diag.Errorf("an error occur when delete user: %s", err)
+		}
 	}
 	return nil
 }
