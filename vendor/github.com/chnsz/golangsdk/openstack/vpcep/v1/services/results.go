@@ -196,6 +196,8 @@ type Permission struct {
 	ID string `json:"id"`
 	// the whitelist records.
 	Permission string `json:"permission"`
+	// the type of the whitelist.
+	PermissionType string `json:"permission_type"`
 	// the time of adding the whitelist record
 	Created string `json:"created_at"`
 }

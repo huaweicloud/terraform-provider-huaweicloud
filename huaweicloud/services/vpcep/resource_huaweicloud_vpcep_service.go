@@ -2,6 +2,7 @@ package vpcep
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -105,6 +106,13 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"organization_permissions": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -171,17 +179,66 @@ func buildPortMappingOpts(d *schema.ResourceData) []services.PortOpts {
 	return portOpts
 }
 
-func doPermissionAction(client *golangsdk.ServiceClient, serviceID, action string, raw []interface{}) error {
+func updatePermissions(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	if d.HasChange("permissions") {
+		oldVal, newVal := d.GetChange("permissions")
+		oldPermSet := oldVal.(*schema.Set)
+		newPermSet := newVal.(*schema.Set)
+		added := newPermSet.Difference(oldPermSet)
+		removed := oldPermSet.Difference(newPermSet)
+
+		if err := doPermissionAdd(client, added.List(), d.Id(), "domainId"); err != nil {
+			return fmt.Errorf("error adding domain permissions to VPC endpoint service %s: %s", d.Id(), err)
+		}
+
+		if err := doPermissionRemove(client, removed.List(), d.Id(), "domainId"); err != nil {
+			return fmt.Errorf("error removing domain permissions to VPC endpoint service %s: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("organization_permissions") {
+		oldVal, newVal := d.GetChange("organization_permissions")
+		oldPermSet := oldVal.(*schema.Set)
+		newPermSet := newVal.(*schema.Set)
+		added := newPermSet.Difference(oldPermSet)
+		removed := oldPermSet.Difference(newPermSet)
+
+		if err := doPermissionAdd(client, added.List(), d.Id(), "orgPath"); err != nil {
+			return fmt.Errorf("error adding organization permissions to VPC endpoint service %s: %s", d.Id(), err)
+		}
+
+		if err := doPermissionRemove(client, removed.List(), d.Id(), "orgPath"); err != nil {
+			return fmt.Errorf("error removing organization permissions to VPC endpoint service %s: %s", d.Id(), err)
+		}
+	}
+
+	return nil
+}
+
+func doPermissionAdd(client *golangsdk.ServiceClient, raw []interface{}, serviceID, permissionType string) error {
 	if len(raw) == 0 {
 		return nil
 	}
 	permissions := utils.ExpandToStringList(raw)
 	permOpts := services.PermActionOpts{
-		Action:      action,
-		Permissions: permissions,
+		Action:         "add",
+		PermissionType: permissionType,
+		Permissions:    permissions,
 	}
+	result := services.PermAction(client, serviceID, permOpts)
+	return result.Err
+}
 
-	log.Printf("[DEBUG] %s permissions %#v to VPC endpoint service %s", action, permissions, serviceID)
+func doPermissionRemove(client *golangsdk.ServiceClient, raw []interface{}, serviceID, permissionType string) error {
+	if len(raw) == 0 {
+		return nil
+	}
+	permissions := utils.ExpandToStringList(raw)
+	permOpts := services.PermActionOpts{
+		Action:         "remove",
+		PermissionType: permissionType,
+		Permissions:    permissions,
+	}
 	result := services.PermAction(client, serviceID, permOpts)
 	return result.Err
 }
@@ -228,11 +285,8 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error waiting for VPC endpoint service(%s) to become available: %s", n.ID, stateErr)
 	}
 
-	// add permissions
-	raw := d.Get("permissions").(*schema.Set).List()
-	err = doPermissionAction(vpcepClient, d.Id(), "add", raw)
-	if err != nil {
-		return diag.Errorf("error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
+	if err := updatePermissions(vpcepClient, d); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceVPCEndpointServiceRead(ctx, d, meta)
@@ -278,8 +332,10 @@ func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	// fetch permissions
-	if perms, err := flattenVPCEndpointPermissions(vpcepClient, d.Id()); err == nil {
+	perms, orgPerms, err := flattenVPCEndpointPermissions(vpcepClient, d.Id())
+	if err == nil {
 		mErr = multierror.Append(mErr, d.Set("permissions", perms))
+		mErr = multierror.Append(mErr, d.Set("organization_permissions", orgPerms))
 	}
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -323,22 +379,8 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	// update permissions
-	if d.HasChange("permissions") {
-		oldVal, newVal := d.GetChange("permissions")
-		oldPermSet := oldVal.(*schema.Set)
-		newPermSet := newVal.(*schema.Set)
-		added := newPermSet.Difference(oldPermSet)
-		removed := oldPermSet.Difference(newPermSet)
-
-		err = doPermissionAction(vpcepClient, d.Id(), "add", added.List())
-		if err != nil {
-			return diag.Errorf("error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
-		}
-
-		err = doPermissionAction(vpcepClient, d.Id(), "remove", removed.List())
-		if err != nil {
-			return diag.Errorf("error removing permissions to VPC endpoint service %s: %s", d.Id(), err)
-		}
+	if err := updatePermissions(vpcepClient, d); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceVPCEndpointServiceRead(ctx, d, meta)
@@ -408,20 +450,24 @@ func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) (
 	return connections, nil
 }
 
-func flattenVPCEndpointPermissions(client *golangsdk.ServiceClient, id string) ([]string, error) {
+func flattenVPCEndpointPermissions(client *golangsdk.ServiceClient, id string) (perms []string, orgPerms []string, err error) {
 	allPerms, err := services.ListPermissions(client, id)
 	if err != nil {
 		log.Printf("[WARN] Error querying permissions of VPC endpoint service: %s", err)
-		return nil, err
+		return
 	}
 
 	log.Printf("[DEBUG] retrieving permissions of VPC endpoint service: %#v", allPerms)
-	perms := make([]string, len(allPerms))
-	for i, v := range allPerms {
-		perms[i] = v.Permission
+	for _, v := range allPerms {
+		if v.PermissionType == "domainId" {
+			perms = append(perms, v.Permission)
+		}
+		if v.PermissionType == "orgPath" {
+			orgPerms = append(orgPerms, v.Permission)
+		}
 	}
 
-	return perms, nil
+	return
 }
 
 func waitForResourceStatus(vpcepClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
