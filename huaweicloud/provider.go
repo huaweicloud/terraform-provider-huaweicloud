@@ -990,9 +990,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificate":  iotda.ResourceDeviceCertificate(),
 			"huaweicloud_iotda_device_linkage_rule": iotda.ResourceDeviceLinkageRule(),
 
-			"huaweicloud_kms_key":     dew.ResourceKmsKey(),
-			"huaweicloud_kps_keypair": dew.ResourceKeypair(),
-			"huaweicloud_kms_grant":   dew.ResourceKmsGrant(),
+			"huaweicloud_kms_key":                dew.ResourceKmsKey(),
+			"huaweicloud_kps_keypair":            dew.ResourceKeypair(),
+			"huaweicloud_kms_grant":              dew.ResourceKmsGrant(),
+			"huaweicloud_kms_dedicated_keystore": dew.ResourceKmsDedicatedKeystore(),
 
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_l7policy":     lb.ResourceL7PolicyV2(),
