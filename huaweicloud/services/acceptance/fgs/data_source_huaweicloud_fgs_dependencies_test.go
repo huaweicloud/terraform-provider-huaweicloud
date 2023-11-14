@@ -1,7 +1,6 @@
 package fgs
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
@@ -66,25 +65,22 @@ func TestAccFunctionGraphDependencies_runtime(t *testing.T) {
 }
 
 func testAccFunctionGraphDependencies_basic() string {
-	return fmt.Sprintf(`
-data "huaweicloud_fgs_dependencies" "test" {}
-`)
+	result := `data "huaweicloud_fgs_dependencies" "test" {}`
+	return result
 }
 
 func testAccFunctionGraphDependencies_name() string {
-	return fmt.Sprintf(`
-data "huaweicloud_fgs_dependencies" "test" {
+	result := `data "huaweicloud_fgs_dependencies" "test" {
   type = "public"
   name = "obssdk-3.0.2"
-}
-`)
+  }`
+	return result
 }
 
 func testAccFunctionGraphDependencies_runtime() string {
-	return fmt.Sprintf(`
-data "huaweicloud_fgs_dependencies" "test" {
+	result := `data "huaweicloud_fgs_dependencies" "test" {
   type    = "public"
   runtime = "Python2.7"
-}
-`)
+}`
+	return result
 }

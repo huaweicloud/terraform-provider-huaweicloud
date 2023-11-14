@@ -14,6 +14,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
+const (
+	func_code_left  = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9I"
+	func_code_right = "CdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ"
+	func_code       = func_code_left + func_code_right
+)
+
 func getResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
@@ -39,10 +45,10 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_basic(randName),
+				Config: testAccFgsV2Function_basic(randName, func_code),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
@@ -50,7 +56,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccFgsV2Function_update(randName),
+				Config: testAccFgsV2Function_update(randName, func_code),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
@@ -99,7 +105,7 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_withEpsId(randName),
+				Config: testAccFgsV2Function_withEpsId(randName, func_code),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
@@ -283,10 +289,10 @@ func TestAccFgsV2Function_logConfig(t *testing.T) {
 	})
 }
 
-func testAccFgsV2Function_basic(rName string) string {
+func testAccFgsV2Function_basic(rName string, func_code string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   app         = "default"
   description = "fuction test"
   handler     = "index.handler"
@@ -294,17 +300,17 @@ resource "huaweicloud_fgs_function" "test" {
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  func_code   = "%[2]s"
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, rName)
+`, rName, func_code)
 }
 
-func testAccFgsV2Function_update(rName string) string {
+func testAccFgsV2Function_update(rName string, func_code string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -317,7 +323,7 @@ resource "huaweicloud_fgs_function" "test" {
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  func_code   = "%[3]s"
   agency      = "function_vpc_trust"
   vpc_id      = huaweicloud_vpc.test.id
   network_id  = huaweicloud_vpc_subnet.test.id
@@ -327,7 +333,7 @@ resource "huaweicloud_fgs_function" "test" {
     newkey = "value"
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestBaseNetwork(rName), rName, func_code)
 }
 
 func testAccFgsV2Function_text(rName string) string {
@@ -359,10 +365,10 @@ EOF
 `, rName)
 }
 
-func testAccFgsV2Function_withEpsId(rName string) string {
+func testAccFgsV2Function_withEpsId(rName string, func_code string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   app                   = "default"
   description           = "fuction test"
   handler               = "index.handler"
@@ -370,10 +376,10 @@ resource "huaweicloud_fgs_function" "test" {
   timeout               = 3
   runtime               = "Python2.7"
   code_type             = "inline"
-  enterprise_project_id = "%s"
-  func_code             = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  enterprise_project_id = "%[1]s"
+  func_code             = "%[2]s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, func_code, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccFgsV2Function_createByImage_step_1(rName string) string {

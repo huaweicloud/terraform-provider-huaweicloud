@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getTriggerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -181,19 +180,18 @@ func TestAccFunctionGraphTrigger_lts(t *testing.T) {
 		},
 	})
 }
-
-func testAccFunctionGraphTimingTrigger_base(rName string) string {
+func testAccFunctionGraphTimingTrigger_base(rName string, func_code string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   app         = "default"
   handler     = "index.handler"
   memory_size = 128
   timeout     = 10
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
-}`, rName)
+  func_code   = "%[2]s"
+}`, rName, func_code)
 }
 
 func testAccFunctionGraphTimingTrigger_basic(rName string) string {
@@ -210,7 +208,7 @@ resource "huaweicloud_fgs_trigger" "test" {
     schedule      = "3d"
   }
 }
-`, testAccFunctionGraphTimingTrigger_base(rName), rName)
+`, testAccFunctionGraphTimingTrigger_base(rName, func_code), rName)
 }
 
 func testAccFunctionGraphTimingTrigger_update(rName string) string {
@@ -228,7 +226,7 @@ resource "huaweicloud_fgs_trigger" "test" {
 	schedule      = "3d"
   }
 }
-`, testAccFunctionGraphTimingTrigger_base(rName), rName)
+`, testAccFunctionGraphTimingTrigger_base(rName, func_code), rName)
 }
 
 func testAccFunctionGraphTimingTrigger_cron(rName string) string {
@@ -245,7 +243,7 @@ resource "huaweicloud_fgs_trigger" "test" {
     schedule      = "@every 1h30m"
   }
 }
-`, testAccFunctionGraphTimingTrigger_base(rName), rName)
+`, testAccFunctionGraphTimingTrigger_base(rName, func_code), rName)
 }
 
 func testAccFunctionGraphTimingTrigger_cronUpdate(rName string) string {
@@ -263,7 +261,7 @@ resource "huaweicloud_fgs_trigger" "test" {
 	schedule      = "@every 1h30m"
   }
 }
-`, testAccFunctionGraphTimingTrigger_base(rName), rName)
+`, testAccFunctionGraphTimingTrigger_base(rName, func_code), rName)
 }
 
 func testAccFunctionGraphSmnTrigger_basic(rName string) string {
@@ -281,7 +279,7 @@ resource "huaweicloud_fgs_trigger" "test" {
   smn {
     topic_urn = huaweicloud_smn_topic.test.topic_urn
   }
-}`, testAccFunctionGraphTimingTrigger_base(rName), rName)
+}`, testAccFunctionGraphTimingTrigger_base(rName, func_code), rName)
 }
 
 func testAccFunctionGraphLtsTrigger_basic(rName string) string {
@@ -315,7 +313,7 @@ resource "huaweicloud_fgs_function" "test" {
   runtime     = "Python2.7"
   code_type   = "inline"
   agency      = huaweicloud_identity_agency.test.name
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  func_code   = "%[2]s"
 }
 
 resource "huaweicloud_fgs_trigger" "test" {
@@ -326,59 +324,5 @@ resource "huaweicloud_fgs_trigger" "test" {
     log_group_id = huaweicloud_lts_group.test.id
     log_topic_id = huaweicloud_lts_stream.test.id
   }
-}`, rName, acceptance.HW_REGION_NAME, acceptance.HW_FGS_TRIGGER_LTS_AGENCY)
-}
-
-func testAccNetwork_config(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_networking_secgroup_rule" "test" {
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 9092
-  port_range_max    = 9092
-  remote_ip_prefix  = "0.0.0.0/0"
-}`, common.TestBaseNetwork(rName))
-}
-
-func testAccDmsKafka_config(rName, password string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_dms_az" "test" {}
-
-data "huaweicloud_dms_product" "test" {
-  engine            = "kafka"
-  version           = "1.1.0"
-  instance_type     = "cluster"
-  partition_num     = 300
-  storage           = 600
-  storage_spec_code = "dms.physical.storage.high"
-}
-
-resource "huaweicloud_dms_kafka_instance" "test" {
-  name              = "%s"
-  vpc_id            = huaweicloud_vpc.test.id
-  network_id        = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  available_zones   = [data.huaweicloud_dms_az.test.id]
-  product_id        = data.huaweicloud_dms_product.test.id
-  engine_version    = data.huaweicloud_dms_product.test.version
-  bandwidth         = data.huaweicloud_dms_product.test.bandwidth
-  storage_space     = data.huaweicloud_dms_product.test.storage
-  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
-  manager_user      = "%s"
-  manager_password  = "%s"
-}
-
-resource "huaweicloud_dms_kafka_topic" "test" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  partitions  = 20
-}`, testAccNetwork_config(rName), rName, rName, password, rName)
+}`, rName, func_code, acceptance.HW_REGION_NAME, acceptance.HW_FGS_TRIGGER_LTS_AGENCY)
 }
