@@ -536,15 +536,16 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_lts_structuring_custom_templates": lts.DataSourceCustomTemplates(),
 
-			"huaweicloud_elb_certificate":   elb.DataSourceELBCertificateV3(),
-			"huaweicloud_elb_flavors":       elb.DataSourceElbFlavorsV3(),
-			"huaweicloud_elb_pools":         elb.DataSourcePools(),
-			"huaweicloud_elb_loadbalancers": elb.DataSourceElbLoadbalances(),
-			"huaweicloud_elb_listeners":     elb.DataSourceElbListeners(),
-			"huaweicloud_elb_members":       elb.DataSourceElbMembers(),
-			"huaweicloud_elb_ipgroups":      elb.DataSourceElbIpGroups(),
-			"huaweicloud_elb_logtanks":      elb.DataSourceElbLogtanks(),
-			"huaweicloud_elb_l7rules":       elb.DataSourceElbL7rules(),
+			"huaweicloud_elb_certificate":       elb.DataSourceELBCertificateV3(),
+			"huaweicloud_elb_flavors":           elb.DataSourceElbFlavorsV3(),
+			"huaweicloud_elb_pools":             elb.DataSourcePools(),
+			"huaweicloud_elb_loadbalancers":     elb.DataSourceElbLoadbalances(),
+			"huaweicloud_elb_listeners":         elb.DataSourceElbListeners(),
+			"huaweicloud_elb_members":           elb.DataSourceElbMembers(),
+			"huaweicloud_elb_ipgroups":          elb.DataSourceElbIpGroups(),
+			"huaweicloud_elb_logtanks":          elb.DataSourceElbLogtanks(),
+			"huaweicloud_elb_l7rules":           elb.DataSourceElbL7rules(),
+			"huaweicloud_elb_security_policies": elb.DataSourceElbSecurityPolicies(),
 
 			"huaweicloud_nat_gateway": nat.DataSourcePublicGateway(),
 
