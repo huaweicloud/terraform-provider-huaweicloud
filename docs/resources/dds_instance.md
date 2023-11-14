@@ -130,8 +130,8 @@ The following arguments are supported:
 * `disk_encryption_id` - (Optional, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
   creates a new instance.
 
-* `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. **Sharding**, **ReplicaSet**,
-  **Single** are supported. Changing this creates a new instance.
+* `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. **Sharding**, **ReplicaSet**
+  are supported. Changing this creates a new instance.
 
 * `configuration` - (Optional, List, ForceNew) Specifies the configuration information.
   The structure is described below. Changing this creates a new instance.
@@ -267,9 +267,9 @@ The `nodes` block contains:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 30 minutes.
-* `update` - Default is 30 minutes.
-* `delete` - Default is 30 minutes.
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
+* `delete` - Default is 60 minutes.
 
 ## Import
 
