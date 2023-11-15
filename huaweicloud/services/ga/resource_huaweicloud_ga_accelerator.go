@@ -198,15 +198,15 @@ func AcceleratorFrozenInfoSchema() *schema.Resource {
 }
 
 func resourceAcceleratorCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createAccelerator: Create a GA Accelerator.
 	var (
 		createAcceleratorHttpUrl = "v1/accelerators"
 		createAcceleratorProduct = "ga"
 	)
-	createAcceleratorClient, err := config.NewServiceClient(createAcceleratorProduct, region)
+	createAcceleratorClient, err := conf.NewServiceClient(createAcceleratorProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Accelerator Client: %s", err)
 	}
@@ -219,7 +219,7 @@ func resourceAcceleratorCreate(ctx context.Context, d *schema.ResourceData, meta
 			201,
 		},
 	}
-	createAcceleratorOpt.JSONBody = utils.RemoveNil(buildCreateAcceleratorBodyParams(d, config))
+	createAcceleratorOpt.JSONBody = utils.RemoveNil(buildCreateAcceleratorBodyParams(d, conf))
 	createAcceleratorResp, err := createAcceleratorClient.Request("POST", createAcceleratorPath, &createAcceleratorOpt)
 	if err != nil {
 		return diag.Errorf("error creating Accelerator: %s", err)
@@ -243,19 +243,19 @@ func resourceAcceleratorCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceAcceleratorRead(ctx, d, meta)
 }
 
-func buildCreateAcceleratorBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateAcceleratorBodyParams(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"accelerator": buildCreateAcceleratorAcceleratorChildBody(d, config),
+		"accelerator": buildCreateAcceleratorAcceleratorChildBody(d, conf),
 	}
 	return bodyParams
 }
 
-func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"ip_sets":               buildCreateAcceleratorIpSetsChildBody(d),
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, conf)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
 	return params
@@ -303,7 +303,8 @@ func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 					200,
 				},
 			}
-			createAcceleratorWaitingResp, err := createAcceleratorWaitingClient.Request("GET", createAcceleratorWaitingPath, &createAcceleratorWaitingOpt)
+			createAcceleratorWaitingResp, err := createAcceleratorWaitingClient.Request("GET",
+				createAcceleratorWaitingPath, &createAcceleratorWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -334,7 +335,6 @@ func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			return createAcceleratorWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -344,9 +344,9 @@ func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 	return err
 }
 
-func resourceAcceleratorRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -355,7 +355,7 @@ func resourceAcceleratorRead(ctx context.Context, d *schema.ResourceData, meta i
 		getAcceleratorHttpUrl = "v1/accelerators/{id}"
 		getAcceleratorProduct = "ga"
 	)
-	getAcceleratorClient, err := config.NewServiceClient(getAcceleratorProduct, region)
+	getAcceleratorClient, err := conf.NewServiceClient(getAcceleratorProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Accelerator Client: %s", err)
 	}
@@ -443,8 +443,8 @@ func flattenGetAcceleratorResponseBodyFrozenInfo(resp interface{}) []interface{}
 }
 
 func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateAcceleratorhasChanges := []string{
 		"name",
@@ -457,7 +457,7 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 			updateAcceleratorHttpUrl = "v1/accelerators/{id}"
 			updateAcceleratorProduct = "ga"
 		)
-		updateAcceleratorClient, err := config.NewServiceClient(updateAcceleratorProduct, region)
+		updateAcceleratorClient, err := conf.NewServiceClient(updateAcceleratorProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating Accelerator Client: %s", err)
 		}
@@ -471,7 +471,7 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 				200,
 			},
 		}
-		updateAcceleratorOpt.JSONBody = utils.RemoveNil(buildUpdateAcceleratorBodyParams(d, config))
+		updateAcceleratorOpt.JSONBody = utils.RemoveNil(buildUpdateAcceleratorBodyParams(d))
 		_, err = updateAcceleratorClient.Request("PUT", updateAcceleratorPath, &updateAcceleratorOpt)
 		if err != nil {
 			return diag.Errorf("error updating Accelerator: %s", err)
@@ -484,7 +484,7 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceAcceleratorRead(ctx, d, meta)
 }
 
-func buildUpdateAcceleratorBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateAcceleratorBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"accelerator": buildUpdateAcceleratorAcceleratorChildBody(d),
 	}
@@ -525,7 +525,8 @@ func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 					200,
 				},
 			}
-			updateAcceleratorWaitingResp, err := updateAcceleratorWaitingClient.Request("GET", updateAcceleratorWaitingPath, &updateAcceleratorWaitingOpt)
+			updateAcceleratorWaitingResp, err := updateAcceleratorWaitingClient.Request("GET",
+				updateAcceleratorWaitingPath, &updateAcceleratorWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -556,7 +557,6 @@ func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			return updateAcceleratorWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -567,15 +567,15 @@ func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 }
 
 func resourceAcceleratorDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteAccelerator: Delete an existing GA Accelerator
 	var (
 		deleteAcceleratorHttpUrl = "v1/accelerators/{id}"
 		deleteAcceleratorProduct = "ga"
 	)
-	deleteAcceleratorClient, err := config.NewServiceClient(deleteAcceleratorProduct, region)
+	deleteAcceleratorClient, err := conf.NewServiceClient(deleteAcceleratorProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Accelerator Client: %s", err)
 	}
@@ -627,7 +627,8 @@ func deleteAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 					200,
 				},
 			}
-			deleteAcceleratorWaitingResp, err := deleteAcceleratorWaitingClient.Request("GET", deleteAcceleratorWaitingPath, &deleteAcceleratorWaitingOpt)
+			deleteAcceleratorWaitingResp, err := deleteAcceleratorWaitingClient.Request("GET",
+				deleteAcceleratorWaitingPath, &deleteAcceleratorWaitingOpt)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					return deleteAcceleratorWaitingResp, "COMPLETED", nil
@@ -655,7 +656,6 @@ func deleteAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			return deleteAcceleratorWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,

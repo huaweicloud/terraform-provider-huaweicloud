@@ -117,15 +117,15 @@ func ResourceHealthCheck() *schema.Resource {
 }
 
 func resourceHealthCheckCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createHealthCheck: Create a GA Health Check.
 	var (
 		createHealthCheckHttpUrl = "v1/health-checks"
 		createHealthCheckProduct = "ga"
 	)
-	createHealthCheckClient, err := config.NewServiceClient(createHealthCheckProduct, region)
+	createHealthCheckClient, err := conf.NewServiceClient(createHealthCheckProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating HealthCheck Client: %s", err)
 	}
@@ -138,7 +138,7 @@ func resourceHealthCheckCreate(ctx context.Context, d *schema.ResourceData, meta
 			201,
 		},
 	}
-	createHealthCheckOpt.JSONBody = utils.RemoveNil(buildCreateHealthCheckBodyParams(d, config))
+	createHealthCheckOpt.JSONBody = utils.RemoveNil(buildCreateHealthCheckBodyParams(d))
 	createHealthCheckResp, err := createHealthCheckClient.Request("POST", createHealthCheckPath, &createHealthCheckOpt)
 	if err != nil {
 		return diag.Errorf("error creating HealthCheck: %s", err)
@@ -162,7 +162,7 @@ func resourceHealthCheckCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceHealthCheckRead(ctx, d, meta)
 }
 
-func buildCreateHealthCheckBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateHealthCheckBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"health_check": map[string]interface{}{
 			"enabled":           utils.ValueIngoreEmpty(d.Get("enabled")),
@@ -203,7 +203,8 @@ func createHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 					200,
 				},
 			}
-			createHealthCheckWaitingResp, err := createHealthCheckWaitingClient.Request("GET", createHealthCheckWaitingPath, &createHealthCheckWaitingOpt)
+			createHealthCheckWaitingResp, err := createHealthCheckWaitingClient.Request("GET",
+				createHealthCheckWaitingPath, &createHealthCheckWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -234,7 +235,6 @@ func createHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			return createHealthCheckWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -244,9 +244,9 @@ func createHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 	return err
 }
 
-func resourceHealthCheckRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceHealthCheckRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -255,7 +255,7 @@ func resourceHealthCheckRead(ctx context.Context, d *schema.ResourceData, meta i
 		getHealthCheckHttpUrl = "v1/health-checks/{id}"
 		getHealthCheckProduct = "ga"
 	)
-	getHealthCheckClient, err := config.NewServiceClient(getHealthCheckProduct, region)
+	getHealthCheckClient, err := conf.NewServiceClient(getHealthCheckProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating HealthCheck Client: %s", err)
 	}
@@ -299,8 +299,8 @@ func resourceHealthCheckRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceHealthCheckUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateHealthCheckhasChanges := []string{
 		"enabled",
@@ -317,7 +317,7 @@ func resourceHealthCheckUpdate(ctx context.Context, d *schema.ResourceData, meta
 			updateHealthCheckHttpUrl = "v1/health-checks/{id}"
 			updateHealthCheckProduct = "ga"
 		)
-		updateHealthCheckClient, err := config.NewServiceClient(updateHealthCheckProduct, region)
+		updateHealthCheckClient, err := conf.NewServiceClient(updateHealthCheckProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating HealthCheck Client: %s", err)
 		}
@@ -331,7 +331,7 @@ func resourceHealthCheckUpdate(ctx context.Context, d *schema.ResourceData, meta
 				200,
 			},
 		}
-		updateHealthCheckOpt.JSONBody = utils.RemoveNil(buildUpdateHealthCheckBodyParams(d, config))
+		updateHealthCheckOpt.JSONBody = utils.RemoveNil(buildUpdateHealthCheckBodyParams(d))
 		_, err = updateHealthCheckClient.Request("PUT", updateHealthCheckPath, &updateHealthCheckOpt)
 		if err != nil {
 			return diag.Errorf("error updating HealthCheck: %s", err)
@@ -344,7 +344,7 @@ func resourceHealthCheckUpdate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceHealthCheckRead(ctx, d, meta)
 }
 
-func buildUpdateHealthCheckBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateHealthCheckBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"health_check": map[string]interface{}{
 			"enabled":     d.Get("enabled"),
@@ -384,7 +384,8 @@ func updateHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 					200,
 				},
 			}
-			updateHealthCheckWaitingResp, err := updateHealthCheckWaitingClient.Request("GET", updateHealthCheckWaitingPath, &updateHealthCheckWaitingOpt)
+			updateHealthCheckWaitingResp, err := updateHealthCheckWaitingClient.Request("GET",
+				updateHealthCheckWaitingPath, &updateHealthCheckWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -415,7 +416,6 @@ func updateHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			return updateHealthCheckWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -426,15 +426,15 @@ func updateHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 }
 
 func resourceHealthCheckDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteHealthCheck: Delete an existing GA Health Check
 	var (
 		deleteHealthCheckHttpUrl = "v1/health-checks/{id}"
 		deleteHealthCheckProduct = "ga"
 	)
-	deleteHealthCheckClient, err := config.NewServiceClient(deleteHealthCheckProduct, region)
+	deleteHealthCheckClient, err := conf.NewServiceClient(deleteHealthCheckProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating HealthCheck Client: %s", err)
 	}
@@ -486,7 +486,8 @@ func deleteHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 					200,
 				},
 			}
-			deleteHealthCheckWaitingResp, err := deleteHealthCheckWaitingClient.Request("GET", deleteHealthCheckWaitingPath, &deleteHealthCheckWaitingOpt)
+			deleteHealthCheckWaitingResp, err := deleteHealthCheckWaitingClient.Request("GET",
+				deleteHealthCheckWaitingPath, &deleteHealthCheckWaitingOpt)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					return deleteHealthCheckWaitingResp, "COMPLETED", nil
@@ -514,7 +515,6 @@ func deleteHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			return deleteHealthCheckWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,

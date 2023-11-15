@@ -153,15 +153,15 @@ func ListenerPortRangeSchema() *schema.Resource {
 }
 
 func resourceListenerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createListener: Create a GA Listener.
 	var (
 		createListenerHttpUrl = "v1/listeners"
 		createListenerProduct = "ga"
 	)
-	createListenerClient, err := config.NewServiceClient(createListenerProduct, region)
+	createListenerClient, err := conf.NewServiceClient(createListenerProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Listener Client: %s", err)
 	}
@@ -174,7 +174,7 @@ func resourceListenerCreate(ctx context.Context, d *schema.ResourceData, meta in
 			201,
 		},
 	}
-	createListenerOpt.JSONBody = utils.RemoveNil(buildCreateListenerBodyParams(d, config))
+	createListenerOpt.JSONBody = utils.RemoveNil(buildCreateListenerBodyParams(d))
 	createListenerResp, err := createListenerClient.Request("POST", createListenerPath, &createListenerOpt)
 	if err != nil {
 		return diag.Errorf("error creating Listener: %s", err)
@@ -198,7 +198,7 @@ func resourceListenerCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceListenerRead(ctx, d, meta)
 }
 
-func buildCreateListenerBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"listener": map[string]interface{}{
 			"accelerator_id":  utils.ValueIngoreEmpty(d.Get("accelerator_id")),
@@ -289,7 +289,6 @@ func createListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			return createListenerWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -299,9 +298,9 @@ func createListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 	return err
 }
 
-func resourceListenerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceListenerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -310,7 +309,7 @@ func resourceListenerRead(ctx context.Context, d *schema.ResourceData, meta inte
 		getListenerHttpUrl = "v1/listeners/{id}"
 		getListenerProduct = "ga"
 	)
-	getListenerClient, err := config.NewServiceClient(getListenerProduct, region)
+	getListenerClient, err := conf.NewServiceClient(getListenerProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Listener Client: %s", err)
 	}
@@ -377,8 +376,8 @@ func flattenGetListenerResponseBodyResourceTag(resp interface{}) map[string]inte
 }
 
 func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateListenerhasChanges := []string{
 		"client_affinity",
@@ -393,7 +392,7 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			updateListenerHttpUrl = "v1/listeners/{id}"
 			updateListenerProduct = "ga"
 		)
-		updateListenerClient, err := config.NewServiceClient(updateListenerProduct, region)
+		updateListenerClient, err := conf.NewServiceClient(updateListenerProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating Listener Client: %s", err)
 		}
@@ -407,7 +406,7 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 				200,
 			},
 		}
-		updateListenerOpt.JSONBody = utils.RemoveNil(buildUpdateListenerBodyParams(d, config))
+		updateListenerOpt.JSONBody = utils.RemoveNil(buildUpdateListenerBodyParams(d))
 		_, err = updateListenerClient.Request("PUT", updateListenerPath, &updateListenerOpt)
 		if err != nil {
 			return diag.Errorf("error updating Listener: %s", err)
@@ -420,7 +419,7 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceListenerRead(ctx, d, meta)
 }
 
-func buildUpdateListenerBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"listener": map[string]interface{}{
 			"client_affinity": utils.ValueIngoreEmpty(d.Get("client_affinity")),
@@ -508,7 +507,6 @@ func updateListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			return updateListenerWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -519,15 +517,15 @@ func updateListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 }
 
 func resourceListenerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteListener: Delete an existing GA Listener
 	var (
 		deleteListenerHttpUrl = "v1/listeners/{id}"
 		deleteListenerProduct = "ga"
 	)
-	deleteListenerClient, err := config.NewServiceClient(deleteListenerProduct, region)
+	deleteListenerClient, err := conf.NewServiceClient(deleteListenerProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Listener Client: %s", err)
 	}
@@ -607,7 +605,6 @@ func deleteListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			return deleteListenerWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,

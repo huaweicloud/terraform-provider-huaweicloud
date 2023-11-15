@@ -15,14 +15,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getEndpointResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getEndpointResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getEndpoint: Query the GA Endpoint detail
 	var (
 		getEndpointHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}"
 		getEndpointProduct = "ga"
 	)
-	getEndpointClient, err := config.NewServiceClient(getEndpointProduct, region)
+	getEndpointClient, err := conf.NewServiceClient(getEndpointProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Endpoint Client: %s", err)
 	}
@@ -145,13 +145,13 @@ func testEndpointImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
 		if rs.Primary.Attributes["endpoint_group_id"] == "" {
-			return "", fmt.Errorf("Attribute (endpoint_group_id) of Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("attribute (endpoint_group_id) of Resource (%s) not found: %s", name, rs)
 		}
 		if rs.Primary.ID == "" {
-			return "", fmt.Errorf("Attribute (ID) of Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("attribute (ID) of Resource (%s) not found: %s", name, rs)
 		}
 
 		return rs.Primary.Attributes["endpoint_group_id"] + "/" +

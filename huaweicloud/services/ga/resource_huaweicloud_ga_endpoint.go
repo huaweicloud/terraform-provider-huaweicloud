@@ -113,15 +113,15 @@ func ResourceEndpoint() *schema.Resource {
 }
 
 func resourceEndpointCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// createEndpoint: Create a GA Endpoint.
 	var (
 		createEndpointHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints"
 		createEndpointProduct = "ga"
 	)
-	createEndpointClient, err := config.NewServiceClient(createEndpointProduct, region)
+	createEndpointClient, err := conf.NewServiceClient(createEndpointProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Endpoint Client: %s", err)
 	}
@@ -135,7 +135,7 @@ func resourceEndpointCreate(ctx context.Context, d *schema.ResourceData, meta in
 			201,
 		},
 	}
-	createEndpointOpt.JSONBody = utils.RemoveNil(buildCreateEndpointBodyParams(d, config))
+	createEndpointOpt.JSONBody = utils.RemoveNil(buildCreateEndpointBodyParams(d))
 	createEndpointResp, err := createEndpointClient.Request("POST", createEndpointPath, &createEndpointOpt)
 	if err != nil {
 		return diag.Errorf("error creating Endpoint: %s", err)
@@ -159,7 +159,7 @@ func resourceEndpointCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceEndpointRead(ctx, d, meta)
 }
 
-func buildCreateEndpointBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateEndpointBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint": map[string]interface{}{
 			"ip_address":    utils.ValueIngoreEmpty(d.Get("ip_address")),
@@ -189,7 +189,8 @@ func createEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			createEndpointWaitingPath := createEndpointWaitingClient.Endpoint + createEndpointWaitingHttpUrl
-			createEndpointWaitingPath = strings.ReplaceAll(createEndpointWaitingPath, "{endpoint_group_id}", fmt.Sprintf("%v", d.Get("endpoint_group_id")))
+			createEndpointWaitingPath = strings.ReplaceAll(createEndpointWaitingPath,
+				"{endpoint_group_id}", fmt.Sprintf("%v", d.Get("endpoint_group_id")))
 			createEndpointWaitingPath = strings.ReplaceAll(createEndpointWaitingPath, "{id}", d.Id())
 
 			createEndpointWaitingOpt := golangsdk.RequestOpts{
@@ -229,7 +230,6 @@ func createEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			return createEndpointWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -239,9 +239,9 @@ func createEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 	return err
 }
 
-func resourceEndpointRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceEndpointRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -250,7 +250,7 @@ func resourceEndpointRead(ctx context.Context, d *schema.ResourceData, meta inte
 		getEndpointHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}"
 		getEndpointProduct = "ga"
 	)
-	getEndpointClient, err := config.NewServiceClient(getEndpointProduct, region)
+	getEndpointClient, err := conf.NewServiceClient(getEndpointProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Endpoint Client: %s", err)
 	}
@@ -293,8 +293,8 @@ func resourceEndpointRead(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	updateEndpointhasChanges := []string{
 		"weight",
@@ -306,7 +306,7 @@ func resourceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			updateEndpointHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}"
 			updateEndpointProduct = "ga"
 		)
-		updateEndpointClient, err := config.NewServiceClient(updateEndpointProduct, region)
+		updateEndpointClient, err := conf.NewServiceClient(updateEndpointProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating Endpoint Client: %s", err)
 		}
@@ -321,7 +321,7 @@ func resourceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta in
 				200,
 			},
 		}
-		updateEndpointOpt.JSONBody = utils.RemoveNil(buildUpdateEndpointBodyParams(d, config))
+		updateEndpointOpt.JSONBody = utils.RemoveNil(buildUpdateEndpointBodyParams(d))
 		_, err = updateEndpointClient.Request("PUT", updateEndpointPath, &updateEndpointOpt)
 		if err != nil {
 			return diag.Errorf("error updating Endpoint: %s", err)
@@ -334,7 +334,7 @@ func resourceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceEndpointRead(ctx, d, meta)
 }
 
-func buildUpdateEndpointBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateEndpointBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint": map[string]interface{}{
 			"weight": utils.ValueIngoreEmpty(d.Get("weight")),
@@ -361,7 +361,8 @@ func updateEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			updateEndpointWaitingPath := updateEndpointWaitingClient.Endpoint + updateEndpointWaitingHttpUrl
-			updateEndpointWaitingPath = strings.ReplaceAll(updateEndpointWaitingPath, "{endpoint_group_id}", fmt.Sprintf("%v", d.Get("endpoint_group_id")))
+			updateEndpointWaitingPath = strings.ReplaceAll(updateEndpointWaitingPath,
+				"{endpoint_group_id}", fmt.Sprintf("%v", d.Get("endpoint_group_id")))
 			updateEndpointWaitingPath = strings.ReplaceAll(updateEndpointWaitingPath, "{id}", d.Id())
 
 			updateEndpointWaitingOpt := golangsdk.RequestOpts{
@@ -401,7 +402,6 @@ func updateEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			return updateEndpointWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -412,15 +412,15 @@ func updateEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 }
 
 func resourceEndpointDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	// deleteEndpoint: Delete an existing GA Endpoint
 	var (
 		deleteEndpointHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}"
 		deleteEndpointProduct = "ga"
 	)
-	deleteEndpointClient, err := config.NewServiceClient(deleteEndpointProduct, region)
+	deleteEndpointClient, err := conf.NewServiceClient(deleteEndpointProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Endpoint Client: %s", err)
 	}
@@ -465,7 +465,8 @@ func deleteEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			deleteEndpointWaitingPath := deleteEndpointWaitingClient.Endpoint + deleteEndpointWaitingHttpUrl
-			deleteEndpointWaitingPath = strings.ReplaceAll(deleteEndpointWaitingPath, "{endpoint_group_id}", fmt.Sprintf("%v", d.Get("endpoint_group_id")))
+			deleteEndpointWaitingPath = strings.ReplaceAll(deleteEndpointWaitingPath,
+				"{endpoint_group_id}", fmt.Sprintf("%v", d.Get("endpoint_group_id")))
 			deleteEndpointWaitingPath = strings.ReplaceAll(deleteEndpointWaitingPath, "{id}", d.Id())
 
 			deleteEndpointWaitingOpt := golangsdk.RequestOpts{
@@ -502,7 +503,6 @@ func deleteEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			return deleteEndpointWaitingRespBody, "PENDING", nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -513,7 +513,6 @@ func deleteEndpointWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 }
 
 func resourceEndpointImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format specified for import id, must be <endpoint_group_id>/<id>")
