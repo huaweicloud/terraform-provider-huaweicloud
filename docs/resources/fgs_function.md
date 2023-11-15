@@ -218,7 +218,8 @@ The following arguments are supported:
 
 -> If the function is created using an SWR image, keep `code_type` empty and use **-** to set the handler.
 
-* `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, defaults to **v1**.
+* `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, default value is **v2**.
+  Some regions support only v1, the default value is **v1**.
   + **v1**: Hosts event-driven functions in a serverless context.
   + **v2**: Next-generation function hosting service powered by Huawei YuanRong architecture.
 

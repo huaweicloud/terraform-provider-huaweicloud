@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getTriggerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -183,6 +182,7 @@ func TestAccFunctionGraphTrigger_lts(t *testing.T) {
 }
 
 func testAccFunctionGraphTimingTrigger_base(rName string) string {
+	//nolint:revive
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
@@ -285,6 +285,7 @@ resource "huaweicloud_fgs_trigger" "test" {
 }
 
 func testAccFunctionGraphLtsTrigger_basic(rName string) string {
+	//nolint:revive
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
@@ -327,58 +328,4 @@ resource "huaweicloud_fgs_trigger" "test" {
     log_topic_id = huaweicloud_lts_stream.test.id
   }
 }`, rName, acceptance.HW_REGION_NAME, acceptance.HW_FGS_TRIGGER_LTS_AGENCY)
-}
-
-func testAccNetwork_config(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_networking_secgroup_rule" "test" {
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 9092
-  port_range_max    = 9092
-  remote_ip_prefix  = "0.0.0.0/0"
-}`, common.TestBaseNetwork(rName))
-}
-
-func testAccDmsKafka_config(rName, password string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_dms_az" "test" {}
-
-data "huaweicloud_dms_product" "test" {
-  engine            = "kafka"
-  version           = "1.1.0"
-  instance_type     = "cluster"
-  partition_num     = 300
-  storage           = 600
-  storage_spec_code = "dms.physical.storage.high"
-}
-
-resource "huaweicloud_dms_kafka_instance" "test" {
-  name              = "%s"
-  vpc_id            = huaweicloud_vpc.test.id
-  network_id        = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  available_zones   = [data.huaweicloud_dms_az.test.id]
-  product_id        = data.huaweicloud_dms_product.test.id
-  engine_version    = data.huaweicloud_dms_product.test.version
-  bandwidth         = data.huaweicloud_dms_product.test.bandwidth
-  storage_space     = data.huaweicloud_dms_product.test.storage
-  storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
-  manager_user      = "%s"
-  manager_password  = "%s"
-}
-
-resource "huaweicloud_dms_kafka_topic" "test" {
-  instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  partitions  = 20
-}`, testAccNetwork_config(rName), rName, rName, password, rName)
 }
