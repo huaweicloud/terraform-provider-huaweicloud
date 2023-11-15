@@ -502,8 +502,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_identitycenter_groups":   identitycenter.DataSourceIdentityCenterGroups(),
 			"huaweicloud_identitycenter_users":    identitycenter.DataSourceIdentityCenterUsers(),
 
-			"huaweicloud_iec_bandwidths":     dataSourceIECBandWidths(),
-			"huaweicloud_iec_eips":           dataSourceIECNetworkEips(),
+			"huaweicloud_iec_bandwidths":     iec.DataSourceBandWidths(),
+			"huaweicloud_iec_eips":           iec.DataSourceNetworkEips(),
 			"huaweicloud_iec_flavors":        iec.DataSourceIecFlavors(),
 			"huaweicloud_iec_images":         iec.DataSourceIecImages(),
 			"huaweicloud_iec_keypair":        iec.DataSourceIECKeypair(),

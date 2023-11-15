@@ -1,23 +1,23 @@
-package huaweicloud
+package iec
 
 import (
 	"context"
+	"log"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/bandwidths"
-	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
+	ieccommon "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIECBandWidths() *schema.Resource {
+func DataSourceBandWidths() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECBandWidthsRead,
+		ReadContext: dataSourceBandWidthsRead,
 
 		Schema: map[string]*schema.Schema{
 			"site_id": {
@@ -69,11 +69,11 @@ func dataSourceIECBandWidths() *schema.Resource {
 	}
 }
 
-func dataSourceIECBandWidthsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceBandWidthsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	listOpts := bandwidths.ListOpts{
@@ -82,11 +82,11 @@ func dataSourceIECBandWidthsRead(_ context.Context, d *schema.ResourceData, meta
 
 	allBWs, err := bandwidths.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to extract iec bandwidths: %s", err)
+		return diag.Errorf("unable to extract IEC bandwidths: %s", err)
 	}
 
 	total := len(allBWs.BandWidth)
-	logp.Printf("[INFO] Retrieved [%d] IEC bandwidths using given filter", total)
+	log.Printf("[INFO] Retrieved [%d] IEC bandwidths using given filter", total)
 
 	ids := make([]string, 0, total)
 	iecBWs := make([]map[string]interface{}, total)
@@ -105,22 +105,31 @@ func dataSourceIECBandWidthsRead(_ context.Context, d *schema.ResourceData, meta
 
 	d.SetId(hashcode.Strings(ids))
 
-	if err := d.Set("bandwidths", iecBWs); err != nil {
-		return fmtp.DiagErrorf("Error saving IEC bandwidths: %s", err)
-	}
+	mErr := multierror.Append(nil,
+		d.Set("bandwidths", iecBWs),
+	)
+
 	if total > 0 {
-		d.Set("site_info", allBWs.BandWidth[0].SiteInfo)
+		mErr = multierror.Append(mErr, d.Set("site_info", allBWs.BandWidth[0].SiteInfo))
+	}
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving IEC bandwidths: %s", err)
 	}
 
 	return nil
 }
 
-func getLineName(operator iec_common.Operator) string {
+func getLineName(operator ieccommon.Operator) string {
 	if operator.Name != "" {
 		return operator.Name
-	} else if operator.I18nName != "" {
+	}
+
+	if operator.I18nName != "" {
 		return operator.I18nName
-	} else if operator.Sa != "" {
+	}
+
+	if operator.Sa != "" {
 		return operator.Sa
 	}
 
