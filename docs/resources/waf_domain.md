@@ -74,9 +74,6 @@ The following arguments are supported:
 * `policy_id` - (Optional, String, ForceNew) Specifies the policy ID associated with the domain. If not specified, a new
   policy will be created automatically. Changing this create a new domain.
 
-* `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
-  Defaults to true.
-
 * `proxy` - (Optional, Bool) Specifies whether a proxy is configured.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the domain. Valid values are *prePaid*

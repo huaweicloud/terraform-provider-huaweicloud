@@ -2,26 +2,28 @@ package waf
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var PaidType = "prePaid"
 
 const (
-	protocolHttp  = "HTTP"
-	protocolHttps = "HTTPS"
+	protocolHTTP  = "HTTP"
+	protocolHTTPS = "HTTPS"
 )
 
 func ResourceWafDomain() *schema.Resource {
@@ -32,11 +34,6 @@ func ResourceWafDomain() *schema.Resource {
 		DeleteContext: resourceWafDomainDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -55,33 +52,7 @@ func ResourceWafDomain() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"client_protocol": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								protocolHttp, protocolHttps,
-							}, false),
-						},
-						"server_protocol": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								protocolHttp, protocolHttps,
-							}, false),
-						},
-						"address": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"port": {
-							Type:         schema.TypeInt,
-							ValidateFunc: validation.IntBetween(0, 65535),
-							Required:     true,
-						},
-					},
-				},
+				Elem:     domainServerSchema(),
 			},
 			"certificate_id": {
 				Type:     schema.TypeString,
@@ -98,9 +69,9 @@ func ResourceWafDomain() *schema.Resource {
 				Computed: true,
 			},
 			"keep_policy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `schema: Deprecated; This field is useless when deleting resource.`,
 			},
 			"proxy": {
 				Type:     schema.TypeBool,
@@ -137,6 +108,49 @@ func ResourceWafDomain() *schema.Resource {
 	}
 }
 
+func domainServerSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"client_protocol": {
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					protocolHTTP, protocolHTTPS,
+				}, false),
+			},
+			"server_protocol": {
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					protocolHTTP, protocolHTTPS,
+				}, false),
+			},
+			"address": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"port": {
+				Type:         schema.TypeInt,
+				ValidateFunc: validation.IntBetween(0, 65535),
+				Required:     true,
+			},
+		},
+	}
+	return &sc
+}
+
+func buildCreateDomainHostOpts(d *schema.ResourceData, cfg *config.Config) *domains.CreateOpts {
+	return &domains.CreateOpts{
+		HostName:            d.Get("domain").(string),
+		CertificateId:       d.Get("certificate_id").(string),
+		CertificateName:     d.Get("certificate_name").(string),
+		Servers:             buildWafDomainServers(d),
+		Proxy:               utils.Bool(d.Get("proxy").(bool)),
+		PaidType:            d.Get("charging_mode").(string),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+	}
+}
+
 func buildWafDomainServers(d *schema.ResourceData) []domains.ServerOpts {
 	servers := d.Get("server").([]interface{})
 
@@ -151,36 +165,52 @@ func buildWafDomainServers(d *schema.ResourceData) []domains.ServerOpts {
 		}
 	}
 
-	log.Printf("[DEBUG] build WAF domain ServerOpts: %#v", serverOpts)
 	return serverOpts
+}
+
+func flattenDomainServerAttrs(dm *domains.Domain) []map[string]interface{} {
+	servers := make([]map[string]interface{}, len(dm.Servers))
+	for i, server := range dm.Servers {
+		servers[i] = map[string]interface{}{
+			"client_protocol": server.FrontProtocol,
+			"server_protocol": server.BackProtocol,
+			"address":         server.Address,
+			"port":            server.Port,
+		}
+	}
+	return servers
+}
+
+func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	if d.HasChanges("certificate_id", "server", "proxy") {
+		updateOpts := domains.UpdateOpts{
+			CertificateId:       d.Get("certificate_id").(string),
+			CertificateName:     d.Get("certificate_name").(string),
+			Servers:             buildWafDomainServers(d),
+			Proxy:               utils.Bool(d.Get("proxy").(bool)),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
+
+		if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
+			return fmt.Errorf("error updating WAF domain: %s", err)
+		}
+	}
+	return nil
 }
 
 func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	proxy := d.Get("proxy").(bool)
-
-	createOpts := domains.CreateOpts{
-		HostName:            d.Get("domain").(string),
-		CertificateId:       d.Get("certificate_id").(string),
-		CertificateName:     d.Get("certificate_name").(string),
-		Servers:             buildWafDomainServers(d),
-		Proxy:               &proxy,
-		PaidType:            d.Get("charging_mode").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-	}
-	log.Printf("[DEBUG] CreateOpts: %#v", createOpts)
+	createOpts := buildCreateDomainHostOpts(d, cfg)
 
 	domain, err := domains.Create(wafClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("error creating WAF Domain: %s", err)
+		return diag.Errorf("error creating WAF domain: %s", err)
 	}
-
-	log.Printf("[DEBUG] Waf domain created: %#v", domain)
 	d.SetId(domain.Id)
 
 	if v, ok := d.GetOk("policy_id"); ok {
@@ -192,61 +222,50 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 			EnterpriseProjectId: epsID,
 		}
 
-		log.Printf("[DEBUG] Bind Waf domain %s to policy %s", d.Id(), policyID)
 		_, err = policies.UpdateHosts(wafClient, policyID, updateHostsOpts).Extract()
 		if err != nil {
-			return diag.Errorf("error updating WAF Policy Hosts: %s", err)
+			return diag.Errorf("error updating WAF policy Hosts: %s", err)
 		}
 
 		// delete the policy that was auto-created by domain
 		err = policies.DeleteWithEpsID(wafClient, domain.PolicyId, epsID).ExtractErr()
 		if err != nil {
-			log.Printf("[WARN] error deleting WAF Policy %s: %s", domain.PolicyId, err)
+			log.Printf("[WARN] error deleting WAF policy %s: %s", domain.PolicyId, err)
 		}
 	}
 
 	return resourceWafDomainRead(ctx, d, meta)
 }
 
-func resourceWafDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	n, err := domains.GetWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
+	dm, err := domains.GetWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Error obtain WAF domain information")
 	}
 
-	// keep_policy and charging_mode not returned by API
+	// charging_mode not returned by API
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("domain", n.HostName),
-		d.Set("certificate_id", n.CertificateId),
-		d.Set("certificate_name", n.CertificateName),
-		d.Set("policy_id", n.PolicyId),
-		d.Set("proxy", n.Proxy),
-		d.Set("protect_status", n.ProtectStatus),
-		d.Set("access_status", n.AccessStatus),
-		d.Set("protocol", n.Protocol),
+		d.Set("domain", dm.HostName),
+		d.Set("certificate_id", dm.CertificateId),
+		d.Set("certificate_name", dm.CertificateName),
+		d.Set("policy_id", dm.PolicyId),
+		d.Set("proxy", dm.Proxy),
+		d.Set("protect_status", dm.ProtectStatus),
+		d.Set("access_status", dm.AccessStatus),
+		d.Set("protocol", dm.Protocol),
+		d.Set("server", flattenDomainServerAttrs(dm)),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting WAF fields: %s", err)
+		return diag.Errorf("error setting WAF domain fields: %s", err)
 	}
-
-	servers := make([]map[string]interface{}, len(n.Servers))
-	for i, server := range n.Servers {
-		servers[i] = map[string]interface{}{
-			"client_protocol": server.FrontProtocol,
-			"server_protocol": server.BackProtocol,
-			"address":         server.Address,
-			"port":            server.Port,
-		}
-	}
-	d.Set("server", servers)
 
 	return nil
 }
@@ -255,48 +274,13 @@ func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	if d.HasChanges("certificate_id", "server", "proxy") {
-		proxy := d.Get("proxy").(bool)
-
-		updateOpts := domains.UpdateOpts{
-			CertificateId:       d.Get("certificate_id").(string),
-			CertificateName:     d.Get("certificate_name").(string),
-			Servers:             buildWafDomainServers(d),
-			Proxy:               &proxy,
-			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		}
-
-		log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
-
-		_, err = domains.Update(wafClient, d.Id(), updateOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating WAF Domain: %s", err)
-		}
+	if err := updateWafDomain(wafClient, d, cfg); err != nil {
+		return diag.FromErr(err)
 	}
-	if d.HasChanges("proxy_id") {
-		oVal, nVal := d.GetChange("proxy_id")
-		policyId := nVal.(string)
-		epsID := cfg.GetEnterpriseProjectID(d)
-		updateHostsOpts := policies.UpdateHostsOpts{
-			Hosts:               []string{policyId},
-			EnterpriseProjectId: epsID,
-		}
 
-		log.Printf("[DEBUG] Bind Waf domain %s to policy %s", d.Id(), policyId)
-		_, err = policies.UpdateHosts(wafClient, policyId, updateHostsOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating WAF Policy Hosts: %s", err)
-		}
-
-		// delete the old policy
-		err = policies.DeleteWithEpsID(wafClient, oVal.(string), epsID).ExtractErr()
-		if err != nil {
-			log.Printf("[WARN] error deleting WAF Policy %s: %s", oVal.(string), err)
-		}
-	}
 	return resourceWafDomainRead(ctx, d, meta)
 }
 
@@ -304,17 +288,16 @@ func resourceWafDomainDelete(_ context.Context, d *schema.ResourceData, meta int
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating  WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	delOpts := domains.DeleteOpts{
 		KeepPolicy:          d.Get("keep_policy").(bool),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	log.Printf("[DEBUG] delete WAF Domain: %#v", d.Get("keep_policy"))
 	err = domains.Delete(wafClient, d.Id(), delOpts).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF Domain: %s", err)
+		return diag.Errorf("error deleting WAF domain: %s", err)
 	}
 
 	d.SetId("")
