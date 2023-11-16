@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 // Service contains the response of the VPC endpoint service
@@ -223,4 +224,16 @@ func (r ListPermResult) ExtractPermissions() ([]Permission, error) {
 		return nil, err
 	}
 	return s.Permissions, nil
+}
+
+// PublicServicePage is a single page maximum result representing a query by offset page.
+type PublicServicePage struct {
+	pagination.OffsetPageBase
+}
+
+// extractPublicService is a method to extract the list of tags supported PublicService.
+func extractPublicService(r pagination.Page) ([]PublicService, error) {
+	var s []PublicService
+	err := r.(PublicServicePage).Result.ExtractIntoSlicePtr(&s, "endpoint_services")
+	return s, err
 }

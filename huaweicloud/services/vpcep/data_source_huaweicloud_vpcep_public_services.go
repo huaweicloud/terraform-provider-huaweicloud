@@ -76,7 +76,7 @@ func dataSourceVpcepPublicRead(_ context.Context, d *schema.ResourceData, meta i
 		ID:          d.Get("service_id").(string),
 	}
 
-	allServices, err := services.ListPublic(vpcepClient, listOpts)
+	allServices, err := services.ListAllPublics(vpcepClient, listOpts)
 	if err != nil {
 		return diag.Errorf("unable to retrieve VPC endpoint public services: %s", err)
 	}
