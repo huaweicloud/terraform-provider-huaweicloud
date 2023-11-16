@@ -42,7 +42,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds read replica instance resource. If
   omitted, the provider-level region will be used.
   Changing this parameter will create a new resource.
-  Currently, read replicas can be created *only* in the same region as that of the primary DB instance.
+  Currently, read replicas can be created **only** in the same region as that of the primary DB instance.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the AZ name. Changing this parameter will create a new
   resource.
@@ -146,9 +146,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the instance status.
 
-* `type` -  Indicates the type of the read replica instance. Value: **Single**, **Ha**, **Replica**, **Enterprise**.
+* `type` -  Indicates the type of the read replica instance. The value can be **Single**, **Ha**, **Replica**,
+  **Enterprise**.
 
-* `db/type` -  Indicates the DB engine. Value: **MySQL**, **PostgreSQL**, **SQLServer**.
+* `db/type` -  Indicates the DB engine. The value can be **MySQL**, **PostgreSQL**, **SQLServer**, **MariaDB**.
 
 * `db/version` -  Indicates the database version.
 

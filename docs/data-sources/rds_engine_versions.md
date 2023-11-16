@@ -20,7 +20,7 @@ data "huaweicloud_rds_engine_versions" "test" {
   If omitted, the provider-level region will be used.
 
 * `type` - (Optional, String) Specifies the RDS engine type.
-  The valid values are **MySQL**, **PostgreSQL** and **SQLServer**, default to **MySQL**.
+  The valid values are **MySQL**, **PostgreSQL**, **SQLServer** and **MariaDB**, default to **MySQL**.
 
 ## Attribute Reference
 

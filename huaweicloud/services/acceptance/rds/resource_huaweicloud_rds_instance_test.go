@@ -280,6 +280,35 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_mariadb(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+	pwd := fmt.Sprintf("%s%s%s%d", acctest.RandString(8), acctest.RandStringFromCharSet(1, "!#%^*"),
+		acctest.RandStringFromCharSet(1, "ABCDEFG"), acctest.RandIntRange(10, 99))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_mariadb(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_rds_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
+				),
+			},
+		},
+	})
+}
+
 func TestAccRdsInstance_prePaid(t *testing.T) {
 	var (
 		instance instances.RdsInstanceResponse
@@ -921,6 +950,40 @@ resource "huaweicloud_rds_instance" "test" {
     type     = "SQLServer"
     version  = "2017_EE"
     port     = 8635
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+}
+`, testAccRdsInstance_base(), name, pwd)
+}
+
+func testAccRdsInstance_mariadb(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MariaDB"
+  db_version    = "10.5"
+  instance_mode = "single"
+  group_type    = "dedicated"
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  db {
+    password = "%[3]s"
+    type     = "MariaDB"
+    version  = "10.5"
+    port     = 3306
   }
 
   volume {

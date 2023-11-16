@@ -24,7 +24,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the data source.
   If omitted, the provider-level region will be used.
 
-* `db_type` - (Required, String) DB engine. The valid values are **MySQL**, **PostgreSQL**, **SQLServer**.
+* `db_type` - (Required, String) DB engine. The valid values are **MySQL**, **PostgreSQL**, **SQLServer**, **MariaDB**.
 
 * `db_version` - (Required, String) DB version number.
 

@@ -90,7 +90,7 @@ The `backups` block supports:
 The `datastore` block supports:
 
 * `type` - DB engine.  
-The value can be: **MySQL**, **PostgreSQL**, **SQLServer**.
+The value can be **MySQL**, **PostgreSQL**, **SQLServer**, **MariaDB**.
 
 * `version` - DB engine version.
 

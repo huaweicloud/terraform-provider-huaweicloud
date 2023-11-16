@@ -43,14 +43,15 @@ The following arguments are supported:
 
 The `datastore` block supports:
 
-* `type` - (Required, String) The DB engine. Currently, MySQL, PostgreSQL, and Microsoft SQL Server are supported. The
-  value is case-insensitive and can be mysql, postgresql, or sqlserver.
+* `type` - (Required, String) The DB engine. Currently, MySQL, PostgreSQL, Microsoft SQL Server and MariaDB are supported.
+  The value is case-insensitive and can be **mysql**, **postgresql**, **sqlserver**, or **mariadb**.
 
 * `version` - (Required, String) Specifies the database version.
 
   + MySQL databases support MySQL 5.6 and 5.7. Example value: 5.7.
   + PostgreSQL databases support PostgreSQL 9.5 and 9.6. Example value: 9.5.
   + Microsoft SQL Server databases support 2014 SE, 2016 SE, and 2016 EE. Example value: 2014_SE.
+  + MariaDB databases support MariaDB 10.5. Example value: 10.5.
 
 ## Attribute Reference
 
