@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 // PostOptsBuilder allows extensions to add parameters to the
@@ -134,6 +135,22 @@ type ListOpts struct {
 	ID          string `q:"id"`
 	// Status is not supported for ListPublic
 	Status string `q:"status"`
+	// Number of records to be queried.
+	// The valid value is range from 1 to 1000, defaults to 10.
+	Limit int `q:"limit"`
+	// Specifies the index position, which starts from the next data record specified by offset.
+	// The value must be a number and connot be a negative number, defaults to 0.
+	Offset int `q:"offset"`
+	// Specifies the sorting field of the VPC endpoint services, which can be:
+	// create_at: VPC endpoint services are sorted by creation time.
+	// update_at: VPC endpoint services are sorted by update time. The default field is create_at.
+	// Default: create_at
+	SortKey string `q:"sort_key"`
+	// Specifies the sorting method of VPC endpoint services, which can be:
+	// desc: VPC endpoint services are sorted in descending order.
+	// asc: VPC endpoint services are sorted in ascending order. The default method is desc.
+	// Default: desc
+	SortDir string `q:"sort_dir"`
 }
 
 // ToListQuery formats a ListOpts into a query string.
@@ -188,6 +205,25 @@ func ListPublic(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]Public
 	}
 
 	return allNodes, nil
+}
+
+// ListAllPublics is a method to query the supported PublicService list using given parameters.
+func ListAllPublics(client *golangsdk.ServiceClient, opts ListOpts) ([]PublicService, error) {
+	url := publicResourceURL(client)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	pages, err := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		p := PublicServicePage{pagination.OffsetPageBase{PageResult: r}}
+		return p
+	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	return extractPublicService(pages)
 }
 
 // ConnActionOpts used to receive or reject a VPC endpoint for a VPC endpoint service.
