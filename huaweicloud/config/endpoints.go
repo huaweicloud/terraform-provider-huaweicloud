@@ -739,6 +739,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "SCM",
 	},
+	"ccm": {
+		Name:             "ccm",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Product:          "CCM",
+	},
 
 	// catalog for cc
 	"cc": {
