@@ -231,7 +231,8 @@ func ltsResourceImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 5)
 	if len(parts) != 5 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <id>/<log_group_id>/<log_group_name>/<log_stream_id>/<log_stream_name>")
+		return nil, fmt.Errorf("invalid format specified for import id, " +
+			"must be <id>/<log_group_id>/<log_group_name>/<log_stream_id>/<log_stream_name>")
 	}
 
 	d.SetId(parts[0])

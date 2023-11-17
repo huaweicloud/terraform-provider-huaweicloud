@@ -26,9 +26,9 @@ func getLtsStructTemplateFunc(conf *config.Config, state *terraform.ResourceStat
 		return nil, fmt.Errorf("error getting HuaweiCloud Resource")
 	}
 	body = body[1 : len(body)-1]
-	body2 := strings.Replace(string(body), `\\\`, "**", -1)
-	body3 := strings.Replace(body2, `\`, "", -1)
-	body4 := strings.Replace(body3, "**", `\`, -1)
+	body2 := strings.ReplaceAll(string(body), `\\\`, "**")
+	body3 := strings.ReplaceAll(body2, `\`, "")
+	body4 := strings.ReplaceAll(body3, "**", `\`)
 	rlt := &entity.ShowStructTemplateResponse{}
 	err = json.Unmarshal([]byte(body4), rlt)
 

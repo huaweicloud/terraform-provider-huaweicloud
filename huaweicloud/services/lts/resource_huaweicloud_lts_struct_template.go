@@ -202,9 +202,9 @@ func resourceLtsStructTemplateRead(_ context.Context, d *schema.ResourceData, me
 		return diags
 	}
 	body = body[1 : len(body)-1]
-	body2 := strings.Replace(string(body), `\\\`, "**", -1)
-	body3 := strings.Replace(body2, `\`, "", -1)
-	body4 := strings.Replace(body3, "**", `\`, -1)
+	body2 := strings.ReplaceAll(string(body), `\\\`, "**")
+	body3 := strings.ReplaceAll(body2, `\`, "")
+	body4 := strings.ReplaceAll(body3, "**", `\`)
 	rlt := &entity.ShowStructTemplateResponse{}
 	err = json.Unmarshal([]byte(body4), rlt)
 	if err != nil {
@@ -255,7 +255,7 @@ func resourceLtsStructTemplateDelete(_ context.Context, d *schema.ResourceData, 
 	return diag.Errorf("error delete StructTemplate %s:  %s", d.Id(), string(body))
 }
 
-func resourceLtsStructTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLtsStructTemplateUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "lts", region)
