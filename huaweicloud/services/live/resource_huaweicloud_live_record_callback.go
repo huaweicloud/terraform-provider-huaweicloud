@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
+	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -84,7 +84,7 @@ func resourceRecordCallbackCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating Live v1 client: %s", err)
 	}
 
-	createBody, err := buildCallbackConfigParams(d, region)
+	createBody, err := buildCallbackConfigParams(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -109,7 +109,7 @@ func resourceRecordCallbackCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceRecordCallbackRead(ctx, d, meta)
 }
 
-func resourceRecordCallbackRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRecordCallbackRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcLiveV1Client(region)
@@ -140,7 +140,7 @@ func resourceRecordCallbackUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating Live v1 client: %s", err)
 	}
 
-	updateBody, err := buildCallbackConfigParams(d, region)
+	updateBody, err := buildCallbackConfigParams(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -157,7 +157,7 @@ func resourceRecordCallbackUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceRecordCallbackRead(ctx, d, meta)
 }
 
-func resourceRecordCallbackDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRecordCallbackDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcLiveV1Client(region)
@@ -176,7 +176,7 @@ func resourceRecordCallbackDelete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func buildCallbackConfigParams(d *schema.ResourceData, region string) (*model.RecordCallbackConfigRequest, error) {
+func buildCallbackConfigParams(d *schema.ResourceData) (*model.RecordCallbackConfigRequest, error) {
 	v := d.Get("types").([]interface{})
 	events := make([]model.RecordCallbackConfigRequestNotifyEventSubscription, len(v))
 	for i, v := range v {
@@ -196,10 +196,9 @@ func buildCallbackConfigParams(d *schema.ResourceData, region string) (*model.Re
 	}
 
 	return &req, nil
-
 }
 
-func getRecordCallBackId(client *v1.LiveClient, publishDomain, appName string) (string, error) {
+func getRecordCallBackId(client *livev1.LiveClient, publishDomain, appName string) (string, error) {
 	resp, err := client.ListRecordCallbackConfigs(&model.ListRecordCallbackConfigsRequest{
 		PublishDomain: &publishDomain,
 		App:           &appName,
