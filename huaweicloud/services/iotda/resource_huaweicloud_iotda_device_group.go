@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	v5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
+	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -212,7 +212,7 @@ func resourceDeviceGroupDelete(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func addDevicesToGroup(client *v5.IoTDAClient, groupId string, addIds *schema.Set) error {
+func addDevicesToGroup(client *iotdav5.IoTDAClient, groupId string, addIds *schema.Set) error {
 	for _, v := range addIds.List() {
 		_, err := client.CreateOrDeleteDeviceInGroup(&model.CreateOrDeleteDeviceInGroupRequest{
 			GroupId:  groupId,
@@ -227,7 +227,7 @@ func addDevicesToGroup(client *v5.IoTDAClient, groupId string, addIds *schema.Se
 	return nil
 }
 
-func deleteDevicesFromGroup(client *v5.IoTDAClient, groupId string, addIds *schema.Set) error {
+func deleteDevicesFromGroup(client *iotdav5.IoTDAClient, groupId string, addIds *schema.Set) error {
 	for _, v := range addIds.List() {
 		_, err := client.CreateOrDeleteDeviceInGroup(&model.CreateOrDeleteDeviceInGroupRequest{
 			GroupId:  groupId,
@@ -242,7 +242,7 @@ func deleteDevicesFromGroup(client *v5.IoTDAClient, groupId string, addIds *sche
 	return nil
 }
 
-func setDeviceIdsToState(d *schema.ResourceData, client *v5.IoTDAClient, groupId string) error {
+func setDeviceIdsToState(d *schema.ResourceData, client *iotdav5.IoTDAClient, groupId string) error {
 	var rst []string
 	var marker *string
 	for {

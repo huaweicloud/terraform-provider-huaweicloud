@@ -206,7 +206,7 @@ func ResourceProduct() *schema.Resource {
 
 // propertySchema get the schema define for services.properties; services.commands.paras; services.commands.responses
 func propertySchema(category string) *schema.Resource {
-	common := schema.Resource{
+	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -276,13 +276,13 @@ func propertySchema(category string) *schema.Resource {
 	}
 
 	if category == "services.properties" {
-		common.Schema["method"] = &schema.Schema{
+		sc.Schema["method"] = &schema.Schema{
 			Type:         schema.TypeString,
 			Required:     true,
 			ValidateFunc: validation.StringInSlice([]string{"RW", "W", "R"}, false),
 		}
 	}
-	return &common
+	return &sc
 }
 
 func ResourceProductCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
