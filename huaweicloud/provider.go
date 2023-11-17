@@ -739,6 +739,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_notification":     as.ResourceAsNotification(),
 			"huaweicloud_as_policy":           as.ResourceASPolicy(),
 			"huaweicloud_as_bandwidth_policy": as.ResourceASBandWidthPolicy(),
+			"huaweicloud_as_planned_task":     as.ResourcePlannedTask(),
 
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": resourceBCSInstanceV2(),
