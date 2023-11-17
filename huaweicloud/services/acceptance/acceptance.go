@@ -474,6 +474,13 @@ func TestAccPreCheckProjectId(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDestProjectIds(t *testing.T) {
+	if HW_DEST_PROJECT_ID == "" || HW_DEST_PROJECT_ID_TEST == "" {
+		t.Skip("HW_DEST_PROJECT_ID and HW_DEST_PROJECT_ID_TEST must be set for acceptance test.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckProject(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID_TEST != "" {
 		t.Skip("This environment does not support project tests")
