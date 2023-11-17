@@ -874,6 +874,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_ptrrecord":   dns.ResourceDNSPtrRecord(),
 			"huaweicloud_dns_recordset":   dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":        dns.ResourceDNSZone(),
+			"huaweicloud_dns_endpoint":    dns.ResourceDNSEndpoint(),
 
 			"huaweicloud_drs_job": drs.ResourceDrsJob(),
 
