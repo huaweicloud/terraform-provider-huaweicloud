@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
+	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -129,7 +129,7 @@ func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return resourceDomainRead(ctx, d, meta)
 }
 
-func resourceDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
 	client, err := c.HcLiveV1Client(region)
@@ -232,7 +232,7 @@ func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func associatingDomain(d *schema.ResourceData, client *v1.LiveClient) error {
+func associatingDomain(d *schema.ResourceData, client *livev1.LiveClient) error {
 	if v, ok := d.GetOk("ingest_domain_name"); ok {
 		domainType := d.Get("type").(string)
 		if domainType == domainTypePush {
@@ -251,10 +251,9 @@ func associatingDomain(d *schema.ResourceData, client *v1.LiveClient) error {
 	}
 
 	return nil
-
 }
 
-func deleteAssociation(client *v1.LiveClient, pullDomain, pushDomain string) error {
+func deleteAssociation(client *livev1.LiveClient, pullDomain, pushDomain string) error {
 	_, err := client.DeleteDomainMapping(&model.DeleteDomainMappingRequest{
 		PullDomain: pullDomain,
 		PushDomain: pushDomain,
@@ -264,7 +263,6 @@ func deleteAssociation(client *v1.LiveClient, pullDomain, pushDomain string) err
 	}
 
 	return nil
-
 }
 
 func buildCreateParams(d *schema.ResourceData, region string) (*model.CreateDomainRequest, error) {
@@ -283,10 +281,9 @@ func buildCreateParams(d *schema.ResourceData, region string) (*model.CreateDoma
 		},
 	}
 	return &req, nil
-
 }
 
-func waitingForDomainStatus(ctx context.Context, client *v1.LiveClient, name string,
+func waitingForDomainStatus(ctx context.Context, client *livev1.LiveClient, name string,
 	status model.DecoupledLiveDomainInfoStatus, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"Pending"},
@@ -319,7 +316,7 @@ func waitingForDomainStatus(ctx context.Context, client *v1.LiveClient, name str
 	return nil
 }
 
-func updateStatus(ctx context.Context, d *schema.ResourceData, client *v1.LiveClient) error {
+func updateStatus(ctx context.Context, d *schema.ResourceData, client *livev1.LiveClient) error {
 	var reqStatus model.LiveDomainModifyReqStatus
 	var respStatus model.DecoupledLiveDomainInfoStatus
 
