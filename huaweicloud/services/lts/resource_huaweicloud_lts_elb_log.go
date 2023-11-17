@@ -56,19 +56,19 @@ func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	LogTank := entity.CreateLogTankOption{
+	logTank := entity.CreateLogTankOption{
 		LogGroupId:     d.Get("log_group_id").(string),
 		LoadBalancerId: d.Get("loadbalancer_id").(string),
 		LogTopicId:     d.Get("log_topic_id").(string),
 	}
-	LogTankRequest := entity.CreateLogtankRequestBody{
-		Logtank: &LogTank,
+	logTankRequest := entity.CreateLogtankRequestBody{
+		Logtank: &logTank,
 	}
 	client.WithMethod(httpclient_go.MethodPost).WithUrl("v3/" + cfg.GetProjectID(region) + "/elb/logtanks").WithHeader(header).
-		WithBody(LogTankRequest).WithTransport()
+		WithBody(logTankRequest).WithTransport()
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error creating LogTank fields %s: %s", LogTankRequest.Logtank.LogGroupId, err)
+		return diag.Errorf("error creating LogTank fields %s: %s", logTankRequest.Logtank.LogGroupId, err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
@@ -84,7 +84,7 @@ func resourceLtsElbCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		d.SetId(rlt.Logtank.ID)
 		return resourceLtsElbRead(ctx, d, meta)
 	}
-	return diag.Errorf("error creating LogTank fields %s: %s", LogTankRequest.Logtank.LogGroupId, string(body))
+	return diag.Errorf("error creating LogTank fields %s: %s", logTankRequest.Logtank.LogGroupId, string(body))
 }
 
 func resourceLtsElbRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -145,7 +145,7 @@ func resourceLtsElbDelete(_ context.Context, d *schema.ResourceData, meta interf
 	return diag.Errorf("error delete LogTank %s:  %s", d.Id(), string(body))
 }
 
-func resourceLtsElbUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLtsElbUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := httpclient_go.NewHttpClientGo(cfg, "elb", region)
@@ -154,15 +154,15 @@ func resourceLtsElbUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 	header := make(map[string]string)
 	header["content-type"] = "application/json;charset=UTF8"
-	LogTankRequest := entity.CreateLogTankOption{
+	logTankRequest := entity.CreateLogTankOption{
 		LogGroupId: d.Get("log_group_id").(string),
 		LogTopicId: d.Get("log_topic_id").(string),
 	}
 	client.WithMethod(httpclient_go.MethodPut).WithUrl("v3/" + cfg.GetProjectID(region) + "/elb/logtanks/" + d.Id()).
-		WithHeader(header).WithBody(LogTankRequest).WithTransport()
+		WithHeader(header).WithBody(logTankRequest).WithTransport()
 	response, err := client.Do()
 	if err != nil {
-		return diag.Errorf("error update LogTank fields %s: %s", LogTankRequest, err)
+		return diag.Errorf("error update LogTank fields %s: %s", logTankRequest, err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
