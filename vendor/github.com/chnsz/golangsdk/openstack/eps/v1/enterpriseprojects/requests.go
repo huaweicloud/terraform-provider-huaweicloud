@@ -9,9 +9,12 @@ var RequestOpts = golangsdk.RequestOpts{
 }
 
 type ListOpts struct {
-	Name   string `q:"name"`
-	ID     string `q:"id"`
-	Status int    `q:"status"`
+	Name    string `q:"name"`
+	ID      string `q:"id"`
+	Status  int    `q:"status"`
+	Type    string `q:"type"`
+	SortKey string `q:"sort_key"`
+	SortDir string `q:"sort_dir"`
 }
 
 func (opts ListOpts) ToEnterpriseProjectListQuery() (string, error) {
