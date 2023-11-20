@@ -459,6 +459,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_broker":    dms.DataSourceDmsRocketMQBroker(),
 			"huaweicloud_dms_rocketmq_instances": dms.DataSourceDmsRocketMQInstances(),
 			"huaweicloud_dms_rocketmq_topics":    dms.DataSourceDmsRocketMQTopics(),
+			"huaweicloud_dms_rocketmq_users":     dms.DataSourceDmsRocketMQUsers(),
 
 			"huaweicloud_dns_zones":      dns.DataSourceZones(),
 			"huaweicloud_dns_recordsets": dns.DataSourceRecordsets(),

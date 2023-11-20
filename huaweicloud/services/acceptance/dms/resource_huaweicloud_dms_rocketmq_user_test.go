@@ -129,9 +129,12 @@ func testDmsRocketMQUser_basic(name string) string {
 %s
 
 resource "huaweicloud_dms_rocketmq_user" "test" {
-  instance_id = huaweicloud_dms_rocketmq_instance.test.id
-  access_key  = "testRocketmqAK"
-  secret_key  = "testRocketmqSK123"
+  instance_id          = huaweicloud_dms_rocketmq_instance.test.id
+  access_key           = "testRocketmqAK"
+  secret_key           = "testRocketmqSK123"
+  white_remote_address = "10.10.10.20"
+  default_topic_perm   = "SUB"
+  default_group_perm   = "PUB"
 }
 `, testAccDmsRocketmqUser_base(name))
 }
