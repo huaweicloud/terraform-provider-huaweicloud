@@ -252,17 +252,22 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	createOpts := services.CreateOpts{
-		VpcID:        d.Get("vpc_id").(string),
-		PortID:       d.Get("port_id").(string),
-		ServerType:   d.Get("server_type").(string),
-		ServiceName:  d.Get("name").(string),
-		ServiceType:  d.Get("service_type").(string),
-		Description:  d.Get("description").(string),
-		Approval:     utils.Bool(d.Get("approval").(bool)),
-		Ports:        buildPortMappingOpts(d),
-		Tags:         utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-		EnablePolicy: utils.Bool(d.Get("enable_policy").(bool)),
+		VpcID:       d.Get("vpc_id").(string),
+		PortID:      d.Get("port_id").(string),
+		ServerType:  d.Get("server_type").(string),
+		ServiceName: d.Get("name").(string),
+		ServiceType: d.Get("service_type").(string),
+		Description: d.Get("description").(string),
+		Approval:    utils.Bool(d.Get("approval").(bool)),
+		Ports:       buildPortMappingOpts(d),
+		Tags:        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
+
+	// The European station does not support this parameter, so set it separately.
+	if d.Get("enable_policy").(bool) {
+		createOpts.EnablePolicy = utils.Bool(true)
+	}
+
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := services.Create(vpcepClient, createOpts).Extract()
 	if err != nil {
