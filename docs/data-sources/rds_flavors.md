@@ -21,7 +21,8 @@ data "huaweicloud_rds_flavors" "flavor" {
 * `region` - (Optional, String) The region in which to obtain the RDS flavors. If omitted, the provider-level region
   will be used.
 
-* `db_type` - (Required, String) Specifies the DB engine. Value: MySQL, PostgreSQL, SQLServer.
+* `db_type` - (Required, String) Specifies the DB engine. The value can be **MySQL**, **PostgreSQL**, **SQLServer**,
+  **MariaDB**.
 
 * `db_version` - (Optional, String) Specifies the database version. For more detail, please see
 [DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
@@ -33,10 +34,11 @@ type | version
 MySQL| 5.6 <br>5.7 <br>8.0
 PostgreSQL | 9.5 <br> 9.6 <br>10 <br>11 <br>12 <br>13
 SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>2017_SE <br>2012_EE <br>2014_EE <br>2016_EE <br>2017_EE <br>2012_WEB <br>2014_WEB <br>2016_WEB <br>2017_WEB
+MariaDB| 10.5
 <!-- markdownlint-enable MD033 -->
 
-* `instance_mode` - (Optional, String) The mode of instance. Value: *ha*(indicates primary/standby instance),
-  *single*(indicates single instance) and *replica*(indicates read replicas).
+* `instance_mode` - (Optional, String) The mode of instance. The value can be **ha**(indicates primary/standby
+  instance), **single**(indicates single instance) and **replica**(indicates read replicas).
 
 * `vcpus` - (Optional, Int) Specifies the number of vCPUs in the RDS flavor.
 

@@ -31,7 +31,7 @@ func DataSourceRdsFlavor() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"MySQL", "PostgreSQL", "SQLServer",
+					"MySQL", "PostgreSQL", "SQLServer", "MariaDB",
 				}, true),
 			},
 			"db_version": {

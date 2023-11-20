@@ -21,9 +21,11 @@ data "huaweicloud_rds_instances" "this" {
 
 * `name` - (Optional, String) Specifies the name of the instance.
 
-* `type` - (Optional, String) Specifies the type of the instance. Valid values are: Single, Ha, Replica, and Enterprise.
+* `type` - (Optional, String) Specifies the type of the instance. Valid values are **Single**, **Ha**, **Replica**,
+  and **Enterprise**.
 
-* `datastore_type` - (Optional, String) Specifies the type of the database. Valid values are: MySQL, PostgreSQL, and SQLServer.
+* `datastore_type` - (Optional, String) Specifies the type of the database. Valid values are **MySQL**, **PostgreSQL**,
+  **SQLServer** and **MariaDB**.
 
 * `vpc_id` - (Optional, String) Specifies the VPC ID.
 
