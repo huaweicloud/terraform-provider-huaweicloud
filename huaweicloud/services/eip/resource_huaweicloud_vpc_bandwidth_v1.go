@@ -86,12 +86,12 @@ func resourceVpcBandWidthV1Update(ctx context.Context, d *schema.ResourceData, m
 	region := cfg.GetRegion(d)
 	networkingClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating networking client: %s", err)
+		return diag.Errorf("error creating networking V1 client: %s", err)
 	}
 
-	bssClient, err := cfg.BssV1Client(region)
+	_, err = cfg.BssV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating BSS V2 client: %s", err)
+		return diag.Errorf("error creating BSS V1 client: %s", err)
 	}
 
 	bwID := d.Id()
@@ -102,30 +102,10 @@ func resourceVpcBandWidthV1Update(ctx context.Context, d *schema.ResourceData, m
 				Size: d.Get("size").(int),
 			},
 		}
-
-		// ExtendParam is valid and mandatory when changing size field in pre-paid billing mode
-		if d.HasChange("size") && d.Get("charging_mode").(string) == "prePaid" {
-			updateOpts.ExtendParam = &bandwidths.ExtendParam{
-				IsAutoPay: "true",
-			}
-		}
-
 		log.Printf("[DEBUG] bandwidth update options: %#v", updateOpts)
-		resp, err := bandwidths.Update(networkingClient, bwID, updateOpts).Extract()
+		_, err := bandwidths.Update(networkingClient, bwID, updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating bandwidth (%s): %s", bwID, err)
-		}
-
-		if resp.OrderID != "" {
-			if err := common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate)); err != nil {
-				return diag.FromErr(err)
-			}
-		}
-	}
-
-	if d.HasChange("auto_renew") {
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), bwID); err != nil {
-			return diag.Errorf("error updating the auto-renew of the bandwidth (%s): %s", bwID, err)
 		}
 	}
 
