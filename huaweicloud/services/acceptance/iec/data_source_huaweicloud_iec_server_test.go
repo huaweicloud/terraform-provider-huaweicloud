@@ -1,4 +1,4 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIECServerDataSource_basic(t *testing.T) {
@@ -13,9 +15,9 @@ func TestAccIECServerDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_iec_server.server_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecServerDestory,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIecServerDestory,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIecServer_basic(rName),
@@ -29,7 +31,7 @@ func TestAccIECServerDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "security_groups.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "volume_attached.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.boot_index", "0"),
-					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.type", "SAS"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.type", "GPSSD"),
 					resource.TestCheckResourceAttr(resourceName, "volume_attached.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
