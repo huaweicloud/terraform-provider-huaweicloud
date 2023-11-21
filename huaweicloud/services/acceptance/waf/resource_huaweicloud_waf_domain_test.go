@@ -53,13 +53,20 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDomainV1_update(randName, domainName),
+				Config: testAccWafDomainV1_update1(randName, domainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
+				),
+			},
+			{
+				Config: testAccWafDomainV1_update2(randName, domainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
 				),
 			},
 			{
@@ -155,9 +162,7 @@ func TestAccWafDomainV1_withPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
-
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "policy_id",
-						"${huaweicloud_waf_policy.policy_1.id}"),
+					resource.TestCheckResourceAttrPair(resourceName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
 				),
 			},
 		},
@@ -202,7 +207,15 @@ func TestAccWafDomainV1_postPaid(t *testing.T) {
 
 func testAccWafDomainV1_base(randName string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_waf_cloud_instance" "test" {
+  resource_spec_code    = "enterprise"
+  enterprise_project_id = "0"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "false"
+}
 
 resource "huaweicloud_waf_certificate" "certificate_1" {
   name = "%s"
@@ -266,7 +279,7 @@ EOT
     huaweicloud_waf_cloud_instance.test
   ]
 }
-`, testAccCloudInstance_basic, randName)
+`, randName)
 }
 
 func testAccWafDomainV1_basic(randName, domainName string) string {
@@ -277,7 +290,6 @@ resource "huaweicloud_waf_domain" "domain_1" {
   domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
-  keep_policy      = false
   proxy            = false
 
   server {
@@ -290,7 +302,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
 `, testAccWafDomainV1_base(randName), domainName)
 }
 
-func testAccWafDomainV1_update(randName, domainName string) string {
+func testAccWafDomainV1_update1(randName, domainName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -298,7 +310,35 @@ resource "huaweicloud_waf_domain" "domain_1" {
   domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
-  keep_policy      = false
+  proxy            = true
+
+  server {
+    client_protocol = "HTTPS"
+    server_protocol = "HTTP"
+    address         = "119.8.0.14"
+    port            = 8443
+  }
+}
+`, testAccWafDomainV1_base(randName), domainName)
+}
+
+func testAccWafDomainV1_update2(randName, domainName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_policy" "policy_1" {
+  name = "%[2]s"
+  
+  depends_on = [
+    huaweicloud_waf_cloud_instance.test
+  ]
+}
+
+resource "huaweicloud_waf_domain" "domain_1" {
+  domain           = "%[2]s"
+  certificate_id   = huaweicloud_waf_certificate.certificate_1.id
+  certificate_name = huaweicloud_waf_certificate.certificate_1.name
+  policy_id        = huaweicloud_waf_policy.policy_1.id
   proxy            = true
 
   server {

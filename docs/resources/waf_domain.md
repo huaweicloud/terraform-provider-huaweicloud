@@ -71,8 +71,8 @@ The following arguments are supported:
 * `certificate_name` - (Optional, String) Specifies the certificate name. This parameter is mandatory
   when `client_protocol` is set to HTTPS.
 
-* `policy_id` - (Optional, String, ForceNew) Specifies the policy ID associated with the domain. If not specified, a new
-  policy will be created automatically. Changing this create a new domain.
+* `policy_id` - (Optional, String) Specifies the policy ID associated with the domain. If not specified, a new
+  policy will be created automatically.
 
 * `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
   Defaults to true.

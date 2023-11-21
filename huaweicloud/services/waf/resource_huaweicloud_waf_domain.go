@@ -3,7 +3,6 @@ package waf
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
-	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -65,7 +63,6 @@ func ResourceWafDomain() *schema.Resource {
 			"policy_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"keep_policy": {
@@ -147,6 +144,7 @@ func buildCreateDomainHostOpts(d *schema.ResourceData, cfg *config.Config) *doma
 		Servers:             buildWafDomainServers(d),
 		Proxy:               utils.Bool(d.Get("proxy").(bool)),
 		PaidType:            d.Get("charging_mode").(string),
+		PolicyId:            d.Get("policy_id").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 }
@@ -195,6 +193,7 @@ func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
 			return fmt.Errorf("error updating WAF domain: %s", err)
 		}
 	}
+
 	return nil
 }
 
@@ -212,27 +211,6 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating WAF domain: %s", err)
 	}
 	d.SetId(domain.Id)
-
-	if v, ok := d.GetOk("policy_id"); ok {
-		policyID := v.(string)
-		hosts := []string{d.Id()}
-		epsID := cfg.GetEnterpriseProjectID(d)
-		updateHostsOpts := policies.UpdateHostsOpts{
-			Hosts:               hosts,
-			EnterpriseProjectId: epsID,
-		}
-
-		_, err = policies.UpdateHosts(wafClient, policyID, updateHostsOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating WAF policy Hosts: %s", err)
-		}
-
-		// delete the policy that was auto-created by domain
-		err = policies.DeleteWithEpsID(wafClient, domain.PolicyId, epsID).ExtractErr()
-		if err != nil {
-			log.Printf("[WARN] error deleting WAF policy %s: %s", domain.PolicyId, err)
-		}
-	}
 
 	return resourceWafDomainRead(ctx, d, meta)
 }
@@ -279,6 +257,12 @@ func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if err := updateWafDomain(wafClient, d, cfg); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if d.HasChanges("policy_id") {
+		if err := updateWafDomainPolicyHost(d, cfg); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceWafDomainRead(ctx, d, meta)
