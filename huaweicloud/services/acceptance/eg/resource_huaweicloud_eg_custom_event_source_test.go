@@ -186,7 +186,7 @@ resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
   enabled         = true
   broadcast       = true
   brokers         = ["broker-0"]
-  retry_max_times = 3
+  retry_max_time = 3
 }
 
 resource "huaweicloud_dms_rocketmq_topic" "test" {

@@ -12,12 +12,13 @@ Manages DMS RocketMQ consumer group resources within HuaweiCloud.
 variable "instance_id" {}
 
 resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
-  instance_id     = var.instance_id
-  name            = "consumer_group_test"
-  enabled         = true
-  broadcast       = true
-  brokers         = ["broker-0","broker-1"]
-  retry_max_times = 3
+  instance_id    = var.instance_id
+  name           = "consumer_group_test"
+  enabled        = true
+  broadcast      = true
+  brokers        = ["broker-0","broker-1"]
+  retry_max_time = 3
+  description    = "the description of the consumer group"
 }
 ```
 
@@ -40,11 +41,13 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `retry_max_times` - (Required, Int) Specifies the maximum number of retry times.
+* `retry_max_time` - (Required, Int) Specifies the maximum number of retry time.
 
 * `enabled` - (Optional, Bool) Specifies the consumer group is enabled or not. Default to true.
 
 * `broadcast` - (Optional, Bool) Specifies whether to broadcast of the consumer group.
+
+* `description` - (Optional, String) Specifies the description of the consumer group.
 
 ## Attribute Reference
 
