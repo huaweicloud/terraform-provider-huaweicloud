@@ -62,7 +62,7 @@ locals {
   ipgroup_id = huaweicloud_elb_ipgroup.test.id
 }
 data "huaweicloud_elb_ipgroups" "ipgroup_id_filter" {
-  ipgroup_id = local.ipgroup_id
+  ipgroup_id = huaweicloud_elb_ipgroup.test.id
 }
 output "ipgroup_id_filter_is_useful" {
   value = length(data.huaweicloud_elb_ipgroups.ipgroup_id_filter.ipgroups) > 0 && alltrue(
@@ -74,7 +74,7 @@ locals {
   ip_address = huaweicloud_elb_ipgroup.test.ip_list[0].ip
 }
 data "huaweicloud_elb_ipgroups" "ip_address_filter" {
-  ip_address = local.ip_address
+  ip_address = huaweicloud_elb_ipgroup.test.ip_list[0].ip
 }
 output "ip_address_filter_is_useful" {
   value = length(data.huaweicloud_elb_ipgroups.ip_address_filter.ipgroups) > 0 && alltrue(
@@ -86,7 +86,7 @@ locals {
   description = huaweicloud_elb_ipgroup.test.description
 }
 data "huaweicloud_elb_ipgroups" "description_filter" {
-  description = local.description
+  description = huaweicloud_elb_ipgroup.test.description
 }
 output "description_filter_is_useful" {
   value = length(data.huaweicloud_elb_ipgroups.description_filter.ipgroups) > 0 && alltrue(
