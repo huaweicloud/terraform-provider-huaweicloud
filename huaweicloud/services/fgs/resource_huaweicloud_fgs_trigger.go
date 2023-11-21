@@ -1,20 +1,23 @@
 package fgs
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	dedicatedGroups "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
-	dedicatedEnvs "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
+	dedicatedgroups "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
+	dedicatedenvs "github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/environments"
 	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/groups"
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/trigger"
@@ -22,8 +25,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -51,10 +52,10 @@ const (
 
 func ResourceFunctionGraphTrigger() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceFunctionGraphTriggerCreate,
-		Read:   resourceFunctionGraphTriggerRead,
-		Update: resourceFunctionGraphTriggerUpdate,
-		Delete: resourceFunctionGraphTriggerDelete,
+		CreateContext: resourceFunctionGraphTriggerCreate,
+		ReadContext:   resourceFunctionGraphTriggerRead,
+		UpdateContext: resourceFunctionGraphTriggerUpdate,
+		DeleteContext: resourceFunctionGraphTriggerDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Update: schema.DefaultTimeout(2 * time.Minute),
@@ -455,11 +456,10 @@ func buildLtsEventData(d *schema.ResourceData) map[string]interface{} {
 }
 
 // Obtain environment ID and sub-domain of shared APIG.
-func getSharedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Config) (string, string, error) {
-	var envId, subDomain string
-	apigwClient, err := config.ApiGatewayV1Client(config.GetRegion(d))
+func getSharedApigSubDomainAndEnvId(d *schema.ResourceData, cfg *config.Config) (envId string, subDomain string, errorMessage error) {
+	apigwClient, err := cfg.ApiGatewayV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Error creating HuaweiCloud shared APIG v1.0 client: %s", err)
+		return envId, subDomain, fmt.Errorf("error creating shared APIG v1.0 client: %s", err)
 	}
 
 	envName := d.Get("apig.0.env_name").(string)
@@ -469,10 +469,10 @@ func getSharedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Confi
 	}
 	envList, err := environments.List(apigwClient, envOpt)
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Unable to obtain the environment list: %s", err)
+		return envId, subDomain, fmt.Errorf("unable to obtain the environment list: %s", err)
 	}
-	if len(envList) <= 0 {
-		return envId, subDomain, fmtp.Errorf("There is no environment named %s: %s", envName, err)
+	if len(envList) == 0 {
+		return envId, subDomain, fmt.Errorf("there is no environment named %s: %s", envName, err)
 	}
 	envId = envList[0].Id
 
@@ -480,52 +480,51 @@ func getSharedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Confi
 	groupId := d.Get("apig.0.group_id").(string)
 	groupResp, err := groups.Get(apigwClient, groupId).Extract()
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Unable to obtain the APIG group (%s): %s", groupId, err)
+		return envId, subDomain, fmt.Errorf("unable to obtain the APIG group (%s): %s", groupId, err)
 	}
 	subDomain = groupResp.SlDomain
 
-	return envId, subDomain, nil
+	return
 }
 
 // Obtain environment ID and sub-domain of dedicated APIG.
-func getDedicatedApigSubDomainAndEnvId(d *schema.ResourceData, config *config.Config) (string, string, error) {
-	var envId, subDomain string
-	apigwClient, err := config.ApigV2Client(config.GetRegion(d))
+func getDedicatedApigSubDomainAndEnvId(d *schema.ResourceData, cfg *config.Config) (envId string, subDomain string, errorMessage error) {
+	apigwClient, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Error creating HuaweiCloud dedicated APIG v2 client: %s", err)
+		return envId, subDomain, fmt.Errorf("error creating dedicated APIG v2 client: %s", err)
 	}
 
 	instanceId := d.Get("apig.0.instance_id").(string)
 	envName := d.Get("apig.0.env_name").(string)
 	// Obtain environment information.
-	envOpt := dedicatedEnvs.ListOpts{
+	envOpt := dedicatedenvs.ListOpts{
 		Name: envName,
 	}
-	pages, err := dedicatedEnvs.List(apigwClient, instanceId, envOpt).AllPages()
+	pages, err := dedicatedenvs.List(apigwClient, instanceId, envOpt).AllPages()
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Error getting environment list: %s", err)
+		return envId, subDomain, fmt.Errorf("error getting environment list: %s", err)
 	}
-	envList, err := dedicatedEnvs.ExtractEnvironments(pages)
+	envList, err := dedicatedenvs.ExtractEnvironments(pages)
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Unable to retrieve the response to list: %s", err)
+		return envId, subDomain, fmt.Errorf("unable to retrieve the response to list: %s", err)
 	}
-	if len(envList) <= 0 {
-		return envId, subDomain, fmtp.Errorf("There is no environment named %s: %s", envName, err)
+	if len(envList) == 0 {
+		return envId, subDomain, fmt.Errorf("there is no environment named %s: %s", envName, err)
 	}
 	envId = envList[0].Id
 
 	// Obtain group information.
 	groupId := d.Get("apig.0.group_id").(string)
-	groupResp, err := dedicatedGroups.Get(apigwClient, instanceId, groupId).Extract()
+	groupResp, err := dedicatedgroups.Get(apigwClient, instanceId, groupId).Extract()
 	if err != nil {
-		return envId, subDomain, fmtp.Errorf("Unable to obtain the APIG group (%s): %s", groupId, err)
+		return envId, subDomain, fmt.Errorf("unable to obtain the APIG group (%s): %s", groupId, err)
 	}
 	subDomain = groupResp.Subdomain
 
-	return envId, subDomain, nil
+	return
 }
 
-func buildApigEventData(d *schema.ResourceData, config *config.Config) (map[string]interface{}, error) {
+func buildApigEventData(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
 	// Common configuration
 	result := map[string]interface{}{
 		"env_name":     d.Get("apig.0.env_name").(string),
@@ -548,12 +547,12 @@ func buildApigEventData(d *schema.ResourceData, config *config.Config) (map[stri
 	// The different between the shared APIG and the dedicated APIG is whether the instance ID is set.
 	if instanceId, ok := d.GetOk("apig.0.instance_id"); ok {
 		result["instance_id"] = instanceId
-		envId, subDomain, err = getDedicatedApigSubDomainAndEnvId(d, config)
+		envId, subDomain, err = getDedicatedApigSubDomainAndEnvId(d, cfg)
 		if err != nil {
 			return result, err
 		}
 	} else {
-		envId, subDomain, err = getSharedApigSubDomainAndEnvId(d, config)
+		envId, subDomain, err = getSharedApigSubDomainAndEnvId(d, cfg)
 		if err != nil {
 			return result, err
 		}
@@ -564,7 +563,7 @@ func buildApigEventData(d *schema.ResourceData, config *config.Config) (map[stri
 	return result, nil
 }
 
-func buildFunctionGraphTriggerParameters(d *schema.ResourceData, config *config.Config) (trigger.CreateOpts, error) {
+func buildFunctionGraphTriggerParameters(d *schema.ResourceData, cfg *config.Config) (trigger.CreateOpts, error) {
 	triggerType := d.Get("type").(string)
 
 	opts := trigger.CreateOpts{
@@ -587,34 +586,34 @@ func buildFunctionGraphTriggerParameters(d *schema.ResourceData, config *config.
 	case ltsTrigger:
 		opts.EventData = buildLtsEventData(d)
 	case apigTrigger, dedicatedApigTrigger:
-		eventData, err := buildApigEventData(d, config)
+		eventData, err := buildApigEventData(d, cfg)
 		if err != nil {
 			return opts, err
 		}
 		opts.EventData = eventData
 	default:
-		return opts, fmtp.Errorf("Currently, trigger type only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' " +
+		return opts, fmt.Errorf("Currently, trigger type only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' " +
 			"and 'DEDICATEDGATEWAY'.")
 	}
 	return opts, nil
 }
 
-func resourceFunctionGraphTriggerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFunctionGraphTriggerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
-	opts, err := buildFunctionGraphTriggerParameters(d, config)
+	opts, err := buildFunctionGraphTriggerParameters(d, cfg)
 	if err != nil {
-		return fmtp.Errorf("Error building create options of FunctionGraph: %s", err)
+		return diag.Errorf("error building create options of FunctionGraph: %s", err)
 	}
-	logp.Printf("[DEBUG] The create options is: %#v", opts)
+	log.Printf("[DEBUG] The create options is: %#v", opts)
 	urn := d.Get("function_urn").(string)
 	resp, err := trigger.Create(client, opts, urn).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FunctionGraph trigger for function (%s): %s", urn, err)
+		return diag.Errorf("error creating FunctionGraph trigger for function (%s): %s", urn, err)
 	}
 	d.SetId(resp.TriggerId)
 
@@ -626,13 +625,14 @@ func resourceFunctionGraphTriggerCreate(d *schema.ResourceData, meta interface{}
 		// After creation, the status is 'DISABLED'. If we want an 'ACTIVE' kafka trigger, needs to update status.
 		// Only the DMS kafka trigger cannot enter the target state immediately.
 		if resp.Status != d.Get("status").(string) {
-			if err = resourceFunctionGraphTriggerUpdate(d, meta); err != nil {
+			err := resourceFunctionGraphTriggerUpdate(ctx, d, meta)
+			if err != nil {
 				return err
 			}
 		}
 	}
 
-	return resourceFunctionGraphTriggerRead(d, meta)
+	return resourceFunctionGraphTriggerRead(ctx, d, meta)
 }
 
 func setTimerEventData(d *schema.ResourceData, eventData map[string]interface{}) error {
@@ -657,7 +657,7 @@ func makeObsEventNamesByResponse(events []interface{}) ([]interface{}, error) {
 	for i, val := range events {
 		obsEvents := regex.FindAllStringSubmatch(val.(string), -1)
 		if len(obsEvents) == 0 || len(obsEvents[0]) < 3 {
-			return result, fmtp.Errorf("Wrong OBS event: %s", val)
+			return result, fmt.Errorf("wrong OBS event: %s", val)
 		}
 		// The obs events are format as 's3:ObjectCreated:*' or 's3:ObjectCreated:{event}'
 		// The events of 'ObjectCreated' are 'Put', 'Post', 'Copy' and 'CompleteMultipartUpload'.
@@ -773,7 +773,7 @@ func setTriggerEventData(d *schema.ResourceData, resp *trigger.Trigger) error {
 	case ltsTrigger:
 		return setLtsEventData(d, resp.EventData)
 	}
-	return fmtp.Errorf("The type of trigger currently only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' and " +
+	return fmt.Errorf("the type of trigger currently only support 'TIMER', 'OBS', 'SMN', 'DIS', 'KAFKA', 'APIG', 'LTS' and " +
 		"'DEDICATEDGATEWAY'.")
 }
 
@@ -789,35 +789,36 @@ func setTriggerParamters(d *schema.ResourceData, resp *trigger.Trigger) error {
 	return nil
 }
 
-func resourceFunctionGraphTriggerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFunctionGraphTriggerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	urn := d.Get("function_urn").(string)
 	pages, err := trigger.List(client, urn).AllPages()
 	if err != nil {
-		return common.CheckDeleted(d, parseRequestError(err), "error retrieving FunctionGraph trigger")
+		return common.CheckDeletedDiag(d, parseRequestError(err), "error retrieving FunctionGraph trigger")
 	}
-	triggerList, err := trigger.ExtractList(pages)
+	triggerList, _ := trigger.ExtractList(pages)
 	if len(triggerList) > 0 {
 		for _, v := range triggerList {
 			if v.TriggerId != d.Id() {
 				continue
 			}
+			v := v
 			mErr := multierror.Append(nil,
-				d.Set("region", config.GetRegion(d)),
+				d.Set("region", cfg.GetRegion(d)),
 				setTriggerParamters(d, &v),
 			)
 			if mErr.ErrorOrNil() != nil {
-				return mErr
+				return diag.Errorf("error setting Trigger Parameters: %s", mErr.ErrorOrNil())
 			}
 			return nil
 		}
 	}
-	return common.CheckDeleted(d, golangsdk.ErrDefault404{
+	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
 			Body: []byte(fmt.Sprintf("unable to find the FunctionGraph trigger (%s) from function (%s), the trigger "+
 				"has been deleted", d.Id(), urn)),
@@ -825,11 +826,11 @@ func resourceFunctionGraphTriggerRead(d *schema.ResourceData, meta interface{}) 
 	}, "error retrieving FunctionGraph trigger")
 }
 
-func resourceFunctionGraphTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFunctionGraphTriggerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	urn := d.Get("function_urn").(string)
@@ -840,7 +841,7 @@ func resourceFunctionGraphTriggerUpdate(d *schema.ResourceData, meta interface{}
 	}
 	err = trigger.Update(client, opts, urn, triggerType, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Updating HuaweiCloud FunctionGraph trigger failed: %s", err)
+		return diag.Errorf("updating FunctionGraph trigger failed: %s", err)
 	}
 	// After request send, check the cluster state and wait for it become running.
 	stateConf := &resource.StateChangeConf{
@@ -850,19 +851,19 @@ func resourceFunctionGraphTriggerUpdate(d *schema.ResourceData, meta interface{}
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		//the system will recyle the cluster when creating failed
-		return err
+		// the system will recyle the cluster when creating failed
+		return diag.Errorf("wait for state Context failed: %s", err)
 	}
-	return resourceFunctionGraphTriggerRead(d, meta)
+	return resourceFunctionGraphTriggerRead(ctx, d, meta)
 }
 
 func triggerV2StateRefreshFunc(client *golangsdk.ServiceClient, urn, triggerId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		pages, err := trigger.List(client, urn).AllPages()
 		if err != nil {
-			return nil, "DELETED", fmtp.Errorf("Error retrieving FunctionGraph trigger: %s", err)
+			return nil, "DELETED", fmt.Errorf("error retrieving FunctionGraph trigger: %s", err)
 		}
 		triggerList, err := trigger.ExtractList(pages)
 		if err != nil {
@@ -872,7 +873,7 @@ func triggerV2StateRefreshFunc(client *golangsdk.ServiceClient, urn, triggerId s
 			return nil, "", err
 		}
 		if len(triggerList) == 0 {
-			return nil, "DELETED", fmtp.Errorf("Unable to find the FunctionGraph trigger (%s) form function (%s): %s",
+			return nil, "DELETED", fmt.Errorf("unable to find the FunctionGraph trigger (%s) form function (%s): %s",
 				triggerId, urn, err)
 		}
 		for _, v := range triggerList {
@@ -884,21 +885,20 @@ func triggerV2StateRefreshFunc(client *golangsdk.ServiceClient, urn, triggerId s
 	}
 }
 
-func resourceFunctionGraphTriggerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFunctionGraphTriggerDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	urn := d.Get("function_urn").(string)
 	triggerType := d.Get("type").(string)
 	err = trigger.Delete(client, urn, triggerType, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud FunctionGraph trigger (%s) from the function (%s): %s",
+		return diag.Errorf("error deleting FunctionGraph trigger (%s) from the function (%s): %s",
 			d.Id(), urn, err)
 	}
-	d.SetId("")
 	return nil
 }
 

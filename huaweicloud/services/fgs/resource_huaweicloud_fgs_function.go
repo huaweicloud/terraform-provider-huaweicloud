@@ -1,6 +1,7 @@
 package fgs
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -20,18 +22,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceFgsFunctionV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceFgsFunctionV2Create,
-		Read:   resourceFgsFunctionV2Read,
-		Update: resourceFgsFunctionV2Update,
-		Delete: resourceFgsFunctionV2Delete,
+		CreateContext: resourceFgsFunctionCreate,
+		ReadContext:   resourceFgsFunctionRead,
+		UpdateContext: resourceFgsFunctionUpdate,
+		DeleteContext: resourceFgsFunctionDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -325,38 +325,38 @@ func buildCustomImage(imageConfig []interface{}) *function.CustomImage {
 		return nil
 	}
 
-	config := imageConfig[0].(map[string]interface{})
+	cfg := imageConfig[0].(map[string]interface{})
 	return &function.CustomImage{
 		Enabled: true,
-		Image:   config["url"].(string),
+		Image:   cfg["url"].(string),
 	}
 }
 
-func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config) (function.CreateOpts, error) {
+func buildFgsFunctionParameters(d *schema.ResourceData, cfg *config.Config) (function.CreateOpts, error) {
 	// check app and package
-	app, app_ok := d.GetOk("app")
-	pkg, pkg_ok := d.GetOk("package")
-	if !app_ok && !pkg_ok {
-		return function.CreateOpts{}, fmtp.Errorf("One of app or package must be configured")
+	app, appOk := d.GetOk("app")
+	pkg, pkgOk := d.GetOk("package")
+	if !appOk && !pkgOk {
+		return function.CreateOpts{}, fmt.Errorf("one of app or package must be configured")
 	}
-	pack_v := ""
-	if app_ok {
-		pack_v = app.(string)
+	packV := ""
+	if appOk {
+		packV = app.(string)
 	} else {
-		pack_v = pkg.(string)
+		packV = pkg.(string)
 	}
 
 	// get value from agency or xrole (xrole is deplicated)
-	agency_v := ""
+	agencyV := ""
 	if v, ok := d.GetOk("agency"); ok {
-		agency_v = v.(string)
+		agencyV = v.(string)
 	} else if v, ok := d.GetOk("xrole"); ok {
-		agency_v = v.(string)
+		agencyV = v.(string)
 	}
 	result := function.CreateOpts{
 		FuncName:            d.Get("name").(string),
 		Type:                d.Get("functiongraph_version").(string),
-		Package:             pack_v,
+		Package:             packV,
 		CodeType:            d.Get("code_type").(string),
 		CodeUrl:             d.Get("code_url").(string),
 		Description:         d.Get("description").(string),
@@ -367,8 +367,8 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 		Timeout:             d.Get("timeout").(int),
 		UserData:            d.Get("user_data").(string),
 		EncryptedUserData:   d.Get("encrypted_user_data").(string),
-		Xrole:               agency_v,
-		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		Xrole:               agencyV,
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		CustomImage:         buildCustomImage(d.Get("custom_image").([]interface{})),
 	}
 	if v, ok := d.GetOk("func_code"); ok {
@@ -389,38 +389,38 @@ func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config)
 	return result, nil
 }
 
-func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFgsFunctionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
-	createOpts, err := buildFgsFunctionV2Parameters(d, config)
+	createOpts, err := buildFgsFunctionParameters(d, cfg)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	f, err := function.Create(fgsClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud function: %s", err)
+		return diag.Errorf("error creating function: %s", err)
 	}
 
 	// The "func_urn" is the unique identifier of the function
 	// in terraform, we convert to id, not using FuncUrn
 	d.SetId(f.FuncUrn)
 	urn := resourceFgsFunctionUrn(d.Id())
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout") {
-		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
+		err := resourceFgsFunctionMetadataUpdate(fgsClient, urn, d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("depend_list") {
-		err := resourceFgsFunctionV2CodeUpdate(fgsClient, urn, d)
+		err := resourceFgsFunctionCodeUpdate(fgsClient, urn, d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -429,7 +429,7 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		maxInstanceNum, _ := strconv.Atoi(strNum.(string))
 		_, err = function.UpdateMaxInstanceNumber(fgsClient, urn, maxInstanceNum)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -438,15 +438,15 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 			Tags: utils.ExpandResourceTags(tagList.(map[string]interface{})),
 		}
 		if err := function.CreateResourceTags(fgsClient, d.Id(), opts); err != nil {
-			return fmt.Errorf("failed to add tags to FunctionGraph function (%s): %s", d.Id(), err)
+			return diag.Errorf("failed to add tags to FunctionGraph function (%s): %s", d.Id(), err)
 		}
 	}
 
 	if err = createFunctionVersions(fgsClient, urn, d.Get("versions").(*schema.Set)); err != nil {
-		return fmt.Errorf("error creating function versions: %s", err)
+		return diag.Errorf("error creating function versions: %s", err)
 	}
 
-	return resourceFgsFunctionV2Read(d, meta)
+	return resourceFgsFunctionRead(ctx, d, meta)
 }
 
 func createFunctionVersions(client *golangsdk.ServiceClient, functionUrn string, versionSet *schema.Set) error {
@@ -488,13 +488,13 @@ func setFgsFunctionAgency(d *schema.ResourceData, agency string) error {
 	return d.Set("xrole", agency)
 }
 
-func setFgsFunctionVpcAccess(d *schema.ResourceData, FuncVpc function.FuncVpc) error {
+func setFgsFunctionVpcAccess(d *schema.ResourceData, funcVpc function.FuncVpc) error {
 	mErr := multierror.Append(
-		d.Set("vpc_id", FuncVpc.VpcId),
-		d.Set("network_id", FuncVpc.SubnetId),
+		d.Set("vpc_id", funcVpc.VpcId),
+		d.Set("network_id", funcVpc.SubnetId),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting vault fields: %s", err)
+		return fmt.Errorf("error setting vault fields: %s", err)
 	}
 	return nil
 }
@@ -519,7 +519,7 @@ func setFuncionMountConfig(d *schema.ResourceData, mountConfig function.MountCon
 			d.Set("mount_user_group_id", mountConfig.MountUser.UserGroupId),
 		)
 		if err := mErr.ErrorOrNil(); err != nil {
-			return fmtp.Errorf("Error setting vault fields: %s", err)
+			return fmt.Errorf("error setting vault fields: %s", err)
 		}
 	}
 	return nil
@@ -594,17 +594,17 @@ func parseFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) 
 	return result, nil
 }
 
-func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
 	functionUrn := resourceFgsFunctionUrn(d.Id())
 	f, err := function.GetMetadata(fgsClient, functionUrn).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "function")
+		return common.CheckDeletedDiag(d, err, "FunctionGraph function")
 	}
 
 	versionConfig, err := parseFunctionVersions(fgsClient, functionUrn)
@@ -612,7 +612,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		// Not all regions support the version related API calls.
 		log.Printf("[ERROR] Unable to parsing the function versions: %s", err)
 	}
-	logp.Printf("[DEBUG] Retrieved Function %s: %+v", functionUrn, f)
+	log.Printf("[DEBUG] Retrieved Function %s: %+v", functionUrn, f)
 	mErr := multierror.Append(
 		d.Set("name", f.FuncName),
 		d.Set("code_type", f.CodeType),
@@ -645,7 +645,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("versions", versionConfig),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("Error setting vault fields: %s", err)
+		return diag.Errorf("error setting function fields: %s", err)
 	}
 
 	return nil
@@ -719,30 +719,30 @@ func updateFunctionVersions(client *golangsdk.ServiceClient, d *schema.ResourceD
 	return nil
 }
 
-func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFgsFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	urn := resourceFgsFunctionUrn(d.Id())
 
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("code_type", "code_url", "code_filename", "depend_list", "func_code") {
-		err := resourceFgsFunctionV2CodeUpdate(fgsClient, urn, d)
+		err := resourceFgsFunctionCodeUpdate(fgsClient, urn, d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name") {
-		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
+		err := resourceFgsFunctionMetadataUpdate(fgsClient, urn, d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("max_instance_num") {
@@ -750,62 +750,61 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 		maxInstanceNum, _ := strconv.Atoi(d.Get("max_instance_num").(string))
 		_, err = function.UpdateMaxInstanceNumber(fgsClient, urn, maxInstanceNum)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		if err = updateFunctionTags(fgsClient, d); err != nil {
-			return fmt.Errorf("failed to update function tags: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("versions") {
 		if err = updateFunctionVersions(fgsClient, d); err != nil {
-			return fmt.Errorf("failed to update function versions: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceFgsFunctionV2Read(d, meta)
+	return resourceFgsFunctionRead(ctx, d, meta)
 }
 
-func resourceFgsFunctionV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+func resourceFgsFunctionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	urn := resourceFgsFunctionUrn(d.Id())
 
 	err = function.Delete(fgsClient, urn).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud function: %s", err)
+		return diag.Errorf("error deleting function: %s", err)
 	}
-	d.SetId("")
 	return nil
 }
 
-func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn string, d *schema.ResourceData) error {
+func resourceFgsFunctionMetadataUpdate(fgsClient *golangsdk.ServiceClient, urn string, d *schema.ResourceData) error {
 	// check app and package
-	app, app_ok := d.GetOk("app")
-	pkg, pkg_ok := d.GetOk("package")
-	if !app_ok && !pkg_ok {
-		return fmtp.Errorf("One of app or package must be configured")
+	app, appOk := d.GetOk("app")
+	pkg, pkgOk := d.GetOk("package")
+	if !appOk && !pkgOk {
+		return fmt.Errorf("one of app or package must be configured")
 	}
-	pack_v := ""
-	if app_ok {
-		pack_v = app.(string)
+	packV := ""
+	if appOk {
+		packV = app.(string)
 	} else {
-		pack_v = pkg.(string)
+		packV = pkg.(string)
 	}
 
 	// get value from agency or xrole
-	agency_v := ""
+	agencyV := ""
 	if v, ok := d.GetOk("agency"); ok {
-		agency_v = v.(string)
+		agencyV = v.(string)
 	} else if v, ok := d.GetOk("xrole"); ok {
-		agency_v = v.(string)
+		agencyV = v.(string)
 	}
 
 	updateMetadateOpts := function.UpdateMetadataOpts{
@@ -813,11 +812,11 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 		MemorySize:         d.Get("memory_size").(int),
 		Timeout:            d.Get("timeout").(int),
 		Runtime:            d.Get("runtime").(string),
-		Package:            pack_v,
+		Package:            packV,
 		Description:        d.Get("description").(string),
 		UserData:           d.Get("user_data").(string),
 		EncryptedUserData:  d.Get("encrypted_user_data").(string),
-		Xrole:              agency_v,
+		Xrole:              agencyV,
 		AppXrole:           d.Get("app_agency").(string),
 		InitializerHandler: d.Get("initializer_handler").(string),
 		InitializerTimeout: d.Get("initializer_timeout").(int),
@@ -844,16 +843,16 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 		updateMetadateOpts.LogConfig = &logConfig
 	}
 
-	logp.Printf("[DEBUG] Metaddata Update Options: %#v", updateMetadateOpts)
+	log.Printf("[DEBUG] Metaddata Update Options: %#v", updateMetadateOpts)
 	_, err := function.UpdateMetadata(fgsClient, urn, updateMetadateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating metadata of HuaweiCloud function: %s", err)
+		return fmt.Errorf("error updating metadata of function: %s", err)
 	}
 
 	return nil
 }
 
-func resourceFgsFunctionV2CodeUpdate(fgsClient *golangsdk.ServiceClient, urn string, d *schema.ResourceData) error {
+func resourceFgsFunctionCodeUpdate(fgsClient *golangsdk.ServiceClient, urn string, d *schema.ResourceData) error {
 	updateCodeOpts := function.UpdateCodeOpts{
 		CodeType:     d.Get("code_type").(string),
 		CodeUrl:      d.Get("code_url").(string),
@@ -876,10 +875,10 @@ func resourceFgsFunctionV2CodeUpdate(fgsClient *golangsdk.ServiceClient, urn str
 		updateCodeOpts.FuncCode = funcCode
 	}
 
-	logp.Printf("[DEBUG] Code Update Options: %#v", updateCodeOpts)
+	log.Printf("[DEBUG] Code Update Options: %#v", updateCodeOpts)
 	_, err := function.UpdateCode(fgsClient, urn, updateCodeOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating code of HuaweiCloud function: %s", err)
+		return fmt.Errorf("error updating code of function: %s", err)
 	}
 
 	return nil
@@ -928,12 +927,12 @@ func resourceFgsFunctionMountConfig(d *schema.ResourceData) *function.MountConfi
 	return &mountConfig
 }
 
-/**
+/*
  * Parse urn according from fun_urn.
  * If the separator is not ":" then return to the original value.
  */
 func resourceFgsFunctionUrn(urn string) string {
-	//urn = urn:fss:ru-moscow-1:0910fc31530026f82fd0c018a303517e:function:default:func_2:latest
+	// urn = urn:fss:ru-moscow-1:0910fc31530026f82fd0c018a303517e:function:default:func_2:latest
 	index := strings.LastIndex(urn, ":")
 	if index != -1 {
 		urn = urn[0:index]

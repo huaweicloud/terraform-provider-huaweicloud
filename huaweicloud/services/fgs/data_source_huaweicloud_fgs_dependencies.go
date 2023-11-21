@@ -1,21 +1,23 @@
 package fgs
 
 import (
+	"context"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // DataSourceFunctionGraphDependencies provides some parameters to filter dependent packages on the server.
 func DataSourceFunctionGraphDependencies() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceFunctionGraphDependenciesRead,
+		ReadContext: dataSourceFunctionGraphDependenciesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -82,12 +84,12 @@ func DataSourceFunctionGraphDependencies() *schema.Resource {
 	}
 }
 
-func dataSourceFunctionGraphDependenciesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.FgsV2Client(region)
+func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.FgsV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 	// Limit and Marker use default values.
 	listOpts := dependencies.ListOpts{
@@ -98,17 +100,28 @@ func dataSourceFunctionGraphDependenciesRead(d *schema.ResourceData, meta interf
 
 	allPages, err := dependencies.List(client, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Error retrieving dependent packages: %s", err)
+		return diag.Errorf("error retrieving dependent packages: %s", err)
 	}
-	resp, err := dependencies.ExtractDependencies(allPages)
+	resp, _ := dependencies.ExtractDependencies(allPages)
 	if len(resp.Dependencies) < 1 {
-		return fmtp.Errorf("No dependent package found, please check your parameters.")
+		return diag.Errorf("no dependent package found, please check your parameters")
 	}
-
-	return setFunctionGraphDependencies(d, resp.Dependencies)
+	randUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(randUUID)
+	packages := flatFunctionGraphDependencies(resp.Dependencies)
+	mErr := multierror.Append(
+		d.Set("packages", packages),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting packages of FunctionGraph dependencies: %s", err)
+	}
+	return nil
 }
 
-func setFunctionGraphDependencies(d *schema.ResourceData, pkgs []dependencies.Dependency) error {
+func flatFunctionGraphDependencies(pkgs []dependencies.Dependency) []map[string]interface{} {
 	packages := make([]map[string]interface{}, len(pkgs))
 
 	names := schema.NewSet(schema.HashString, nil)
@@ -125,7 +138,6 @@ func setFunctionGraphDependencies(d *schema.ResourceData, pkgs []dependencies.De
 			"runtime":   pkg.Runtime,
 		}
 	}
-	d.SetId(hashcode.Strings(utils.ExpandToStringList(names.List())))
 
-	return d.Set("packages", packages)
+	return packages
 }

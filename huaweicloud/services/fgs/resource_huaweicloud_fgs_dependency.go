@@ -2,6 +2,7 @@ package fgs
 
 import (
 	"context"
+	"log"
 	"regexp"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,8 +14,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceFgsDependency() *schema.Resource {
@@ -88,16 +87,16 @@ func buildFgsDependencyOpts(d *schema.ResourceData) dependencies.DependOpts {
 }
 
 func resourceFgsDependencyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	opts := buildFgsDependencyOpts(d)
 	resp, err := dependencies.Create(client, opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud custom dependency: %s", err)
+		return diag.Errorf("error creating custom dependency: %s", err)
 	}
 	d.SetId(resp.ID)
 
@@ -105,10 +104,10 @@ func resourceFgsDependencyCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceFgsDependencyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	resp, err := dependencies.Get(client, d.Id())
@@ -116,7 +115,7 @@ func resourceFgsDependencyRead(_ context.Context, d *schema.ResourceData, meta i
 		return common.CheckDeletedDiag(d, err, "FunctionGraph dependency")
 	}
 
-	logp.Printf("[DEBUG] Retrieved custom dependency %s: %+v", d.Id(), resp)
+	log.Printf("[DEBUG] Retrieved custom dependency %s: %+v", d.Id(), resp)
 	mErr := multierror.Append(
 		d.Set("runtime", resp.Runtime),
 		d.Set("name", resp.Name),
@@ -127,39 +126,38 @@ func resourceFgsDependencyRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("owner", resp.Owner),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting resource fields of custom dependency (%s): %s", d.Id(), err)
+		return diag.Errorf("error setting resource fields of custom dependency (%s): %s", d.Id(), err)
 	}
 
 	return nil
 }
 
 func resourceFgsDependencyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.FgsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	opts := buildFgsDependencyOpts(d)
 	_, err = dependencies.Update(client, d.Id(), opts)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating HuaweiCloud custom dependency: %s", err)
+		return diag.Errorf("error updating custom dependency: %s", err)
 	}
 
 	return resourceFgsDependencyRead(ctx, d, meta)
 }
 
 func resourceFgsDependencyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
 	err = dependencies.Delete(fgsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud custom dependency: %s", err)
+		return diag.Errorf("error deleting custom dependency: %s", err)
 	}
-	d.SetId("")
 	return nil
 }

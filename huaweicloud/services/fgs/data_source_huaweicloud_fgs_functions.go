@@ -172,7 +172,7 @@ func dataSourceFunctionGraphFunctionsRead(_ context.Context, d *schema.ResourceD
 
 	fgsClient, err := conf.FgsV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating FGS V2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph V2 client: %s", err)
 	}
 
 	// MaxItems and Marker use default values.
@@ -203,7 +203,7 @@ func dataSourceFunctionGraphFunctionsRead(_ context.Context, d *schema.ResourceD
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving datas of FGS functions: %s", err)
+		return diag.Errorf("error saving datas of FunctionGraph functions: %s", err)
 	}
 
 	return nil

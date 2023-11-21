@@ -2,6 +2,7 @@ package fgs
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -42,7 +43,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Config: testAccFgsV2Function_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
+					// Default value is v2. Some regions support only v1, the default value is v1
+					resource.TestMatchResourceAttr(resourceName, "functiongraph_version", regexp.MustCompile(`v1|v2`)),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
@@ -284,6 +286,7 @@ func TestAccFgsV2Function_logConfig(t *testing.T) {
 }
 
 func testAccFgsV2Function_basic(rName string) string {
+	//nolint:revive
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
@@ -305,6 +308,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_update(rName string) string {
+	//nolint:revive
 	return fmt.Sprintf(`
 %[1]s
 
@@ -360,6 +364,7 @@ EOF
 }
 
 func testAccFgsV2Function_withEpsId(rName string) string {
+	//nolint:revive
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name                  = "%s"
