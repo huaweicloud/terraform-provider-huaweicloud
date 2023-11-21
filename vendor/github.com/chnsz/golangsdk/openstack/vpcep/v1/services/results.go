@@ -237,3 +237,27 @@ func extractPublicService(r pagination.Page) ([]PublicService, error) {
 	err := r.(PublicServicePage).Result.ExtractIntoSlicePtr(&s, "endpoint_services")
 	return s, err
 }
+
+// ConnectionPage is a single page maximum result representing a query by offset page.
+type ConnectionPage struct {
+	pagination.OffsetPageBase
+}
+
+// extractConnection is a method to extract the list of tags supported connection.
+func extractConnection(r pagination.Page) ([]Connection, error) {
+	var s []Connection
+	err := r.(ConnectionPage).Result.ExtractIntoSlicePtr(&s, "connections")
+	return s, err
+}
+
+// PermissionPage is a single page maximum result representing a query by offset page.
+type PermissionPage struct {
+	pagination.OffsetPageBase
+}
+
+// extractPermission is a method to extract the list of tags supported permission.
+func extractPermission(r pagination.Page) ([]Permission, error) {
+	var s []Permission
+	err := r.(PermissionPage).Result.ExtractIntoSlicePtr(&s, "permissions")
+	return s, err
+}
