@@ -1,4 +1,4 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIECSecurityGroupDataSource_basic(t *testing.T) {
@@ -13,13 +15,16 @@ func TestAccIECSecurityGroupDataSource_basic(t *testing.T) {
 	description := "This is a test of iec security group"
 	resourceName := "data.huaweicloud_iec_security_group.by_name"
 
+	rc := acceptance.InitDataSourceCheck(resourceName)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceIECSecurityGroup_basic(rName, description),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", description),
 				),
