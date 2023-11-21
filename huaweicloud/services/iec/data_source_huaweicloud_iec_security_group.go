@@ -1,20 +1,22 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+	"log"
 	"strconv"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/security/groups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIECSecurityGroup() *schema.Resource {
+func DataSourceIECSecurityGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECSecurityGroupRead,
+		ReadContext: dataSourceIECSecurityGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -79,38 +81,38 @@ func dataSourceIECSecurityGroup() *schema.Resource {
 	}
 }
 
-func dataSourceIECSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceIECSecurityGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	allSecGroups, err := groups.List(iecClient, nil).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve security groups: %s", err)
+		return diag.Errorf("unable to retrieve security groups: %s", err)
 	}
 
 	total := len(allSecGroups.SecurityGroups)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results")
+		return diag.Errorf("your query returned no results")
 	}
 
 	// filter security groups by name
 	var groupItem *groups.RespSecurityGroupEntity
 	name := d.Get("name").(string)
-	for _, group := range allSecGroups.SecurityGroups {
+	for i := range allSecGroups.SecurityGroups {
+		group := allSecGroups.SecurityGroups[i]
 		if group.Name == name {
 			groupItem = &group
 			break
 		}
 	}
 	if groupItem == nil {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. Please change your search criteria and try again")
 	}
 
-	logp.Printf("[DEBUG] Retrieved IEC security group %s: %+v", groupItem.ID, groupItem)
+	log.Printf("[DEBUG] Retrieved IEC security group %s: %+v", groupItem.ID, groupItem)
 	d.SetId(groupItem.ID)
 	d.Set("name", groupItem.Name)
 	d.Set("description", groupItem.Description)
@@ -134,7 +136,6 @@ func dataSourceIECSecurityGroupRead(d *schema.ResourceData, meta interface{}) er
 			secRules[index]["port_range_min"] = ret
 		}
 	}
-	d.Set("security_group_rules", secRules)
-
-	return nil
+	mErr := multierror.Append(nil, d.Set("security_group_rules", secRules))
+	return diag.FromErr(mErr.ErrorOrNil())
 }
