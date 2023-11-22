@@ -874,11 +874,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_topic":          dms.ResourceDmsRocketMQTopic(),
 			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
 
-			"huaweicloud_dns_custom_line": dns.ResourceDNSCustomLine(),
-			"huaweicloud_dns_ptrrecord":   dns.ResourceDNSPtrRecord(),
-			"huaweicloud_dns_recordset":   dns.ResourceDNSRecordset(),
-			"huaweicloud_dns_zone":        dns.ResourceDNSZone(),
-			"huaweicloud_dns_endpoint":    dns.ResourceDNSEndpoint(),
+			"huaweicloud_dns_custom_line":   dns.ResourceDNSCustomLine(),
+			"huaweicloud_dns_ptrrecord":     dns.ResourceDNSPtrRecord(),
+			"huaweicloud_dns_recordset":     dns.ResourceDNSRecordset(),
+			"huaweicloud_dns_zone":          dns.ResourceDNSZone(),
+			"huaweicloud_dns_endpoint":      dns.ResourceDNSEndpoint(),
+			"huaweicloud_dns_resolver_rule": dns.ResourceDNSResolverRule(),
 
 			"huaweicloud_drs_job": drs.ResourceDrsJob(),
 
