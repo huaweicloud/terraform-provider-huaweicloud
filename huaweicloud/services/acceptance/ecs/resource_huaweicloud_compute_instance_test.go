@@ -66,6 +66,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "metadata.key2", "value2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
+					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "true"),
 				),
 			},
 			{
@@ -459,7 +460,7 @@ resource "huaweicloud_compute_instance" "test" {
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id
-    source_dest_check = false
+    source_dest_check = true
   }
 
   system_disk_type = "SAS"
