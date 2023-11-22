@@ -4,7 +4,7 @@ subcategory: "API Gateway (Dedicated APIG)"
 
 # huaweicloud_apig_application_authorization
 
-Using this resoruce to authorize APIs for application, allowing it to access the published APIs within HuaweiCloud.
+Using this resource to authorize APIs for application, allowing it to access the published APIs within HuaweiCloud.
 
 -> For an application, an environment can only create one `huaweicloud_apig_application_authorization` resource (all
    published APIs must belong to an environment).

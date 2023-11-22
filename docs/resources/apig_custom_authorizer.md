@@ -45,7 +45,7 @@ The following arguments are supported:
 
 * `function_urn` - (Required, String) Specifies the uniform function URN of the function graph resource.
 
-* `type` - (Optional, String, ForceNew) Specifies the custom authoriz type.
+* `type` - (Optional, String, ForceNew) Specifies the custom authorize type.
   The valid values are **FRONTEND** and **BACKEND**. Defaults to **FRONTEND**.
   Changing this will create a new custom authorizer resource.
 
