@@ -32,11 +32,11 @@ resource "huaweicloud_vpn_gateway" "test" {
     data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
   ]
 
-  master_eip {
+  eip1 {
     id = var.eip_id1
   }
 
-  slave_eip {
+  eip2 {
     id = var.eip_id2
   }
 }
@@ -66,14 +66,14 @@ resource "huaweicloud_vpn_gateway" "test" {
     data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
   ]
 
-  master_eip {
+  eip1 {
     bandwidth_name = var.bandwidth_name1
     type           = "5_bgp"
     bandwidth_size = 5
     charge_mode    = "traffic"
   }
 
-  slave_eip {
+  eip2 {
     bandwidth_name = var.bandwidth_name2
     type           = "5_bgp"
     bandwidth_size = 5
@@ -156,25 +156,30 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `master_eip` - (Optional, List, ForceNew) The master EIP configurations.
-  This parameter is mandatory when `network_type` is **public** or left empty.
+* `ha_mode` - (Optional, String, ForceNew) The HA mode of VPN gateway. Valid values are **active-active** and
+  **active-standby**. The default value is **active-active**.
+
+  Changing this parameter will create a new resource.
+
+* `eip1` - (Optional, List, ForceNew) The master 1 IP in active-active VPN gateway or the master IP
+  in active-standby VPN gateway. This parameter is mandatory when `network_type` is **public** or left empty.
   The [object](#Gateway_CreateRequestEip) structure is documented below.
 
   Changing this parameter will create a new resource.
 
-* `slave_eip` - (Optional, List, ForceNew) The slave EIP configurations.
-  This parameter is mandatory when `network_type` is **public** or left empty.
+* `eip2` - (Optional, List, ForceNew) The master 2 IP in active-active VPN gateway or the slave IP
+  in active-standby VPN gateway. This parameter is mandatory when `network_type` is **public** or left empty.
   The [object](#Gateway_CreateRequestEip) structure is documented below.
 
   Changing this parameter will create a new resource.
 
 * `access_vpc_id` - (Optional, String, ForceNew) The access VPC ID.
-  The defaul value is the value of `vpc_id`.
+  The default value is the value of `vpc_id`.
 
   Changing this parameter will create a new resource.
 
 * `access_subnet_id` - (Optional, String, ForceNew) The access subnet ID.
-  The defaul value is the value of `connect_subnet`.
+  The default value is the value of `connect_subnet`.
 
   Changing this parameter will create a new resource.
 
@@ -188,7 +193,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 <a name="Gateway_CreateRequestEip"></a>
-The `master_eip` or `slave_eip` block supports:
+The `eip1` or `eip2` block supports:
 
 * `id` - (Optional, String, ForceNew) The public IP ID.
 
@@ -231,14 +236,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `used_connection_number` - The number of used connections.
 
-* `master_eip` - The master EIP configurations.
+* `eip1` - The master 1 IP in active-active VPN gateway or the master IP in active-standby VPN gateway.
   The [object](#Gateway_GetResponseEip) structure is documented below.
 
-* `slave_eip` - The slave EIP configurations.
+* `eip2` - The master 2 IP in active-active VPN gateway or the slave IP in active-standby VPN gateway.
   The [object](#Gateway_GetResponseEip) structure is documented below.
 
 <a name="Gateway_GetResponseEip"></a>
-The `master_eip` or `slave_eip` block supports:
+The `eip1` or `eip2` block supports:
 
 * `bandwidth_id` - The bandwidth ID.
 
