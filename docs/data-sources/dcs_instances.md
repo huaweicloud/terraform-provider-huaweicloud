@@ -87,7 +87,7 @@ The `Instance` block supports:
 
 * `used_memory` - Indicates the size of the used memory. Unit: MB.
 
-* `max_memory` - Indicates the atotal memory size. Unit: MB.
+* `max_memory` - Indicates the total memory size. Unit: MB.
 
 * `domain_name` - Indicates the domain name of the instance.
 
