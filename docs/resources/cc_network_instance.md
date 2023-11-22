@@ -20,7 +20,7 @@ variable "vpc_project_id" {}
 variable "vpc_region_id" {}
 variable "cidr" {}
 
-resource "huaweicloud_cc_network" "test" {
+resource "huaweicloud_cc_network_instance" "test" {
   type                = "vpc"
   cloud_connection_id = var.cloud_connection_id
   instance_id         = var.vpc_instance_id

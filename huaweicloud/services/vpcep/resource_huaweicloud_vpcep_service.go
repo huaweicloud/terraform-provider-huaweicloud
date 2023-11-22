@@ -434,7 +434,7 @@ func flattenVPCEndpointServicePorts(n *services.Service) []map[string]interface{
 }
 
 func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) ([]map[string]interface{}, error) {
-	allConnections, err := services.ListConnections(client, id, nil)
+	allConnections, err := services.ListAllConnections(client, id, nil)
 	if err != nil {
 		log.Printf("[WARN] Error querying connections of VPC endpoint service: %s", err)
 		return nil, err
@@ -456,7 +456,7 @@ func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) (
 }
 
 func flattenVPCEndpointPermissions(client *golangsdk.ServiceClient, id string) (perms []string, orgPerms []string, err error) {
-	allPerms, err := services.ListPermissions(client, id)
+	allPerms, err := services.ListAllPermissions(client, id, nil)
 	if err != nil {
 		log.Printf("[WARN] Error querying permissions of VPC endpoint service: %s", err)
 		return
