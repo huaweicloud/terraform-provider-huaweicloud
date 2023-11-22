@@ -6,6 +6,8 @@ subcategory: "Workspace"
 
 Use this resource to register or unregister the Workspace service in HuaweiCloud.
 
+-> **NOTE:** Only one resource can be created in a region.
+
 ## Example Usage
 
 ### Register the Workspace service and use local authentication
