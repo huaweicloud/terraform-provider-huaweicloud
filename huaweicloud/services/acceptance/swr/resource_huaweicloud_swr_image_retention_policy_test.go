@@ -24,7 +24,7 @@ func getSwrImageRetentionPolicyResourceFunc(cfg *config.Config, state *terraform
 	)
 	getSwrImageRetentionPolicyClient, err := cfg.NewServiceClient(getSwrImageRetentionPolicyProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SWR Client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(state.Primary.ID, "/", 3)

@@ -93,7 +93,7 @@ func resourceSwrImageAutoSyncCreate(ctx context.Context, d *schema.ResourceData,
 	)
 	createSwrImageAutoSyncClient, err := cfg.NewServiceClient(createSwrImageAutoSyncProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	organization := d.Get("organization").(string)
@@ -146,7 +146,7 @@ func resourceSwrImageAutoSyncRead(_ context.Context, d *schema.ResourceData, met
 	)
 	getSwrImageAutoSyncClient, err := cfg.NewServiceClient(getSwrImageAutoSyncProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(d.Id(), "/", 4)
@@ -214,7 +214,7 @@ func resourceSwrImageAutoSyncDelete(_ context.Context, d *schema.ResourceData, m
 	)
 	deleteSwrImageAutoSyncClient, err := cfg.NewServiceClient(deleteSwrImageAutoSyncProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	deleteSwrImageAutoSyncPath := deleteSwrImageAutoSyncClient.Endpoint + deleteSwrImageAutoSyncHttpUrl

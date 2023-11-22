@@ -230,7 +230,7 @@ func resourceSwrImageTriggerRead(_ context.Context, d *schema.ResourceData, meta
 	)
 	getSwrImageTriggerClient, err := cfg.NewServiceClient(getSwrImageTriggerProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(d.Id(), "/", 3)
@@ -303,7 +303,7 @@ func resourceSwrImageTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 		)
 		updateSwrImageTriggerClient, err := cfg.NewServiceClient(updateSwrImageTriggerProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating SWR Client: %s", err)
+			return diag.Errorf("error creating SWR client: %s", err)
 		}
 
 		updateSwrImageTriggerPath := updateSwrImageTriggerClient.Endpoint + updateSwrImageTriggerHttpUrl
@@ -348,7 +348,7 @@ func resourceSwrImageTriggerDelete(_ context.Context, d *schema.ResourceData, me
 	)
 	deleteSwrImageTriggerClient, err := cfg.NewServiceClient(deleteSwrImageTriggerProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SwrImageTrigger Client: %s", err)
+		return diag.Errorf("error creating SWR image trigger client: %s", err)
 	}
 
 	deleteSwrImageTriggerPath := deleteSwrImageTriggerClient.Endpoint + deleteSwrImageTriggerHttpUrl

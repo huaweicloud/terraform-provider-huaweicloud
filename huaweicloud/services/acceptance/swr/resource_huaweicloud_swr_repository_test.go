@@ -11,13 +11,12 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getResourceRepository(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	swrClient, err := conf.SwrV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud SWR client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	return repositories.Get(swrClient, state.Primary.Attributes["organization"], state.Primary.ID).Extract()
@@ -83,7 +82,7 @@ func testAccSWRRepositoryImportStateIdFunc() resource.ImportStateIdFunc {
 			}
 		}
 		if organization == "" || repositoryID == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", organization, repositoryID)
+			return "", fmt.Errorf("resource not found: %s/%s", organization, repositoryID)
 		}
 		return fmt.Sprintf("%s/%s", organization, repositoryID), nil
 	}

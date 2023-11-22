@@ -105,7 +105,7 @@ func resourceSwrImageRetentionPolicyCreate(ctx context.Context, d *schema.Resour
 	)
 	createSwrImageRetentionPolicyClient, err := cfg.NewServiceClient(createSwrImageRetentionPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	organization := d.Get("organization").(string)
@@ -200,7 +200,7 @@ func resourceSwrImageRetentionPolicyRead(_ context.Context, d *schema.ResourceDa
 	)
 	getSwrImageRetentionPolicyClient, err := cfg.NewServiceClient(getSwrImageRetentionPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(d.Id(), "/", 3)
@@ -295,7 +295,7 @@ func resourceSwrImageRetentionPolicyUpdate(ctx context.Context, d *schema.Resour
 		)
 		updateSwrImageRetentionPolicyClient, err := cfg.NewServiceClient(updateSwrImageRetentionPolicyProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating SWR Client: %s", err)
+			return diag.Errorf("error creating SWR client: %s", err)
 		}
 
 		parts := strings.SplitN(d.Id(), "/", 3)
@@ -337,7 +337,7 @@ func resourceSwrImageRetentionPolicyDelete(_ context.Context, d *schema.Resource
 	)
 	deleteSwrImageRetentionPolicyClient, err := cfg.NewServiceClient(deleteSwrImageRetentionPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(d.Id(), "/", 3)

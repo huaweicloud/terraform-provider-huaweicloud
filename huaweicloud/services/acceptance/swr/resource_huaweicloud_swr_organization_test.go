@@ -16,7 +16,7 @@ import (
 func getResourceOrganization(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	swrClient, err := conf.SwrV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud SWR client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	return namespaces.Get(swrClient, state.Primary.ID).Extract()

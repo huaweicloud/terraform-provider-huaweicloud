@@ -24,7 +24,7 @@ func getSwrImageAutoSyncResourceFunc(cfg *config.Config, state *terraform.Resour
 	)
 	getSwrImageAutoSyncClient, err := cfg.NewServiceClient(getSwrImageAutoSyncProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SWR Client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(state.Primary.ID, "/", 4)
@@ -50,7 +50,7 @@ func getSwrImageAutoSyncResourceFunc(cfg *config.Config, state *terraform.Resour
 	getSwrImageAutoSyncResp, err := getSwrImageAutoSyncClient.Request("GET",
 		getSwrImageAutoSyncPath, &getSwrImageSyncOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving SwrImageSync: %s", err)
+		return nil, fmt.Errorf("error retrieving SWR image sync: %s", err)
 	}
 
 	getSwrImageAutoSyncRespBody, err := utils.FlattenResponse(getSwrImageAutoSyncResp)
