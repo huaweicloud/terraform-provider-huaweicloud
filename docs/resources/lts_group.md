@@ -29,8 +29,6 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the log group.
 
-  -> Currently, the key in tags can not be removed.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
