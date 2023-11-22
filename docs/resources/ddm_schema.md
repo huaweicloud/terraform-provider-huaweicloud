@@ -108,7 +108,7 @@ The following arguments are supported:
 
 * `shard_mode` - (Required, String, ForceNew) Specifies the sharding mode of the schema. Values option: **cluster**, **single**.
   + **cluster**: indicates that the schema is in sharded mode.
-  + **single**: indicates that the schema is in unsharded mode.
+  + **single**: indicates that the schema is in non-sharded mode.
 
   Changing this parameter will create a new resource.
 

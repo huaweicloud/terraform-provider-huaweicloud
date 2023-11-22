@@ -4,7 +4,7 @@ subcategory: "Enterprise Router (ER)"
 
 # huaweicloud_er_availability_zones
 
-Use this data source to query availability zones where ER instances can be created within Huaweicloud.
+Use this data source to query availability zones where ER instances can be created within HuaweiCloud.
 
 ## Example Usage
 

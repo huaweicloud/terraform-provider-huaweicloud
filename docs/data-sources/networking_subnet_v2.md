@@ -30,7 +30,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 
 * `ip_version` - (Optional, Int) The IP version of the subnet (either 4 or 6).
 
-* `gateway_ip` - (Optional, String) The IP of the subnet's gateway.
+* `gateway_ip` - (Optional, String) The subnet gateway IP.
 
 * `cidr` - (Optional, String) The CIDR of the subnet.
 

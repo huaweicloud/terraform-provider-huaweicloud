@@ -369,7 +369,7 @@ The `selectors` block supports:
 * `match_label_metadata_encrypted` - (Optional, String, ForceNew) Specifies the disk encryption identifier.
   Values can be: **0** indicates that the disk is not encrypted and **1** indicates that the disk is encrypted.
   If omitted, whether the disk is encrypted is not limited. Changing this parameter will create a new resource.
-* `match_label_metadata_cmkid` - (Optional, String, ForceNew) Specifies the cstomer master key ID of an encrypted
+* `match_label_metadata_cmkid` - (Optional, String, ForceNew) Specifies the customer master key ID of an encrypted
   disk. Changing this parameter will create a new resource.
 * `match_label_count` - (Optional, String, ForceNew) Specifies the number of disks to be selected. If omitted,
   all disks of this type are selected. Changing this parameter will create a new resource.
@@ -381,7 +381,7 @@ The `groups` block supports:
 * `cce_managed` - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
   **runtime** components. Only one group can be set to true. The default value is **false**.
   Changing this parameter will create a new resource.
-* `selector_names` - (Required, List, ForceNew) Specifies the list of names of seletors to match.
+* `selector_names` - (Required, List, ForceNew) Specifies the list of names of selectors to match.
   This parameter corresponds to name in `selectors`. A group can match multiple selectors,
   but a selector can match only one group. Changing this parameter will create a new resource.
 * `virtual_spaces` - (Required, List, ForceNew) Specifies the detailed management of space configuration in a group.

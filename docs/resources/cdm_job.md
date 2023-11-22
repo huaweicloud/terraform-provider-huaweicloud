@@ -206,7 +206,7 @@ The `config` block supports:
   + **NONE**: The job will not be deleted after it is executed.
   + **DELETE_AFTER_SUCCEED**: The job will be deleted only after it is successfully executed. It is applicable to
     massive one-time jobs.
-  + **DELETE**: Thejob will be deleted after it is executed, regardless of the execution result.
+  + **DELETE**: The job will be deleted after it is executed, regardless of the execution result.
 
 ## Attribute Reference
 

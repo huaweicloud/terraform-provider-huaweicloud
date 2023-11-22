@@ -86,7 +86,7 @@ The following arguments are supported:
   automatically.
   This option and `port_id` are mutually exclusive.
 
-* `fixed_ip` - (Optional, String, ForceNew) An IP address to assosciate with the port.
+* `fixed_ip` - (Optional, String, ForceNew) An IP address to associate with the port.
 
   ->This option cannot be used with port_id. You must specify a network_id. The IP address must lie in a range on
   the supplied network.

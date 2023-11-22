@@ -51,7 +51,7 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the NAT gateway.  
   Changing this will create a new resource.
 
-* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the NAT geteway.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the NAT gateway.
 
 ## Attribute Reference
 

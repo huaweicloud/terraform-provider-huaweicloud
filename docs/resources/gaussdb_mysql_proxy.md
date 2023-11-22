@@ -4,7 +4,7 @@ subcategory: "GaussDB(for MySQL)"
 
 # huaweicloud_gaussdb_mysql_proxy
 
-GaussDB mysql proxy management within HuaweiCoud.
+GaussDB mysql proxy management within HuaweiCould.
 
 ## Example Usage
 

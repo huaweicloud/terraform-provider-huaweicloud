@@ -28,7 +28,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the rds instance id. Changing this will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the username of the db account. Only lowercase letters, digits,
-  hyphens (-), and userscores (_) are allowed. Changing this will create a new resource.
+  hyphens (-), and underscores (_) are allowed. Changing this will create a new resource.
   + If the database version is MySQL 5.6, the username consists of 1 to 16 characters.
   + If the database version is MySQL 5.7 or 8.0, the username consists of 1 to 32 characters.
 

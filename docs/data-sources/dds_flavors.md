@@ -23,7 +23,7 @@ data "huaweicloud_dds_flavors" "flavor" {
 * `engine_name` - (Required, String) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are
   supported.
 
-* `type` - (Optional, String) Specifies the type of the dds falvor. "mongos", "shard", "config", "replica" and "single"
+* `type` - (Optional, String) Specifies the type of the DDS favor. "mongos", "shard", "config", "replica" and "single"
   are supported.
 
 * `vcpus` - (Optional, String) Specifies the vcpus of the dds flavor.

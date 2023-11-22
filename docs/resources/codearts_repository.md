@@ -63,7 +63,7 @@ The following arguments are supported:
   + **5**: Eclipse Public License v1.0
   + **6**: GNU General Public License v2.0
   + **7**: GNU General Public License v3.0
-  + **8**: GNU Affero General Public License v3.0
+  + **8**: GNU Afferent General Public License v3.0
   + **9**: GNU Lesser General Public License v2.1
   + **10**: GNU Lesser General Public License v3.0
   + **11**: Mozilla Public License v2.0
@@ -104,7 +104,7 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The repository status.  
   The valid values are as follows:
   + **0**: Normal.
-  + **3**: Frezon.
+  + **3**: Frozen.
   + **4**: Closed.
 
 * `create_at` - The creation time.

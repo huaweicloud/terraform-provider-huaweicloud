@@ -56,7 +56,7 @@ The `body` block supports:
 
 * `specification` - (Optional, String) Compute resource type. Currently, resource types A, B, and C are available.  
   The available types and related specifications are as follows, default to minimum configuration (type **A**).
-  | type | resource | driver cores | excutor cores | driver memory | executor memory | num executor |
+  | type | resource | driver cores | executor cores | driver memory | executor memory | num executor |
   | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
   | A | 8 vCPUs, 32-GB memory | 2 | 1 | 7G | 4G | 6 |
   | B | 16 vCPUs, 64-GB memory | 2 | 2 | 7G | 8G | 7 |

@@ -21,7 +21,7 @@ resource "huaweicloud_scm_certificate" "certificate_1" {
 }
 ```
 
-### Write the contents of the certificate into the Terrafrom script
+### Write the contents of the certificate into the Terraform script
 
 ```hcl
 resource "huaweicloud_scm_certificate" "certificate_2" {

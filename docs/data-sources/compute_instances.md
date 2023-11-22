@@ -74,9 +74,9 @@ The `instances` block supports:
 
 * `availability_zone` - The availability zone where the instance is located.
 
-* `public_ip` - The EIP address that is associted to the instance.
+* `public_ip` - The EIP address that is associated to the instance.
 
-* `system_disk_id` - The system disk voume ID.
+* `system_disk_id` - The system disk volume ID.
 
 * `key_pair` - The key pair that is used to authenticate the instance.
 

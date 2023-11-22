@@ -151,11 +151,11 @@ The `video` block supports:
 
   The default value is 1.
 
-* `max_iframes_interval` - (Optional, Int) Specifies the mximum I-frame interval. The value ranges from 2 to 10.
+* `max_iframes_interval` - (Optional, Int) Specifies the maximum I-frame interval. The value ranges from 2 to 10.
   The default value is 5. The unit is second.
 
 * `max_consecutive_bframes` - (Optional, Int) Specifies the maximum number of B-frames.
-  The vaule range is  0 to 7, and the default value is 4. The unit is frame.
+  The value range is  0 to 7, and the default value is 4. The unit is frame.
 
 * `fps` - (Optional, Int) Specifies the frame rate. Its value is 0 or an integer ranging from 5 to 30.
   The default value is 0. The unit is FPS.

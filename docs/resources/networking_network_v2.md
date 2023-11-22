@@ -71,7 +71,7 @@ The following arguments are supported:
 * `name` - (Optional, String) The name of the network. Changing this updates the name of the existing network.
 
 * `shared` - (Optional, String)  Specifies whether the network resource can be accessed by any tenant or not. Changing
-  this updates the sharing capabalities of the existing network.
+  this updates the sharing capabilities of the existing network.
 
 * `admin_state_up` - (Optional, String) The administrative state of the network. Acceptable values are "true" and "
   false". Changing this value updates the state of the existing network.
@@ -82,7 +82,7 @@ The following arguments are supported:
 
 The `segments` block supports:
 
-* `physical_network` - (Optional, String, ForceNew) The phisical network where this network is implemented.
+* `physical_network` - (Optional, String, ForceNew) The physical network where this network is implemented.
 * `segmentation_id` - (Optional, Int, ForceNew) An isolated segment on the physical network.
 * `network_type` - (Optional, String, ForceNew) The type of physical network.
 

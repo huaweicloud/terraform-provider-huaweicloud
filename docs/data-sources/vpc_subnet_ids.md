@@ -10,7 +10,7 @@ This resource can be useful for getting back a list of subnet ids for a vpc.
 
 ## Example Usage
 
-The following example shows outputing all cidr blocks for every subnet id in a vpc.
+The following example shows outputting all cidr blocks for every subnet id in a vpc.
 
 ```hcl
 data "huaweicloud_vpc_subnet_ids" "subnet_ids" {

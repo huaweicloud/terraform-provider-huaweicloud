@@ -76,7 +76,7 @@ The following arguments are supported:
   Defaults to **3**.
 
 * `status` - (Optional, String) Specifies the status. The value can be: **RUNNING** and **STOPPING**.
-  Defaults to **RUNNNING**
+  Defaults to **RUNNING**
 
 <a name="SQLAlarmRule_SQLRequests"></a>
 The `SQLRequests` block supports:

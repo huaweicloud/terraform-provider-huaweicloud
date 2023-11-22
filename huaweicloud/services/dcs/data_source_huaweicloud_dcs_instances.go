@@ -187,7 +187,7 @@ func InstanceInstanceSchema() *schema.Resource {
 			"max_memory": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Indicates the atotal memory size. Unit: MB.`,
+				Description: `Indicates the total memory size. Unit: MB.`,
 			},
 			"domain_name": {
 				Type:        schema.TypeString,

@@ -52,7 +52,7 @@ The `workspaces` block supports:
     + **private**: Only the creator and master account can access.
     + **internal**: Accessible to the creator, main account, and specified IAM sub-accounts.
 
-* `description` - The description of the worksapce.  
+* `description` - The description of the workspace.  
 
 * `owner` - Account name of the owner.
 

@@ -4,7 +4,7 @@ subcategory: "EventGrid (EG)"
 
 # huaweicloud_eg_custom_event_channels
 
-Use this data source to filter EG custom event channels within Huaweicloud.
+Use this data source to filter EG custom event channels within HuaweiCloud.
 
 ## Example Usage
 

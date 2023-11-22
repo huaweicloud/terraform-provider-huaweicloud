@@ -58,7 +58,7 @@ resource "huaweicloud_fgs_dependency" "test" {
   + **Custom**
   + **http**
 
-* `name` - (Required, String) Specifies the dependeny name.
+* `name` - (Required, String) Specifies the dependency name.
   The name can contain a maximum of 96 characters and must start with a letter and end with a letter or digit.
   Only letters, digits, underscores (_), periods (.), and hyphens (-) are allowed.
 

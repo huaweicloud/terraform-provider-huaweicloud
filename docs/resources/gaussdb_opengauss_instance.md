@@ -4,7 +4,7 @@ subcategory: "GaussDB"
 
 # huaweicloud_gaussdb_opengauss_instance
 
-GaussDB OpenGauss instance management within HuaweiCoud.
+GaussDB OpenGauss instance management within HuaweiCould.
 
 ## Example Usage
 

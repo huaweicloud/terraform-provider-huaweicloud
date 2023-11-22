@@ -127,7 +127,7 @@ The `networks` block supports:
 
 * `ipv6_bandwidth_id` - The ID of the shared bandwidth of an IPv6 address.
 
-* `source_dest_check` - Whether processesing only traffic that is destined specifically for it.
+* `source_dest_check` - Whether processing only traffic that is destined specifically for it.
 
 <a name="security_group_object"></a>
 The `security_groups` block supports:
