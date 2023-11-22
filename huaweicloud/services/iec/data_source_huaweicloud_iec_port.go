@@ -1,21 +1,23 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceIECPort() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECPortRead,
+		ReadContext: dataSourceIECPortRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -62,11 +64,11 @@ func DataSourceIECPort() *schema.Resource {
 	}
 }
 
-func dataSourceIECPortRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceIECPortRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	listOpts := ports.ListOpts{
@@ -82,34 +84,33 @@ func dataSourceIECPortRead(d *schema.ResourceData, meta interface{}) error {
 
 	allPorts, err := ports.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve huaweicloud IEC port: %s", err)
+		return diag.Errorf("unable to retrieve IEC port: %s", err)
 	}
 
 	total := len(allPorts.Ports)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. Please change your search criteria and try again")
 	}
 	if total > 1 {
-		return fmtp.Errorf("Your query returned more than one result. " +
-			"Please try a more specific search criteria.")
+		return diag.Errorf("your query returned more than one result. Please try a more specific search criteria")
 	}
 
 	port := allPorts.Ports[0]
-	logp.Printf("[DEBUG] Retrieved IEC port %s: %+v", port.ID, port)
+	log.Printf("[DEBUG] Retrieved IEC port %s: %+v", port.ID, port)
 	d.SetId(port.ID)
-
-	d.Set("region", GetRegion(d, config))
-	d.Set("mac_address", port.MacAddress)
-	d.Set("subnet_id", port.NetworkID)
-	d.Set("status", port.Status)
-	d.Set("site_id", port.SiteID)
-	d.Set("security_groups", port.SecurityGroups)
+	mErr := multierror.Append(nil,
+		d.Set("region", cfg.GetRegion(d)),
+		d.Set("mac_address", port.MacAddress),
+		d.Set("subnet_id", port.NetworkID),
+		d.Set("status", port.Status),
+		d.Set("site_id", port.SiteID),
+		d.Set("security_groups", port.SecurityGroups),
+	)
 
 	if !ipFilter && len(port.FixedIPs) > 0 {
 		fixedIP := port.FixedIPs[0].IpAddress
-		d.Set("fixed_ip", fixedIP)
+		mErr = multierror.Append(mErr, d.Set("fixed_ip", fixedIP))
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

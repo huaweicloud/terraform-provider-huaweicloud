@@ -516,7 +516,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_images":         iec.DataSourceIecImages(),
 			"huaweicloud_iec_keypair":        iec.DataSourceIECKeypair(),
 			"huaweicloud_iec_network_acl":    dataSourceIECNetworkACL(),
-			"huaweicloud_iec_port":           DataSourceIECPort(),
+			"huaweicloud_iec_port":           iec.DataSourceIECPort(),
 			"huaweicloud_iec_security_group": iec.DataSourceIECSecurityGroup(),
 			"huaweicloud_iec_server":         iec.DataSourceIECServer(),
 			"huaweicloud_iec_sites":          iec.DataSourceIecSites(),
