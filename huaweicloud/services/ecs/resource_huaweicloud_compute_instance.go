@@ -21,9 +21,9 @@ import (
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 	groups "github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
-	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -552,7 +552,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	if err != nil {
 		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
-	nicClient, err := cfg.NetworkingV2Client(region)
+	nicClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v2 client: %s", err)
 	}
@@ -1069,7 +1069,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("network") {
 		var err error
-		nicClient, err := cfg.NetworkingV2Client(region)
+		nicClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating networking client: %s", err)
 		}
@@ -1706,27 +1706,25 @@ func doPowerAction(client *golangsdk.ServiceClient, d *schema.ResourceData, acti
 func disableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID string) error {
 	// Update the allowed-address-pairs of the port to 1.1.1.1/0
 	// to disable the source/destination check
-	portpairs := []ports.AddressPair{
-		{
-			IPAddress: "1.1.1.1/0",
+	portpairs := ports.UpdateOpts{
+		AllowedAddressPairs: []ports.AddressPair{
+			{
+				IpAddress: "1.1.1.1/0",
+			},
 		},
 	}
-	portUpdateOpts := ports.UpdateOpts{
-		AllowedAddressPairs: &portpairs,
-	}
 
-	_, err := ports.Update(networkClient, portID, portUpdateOpts).Extract()
+	_, err := ports.Update(networkClient, portID, portpairs)
 	return err
 }
 
 func enableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID string) error {
 	// cancle all allowed-address-pairs to enable the source/destination check
-	portpairs := make([]ports.AddressPair, 0)
-	portUpdateOpts := ports.UpdateOpts{
-		AllowedAddressPairs: &portpairs,
+	portpairs := ports.UpdateOpts{
+		AllowedAddressPairs: make([]ports.AddressPair, 0),
 	}
 
-	_, err := ports.Update(networkClient, portID, portUpdateOpts).Extract()
+	_, err := ports.Update(networkClient, portID, portpairs)
 	return err
 }
 
