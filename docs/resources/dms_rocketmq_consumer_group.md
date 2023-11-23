@@ -18,6 +18,7 @@ resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
   broadcast       = true
   brokers         = ["broker-0","broker-1"]
   retry_max_times = 3
+  description     = "the description of the consumer group"
 }
 ```
 
@@ -45,6 +46,8 @@ The following arguments are supported:
 * `enabled` - (Optional, Bool) Specifies the consumer group is enabled or not. Default to true.
 
 * `broadcast` - (Optional, Bool) Specifies whether to broadcast of the consumer group.
+
+* `description` - (Optional, String) Specifies the description of the consumer group.
 
 ## Attribute Reference
 

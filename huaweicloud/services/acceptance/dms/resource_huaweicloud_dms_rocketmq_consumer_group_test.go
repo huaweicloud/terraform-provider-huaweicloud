@@ -79,6 +79,7 @@ func TestAccDmsRocketMQConsumerGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "broadcast", "true"),
 					resource.TestCheckResourceAttr(resourceName, "retry_max_times", "3"),
+					resource.TestCheckResourceAttr(resourceName, "description", "add description."),
 				),
 			},
 			{
@@ -89,6 +90,7 @@ func TestAccDmsRocketMQConsumerGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "broadcast", "false"),
 					resource.TestCheckResourceAttr(resourceName, "retry_max_times", "5"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 				),
 			},
 			{
@@ -139,6 +141,7 @@ resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
 
   name            = "%s"
   retry_max_times = "3"
+  description     = "add description."
 }
 `, testAccDmsRocketmqConsumerGroup_Base(name), name)
 }
@@ -158,6 +161,7 @@ resource "huaweicloud_dms_rocketmq_consumer_group" "test" {
   name            = "%s"
   retry_max_times = "5"
   enabled         = false
+  description     = ""
 }
 `, testAccDmsRocketmqConsumerGroup_Base(name), name)
 }

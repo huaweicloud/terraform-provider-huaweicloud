@@ -78,6 +78,11 @@ func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies whether to broadcast of the consumer group.`,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the description of the consumer group.`,
+			},
 		},
 	}
 }
@@ -141,6 +146,7 @@ func buildCreateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, _ *confi
 		"brokers":        utils.ValueIngoreEmpty(d.Get("brokers")),
 		"name":           utils.ValueIngoreEmpty(d.Get("name")),
 		"retry_max_time": utils.ValueIngoreEmpty(d.Get("retry_max_times")),
+		"group_desc":     utils.ValueIngoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -153,6 +159,7 @@ func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.Resou
 		"enabled",
 		"broadcast",
 		"retry_max_times",
+		"description",
 	}
 
 	if d.HasChanges(updateRocketmqConsumerGroupHasChanges...) {
@@ -199,6 +206,7 @@ func buildUpdateRocketmqConsumerGroupBodyParams(d *schema.ResourceData) map[stri
 	bodyParams := map[string]interface{}{
 		"broadcast":      utils.ValueIngoreEmpty(d.Get("broadcast")),
 		"retry_max_time": utils.ValueIngoreEmpty(d.Get("retry_max_times")),
+		"group_desc":     utils.ValueIngoreEmpty(d.Get("description")),
 	}
 	enabled := utils.ValueIngoreEmpty(d.Get("enabled"))
 	if enabled != nil {
@@ -262,6 +270,7 @@ func resourceDmsRocketMQConsumerGroupRead(_ context.Context, d *schema.ResourceD
 		d.Set("brokers", utils.PathSearch("brokers", getRocketmqConsumerGroupRespBody, nil)),
 		d.Set("name", name),
 		d.Set("retry_max_times", utils.PathSearch("retry_max_time", getRocketmqConsumerGroupRespBody, nil)),
+		d.Set("description", utils.PathSearch("group_desc", getRocketmqConsumerGroupRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
