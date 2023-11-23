@@ -447,6 +447,17 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	// set charging_mode according to billing_info
+	if len(lb.BillingInfo) > 0 {
+		mErr = multierror.Append(mErr,
+			d.Set("charging_mode", "prePaid"),
+		)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("charging_mode", "postPaid"),
+		)
+	}
+
 	// fetch tags
 	if resourceTags, err := tags.Get(elbV2Client, "loadbalancers", d.Id()).Extract(); err == nil {
 		tagMap := utils.TagsToMap(resourceTags.Tags)
