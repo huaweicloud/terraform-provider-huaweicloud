@@ -12,7 +12,7 @@ HuaweiCloud.
 ```hcl
 variable "supported_region" {}
 
-resource "huaweicloud_tms_resource_types" "test" {
+data "huaweicloud_tms_resource_types" "test" {
   region = var.supported_region
 }
 ```
