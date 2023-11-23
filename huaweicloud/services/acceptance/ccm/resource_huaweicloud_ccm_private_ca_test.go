@@ -26,9 +26,6 @@ func getPrivateCAResourceFunc(conf *config.Config, state *terraform.ResourceStat
 	getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{id}", state.Primary.ID)
 	getPrivateCAOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
 	getPrivateCAResp, err := client.Request("GET", getPrivateCAPath, &getPrivateCAOpt)
@@ -106,7 +103,7 @@ provider "huaweicloud" {
 }
 
 resource "huaweicloud_ccm_private_ca" "test_root" {
-  type   = "ROOT"
+  type = "ROOT"
   distinguished_name {
     common_name         = "%s-root"
     country             = "CN"
@@ -125,7 +122,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
 }
 
 resource "huaweicloud_ccm_private_ca" "test_subordinate" {
-  type   = "SUBORDINATE"
+  type = "SUBORDINATE"
   distinguished_name {
     common_name         = "%s-subordinate"
     country             = "CN"
@@ -142,5 +139,105 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
     type  = "DAY"
     value = 1
   }
+}`, commonName, commonName)
+}
+
+func TestAccCCMPrivateCA_prePaid(t *testing.T) {
+	var obj interface{}
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_ccm_private_ca.test_subordinate"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getPrivateCAResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: tesPrivateCA_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "type", "SUBORDINATE"),
+					resource.TestCheckResourceAttr(resourceName, "distinguished_name.0.country", "CN"),
+					resource.TestCheckResourceAttr(resourceName, "key_algorithm", "RSA2048"),
+					resource.TestCheckResourceAttr(resourceName, "signature_algorithm", "SHA512"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "issuer_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "serial_number"),
+					resource.TestCheckResourceAttrSet(resourceName, "gen_mode"),
+					resource.TestCheckResourceAttrSet(resourceName, "free_quota"),
+					resource.TestCheckResourceAttrSet(resourceName, "expired_at"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"validity", "key_usages", "pending_days",
+				},
+			},
+		},
+	})
+}
+
+// lintignore:AT004
+func tesPrivateCA_prePaid(commonName string) string {
+	return fmt.Sprintf(`
+provider "huaweicloud" {
+  endpoints = {
+    ccm = "https://ccm.cn-north-4.myhuaweicloud.com/"
+  }
+}
+
+resource "huaweicloud_ccm_private_ca" "test_root" {
+  type = "ROOT"
+  distinguished_name {
+    common_name         = "%s-root"
+    country             = "CN"
+    state               = "GD"
+    locality            = "SZ"
+    organization        = "huawei"
+    organizational_unit = "cloud"
+  }
+  key_algorithm       = "RSA2048"
+  signature_algorithm = "SHA512"
+  pending_days        = "7"
+  validity {
+    type  = "MONTH"
+    value = 2
+  }
+  charging_mode = "prePaid"
+}
+
+resource "huaweicloud_ccm_private_ca" "test_subordinate" {
+  type = "SUBORDINATE"
+  distinguished_name {
+    common_name         = "%s-subordinate"
+    country             = "CN"
+    state               = "GD"
+    locality            = "SZ"
+    organization        = "huawei"
+    organizational_unit = "cloud"
+  }
+  key_algorithm       = "RSA2048"
+  issuer_id           = huaweicloud_ccm_private_ca.test_root.id
+  signature_algorithm = "SHA512"
+  pending_days        = "7"
+  validity {
+    type  = "MONTH"
+    value = 1
+  }
+  charging_mode = "prePaid"
 }`, commonName, commonName)
 }
