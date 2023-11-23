@@ -28,7 +28,7 @@ CBR | huaweicloud_cbr_vault |
 CC  | huaweicloud_cc_bandwidth_package<br>huaweicloud_cc_connection |
 CCE | huaweicloud_cce_cluster | huaweicloud_cce_node<br>huaweicloud_cce_node_pool<br>huaweicloud_cce_addon
 CCI | huaweicloud_cci_namespace |
-CCM | huaweicloud_ccm_private_certificate |
+CCM | huaweicloud_ccm_private_certificate<br>huaweicloud_ccm_private_ca |
 CDM | huaweicloud_cdm_cluster |
 CDN | huaweicloud_cdn_domain |
 CES | huaweicloud_ces_alarmrule<br>huaweicloud_ces_resource_group |
