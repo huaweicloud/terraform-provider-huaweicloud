@@ -16,7 +16,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceSWRRepository() *schema.Resource {
@@ -35,7 +34,7 @@ func ResourceSWRRepository() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 
-		//request and response parameters
+		// request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -60,7 +59,8 @@ func ResourceSWRRepository() *schema.Resource {
 					),
 					validation.StringDoesNotMatch(
 						regexp.MustCompile(`_{3,}?|\.{2,}?|-{2,}?`),
-						"Periods, underscores, and hyphens cannot be placed next to each other. A maximum of two consecutive underscores are allowed.",
+						"Periods, underscores, and hyphens cannot be placed next to each other. "+
+							"A maximum of two consecutive underscores are allowed.",
 					),
 				),
 			},
@@ -105,10 +105,10 @@ func ResourceSWRRepository() *schema.Resource {
 }
 
 func resourceSWRRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
+		return diag.Errorf("unable to create SWR client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -123,7 +123,7 @@ func resourceSWRRepositoryCreate(ctx context.Context, d *schema.ResourceData, me
 
 	err = repositories.Create(client, organization, opts).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Repository: %s", err)
+		return diag.Errorf("error creating SWR repository: %s", err)
 	}
 	d.SetId(name)
 
@@ -131,21 +131,21 @@ func resourceSWRRepositoryCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceSWRRepositoryRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
+		return diag.Errorf("unable to create SWR client: %s", err)
 	}
 
 	organization := d.Get("organization").(string)
 
 	repo, err := repositories.Get(client, organization, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud SWR Repository")
+		return common.CheckDeletedDiag(d, err, "error retrieving SWR repository")
 	}
 
 	mErr := multierror.Append(
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", repo.Name),
 		d.Set("repository_id", repo.ID),
 		d.Set("description", repo.Description),
@@ -157,17 +157,17 @@ func resourceSWRRepositoryRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("size", repo.Size),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("error setting HuaweiCloud SWR Repository fields: %s", err)
+		return diag.Errorf("error setting SWR repository fields: %s", err)
 	}
 
 	return nil
 }
 
 func resourceSWRRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
+		return diag.Errorf("unable to create SWR client: %s", err)
 	}
 
 	opts := repositories.UpdateOpts{
@@ -180,26 +180,25 @@ func resourceSWRRepositoryUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	err = repositories.Update(client, organization, d.Id(), opts).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating HuaweiCloud SWR Repository: %s", err)
+		return diag.Errorf("error updating SWR repository: %s", err)
 	}
 
 	return resourceSWRRepositoryRead(ctx, d, meta)
 }
 
 func resourceSWRRepositoryDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
+		return diag.Errorf("unable to create SWR client: %s", err)
 	}
 
 	organization := d.Get("organization").(string)
 	err = repositories.Delete(client, organization, d.Id()).ExtractErr()
 	if err != nil {
-		fmtp.DiagErrorf("error deleting HuaweiCloud SWR Repository: %s", err)
+		diag.Errorf("error deleting SWR repository: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 

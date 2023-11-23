@@ -24,7 +24,7 @@ func getSwrImageTriggerResourceFunc(cfg *config.Config, state *terraform.Resourc
 	)
 	getSwrImageTriggerClient, err := cfg.NewServiceClient(getSwrImageTriggerProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SWR Client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(state.Primary.ID, "/", 3)

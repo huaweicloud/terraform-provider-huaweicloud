@@ -3,6 +3,7 @@ package swr
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,13 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	iam_users "github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
+	iamusers "github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
 	"github.com/chnsz/golangsdk/openstack/swr/v2/namespaces"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceSWROrganizationPermissions() *schema.Resource {
@@ -104,7 +103,7 @@ func resourceSWROrganizationPermissionsCreate(ctx context.Context, d *schema.Res
 	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
+		return diag.Errorf("unable to create SWR client : %s", err)
 	}
 
 	nameSpace := d.Get("organization").(string)
@@ -122,15 +121,15 @@ func resourceSWROrganizationPermissionsCreate(ctx context.Context, d *schema.Res
 }
 
 func resourceSWROrganizationPermissionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	access, err := namespaces.GetAccess(swrClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud SWR")
+		return common.CheckDeletedDiag(d, err, "error retrieving SWR")
 	}
 
 	var users []map[string]interface{}
@@ -159,7 +158,7 @@ func resourceSWROrganizationPermissionsRead(_ context.Context, d *schema.Resourc
 	selfPermission[0]["permission"] = permission
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("organization", access.Name),
 		d.Set("creator", access.CreatorName),
 		d.Set("self_permission", selfPermission),
@@ -176,7 +175,7 @@ func resourceSWROrganizationPermissionsUpdate(ctx context.Context, d *schema.Res
 	cfg := meta.(*config.Config)
 	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	nameSpace := d.Get("organization").(string)
@@ -192,7 +191,7 @@ func resourceSWROrganizationPermissionsUpdate(ctx context.Context, d *schema.Res
 
 	err = namespaces.DeleteAccess(swrClient, userIDs, nameSpace).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud SWR Organization: %s", err)
+		return diag.Errorf("error deleting SWR organization permission: %s", err)
 	}
 	userRaw := d.Get("users").([]interface{})
 	addUsers := dealAddUsers(userRaw)
@@ -223,11 +222,11 @@ func addSwrOrganizationPermissions(d *schema.ResourceData, cfg *config.Config, c
 				return fmt.Errorf("error creating iam client: %s", err)
 			}
 
-			user, err := iam_users.Get(iamClient, rawMap["user_id"].(string)).Extract()
+			user, err := iamusers.Get(iamClient, rawMap["user_id"].(string)).Extract()
 			if err != nil {
-				return fmt.Errorf("error retrieving HuaweiCloud user(%s): %s", rawMap["user_id"].(string), err)
+				return fmt.Errorf("error retrieving user(%s): %s", rawMap["user_id"].(string), err)
 			}
-			logp.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
+			log.Printf("[DEBUG] retrieved user: %#v", user)
 
 			users[i].UserName = user.Name
 		}
@@ -239,16 +238,16 @@ func addSwrOrganizationPermissions(d *schema.ResourceData, cfg *config.Config, c
 	err := namespaces.CreateAccess(client, createOpts, nameSpace).ExtractErr()
 
 	if err != nil {
-		return fmt.Errorf("error creating SWR Organization: %s", err)
+		return fmt.Errorf("error creating SWR organization permission: %s", err)
 	}
 	return nil
 }
 
-func resourceSWROrganizationPermissionsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+func resourceSWROrganizationPermissionsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	nameSpace := d.Get("organization").(string)
@@ -262,10 +261,9 @@ func resourceSWROrganizationPermissionsDelete(ctx context.Context, d *schema.Res
 
 	err = namespaces.DeleteAccess(swrClient, userIDs, nameSpace).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud SWR Organization: %s", err)
+		return diag.Errorf("error deleting SWR organization permission: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 

@@ -24,7 +24,7 @@ func getSwrImagePermissionsResourceFunc(cfg *config.Config, state *terraform.Res
 	)
 	getSwrImagePermissionsClient, err := cfg.NewServiceClient(getSwrImagePermissionsProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SWR Client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	parts := strings.SplitN(state.Primary.ID, "/", 2)
@@ -147,42 +147,42 @@ func testSwrImagePermissions_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_identity_user" "user_1" {
- name     = "%[2]s_1"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_1"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_user" "user_2" {
- name     = "%[2]s_2"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_2"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_user" "user_3" {
- name     = "%[2]s_3"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_3"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_swr_image_permissions" "test" {
- organization = huaweicloud_swr_organization.test.name
- repository   = huaweicloud_swr_repository.test.name
+  organization = huaweicloud_swr_organization.test.name
+  repository   = huaweicloud_swr_repository.test.name
 
- users {
-   user_id    = huaweicloud_identity_user.user_1.id
-   user_name  = huaweicloud_identity_user.user_1.name
-   permission = "Read"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_1.id
+    user_name  = huaweicloud_identity_user.user_1.name
+    permission = "Read"
+  }
 
- users {
-   user_id    = huaweicloud_identity_user.user_2.id
-   permission = "Write"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_2.id
+    permission = "Write"
+  }
 
- users {
-   user_id    = huaweicloud_identity_user.user_3.id
-   permission = "Manage"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_3.id
+    permission = "Manage"
+  }
 }
 `, testAccSWRRepository_basic(name), name)
 }
@@ -192,53 +192,53 @@ func testSwrImagePermissions_basic_update(name string) string {
 %[1]s
 
 resource "huaweicloud_identity_user" "user_1" {
- name     = "%[2]s_1"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_1"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_user" "user_2" {
- name     = "%[2]s_2"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_2"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_user" "user_4" {
- name     = "%[2]s_4"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_4"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_user" "user_5" {
- name     = "%[2]s_5"
- enabled  = true
- password = "password12345!"
+  name     = "%[2]s_5"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_swr_image_permissions" "test" {
- organization = huaweicloud_swr_organization.test.name
- repository   = huaweicloud_swr_repository.test.name
+  organization = huaweicloud_swr_organization.test.name
+  repository   = huaweicloud_swr_repository.test.name
 
- users {
-   user_id    = huaweicloud_identity_user.user_1.id
-   user_name  = huaweicloud_identity_user.user_1.name
-   permission = "Write"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_1.id
+    user_name  = huaweicloud_identity_user.user_1.name
+    permission = "Write"
+  }
 
- users {
-   user_id    = huaweicloud_identity_user.user_2.id
-   permission = "Read"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_2.id
+    permission = "Read"
+  }
 
- users {
-   user_id    = huaweicloud_identity_user.user_4.id
-   permission = "Manage"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_4.id
+    permission = "Manage"
+  }
 
- users {
-   user_id    = huaweicloud_identity_user.user_5.id
-   permission = "Write"
- }
+  users {
+    user_id    = huaweicloud_identity_user.user_5.id
+    permission = "Write"
+  }
 } 
 `, testAccSWRRepository_basic(name), name)
 }

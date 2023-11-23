@@ -11,13 +11,12 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getResourceRepositorySharing(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	swrClient, err := conf.SwrV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud SWR client: %s", err)
+		return nil, fmt.Errorf("error creating SWR client: %s", err)
 	}
 
 	return domains.Get(swrClient, state.Primary.Attributes["organization"],
@@ -85,16 +84,17 @@ func testAccSWRRepositorySharingImportStateIdFunc() resource.ImportStateIdFunc {
 		var repositoryID string
 		var sharingAccount string
 		for _, rs := range s.RootModule().Resources {
-			if rs.Type == "huaweicloud_swr_organization" {
+			switch rs.Type {
+			case "huaweicloud_swr_organization":
 				organization = rs.Primary.Attributes["name"]
-			} else if rs.Type == "huaweicloud_swr_repository" {
+			case "huaweicloud_swr_repository":
 				repositoryID = rs.Primary.ID
-			} else if rs.Type == "huaweicloud_swr_repository_sharing" {
+			case "huaweicloud_swr_repository_sharing":
 				sharingAccount = rs.Primary.ID
 			}
 		}
 		if organization == "" || repositoryID == "" || sharingAccount == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s/%s", organization, repositoryID, sharingAccount)
+			return "", fmt.Errorf("resource not found: %s/%s/%s", organization, repositoryID, sharingAccount)
 		}
 		return fmt.Sprintf("%s/%s/%s", organization, repositoryID, sharingAccount), nil
 	}

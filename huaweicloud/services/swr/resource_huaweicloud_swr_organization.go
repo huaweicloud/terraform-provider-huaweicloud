@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func ResourceSWROrganization() *schema.Resource {
@@ -30,7 +29,7 @@ func ResourceSWROrganization() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		//request and response parameters
+		// Request and response parameters.
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -60,11 +59,11 @@ func ResourceSWROrganization() *schema.Resource {
 }
 
 func resourceSWROrganizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to create HuaweiCloud SWR client : %s", err)
+		return diag.Errorf("unable to create SWR client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -75,7 +74,7 @@ func resourceSWROrganizationCreate(ctx context.Context, d *schema.ResourceData, 
 	err = namespaces.Create(swrClient, createOpts).ExtractErr()
 
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Organization: %s", err)
+		return diag.Errorf("error creating SWR organization: %s", err)
 	}
 
 	d.SetId(name)
@@ -84,27 +83,27 @@ func resourceSWROrganizationCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceSWROrganizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	n, err := namespaces.Get(swrClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving HuaweiCloud SWR")
+		return common.CheckDeletedDiag(d, err, "error retrieving SWR")
 	}
 
 	permission := resourceSWRAuthToPermission(n.Auth)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", n.Name),
 		d.Set("creator", n.CreatorName),
 		d.Set("permission", permission),
 	)
 
-	login := fmt.Sprintf("swr.%s.%s", config.GetRegion(d), config.Cloud)
+	login := fmt.Sprintf("swr.%s.%s", cfg.GetRegion(d), cfg.Cloud)
 	mErr = multierror.Append(mErr, d.Set("login_server", login))
 
 	if mErr.ErrorOrNil() != nil {
@@ -115,17 +114,16 @@ func resourceSWROrganizationRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func resourceSWROrganizationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	swrClient, err := config.SwrV2Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	swrClient, err := cfg.SwrV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud SWR Client: %s", err)
+		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
 	err = namespaces.Delete(swrClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting HuaweiCloud SWR Organization: %s", err)
+		return diag.Errorf("error deleting SWR organization: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }

@@ -203,7 +203,7 @@ func flattenGetImagePermissionsSelfPermissionResponseBody(resp interface{}) []in
 	var rst []interface{}
 	curJson, err := jmespath.Search("self_auth", resp)
 	if err != nil {
-		log.Printf("[ERROR] error parsing self_permission from response= %#v", resp)
+		log.Printf("[ERROR] error parsing self_permission from response: %#v", resp)
 		return rst
 	}
 
