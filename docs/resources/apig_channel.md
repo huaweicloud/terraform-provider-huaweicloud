@@ -204,6 +204,9 @@ The following arguments are supported:
 The `member_group` block supports:
 
 * `name` - (Required, String) Specifies the name of the member group.
+  The valid length is limited from `3` to `64`, only chinese and english letters, digits, hyphens (-), underscores (_)
+  and dots (.) are allowed.  
+  The name must start with a Chinese or English letter.
 
 * `description` - (Optional, String) Specifies the description of the member group.
 

@@ -94,6 +94,13 @@ The following arguments are supported:
 * `secret` - (Optional, String) Specifies the signature secret.  
   If not specified, the secret will automatically generated. The auto-generation is only supported on first creation.  
   Changing this will create a new resource.
+  + For `basic` type: The value contains `8` to `64` characters. Letters, digits, and special characters (_-!@#$%) are
+   allowed. It must start with a letter or digit. If not specified, a value is automatically generated.
+  + For `hmac` type: The value contains `16` to `64` characters. Letters, digits, and special characters (_-!@#$%) are
+   allowed. It must start with a letter or digit. If not specified, a value is automatically generated.
+  + For `aes` type: The value contains `16` characters, including letters, digits, and special
+   characters (_-!@#$%+/=). It must start with a letter, digit, plus sign (+), or slash (/). If not specified, a
+   value is automatically generated.
 
 * `algorithm` - (Optional, String) Specifies the signature algorithm.  
   This parameter is required and only available when signature `type` is `aes`.  
