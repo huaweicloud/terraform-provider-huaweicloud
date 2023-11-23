@@ -1,19 +1,22 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
+	ieccommon "github.com/chnsz/golangsdk/openstack/iec/v1/common"
 	"github.com/chnsz/golangsdk/openstack/iec/v1/sites"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIecSites() *schema.Resource {
+func DataSourceIecSites() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIecSitesV1Read,
+		ReadContext: dataSourceIecSitesV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"area": {
@@ -88,12 +91,11 @@ func dataSourceIecSites() *schema.Resource {
 	}
 }
 
-func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceIecSitesV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	listOpts := sites.ListSiteOpts{
@@ -103,22 +105,23 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	pages, err := sites.List(iecClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve iec sites: %s", err)
+		return diag.Errorf("unable to retrieve IEC sites: %s", err)
 	}
 
 	allSites, err := sites.ExtractSites(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to extract iec sites: %s", err)
+		return diag.Errorf("unable to extract IEC sites: %s", err)
 	}
 	total := len(allSites.Sites)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results of huaweicloud_iec_sites. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
-	logp.Printf("[INFO] Retrieved [%d] IEC sites using given filter", total)
+	log.Printf("[INFO] Retrieved [%d] IEC sites using given filter", total)
 	iecSites := make([]map[string]interface{}, 0, total)
-	for _, item := range allSites.Sites {
+	for i := range allSites.Sites {
+		item := allSites.Sites[i]
 		val := map[string]interface{}{
 			"id":       item.ID,
 			"name":     item.Name,
@@ -130,8 +133,13 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 		}
 		iecSites = append(iecSites, val)
 	}
-	if err := d.Set("sites", iecSites); err != nil {
-		return fmtp.Errorf("Error saving IEC sites: %s", err)
+
+	mErr := multierror.Append(nil,
+		d.Set("sites", iecSites),
+	)
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving IEC sites: %s", err)
 	}
 
 	site := allSites.Sites[0]
@@ -140,7 +148,7 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func flattenSiteLines(site *iec_common.Site) []map[string]interface{} {
+func flattenSiteLines(site *ieccommon.Site) []map[string]interface{} {
 	siteLines := make([]map[string]interface{}, len(site.EipPools))
 	for i, item := range site.EipPools {
 		siteLines[i] = map[string]interface{}{
