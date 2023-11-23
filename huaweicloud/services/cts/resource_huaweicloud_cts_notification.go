@@ -2,6 +2,7 @@ package cts
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"regexp"
 	"time"
@@ -109,7 +110,27 @@ func ResourceCTSNotification() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-
+			"filter": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"condition": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"rule": {
+							Type:     schema.TypeList,
+							Required: true,
+							MinItems: 1,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"notification_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -122,7 +143,7 @@ func ResourceCTSNotification() *schema.Resource {
 	}
 }
 
-func buildNotificationCreateRequestBody(d *schema.ResourceData) *cts.CreateNotificationRequestBody {
+func buildNotificationCreateRequestBody(d *schema.ResourceData) (*cts.CreateNotificationRequestBody, error) {
 	reqBody := cts.CreateNotificationRequestBody{
 		NotificationName: d.Get("name").(string),
 		OperationType:    formatCreateNotificationType(d.Get("operation_type").(string)),
@@ -130,9 +151,42 @@ func buildNotificationCreateRequestBody(d *schema.ResourceData) *cts.CreateNotif
 		NotifyUserList:   buildNotifyUserOpts(d),
 		TopicId:          utils.String(d.Get("smn_topic").(string)),
 	}
-
+	filter, err := buildKeyFilterOpts(d)
+	if err != nil {
+		return nil, err
+	}
+	reqBody.Filter = filter
 	log.Printf("[DEBUG] creating CTS key events notification options: %#v", reqBody)
-	return &reqBody
+	return &reqBody, nil
+}
+
+func buildKeyFilterOpts(d *schema.ResourceData) (*cts.Filter, error) {
+	rawFilter := d.Get("filter").([]interface{})
+	if len(rawFilter) == 0 {
+		return nil, nil
+	}
+
+	filterData := rawFilter[0].(map[string]interface{})
+	filter := cts.Filter{
+		IsSupportFilter: true,
+		Rule:            utils.ExpandToStringList(filterData["rule"].([]interface{})),
+	}
+
+	conditionStr := filterData["condition"].(string)
+	conditionAnd := cts.GetFilterConditionEnum().AND
+	conditionOr := cts.GetFilterConditionEnum().OR
+	switch conditionStr {
+	case "AND":
+		filter.Condition = conditionAnd
+	case "OR":
+		filter.Condition = conditionOr
+	default:
+		return &filter, fmt.Errorf("invalid condition, want '%v' or '%v', but got '%v'",
+			conditionAnd.Value(), conditionOr.Value(), conditionStr)
+	}
+
+	log.Printf("[DEBUG] CTS key events notification filter: %#v", filter)
+	return &filter, nil
 }
 
 func buildKeyOperationOpts(d *schema.ResourceData) *[]cts.Operations {
@@ -195,8 +249,12 @@ func resourceCTSNotificationCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
+	createRequestBody, err := buildNotificationCreateRequestBody(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	createOpts := cts.CreateNotificationRequest{
-		Body: buildNotificationCreateRequestBody(d),
+		Body: createRequestBody,
 	}
 
 	notification, err := ctsClient.CreateNotification(&createOpts)
@@ -254,6 +312,7 @@ func resourceCTSNotificationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("name", ctsNotification.NotificationName),
 		d.Set("notification_id", ctsNotification.NotificationId),
 		d.Set("smn_topic", ctsNotification.TopicId),
+		d.Set("filter", flattenNotificationFilter(ctsNotification.Filter)),
 	)
 
 	if ctsNotification.Operations != nil {
@@ -306,6 +365,12 @@ func resourceCTSNotificationUpdate(ctx context.Context, d *schema.ResourceData, 
 		Status:           enabledStatus,
 		TopicId:          utils.String(d.Get("smn_topic").(string)),
 	}
+
+	filter, err := buildKeyFilterOpts(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	updateReq.Filter = filter
 
 	log.Printf("[DEBUG] updating CTS key events notification options: %#v", updateReq)
 	updateOpts := cts.UpdateNotificationRequest{
@@ -391,4 +456,16 @@ func flattenNotificationOperations(ops []cts.Operations) []map[string]interface{
 	}
 
 	return ret
+}
+
+func flattenNotificationFilter(filter *cts.Filter) []map[string]interface{} {
+	if filter == nil {
+		return nil
+	}
+	result := map[string]interface{}{
+		"condition": filter.Condition.Value(),
+		"rule":      filter.Rule,
+	}
+
+	return []map[string]interface{}{result}
 }

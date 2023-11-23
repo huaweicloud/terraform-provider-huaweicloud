@@ -64,6 +64,8 @@ func TestAccCTSNotification_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "operation_type", "complete"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "filter.0.condition", "AND"),
+					resource.TestCheckResourceAttr(resourceName, "filter.0.rule.#", "2"),
 					resource.TestCheckResourceAttrPair(resourceName, "smn_topic",
 						"huaweicloud_smn_topic.topic_1", "id"),
 				),
@@ -73,6 +75,8 @@ func TestAccCTSNotification_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "operation_type", "customized"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "filter.0.condition", "OR"),
+					resource.TestCheckResourceAttr(resourceName, "filter.0.rule.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "operations.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "operations.0.service", "ECS"),
 					resource.TestCheckResourceAttrPair(resourceName, "smn_topic",
@@ -106,6 +110,11 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "complete"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+
+  filter {
+    condition = "AND"
+    rule      = ["code = 200","resource_name = test"]
+  }
 }
 `, rName)
 }
@@ -120,6 +129,11 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "customized"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+
+  filter {
+    condition = "OR"
+    rule      = ["code = 400","resource_name = name","api_version = 1.0"]
+  }
 
   operations {
     service     = "ECS"
