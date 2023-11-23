@@ -153,7 +153,7 @@ func buildNotificationCreateRequestBody(d *schema.ResourceData) (*cts.CreateNoti
 	}
 	filter, err := buildKeyFilterOpts(d)
 	if err != nil {
-		return &reqBody, err
+		return nil, err
 	}
 	reqBody.Filter = filter
 	log.Printf("[DEBUG] creating CTS key events notification options: %#v", reqBody)
