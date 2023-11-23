@@ -28,7 +28,7 @@ var multiCatalogKeys = map[string][]string{
 	"cci":          {"cciv1_bata"},
 	"vpc":          {"networkv2", "vpcv3", "fwv2"},
 	"elb":          {"elbv2", "elbv3"},
-	"dns":          {"dns_region"},
+	"dns":          {"dns_region", "dnsv21"},
 	"kms":          {"kmsv1", "kmsv3"},
 	"mrs":          {"mrsv2"},
 	"nat":          {"natv3"},
@@ -339,6 +339,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"dns_region": {
 		Name:             "dns",
 		Version:          "v2",
+		WithOutProjectID: true,
+		Product:          "DNS",
+	},
+	"dnsv21": {
+		Name:             "dns",
+		Version:          "v2.1",
+		Scope:            "global",
 		WithOutProjectID: true,
 		Product:          "DNS",
 	},
