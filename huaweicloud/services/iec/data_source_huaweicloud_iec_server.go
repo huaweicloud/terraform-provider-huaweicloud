@@ -1,20 +1,22 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
 	"fmt"
+	"log"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/servers"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIECServer() *schema.Resource {
+func DataSourceIECServer() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECServerRead,
+		ReadContext: dataSourceIECServerRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -104,11 +106,11 @@ func dataSourceIECServer() *schema.Resource {
 	}
 }
 
-func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceIECServerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	listOpts := &servers.ListOpts{
@@ -117,58 +119,60 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 		EdgeCloudID: d.Get("edgecloud_id").(string),
 	}
 
-	logp.Printf("[DEBUG] searching the IEC server by filter: %#v", listOpts)
+	log.Printf("[DEBUG] searching the IEC server by filter: %#v", listOpts)
 	allServers, err := servers.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return err
+		return diag.Errorf("unable to extract IEC server: %s", err)
 	}
 
 	total := len(allServers.Servers)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return diag.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	if total > 1 {
-		return fmtp.Errorf("Your query returned more than one result. " +
+		return diag.Errorf("Your query returned more than one result. " +
 			"Please try a more specific search criteria.")
 	}
 
 	server := allServers.Servers[0]
-	logp.Printf("[DEBUG] fetching the IEC server: %#v", server)
+	log.Printf("[DEBUG] fetching the IEC server: %#v", server)
 
 	d.SetId(server.ID)
-	d.Set("name", server.Name)
-	d.Set("status", server.Status)
 
-	flavorInfo := server.Flavor
-	d.Set("flavor_id", flavorInfo.ID)
-	d.Set("flavor_name", flavorInfo.Name)
-	d.Set("image_id", server.Image.ID)
-	d.Set("image_name", server.Metadata.ImageName)
+	allNics, eip := expandIecServerNics(&server)
+	// set volume fields
+	allVolumes, sysDiskID := expandIecServerVolumeAttached(iecClient, &server)
+
+	mErr := multierror.Append(nil,
+		d.Set("name", server.Name),
+		d.Set("status", server.Status),
+		d.Set("flavor_id", server.Flavor.ID),
+		d.Set("flavor_name", server.Flavor.Name),
+		d.Set("image_id", server.Image.ID),
+		d.Set("image_name", server.Metadata.ImageName),
+		d.Set("vpc_id", server.Metadata.VpcID),
+		d.Set("nics", allNics),
+		d.Set("public_ip", eip),
+		d.Set("volume_attached", allVolumes),
+		d.Set("system_disk_id", sysDiskID),
+		d.Set("edgecloud_id", server.EdgeCloudID),
+		d.Set("edgecloud_name", server.EdgeCloudName),
+	)
 
 	if server.KeyName != "" {
-		d.Set("key_pair", server.KeyName)
+		mErr = multierror.Append(mErr, d.Set("key_pair", server.KeyName))
 	}
 	if server.UserData != "" {
-		d.Set("user_data", server.UserData)
+		mErr = multierror.Append(mErr, d.Set("user_data", server.UserData))
 	}
 
 	// set networking fields
-	d.Set("vpc_id", server.Metadata.VpcID)
 	secGrpIDs := make([]string, len(server.SecurityGroups))
 	for i, sg := range server.SecurityGroups {
 		secGrpIDs[i] = sg.ID
 	}
-	d.Set("security_groups", secGrpIDs)
-
-	allNics, eip := expandIecServerNics(&server)
-	d.Set("nics", allNics)
-	d.Set("public_ip", eip)
-
-	// set volume fields
-	allVolumes, sysDiskID := expandIecServerVolumeAttached(iecClient, &server)
-	d.Set("volume_attached", allVolumes)
-	d.Set("system_disk_id", sysDiskID)
+	mErr = multierror.Append(mErr, d.Set("security_groups", secGrpIDs))
 
 	// set IEC fields
 	location := server.Location
@@ -178,9 +182,11 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 		"site_info": siteInfo,
 		"operator":  server.Operator.Name,
 	}
-	d.Set("coverage_sites", []map[string]interface{}{siteItem})
-	d.Set("edgecloud_id", server.EdgeCloudID)
-	d.Set("edgecloud_name", server.EdgeCloudName)
+	mErr = multierror.Append(mErr, d.Set("coverage_sites", []map[string]interface{}{siteItem}))
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving IEC server: %s", err)
+	}
 
 	return nil
 }

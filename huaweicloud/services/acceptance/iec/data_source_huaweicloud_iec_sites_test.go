@@ -1,4 +1,4 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
@@ -6,17 +6,20 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIECSitesDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_iec_sites.sites_test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIecServerDestory,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIECSitesConfig,
+				Config: testAccIECSitesConfig_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIECSitesDataSourceID(resourceName),
 					resource.TestCheckResourceAttrSet(resourceName, "sites.#"),
@@ -42,8 +45,10 @@ func testAccCheckIECSitesDataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccIECSitesConfig string = `
+func testAccIECSitesConfig_basic() string {
+	return `
 data "huaweicloud_iec_sites" "sites_test" {
   area = "east"
 }
 `
+}
