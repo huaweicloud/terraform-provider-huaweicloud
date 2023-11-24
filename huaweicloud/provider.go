@@ -416,6 +416,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node_pool":      cce.DataSourceCCENodePoolV3(),
 			"huaweicloud_cci_namespaces":     cci.DataSourceCciNamespaces(),
 
+			"huaweicloud_ccm_private_certificate_export": ccm.DataSourceCcmPrivateCertificateExport(),
+
 			"huaweicloud_cdm_flavors": DataSourceCdmFlavorV1(),
 
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
