@@ -334,8 +334,14 @@ func ResourceCdnDomainV1() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"rule_type": {
-										Type:     schema.TypeInt,
+										Type:     schema.TypeString,
 										Required: true,
+										DiffSuppressFunc: func(k, o, n string, d *schema.ResourceData) bool {
+											// Convert several original types and change parameter types while ensuring
+											// that the original configuration is available.
+											// Notes: the state file no longer save the original types.
+											return parseCacheRuleType(n) == o
+										},
 									},
 									"content": {
 										Type:     schema.TypeString,
@@ -348,10 +354,16 @@ func ResourceCdnDomainV1() *schema.Resource {
 										Description: "schema: Required",
 									},
 									"ttl_type": {
-										Type:        schema.TypeInt,
+										Type:        schema.TypeString,
 										Optional:    true,
 										Computed:    true,
 										Description: "schema: Required",
+										DiffSuppressFunc: func(k, o, n string, d *schema.ResourceData) bool {
+											// Convert several original types and change parameter types while ensuring
+											// that the original configuration is available.
+											// Notes: the state file no longer save the original types.
+											return parseCacheTTLUnits(n) == o
+										},
 									},
 									"priority": {
 										Type:        schema.TypeInt,
@@ -557,92 +569,110 @@ func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	return &sourcesOpts
 }
 
-func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []interface{},
-	rawConfigs []interface{}, domainName, epsId string) error {
+func parseCacheRuleType(ruleType string) string {
+	var cacheRuleTypes = map[string]string{
+		"0": "all",
+		"1": "file_extension",
+		"2": "catalog",
+		"3": "full_path",
+		"5": "home_page",
+	}
+	if val, ok := cacheRuleTypes[ruleType]; ok {
+		return val
+	}
+	return ruleType
+}
+
+func parseCacheTTLUnits(ttlUnit string) string {
+	var cacheTTLUnits = map[string]string{
+		"1": "s",
+		"2": "m",
+		"3": "h",
+		"4": "d",
+	}
+	if val, ok := cacheTTLUnits[ttlUnit]; ok {
+		return val
+	}
+	return ttlUnit
+}
+
+func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules {
+	result := make([]model.CacheRules, len(rules))
+	for i, val := range rules {
+		rule := val.(map[string]interface{})
+		result[i] = model.CacheRules{
+			FollowOrigin: parseFunctionEnabledStatus(followOrigin),
+			MatchType:    parseCacheRuleType(rule["rule_type"].(string)),
+			MatchValue:   utils.StringIgnoreEmpty(rule["content"].(string)),
+			Ttl:          int32(rule["ttl"].(int)),
+			TtlUnit:      parseCacheTTLUnits(rule["ttl_type"].(string)),
+			Priority:     int32(rule["priority"].(int)),
+		}
+	}
+	return &result
+}
+
+func updateDomainFullConfigs(client *cdnv1.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
+	rawConfigs := d.Get("configs").([]interface{})
+	if len(rawConfigs) < 1 || rawConfigs[0] == nil {
+		return nil
+	}
+	configs := rawConfigs[0].(map[string]interface{})
+
+	ipv6Accelerate := 0
+	if configs["ipv6_enable"].(bool) {
+		ipv6Accelerate = 1
+	}
 	configsOpts := model.Configs{
-		Sources: buildSourcesOpts(rawSources),
+		Sources:           buildSourcesOpts(d.Get("sources").([]interface{})),
+		Ipv6Accelerate:    utils.Int32(int32(ipv6Accelerate)),
+		OriginRangeStatus: utils.String(parseFunctionEnabledStatus(configs["range_based_retrieval_enabled"].(bool))),
+	}
+	if d.HasChange("configs.0.https_settings") {
+		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
+	}
+	if d.HasChange("configs.0.retrieval_request_header") {
+		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
+	}
+	if d.HasChange("configs.0.http_response_header") {
+		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
+	}
+	if d.HasChange("configs.0.url_signing") {
+		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
+	}
+	if d.HasChange("configs.0.origin_protocol") {
+		configsOpts.OriginProtocol = utils.StringIgnoreEmpty(configs["origin_protocol"].(string))
+	}
+	if d.HasChange("configs.0.force_redirect") {
+		configsOpts.ForceRedirect = buildForceRedirectOpts(configs["force_redirect"].([]interface{}))
+	}
+	if d.HasChange("configs.0.compress") {
+		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
+	}
+	if d.HasChange("configs.0.cache_url_parameter_filter") {
+		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
 	}
 
-	if len(rawConfigs) == 1 {
-		configs := rawConfigs[0].(map[string]interface{})
-
-		ipv6Accelerate := 0
-		if configs["ipv6_enable"].(bool) {
-			ipv6Accelerate = 1
+	if d.HasChange("cache_settings") {
+		cacheSettings := d.Get("cache_settings").([]interface{})
+		if len(cacheSettings) > 0 {
+			cacheSetting := cacheSettings[0].(map[string]interface{})
+			configsOpts.CacheRules = buildCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].([]interface{}))
 		}
-
-		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
-		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
-		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
-		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
-		configsOpts.OriginProtocol = utils.StringIgnoreEmpty(configs["origin_protocol"].(string))
-		configsOpts.ForceRedirect = buildForceRedirectOpts(configs["force_redirect"].([]interface{}))
-		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
-		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
-		configsOpts.Ipv6Accelerate = utils.Int32(int32(ipv6Accelerate))
-		configsOpts.OriginRangeStatus = utils.String(parseFunctionEnabledStatus(configs["range_based_retrieval_enabled"].(bool)))
 	}
 
 	req := model.UpdateDomainFullConfigRequest{
-		DomainName:          domainName,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
+		DomainName:          d.Get("name").(string),
+		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		Body: &model.ModifyDomainConfigRequestBody{
 			Configs: &configsOpts,
 		},
 	}
 
-	_, err := hcCdnClient.UpdateDomainFullConfig(&req)
+	_, err := client.UpdateDomainFullConfig(&req)
 	if err != nil {
 		return err
 	}
-
-	return nil
-}
-
-func buildCacheConfigRulesOpts(rawRules []interface{}) *[]model.Rules {
-	if len(rawRules) < 1 {
-		return nil
-	}
-
-	rulesOpts := make([]model.Rules, len(rawRules))
-	for i, v := range rawRules {
-		rule := v.(map[string]interface{})
-		rulesOpts[i] = model.Rules{
-			RuleType: int32(rule["rule_type"].(int)),
-			Content:  utils.StringIgnoreEmpty(rule["content"].(string)),
-			Ttl:      int32(rule["ttl"].(int)),
-			TtlType:  int32(rule["ttl_type"].(int)),
-			Priority: int32(rule["priority"].(int)),
-		}
-	}
-
-	return &rulesOpts
-}
-
-func configOrUpdateCacheConfigOpts(hcCdnClient *cdnv1.CdnClient, rawCacheConfig []interface{}, domainId, epsId string) error {
-	if len(rawCacheConfig) != 1 {
-		return nil
-	}
-	cacheConfig := rawCacheConfig[0].(map[string]interface{})
-
-	cacheConfigOpts := model.CacheConfigRequestBody{
-		CacheConfig: &model.CacheConfigRequest{
-			FollowOrigin: utils.Bool(cacheConfig["follow_origin"].(bool)),
-			Rules:        buildCacheConfigRulesOpts(cacheConfig["rules"].([]interface{})),
-		},
-	}
-
-	req := model.UpdateCacheRulesRequest{
-		DomainId:            domainId,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-		Body:                &cacheConfigOpts,
-	}
-
-	_, err := hcCdnClient.UpdateCacheRules(&req)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -855,36 +885,65 @@ func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{
 	return sourcesAttrs
 }
 
-func getSourcesAndConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey,
-	urlAuthKey string) ([]map[string]interface{}, []map[string]interface{}, error) {
+func flattenCacheRulesAttrs(cacheRulesPtr *[]model.CacheRules) []map[string]interface{} {
+	if cacheRulesPtr == nil || len(*cacheRulesPtr) == 0 {
+		return nil
+	}
+
+	cacheRules := *cacheRulesPtr
+	sourcesAttrs := make([]map[string]interface{}, len(cacheRules))
+	for i, v := range cacheRules {
+		sourcesAttrs[i] = map[string]interface{}{
+			"rule_type": v.MatchType,
+			"content":   v.MatchValue,
+			"ttl":       v.Ttl,
+			"ttl_type":  v.TtlUnit,
+			"priority":  v.Priority,
+		}
+	}
+
+	return []map[string]interface{}{
+		{
+			"follow_origin": analyseFunctionEnabledStatus(cacheRules[0].FollowOrigin),
+			"rules":         sourcesAttrs,
+		},
+	}
+}
+
+func getConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey, urlAuthKey string) (sources, configs,
+	cacheRules []map[string]interface{}, err error) {
 	req := model.ShowDomainFullConfigRequest{
 		DomainName:          domainName,
 		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
 	}
 	resp, err := hcCdnClient.ShowDomainFullConfig(&req)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
 
 	if resp.Configs == nil {
-		return nil, nil, fmt.Errorf("unbale to find the configs of domain: %s", domainName)
+		err = fmt.Errorf("unbale to find the configs of domain: %s", domainName)
+		return
 	}
 
-	configs := resp.Configs
+	configsResp := resp.Configs
 	configsAttrs := map[string]interface{}{
-		"https_settings":                flattenHTTPSAttrs(configs.Https, privateKey),
-		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configs.OriginRequestHeader),
-		"http_response_header":          flattenHttpResponseHeaderAttrs(configs.HttpResponseHeader),
-		"url_signing":                   flattenUrlAuthAttrs(configs.UrlAuth, urlAuthKey),
-		"origin_protocol":               configs.OriginProtocol,
-		"force_redirect":                flattenForceRedirectAttrs(configs.ForceRedirect),
-		"compress":                      flattenCompressAttrs(configs.Compress),
-		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configs.CacheUrlParameterFilter),
-		"ipv6_enable":                   configs.Ipv6Accelerate != nil && *configs.Ipv6Accelerate == 1,
-		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configs.OriginRangeStatus),
+		"https_settings":                flattenHTTPSAttrs(configsResp.Https, privateKey),
+		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configsResp.OriginRequestHeader),
+		"http_response_header":          flattenHttpResponseHeaderAttrs(configsResp.HttpResponseHeader),
+		"url_signing":                   flattenUrlAuthAttrs(configsResp.UrlAuth, urlAuthKey),
+		"origin_protocol":               configsResp.OriginProtocol,
+		"force_redirect":                flattenForceRedirectAttrs(configsResp.ForceRedirect),
+		"compress":                      flattenCompressAttrs(configsResp.Compress),
+		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configsResp.CacheUrlParameterFilter),
+		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
+		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
 	}
 
-	return flattenSourcesAttrs(configs.Sources), []map[string]interface{}{configsAttrs}, nil
+	sources = flattenSourcesAttrs(configsResp.Sources)
+	configs = []map[string]interface{}{configsAttrs}
+	cacheRules = flattenCacheRulesAttrs(configsResp.CacheRules)
+	return
 }
 
 func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[string]interface{}, error) {
@@ -950,15 +1009,11 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 
 	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
 	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
-	sources, configAttrs, err := getSourcesAndConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
+	sources, configAttrs, cacheRules, err := getConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
 	if err != nil {
 		return diag.Errorf("error reading CDN Domain configs settings: %s", err)
 	}
 
-	cacheAttrs, err := getCacheAttrs(hcCdnClient, id, epsId)
-	if err != nil {
-		return diag.Errorf("error reading CDN Domain cache settings: %s", err)
-	}
 	mErr := multierror.Append(nil,
 		d.Set("name", v.DomainName),
 		d.Set("type", v.BusinessType),
@@ -967,7 +1022,7 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("service_area", v.ServiceArea),
 		d.Set("sources", sources),
 		d.Set("configs", configAttrs),
-		d.Set("cache_settings", cacheAttrs),
+		d.Set("cache_settings", cacheRules),
 	)
 
 	// Set domain tags
@@ -1007,30 +1062,13 @@ func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	id := d.Id()
-	domainName := d.Get("name").(string)
-	epsId := cfg.GetEnterpriseProjectID(d)
 	opts := getResourceExtensionOpts(d, cfg)
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	if d.HasChanges("sources", "configs") || d.IsNewResource() {
-		err = configOrUpdateSourcesAndConfigs(hcCdnClient, d.Get("sources").([]interface{}),
-			d.Get("configs").([]interface{}), domainName, epsId)
+	if d.HasChanges("sources", "configs", "cache_settings") || d.IsNewResource() {
+		err = updateDomainFullConfigs(hcCdnClient, cfg, d)
 		if err != nil {
 			return diag.Errorf("error updating CDN Domain configs settings: %s", err)
-		}
-
-		// Wait for CDN domain to become active again before continuing
-		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
-		err = waitDomainOnline(ctx, cdnClient, id, opts, timeout)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	if d.HasChange("cache_settings") {
-		err = configOrUpdateCacheConfigOpts(hcCdnClient, d.Get("cache_settings").([]interface{}), id, epsId)
-		if err != nil {
-			return diag.Errorf("error updating CDN Domain cache settings: %s", err)
 		}
 
 		// Wait for CDN domain to become active again before continuing
