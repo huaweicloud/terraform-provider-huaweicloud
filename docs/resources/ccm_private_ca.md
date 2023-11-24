@@ -117,6 +117,8 @@ The following arguments are supported:
   Valid values are **true** and **false**. Defaults to **false**.
   Changing this parameter will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs associating with the private CA.
+
 <a name="block-distinguished_name"></a>
 The `distinguished_name` block supports:
 
