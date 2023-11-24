@@ -318,6 +318,10 @@ func TestAccObsBucket_lifecycle(t *testing.T) {
 						resourceName, "lifecycle_rule.2.noncurrent_version_transition.0.days", "60"),
 					resource.TestCheckResourceAttr(
 						resourceName, "lifecycle_rule.2.noncurrent_version_transition.1.days", "180"),
+					resource.TestCheckResourceAttr(
+						resourceName, "lifecycle_rule.0.abort_incomplete_multipart_upload.0.days", "360"),
+					resource.TestCheckResourceAttr(
+						resourceName, "lifecycle_rule.1.abort_incomplete_multipart_upload.0.days", "2147483647"),
 				),
 			},
 		},
@@ -671,6 +675,9 @@ resource "huaweicloud_obs_bucket" "bucket" {
     expiration {
       days = 365
     }
+    abort_incomplete_multipart_upload {
+      days = 360
+    }
   }
   lifecycle_rule {
     name    = "rule2"
@@ -688,6 +695,9 @@ resource "huaweicloud_obs_bucket" "bucket" {
     transition {
       days          = 180
       storage_class = "COLD"
+    }
+    abort_incomplete_multipart_upload {
+      days = 2147483647
     }
   }
   lifecycle_rule {
