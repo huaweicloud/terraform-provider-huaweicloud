@@ -1,4 +1,4 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccIECSubnetsDataSource_basic(t *testing.T) {
@@ -17,12 +17,12 @@ func TestAccIECSubnetsDataSource_basic(t *testing.T) {
 	siteSubnets := "data.huaweicloud_iec_vpc_subnets.site"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecVpcSubnetV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIecVpcSubnetV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIECNetworkConfig_base(rName),
+				Config: testAccNetworkConfig_base(rName),
 			},
 			{
 				Config: testAccIECSubnetsDataSource_basic(rName),
@@ -44,18 +44,18 @@ func testAccIECSubnetsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find IEC VPC subnets data source: %s", n)
+			return fmt.Errorf("can't find IEC VPC subnets data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("IEC VPC subnets data source ID not set")
+			return fmt.Errorf("IEC VPC subnets data source ID not set")
 		}
 
 		return nil
 	}
 }
 
-func testAccIECNetworkConfig_base(rName string) string {
+func testAccNetworkConfig_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
@@ -95,5 +95,5 @@ data "huaweicloud_iec_vpc_subnets" "site" {
   vpc_id  = huaweicloud_iec_vpc.vpc_test.id
   site_id = data.huaweicloud_iec_sites.sites_test.sites[0].id
 }
-`, testAccIECNetworkConfig_base(rName))
+`, testAccNetworkConfig_base(rName))
 }
