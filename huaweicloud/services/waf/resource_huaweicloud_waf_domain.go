@@ -3,7 +3,6 @@ package waf
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
-	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -104,6 +102,38 @@ func ResourceWafDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"custom_page": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainCustomPageSchema(),
+			},
+			"redirect_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ConflictsWith: []string{
+					"custom_page",
+				},
+			},
+			"http2_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"ipv6_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"timeout_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainTimeoutSettingSchema(),
+			},
 		},
 	}
 }
@@ -181,20 +211,117 @@ func flattenDomainServerAttrs(dm *domains.Domain) []map[string]interface{} {
 	return servers
 }
 
-func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
-	if d.HasChanges("certificate_id", "server", "proxy") {
-		updateOpts := domains.UpdateOpts{
-			CertificateId:       d.Get("certificate_id").(string),
-			CertificateName:     d.Get("certificate_name").(string),
-			Servers:             buildWafDomainServers(d),
-			Proxy:               utils.Bool(d.Get("proxy").(bool)),
-			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		}
+func flattenDomainCustomPage(dm *domains.Domain) []map[string]interface{} {
+	if dm.BlockPage.Template != customBlockPageTemplate {
+		return nil
+	}
 
-		if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
-			return fmt.Errorf("error updating WAF domain: %s", err)
+	customPage := dm.BlockPage.CustomPage
+	return []map[string]interface{}{
+		{
+			"http_return_code": customPage.StatusCode,
+			"block_page_type":  customPage.ContentType,
+			"page_content":     customPage.Content,
+		},
+	}
+}
+
+func flattenDomainTimeoutSetting(dm *domains.Domain) []map[string]interface{} {
+	timeoutConfig := dm.TimeoutConfig
+	return []map[string]interface{}{
+		{
+			"connection_timeout": timeoutConfig.ConnectTimeout,
+			"read_timeout":       timeoutConfig.ReadTimeout,
+			"write_timeout":      timeoutConfig.SendTimeout,
+		},
+	}
+}
+
+func updateHostBlockPageOpts(d *schema.ResourceData) *domains.BlockPage {
+	if v, ok := d.GetOk("redirect_url"); ok {
+		return &domains.BlockPage{
+			Template:    redirectBlockPageTemplate,
+			RedirectUrl: v.(string),
 		}
 	}
+
+	if v, ok := d.GetOk("custom_page"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+		return &domains.BlockPage{
+			Template: customBlockPageTemplate,
+			CustomPage: &domains.CustomPage{
+				StatusCode:  raw["http_return_code"].(string),
+				ContentType: raw["block_page_type"].(string),
+				Content:     raw["page_content"].(string),
+			},
+		}
+	}
+	return &domains.BlockPage{
+		Template: defaultBlockPageTemplate,
+	}
+}
+
+func updateDomainTimeoutSetting(d *schema.ResourceData) *domains.TimeoutConfig {
+	if v, ok := d.GetOk("timeout_settings"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return &domains.TimeoutConfig{
+			ConnectTimeout: utils.Int(raw["connection_timeout"].(int)),
+			ReadTimeout:    utils.Int(raw["read_timeout"].(int)),
+			SendTimeout:    utils.Int(raw["write_timeout"].(int)),
+		}
+	}
+	return nil
+}
+
+func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	updateOpts := domains.UpdateOpts{
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+	}
+
+	if d.HasChanges("certificate_id", "server", "proxy") {
+		updateOpts.CertificateId = d.Get("certificate_id").(string)
+		updateOpts.CertificateName = d.Get("certificate_name").(string)
+		updateOpts.Servers = buildWafDomainServers(d)
+		updateOpts.Proxy = utils.Bool(d.Get("proxy").(bool))
+	}
+
+	if d.HasChanges("custom_page", "redirect_url") {
+		updateOpts.BlockPage = updateHostBlockPageOpts(d)
+	}
+
+	if d.HasChange("http2_enable") {
+		updateOpts.Http2Enable = utils.Bool(d.Get("http2_enable").(bool))
+	}
+
+	if d.HasChange("ipv6_enable") {
+		updateOpts.Http2Enable = utils.Bool(d.Get("ipv6_enable").(bool))
+	}
+
+	if d.HasChange("timeout_settings") {
+		updateOpts.TimeoutConfig = updateDomainTimeoutSetting(d)
+	}
+
+	if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
+		return fmt.Errorf("error updating WAF domain: %s", err)
+	}
+
 	return nil
 }
 
@@ -213,25 +340,8 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	d.SetId(domain.Id)
 
-	if v, ok := d.GetOk("policy_id"); ok {
-		policyID := v.(string)
-		hosts := []string{d.Id()}
-		epsID := cfg.GetEnterpriseProjectID(d)
-		updateHostsOpts := policies.UpdateHostsOpts{
-			Hosts:               hosts,
-			EnterpriseProjectId: epsID,
-		}
-
-		_, err = policies.UpdateHosts(wafClient, policyID, updateHostsOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating WAF policy Hosts: %s", err)
-		}
-
-		// delete the policy that was auto-created by domain
-		err = policies.DeleteWithEpsID(wafClient, domain.PolicyId, epsID).ExtractErr()
-		if err != nil {
-			log.Printf("[WARN] error deleting WAF policy %s: %s", domain.PolicyId, err)
-		}
+	if err := updateWafDomain(wafClient, d, cfg); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceWafDomainRead(ctx, d, meta)
@@ -261,6 +371,10 @@ func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("access_status", dm.AccessStatus),
 		d.Set("protocol", dm.Protocol),
 		d.Set("server", flattenDomainServerAttrs(dm)),
+		d.Set("custom_page", flattenDomainCustomPage(dm)),
+		d.Set("redirect_url", dm.BlockPage.RedirectUrl),
+		d.Set("http2_enable", dm.Http2Enable),
+		d.Set("timeout_settings", flattenDomainTimeoutSetting(dm)),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {

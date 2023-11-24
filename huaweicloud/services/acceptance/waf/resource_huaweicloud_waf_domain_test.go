@@ -50,6 +50,14 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "http2_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ipv6_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.http_return_code", "400"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.block_page_type", "application/json"),
+					resource.TestCheckResourceAttrSet(resourceName, "custom_page.0.page_content"),
+					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "50"),
+					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "200"),
+					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "200"),
 				),
 			},
 			{
@@ -60,13 +68,21 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
+					resource.TestCheckResourceAttr(resourceName, "http2_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ipv6_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.http_return_code", "404"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.block_page_type", "application/json"),
+					resource.TestCheckResourceAttrSet(resourceName, "custom_page.0.page_content"),
+					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "100"),
+					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "100"),
+					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "100"),
 				),
 			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode"},
+				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode", "ipv6_enable"},
 			},
 		},
 	})
@@ -279,6 +295,25 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   keep_policy      = false
   proxy            = false
+  http2_enable     = false
+  ipv6_enable      = false
+
+  custom_page {
+    http_return_code = "400"
+    block_page_type  = "application/json"
+    page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
+  }
+
+  timeout_settings {
+    connection_timeout = 50
+    read_timeout       = 200
+    write_timeout      = 200
+  }
 
   server {
     client_protocol = "HTTPS"
@@ -300,6 +335,25 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   keep_policy      = false
   proxy            = true
+  http2_enable     = true
+  ipv6_enable      = true
+
+  custom_page {
+    http_return_code = "404"
+    block_page_type  = "application/json"
+    page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
+  }
+
+  timeout_settings {
+    connection_timeout = 100
+    read_timeout       = 100
+    write_timeout      = 100
+  }
 
   server {
     client_protocol = "HTTPS"

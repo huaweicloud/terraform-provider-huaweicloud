@@ -85,6 +85,26 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF domain.
   Changing this parameter will create a new resource.
 
+* `custom_page` - (Optional, List) The user-defined alarm configuration is displayed after an error occurs. The object structure is documented below.
+
+* `http2_enable` - (Optional, Bool) HTTP2 is only available for client to WAF access.
+  Precautions for use:
+    · The external protocol of at least one source IP address is set to HTTPS in Server Configuration. 
+      This configuration takes effect only when it is enabled.
+    · HTTP2 does not take effect when the client supports TLS 1.3.
+    · HTTP2 takes effect only when the client supports TLS 1.2.
+    · If the customer has mandatory requirements for HTTP2, use exclusive mode.
+
+* `ipv6_enable` - (Optional, Bool) Enable IPv6 Protection if the domain name is accessible using an IPv6 address. After you enable it, WAF assigns an IPv6 address to the domain name.
+
+* `timeout_settings` - (Optional, List) Generally, the connection timeout does not need to be changed.
+  Read/write timeout may be adjusted according to different service requirements.
+  It is recommended that services be asynchronous to avoid large timeouts.
+  A large timeout configuration consumes long connection resources back to the source and
+  may cause slow connection attacks. The WAF has a quota for the long link back of each domain name.
+  For details about the quota, see Service bandwidth information on the Purchase page.
+  The object structure is documented below.
+
 The `server` block supports:
 
 * `client_protocol` - (Required, String) Protocol type of the client. The options include `HTTP` and `HTTPS`.
@@ -95,7 +115,31 @@ The `server` block supports:
 * `address` - (Required, String) IP address or domain name of the web server that the client accesses. For example,
   `192.168.1.1` or `www.a.com`.
 
-* `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
+* `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535,
+  for example, 8080.
+
+the `custom_page` block supports:
+
+* `http_return_code` - (Required, String) The status code returned when an error is reported. For example,
+`400` or `402`.
+
+* `block_page_type` - (Required, String) "Custom alert page" content type. This value can be :
+  **text/html**, **text/xml**, **application/json**.
+
+* `page_content` - (Required, String) Set the page content based on the selected "block-page-type".
+  The following example is based on block-page-type "application/json".
+  ```{
+    "event_id": "$${waf_event_id}",
+    "error_msg": "error message"
+  }```
+
+the `timeout_settings` block supports:
+
+* `connection_timeout` - (Optional, Int) Timeout configuration for WAF connection to the source station.
+
+* `read_timeout` - (Optional, Int) The WAF sends a request to the source timeout configuration.
+
+* `write_timeout` - (Optional, Int) WAF receiving source response timeout configuration.
 
 ## Attribute Reference
 
