@@ -2,10 +2,13 @@ package ccm
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -169,16 +172,14 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"auto_renew":    common.SchemaAutoRenew(nil),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"issuer_name": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"charging_mode": {
-				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"gen_mode": {
@@ -227,6 +228,68 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 		KeepResponseBody: true,
 	}
 
+	// if charging mode is pre-paid, need to order private CA first and then activate it.
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		// order private CA
+		orderPrivateCAPath := createPrivateCAPath + "/order"
+		orderPrivateCAOpt := createPrivateCAOpt
+		parms, err := buildOrderPrivateCABodyParams(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		orderPrivateCAOpt.JSONBody = utils.RemoveNil(parms)
+		orderPrivateCAResp, err := createPrivateCAClient.Request("POST", orderPrivateCAPath, &orderPrivateCAOpt)
+		if err != nil {
+			return diag.Errorf("error orderring CCM private CA: %s", err)
+		}
+		orderPrivateCARespBody, err := utils.FlattenResponse(orderPrivateCAResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		ids, err := jmespath.Search("ca_ids", orderPrivateCARespBody)
+		if err != nil {
+			return diag.Errorf("error orderring CCM private CA: ID is not found in API response")
+		}
+		id := ids.([]interface{})[0]
+		d.SetId(id.(string))
+		orderID, err := jmespath.Search("order_id", orderPrivateCARespBody)
+		if err != nil {
+			return diag.Errorf("error orderring CCM private CA: order ID is not found in API response")
+		}
+
+		// wait for order success
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, orderID.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderID.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("error waiting for order resource %s complete: %s", orderID.(string), err)
+		}
+
+		// activate private CA
+		activePrivateCAPath := createPrivateCAPath + "/{id}/activate"
+		activePrivateCAPath = strings.ReplaceAll(activePrivateCAPath, "{id}", d.Id())
+		activePrivateCAOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				204,
+			},
+		}
+		activePrivateCAOpt.JSONBody = utils.RemoveNil(buildCreatePrivateCABodyParams(d, cfg))
+		_, err = createPrivateCAClient.Request("POST", activePrivateCAPath, &activePrivateCAOpt)
+		if err != nil {
+			return diag.Errorf("error activating CCM private CA: %s", err)
+		}
+
+		return resourcePrivateCARead(ctx, d, meta)
+	}
+
+	// if charging mode is post-paid, then directly create
 	createPrivateCAOpt.JSONBody = utils.RemoveNil(buildCreatePrivateCABodyParams(d, cfg))
 	createPrivateCAResp, err := createPrivateCAClient.Request("POST", createPrivateCAPath, &createPrivateCAOpt)
 	if err != nil {
@@ -243,6 +306,45 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	d.SetId(id.(string))
 	return resourcePrivateCARead(ctx, d, meta)
+}
+
+func buildOrderPrivateCABodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	rawArray := d.Get("validity").([]interface{})
+	raw := rawArray[0].(map[string]interface{})
+
+	// precheck period type
+	rawTyepe := raw["type"].(string)
+	if rawTyepe == "DAY" || rawTyepe == "HOUR" {
+		return nil, fmt.Errorf("error: required parameter [%s] for creating pre-paid CA is invalid",
+			"validity.period_type")
+	}
+
+	periodType := 2
+	if rawTyepe == "YEAR" {
+		periodType = 3
+	}
+	autoRenew := 0
+	if val, ok := d.GetOk("auto_renew"); ok && val == "true" {
+		autoRenew = 1
+	}
+
+	var prodecutInfos []map[string]interface{}
+	prodecutInfos = append(prodecutInfos, map[string]interface{}{
+		"cloud_service_type": "hws.service.type.ccm",
+		"resource_type":      "hws.resource.type.pca.duration",
+		"resource_spec_code": "ca.duration",
+	})
+	bodyParams := map[string]interface{}{
+		"cloud_service_type": "hws.service.type.ccm",
+		"charging_mode":      0,
+		"period_type":        periodType,
+		"period_num":         raw["value"].(int),
+		"is_auto_renew":      autoRenew,
+		"is_auto_pay":        1,
+		"subscription_num":   1,
+		"product_infos":      prodecutInfos,
+	}
+	return bodyParams, nil
 }
 
 func buildCreatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
@@ -348,6 +450,11 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving private CA")
 	}
 
+	chargingMode := "prePaid"
+	if utils.PathSearch("charging_mode", getPrivateCARespBody, float64(0)).(float64) == 1 {
+		chargingMode = "postPaid"
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("type", utils.PathSearch("type", getPrivateCARespBody, nil)),
@@ -360,7 +467,7 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("path_length", utils.PathSearch("path_length", getPrivateCARespBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getPrivateCARespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getPrivateCARespBody, nil)),
-		d.Set("charging_mode", utils.PathSearch("charging_mode", getPrivateCARespBody, nil)),
+		d.Set("charging_mode", chargingMode),
 		d.Set("gen_mode", utils.PathSearch("gen_mode", getPrivateCARespBody, nil)),
 		d.Set("serial_number", utils.PathSearch("serial_number", getPrivateCARespBody, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
@@ -405,7 +512,7 @@ func flattenCrlConfiguration(resp interface{}) []interface{} {
 	return rst
 }
 
-func resourcePrivateCADelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	var (
@@ -424,6 +531,29 @@ func resourcePrivateCADelete(_ context.Context, d *schema.ResourceData, meta int
 			200,
 			204,
 		},
+	}
+
+	// if charging mode is pre-paid, unsubscribe the order.
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribing CCM private CA: %s", err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"ACTIVED", "DISABLED", "EXPIRED"},
+			Target:       []string{"DELETED"},
+			Refresh:      privateCAStatusRefreshFunc(d.Id(), region, cfg),
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			Delay:        15 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+
+		_, err := stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("Error deleting private CA: %s", err)
+		}
+
+		return nil
 	}
 
 	// get and check CA status, if not expired or disable then disable it.
@@ -453,4 +583,31 @@ func resourcePrivateCADelete(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error deleting private CA: %s", err)
 	}
 	return nil
+}
+
+func privateCAStatusRefreshFunc(id, region string, cfg *config.Config) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPrivateCAHttpUrl := "v1/private-certificate-authorities/{id}"
+		getPrivateCAProduct := "ccm"
+		getPrivateCAClient, err := cfg.NewServiceClient(getPrivateCAProduct, region)
+		if err != nil {
+			return nil, "", fmt.Errorf("error creating CCM client: %s", err)
+		}
+
+		getPrivateCAPath := getPrivateCAClient.Endpoint + getPrivateCAHttpUrl
+		getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{id}", id)
+		getPrivateCAOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getPrivateCAResp, err := getPrivateCAClient.Request("GET", getPrivateCAPath, &getPrivateCAOpt)
+		if err != nil && hasErrorCode(err, "PCA.10010002") {
+			return getPrivateCAResp, "DELETED", nil
+		}
+		getPrivateCARespBody, err := utils.FlattenResponse(getPrivateCAResp)
+		if err != nil {
+			return nil, "", err
+		}
+		status := utils.PathSearch("status", getPrivateCARespBody, "")
+		return getPrivateCARespBody, status.(string), nil
+	}
 }
