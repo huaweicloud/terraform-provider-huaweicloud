@@ -66,7 +66,7 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"charging_mode"},
+				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode"},
 			},
 		},
 	})
@@ -119,7 +119,7 @@ func TestAccWafDomainV1_withEpsID(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"charging_mode"},
+				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode"},
 				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
 			},
 		},
@@ -164,6 +164,7 @@ func TestAccWafDomainV1_withPolicy(t *testing.T) {
 	})
 }
 
+// This test case can only be run on the international site. China site does not supprot postPaid
 func TestAccWafDomainV1_postPaid(t *testing.T) {
 	var domain domains.Domain
 	resourceName := "huaweicloud_waf_domain.domain_1"
@@ -276,6 +277,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
+  keep_policy      = false
   proxy            = false
 
   server {
@@ -296,6 +298,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
+  keep_policy      = false
   proxy            = true
 
   server {
@@ -325,6 +328,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   policy_id        = huaweicloud_waf_policy.policy_1.id
+  keep_policy      = true
   proxy            = true
 
   server {
@@ -345,6 +349,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
+  keep_policy      = false
   proxy            = false
   charging_mode    = "postPaid"
 
@@ -438,6 +443,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_id        = huaweicloud_waf_certificate.certificate_1.id
   certificate_name      = huaweicloud_waf_certificate.certificate_1.name
   proxy                 = false
+  keep_policy           = false
   enterprise_project_id = "%s"
 
   server {
@@ -459,6 +465,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_id        = huaweicloud_waf_certificate.certificate_1.id
   certificate_name      = huaweicloud_waf_certificate.certificate_1.name
   proxy                 = true
+  keep_policy           = false
   enterprise_project_id = "%s"
 
   server {

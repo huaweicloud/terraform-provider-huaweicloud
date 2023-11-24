@@ -69,9 +69,9 @@ func ResourceWafDomain() *schema.Resource {
 				Computed: true,
 			},
 			"keep_policy": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `schema: Deprecated; This field is useless when deleting resource.`,
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 			"proxy": {
 				Type:     schema.TypeBool,
