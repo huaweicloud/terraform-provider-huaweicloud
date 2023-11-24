@@ -60,13 +60,16 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.http_return_code", "404"),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.0.block_page_type", "application/json"),
+					resource.TestCheckResourceAttrSet(resourceName, "custom_page.0.page_content"),
 				),
 			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode"},
+				ImportStateVerifyIgnore: []string{"keep_policy", "custom_page", "charging_mode"},
 			},
 		},
 	})
@@ -119,7 +122,7 @@ func TestAccWafDomainV1_withEpsID(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"keep_policy", "charging_mode"},
+				ImportStateVerifyIgnore: []string{"keep_policy", "custom_page", "charging_mode"},
 				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
 			},
 		},
@@ -215,7 +218,7 @@ GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMTA1MzEwOTI1NTJaFw0yMjA1
 MzEwOTI1NTJaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
 HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
 AQUAA4IBDwAwggEKAoIBAQCvmuH5ViGtGOlevJ8vOoN3Ak4pp3SescdAfQa/r4cO
-z/bmBqBcZJTX9HODhiQzdemyLLs9aOkQXYIc8OrcaIsjns92XITVDpFW0ThGyjhT
+z/bmBqBcZJTX9HpDhiQzdemyLLs9aOkQXYIc8OrcaIsjns92XITVDpFW0ThGyjhc
 ZdELj9LsbIcVzNPPclTcebZBlzAyX0oLqpHK73OUYQY2E6l44U9G8Id763Bnws9N
 Rn3cg0qufrlUgdim/pYZ8ubjvlDJ9eEIhcsu9zu8c8i2+8qLjEsonx5PrwzNlYP3
 JqAmZ2dcbQeSPfv5U6ZceKEZfegK+Cxv4rFd5F4Rdxl+SAIY+6mr7qu1dAlcVMLS
@@ -300,6 +303,17 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   keep_policy      = false
   proxy            = true
+
+  custom_page {
+	http_return_code = "404"
+	block_page_type  = "application/json"
+	page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
+  }
 
   server {
     client_protocol = "HTTPS"

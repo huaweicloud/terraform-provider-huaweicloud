@@ -85,6 +85,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF domain.
   Changing this parameter will create a new resource.
 
+* `custom_page` - (Optional, List) The user-defined alarm configuration is displayed after an error occurs. The object structure is documented below.
+
 The `server` block supports:
 
 * `client_protocol` - (Required, String) Protocol type of the client. The options include `HTTP` and `HTTPS`.
@@ -96,6 +98,40 @@ The `server` block supports:
   `192.168.1.1` or `www.a.com`.
 
 * `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
+
+the `custom_page` block supports:
+
+* `http_return_code` - (Required, String) The status code returned when an error is reported. For example,
+`400` or `402`.
+
+* `block_page_type` - (Required, String) "Custom alert page" content type, you can choose text/html, text/xml and application/json three types.
+
+* `page_content` - (Required, String) Set the page content based on the selected "block-page-type". The following example is based on block-page-type "text/html".
+```<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>错误</title>
+</head>
+<body>
+	<style>
+		.center {
+		  margin: 0;
+		  position: absolute;
+		  top: 50%;
+		  left: 50%;
+		  -ms-transform: translate(-50%, -50%);
+		  transform: translate(-50%, -50%);
+		}
+	</style>
+	<div class="center">
+		<center>
+			<h1>您的请求疑似攻击行为！</h1><br>
+			<p>事件 ID： ${waf_event_id}</p>
+		</center>
+	</div>
+</body>
+</html>```
 
 ## Attribute Reference
 

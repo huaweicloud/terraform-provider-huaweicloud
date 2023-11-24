@@ -104,6 +104,19 @@ func ResourceWafDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"custom_page": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainCustomPageSchema(),
+			},
+			"redirect_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ConflictsWith: []string{
+					"custom_page",
+				},
+			},
 		},
 	}
 }
@@ -181,20 +194,58 @@ func flattenDomainServerAttrs(dm *domains.Domain) []map[string]interface{} {
 	return servers
 }
 
-func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
-	if d.HasChanges("certificate_id", "server", "proxy") {
-		updateOpts := domains.UpdateOpts{
-			CertificateId:       d.Get("certificate_id").(string),
-			CertificateName:     d.Get("certificate_name").(string),
-			Servers:             buildWafDomainServers(d),
-			Proxy:               utils.Bool(d.Get("proxy").(bool)),
-			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		}
-
-		if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
-			return fmt.Errorf("error updating WAF domain: %s", err)
+func updateHostBlockPageOpts(d *schema.ResourceData) *domains.BlockPage {
+	if v, ok := d.GetOk("redirect_url"); ok {
+		return &domains.BlockPage{
+			Template:    redirectBlockPageTemplate,
+			RedirectUrl: v.(string),
 		}
 	}
+
+	if v, ok := d.GetOk("custom_page"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+		return &domains.BlockPage{
+			Template: customBlockPageTemplate,
+			CustomPage: &domains.CustomPage{
+				StatusCode:  raw["http_return_code"].(string),
+				ContentType: raw["block_page_type"].(string),
+				Content:     raw["page_content"].(string),
+			},
+		}
+	}
+	return &domains.BlockPage{
+		Template: defaultBlockPageTemplate,
+	}
+}
+
+func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	updateOpts := domains.UpdateOpts{
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+	}
+
+	if d.HasChanges("certificate_id", "server", "proxy") {
+		updateOpts.CertificateId = d.Get("certificate_id").(string)
+		updateOpts.CertificateName = d.Get("certificate_name").(string)
+		updateOpts.Servers = buildWafDomainServers(d)
+		updateOpts.Proxy = utils.Bool(d.Get("proxy").(bool))
+	}
+
+	if d.HasChanges("custom_page", "redirect_url") {
+		updateOpts.BlockPage = updateHostBlockPageOpts(d)
+	}
+
+	if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
+		return fmt.Errorf("error updating WAF domain: %s", err)
+	}
+
 	return nil
 }
 
@@ -212,6 +263,10 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating WAF domain: %s", err)
 	}
 	d.SetId(domain.Id)
+
+	if err := updateWafDomain(wafClient, d, cfg); err != nil {
+		return diag.FromErr(err)
+	}
 
 	if v, ok := d.GetOk("policy_id"); ok {
 		policyID := v.(string)
