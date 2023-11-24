@@ -465,19 +465,21 @@ func buildHttpResponseHeaderOpts(rawHttpResponseHeader []interface{}) *[]model.H
 	return &httpResponseHeaderOpts
 }
 
+func parseFunctionEnabledStatus(enabled bool) string {
+	if enabled {
+		return "on"
+	}
+	return "off"
+}
+
 func buildUrlAuthOpts(rawUrlAuth []interface{}) *model.UrlAuth {
 	if len(rawUrlAuth) != 1 {
 		return nil
 	}
 
 	urlAuth := rawUrlAuth[0].(map[string]interface{})
-
-	status := "off"
-	if urlAuth["enabled"].(bool) {
-		status = "on"
-	}
 	urlAuthOpts := model.UrlAuth{
-		Status:     status,
+		Status:     parseFunctionEnabledStatus(urlAuth["enabled"].(bool)),
 		Type:       utils.StringIgnoreEmpty(urlAuth["type"].(string)),
 		Key:        utils.StringIgnoreEmpty(urlAuth["key"].(string)),
 		TimeFormat: utils.StringIgnoreEmpty(urlAuth["time_format"].(string)),
@@ -493,12 +495,8 @@ func buildForceRedirectOpts(rawForceRedirect []interface{}) *model.ForceRedirect
 	}
 
 	forceRedirect := rawForceRedirect[0].(map[string]interface{})
-	status := "off"
-	if forceRedirect["enabled"].(bool) {
-		status = "on"
-	}
 	forceRedirectOpts := model.ForceRedirectConfig{
-		Status: status,
+		Status: parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
 		Type:   utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
 	}
 
@@ -511,12 +509,8 @@ func buildCompressOpts(rawCompress []interface{}) *model.Compress {
 	}
 
 	compress := rawCompress[0].(map[string]interface{})
-	status := "off"
-	if compress["enabled"].(bool) {
-		status = "on"
-	}
 	compressOpts := model.Compress{
-		Status: status,
+		Status: parseFunctionEnabledStatus(compress["enabled"].(bool)),
 		Type:   utils.StringIgnoreEmpty(compress["type"].(string)),
 	}
 
@@ -550,15 +544,11 @@ func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 		} else {
 			priority = 30
 		}
-		obsWebHostingStatus := "off"
-		if source["obs_web_hosting_enabled"].(bool) {
-			obsWebHostingStatus = "on"
-		}
 		sourcesOpts[i] = model.SourcesConfig{
 			OriginAddr:          source["origin"].(string),
 			OriginType:          source["origin_type"].(string),
 			Priority:            priority,
-			ObsWebHostingStatus: utils.String(obsWebHostingStatus),
+			ObsWebHostingStatus: utils.String(parseFunctionEnabledStatus(source["obs_web_hosting_enabled"].(bool))),
 			HttpPort:            utils.Int32IgnoreEmpty(int32(source["http_port"].(int))),
 			HttpsPort:           utils.Int32IgnoreEmpty(int32(source["https_port"].(int))),
 			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
@@ -581,11 +571,6 @@ func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []
 			ipv6Accelerate = 1
 		}
 
-		originRangeStatus := "off"
-		if configs["range_based_retrieval_enabled"].(bool) {
-			originRangeStatus = "on"
-		}
-
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
 		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
 		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
@@ -595,7 +580,7 @@ func configOrUpdateSourcesAndConfigs(hcCdnClient *cdnv1.CdnClient, rawSources []
 		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
 		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
 		configsOpts.Ipv6Accelerate = utils.Int32(int32(ipv6Accelerate))
-		configsOpts.OriginRangeStatus = &originRangeStatus
+		configsOpts.OriginRangeStatus = utils.String(parseFunctionEnabledStatus(configs["range_based_retrieval_enabled"].(bool)))
 	}
 
 	req := model.UpdateDomainFullConfigRequest{
@@ -726,6 +711,14 @@ func resourceCDNV1DomainRefreshFunc(c *golangsdk.ServiceClient, id string, opts 
 	}
 }
 
+func analyseFunctionEnabledStatus(enabledStatus string) bool {
+	return enabledStatus == "on"
+}
+
+func analyseFunctionEnabledStatusPtr(enabledStatus *string) bool {
+	return enabledStatus != nil && *enabledStatus == "on"
+}
+
 func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey string) []map[string]interface{} {
 	if https == nil {
 		return nil
@@ -738,8 +731,8 @@ func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey string) []map[string
 		"certificate_source": https.CertificateSource,
 		"http2_status":       https.Http2Status,
 		"tls_version":        https.TlsVersion,
-		"https_enabled":      https.HttpsStatus != nil && *https.HttpsStatus == "on",
-		"http2_enabled":      https.Http2Status != nil && *https.Http2Status == "on",
+		"https_enabled":      analyseFunctionEnabledStatusPtr(https.HttpsStatus),
+		"http2_enabled":      analyseFunctionEnabledStatusPtr(https.Http2Status),
 	}
 
 	return []map[string]interface{}{httpsAttrs}
@@ -785,7 +778,7 @@ func flattenUrlAuthAttrs(urlAuth *model.UrlAuthGetBody, urlAuthKey string) []map
 	}
 
 	urlAuthAttrs := map[string]interface{}{
-		"enabled":     urlAuth.Status == "on",
+		"enabled":     analyseFunctionEnabledStatus(urlAuth.Status),
 		"status":      urlAuth.Status,
 		"type":        urlAuth.Type,
 		"key":         urlAuthKey,
@@ -804,7 +797,7 @@ func flattenForceRedirectAttrs(forceRedirect *model.ForceRedirectConfig) []map[s
 	forceRedirectAttrs := map[string]interface{}{
 		"status":  forceRedirect.Status,
 		"type":    forceRedirect.Type,
-		"enabled": forceRedirect.Status == "on",
+		"enabled": analyseFunctionEnabledStatus(forceRedirect.Status),
 	}
 
 	return []map[string]interface{}{forceRedirectAttrs}
@@ -818,7 +811,7 @@ func flattenCompressAttrs(compress *model.Compress) []map[string]interface{} {
 	compressAttrs := map[string]interface{}{
 		"status":  compress.Status,
 		"type":    compress.Type,
-		"enabled": compress.Status == "on",
+		"enabled": analyseFunctionEnabledStatus(compress.Status),
 	}
 
 	return []map[string]interface{}{compressAttrs}
@@ -852,7 +845,7 @@ func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{
 			"origin":                  v.OriginAddr,
 			"origin_type":             v.OriginType,
 			"active":                  active,
-			"obs_web_hosting_enabled": v.ObsWebHostingStatus != nil && *v.ObsWebHostingStatus == "on",
+			"obs_web_hosting_enabled": analyseFunctionEnabledStatusPtr(v.ObsWebHostingStatus),
 			"http_port":               v.HttpPort,
 			"https_port":              v.HttpsPort,
 			"retrieval_host":          v.HostName,
@@ -888,7 +881,7 @@ func getSourcesAndConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, 
 		"compress":                      flattenCompressAttrs(configs.Compress),
 		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configs.CacheUrlParameterFilter),
 		"ipv6_enable":                   configs.Ipv6Accelerate != nil && *configs.Ipv6Accelerate == 1,
-		"range_based_retrieval_enabled": configs.OriginRangeStatus != nil && *configs.OriginRangeStatus == "on",
+		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configs.OriginRangeStatus),
 	}
 
 	return flattenSourcesAttrs(configs.Sources), []map[string]interface{}{configsAttrs}, nil
