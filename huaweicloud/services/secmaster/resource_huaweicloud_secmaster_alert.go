@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const (
+	AlertNotExistsCode = "SecMaster.20030005"
+)
+
 func ResourceAlert() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlertCreate,
@@ -354,6 +358,10 @@ func resourceAlertRead(_ context.Context, d *schema.ResourceData, meta interface
 	getAlertResp, err := getAlertClient.Request("GET", getAlertPath, &getAlertOpt)
 
 	if err != nil {
+		if hasErrorCode(err, AlertNotExistsCode) {
+			err = golangsdk.ErrDefault404{}
+		}
+
 		return common.CheckDeletedDiag(d, err, "error retrieving Alert")
 	}
 
