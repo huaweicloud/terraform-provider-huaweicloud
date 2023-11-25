@@ -176,6 +176,9 @@ var (
 	// The SecMaster workspace ID
 	HW_SECMASTER_WORKSPACE_ID = os.Getenv("HW_SECMASTER_WORKSPACE_ID")
 
+	// The SecMaster workspace ID
+	HW_SECMASTER_PIPELINE_ID = os.Getenv("HW_SECMASTER_PIPELINE_ID")
+
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 
 	// The CMDB sub-application ID of AOM service
