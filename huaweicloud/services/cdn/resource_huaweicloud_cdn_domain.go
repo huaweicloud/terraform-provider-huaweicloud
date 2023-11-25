@@ -681,6 +681,7 @@ func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error creating CDN Domain: %s", err)
 	}
+	d.SetId(v.ID)
 
 	// Wait for CDN domain to become active again before continuing
 	opts := getResourceExtensionOpts(d, cfg)
@@ -690,9 +691,6 @@ func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	// Store the ID now
-	d.SetId(v.ID)
 
 	return resourceCdnDomainV1Update(ctx, d, meta)
 }
