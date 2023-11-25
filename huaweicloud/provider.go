@@ -1126,11 +1126,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_protected_instance": sdrs.ResourceProtectedInstance(),
 			"huaweicloud_sdrs_replication_attach": sdrs.ResourceReplicationAttach(),
 
-			"huaweicloud_secmaster_incident":   secmaster.ResourceIncident(),
-			"huaweicloud_secmaster_indicator":  secmaster.ResourceIndicator(),
-			"huaweicloud_secmaster_alert":      secmaster.ResourceAlert(),
-			"huaweicloud_secmaster_alert_rule": secmaster.ResourceAlertRule(),
-			"huaweicloud_secmaster_playbook":   secmaster.ResourcePlaybook(),
+			"huaweicloud_secmaster_incident":         secmaster.ResourceIncident(),
+			"huaweicloud_secmaster_indicator":        secmaster.ResourceIndicator(),
+			"huaweicloud_secmaster_alert":            secmaster.ResourceAlert(),
+			"huaweicloud_secmaster_alert_rule":       secmaster.ResourceAlertRule(),
+			"huaweicloud_secmaster_playbook":         secmaster.ResourcePlaybook(),
+			"huaweicloud_secmaster_playbook_version": secmaster.ResourcePlaybookVersion(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
