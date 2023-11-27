@@ -109,6 +109,14 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
   Changing this parameter will create a new resource.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the billing mode of the private CA.
+  The valid values are **prePaid** and **postPaid**. Defaults to **postPaid**.
+  Changing this parameter will create a new resource.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+  Valid values are **true** and **false**. Defaults to **false**.
+  Changing this parameter will create a new resource.
+
 <a name="block-distinguished_name"></a>
 The `distinguished_name` block supports:
 
@@ -139,7 +147,8 @@ The `distinguished_name` block supports:
 The `validity` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the type of validity value. Changing this parameter will create a new
-  resource. Options are: **YEAR**, **MONTH(31 days)**, **DAY**, **HOUR**.
+  resource. Options are: **YEAR**, **MONTH(31 days)**, **DAY**, **HOUR**. If the charging mode is **prePaid**, only
+  support **YEAR** and **MONTH(31 days)**.
 
 * `value` - (Required, Int, ForceNew) Specifies the value of validity. Root CA certificate is no longer than 30 years
   and subordinate CA is no longer than 20 years. Changing this parameter will create a new resource. When creating a
@@ -170,8 +179,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `issuer_name` - The name of the parent CA. For a root CA, the value of this parameter is null.
 
-* `charging_mode` - The charging mode of the private CA.
-
 * `gen_mode` - The generation method of the private CA.
 
 * `serial_number` - The serial number of the private CA.
@@ -183,6 +190,13 @@ In addition to all arguments above, the following attributes are exported:
 * `free_quota` - The free quota of the private certificate.
 
 * `crl_dis_point` - The address of the CRL file in the OBS bucket.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 20 minutes.
+* `delete` - Default is 20 minutes.
 
 ## Import
 

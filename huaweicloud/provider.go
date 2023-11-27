@@ -458,10 +458,11 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dms_rabbitmq_flavors": dms.DataSourceRabbitMQFlavors(),
 
-			"huaweicloud_dms_rocketmq_broker":    dms.DataSourceDmsRocketMQBroker(),
-			"huaweicloud_dms_rocketmq_instances": dms.DataSourceDmsRocketMQInstances(),
-			"huaweicloud_dms_rocketmq_topics":    dms.DataSourceDmsRocketMQTopics(),
-			"huaweicloud_dms_rocketmq_users":     dms.DataSourceDmsRocketMQUsers(),
+			"huaweicloud_dms_rocketmq_broker":          dms.DataSourceDmsRocketMQBroker(),
+			"huaweicloud_dms_rocketmq_instances":       dms.DataSourceDmsRocketMQInstances(),
+			"huaweicloud_dms_rocketmq_topics":          dms.DataSourceDmsRocketMQTopics(),
+			"huaweicloud_dms_rocketmq_users":           dms.DataSourceDmsRocketMQUsers(),
+			"huaweicloud_dms_rocketmq_consumer_groups": dms.DataSourceDmsRocketMQConsumerGroups(),
 
 			"huaweicloud_dns_zones":      dns.DataSourceZones(),
 			"huaweicloud_dns_recordsets": dns.DataSourceRecordsets(),
@@ -779,7 +780,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":          cci.ResourcePersistentVolumeClaimV1(),
 
-			"huaweicloud_ccm_private_ca": ccm.ResourcePrivateCertificateAuthority(),
+			"huaweicloud_ccm_private_ca":          ccm.ResourcePrivateCertificateAuthority(),
+			"huaweicloud_ccm_private_certificate": ccm.ResourceCcmPrivateCertificate(),
 
 			"huaweicloud_cdm_cluster": cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
@@ -876,11 +878,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_topic":          dms.ResourceDmsRocketMQTopic(),
 			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
 
-			"huaweicloud_dns_custom_line": dns.ResourceDNSCustomLine(),
-			"huaweicloud_dns_ptrrecord":   dns.ResourceDNSPtrRecord(),
-			"huaweicloud_dns_recordset":   dns.ResourceDNSRecordset(),
-			"huaweicloud_dns_zone":        dns.ResourceDNSZone(),
-			"huaweicloud_dns_endpoint":    dns.ResourceDNSEndpoint(),
+			"huaweicloud_dns_custom_line":   dns.ResourceDNSCustomLine(),
+			"huaweicloud_dns_ptrrecord":     dns.ResourceDNSPtrRecord(),
+			"huaweicloud_dns_recordset":     dns.ResourceDNSRecordset(),
+			"huaweicloud_dns_zone":          dns.ResourceDNSZone(),
+			"huaweicloud_dns_endpoint":      dns.ResourceDNSEndpoint(),
+			"huaweicloud_dns_resolver_rule": dns.ResourceDNSResolverRule(),
 
 			"huaweicloud_drs_job": drs.ResourceDrsJob(),
 
@@ -1125,9 +1128,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_protected_instance": sdrs.ResourceProtectedInstance(),
 			"huaweicloud_sdrs_replication_attach": sdrs.ResourceReplicationAttach(),
 
-			"huaweicloud_secmaster_incident":  secmaster.ResourceIncident(),
-			"huaweicloud_secmaster_indicator": secmaster.ResourceIndicator(),
-			"huaweicloud_secmaster_alert":     secmaster.ResourceAlert(),
+			"huaweicloud_secmaster_incident":         secmaster.ResourceIncident(),
+			"huaweicloud_secmaster_indicator":        secmaster.ResourceIndicator(),
+			"huaweicloud_secmaster_alert":            secmaster.ResourceAlert(),
+			"huaweicloud_secmaster_alert_rule":       secmaster.ResourceAlertRule(),
+			"huaweicloud_secmaster_playbook":         secmaster.ResourcePlaybook(),
+			"huaweicloud_secmaster_playbook_version": secmaster.ResourcePlaybookVersion(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
