@@ -1,8 +1,11 @@
 package waf
 
 import (
+	"context"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
@@ -11,13 +14,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // DataSourceWafReferenceTablesV1 the function is used for data source 'huaweicloud_waf_reference_tables'.
 func DataSourceWafReferenceTablesV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceWafReferenceTablesRead,
+		ReadContext: dataSourceWafReferenceTablesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -70,28 +72,31 @@ func DataSourceWafReferenceTablesV1() *schema.Resource {
 	}
 }
 
-func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.WafV1Client(config.GetRegion(d))
+func dataSourceWafReferenceTablesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	client, err := conf.WafV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	opts := valuelists.ListValueListOpts{
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: conf.GetEnterpriseProjectID(d),
 	}
 	r, err := valuelists.List(client, opts)
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain WAF reference table information")
+		return common.CheckDeletedDiag(d, err, "Error obtain WAF reference table information")
 	}
 
 	if len(r.Items) == 0 {
-		return fmtp.Errorf("Your query returned no results. Please change your search criteria and try again.")
+		return nil
 	}
 	// filter data by name
 	filterData, err := utils.FilterSliceWithField(r.Items, map[string]interface{}{
 		"Name": d.Get("name").(string),
 	})
+	if err != nil {
+		return diag.Errorf("error filtering WAF reference tables: %s", err)
+	}
 	tables := make([]map[string]interface{}, 0, len(filterData))
 	ids := make([]string, 0, len(r.Items))
 	for _, t := range filterData {
@@ -109,9 +114,7 @@ func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	if err = d.Set("tables", tables); err != nil {
-		return fmtp.Errorf("error setting WAF reference table fields: %s", err)
-	}
+	mErr := multierror.Append(nil, d.Set("tables", tables))
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
