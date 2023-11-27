@@ -103,9 +103,12 @@ func resourceResourceTagsCreate(ctx context.Context, d *schema.ResourceData, met
 		Resources: buildResourcesInfo(d.Get("resources").([]interface{})),
 		Tags:      expandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
-	_, err = tags.Create(client, opts)
+	failResp, err := tags.Create(client, opts)
 	if err != nil {
 		return diag.Errorf("error creating resource tags: %s", err)
+	}
+	if len(failResp) > 0 {
+		return diag.Errorf("error creating resource tags: %#v", failResp)
 	}
 
 	randUUID, err := uuid.GenerateUUID()
