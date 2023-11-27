@@ -37,7 +37,7 @@ func ResourceSfsTurboDir() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the full file path.`,
+				Description: `Specifies the valid full path of an existing directory.`,
 			},
 			"mude": {
 				Type:        schema.TypeInt,
@@ -49,7 +49,7 @@ func ResourceSfsTurboDir() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Specifies the owner ID of the file directory.`,
+				Description: `Specifies the user ID of the file directory.`,
 			},
 			"gid": {
 				Type:        schema.TypeInt,
