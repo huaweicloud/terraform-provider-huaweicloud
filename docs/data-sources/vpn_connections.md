@@ -75,7 +75,6 @@ The `connections` block supports:
 
 * `tunnel_peer_address` - Indicates the tunnel peer address of the connection.
 
-
 * `enable_nqa` - Indicates the enable nqa of the connection.
 
 * `enterprise_project_id` - Indicates the enterprise project ID of the connection.
