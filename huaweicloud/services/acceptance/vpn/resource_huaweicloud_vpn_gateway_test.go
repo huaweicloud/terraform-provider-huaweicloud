@@ -121,6 +121,8 @@ func TestAccGateway_withER(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "network_type", "private"),
 					resource.TestCheckResourceAttr(rName, "attachment_type", "er"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "access_private_ip_1", "172.16.0.99"),
+					resource.TestCheckResourceAttr(rName, "access_private_ip_2", "172.16.0.100"),
 					resource.TestCheckResourceAttrPair(rName, "er_id", "huaweicloud_er_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "access_vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "access_subnet_id", "huaweicloud_vpc_subnet.test", "id"),
@@ -277,6 +279,9 @@ resource "huaweicloud_vpn_gateway" "test" {
 
   access_vpc_id    = huaweicloud_vpc.test.id
   access_subnet_id = huaweicloud_vpc_subnet.test.id
+  
+  access_private_ip_1 = "172.16.0.99"
+  access_private_ip_2 = "172.16.0.100"
 }
 `, name)
 }

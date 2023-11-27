@@ -89,6 +89,8 @@ variable "name" {}
 variable "er_id" {}
 variable "access_vpc_id" {}
 variable "access_subnet_id" {}
+variable "access_private_ip_1" {}
+variable "access_private_ip_2" {}
 
 data "huaweicloud_vpn_gateway_availability_zones" "test" {
   flavor          = "professional1"
@@ -107,6 +109,9 @@ resource "huaweicloud_vpn_gateway" "test" {
 
   access_vpc_id      = var.access_vpc_id
   access_subnet_id   = var.access_subnet_id
+  
+  access_private_ip_1 = var.access_private_ip_1
+  access_private_ip_2 = var.access_private_ip_2
 }
 ```
 
@@ -175,6 +180,18 @@ The following arguments are supported:
 
 * `access_subnet_id` - (Optional, String, ForceNew) The access subnet ID.
   The defaul value is the value of `connect_subnet`.
+
+  Changing this parameter will create a new resource.
+
+* `access_private_ip_1` - (Optional, String, ForceNew) The private IP 1 in private network type VPN gateway.
+  It is the master IP 1 in **active-active** HA mode, and the master IP in **active-standby** HA mode.
+  Must declare the **access_private_ip_2** at the same time, and can not use the same IP value.
+
+  Changing this parameter will create a new resource.
+
+* `access_private_ip_2` - (Optional, String, ForceNew) The private IP 2 in private network type VPN gateway.
+  It is the master IP 2 in **active-active** HA mode, and the slave IP in **active-standby** HA mode.
+  Must declare the **access_private_ip_1** at the same time, and can not use the same IP value.
 
   Changing this parameter will create a new resource.
 
