@@ -629,6 +629,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_groups":     waf.DataSourceWafInstanceGroups(),
 			"huaweicloud_dws_flavors":             dws.DataSourceDwsFlavors(),
 
+			"huaweicloud_workspace_flavors": workspace.DataSourceWorkspaceFlavors(),
+
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
 			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
