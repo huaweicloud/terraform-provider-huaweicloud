@@ -4,7 +4,7 @@ subcategory: "Cloud Certificate Manager (CCM)"
 
 # huaweicloud_ccm_private_certificate_export
 
-Use this data source export a Certificate resource within HuaweiCloud.
+Use this data source export a private Certificate within HuaweiCloud.
 
 ## Example Usage
 
