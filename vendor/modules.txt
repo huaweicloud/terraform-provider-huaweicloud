@@ -337,6 +337,7 @@ github.com/chnsz/golangsdk/openstack/vbs/v2/policies
 github.com/chnsz/golangsdk/openstack/vbs/v2/tags
 github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints
 github.com/chnsz/golangsdk/openstack/vpcep/v1/services
+github.com/chnsz/golangsdk/openstack/vpn/v5/connections
 github.com/chnsz/golangsdk/openstack/vpn/v5/customer_gateways
 github.com/chnsz/golangsdk/openstack/waf/v1/certificates
 github.com/chnsz/golangsdk/openstack/waf/v1/clouds
