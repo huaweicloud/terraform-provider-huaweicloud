@@ -372,7 +372,7 @@ func testAccSFSTurbo_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   name              = "%s"
@@ -381,7 +381,7 @@ resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
 
   tags = {
     foo = "bar"
@@ -395,7 +395,7 @@ func testAccSFSTurbo_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   name              = "%s"
@@ -404,7 +404,7 @@ resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
 
   tags = {
     foo = "bar_update"
@@ -418,7 +418,7 @@ func testAccSFSTurbo_crypt(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_kms_key" "test" {
   key_alias    = "%s"
@@ -432,7 +432,7 @@ resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
   crypt_key_id      = huaweicloud_kms_key.test.id
 }
 `, common.TestBaseNetwork(rName), rName, rName)
@@ -442,7 +442,7 @@ func testAccSFSTurbo_withEpsId(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   name                   = "%s"
@@ -451,7 +451,7 @@ resource "huaweicloud_sfs_turbo" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   security_group_id      = huaweicloud_networking_secgroup.test.id
-  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone      = data.huaweicloud_er_availability_zones.test.names[0]
   enterprise_project_id  = "%s"
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
@@ -461,13 +461,13 @@ func testAccSFSTurbo_prePaid_step1(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   security_group_id      = huaweicloud_networking_secgroup.test.id
-  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone      = data.huaweicloud_er_availability_zones.test.names[0]
   name                   = "%[2]s"
   size                   = 500
   share_proto            = "NFS"
@@ -485,13 +485,13 @@ func testAccSFSTurbo_prePaid_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   security_group_id      = huaweicloud_networking_secgroup.test.id
-  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone      = data.huaweicloud_er_availability_zones.test.names[0]
   name                   = "%[2]s"
   size                   = 600
   share_proto            = "NFS"
@@ -509,13 +509,13 @@ func testAccSFSTurbo_shareTypeHpc(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
   name              = "%[2]s"
   size              = 1228
   share_proto       = "NFS"
@@ -529,13 +529,13 @@ func testAccSFSTurbo_shareTypeHpc_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
   name              = "%[2]s"
   size              = 4915
   share_proto       = "NFS"
@@ -549,13 +549,13 @@ func testAccSFSTurbo_shareTypeHpcCache(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone   = data.huaweicloud_er_availability_zones.test.names[0]
   name                = "%[2]s"
   size                = 4096
   share_proto         = "NFS"
@@ -569,13 +569,13 @@ func testAccSFSTurbo_shareTypeHpcCache_update1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone   = data.huaweicloud_er_availability_zones.test.names[0]
   name                = "%[2]s"
   size                = 8192
   share_proto         = "NFS"
@@ -589,13 +589,13 @@ func testAccSFSTurbo_shareTypeHpcCache_update2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone   = data.huaweicloud_er_availability_zones.test.names[0]
   name                = "%[2]s"
   size                = 8192
   share_proto         = "NFS"
@@ -609,13 +609,13 @@ func testAccSFSTurbo_checkError1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
   name              = "%[2]s"
   size              = 1228
   share_proto       = "NFS"
@@ -628,13 +628,13 @@ func testAccSFSTurbo_checkError2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
   name              = "%[2]s"
   size              = 1228
   share_proto       = "NFS"
@@ -647,13 +647,13 @@ func testAccSFSTurbo_checkError3(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone   = data.huaweicloud_er_availability_zones.test.names[0]
   name                = "%[2]s"
   size                = 4096
   share_proto         = "NFS"
@@ -672,13 +672,13 @@ func testAccSFSTurbo_checkError4(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone   = data.huaweicloud_er_availability_zones.test.names[0]
   name                = "%[2]s"
   size                = 500
   share_proto         = "NFS"
@@ -692,13 +692,13 @@ func testAccSFSTurbo_checkUpdateErrorBasic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = data.huaweicloud_er_availability_zones.test.names[0]
   name              = "%[2]s"
   size              = 500
   share_proto       = "NFS"
@@ -711,13 +711,13 @@ func testAccSFSTurbo_checkUpdateErrorBasic_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
   vpc_id              = huaweicloud_vpc.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   security_group_id   = huaweicloud_networking_secgroup.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone   = data.huaweicloud_er_availability_zones.test.names[0]
   name                = "%[2]s"
   size                = 500
   share_proto         = "NFS"
