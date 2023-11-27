@@ -1150,6 +1150,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_access_rule": sfs.ResourceSFSAccessRuleV2(),
 			"huaweicloud_sfs_file_system": sfs.ResourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbo":       sfs.ResourceSFSTurbo(),
+			"huaweicloud_sfs_turbo_dir":   sfs.ResourceSfsTurboDir(),
 
 			"huaweicloud_smn_topic":            smn.ResourceTopic(),
 			"huaweicloud_smn_subscription":     smn.ResourceSubscription(),
