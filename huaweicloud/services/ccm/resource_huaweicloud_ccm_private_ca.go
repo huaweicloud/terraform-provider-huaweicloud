@@ -23,6 +23,7 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePrivateCACreate,
 		ReadContext:   resourcePrivateCARead,
+		UpdateContext: resourcePrivateCAUpdate,
 		DeleteContext: resourcePrivateCADelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -174,6 +175,7 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
+			"tags":          common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -286,6 +288,12 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error activating CCM private CA: %s", err)
 		}
 
+		createTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/create"
+		tags := d.Get("tags").(map[string]interface{})
+		if err := createTags(id.(string), createPrivateCAClient, tags, createTagsHttpUrl); err != nil {
+			return diag.FromErr(err)
+		}
+
 		return resourcePrivateCARead(ctx, d, meta)
 	}
 
@@ -305,6 +313,13 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating CCM private CA: ID is not found in API response")
 	}
 	d.SetId(id.(string))
+
+	createTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/create"
+	tags := d.Get("tags").(map[string]interface{})
+	if err := createTags(id.(string), createPrivateCAClient, tags, createTagsHttpUrl); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourcePrivateCARead(ctx, d, meta)
 }
 
@@ -455,6 +470,12 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 		chargingMode = "postPaid"
 	}
 
+	getTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags"
+	tags, err := getTags(d.Id(), getPrivateCAClient, getTagsHttpUrl)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("type", utils.PathSearch("type", getPrivateCARespBody, nil)),
@@ -475,6 +496,7 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("expired_at", utils.FormatTimeStampRFC3339(
 			int64(utils.PathSearch("not_after", getPrivateCARespBody, float64(0)).(float64))/1000, false)),
 		d.Set("free_quota", utils.PathSearch("free_quota", getPrivateCARespBody, nil)),
+		d.Set("tags", tags),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -610,4 +632,110 @@ func privateCAStatusRefreshFunc(id, region string, cfg *config.Config) resource.
 		status := utils.PathSearch("status", getPrivateCARespBody, "")
 		return getPrivateCARespBody, status.(string), nil
 	}
+}
+
+func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	privateCAClient, err := cfg.NewServiceClient("ccm", region)
+	if err != nil {
+		return diag.Errorf("error creating CCM Client: %s", err)
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oMap) > 0 {
+			deleteTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/delete"
+			if err = deleteTags(d.Id(), privateCAClient, oMap, deleteTagsHttpUrl); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// set new tags
+		if len(nMap) > 0 {
+			createTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/create"
+			if err := createTags(d.Id(), privateCAClient, nMap, createTagsHttpUrl); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+	return nil
+}
+
+func createTags(id string, createTagsClient *golangsdk.ServiceClient, tags map[string]interface{},
+	createTagsHttpUrl string) error {
+	if len(tags) > 0 {
+		createTagsPath := createTagsClient.Endpoint + createTagsHttpUrl
+		createTagsPath = strings.ReplaceAll(createTagsPath, "{id}", id)
+		createTagsOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				204,
+			},
+		}
+		createTagsOpt.JSONBody = map[string]interface{}{
+			"tags": utils.ExpandResourceTags(tags),
+		}
+
+		_, err := createTagsClient.Request("POST", createTagsPath, &createTagsOpt)
+		if err != nil {
+			return fmt.Errorf("error creating tags: %s", err)
+		}
+	}
+	return nil
+}
+
+func getTags(id string, getTagsClient *golangsdk.ServiceClient, getTagsHttpUrl string) (
+	map[string]interface{}, error) {
+	getTagsPath := getTagsClient.Endpoint + getTagsHttpUrl
+	getTagsPath = strings.ReplaceAll(getTagsPath, "{id}", id)
+	getTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTagsResp, err := getTagsClient.Request("GET", getTagsPath, &getTagsOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching tags: %s", err)
+	}
+	getTagsRespBody, err := utils.FlattenResponse(getTagsResp)
+	if err != nil {
+		return nil, err
+	}
+	tags := utils.PathSearch("tags", getTagsRespBody, nil).([]interface{})
+	result := make(map[string]interface{})
+	for _, val := range tags {
+		valMap := val.(map[string]interface{})
+		result[valMap["key"].(string)] = valMap["value"]
+	}
+
+	return result, nil
+}
+
+func deleteTags(id string, deleteTagsClient *golangsdk.ServiceClient, tags map[string]interface{},
+	deleteTagsHttpUrl string) error {
+	if len(tags) == 0 {
+		return nil
+	}
+	deleteTagsPath := deleteTagsClient.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{id}", id)
+	deleteTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	deleteTagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+
+	_, err := deleteTagsClient.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting tags: %s", err)
+	}
+	return nil
 }

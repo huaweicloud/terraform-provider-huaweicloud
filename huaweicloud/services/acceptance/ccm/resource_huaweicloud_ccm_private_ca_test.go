@@ -71,6 +71,8 @@ func TestAccCCMPrivateCA_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "distinguished_name.0.country", "CN"),
 					resource.TestCheckResourceAttr(resourceName, "key_algorithm", "RSA2048"),
 					resource.TestCheckResourceAttr(resourceName, "signature_algorithm", "SHA512"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "issuer_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -79,6 +81,14 @@ func TestAccCCMPrivateCA_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "charging_mode"),
 					resource.TestCheckResourceAttrSet(resourceName, "free_quota"),
 					resource.TestCheckResourceAttrSet(resourceName, "expired_at"),
+				),
+			},
+			{
+				Config: testPrivateCA_updateTags(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 				),
 			},
 			{
@@ -94,7 +104,7 @@ func TestAccCCMPrivateCA_basic(t *testing.T) {
 }
 
 // lintignore:AT004
-func tesPrivateCA_basic(commonName string) string {
+func tesPrivateCA_base(commonName string) string {
 	return fmt.Sprintf(`
 provider "huaweicloud" {
   endpoints = {
@@ -119,7 +129,13 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
     type  = "DAY"
     value = 5
   }
+}`, commonName)
 }
+
+// lintignore:AT004
+func tesPrivateCA_basic(commonName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_ccm_private_ca" "test_subordinate" {
   type = "SUBORDINATE"
@@ -139,7 +155,41 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
     type  = "DAY"
     value = 1
   }
-}`, commonName, commonName)
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}`, tesPrivateCA_base(commonName), commonName)
+}
+
+// lintignore:AT004
+func testPrivateCA_updateTags(commonName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_ccm_private_ca" "test_subordinate" {
+  type = "SUBORDINATE"
+  distinguished_name {
+    common_name         = "%s-subordinate"
+    country             = "CN"
+    state               = "GD"
+    locality            = "SZ"
+    organization        = "huawei"
+    organizational_unit = "cloud"
+  }
+  key_algorithm       = "RSA2048"
+  issuer_id           = huaweicloud_ccm_private_ca.test_root.id
+  signature_algorithm = "SHA512"
+  pending_days        = "7"
+  validity {
+    type  = "DAY"
+    value = 1
+  }
+  tags = {
+    foo1 = "bar1"
+    key1 = "value1"
+  }
+}`, tesPrivateCA_base(commonName), commonName)
 }
 
 func TestAccCCMPrivateCA_prePaid(t *testing.T) {
