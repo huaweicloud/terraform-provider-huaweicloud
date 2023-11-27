@@ -134,6 +134,7 @@ github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics
 github.com/chnsz/golangsdk/openstack/dms/v2/maintainwindows
 github.com/chnsz/golangsdk/openstack/dms/v2/products
 github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances
+github.com/chnsz/golangsdk/openstack/dns/v2/associate
 github.com/chnsz/golangsdk/openstack/dns/v2/endpoints
 github.com/chnsz/golangsdk/openstack/dns/v2/ipaddress
 github.com/chnsz/golangsdk/openstack/dns/v2/nameservers
