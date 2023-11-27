@@ -73,7 +73,8 @@ The `connections` block supports:
 
 * `tunnel_local_address` - Indicates the tunnel local address of the connection.
 
-* `tunnel_peer_address` - Indicates the tunnel peer address of the connections.
+* `tunnel_peer_address` - Indicates the tunnel peer address of the connection.
+
 
 * `enable_nqa` - Indicates the enable nqa of the connection.
 
