@@ -100,3 +100,19 @@ func TestAccFunction_PasswordEncrypt(t *testing.T) {
 		t.Fatalf("The encrypted string is not as expected, want %s, but %s", green(encrypted), yellow(newEncrypted))
 	}
 }
+
+func TestAccFunction_ConvertMemoryUnit(t *testing.T) {
+	var (
+		memories   = []interface{}{2097152, 2048, 2, "2097152", "2048", "2", 2.048, "2.048", 0}
+		diffLevels = []int{2, 0, -2, 2, 0, -2, -2, -2, 1}
+		expected   = []int{2, 2048, 2097152, 2, 2048, 2097152, -1, -1, 0}
+	)
+
+	for i, memory := range memories {
+		testOutput := ConvertMemoryUnit(memory, diffLevels[i])
+		if !reflect.DeepEqual(testOutput, expected[i]) {
+			t.Fatalf("The processing result of ConvertMemoryUnit method is not as expected, want %s, but %s", green(expected[i]), yellow(testOutput))
+		}
+		t.Logf("The processing result of ConvertMemoryUnit method meets expectation: %s", green(expected[i]))
+	}
+}
