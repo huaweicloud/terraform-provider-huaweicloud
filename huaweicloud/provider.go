@@ -33,6 +33,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cloudtable"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cmdb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cnad"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/coc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codearts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cph"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
@@ -816,6 +817,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroup":      ecs.ResourceComputeServerGroup(),
 			"huaweicloud_compute_eip_associate":    ecs.ResourceComputeEIPAssociate(),
 			"huaweicloud_compute_volume_attach":    ecs.ResourceComputeVolumeAttach(),
+
+			"huaweicloud_coc_script": coc.ResourceScript(),
 
 			"huaweicloud_cph_server": cph.ResourceCphServer(),
 
