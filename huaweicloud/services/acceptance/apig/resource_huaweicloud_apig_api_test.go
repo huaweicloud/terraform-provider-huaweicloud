@@ -66,6 +66,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "web.0.request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(rName, "web.0.timeout", "30000"),
 					resource.TestCheckResourceAttr(rName, "web_policy.#", "1"),
+					resource.TestCheckResourceAttr(rName, "web_policy.0.conditions.#", "1"),
 					resource.TestCheckResourceAttr(rName, "mock.#", "0"),
 					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
 					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
@@ -96,6 +97,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "web.0.request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(rName, "web.0.timeout", "60000"),
 					resource.TestCheckResourceAttr(rName, "web_policy.#", "1"),
+					resource.TestCheckResourceAttr(rName, "web_policy.0.conditions.#", "2"),
 					resource.TestCheckResourceAttr(rName, "mock.#", "0"),
 					resource.TestCheckResourceAttr(rName, "func_graph.#", "0"),
 					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
@@ -435,6 +437,12 @@ resource "huaweicloud_apig_api" "test" {
       param_name = "user_name"
       type       = "Equal"
       value      = "Administrator"
+    }
+    conditions {
+      source      = "cookie"
+      cookie_name = "user_name"
+      type        = "Equal"
+      value       = "value_test"
     }
   }
 }

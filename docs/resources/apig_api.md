@@ -82,12 +82,13 @@ The following arguments are supported:
   The valid values are **HTTP**, **HTTPS** and **BOTH**.
 
 * `security_authentication` - (Optional, String) Specifies the security authentication mode of the API request.  
-  The valid values are **NONE**, **APP** and **IAM**, defaults to **NONE**.
+  The valid values are **NONE**, **APP**, **IAM** and **AUTHORIZER**, defaults to **NONE**.
 
 * `simple_authentication` - (Optional, Bool) Specifies whether the authentication of the application code is enabled.  
   The application code must located in the header when `simple_authentication` is true.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the authorizer to which the API request used.
+  It is Required when `security_authentication` is **AUTHORIZER**.
 
 * `request_params` - (Optional, List) Specifies the configurations of the front-end parameters.  
   The [object](#apig_api_request_params) structure is documented below.
@@ -390,14 +391,31 @@ The `conditions` block supports:
   For a condition with the Source IP address source, enter IPv4 addresses and separate them with commas. The CIDR
   address format is supported.
 
+  For a condition with the input parameter source:
+  When the `sys_name` is **req_method**, the valid values are **GET**, **POST**, **DELETE**, **PUT**, **PATCH**,
+  **HEAD** or **OPTIONS**.
+
 * `param_name` - (Optional, String) Specifies the request parameter name.
-  This parameter is required if the policy type is **param**.
+  This parameter is required if the policy type is **param**. The valid values are **user_age** and **X-TEST-ENUM**.
+
+* `sys_name` - (Optional, String) Specifies the gateway built-in parameter name.
+  This parameter is required if the policy type is **system**.  
+  The valid values are **req_path** and **req_method**.
+
+* `cookie_name` - (Optional, String) Specifies the cookie parameter name.
+  This parameter is required if the policy type is **cookie**.
+
+* `frontend_authorizer_name` - (Optional, String) Specifies the frontend authentication parameter name.
+  This parameter is required if the policy type is **frontend_authorizer**. It consists of two parts,
+  the first part is the fixed format **$context.authorizer.frontend.**, and the second part is the
+  frontend authentication parameter name. e.g. **$context.authorizer.frontend.user_name**.
 
 * `source` - (Optional, String) Specifies the backend policy type.  
-  The valid values are **param** and **source**, defaults to **source**.
+  The valid values are **param**, **source**, **system**, **cookie** and **frontend_authorizer**, defaults to **source**.
 
 * `type` - (Optional, String) Specifies the condition type of the backend policy.  
-  The valid values are **Equal**, **Enumerated** and **Matching**, defaults to **Equal**.
+  The valid values are **Equal**, **Enumerated** and **Matching**, defaults to **Equal**.  
+  When the `sys_name` is **req_method**, the valid values are **Equal** and **Enumerated**.
 
 ## Attribute Reference
 
