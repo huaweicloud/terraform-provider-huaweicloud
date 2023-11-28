@@ -352,7 +352,7 @@ func getKafkaProductDetails(cfg *config.Config, d *schema.ResourceData) (*produc
 	return nil, fmt.Errorf("can not found Kafka product details base on product_id: %s", productID)
 }
 
-func updateCrossVpcAccess(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func updateCrossVpcAccess(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	newVal := d.Get("cross_vpc_accesses")
 	var crossVpcAccessArr []map[string]interface{}
 
@@ -389,12 +389,26 @@ func updateCrossVpcAccess(client *golangsdk.ServiceClient, d *schema.ResourceDat
 
 	log.Printf("[DEBUG} Update Kafka cross-vpc contentMap: %#v", contentMap)
 
-	updateRst, err := instances.UpdateCrossVpc(client, d.Id(), instances.CrossVpcUpdateOpts{
-		Contents: contentMap,
+	retryFunc := func() (interface{}, bool, error) {
+		updateRst, err := instances.UpdateCrossVpc(client, d.Id(), instances.CrossVpcUpdateOpts{
+			Contents: contentMap,
+		})
+		retry, err := handleMultiOperationsError(err)
+		return updateRst, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
 		return fmt.Errorf("error updating advertised IP: %v", err)
 	}
+	updateRst := r.(*instances.CrossVpc)
 
 	if !updateRst.Success {
 		failedIps := make([]string, 0, len(updateRst.Connections))
@@ -441,7 +455,7 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
-		if err = updateCrossVpcAccess(client, d); err != nil {
+		if err = updateCrossVpcAccess(ctx, client, d); err != nil {
 			return diag.Errorf("failed to update default advertised IP: %s", err)
 		}
 	}
@@ -815,11 +829,11 @@ func unmarshalFlattenCrossVpcInfo(crossVpcInfoStr string) ([]map[string]interfac
 }
 
 func setKafkaFlavorId(d *schema.ResourceData, flavorId string) error {
-	re := regexp.MustCompile(`^[a-z0-9]+\.\d+u\d+g\.cluster|single$`)
+	re := regexp.MustCompile(`^\d(\d|-)*\d$`)
 	if re.MatchString(flavorId) {
-		return d.Set("flavor_id", flavorId)
+		return d.Set("product_id", flavorId)
 	}
-	return d.Set("product_id", flavorId)
+	return d.Set("flavor_id", flavorId)
 }
 
 func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -940,7 +954,20 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 			updateOpts.Name = d.Get("name").(string)
 		}
 
-		err = instances.Update(client, d.Id(), updateOpts).Err
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.Update(client, d.Id(), updateOpts).Err
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			mErr = multierror.Append(mErr, fmt.Errorf("error updating Kafka Instance: %s", err))
 		}
@@ -962,7 +989,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChange("cross_vpc_accesses") {
-		if err = updateCrossVpcAccess(client, d); err != nil {
+		if err = updateCrossVpcAccess(ctx, client, d); err != nil {
 			mErr = multierror.Append(mErr, err)
 		}
 	}
@@ -1070,7 +1097,21 @@ func resizeKafkaInstanceStorage(ctx context.Context, d *schema.ResourceData, cli
 }
 
 func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, opts instances.ResizeInstanceOpts) error {
-	if _, err := instances.Resize(client, d.Id(), opts); err != nil {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.Resize(client, d.Id(), opts)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
 		return fmt.Errorf("resize Kafka instance failed: %s", err)
 	}
 
@@ -1120,11 +1161,38 @@ func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
-		if err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+		retryFunc := func() (interface{}, bool, error) {
+			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
 			return diag.Errorf("error unsubscribe Kafka instance: %s", err)
 		}
 	} else {
-		err = instances.Delete(client, d.Id()).ExtractErr()
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.Delete(client, d.Id()).ExtractErr()
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "failed to delete Kafka instance")
 		}
@@ -1262,4 +1330,28 @@ func getAvailableZones(cfg *config.Config, region string) ([]availablezones.Avai
 	}
 
 	return r.AvailableZones, nil
+}
+
+func handleMultiOperationsError(err error) (bool, error) {
+	if err == nil {
+		// The operation was executed successfully and does not need to be executed again.
+		return false, nil
+	}
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		// CBC.99003651: unsubscribe fail, another operation is being performed
+		if errorCode.(string) == "DMS.00400026" || errorCode == "CBC.99003651" {
+			return true, err
+		}
+	}
+	return false, err
 }
