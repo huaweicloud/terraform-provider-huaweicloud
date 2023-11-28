@@ -22,6 +22,7 @@ func ResourceCcmPrivateCertificate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCcmPrivateCertificateCreate,
 		ReadContext:   resourceCcmPrivateCertificateRead,
+		UpdateContext: resourceCcmPrivateCertificateUpdate,
 		DeleteContext: resourceCcmPrivateCertificateDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -115,6 +116,7 @@ func ResourceCcmPrivateCertificate() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"tags": common.TagsSchema(),
 			"issuer_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -263,6 +265,14 @@ func resourceCcmPrivateCertificateCreate(ctx context.Context, d *schema.Resource
 	}
 
 	d.SetId(id.(string))
+
+	// deal tags
+	createTagsHttpUrl := "v1/private-certificates/{id}/tags/create"
+	tags := d.Get("tags").(map[string]interface{})
+	if err := createTags(id.(string), client, tags, createTagsHttpUrl); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceCcmPrivateCertificateRead(ctx, d, meta)
 }
 
@@ -335,6 +345,42 @@ func buidSubjectAlternativeName(d *schema.ResourceData) []interface{} {
 	}
 	return rst
 }
+
+func resourceCcmPrivateCertificateUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	product := "ccm"
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating CCM client: %s", err)
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oMap) > 0 {
+			deleteTagsHttpUrl := "v1/private-certificates/{id}/tags/delete"
+			if err = deleteTags(d.Id(), client, oMap, deleteTagsHttpUrl); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// set new tags
+		if len(nMap) > 0 {
+			createTagsHttpUrl := "v1/private-certificates/{id}/tags/create"
+			if err := createTags(d.Id(), client, nMap, createTagsHttpUrl); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+	return nil
+}
+
 func resourceCcmPrivateCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	product := "ccm"
@@ -364,6 +410,13 @@ func resourceCcmPrivateCertificateRead(_ context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	getTagsHttpUrl := "v1/private-certificates/{id}/tags"
+	tags, err := getTags(d.Id(), client, getTagsHttpUrl)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	created := utils.PathSearch("create_time", getCertificateRespBody, 0).(float64)
 	started := utils.PathSearch("not_before", getCertificateRespBody, 0).(float64)
 	expired := utils.PathSearch("not_after", getCertificateRespBody, 0).(float64)
@@ -381,6 +434,7 @@ func resourceCcmPrivateCertificateRead(_ context.Context, d *schema.ResourceData
 		d.Set("start_at", utils.FormatTimeStampRFC3339(int64(started)/1000, false)),
 		d.Set("expired_at", utils.FormatTimeStampRFC3339(int64(expired)/1000, false)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(created)/1000, false)),
+		d.Set("tags", tags),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
