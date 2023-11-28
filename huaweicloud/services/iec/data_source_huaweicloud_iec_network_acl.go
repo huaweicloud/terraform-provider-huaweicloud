@@ -1,18 +1,21 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/firewalls"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func dataSourceIECNetworkACL() *schema.Resource {
+func DataSourceNetworkACL() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECNetworkACLRead,
+		ReadContext: dataSourceNetworkACLRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -68,11 +71,11 @@ func dataSourceIECNetworkACL() *schema.Resource {
 	}
 }
 
-func dataSourceIECNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceNetworkACLRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC v1 client: %s", err)
 	}
 
 	listOpts := firewalls.ListOpts{
@@ -80,29 +83,30 @@ func dataSourceIECNetworkACLRead(d *schema.ResourceData, meta interface{}) error
 		Name: d.Get("name").(string),
 	}
 
-	logp.Printf("[DEBUG] query firewall using given filter: %+v", listOpts)
+	log.Printf("[DEBUG] query firewall using given filter: %+v", listOpts)
 	allFWs, err := firewalls.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve firewall: %s", err)
+		return diag.Errorf("unable to retrieve firewall: %s", err)
 	}
 
 	total := len(allFWs.Firewalls)
 	if total < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. Please change your search criteria and try again")
 	}
 	if total > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.Errorf("your query returned more than one result. Please try a more specific search criteria")
 	}
 
 	fwGroup := allFWs.Firewalls[0]
-	logp.Printf("[DEBUG] Retrieved IEC firewall %s: %+v", fwGroup.ID, fwGroup)
+	log.Printf("[DEBUG] retrieved IEC firewall %s: %+v", fwGroup.ID, fwGroup)
 
 	d.SetId(fwGroup.ID)
-	d.Set("name", fwGroup.Name)
-	d.Set("status", fwGroup.Status)
-	d.Set("description", fwGroup.Description)
+
+	mErr := multierror.Append(nil,
+		d.Set("name", fwGroup.Name),
+		d.Set("status", fwGroup.Status),
+		d.Set("description", fwGroup.Description),
+	)
 
 	// currently, the following attributes are empty due to the API response
 	networkList := make([]map[string]interface{}, 0, len(fwGroup.Subnets))
@@ -112,9 +116,11 @@ func dataSourceIECNetworkACLRead(d *schema.ResourceData, meta interface{}) error
 		subnet["subnet_id"] = val.ID
 		networkList = append(networkList, subnet)
 	}
-	d.Set("networks", networkList)
-	d.Set("inbound_rules", getFirewallRuleIDs(fwGroup.IngressFWPolicy))
-	d.Set("outbound_rules", getFirewallRuleIDs(fwGroup.EgressFWPolicy))
+	mErr = multierror.Append(mErr,
+		d.Set("networks", networkList),
+		d.Set("inbound_rules", getFirewallRuleIDs(fwGroup.IngressFWPolicy)),
+		d.Set("outbound_rules", getFirewallRuleIDs(fwGroup.EgressFWPolicy)),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

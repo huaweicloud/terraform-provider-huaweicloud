@@ -1,35 +1,48 @@
-package huaweicloud
+package iec
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/chnsz/golangsdk/openstack/iec/v1/firewalls"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECNetworkACLDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
+func TestAccNetworkACLDataSource_basic(t *testing.T) {
+	var (
+		rName          = acceptance.RandomAccResourceName()
+		resourceName   = "huaweicloud_iec_network_acl.test"
+		dataSourceName = "data.huaweicloud_iec_network_acl.by_name"
+		dataSourceById = "data.huaweicloud_iec_network_acl.by_id"
+		fwGroup        firewalls.Firewall
+		rc             = acceptance.InitResourceCheck(resourceName, &fwGroup, getNetworkACLResourceFunc)
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		dcByID         = acceptance.InitDataSourceCheck(dataSourceById)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecNetworkACLDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIECNetworkACL_basic(rName),
+				Config: testAccDataSourceNetworkACL_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_iec_network_acl.by_name", "name", rName),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_iec_network_acl.by_id", "name", rName),
+					rc.CheckResourceExists(),
+					dc.CheckResourceExists(),
+					dcByID.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttr(dataSourceById, "name", rName),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIECNetworkACL_basic(rName string) string {
+func testAccDataSourceNetworkACL_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_network_acl" "test" {
   name        = "%s"
