@@ -350,6 +350,7 @@ github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
+github.com/chnsz/golangsdk/openstack/workspace/v2/accesspolicies
 github.com/chnsz/golangsdk/openstack/workspace/v2/desktops
 github.com/chnsz/golangsdk/openstack/workspace/v2/jobs
 github.com/chnsz/golangsdk/openstack/workspace/v2/policygroups
