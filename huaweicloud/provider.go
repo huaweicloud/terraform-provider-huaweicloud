@@ -520,8 +520,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_security_group": iec.DataSourceIECSecurityGroup(),
 			"huaweicloud_iec_server":         iec.DataSourceIECServer(),
 			"huaweicloud_iec_sites":          iec.DataSourceIecSites(),
-			"huaweicloud_iec_vpc":            DataSourceIECVpc(),
-			"huaweicloud_iec_vpc_subnets":    DataSourceIECVpcSubnets(),
+			"huaweicloud_iec_vpc":            iec.DataSourceIECVpc(),
+			"huaweicloud_iec_vpc_subnets":    iec.DataSourceIECVpcSubnets(),
 
 			"huaweicloud_images_image":  ims.DataSourceImagesImageV2(),
 			"huaweicloud_images_images": ims.DataSourceImagesImages(),

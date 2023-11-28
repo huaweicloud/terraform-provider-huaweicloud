@@ -1,18 +1,21 @@
-package huaweicloud
+package iec
 
 import (
+	"context"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/iec/v1/subnets"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceIECVpcSubnets() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIECVpcSubnetIdsRead,
+		ReadContext: dataSourceIECVpcSubnetIdsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -76,11 +79,12 @@ func DataSourceIECVpcSubnets() *schema.Resource {
 	}
 }
 
-func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	iecClient, err := config.IECV1Client(GetRegion(d, config))
+func dataSourceIECVpcSubnetIdsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	iecClient, err := cfg.IECV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	vpcID := d.Get("vpc_id").(string)
@@ -91,12 +95,12 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 
 	allSubnets, err := subnets.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
+		return diag.Errorf("unable to retrieve subnets: %s", err)
 	}
 
 	total := len(allSubnets.Subnets)
 	if total == 0 {
-		return fmtp.Errorf("no matching subnet found for vpc with id %s", vpcID)
+		return diag.Errorf("no matching subnet found for vpc with id %s", vpcID)
 	}
 
 	iecSubnets := make([]map[string]interface{}, total)
@@ -115,13 +119,14 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 		iecSubnets[i] = val
 		allIDs[i] = item.ID
 	}
-	if err := d.Set("subnets", iecSubnets); err != nil {
-		return fmtp.Errorf("Error saving IEC subnets: %s", err)
-	}
 
 	// set id
 	d.SetId(hashcode.Strings(allIDs))
-	d.Set("region", GetRegion(d, config))
 
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("subnets", iecSubnets),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
