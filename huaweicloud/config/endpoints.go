@@ -823,6 +823,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "CodeArtsDeploy",
 	},
 
+	"vss": {
+		Name:    "vss",
+		Version: "v3",
+		Scope:   "global",
+		Product: "CodeArtsInspector",
+	},
+
 	// catalog for Data Security Center
 	"dsc": {
 		Name:    "sdg",

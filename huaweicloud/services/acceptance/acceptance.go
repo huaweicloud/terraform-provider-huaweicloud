@@ -199,8 +199,9 @@ var (
 	HW_NEW_CERTIFICATE_PRIVATE_KEY = os.Getenv("HW_NEW_CERTIFICATE_PRIVATE_KEY")
 	HW_NEW_CERTIFICATE_ROOT_CA     = os.Getenv("HW_NEW_CERTIFICATE_ROOT_CA")
 
-	HW_CODEARTS_RESOURCE_POOL_ID = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
-	HW_CODEARTS_ENABLE_FLAG      = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
+	HW_CODEARTS_RESOURCE_POOL_ID  = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
+	HW_CODEARTS_ENABLE_FLAG       = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
+	HW_CODEARTS_PUBLIC_IP_ADDRESS = os.Getenv("HW_CODEARTS_PUBLIC_IP_ADDRESS")
 
 	HW_EG_CHANNEL_ID = os.Getenv("HW_EG_CHANNEL_ID")
 
@@ -863,6 +864,13 @@ func TestAccPreCheckCodeArtsDeployResourcePoolID(t *testing.T) {
 func TestAccPreCheckCodeArtsEnableFlag(t *testing.T) {
 	if HW_CODEARTS_ENABLE_FLAG == "" {
 		t.Skip("Skip the CodeArts acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCodeArtsPublicIPAddress(t *testing.T) {
+	if HW_CODEARTS_PUBLIC_IP_ADDRESS == "" {
+		t.Skip("HW_CODEARTS_PUBLIC_IP_ADDRESS must be set for this acceptance test")
 	}
 }
 
