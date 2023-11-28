@@ -368,16 +368,25 @@ type APIConditionBase struct {
 	// Policy type. The valid types are as following:
 	//   param: input parameter
 	//   source: source IP address
+	//   system: gateway built-in parameter
+	//   cookie: cookie parameter
+	//   frontend_authorizer: frontend authentication parameter
 	ConditionOrigin string `json:"condition_origin" required:"true"`
 	// Condition value.
 	ConditionValue string `json:"condition_value" required:"true"`
 	// Input parameter name. This parameter is required if the policy type is param.
 	ReqParamName string `json:"req_param_name,omitempty"`
+	// Gateway built-in parameter name. This parameter is required if the policy type is system.
+	SysParamName string `json:"sys_param_name,omitempty"`
+	// Cookie parameter name. This parameter is required if the policy type is cookie.
+	CookieParamName string `json:"cookie_param_name,omitempty"`
+	// Frontend authentication parameter name. This parameter is required if the policy type is frontend_authorizer.
+	FrontendAuthorizerParamName string `json:"frontend_authorizer_param_name,omitempty"`
 	// Policy condition. The valid values are as following:
 	//   exact: exact match
 	//   enum: enumeration
 	//   pattern: regular expression
-	// This parameter is required if the policy type is param.
+	// This parameter is required if the policy type is param, system, cookie and frontend_authorizer.
 	ConditionType string `json:"condition_type,omitempty"`
 }
 
