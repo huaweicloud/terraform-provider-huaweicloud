@@ -63,9 +63,9 @@ The following arguments are supported:
   The valid values are **Public** and **Private**.
 
 * `name` - (Required, String) Specifies the API name.  
-  The valid length is limited from can contain `3` to `64`, only Chinese and English letters, digits and hyphens (-)
-  are allowed.  
-  The name must start with a Chinese or English letter.
+  The valid length is limited from can contain `3` to `255`, only Chinese and English letters, digits and
+  following special characters are allowed: `-_./（()）:：、`.
+  The name must start with a digit, Chinese or English letter.
 
 * `request_method` - (Required, String) Specifies the request method of the API.  
   The valid values are **GET**, **POST**, **PUT**, **DELETE**, **HEAD**, **PATCH**, **OPTIONS** and **ANY**.

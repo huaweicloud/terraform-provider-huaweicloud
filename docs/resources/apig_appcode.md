@@ -49,8 +49,8 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `value` - (Optional, String, ForceNew) Specifies the APPCODE value (content).
-  The value can contain `64` to `180` characters, starting with a letter, plus sign (+), or slash (/). Only letters and
-  the following special characters are allowed: `+_!@#$%/=`.
+  The value can contain `64` to `180` characters, starting with a letter, plus sign (+), or slash (/), or digit.
+  Only letters, digit and the following special characters are allowed: `+_!@#$%/=`.
   If omitted, a random value will be generated.
   Changing this will create a new resource.
 

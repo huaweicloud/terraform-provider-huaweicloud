@@ -108,6 +108,9 @@ The following arguments are supported:
 
 * `vpcep_service_name` - (Optional, String) Specifies the name of the VPC endpoint service.
   It can contain a maximum of 16 characters, including letters, digits, underscores (_), and hyphens (-).
+  If this parameter is not specified, the system automatically generates a name in the "{region}.apig.{service_id}" format.
+  If this parameter is specified, the system automatically generates a name in the
+  "{region}.{vpcep_service_name}.{service_id}" format.
 
   -> This parameter is only available if the `loadbalancer_provider` is **elb**.
      Only enable and update operations are supported, and disable operation is not supported.

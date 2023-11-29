@@ -161,14 +161,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The API type.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5\\w]*$"),
-						"Only English letters, digits, underscores (_) and Chinese characters are allowed, and the "+
-							"name must start with a letter or chinese character."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The API name.",
 			},
 			"request_method": {
