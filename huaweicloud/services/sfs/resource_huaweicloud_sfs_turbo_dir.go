@@ -95,6 +95,7 @@ func resourceSfsTurboDirCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	return resourceSfsTurboDirRead(ctx, d, meta)
 }
+
 func buildCreateSfsTurboDirBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"path": d.Get("path"),
