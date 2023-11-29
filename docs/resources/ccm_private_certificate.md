@@ -87,6 +87,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of private certificate.
   Changing this parameter will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs associating with the private certificate.
+
 <a name="block-distinguished_name"></a>
 The `distinguished_name` block supports:
 

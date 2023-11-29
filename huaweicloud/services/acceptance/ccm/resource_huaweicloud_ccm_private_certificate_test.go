@@ -70,12 +70,23 @@ func TestAccCcmPrivateCertificate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "distinguished_name.0.country", "CN"),
 					resource.TestCheckResourceAttr(resourceName, "distinguished_name.0.organization", "huawei"),
 
+					resource.TestCheckResourceAttr(resourceName, "tags.fooo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.keye", "value"),
+
 					resource.TestCheckResourceAttrSet(resourceName, "issuer_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "start_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "gen_mode"),
 					resource.TestCheckResourceAttrSet(resourceName, "expired_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+				),
+			},
+			{
+				Config: tesCmdbCertificate_tagsUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -103,30 +114,7 @@ func TestAccCcmPrivateCertificate_basic(t *testing.T) {
 // lintignore:AT004
 func tesCmdbCertificate_basic(commonName string) string {
 	return fmt.Sprintf(`
-provider "huaweicloud" {
-  endpoints = {
-    ccm = "https://ccm.cn-north-4.myhuaweicloud.com/"
-  }
-}
-	  
-resource "huaweicloud_ccm_private_ca" "test_root" {
-  type   = "ROOT"
-  distinguished_name {
-      common_name         = "%s-root"
-      country             = "CN"
-      state               = "GD"
-      locality            = "SZ"
-      organization        = "huawei"
-      organizational_unit = "cloud"
-    }
-    key_algorithm       = "RSA2048"
-    signature_algorithm = "SHA512"
-    pending_days        = "7"
-    validity {
-      type  = "DAY"
-      value = 2
-    }
-}
+%s
 
 resource "huaweicloud_ccm_private_certificate" "test" {
   issuer_id           = huaweicloud_ccm_private_ca.test_root.id
@@ -144,5 +132,37 @@ resource "huaweicloud_ccm_private_certificate" "test" {
     type  = "DAY"
     value = "1"
   }
-}`, commonName, commonName)
+  tags = {
+    fooo = "bar"
+    keye = "value"
+  }
+}`, tesPrivateCA_base(commonName), commonName)
+}
+
+// lintignore:AT004
+func tesCmdbCertificate_tagsUpdate(commonName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_ccm_private_certificate" "test" {
+  issuer_id           = huaweicloud_ccm_private_ca.test_root.id
+  key_algorithm       = "RSA2048"
+  signature_algorithm = "SHA256"
+  distinguished_name {
+    common_name         = "%s"
+    country             = "CN"
+    state               = "GD"
+    locality            = "SZ"
+    organization        = "huawei"
+    organizational_unit = "cloud"
+  }
+  validity {
+    type  = "DAY"
+    value = "1"
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}`, tesPrivateCA_base(commonName), commonName)
 }
