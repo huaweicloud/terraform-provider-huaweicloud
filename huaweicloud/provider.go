@@ -1145,6 +1145,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_playbook":         secmaster.ResourcePlaybook(),
 			"huaweicloud_secmaster_playbook_version": secmaster.ResourcePlaybookVersion(),
 			"huaweicloud_secmaster_playbook_rule":    secmaster.ResourcePlaybookRule(),
+			"huaweicloud_secmaster_playbook_action":  secmaster.ResourcePlaybookAction(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),

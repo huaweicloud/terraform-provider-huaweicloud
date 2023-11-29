@@ -1,0 +1,336 @@
+// ---------------------------------------------------------------
+// *** AUTO GENERATED CODE ***
+// @Product SecMaster
+// ---------------------------------------------------------------
+
+package secmaster
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
+
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+func ResourcePlaybookAction() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourcePlaybookActionCreate,
+		UpdateContext: resourcePlaybookActionUpdate,
+		ReadContext:   resourcePlaybookActionRead,
+		DeleteContext: resourcePlaybookActionDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: resourcePlaybookActionImportState,
+		},
+
+		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"workspace_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the ID of the workspace to which the playbook action belongs.`,
+			},
+			"version_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies playbook version ID of the action.`,
+			},
+			"action_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the workflow ID.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies playbook action name.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the description of the playbook action.`,
+			},
+			"action_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the playbook action type.`,
+			},
+			"sort_order": {
+				Type:        schema.TypeFloat,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the sort order of the playbook action.`,
+			},
+			"playbook_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the playbook ID of the action.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the created time of the playbook action.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the updated time of the playbook action.`,
+			},
+		},
+	}
+}
+
+func resourcePlaybookActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// createPlaybookAction: Create a SecMaster playbook action.
+	var (
+		createPlaybookActionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions"
+		createPlaybookActionProduct = "secmaster"
+	)
+	createPlaybookActionClient, err := cfg.NewServiceClient(createPlaybookActionProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating SecMaster client: %s", err)
+	}
+
+	createPlaybookActionPath := createPlaybookActionClient.Endpoint + createPlaybookActionHttpUrl
+	createPlaybookActionPath = strings.ReplaceAll(createPlaybookActionPath, "{project_id}", createPlaybookActionClient.ProjectID)
+	createPlaybookActionPath = strings.ReplaceAll(createPlaybookActionPath, "{workspace_id}", d.Get("workspace_id").(string))
+	createPlaybookActionPath = strings.ReplaceAll(createPlaybookActionPath, "{version_id}", d.Get("version_id").(string))
+
+	createPlaybookActionOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	}
+
+	createPlaybookActionOpt.JSONBody = []interface{}{utils.RemoveNil(buildCreatePlaybookActionBodyParams(d))}
+	createPlaybookActionResp, err := createPlaybookActionClient.Request("POST", createPlaybookActionPath, &createPlaybookActionOpt)
+	if err != nil {
+		return diag.Errorf("error creating PlaybookAction: %s", err)
+	}
+
+	createPlaybookActionRespBody, err := utils.FlattenResponse(createPlaybookActionResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id, err := jmespath.Search("data[0].id", createPlaybookActionRespBody)
+	if err != nil {
+		return diag.Errorf("error creating PlaybookAction: ID is not found in API response")
+	}
+	d.SetId(id.(string))
+
+	return resourcePlaybookActionRead(ctx, d, meta)
+}
+
+func buildCreatePlaybookActionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"action_id":   d.Get("action_id"),
+		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"action_type": utils.ValueIngoreEmpty(d.Get("action_type")),
+		"sort_order":  utils.ValueIngoreEmpty(d.Get("sort_order")),
+	}
+	return bodyParams
+}
+
+func resourcePlaybookActionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	// getPlaybookAction: Query the SecMaster playbook action detail
+	var (
+		getPlaybookActionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions"
+		getPlaybookActionProduct = "secmaster"
+	)
+	getPlaybookActionClient, err := cfg.NewServiceClient(getPlaybookActionProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating SecMaster client: %s", err)
+	}
+
+	getPlaybookActionPath := getPlaybookActionClient.Endpoint + getPlaybookActionHttpUrl
+	getPlaybookActionPath = strings.ReplaceAll(getPlaybookActionPath, "{project_id}", getPlaybookActionClient.ProjectID)
+	getPlaybookActionPath = strings.ReplaceAll(getPlaybookActionPath, "{workspace_id}", d.Get("workspace_id").(string))
+	getPlaybookActionPath = strings.ReplaceAll(getPlaybookActionPath, "{version_id}", d.Get("version_id").(string))
+	getPlaybookActionPath += "?limit=1000"
+
+	getPlaybookActionOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	}
+
+	getPlaybookActionResp, err := getPlaybookActionClient.Request("GET", getPlaybookActionPath, &getPlaybookActionOpt)
+
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving PlaybookAction")
+	}
+
+	getPlaybookActionRespBody, err := utils.FlattenResponse(getPlaybookActionResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	jsonPath := fmt.Sprintf("data[?id=='%s']|[0]", d.Id())
+	getPlaybookActionRespBody = utils.PathSearch(jsonPath, getPlaybookActionRespBody, nil)
+	if getPlaybookActionRespBody == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no data found")
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", getPlaybookActionRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getPlaybookActionRespBody, nil)),
+		d.Set("action_type", utils.PathSearch("action_type", getPlaybookActionRespBody, nil)),
+		d.Set("sort_order", utils.PathSearch("sort_order", getPlaybookActionRespBody, nil)),
+		d.Set("action_id", utils.PathSearch("action_id", getPlaybookActionRespBody, nil)),
+		d.Set("playbook_id", utils.PathSearch("playbook_id", getPlaybookActionRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("create_time", getPlaybookActionRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("update_time", getPlaybookActionRespBody, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourcePlaybookActionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	updatePlaybookActionChanges := []string{
+		"name",
+		"description",
+		"action_type",
+		"sort_order",
+		"action_id",
+	}
+
+	if d.HasChanges(updatePlaybookActionChanges...) {
+		// updatePlaybookAction: Update the configuration of SecMaster playbook action
+		var (
+			updatePlaybookActionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions/{id}"
+			updatePlaybookActionProduct = "secmaster"
+		)
+		updatePlaybookActionClient, err := cfg.NewServiceClient(updatePlaybookActionProduct, region)
+		if err != nil {
+			return diag.Errorf("error creating SecMaster client: %s", err)
+		}
+
+		updatePlaybookActionPath := updatePlaybookActionClient.Endpoint + updatePlaybookActionHttpUrl
+		updatePlaybookActionPath = strings.ReplaceAll(updatePlaybookActionPath, "{project_id}", updatePlaybookActionClient.ProjectID)
+		updatePlaybookActionPath = strings.ReplaceAll(updatePlaybookActionPath, "{workspace_id}", d.Get("workspace_id").(string))
+		updatePlaybookActionPath = strings.ReplaceAll(updatePlaybookActionPath, "{version_id}", d.Get("version_id").(string))
+		updatePlaybookActionPath = strings.ReplaceAll(updatePlaybookActionPath, "{id}", d.Id())
+
+		updatePlaybookActionOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes: []int{
+				200,
+			},
+			MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		}
+
+		updatePlaybookActionOpt.JSONBody = utils.RemoveNil(buildUpdatePlaybookActionBodyParams(d))
+		_, err = updatePlaybookActionClient.Request("PUT", updatePlaybookActionPath, &updatePlaybookActionOpt)
+		if err != nil {
+			return diag.Errorf("error updating PlaybookAction: %s", err)
+		}
+	}
+	return resourcePlaybookActionRead(ctx, d, meta)
+}
+
+func buildUpdatePlaybookActionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"description": d.Get("description"),
+		"action_type": utils.ValueIngoreEmpty(d.Get("action_type")),
+		"sort_order":  utils.ValueIngoreEmpty(d.Get("sort_order")),
+		"action_id":   utils.ValueIngoreEmpty(d.Get("action_id")),
+	}
+	return bodyParams
+}
+
+func resourcePlaybookActionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// deletePlaybookAction: Delete an existing SecMaster playbook action
+	var (
+		deletePlaybookActionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions/{id}"
+		deletePlaybookActionProduct = "secmaster"
+	)
+	deletePlaybookActionClient, err := cfg.NewServiceClient(deletePlaybookActionProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating SecMaster client: %s", err)
+	}
+
+	deletePlaybookActionPath := deletePlaybookActionClient.Endpoint + deletePlaybookActionHttpUrl
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{project_id}", deletePlaybookActionClient.ProjectID)
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{workspace_id}", d.Get("workspace_id").(string))
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{version_id}", d.Get("version_id").(string))
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{id}", d.Id())
+
+	deletePlaybookActionOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err = deletePlaybookActionClient.Request("DELETE", deletePlaybookActionPath, &deletePlaybookActionOpt)
+	if err != nil {
+		return diag.Errorf("error deleting PlaybookAction: %s", err)
+	}
+
+	return nil
+}
+
+func resourcePlaybookActionImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("invalid format specified for import id, must be <workspace_id>/<playbook_version_id>/<playbook_action_id>")
+	}
+
+	d.SetId(parts[2])
+
+	var mErr *multierror.Error
+	mErr = multierror.Append(
+		mErr,
+		d.Set("workspace_id", parts[0]),
+		d.Set("version_id", parts[1]),
+	)
+
+	err := mErr.ErrorOrNil()
+	if err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
+}
