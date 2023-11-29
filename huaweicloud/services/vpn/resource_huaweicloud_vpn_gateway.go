@@ -121,21 +121,54 @@ func ResourceGateway() *schema.Resource {
 				Computed:    true,
 				Description: `The enterprise router ID to attach with to VPN gateway.`,
 			},
+			"ha_mode": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				Description:   `The HA mode of the VPN gateway.`,
+				ValidateFunc:  validation.StringInSlice([]string{"active-active", "active-standby"}, false),
+				ConflictsWith: []string{"master_eip", "slave_eip"},
+			},
 			"master_eip": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     GatewayEipSchema(),
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:         schema.TypeList,
+				MaxItems:     1,
+				Elem:         GatewayEipSchema(),
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+				RequiredWith: []string{"slave_eip"},
+			},
+			"eip1": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Elem:          GatewayEipSchema(),
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"master_eip", "slave_eip"},
+				RequiredWith:  []string{"eip2"},
 			},
 			"slave_eip": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Elem:     GatewayEipSchema(),
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:         schema.TypeList,
+				MaxItems:     1,
+				Elem:         GatewayEipSchema(),
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+				RequiredWith: []string{"master_eip"},
+			},
+			"eip2": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Elem:          GatewayEipSchema(),
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				ConflictsWith: []string{"master_eip", "slave_eip"},
+				RequiredWith:  []string{"eip1"},
 			},
 			"access_vpc_id": {
 				Type:        schema.TypeString,
@@ -271,15 +304,15 @@ func GatewayEipSchema() *schema.Resource {
 }
 
 func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createGateway: Create a VPN Gateway.
 	var (
 		createGatewayHttpUrl = "v5/{project_id}/vpn-gateways"
 		createGatewayProduct = "vpn"
 	)
-	createGatewayClient, err := config.NewServiceClient(createGatewayProduct, region)
+	createGatewayClient, err := cfg.NewServiceClient(createGatewayProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Gateway Client: %s", err)
 	}
@@ -293,7 +326,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 			201,
 		},
 	}
-	createGatewayOpt.JSONBody = utils.RemoveNil(buildCreateGatewayBodyParams(d, config))
+	createGatewayOpt.JSONBody = utils.RemoveNil(buildCreateGatewayBodyParams(d, cfg))
 	createGatewayResp, err := createGatewayClient.Request("POST", createGatewayPath, &createGatewayOpt)
 	if err != nil {
 		return diag.Errorf("error creating Gateway: %s", err)
@@ -317,68 +350,67 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceGatewayRead(ctx, d, meta)
 }
 
-func buildCreateGatewayBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateGatewayBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"vpn_gateway": buildCreateGatewayVpnGatewayChildBody(d, config),
+		"vpn_gateway": buildCreateGatewayVpnGatewayChildBody(d, cfg),
 	}
 	return bodyParams
 }
 
-func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	haMode := d.Get("ha_mode").(string)
+	masterEIP := buildCreateGatewayEIPChildBody(d, "master_eip")
+	slaveEIP := buildCreateGatewayEIPChildBody(d, "slave_eip")
+
+	// default use "active-standby" ha_mode type when declare master_eip and slave_eip
+	if haMode == "" && masterEIP != nil && slaveEIP != nil {
+		haMode = "active-standby"
+	}
 	params := map[string]interface{}{
 		"attachment_type":       utils.ValueIngoreEmpty(d.Get("attachment_type")),
 		"availability_zone_ids": utils.ValueIngoreEmpty(d.Get("availability_zones")),
 		"bgp_asn":               utils.ValueIngoreEmpty(d.Get("asn")),
 		"connect_subnet":        utils.ValueIngoreEmpty(d.Get("connect_subnet")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, config)),
+		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"flavor":                utils.ValueIngoreEmpty(d.Get("flavor")),
 		"local_subnets":         utils.ValueIngoreEmpty(d.Get("local_subnets")),
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"master_eip":            buildCreateGatewayMasterEipChildBody(d),
-		"slave_eip":             buildCreateGatewaySlaveEipChildBody(d),
+		"ha_mode":               utils.ValueIngoreEmpty(haMode),
+		"eip1":                  buildCreateGatewayEIPChildBody(d, "eip1"),
+		"master_eip":            masterEIP,
+		"eip2":                  buildCreateGatewayEIPChildBody(d, "eip2"),
+		"slave_eip":             slaveEIP,
 		"access_vpc_id":         utils.ValueIngoreEmpty(d.Get("access_vpc_id")),
 		"access_subnet_id":      utils.ValueIngoreEmpty(d.Get("access_subnet_id")),
 		"er_id":                 utils.ValueIngoreEmpty(d.Get("er_id")),
 		"network_type":          utils.ValueIngoreEmpty(d.Get("network_type")),
 	}
-	return params
-}
-
-func buildCreateGatewayMasterEipChildBody(d *schema.ResourceData) map[string]interface{} {
-	rawParams := d.Get("master_eip").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
-	}
-
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"bandwidth_name": utils.ValueIngoreEmpty(raw["bandwidth_name"]),
-		"bandwidth_size": utils.ValueIngoreEmpty(raw["bandwidth_size"]),
-		"charge_mode":    utils.ValueIngoreEmpty(raw["charge_mode"]),
-		"id":             utils.ValueIngoreEmpty(raw["id"]),
-		"type":           utils.ValueIngoreEmpty(raw["type"]),
-	}
 
 	return params
 }
 
-func buildCreateGatewaySlaveEipChildBody(d *schema.ResourceData) map[string]interface{} {
-	rawParams := d.Get("slave_eip").([]interface{})
-	if len(rawParams) == 0 {
-		return nil
-	}
+func buildCreateGatewayEIPChildBody(d *schema.ResourceData, param string) map[string]interface{} {
+	if rawArray, ok := d.Get(param).([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
 
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"bandwidth_name": utils.ValueIngoreEmpty(raw["bandwidth_name"]),
-		"bandwidth_size": utils.ValueIngoreEmpty(raw["bandwidth_size"]),
-		"charge_mode":    utils.ValueIngoreEmpty(raw["charge_mode"]),
-		"id":             utils.ValueIngoreEmpty(raw["id"]),
-		"type":           utils.ValueIngoreEmpty(raw["type"]),
-	}
+		raw, ok := rawArray[0].(map[string]interface{})
+		if !ok {
+			return nil
+		}
 
-	return params
+		params := map[string]interface{}{
+			"bandwidth_name": utils.ValueIngoreEmpty(raw["bandwidth_name"]),
+			"bandwidth_size": utils.ValueIngoreEmpty(raw["bandwidth_size"]),
+			"charge_mode":    utils.ValueIngoreEmpty(raw["charge_mode"]),
+			"id":             utils.ValueIngoreEmpty(raw["id"]),
+			"type":           utils.ValueIngoreEmpty(raw["type"]),
+		}
+		return params
+	}
+	return nil
 }
 
 func createGatewayWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
@@ -386,14 +418,14 @@ func createGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
 			// createGatewayWaiting: missing operation notes
 			var (
 				createGatewayWaitingHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 				createGatewayWaitingProduct = "vpn"
 			)
-			createGatewayWaitingClient, err := config.NewServiceClient(createGatewayWaitingProduct, region)
+			createGatewayWaitingClient, err := cfg.NewServiceClient(createGatewayWaitingProduct, region)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error creating Gateway Client: %s", err)
 			}
@@ -449,9 +481,9 @@ func createGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 	return err
 }
 
-func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -460,7 +492,7 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, meta inter
 		getGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 		getGatewayProduct = "vpn"
 	)
-	getGatewayClient, err := config.NewServiceClient(getGatewayProduct, region)
+	getGatewayClient, err := cfg.NewServiceClient(getGatewayProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Gateway Client: %s", err)
 	}
@@ -497,9 +529,12 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, meta inter
 		d.Set("enterprise_project_id", utils.PathSearch("vpn_gateway.enterprise_project_id", getGatewayRespBody, nil)),
 		d.Set("flavor", utils.PathSearch("vpn_gateway.flavor", getGatewayRespBody, nil)),
 		d.Set("local_subnets", utils.PathSearch("vpn_gateway.local_subnets", getGatewayRespBody, nil)),
-		d.Set("master_eip", flattenGetGatewayResponseBodyResponseMasterEip(getGatewayRespBody)),
+		d.Set("ha_mode", utils.PathSearch("vpn_gateway.ha_mode", getGatewayRespBody, nil)),
+		d.Set("eip1", flattenGetGatewayResponseBodyVPNGatewayBody(getGatewayRespBody, "eip1")),
+		d.Set("master_eip", flattenGetGatewayResponseBodyVPNGatewayBody(getGatewayRespBody, "master_eip")),
 		d.Set("name", utils.PathSearch("vpn_gateway.name", getGatewayRespBody, nil)),
-		d.Set("slave_eip", flattenGetGatewayResponseBodyResponseSlaveEip(getGatewayRespBody)),
+		d.Set("eip2", flattenGetGatewayResponseBodyVPNGatewayBody(getGatewayRespBody, "eip2")),
+		d.Set("slave_eip", flattenGetGatewayResponseBodyVPNGatewayBody(getGatewayRespBody, "slave_eip")),
 		d.Set("status", utils.PathSearch("vpn_gateway.status", getGatewayRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("vpn_gateway.updated_at", getGatewayRespBody, nil)),
 		d.Set("used_connection_group", utils.PathSearch("vpn_gateway.used_connection_group", getGatewayRespBody, nil)),
@@ -514,34 +549,11 @@ func resourceGatewayRead(ctx context.Context, d *schema.ResourceData, meta inter
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetGatewayResponseBodyResponseMasterEip(resp interface{}) []interface{} {
+func flattenGetGatewayResponseBodyVPNGatewayBody(resp interface{}, paramName string) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_gateway.master_eip", resp)
+	curJson, err := jmespath.Search(fmt.Sprintf("vpn_gateway.%s", paramName), resp)
 	if err != nil {
-		log.Printf("[ERROR] error parsing vpn_gateway.master_eip from response= %#v", resp)
-		return rst
-	}
-
-	rst = []interface{}{
-		map[string]interface{}{
-			"bandwidth_id":   utils.PathSearch("bandwidth_id", curJson, nil),
-			"bandwidth_name": utils.PathSearch("bandwidth_name", curJson, nil),
-			"bandwidth_size": utils.PathSearch("bandwidth_size", curJson, nil),
-			"charge_mode":    utils.PathSearch("charge_mode", curJson, nil),
-			"id":             utils.PathSearch("id", curJson, nil),
-			"ip_address":     utils.PathSearch("ip_address", curJson, nil),
-			"ip_version":     utils.PathSearch("ip_version", curJson, nil),
-			"type":           utils.PathSearch("type", curJson, nil),
-		},
-	}
-	return rst
-}
-
-func flattenGetGatewayResponseBodyResponseSlaveEip(resp interface{}) []interface{} {
-	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_gateway.slave_eip", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing vpn_gateway.slave_eip from response= %#v", resp)
+		log.Printf("[ERROR] error parsing vpn_gateway.%s from response= %#v", paramName, resp)
 		return rst
 	}
 
@@ -561,21 +573,21 @@ func flattenGetGatewayResponseBodyResponseSlaveEip(resp interface{}) []interface
 }
 
 func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateGatewayhasChanges := []string{
+	updateGatewayHasChanges := []string{
 		"local_subnets",
 		"name",
 	}
 
-	if d.HasChanges(updateGatewayhasChanges...) {
+	if d.HasChanges(updateGatewayHasChanges...) {
 		// updateGateway: Update the configuration of VPN gateway
 		var (
 			updateGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 			updateGatewayProduct = "vpn"
 		)
-		updateGatewayClient, err := config.NewServiceClient(updateGatewayProduct, region)
+		updateGatewayClient, err := cfg.NewServiceClient(updateGatewayProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating Gateway Client: %s", err)
 		}
@@ -590,7 +602,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				200,
 			},
 		}
-		updateGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateGatewayBodyParams(d, config))
+		updateGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateGatewayBodyParams(d))
 		_, err = updateGatewayClient.Request("PUT", updateGatewayPath, &updateGatewayOpt)
 		if err != nil {
 			return diag.Errorf("error updating Gateway: %s", err)
@@ -603,7 +615,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceGatewayRead(ctx, d, meta)
 }
 
-func buildUpdateGatewayBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"vpn_gateway": buildUpdateGatewayVpnGatewayChildBody(d),
 	}
@@ -623,14 +635,14 @@ func updateGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
 			// updateGatewayWaiting: missing operation notes
 			var (
 				updateGatewayWaitingHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 				updateGatewayWaitingProduct = "vpn"
 			)
-			updateGatewayWaitingClient, err := config.NewServiceClient(updateGatewayWaitingProduct, region)
+			updateGatewayWaitingClient, err := cfg.NewServiceClient(updateGatewayWaitingProduct, region)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error creating Gateway Client: %s", err)
 			}
@@ -676,7 +688,6 @@ func updateGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			}
 
 			return updateGatewayWaitingRespBody, status, nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -687,15 +698,15 @@ func updateGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 }
 
 func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteGateway: Delete an existing VPN Gateway
 	var (
 		deleteGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 		deleteGatewayProduct = "vpn"
 	)
-	deleteGatewayClient, err := config.NewServiceClient(deleteGatewayProduct, region)
+	deleteGatewayClient, err := cfg.NewServiceClient(deleteGatewayProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Gateway Client: %s", err)
 	}
@@ -727,14 +738,14 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
 			// deleteGatewayWaiting: missing operation notes
 			var (
 				deleteGatewayWaitingHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 				deleteGatewayWaitingProduct = "vpn"
 			)
-			deleteGatewayWaitingClient, err := config.NewServiceClient(deleteGatewayWaitingProduct, region)
+			deleteGatewayWaitingClient, err := cfg.NewServiceClient(deleteGatewayWaitingProduct, region)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error creating Gateway Client: %s", err)
 			}
@@ -769,7 +780,7 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{}
+			var targetStatus []string
 			if utils.StrSliceContains(targetStatus, status) {
 				return deleteGatewayWaitingRespBody, "COMPLETED", nil
 			}

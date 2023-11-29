@@ -66,6 +66,104 @@ func TestAccGateway_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ha_mode", "active-active"),
+					resource.TestCheckResourceAttrPair(rName, "connect_subnet", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(rName, "local_subnets.0", "huaweicloud_vpc_subnet.test", "cidr"),
+					resource.TestCheckResourceAttrPair(rName, "eip1.0.id", "huaweicloud_vpc_eip.test1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "eip2.0.id", "huaweicloud_vpc_eip.test2", "id"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.1",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.1"),
+				),
+			},
+			{
+				Config: testGateway_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckResourceAttrPair(rName, "local_subnets.0", "huaweicloud_vpc_subnet.test", "cidr"),
+					resource.TestCheckResourceAttr(rName, "local_subnets.1", "192.168.2.0/24"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccGateway_activeStandbyHAMode(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_gateway.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGatewayResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testGateway_activeStandbyHAMode(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ha_mode", "active-standby"),
+					resource.TestCheckResourceAttrPair(rName, "connect_subnet", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(rName, "local_subnets.0", "huaweicloud_vpc_subnet.test", "cidr"),
+					resource.TestCheckResourceAttrPair(rName, "eip1.0.id", "huaweicloud_vpc_eip.test1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "eip2.0.id", "huaweicloud_vpc_eip.test2", "id"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.1",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.1"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccGateway_deprecated(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_gateway.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGatewayResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testGateway_deprecated(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ha_mode", "active-standby"),
 					resource.TestCheckResourceAttrPair(rName, "connect_subnet", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
@@ -79,7 +177,7 @@ func TestAccGateway_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testGateway_update(name),
+				Config: testGateway_deprecated_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
@@ -198,11 +296,11 @@ resource "huaweicloud_vpn_gateway" "test" {
     data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
   ]
 
-  master_eip {
+  eip1 {
     id = huaweicloud_vpc_eip.test1.id
   }
 
-  slave_eip {
+  eip2 {
     id = huaweicloud_vpc_eip.test2.id
   }
 }
@@ -223,11 +321,37 @@ resource "huaweicloud_vpn_gateway" "test" {
     data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
   ]
 
-  master_eip {
+  eip1 {
     id = huaweicloud_vpc_eip.test1.id
   }
 
-  slave_eip {
+  eip2 {
+    id = huaweicloud_vpc_eip.test2.id
+  }
+}
+`, testGateway_base(name), name)
+}
+
+func testGateway_activeStandbyHAMode(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name               = "%s"
+  vpc_id             = huaweicloud_vpc.test.id
+  ha_mode            = "active-standby"
+  local_subnets      = [huaweicloud_vpc_subnet.test.cidr]
+  connect_subnet     = huaweicloud_vpc_subnet.test.id
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
+  eip1 {
+    id = huaweicloud_vpc_eip.test1.id
+  }
+
+  eip2 {
     id = huaweicloud_vpc_eip.test2.id
   }
 }
@@ -279,4 +403,54 @@ resource "huaweicloud_vpn_gateway" "test" {
   access_subnet_id = huaweicloud_vpc_subnet.test.id
 }
 `, name)
+}
+
+func testGateway_deprecated(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name               = "%s"
+  vpc_id             = huaweicloud_vpc.test.id
+  local_subnets      = [huaweicloud_vpc_subnet.test.cidr]
+  connect_subnet     = huaweicloud_vpc_subnet.test.id
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
+  master_eip {
+    id = huaweicloud_vpc_eip.test1.id
+  }
+
+  slave_eip {
+    id = huaweicloud_vpc_eip.test2.id
+  }
+}
+`, testGateway_base(name), name)
+}
+
+func testGateway_deprecated_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name               = "%s-update"
+  vpc_id             = huaweicloud_vpc.test.id
+  local_subnets      = [huaweicloud_vpc_subnet.test.cidr, "192.168.2.0/24"]
+  connect_subnet     = huaweicloud_vpc_subnet.test.id
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
+  master_eip {
+    id = huaweicloud_vpc_eip.test1.id
+  }
+
+  slave_eip {
+    id = huaweicloud_vpc_eip.test2.id
+  }
+}
+`, testGateway_base(name), name)
 }
