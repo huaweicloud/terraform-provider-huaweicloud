@@ -199,6 +199,20 @@ func ResourceGateway() *schema.Resource {
 				Description:  `The enterprise project ID`,
 				ValidateFunc: validation.StringLenBetween(1, 64),
 			},
+			"access_private_ip_1": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"access_private_ip_2"},
+			},
+			"access_private_ip_2": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"access_private_ip_1"},
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -385,6 +399,8 @@ func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, cfg *config.C
 		"access_subnet_id":      utils.ValueIngoreEmpty(d.Get("access_subnet_id")),
 		"er_id":                 utils.ValueIngoreEmpty(d.Get("er_id")),
 		"network_type":          utils.ValueIngoreEmpty(d.Get("network_type")),
+		"access_private_ip_1":   utils.ValueIngoreEmpty(d.Get("access_private_ip_1")),
+		"access_private_ip_2":   utils.ValueIngoreEmpty(d.Get("access_private_ip_2")),
 	}
 
 	return params
@@ -544,6 +560,8 @@ func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("access_subnet_id", utils.PathSearch("vpn_gateway.access_subnet_id", getGatewayRespBody, nil)),
 		d.Set("er_id", utils.PathSearch("vpn_gateway.er_id", getGatewayRespBody, nil)),
 		d.Set("network_type", utils.PathSearch("vpn_gateway.network_type", getGatewayRespBody, nil)),
+		d.Set("access_private_ip_1", utils.PathSearch("vpn_gateway.access_private_ip_1", getGatewayRespBody, nil)),
+		d.Set("access_private_ip_2", utils.PathSearch("vpn_gateway.access_private_ip_2", getGatewayRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
