@@ -15,9 +15,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIECPort() *schema.Resource {
+func DataSourcePort() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECPortRead,
+		ReadContext: dataSourcePortRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -64,11 +64,11 @@ func DataSourceIECPort() *schema.Resource {
 	}
 }
 
-func dataSourceIECPortRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourcePortRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	listOpts := ports.ListOpts{

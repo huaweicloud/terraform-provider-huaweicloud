@@ -20,11 +20,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func ResourceIecSecurityGroupRule() *schema.Resource {
+func ResourceSecurityGroupRule() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecSecurityGroupRuleV1Create,
-		ReadContext:   resourceIecSecurityGroupRuleV1Read,
-		DeleteContext: resourceIecSecurityGroupRuleV1Delete,
+		CreateContext: resourceSecurityGroupRuleCreate,
+		ReadContext:   resourceSecurityGroupRuleRead,
+		DeleteContext: resourceSecurityGroupRuleDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -96,7 +96,7 @@ func ResourceIecSecurityGroupRule() *schema.Resource {
 	}
 }
 
-func resourceIecSecurityGroupRuleV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityGroupRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -132,10 +132,10 @@ func resourceIecSecurityGroupRuleV1Create(ctx context.Context, d *schema.Resourc
 	}
 
 	d.SetId(rule.SecurityGroupRule.ID)
-	return resourceIecSecurityGroupRuleV1Read(ctx, d, meta)
+	return resourceSecurityGroupRuleRead(ctx, d, meta)
 }
 
-func resourceIecSecurityGroupRuleV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityGroupRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -171,7 +171,7 @@ func resourceIecSecurityGroupRuleV1Read(_ context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceIecSecurityGroupRuleV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityGroupRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {

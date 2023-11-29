@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 )
 
-func DataSourceNetworkEips() *schema.Resource {
+func DataSourceEips() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceNetworkEipsRead,
+		ReadContext: dataSourceEipsRead,
 
 		Schema: map[string]*schema.Schema{
 			"site_id": {
@@ -84,11 +84,11 @@ func DataSourceNetworkEips() *schema.Resource {
 	}
 }
 
-func dataSourceNetworkEipsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceEipsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	eipClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	listpts := publicips.ListOpts{

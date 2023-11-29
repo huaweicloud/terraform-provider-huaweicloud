@@ -15,12 +15,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func ResourceIecVpc() *schema.Resource {
+func ResourceVpc() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecVpcCreate,
-		ReadContext:   resourceIecVpcRead,
-		UpdateContext: resourceIecVpcUpdate,
-		DeleteContext: resourceIecVpcDelete,
+		CreateContext: resourceVpcCreate,
+		ReadContext:   resourceVpcRead,
+		UpdateContext: resourceVpcUpdate,
+		DeleteContext: resourceVpcDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -58,7 +58,7 @@ func ResourceIecVpc() *schema.Resource {
 	}
 }
 
-func resourceIecVpcCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 
@@ -80,10 +80,10 @@ func resourceIecVpcCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	log.Printf("[INFO] IEC VPC ID: %s", n.ID)
 	d.SetId(n.ID)
 
-	return resourceIecVpcRead(ctx, d, meta)
+	return resourceVpcRead(ctx, d, meta)
 }
 
-func resourceIecVpcRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
@@ -104,7 +104,7 @@ func resourceIecVpcRead(_ context.Context, d *schema.ResourceData, meta interfac
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceIecVpcUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
@@ -125,10 +125,10 @@ func resourceIecVpcUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error updating IEC VPC: %s", err)
 	}
 
-	return resourceIecVpcRead(ctx, d, meta)
+	return resourceVpcRead(ctx, d, meta)
 }
 
-func resourceIecVpcDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVpcDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {

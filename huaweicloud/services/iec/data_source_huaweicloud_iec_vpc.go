@@ -13,9 +13,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIECVpc() *schema.Resource {
+func DataSourceVpc() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECVpcRead,
+		ReadContext: dataSourceVpcRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -50,7 +50,7 @@ func DataSourceIECVpc() *schema.Resource {
 	}
 }
 
-func dataSourceIECVpcRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceVpcRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	iecClient, err := cfg.IECV1Client(region)

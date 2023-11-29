@@ -13,9 +13,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIecImages() *schema.Resource {
+func DataSourceImages() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIecImagesRead,
+		Read: dataSourceImagesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -62,7 +62,7 @@ func DataSourceIecImages() *schema.Resource {
 	}
 }
 
-func dataSourceIecImagesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceImagesRead(d *schema.ResourceData, meta interface{}) error {
 	cfg := meta.(*config.Config)
 
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
