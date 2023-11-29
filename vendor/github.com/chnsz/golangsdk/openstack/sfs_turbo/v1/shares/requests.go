@@ -182,11 +182,19 @@ type ExpandOptsBuilder interface {
 	ToShareExpandMap() (map[string]interface{}, error)
 }
 
+type UpdateNameOptsBuilder interface {
+	ToShareUpdateNameMap() (map[string]interface{}, error)
+}
+
 // ExpandOpts contains the options for expanding a SFS Turbo. This object is
 // passed to shares.Expand().
 type ExpandOpts struct {
 	// Specifies the extend object.
 	Extend ExtendOpts `json:"extend" required:"true"`
+}
+
+type UpdateNameOpts struct {
+	Name string `json:"name" required:"true"`
 }
 
 // BssParamExtend is an object that represents the payment detail.
@@ -212,6 +220,10 @@ func (opts ExpandOpts) ToShareExpandMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
+func (opts UpdateNameOpts) ToShareUpdateNameMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "change_name")
+}
+
 // Expand will expand a SFS Turbo based on the values in ExpandOpts.
 func Expand(client *golangsdk.ServiceClient, shareId string, opts ExpandOptsBuilder) (r ExpandResult) {
 	b, err := opts.ToShareExpandMap()
@@ -221,6 +233,18 @@ func Expand(client *golangsdk.ServiceClient, shareId string, opts ExpandOptsBuil
 	}
 	_, r.Err = client.Post(actionURL(client, shareId), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
+	})
+	return
+}
+
+func UpdateName(client *golangsdk.ServiceClient, shareId string, opts UpdateNameOptsBuilder) (r UpdateNameResult) {
+	b, err := opts.ToShareUpdateNameMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(actionURL(client, shareId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
 	})
 	return
 }

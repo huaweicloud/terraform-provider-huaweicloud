@@ -75,6 +75,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 				Config: testAccSFSTurbo_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", "sfs-turbo-update"),
 					resource.TestCheckResourceAttr(resourceName, "size", "600"),
 					resource.TestCheckResourceAttr(resourceName, "status", "221"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
@@ -398,7 +399,7 @@ func testAccSFSTurbo_update(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
-  name              = "%s"
+  name              = "sfs-turbo-update"
   size              = 600
   share_proto       = "NFS"
   vpc_id            = huaweicloud_vpc.test.id
@@ -411,7 +412,7 @@ resource "huaweicloud_sfs_turbo" "test" {
     key = "value_update"
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestBaseNetwork(rName))
 }
 
 func testAccSFSTurbo_crypt(rName string) string {
