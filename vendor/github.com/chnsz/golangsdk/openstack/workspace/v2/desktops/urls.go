@@ -21,3 +21,7 @@ func volumeURL(c *golangsdk.ServiceClient) string {
 func volumeExpandURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("volumes/expand")
 }
+
+func rebuildURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("desktops/rebuild")
+}
