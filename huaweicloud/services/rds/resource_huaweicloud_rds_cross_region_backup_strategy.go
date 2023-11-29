@@ -310,14 +310,13 @@ func updateCrossRegionBackupStrategy(ctx context.Context, client *golangsdk.Serv
 
 	log.Printf("[DEBUG] Update RDS instance cross region backup strategy params: %#v", params)
 	deleteBackupStrategyOpt.JSONBody = utils.RemoveNil(params)
-	_, err := client.Request("PUT", updateBackupStrategyPath, &deleteBackupStrategyOpt)
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = client.Request("PUT", updateBackupStrategyPath, &deleteBackupStrategyOpt)
+		_, err := client.Request("PUT", updateBackupStrategyPath, &deleteBackupStrategyOpt)
 		retry, err := handleCrossRegionBackupStrategyError(err)
 		return nil, retry, err
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
