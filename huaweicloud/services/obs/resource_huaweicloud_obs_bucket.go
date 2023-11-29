@@ -173,6 +173,18 @@ func ResourceObsBucket() *schema.Resource {
 								},
 							},
 						},
+						"abort_incomplete_multipart_upload": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"days": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+								},
+							},
+						},
 						"noncurrent_version_transition": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -858,6 +870,18 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 			}
 		}
 
+		// AbortIncompleteMultipartUpload
+		abortIncompleteMultipartUpload := d.Get(fmt.Sprintf("lifecycle_rule.%d.abort_incomplete_multipart_upload",
+			i)).(*schema.Set).List()
+		if len(abortIncompleteMultipartUpload) > 0 {
+			raw := abortIncompleteMultipartUpload[0].(map[string]interface{})
+			abincomMultipartUpload := &rules[i].AbortIncompleteMultipartUpload
+
+			if val, ok := raw["days"].(int); ok && val > 0 {
+				abincomMultipartUpload.DaysAfterInitiation = val
+			}
+		}
+
 		// NoncurrentVersionTransition
 		ncTransitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_transition", i)).([]interface{})
 		ncList := make([]obs.NoncurrentVersionTransition, len(ncTransitions))
@@ -1377,6 +1401,13 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 			e := make(map[string]interface{})
 			e["days"] = days
 			rule["noncurrent_version_expiration"] = schema.NewSet(expirationHash, []interface{}{e})
+		}
+
+		// abort_incomplete_multipart_upload
+		if days := lifecycleRule.AbortIncompleteMultipartUpload.DaysAfterInitiation; days > 0 {
+			a := make(map[string]interface{})
+			a["days"] = days
+			rule["abort_incomplete_multipart_upload"] = schema.NewSet(expirationHash, []interface{}{a})
 		}
 
 		// noncurrent_version_transition

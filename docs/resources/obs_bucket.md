@@ -117,6 +117,9 @@ resource "huaweicloud_obs_bucket" "bucket" {
       days          = 180
       storage_class = "COLD"
     }
+    abort_incomplete_multipart_upload {
+      days = 360
+    }
   }
 
   lifecycle_rule {
@@ -288,9 +291,11 @@ The `lifecycle_rule` object supports the following:
   automatically deleted. (documented below).
 * `noncurrent_version_transition` - (Optional, List) Specifies a period when noncurrent object versions are
   automatically transitioned to `WARM` or `COLD` storage class (documented below).
+* `abort_incomplete_multipart_upload` - (Optional, List) Specifies a period when the not merged parts (fragments) in an
+  incomplete upload are automatically deleted. (documented below).
 
-At least one of `expiration`, `transition`, `noncurrent_version_expiration`, `noncurrent_version_transition` must be
-specified.
+At least one of `expiration`, `transition`, `noncurrent_version_expiration`, `noncurrent_version_transition`,
+`abort_incomplete_multipart_upload` must be specified.
 
 The `expiration` object supports the following
 
@@ -314,6 +319,12 @@ The `noncurrent_version_transition` object supports the following
   to the specified storage class.
 * `storage_class` - (Required, String) The class of storage used to store the object. Only `WARM` and `COLD` are
   supported.
+
+The `abort_incomplete_multipart_upload` object supports the following
+
+* `days` - (Required, Int) Specifies the number of days since the initiation of an incomplete multipart upload that OBS
+  will wait before deleting the not merged parts (fragments) of the upload.
+  The valid value ranges from 1 to 2,147,483,647.
 
 ## Attribute Reference
 
