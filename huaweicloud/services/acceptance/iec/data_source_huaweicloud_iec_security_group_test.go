@@ -10,30 +10,30 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECSecurityGroupDataSource_basic(t *testing.T) {
+func TestAccSecurityGroupDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("iec-secgroup-%s", acctest.RandString(5))
 	description := "This is a test of iec security group"
-	resourceName := "data.huaweicloud_iec_security_group.by_name"
 
-	rc := acceptance.InitDataSourceCheck(resourceName)
+	dataSourceName := "data.huaweicloud_iec_security_group.by_name"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIECSecurityGroup_basic(rName, description),
+				Config: testAccDataSourceSecurityGroup_basic(rName, description),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", description),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttr(dataSourceName, "description", description),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIECSecurityGroup_basic(rName, description string) string {
+func testAccDataSourceSecurityGroup_basic(rName, description string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
   name        = "%s"

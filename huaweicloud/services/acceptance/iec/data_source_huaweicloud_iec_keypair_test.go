@@ -10,26 +10,29 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECKeypairDataSource_basic(t *testing.T) {
+func TestAccKeypairDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("KeyPair-%s", acctest.RandString(4))
-	resourceName := "data.huaweicloud_iec_keypair.by_name"
+	dataSourceName := "data.huaweicloud_iec_keypair.by_name"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIECKeypair_basic(rName),
+				Config: testAccDataSourceKeypair_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
-					resource.TestCheckResourceAttrSet(resourceName, "fingerprint"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(dataSourceName, "public_key"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "fingerprint"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceIECKeypair_basic(rName string) string {
+func testAccDataSourceKeypair_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_keypair" "kp_1" {
   name = "%s"

@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECSubnetsDataSource_basic(t *testing.T) {
+func TestAccVpcSubnetsDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	allSubnets := "data.huaweicloud_iec_vpc_subnets.all"
 	siteSubnets := "data.huaweicloud_iec_vpc_subnets.site"
@@ -19,16 +19,16 @@ func TestAccIECSubnetsDataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVpcSubnetV1Destroy,
+		CheckDestroy:      testAccCheckVpcSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkConfig_base(rName),
 			},
 			{
-				Config: testAccIECSubnetsDataSource_basic(rName),
+				Config: testAccSubnetsDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccIECSubnetsDataSourceID(allSubnets),
-					testAccIECSubnetsDataSourceID(siteSubnets),
+					testAccSubnetsDataSourceID(allSubnets),
+					testAccSubnetsDataSourceID(siteSubnets),
 					resource.TestCheckResourceAttr(allSubnets, "subnets.#", "2"),
 					resource.TestCheckResourceAttr(siteSubnets, "subnets.#", "1"),
 					resource.TestCheckResourceAttrSet(siteSubnets, "subnets.0.id"),
@@ -40,7 +40,7 @@ func TestAccIECSubnetsDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccIECSubnetsDataSourceID(n string) resource.TestCheckFunc {
+func testAccSubnetsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -83,7 +83,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_2" {
 `, rName, rName, rName)
 }
 
-func testAccIECSubnetsDataSource_basic(rName string) string {
+func testAccSubnetsDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 

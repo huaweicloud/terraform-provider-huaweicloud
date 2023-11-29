@@ -17,7 +17,7 @@ import (
 func getKeypairResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IEC v1 client: %s", err)
+		return nil, fmt.Errorf("error creating IEC client: %s", err)
 	}
 	return keypairs.Get(c, state.Primary.ID).Extract()
 }

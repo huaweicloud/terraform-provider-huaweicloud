@@ -15,19 +15,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecEIPResource_basic(t *testing.T) {
+func TestAccEIPResource_basic(t *testing.T) {
 	var iecEip common.PublicIP
 	resourceName := "huaweicloud_iec_eip.eip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecEIPDestroy,
+		CheckDestroy:      testAccCheckEIPDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecEIP_basic,
+				Config: testAccEIP_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecEIPExists(resourceName, &iecEip),
+					testAccCheckEIPExists(resourceName, &iecEip),
 					resource.TestCheckResourceAttr(resourceName, "ip_version", "4"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth_share_type", "WHOLE"),
 					resource.TestMatchResourceAttr(resourceName, "public_ip",
@@ -47,7 +47,7 @@ func TestAccIecEIPResource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecEIPDestroy(s *terraform.State) error {
+func testAccCheckEIPDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecV1Client, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
@@ -68,7 +68,7 @@ func testAccCheckIecEIPDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIecEIPExists(n string, ipResource *common.PublicIP) resource.TestCheckFunc {
+func testAccCheckEIPExists(n string, ipResource *common.PublicIP) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -100,7 +100,7 @@ func testAccCheckIecEIPExists(n string, ipResource *common.PublicIP) resource.Te
 	}
 }
 
-var testAccIecEIP_basic = `
+var testAccEIP_basic = `
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_eip" "eip_test" {
