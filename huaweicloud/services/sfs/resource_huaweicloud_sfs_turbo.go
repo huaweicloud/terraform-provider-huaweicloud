@@ -62,7 +62,6 @@ func ResourceSFSTurbo() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(4, 64),
 			},
 			"size": {
@@ -518,6 +517,16 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the SFS Turbo (%s): %s", resourceId, err)
+		}
+	}
+
+	if d.HasChange("name") {
+		updateNameOpts := shares.UpdateNameOpts{
+			Name: d.Get("name").(string),
+		}
+		err = shares.UpdateName(sfsClient, d.Id(), updateNameOpts).Err
+		if err != nil {
+			return diag.Errorf("error updating name of SFS Turbo: %s", err)
 		}
 	}
 
