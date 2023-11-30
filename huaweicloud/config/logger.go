@@ -104,12 +104,17 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 		return nil, err
 	}
 
+	isJSONFormat := strings.HasPrefix(contentType, "application/json")
+	isXMLFormat := strings.HasPrefix(bs.String(), "<") && !strings.HasPrefix(bs.String(), "<html>")
 	// Handle request contentType
-	if strings.HasPrefix(contentType, "application/json") {
+	switch {
+	case isJSONFormat:
 		debugInfo := formatJSON(bs.Bytes(), true)
 		log.Printf("[DEBUG] API Request Body: %s", debugInfo)
-	} else {
-		log.Printf("[DEBUG] Not logging because the request body isn't JSON")
+	case isXMLFormat:
+		log.Printf("[DEBUG] API Request Body: %s", bs.String())
+	default:
+		log.Printf("[DEBUG] Not logging because the request body isn't JSON or XML format")
 	}
 
 	return io.NopCloser(strings.NewReader(bs.String())), nil
@@ -118,22 +123,27 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 // logResponse will log the HTTP Response details.
 // If the body is JSON, it will attempt to be pretty-formatted.
 func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType string) (io.ReadCloser, error) {
-	if strings.HasPrefix(contentType, "application/json") {
-		var bs bytes.Buffer
-		defer original.Close()
-		_, err := io.Copy(&bs, original)
-		if err != nil {
-			return nil, err
-		}
-		debugInfo := formatJSON(bs.Bytes(), true)
-		if debugInfo != "" {
-			log.Printf("[DEBUG] API Response Body: %s", debugInfo)
-		}
-		return io.NopCloser(strings.NewReader(bs.String())), nil
+	defer original.Close()
+
+	var bs bytes.Buffer
+	_, err := io.Copy(&bs, original)
+	if err != nil {
+		return nil, err
 	}
 
-	log.Printf("[DEBUG] Not logging because the response body isn't JSON")
-	return original, nil
+	isJSONFormat := strings.HasPrefix(contentType, "application/json")
+	isXMLFormat := strings.HasPrefix(contentType, "application/xml")
+	switch {
+	case isJSONFormat:
+		debugInfo := formatJSON(bs.Bytes(), true)
+		log.Printf("[DEBUG] API Response Body: %s", debugInfo)
+	case isXMLFormat:
+		log.Printf("[DEBUG] API Response Body: %s", bs.String())
+	default:
+		log.Printf("[DEBUG] Not logging because the response body isn't JSON or XML format")
+	}
+
+	return io.NopCloser(strings.NewReader(bs.String())), nil
 }
 
 // formatJSON will try to pretty-format a JSON body.
