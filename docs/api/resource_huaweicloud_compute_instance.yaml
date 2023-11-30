@@ -63,14 +63,14 @@ paths:
     get:
       tag: EVS
       operationId: Get
-  /v2.0/ports/{id}:
-    put:
-      tag: VPC
-      operationId: Update
   /v2.1/{project_id}/servers/{id}/action:
     post:
       tag: ECS
       operationId: RemoveServer
+  /v1/{project_id}/ports/{portId}:
+    put:
+      tag: VPC
+      operationId: Update
   /v1/{project_id}/security-groups:
     get:
       tag: VPC

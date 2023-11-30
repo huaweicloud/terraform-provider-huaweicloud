@@ -22,10 +22,3 @@ paths:
     post:
       tag: WAF
       operationId: Create
-  /v1/{project_id}/waf/policy/{id}:
-    delete:
-      tag: WAF
-      operationId: DeleteWithEpsID
-    put:
-      tag: WAF
-      operationId: UpdateHosts

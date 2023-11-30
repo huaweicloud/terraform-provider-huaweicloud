@@ -11,4 +11,4 @@ paths:
   /v1/{project_id}/vpc-endpoint-services/public:
     get:
       tag: VPCEP
-      operationId: ListPublic
+      operationId: ListAllPublics

@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_rds_sqlserver_collations
+    description: Use this data source to get the list of RDS SQLServer collations.
+host: myhuaweicloud.com
+tags:
+    - name: RDS
+servers:
+    - url: https://rds.cn-north-4.myhuaweicloud.com/
+paths:
+    /v3/{project_id}/collations:
+        GET:
+            tag: RDS
+            operationId: ListSQLServerCollations
+            x-ref-api: GET /v3/{project_id}/collations

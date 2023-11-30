@@ -1,0 +1,14 @@
+info:
+  version: 
+  title: data_source_huaweicloud_identity_agencies
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+  - name: IAM
+paths:
+  /v3.0/OS-AGENCY/agencies:
+    get:
+      tag: IAM
+      operationId: List

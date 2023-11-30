@@ -1,0 +1,9 @@
+info:
+  version: 
+  title: data_source_huaweicloud_elb_l7rules
+  description: 
+schemes:
+  - https
+host: huaweicloud.com
+tags:
+paths:

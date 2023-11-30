@@ -1,0 +1,24 @@
+info:
+    title: resource_huaweicloud_rds_pg_database
+    description: Manages RDS PostgreSQL database resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: RDS
+servers:
+    - url: https://rds.cn-north-4.myhuaweicloud.com/
+paths:
+    /v3/{project_id}/instances/{instance_id}/database:
+        POST:
+            tag: RDS
+            operationId: CreatePgDatabase
+            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/database
+    /v3/{project_id}/instances/{instance_id}/database/detail:
+        GET:
+            tag: RDS
+            operationId: GetPgDatabase
+            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/database/detail
+    /v3/{project_id}/instances/{instance_id}/database/update:
+        POST:
+            tag: RDS
+            operationId: UpdatePgDatabase
+            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/database/update

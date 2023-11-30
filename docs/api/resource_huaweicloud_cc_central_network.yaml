@@ -1,0 +1,28 @@
+info:
+    title: resource_huaweicloud_cc_central_network
+    description: Manages a central network resource of Cloud Connect within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: CC
+servers:
+    - url: https://cc.myhuaweicloud.com
+paths:
+    /v3/{domain_id}/gcn/central-networks:
+        POST:
+            tag: CC
+            operationId: CreateCentralNetwork
+            x-ref-api: POST /v3/{domain_id}/gcn/central-networks
+    /v3/{domain_id}/gcn/central-networks/{central_network_id}:
+        GET:
+            tag: CC
+            operationId: CreateCentralNetworkWaiting
+            x-ref-api: GET /v3/{domain_id}/gcn/central-networks/{central_network_id}
+    /v3/{domain_id}/gcn/central-networks/{id}:
+        DELETE:
+            tag: CC
+            operationId: DeleteCentralNetwork
+            x-ref-api: DELETE /v3/{domain_id}/gcn/central-networks/{id}
+        PUT:
+            tag: CC
+            operationId: UpdateCentralNetwork
+            x-ref-api: PUT /v3/{domain_id}/gcn/central-networks/{id}

@@ -1,0 +1,29 @@
+info:
+    title: resource_huaweicloud_rds_sqlserver_account
+    description: Manages RDS SQLServer account resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: RDS
+servers:
+    - url: https://rds.cn-north-4.myhuaweicloud.com/
+paths:
+    /v3/{project_id}/instances/{instance_id}/db_user:
+        POST:
+            tag: RDS
+            operationId: CreateSQLServerAccount
+            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/db_user
+    /v3/{project_id}/instances/{instance_id}/db_user/{user_name}:
+        DELETE:
+            tag: RDS
+            operationId: DeleteSQLServerAccount
+            x-ref-api: DELETE /v3/{project_id}/instances/{instance_id}/db_user/{user_name}
+    /v3/{project_id}/instances/{instance_id}/db_user/detail?page=1&limit=100:
+        GET:
+            tag: RDS
+            operationId: GetSQLServerAccount
+            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/db_user/detail?page=1&limit=100
+    /v3/{project_id}/instances/{instance_id}/db_user/resetpwd:
+        POST:
+            tag: RDS
+            operationId: UpdateSQLServerAccount
+            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/db_user/resetpwd

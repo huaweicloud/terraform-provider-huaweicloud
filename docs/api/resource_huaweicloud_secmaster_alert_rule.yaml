@@ -1,0 +1,27 @@
+info:
+    title: resource_huaweicloud_secmaster_alert_rule
+    description: Manages a SecMaster alert rule resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: SecMaster
+servers:
+    - url: https://secmaster.cn-east-3.myhuaweicloud.com
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules:
+        DELETE:
+            tag: SecMaster
+            operationId: DeleteAlertRule
+            x-ref-api: DELETE /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules
+        POST:
+            tag: SecMaster
+            operationId: CreateAlertRule
+            x-ref-api: POST /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules
+    /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}:
+        GET:
+            tag: SecMaster
+            operationId: GetAlertRule
+            x-ref-api: GET /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}
+        PUT:
+            tag: SecMaster
+            operationId: UpdateAlertRule
+            x-ref-api: PUT /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}

@@ -11,7 +11,7 @@ paths:
   /v1/{project_id}/vpc-endpoint-services/{serviceID}/connections:
     get:
       tag: VPCEP
-      operationId: ListConnections
+      operationId: ListAllConnections
   /v1/{project_id}/vpc-endpoint-services/{serviceID}/permissions/action:
     post:
       tag: VPCEP
@@ -19,7 +19,7 @@ paths:
   /v1/{project_id}/vpc-endpoint-services/{serviceID}/permissions:
     get:
       tag: VPCEP
-      operationId: ListPermissions
+      operationId: ListAllPermissions
   /v1/{project_id}/vpc-endpoint-services/{serviceID}:
     delete:
       tag: VPCEP
