@@ -20,7 +20,7 @@ resource "huaweicloud_cce_addon" "addon_test" {
 }
 ```
 
-## More Examples
+### More Examples
 
 Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_json` add-on parameters depends on
 the add-on type and version. For more detailed description of add-ons
