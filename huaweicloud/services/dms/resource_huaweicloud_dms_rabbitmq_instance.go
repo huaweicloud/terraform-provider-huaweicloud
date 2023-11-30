@@ -614,11 +614,11 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func setRabbitMQFlavorId(d *schema.ResourceData, flavorId string) error {
-	re := regexp.MustCompile(`^[a-z0-9]+\.\d+u\d+g\.cluster|single$`)
+	re := regexp.MustCompile(`^\d(\d|-)*\d$`)
 	if re.MatchString(flavorId) {
-		return d.Set("flavor_id", flavorId)
+		return d.Set("product_id", flavorId)
 	}
-	return d.Set("product_id", flavorId)
+	return d.Set("flavor_id", flavorId)
 }
 
 func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -655,7 +655,20 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 			}
 		}
 
-		err = instances.Update(client, d.Id(), updateOpts).Err
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.Update(client, d.Id(), updateOpts).Err
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			e := fmt.Errorf("error updating DMS RabbitMQ Instance: %s", err)
 			mErr = multierror.Append(mErr, e)
@@ -760,7 +773,21 @@ func resizeRabbitMQInstance(ctx context.Context, d *schema.ResourceData, meta in
 
 func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	opts instances.ResizeInstanceOpts) error {
-	if _, err := instances.Resize(client, d.Id(), opts); err != nil {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.Resize(client, d.Id(), opts)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
 		return fmt.Errorf("resize RabbitMQ instance failed: resizeInstanceOpts: %#v, err: %s", opts, err)
 	}
 
@@ -806,11 +833,38 @@ func resourceDmsRabbitmqInstanceDelete(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
-		if err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+		retryFunc := func() (interface{}, bool, error) {
+			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
 			return diag.Errorf("error unsubscribe RabbitMQ instance: %s", err)
 		}
 	} else {
-		err = instances.Delete(client, d.Id()).ExtractErr()
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.Delete(client, d.Id()).ExtractErr()
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
 		if err != nil {
 			return common.CheckDeletedDiag(d, err, "failed to delete RabbitMQ instance")
 		}
