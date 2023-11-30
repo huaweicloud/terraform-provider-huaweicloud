@@ -86,7 +86,6 @@ func ResourceDesktop() *schema.Resource {
 			"image_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"market", "gold", "private",
 				}, false),
@@ -94,7 +93,6 @@ func ResourceDesktop() *schema.Resource {
 			"image_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -551,10 +549,28 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
 	}
 
+	desktopId := d.Id()
 	if d.HasChange("flavor_id") {
 		if err = updateDesktopFlavor(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
+	}
+
+	if d.HasChanges("image_type", "image_id") {
+		rebuildOpts := desktops.RebuildOpts{
+			DesktopIds: []string{desktopId},
+			ImageType:  d.Get("image_type").(string),
+			ImageId:    d.Get("image_id").(string),
+		}
+		resp, err := desktops.Rebuild(client, rebuildOpts)
+		if err != nil {
+			return diag.Errorf("error rebuild Workspace desktop: %s", err)
+		}
+		_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+		}
+		log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 	}
 
 	if d.HasChanges("root_volume", "data_volume") {
@@ -564,7 +580,6 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("tags") {
-		desktopId := d.Id()
 		err = utils.UpdateResourceTags(client, d, "desktops", desktopId)
 		if err != nil {
 			return diag.Errorf("error updating tags of Workspace desktop (%s): %s", desktopId, err)

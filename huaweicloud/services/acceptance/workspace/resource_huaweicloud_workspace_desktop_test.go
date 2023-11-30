@@ -41,7 +41,7 @@ func TestAccDesktop_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDesktop_basic(rName),
+				Config: testAccDesktop_basic_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
@@ -61,7 +61,7 @@ func TestAccDesktop_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDesktop_update(rName),
+				Config: testAccDesktop_basic_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "flavor_id", "workspace.x86.ultimate.large4"),
@@ -76,6 +76,12 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
+				),
+			},
+			{
+				Config: testAccDesktop_basic_step3(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 				),
 			},
 			{
@@ -110,7 +116,7 @@ resource "huaweicloud_workspace_service" "test" {
 `, common.TestBaseNetwork(rName))
 }
 
-func testAccDesktop_basic(rName string) string {
+func testAccDesktop_basic_step1(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -121,7 +127,7 @@ locals {
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large2"
   image_type        = "market"
-  image_id          = "63aa8670-27ad-4747-8c44-6d8919e785a7"
+  image_id          = "8451dedf-b353-43aa-b5fb-5bccadda2207"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [
@@ -161,7 +167,7 @@ resource "huaweicloud_workspace_desktop" "test" {
 `, testAccDesktop_base(rName), rName)
 }
 
-func testAccDesktop_update(rName string) string {
+func testAccDesktop_basic_step2(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -172,7 +178,58 @@ locals {
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large4"
   image_type        = "market"
-  image_id          = "63aa8670-27ad-4747-8c44-6d8919e785a7"
+  image_id          = "8451dedf-b353-43aa-b5fb-5bccadda2207"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  security_groups   = [
+    huaweicloud_workspace_service.test.desktop_security_group.0.id,
+    huaweicloud_networking_secgroup.test.id,
+  ]
+
+  nic {
+    network_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  name       = "%[2]s"
+  user_name  = "user-%[2]s"
+  user_email = "terraform@example.com"
+  user_group = "administrators"
+
+  root_volume {
+    type = "SAS"
+    size = 100
+  }
+
+  dynamic "data_volume" {
+    for_each = local.data_volume_sizes
+
+    content {
+      type = "SAS"
+      size = data_volume.value
+    }
+  }
+
+  tags = {
+    foo = "baar"
+  }
+
+  delete_user = true
+}
+`, testAccDesktop_base(rName), rName)
+}
+
+func testAccDesktop_basic_step3(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+locals {
+  data_volume_sizes = [50, 90, 20, 40]
+}
+
+resource "huaweicloud_workspace_desktop" "test" {
+  flavor_id         = "workspace.x86.ultimate.large4"
+  image_type        = "market"
+  image_id          = "4d698843-d653-4ffd-80be-4f47a0cabce0"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [

@@ -66,15 +66,14 @@ The following arguments are supported:
 
 * `flavor_id` - (Required, String) Specifies the flavor ID of desktop.
 
-* `image_type` - (Required, String, ForceNew) Specifies the image type. The valid values are as follows:
+* `image_type` - (Required, String) Specifies the image type. The valid values are as follows:
   + **market**: The market image.
   + **gold**: The public image.
   + **private**: The private image.
 
-  Changing this will create a new resource.
+* `image_id` - (Required, String) Specifies the image ID to create the desktop.
 
-* `image_id` - (Required, String, ForceNew) Specifies the image ID to create the desktop.
-  Changing this will create a new resource.
+  -> Parameters `image_type` and `image_id` cannot be updated at the same time as parameters `root_volume` and `data_volume`.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID to which the desktop belongs.
   Changing this will create a new resource.
