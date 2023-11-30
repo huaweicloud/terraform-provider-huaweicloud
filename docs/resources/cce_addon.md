@@ -6,7 +6,9 @@ subcategory: "Cloud Container Engine (CCE)"
 
 Provides a CCE add-on resource within HuaweiCloud.
 
-## Basic Example
+## Example Usage
+
+### Basic Example
 
 ```hcl
 variable "cluster_id" {}
