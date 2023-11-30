@@ -765,6 +765,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v3",
 		Scope:            "global",
 		WithOutProjectID: true,
+		Admin:            true,
 		Product:          "CC",
 	},
 
