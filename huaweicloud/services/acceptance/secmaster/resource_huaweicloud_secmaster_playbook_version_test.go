@@ -79,7 +79,7 @@ func TestAccPlaybookVersion_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
-			// due to service problem, dataclass_id is fixed to "909494e3-558e-46b6-a9eb-07a8e18ca62f"
+			// due to service problem, dataclass_id is fixed to "2528dc7e-10a4-3da1-8d70-1e1d9f0cb04e"
 			// and updating test is skipped
 			{
 				Config: testPlaybookVersion_basic(name),
@@ -88,7 +88,7 @@ func TestAccPlaybookVersion_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_SECMASTER_WORKSPACE_ID),
 					resource.TestCheckResourceAttrPair(rName, "playbook_id",
 						"huaweicloud_secmaster_playbook.test", "id"),
-					resource.TestCheckResourceAttr(rName, "dataclass_id", "909494e3-558e-46b6-a9eb-07a8e18ca62f"),
+					resource.TestCheckResourceAttr(rName, "dataclass_id", "2528dc7e-10a4-3da1-8d70-1e1d9f0cb04e"),
 					resource.TestCheckResourceAttr(rName, "description", "created by terraform"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
@@ -114,7 +114,7 @@ func testPlaybookVersion_basic(name string) string {
 resource "huaweicloud_secmaster_playbook_version" "test" {
   workspace_id = "%s"
   playbook_id  = huaweicloud_secmaster_playbook.test.id
-  dataclass_id = "909494e3-558e-46b6-a9eb-07a8e18ca62f"
+  dataclass_id = "2528dc7e-10a4-3da1-8d70-1e1d9f0cb04e"
   description  = "created by terraform"
 }
 `, testPlaybook_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID)
