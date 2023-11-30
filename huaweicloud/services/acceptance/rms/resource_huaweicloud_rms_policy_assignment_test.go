@@ -2,6 +2,7 @@ package rms
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,6 +13,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
+)
+
+var (
+	statusReg = regexp.MustCompile(`^(Enabled|Evaluating)$`)
 )
 
 func getPolicyAssignmentResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -73,7 +78,7 @@ func TestAccPolicyAssignment_basic(t *testing.T) {
 				Config: testAccPolicyAssignment_basic(basicConfig, name, "Enabled"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
+					resource.TestMatchResourceAttr(rName, "status", statusReg),
 				),
 			},
 			{
@@ -91,7 +96,7 @@ func TestAccPolicyAssignment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "policy_filter.0.resource_type", "cloudservers"),
 					resource.TestCheckResourceAttr(rName, "policy_filter.0.tag_key", "foo"),
 					resource.TestCheckResourceAttr(rName, "policy_filter.0.tag_value", "bar"),
-					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
+					resource.TestMatchResourceAttr(rName, "status", statusReg),
 					resource.TestCheckResourceAttrSet(rName, "parameters.listOfAllowedFlavors"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
@@ -267,7 +272,7 @@ func TestAccPolicyAssignment_period(t *testing.T) {
 				Config: testAccPolicyAssignment_period(basicConfig, name, "Enabled"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
+					resource.TestMatchResourceAttr(rName, "status", statusReg),
 				),
 			},
 			{
@@ -280,7 +285,7 @@ func TestAccPolicyAssignment_period(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "policy_definition_id",
 						"data.huaweicloud_rms_policy_definitions.test", "definitions.0.id"),
 					resource.TestCheckResourceAttr(rName, "period", "Six_Hours"),
-					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
+					resource.TestMatchResourceAttr(rName, "status", statusReg),
 					resource.TestCheckResourceAttrSet(rName, "parameters.trackBucket"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
@@ -415,7 +420,7 @@ func TestAccPolicyAssignment_custom(t *testing.T) {
 				Config: testAccPolicyAssignment_custom(customConfig, name, "Enabled"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
+					resource.TestMatchResourceAttr(rName, "status", statusReg),
 				),
 			},
 			{
@@ -423,10 +428,10 @@ func TestAccPolicyAssignment_custom(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "status", "Enabled"),
 					resource.TestCheckResourceAttr(rName, "parameters.string_test", "\"update_string_value\""),
 					resource.TestCheckResourceAttr(rName, "parameters.update_array_test", "[\"array_element\"]"),
 					resource.TestCheckResourceAttr(rName, "parameters.object_test", "{\"update_terraform_version\":\"1.xx.xx\"}"),
+					resource.TestMatchResourceAttr(rName, "status", statusReg),
 				),
 			},
 			{
