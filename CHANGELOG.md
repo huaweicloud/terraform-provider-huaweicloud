@@ -1,5 +1,68 @@
 # CHANGELOG
 
+## 1.58.0 (December 1, 2023)
+
+* **New Resurce:**
+  + `huaweicloud_as_planned_task` [GH-3650]
+  + `huaweicloud_apig_endpoint_whitelist` [GH-3608]
+  + `huaweicloud_cbr_backup_share` [GH-3664]
+  + `huaweicloud_cc_central_network` [GH-3766]
+  + `huaweicloud_cc_central_network_policy` [GH-3766]
+  + `huaweicloud_ccm_private_ca` [GH-3674]
+  + `huaweicloud_ccm_private_certificate` [GH-3665]
+  + `huaweicloud_ccm_certificate_push` [GH-3769]
+  + `huaweicloud_csms_event` [GH-3652]
+  + `huaweicloud_dms_kafka_consumer_group` [GH-3756]
+  + `huaweicloud_dns_endpoint` [GH-3689]
+  + `huaweicloud_dns_resolver_rule` [GH-3714]
+  + `huaweicloud_dns_resolver_rule_associate` [GH-3718]
+  + `huaweicloud_dns_line_group` [GH-3731]
+  + `huaweicloud_kms_dedicated_keystore` [Gh-3661]
+  + `huaweicloud_rds_pg_account` [GH-3428]
+  + `huaweicloud_rds_pg_database` [GH-3603]
+  + `huaweicloud_rds_sqlserver_account` [GH-3598]
+  + `huaweicloud_rds_sqlserver_database` [GH-3597]
+  + `huaweicloud_rds_sqlserver_database_privilege` [GH-3631]
+  + `huaweicloud_rds_pg_plugin` [GH-3695]
+  + `huaweicloud_secmaster_indicator` [GH-3575]
+  + `huaweicloud_secmaster_alert` [GH-3624]
+  + `huaweicloud_secmaster_alert_rule` [GH-3678]
+  + `huaweicloud_secmaster_playbook` [GH-3719]
+  + `huaweicloud_secmaster_playbook_version` [GH-3728]
+  + `huaweicloud_secmaster_playbook_rule` [GH-3749]
+  + `huaweicloud_secmaster_playbook_action` [GH-3762]
+  + `huaweicloud_sfs_turbo_dir` [GH-3744]
+  + `huaweicloud_sfs_turbo_dir_quota` [GH-3760]
+  + `huaweicloud_codearts_inspector_website` [GH-3730]
+  + `huaweicloud_codearts_inspector_website_scan` [GH-3753]
+  + `huaweicloud_workspace_access_policy` [GH-3772]
+  + `huaweicloud_workspace_terminal_bindings` [GH-3773]
+  + `huaweicloud_workspace_policy_group` [GH-3774]
+
+* **New Data Source:**
+  + `huaweicloud_cbr_policies` [GH-3681]
+  + `huaweicloud_ccm_private_certificate_export` [GH-3724]
+  + `huaweicloud_dbss_flavors` [GH-3638]
+  + `huaweicloud_dms_rocketmq_topics` [GH-3667]
+  + `huaweicloud_dms_rocketmq_users` [GH-3677]
+  + `huaweicloud_dms_rocketmq_consumer_groups` [GH-3708]
+  + `huaweicloud_enterprise_projects` [GH-3669]
+  + `huaweicloud_er_availability_zones` [GH-3628]
+  + `huaweicloud_identity_agencies` [GH-3596]
+  + `huaweicloud_elb_listeners` [GH-3586]
+  + `huaweicloud_elb_members` [GH-3619]
+  + `huaweicloud_elb_security_policies` [GH-3679]
+  + `huaweicloud_rds_pg_plugins` [GH-3733]
+  + `huaweicloud_vpn_customer_gateways` [GH-3609]
+  + `huaweicloud_vpn_connections` [GH-3715]
+  + `huaweicloud_workspace_flavors` [GH-3736]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cbr_vault: Support multiple AZ for backing [GH-3577]
+* resource/huaweicloud_rds_instance: Support **MariaDB** engine type [GH-3673]
+* resource/huaweicloud_sfs_turbo: Support updating the sfs turbo name [GH-3771]
+
 ## 1.57.0 (October 31, 2023)
 
 * **New Resurce:**
