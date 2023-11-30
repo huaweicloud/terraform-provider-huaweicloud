@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_policy_group": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the policy group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the policy group.",
+                "required": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "The priority of the policy group.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the policy group is located.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time of the policy group.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "policy": {
+                "block": {
+                  "block_types": {
+                    "access_control": {
+                      "block": {
+                        "attributes": {
+                          "ip_access_control": {
+                            "type": "string",
+                            "description": "The IP access configuration.",
+                            "required": true
+                          }
+                        },
+                        "description": "The configuration of the access policy control."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The configuration of the access policy"
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The target ID.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The target name.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The target type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of target objects."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

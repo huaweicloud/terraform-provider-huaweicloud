@@ -64,6 +64,13 @@
                 "type": "string",
                 "computed": true
               },
+              "is_multi_az": {
+                "type": "bool",
+                "description": "Whether multiple availability zones are used for backing up.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "description": "The vault name.",

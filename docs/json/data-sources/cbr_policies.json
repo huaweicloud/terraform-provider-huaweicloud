@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_policies": {
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "bool",
+                "description": "Whether to enable the CBR policy.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of CBR policies to query.",
+                "optional": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associated_vaults": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "destination_vault_id": "string",
+                            "vault_id": "string"
+                          }
+                        ]
+                      ],
+                      "backup_cycle": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "days": "string",
+                            "execution_times": [
+                              "list",
+                              "string"
+                            ],
+                            "interval": "number"
+                          }
+                        ]
+                      ],
+                      "backup_quantity": "number",
+                      "destination_project_id": "string",
+                      "destination_region": "string",
+                      "enable_acceleration": "bool",
+                      "enabled": "bool",
+                      "id": "string",
+                      "long_term_retention": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "daily": "number",
+                            "full_backup_interval": "number",
+                            "monthly": "number",
+                            "weekly": "number",
+                            "yearly": "number"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "time_period": "number",
+                      "time_zone": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "All CBR policies that match the filter parameters.",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "The ID of CBR policies to query.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the CBR policies.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of CBR policies to query.",
+                "optional": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "The ID of vault to which the CBR policy resource belongs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_alert_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The created time.",
+                "computed": true
+              },
+              "custom_information": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the custom information of the alert rule.",
+                "optional": true,
+                "computed": true
+              },
+              "debugging_alarm": {
+                "type": "bool",
+                "description": "Specifies whether to generate debugging alarms.",
+                "optional": true,
+                "default": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the alert rule.",
+                "required": true
+              },
+              "event_grouping": {
+                "type": "bool",
+                "description": "Specifies whether to put events in a group.",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the alert rule name.",
+                "required": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID of the alert rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "query_rule": {
+                "type": "string",
+                "description": "Specifies the query rule of the alert rule.",
+                "required": true
+              },
+              "query_type": {
+                "type": "string",
+                "description": "Specifies the query type of the alert rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "description": "Specifies the severity of the alert rule.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the alert rule.",
+                "required": true
+              },
+              "suppression": {
+                "type": "bool",
+                "description": "Specifies whether to stop the query when an alarm is generated.",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the type of the alert rule.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The updated time.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the alert rule belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "query_plan": {
+                "block": {
+                  "attributes": {
+                    "execution_delay": {
+                      "type": "number",
+                      "description": "Specifies the execution delay in minutes.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "overtime_interval": {
+                      "type": "number",
+                      "description": "Specifies the overtime interval in minutes.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "query_interval": {
+                      "type": "number",
+                      "description": "Specifies the query interval.",
+                      "required": true
+                    },
+                    "query_interval_unit": {
+                      "type": "string",
+                      "description": "Specifies the query interval unit.",
+                      "required": true
+                    },
+                    "time_window": {
+                      "type": "number",
+                      "description": "Specifies the time window.",
+                      "required": true
+                    },
+                    "time_window_unit": {
+                      "type": "string",
+                      "description": "Specifies the time window unit.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the query plan of the alert rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "triggers": {
+                "block": {
+                  "attributes": {
+                    "accumulated_times": {
+                      "type": "number",
+                      "description": "Specifies the accumulated times.",
+                      "required": true
+                    },
+                    "expression": {
+                      "type": "string",
+                      "description": "Specifies the expression.",
+                      "required": true
+                    },
+                    "mode": {
+                      "type": "string",
+                      "description": "Specifies the trigger mode.",
+                      "required": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "description": "Specifies the operator.",
+                      "required": true
+                    },
+                    "severity": {
+                      "type": "string",
+                      "description": "Specifies the severity of the trigger.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the triggers of the alert rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 5
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ccm_private_certificate_export": {
+          "block": {
+            "attributes": {
+              "certificate": {
+                "type": "string",
+                "computed": true
+              },
+              "certificate_chain": {
+                "type": "string",
+                "computed": true
+              },
+              "certificate_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "enc_certificate": {
+                "type": "string",
+                "computed": true
+              },
+              "enc_private_key": {
+                "type": "string",
+                "computed": true
+              },
+              "enc_sm2_enveloped_key": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "optional": true
+              },
+              "private_key": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "signed_and_enveloped_data": {
+                "type": "string",
+                "computed": true
+              },
+              "sm_standard": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate Manager Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

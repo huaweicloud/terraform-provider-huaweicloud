@@ -1,0 +1,174 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_inspector_website_scan": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The create time of the task.",
+                "computed": true
+              },
+              "cve_check": {
+                "type": "bool",
+                "description": "Specifies whether to perform CVE vulnerability scanning.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "high": {
+                "type": "number",
+                "description": "The number of high-risk vulnerabilities.",
+                "computed": true
+              },
+              "hint": {
+                "type": "number",
+                "description": "The number of hint-risk vulnerabilities.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "low": {
+                "type": "number",
+                "description": "The number of low-severity vulnerabilities.",
+                "computed": true
+              },
+              "malicious_code": {
+                "type": "bool",
+                "description": "Specifies whether to perform malicious code scanning.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "malicious_link": {
+                "type": "bool",
+                "description": "Specifies whether to perform link health detection.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "middle": {
+                "type": "number",
+                "description": "The number of medium-risk vulnerabilities.",
+                "computed": true
+              },
+              "pack_num": {
+                "type": "number",
+                "description": "The total number of packages.",
+                "computed": true
+              },
+              "picture_check": {
+                "type": "bool",
+                "description": "Specifies whether to conduct website content compliance image detection.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "port_scan": {
+                "type": "bool",
+                "description": "Specifies whether to perform port scanning.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "progress": {
+                "type": "number",
+                "description": "The task progress.",
+                "computed": true
+              },
+              "reason": {
+                "type": "string",
+                "description": "Task status description.",
+                "computed": true
+              },
+              "safe_level": {
+                "type": "string",
+                "description": "The security level.",
+                "computed": true
+              },
+              "scan_mode": {
+                "type": "string",
+                "description": "Specifies the task scan mode.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "schedule_status": {
+                "type": "string",
+                "description": "The monitor task status.",
+                "computed": true
+              },
+              "score": {
+                "type": "number",
+                "description": "The safety score.",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "Specifies the task name.",
+                "required": true,
+                "forcenew": true
+              },
+              "task_period": {
+                "type": "string",
+                "description": "Specifies the scheduled trigger period of the monitor task.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "task_status": {
+                "type": "string",
+                "description": "The task status.",
+                "computed": true
+              },
+              "task_type": {
+                "type": "string",
+                "description": "Specifies the task type.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "text_check": {
+                "type": "bool",
+                "description": "Specifies whether to conduct website content compliance text detection.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "timer": {
+                "type": "string",
+                "description": "Specifies the scheduled trigger time of the normal task.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "trigger_time": {
+                "type": "string",
+                "description": "Specifies the scheduled trigger time of the monitor task.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the URL.",
+                "required": true,
+                "forcenew": true
+              },
+              "weak_pwd_scan": {
+                "type": "bool",
+                "description": "Specifies whether to scan for weak passwords.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

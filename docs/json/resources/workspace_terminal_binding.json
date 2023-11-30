@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_terminal_binding": {
+          "block": {
+            "attributes": {
+              "disabled_after_delete": {
+                "type": "bool",
+                "description": "Whether disabled the binding function before destroy resource.",
+                "optional": true,
+                "default": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Whether bindings are available.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the desktops (to be bound to the MAC address) are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "bindings": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The binding description.",
+                      "optional": true
+                    },
+                    "desktop_name": {
+                      "type": "string",
+                      "description": "The desktop name.",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the binding policy.",
+                      "computed": true
+                    },
+                    "mac": {
+                      "type": "string",
+                      "description": "The MAC address.",
+                      "required": true
+                    }
+                  },
+                  "description": "The managed resource configuration."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

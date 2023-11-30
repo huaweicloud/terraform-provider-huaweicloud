@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_playbook": {
+          "block": {
+            "attributes": {
+              "active_version_id": {
+                "type": "string",
+                "description": "Specifies the active version ID.",
+                "optional": true,
+                "computed": true
+              },
+              "approve_role": {
+                "type": "string",
+                "description": "Indicates the approve role of the playbook.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the created time of the playbook.",
+                "computed": true
+              },
+              "dataclass_id": {
+                "type": "string",
+                "description": "Indicates the data class ID.",
+                "computed": true
+              },
+              "dataclass_name": {
+                "type": "string",
+                "description": "Indicates the data class name.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the playbook.",
+                "optional": true
+              },
+              "edit_role": {
+                "type": "string",
+                "description": "Indicates the edit role.",
+                "computed": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Specifies whether to enable the playbook.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the playbook name.",
+                "required": true
+              },
+              "owner_id": {
+                "type": "string",
+                "description": "Indicates the owner ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "reject_version_id": {
+                "type": "string",
+                "description": "Indicates the rejected version ID.",
+                "computed": true
+              },
+              "unaudited_version_id": {
+                "type": "string",
+                "description": "Indicates the unaudited version ID.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the updated time of the playbook.",
+                "computed": true
+              },
+              "user_role": {
+                "type": "string",
+                "description": "Indicates the user role.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Indicates the version.",
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "Indicates the version ID.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

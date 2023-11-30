@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dbss_flavors": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone which the flavor belongs to.",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the ID of the flavor.",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "level": "string",
+                      "memory": "number",
+                      "proxy": "number",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DBSS flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "string",
+                "description": "Specifies the level of the flavor.",
+                "optional": true
+              },
+              "memory": {
+                "type": "number",
+                "description": "Specifies the memory size(GB) in the flavor.",
+                "optional": true
+              },
+              "proxy": {
+                "type": "number",
+                "description": "Specifies the maximum supported database instances.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vcpus": {
+                "type": "number",
+                "description": "Specifies the number of CPUs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

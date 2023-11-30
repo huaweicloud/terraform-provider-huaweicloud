@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_customer_gateways": {
+          "block": {
+            "attributes": {
+              "asn": {
+                "type": "number",
+                "optional": true
+              },
+              "customer_gateway_id": {
+                "type": "string",
+                "optional": true
+              },
+              "customer_gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asn": "number",
+                      "ca_certificate": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expire_time": "string",
+                            "is_updatable": "bool",
+                            "issuer": "string",
+                            "serial_number": "string",
+                            "signature_algorithm": "string",
+                            "subject": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "id": "string",
+                      "id_type": "string",
+                      "id_value": "string",
+                      "ip": "string",
+                      "name": "string",
+                      "route_mode": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "route_mode": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

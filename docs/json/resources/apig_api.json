@@ -274,6 +274,16 @@
                     "conditions": {
                       "block": {
                         "attributes": {
+                          "cookie_name": {
+                            "type": "string",
+                            "description": "The cookie parameter name.",
+                            "optional": true
+                          },
+                          "frontend_authorizer_name": {
+                            "type": "string",
+                            "description": "The frontend authentication parameter name.",
+                            "optional": true
+                          },
                           "param_name": {
                             "type": "string",
                             "description": "The request parameter name.",
@@ -284,6 +294,11 @@
                             "description": "The type of the backend policy.",
                             "optional": true,
                             "default": "param"
+                          },
+                          "sys_name": {
+                            "type": "string",
+                            "description": "The gateway built-in parameter name.",
+                            "optional": true
                           },
                           "type": {
                             "type": "string",
@@ -395,6 +410,16 @@
                     "conditions": {
                       "block": {
                         "attributes": {
+                          "cookie_name": {
+                            "type": "string",
+                            "description": "The cookie parameter name.",
+                            "optional": true
+                          },
+                          "frontend_authorizer_name": {
+                            "type": "string",
+                            "description": "The frontend authentication parameter name.",
+                            "optional": true
+                          },
                           "param_name": {
                             "type": "string",
                             "description": "The request parameter name.",
@@ -405,6 +430,11 @@
                             "description": "The type of the backend policy.",
                             "optional": true,
                             "default": "param"
+                          },
+                          "sys_name": {
+                            "type": "string",
+                            "description": "The gateway built-in parameter name.",
+                            "optional": true
                           },
                           "type": {
                             "type": "string",
@@ -664,6 +694,16 @@
                     "conditions": {
                       "block": {
                         "attributes": {
+                          "cookie_name": {
+                            "type": "string",
+                            "description": "The cookie parameter name.",
+                            "optional": true
+                          },
+                          "frontend_authorizer_name": {
+                            "type": "string",
+                            "description": "The frontend authentication parameter name.",
+                            "optional": true
+                          },
                           "param_name": {
                             "type": "string",
                             "description": "The request parameter name.",
@@ -674,6 +714,11 @@
                             "description": "The type of the backend policy.",
                             "optional": true,
                             "default": "param"
+                          },
+                          "sys_name": {
+                            "type": "string",
+                            "description": "The gateway built-in parameter name.",
+                            "optional": true
                           },
                           "type": {
                             "type": "string",

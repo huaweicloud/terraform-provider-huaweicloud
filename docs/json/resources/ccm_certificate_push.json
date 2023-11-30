@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ccm_certificate_push": {
+          "block": {
+            "attributes": {
+              "certificate_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "cert_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "cert_name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "project_name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate Manager Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_ipgroups": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "optional": true
+              },
+              "ipgroup_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ipgroups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "ip": "string"
+                          }
+                        ]
+                      ],
+                      "listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "project_id": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

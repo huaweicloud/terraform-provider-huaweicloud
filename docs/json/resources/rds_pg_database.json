@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_pg_database": {
+          "block": {
+            "attributes": {
+              "character_set": {
+                "type": "string",
+                "description": "Specifies the database character set.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the database description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS PostgreSQL instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "is_revoke_public_privilege": {
+                "type": "bool",
+                "description": "Specifies whether to revoke the PUBLIC CREATE permission of the public schema.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "lc_collate": {
+                "type": "string",
+                "description": "Specifies the database collocation.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "lc_ctype": {
+                "type": "string",
+                "description": "Specifies the database classification.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the database name.",
+                "required": true,
+                "forcenew": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Specifies the database user.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Indicates the database size, in bytes.",
+                "computed": true
+              },
+              "template": {
+                "type": "string",
+                "description": "Specifies the name of the database template.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_indicator": {
+          "block": {
+            "attributes": {
+              "confidence": {
+                "type": "number",
+                "description": "Specifies the confidence of the indicator.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The create time",
+                "computed": true
+              },
+              "first_occurrence_time": {
+                "type": "string",
+                "description": "Specifies the first occurrence time of the indicator.",
+                "required": true
+              },
+              "granularity": {
+                "type": "number",
+                "description": "Specifies the granularity of the indicator.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "invalid": {
+                "type": "bool",
+                "description": "Specifies whether the indicator is invalid.",
+                "optional": true
+              },
+              "labels": {
+                "type": "string",
+                "description": "Specifies the labels of the indicator in comma-separated string.",
+                "optional": true,
+                "computed": true
+              },
+              "last_occurrence_time": {
+                "type": "string",
+                "description": "Specifies the last occurrence time of the indicator.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the indicator name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the indicator status.",
+                "required": true
+              },
+              "threat_degree": {
+                "type": "string",
+                "description": "Specifies the indicator type.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time",
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "description": "Specifies the value of the indicator.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the indicator belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_source": {
+                "block": {
+                  "attributes": {
+                    "product_feature": {
+                      "type": "string",
+                      "description": "Specifies the product feature.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "product_name": {
+                      "type": "string",
+                      "description": "Specifies the product name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "source_type": {
+                      "type": "number",
+                      "description": "Specifies the data source type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the data source of the indicator."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "type": {
+                "block": {
+                  "attributes": {
+                    "category": {
+                      "type": "string",
+                      "description": "Specifies the category.",
+                      "required": true
+                    },
+                    "indicator_type": {
+                      "type": "string",
+                      "description": "Specifies the indicator type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the indicator type."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

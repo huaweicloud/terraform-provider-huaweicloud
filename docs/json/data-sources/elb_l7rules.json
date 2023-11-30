@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_l7rules": {
+          "block": {
+            "attributes": {
+              "compare_type": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "l7policy_id": {
+                "type": "string",
+                "required": true
+              },
+              "l7rule_id": {
+                "type": "string",
+                "optional": true
+              },
+              "l7rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compare_type": "string",
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "id": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "value": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

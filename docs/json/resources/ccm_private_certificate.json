@@ -1,0 +1,214 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ccm_private_certificate": {
+          "block": {
+            "attributes": {
+              "client_auth": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "code_signing": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "email_protection": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "expired_at": {
+                "type": "string",
+                "computed": true
+              },
+              "gen_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "issuer_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "issuer_name": {
+                "type": "string",
+                "computed": true
+              },
+              "key_algorithm": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "key_usage": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "object_identifier": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "object_identifier_value": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_auth": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "signature_algorithm": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "start_at": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "time_stamping": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "distinguished_name": {
+                "block": {
+                  "attributes": {
+                    "common_name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "country": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "locality": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "organization": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "organizational_unit": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "state": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              },
+              "subject_alternative_names": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "description": "Type of the alternative name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Value of the corresponding alternative name type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "validity": {
+                "block": {
+                  "attributes": {
+                    "start_at": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "value": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate Manager Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

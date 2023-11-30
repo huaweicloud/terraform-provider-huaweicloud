@@ -1,0 +1,145 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_playbook_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the created time of the playbook version.",
+                "computed": true
+              },
+              "cron": {
+                "type": "string",
+                "description": "Specifies the cron expression.",
+                "optional": true,
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the playbook end time.",
+                "optional": true,
+                "computed": true
+              },
+              "end_type": {
+                "type": "string",
+                "description": "Specifies the playbook end type.",
+                "optional": true,
+                "computed": true
+              },
+              "execution_type": {
+                "type": "string",
+                "description": "Specifies the execution type.",
+                "optional": true,
+                "computed": true
+              },
+              "expression_type": {
+                "type": "string",
+                "description": "Specifies the expression type of the rule.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logics": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the logics of the rule.",
+                "optional": true,
+                "computed": true
+              },
+              "only_once": {
+                "type": "bool",
+                "description": "Specifies the repeat range.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repeat_range": {
+                "type": "string",
+                "description": "Specifies the repeat range.",
+                "optional": true,
+                "computed": true
+              },
+              "schedule_type": {
+                "type": "string",
+                "description": "Specifies the schedule type.",
+                "optional": true,
+                "computed": true
+              },
+              "start_type": {
+                "type": "string",
+                "description": "Specifies the playbook start type.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the updated time of the playbook version.",
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "Specifies playbook version ID of the rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the playbook rule belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "conditions": {
+                "block": {
+                  "attributes": {
+                    "data": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the condition data.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "detail": {
+                      "type": "string",
+                      "description": "Specifies the condition detail.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the condition name.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the conditions of the rule."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

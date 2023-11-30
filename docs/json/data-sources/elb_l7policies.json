@@ -1,0 +1,140 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_l7policies": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "l7policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "fixed_response_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content_type": "string",
+                            "message_body": "string",
+                            "status_code": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "listener_id": "string",
+                      "name": "string",
+                      "priority": "number",
+                      "redirect_listener_id": "string",
+                      "redirect_pool_id": "string",
+                      "redirect_pools_extend_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "rewrite_url_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "host": "string",
+                                  "path": "string",
+                                  "query": "string"
+                                }
+                              ]
+                            ],
+                            "rewrite_url_enabled": "bool"
+                          }
+                        ]
+                      ],
+                      "redirect_url_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host": "string",
+                            "path": "string",
+                            "port": "string",
+                            "protocol": "string",
+                            "query": "string",
+                            "status_code": "string"
+                          }
+                        ]
+                      ],
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "l7policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "listener_id": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "priority": {
+                "type": "number",
+                "optional": true
+              },
+              "redirect_listener_id": {
+                "type": "string",
+                "optional": true
+              },
+              "redirect_pool_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

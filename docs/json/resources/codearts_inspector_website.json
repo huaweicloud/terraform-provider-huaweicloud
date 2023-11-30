@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_inspector_website": {
+          "block": {
+            "attributes": {
+              "auth_status": {
+                "type": "string",
+                "description": "The auth status.",
+                "computed": true
+              },
+              "auth_type": {
+                "type": "string",
+                "description": "Specifies the authentication type.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The time to create website.",
+                "computed": true
+              },
+              "high": {
+                "type": "number",
+                "description": "The number of high-risk vulnerabilities.",
+                "computed": true
+              },
+              "hint": {
+                "type": "number",
+                "description": "The number of hint-risk vulnerabilities.",
+                "computed": true
+              },
+              "http_headers": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the HTTP headers.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "login_cookie": {
+                "type": "string",
+                "description": "Specifies the login cookies.",
+                "optional": true,
+                "sensitive": true
+              },
+              "login_password": {
+                "type": "string",
+                "description": "Specifies the login password.",
+                "optional": true,
+                "sensitive": true
+              },
+              "login_url": {
+                "type": "string",
+                "description": "Specifies the login URL.",
+                "optional": true
+              },
+              "login_username": {
+                "type": "string",
+                "description": "Specifies the login username.",
+                "optional": true
+              },
+              "low": {
+                "type": "number",
+                "description": "The number of low-severity vulnerabilities.",
+                "computed": true
+              },
+              "middle": {
+                "type": "number",
+                "description": "The number of medium-risk vulnerabilities.",
+                "computed": true
+              },
+              "verify_url": {
+                "type": "string",
+                "description": "Specifies the verify URL.",
+                "optional": true
+              },
+              "website_address": {
+                "type": "string",
+                "description": "Specifies the website address.",
+                "required": true,
+                "forcenew": true
+              },
+              "website_name": {
+                "type": "string",
+                "description": "Specifies the website name.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

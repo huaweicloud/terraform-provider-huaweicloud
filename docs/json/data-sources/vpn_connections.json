@@ -1,0 +1,141 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_connections": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "optional": true
+              },
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "connection_monitor_id": "string",
+                      "created_at": "string",
+                      "customer_gateway_id": "string",
+                      "enable_nqa": "bool",
+                      "enterprise_project_id": "string",
+                      "gateway_id": "string",
+                      "gateway_ip": "string",
+                      "ha_role": "string",
+                      "id": "string",
+                      "ikepolicy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "authentication_algorithm": "string",
+                            "authentication_method": "string",
+                            "dh_group": "string",
+                            "dpd": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "interval": "number",
+                                  "msg": "string",
+                                  "timeout": "number"
+                                }
+                              ]
+                            ],
+                            "encryption_algorithm": "string",
+                            "ike_version": "string",
+                            "lifetime_seconds": "number",
+                            "local_id": "string",
+                            "local_id_type": "string",
+                            "peer_id": "string",
+                            "peer_id_type": "string",
+                            "phase1_negotiation_mode": "string"
+                          }
+                        ]
+                      ],
+                      "ipsecpolicy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "authentication_algorithm": "string",
+                            "encapsulation_mode": "string",
+                            "encryption_algorithm": "string",
+                            "lifetime_seconds": "number",
+                            "pfs": "string",
+                            "transform_protocol": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "peer_subnets": [
+                        "list",
+                        "string"
+                      ],
+                      "policy_rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "destination": [
+                              "list",
+                              "string"
+                            ],
+                            "rule_index": "number",
+                            "source": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "tunnel_local_address": "string",
+                      "tunnel_peer_address": "string",
+                      "updated_at": "string",
+                      "vpn_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "optional": true
+              },
+              "gateway_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "vpn_type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

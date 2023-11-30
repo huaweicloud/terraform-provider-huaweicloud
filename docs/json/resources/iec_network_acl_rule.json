@@ -39,8 +39,7 @@
               },
               "ip_version": {
                 "type": "number",
-                "computed": true,
-                "default": 4
+                "computed": true
               },
               "network_acl_id": {
                 "type": "string",

@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_backup_share": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "The backup ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the shared backup is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "members": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "The creation time of the backup shared member.",
+                      "computed": true
+                    },
+                    "dest_project_id": {
+                      "type": "string",
+                      "description": "The ID of the project with which the backup is shared.",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the backup shared member record.",
+                      "computed": true
+                    },
+                    "image_id": {
+                      "type": "string",
+                      "description": "The ID of the image registered with the shared backup copy.",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "The backup shared status.",
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "The latest update time of the backup shared member.",
+                      "computed": true
+                    },
+                    "vault_id": {
+                      "type": "string",
+                      "description": "The ID of the vault where the shared backup is stored.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The list of shared members configuration."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

@@ -40,6 +40,25 @@
               }
             },
             "block_types": {
+              "filter": {
+                "block": {
+                  "attributes": {
+                    "condition": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "rule": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "operation_users": {
                 "block": {
                   "attributes": {

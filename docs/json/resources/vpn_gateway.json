@@ -5,6 +5,18 @@
         "huaweicloud_vpn_gateway": {
           "block": {
             "attributes": {
+              "access_private_ip_1": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "access_private_ip_2": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "access_subnet_id": {
                 "type": "string",
                 "description": "The access subnet ID of the VPN gateway.",
@@ -75,6 +87,13 @@
                 "computed": true,
                 "forcenew": true
               },
+              "ha_mode": {
+                "type": "string",
+                "description": "The HA mode of the VPN gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -133,7 +152,7 @@
               }
             },
             "block_types": {
-              "master_eip": {
+              "eip1": {
                 "block": {
                   "attributes": {
                     "bandwidth_id": {
@@ -192,7 +211,7 @@
                 "forcenew": true,
                 "max_items": 1
               },
-              "slave_eip": {
+              "eip2": {
                 "block": {
                   "attributes": {
                     "bandwidth_id": {
@@ -246,6 +265,126 @@
                       "forcenew": true
                     }
                   }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "master_eip": {
+                "block": {
+                  "attributes": {
+                    "bandwidth_id": {
+                      "type": "string",
+                      "description": "The bandwidth ID.",
+                      "computed": true
+                    },
+                    "bandwidth_name": {
+                      "type": "string",
+                      "description": "The bandwidth name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "bandwidth_size": {
+                      "type": "number",
+                      "description": "Bandwidth size in Mbit/s. When the flavor is **V300**, the value cannot be greater than **300**.\n",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "charge_mode": {
+                      "type": "string",
+                      "description": "The charge mode of the bandwidth. The value can be **bandwidth** and **traffic**.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The public IP ID.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "ip_address": {
+                      "type": "string",
+                      "description": "The public IP address.",
+                      "computed": true
+                    },
+                    "ip_version": {
+                      "type": "number",
+                      "description": "The public IP version.",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The EIP type. The value can be **5_bgp** and **5_sbgp**.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};"
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "slave_eip": {
+                "block": {
+                  "attributes": {
+                    "bandwidth_id": {
+                      "type": "string",
+                      "description": "The bandwidth ID.",
+                      "computed": true
+                    },
+                    "bandwidth_name": {
+                      "type": "string",
+                      "description": "The bandwidth name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "bandwidth_size": {
+                      "type": "number",
+                      "description": "Bandwidth size in Mbit/s. When the flavor is **V300**, the value cannot be greater than **300**.\n",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "charge_mode": {
+                      "type": "string",
+                      "description": "The charge mode of the bandwidth. The value can be **bandwidth** and **traffic**.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The public IP ID.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "ip_address": {
+                      "type": "string",
+                      "description": "The public IP address.",
+                      "computed": true
+                    },
+                    "ip_version": {
+                      "type": "number",
+                      "description": "The public IP version.",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The EIP type. The value can be **5_bgp** and **5_sbgp**.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};"
                 },
                 "nesting_mode": "list",
                 "forcenew": true,

@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_csms_event": {
+          "block": {
+            "attributes": {
+              "event_id": {
+                "type": "string",
+                "description": "The event ID.",
+                "computed": true
+              },
+              "event_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the event list.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of CSMS event.",
+                "required": true,
+                "forcenew": true
+              },
+              "notification_target_id": {
+                "type": "string",
+                "description": "Specifies the notification target ID.",
+                "required": true
+              },
+              "notification_target_name": {
+                "type": "string",
+                "description": "Specifies the notification target name.",
+                "required": true
+              },
+              "notification_target_type": {
+                "type": "string",
+                "description": "Specifies the notification target type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the event status.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSMS",
+            "name": "Cloud Secret Management Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-凭据管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

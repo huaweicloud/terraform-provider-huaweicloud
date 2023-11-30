@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_endpoint": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "direction": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resolver_rule_count": {
+                "type": "number",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "ip_addresses": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ip_address_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "subnet_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 2,
+                "max_items": 6
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

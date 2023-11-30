@@ -33,8 +33,18 @@
                 "optional": true,
                 "forcenew": true
               },
+              "http2_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true,
                 "computed": true
               },
               "keep_policy": {
@@ -45,8 +55,7 @@
               "policy_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "protect_status": {
                 "type": "number",
@@ -61,12 +70,36 @@
                 "optional": true,
                 "default": false
               },
+              "redirect_url": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
               }
             },
             "block_types": {
+              "custom_page": {
+                "block": {
+                  "attributes": {
+                    "block_page_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "http_return_code": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "page_content": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "server": {
                 "block": {
                   "attributes": {
@@ -90,6 +123,29 @@
                 },
                 "nesting_mode": "list",
                 "min_items": 1
+              },
+              "timeout_settings": {
+                "block": {
+                  "attributes": {
+                    "connection_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "read_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "write_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

@@ -36,6 +36,11 @@
                 ],
                 "computed": true
               },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "domain": {
                 "type": "string",
                 "required": true,
@@ -45,6 +50,14 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "forward_header_map": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -84,6 +97,10 @@
                 "optional": true,
                 "default": false
               },
+              "redirect_url": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -99,9 +116,77 @@
                   "string"
                 ],
                 "computed": true
+              },
+              "website_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {
+              "connection_protection": {
+                "block": {
+                  "attributes": {
+                    "duration": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "error_percentage": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "error_threshold": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "initial_downtime": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "multiplier_for_consecutive_breakdowns": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pending_url_request_threshold": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "custom_page": {
+                "block": {
+                  "attributes": {
+                    "block_page_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "http_return_code": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "page_content": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "server": {
                 "block": {
                   "attributes": {
@@ -141,6 +226,55 @@
                 "forcenew": true,
                 "min_items": 1,
                 "max_items": 80
+              },
+              "timeout_settings": {
+                "block": {
+                  "attributes": {
+                    "connection_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "read_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "write_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "traffic_mark": {
+                "block": {
+                  "attributes": {
+                    "ip_tags": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "session_tag": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "user_tag": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

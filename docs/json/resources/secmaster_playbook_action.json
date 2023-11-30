@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_playbook_action": {
+          "block": {
+            "attributes": {
+              "action_id": {
+                "type": "string",
+                "description": "Specifies the workflow ID.",
+                "required": true
+              },
+              "action_type": {
+                "type": "string",
+                "description": "Specifies the playbook action type.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the created time of the playbook action.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the playbook action.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies playbook action name.",
+                "optional": true,
+                "computed": true
+              },
+              "playbook_id": {
+                "type": "string",
+                "description": "Indicates the playbook ID of the action.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_order": {
+                "type": "number",
+                "description": "Specifies the sort order of the playbook action.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the updated time of the playbook action.",
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "Specifies playbook version ID of the action.",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the playbook action belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

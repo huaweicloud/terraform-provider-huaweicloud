@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_line_group": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Resource creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the line group description. A maximum of 255 characters are allowed.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lines": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the lines.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the line group name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The resource status.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Resource update time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_alert": {
+          "block": {
+            "attributes": {
+              "close_comment": {
+                "type": "string",
+                "description": "Specifies the close comment.",
+                "optional": true,
+                "computed": true
+              },
+              "close_reason": {
+                "type": "string",
+                "description": "Specifies the close reason.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The created time.",
+                "computed": true
+              },
+              "debugging_data": {
+                "type": "bool",
+                "description": "Specifies whether it's a debugging data.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the alert.",
+                "required": true
+              },
+              "first_occurrence_time": {
+                "type": "string",
+                "description": "Specifies the first occurrence time of the indicator.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": "string",
+                "description": "Specifies the labels of the alert in comma-separated string.",
+                "optional": true,
+                "computed": true
+              },
+              "last_occurrence_time": {
+                "type": "string",
+                "description": "Specifies the last occurrence time of the indicator.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the alert name.",
+                "required": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Specifies the owner name of the alert.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "description": "Specifies the alert severity.",
+                "required": true
+              },
+              "stage": {
+                "type": "string",
+                "description": "Specifies the alert stage.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the alert status.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The updated time.",
+                "computed": true
+              },
+              "verification_status": {
+                "type": "string",
+                "description": "Specifies the alert verification status.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "data_source": {
+                "block": {
+                  "attributes": {
+                    "product_feature": {
+                      "type": "string",
+                      "description": "Specifies the product feature.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "product_name": {
+                      "type": "string",
+                      "description": "Specifies the product name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "source_type": {
+                      "type": "number",
+                      "description": "Specifies the source type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "type": {
+                "block": {
+                  "attributes": {
+                    "alert_type": {
+                      "type": "string",
+                      "description": "Specifies the alert type",
+                      "required": true
+                    },
+                    "category": {
+                      "type": "string",
+                      "description": "Specifies the category.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

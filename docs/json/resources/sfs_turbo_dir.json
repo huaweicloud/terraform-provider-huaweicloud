@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_dir": {
+          "block": {
+            "attributes": {
+              "gid": {
+                "type": "number",
+                "description": "Specifies the group ID of the SFS Turbo directory.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "number",
+                "description": "Specifies the SFS Turbo directory permissions.",
+                "optional": true,
+                "forcenew": true
+              },
+              "path": {
+                "type": "string",
+                "description": "Specifies the valid full path of SFS Turbo directory.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "description": "Specifies the SFS Turbo ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "uid": {
+                "type": "number",
+                "description": "Specifies the user ID of the SFS Turbo directory.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SFS",
+            "name": "Scalable File Service(SFS)",
+            "catalog": "Storage",
+            "name_cn": "弹性文件服务(SFS)",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

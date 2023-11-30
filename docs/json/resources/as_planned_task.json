@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_as_planned_task": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the planned task.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the planned task to create.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the planned task resource are located.",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "description": "The ID of the scaling group where the planned task to create.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "instance_number": {
+                "block": {
+                  "attributes": {
+                    "desire": {
+                      "type": "string",
+                      "description": "The expected number of instances for the scaling group.",
+                      "optional": true
+                    },
+                    "max": {
+                      "type": "string",
+                      "description": "The maximum number of instances for the scaling group",
+                      "optional": true
+                    },
+                    "min": {
+                      "type": "string",
+                      "description": "The minimum number of instances for the scaling group.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The numbers of scaling group instance for planned task to create."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "scheduled_policy": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "description": "The effective end time of planned task",
+                      "optional": true
+                    },
+                    "launch_time": {
+                      "type": "string",
+                      "description": "The execution time of planned task.",
+                      "required": true
+                    },
+                    "recurrence_type": {
+                      "type": "string",
+                      "description": "The triggering type of planned task",
+                      "optional": true
+                    },
+                    "recurrence_value": {
+                      "type": "string",
+                      "description": "The frequency at which planned task are triggered",
+                      "optional": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "description": "The effective start time of planned task.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The policy of planned task to create."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

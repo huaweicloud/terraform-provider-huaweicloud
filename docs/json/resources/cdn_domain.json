@@ -68,7 +68,7 @@
                             "required": true
                           },
                           "rule_type": {
-                            "type": "number",
+                            "type": "string",
                             "required": true
                           },
                           "ttl": {
@@ -76,7 +76,7 @@
                             "required": true
                           },
                           "ttl_type": {
-                            "type": "number",
+                            "type": "string",
                             "required": true
                           }
                         }

@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_dir_quota": {
+          "block": {
+            "attributes": {
+              "capacity": {
+                "type": "number",
+                "description": "Specifies the size of the directory.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inode": {
+                "type": "number",
+                "description": "Specifies the maximum number of inodes allowed in the directory.",
+                "optional": true
+              },
+              "path": {
+                "type": "string",
+                "description": "Specifies the valid full path of an existing directory.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "description": "Specifies the SFS Turbo ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "used_capacity": {
+                "type": "number",
+                "description": "Specifies the size of the used directory.",
+                "computed": true
+              },
+              "used_inode": {
+                "type": "number",
+                "description": "Specifies the number of used inodes in the directory.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SFS",
+            "name": "Scalable File Service(SFS)",
+            "catalog": "Storage",
+            "name_cn": "弹性文件服务(SFS)",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

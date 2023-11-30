@@ -36,13 +36,11 @@
               },
               "image_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "image_type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",

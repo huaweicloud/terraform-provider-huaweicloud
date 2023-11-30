@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_logtanks": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "optional": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "log_topic_id": {
+                "type": "string",
+                "optional": true
+              },
+              "logtank_id": {
+                "type": "string",
+                "optional": true
+              },
+              "logtanks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "loadbalancer_id": "string",
+                      "log_group_id": "string",
+                      "log_topic_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

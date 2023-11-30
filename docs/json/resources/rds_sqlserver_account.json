@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_sqlserver_account": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS SQLServer instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the username of the DB account.",
+                "required": true,
+                "forcenew": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the password of the DB account.",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Indicates the DB user status.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -45,6 +45,14 @@
                 "type": "string",
                 "optional": true
               },
+              "organization_permissions": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "permissions": {
                 "type": [
                   "set",
@@ -71,8 +79,7 @@
               },
               "service_type": {
                 "type": "string",
-                "computed": true,
-                "default": "interface"
+                "computed": true
               },
               "status": {
                 "type": "string",

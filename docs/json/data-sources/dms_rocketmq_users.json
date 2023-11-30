@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_users": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "optional": true
+              },
+              "admin": {
+                "type": "bool",
+                "optional": true
+              },
+              "default_group_perm": {
+                "type": "string",
+                "optional": true
+              },
+              "default_topic_perm": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_key": "string",
+                      "admin": "bool",
+                      "default_group_perm": "string",
+                      "default_topic_perm": "string",
+                      "group_perms": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "perm": "string"
+                          }
+                        ]
+                      ],
+                      "topic_perms": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "perm": "string"
+                          }
+                        ]
+                      ],
+                      "white_remote_address": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "white_remote_address": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

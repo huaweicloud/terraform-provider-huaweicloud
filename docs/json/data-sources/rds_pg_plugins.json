@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_pg_plugins": {
+          "block": {
+            "attributes": {
+              "created": {
+                "type": "bool",
+                "description": "Specifies whether the plugin has been created.",
+                "optional": true
+              },
+              "database_name": {
+                "type": "string",
+                "description": "Specifies the database name of a PostgreSQL instance.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of a PostgreSQL instance.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the plugin name.",
+                "optional": true
+              },
+              "plugins": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "bool",
+                      "description": "string",
+                      "name": "string",
+                      "shared_preload_libraries": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the plugin list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the plugin version.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

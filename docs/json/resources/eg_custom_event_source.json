@@ -21,6 +21,12 @@
                 "description": "The description of the custom event source.",
                 "optional": true
               },
+              "detail": {
+                "type": "string",
+                "description": "The configuration detail of the event source, in JSON format.",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

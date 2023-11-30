@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_central_network_policy": {
+          "block": {
+            "attributes": {
+              "central_network_id": {
+                "type": "string",
+                "description": "Central network ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "document_template_version": {
+                "type": "string",
+                "description": "Central network policy document template version.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_applied": {
+                "type": "bool",
+                "description": "Whether the central network policy is applied.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Central network policy status.",
+                "computed": true
+              },
+              "version": {
+                "type": "number",
+                "description": "Central network policy version.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "er_instances": {
+                "block": {
+                  "attributes": {
+                    "enterprise_router_id": {
+                      "type": "string",
+                      "description": "Enterprise router ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "project_id": {
+                      "type": "string",
+                      "description": "Project ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "description": "Region ID.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "List of the enterprise routers on the central network policy."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "planes": {
+                "block": {
+                  "block_types": {
+                    "associate_er_tables": {
+                      "block": {
+                        "attributes": {
+                          "enterprise_router_id": {
+                            "type": "string",
+                            "description": "Enterprise router ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "enterprise_router_table_id": {
+                            "type": "string",
+                            "description": "Enterprise router table ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "project_id": {
+                            "type": "string",
+                            "description": "Project ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "description": "Region ID.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "List of route tables associated with the central network policy."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "List of the central network policy planes."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

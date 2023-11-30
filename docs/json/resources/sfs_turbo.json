@@ -72,8 +72,7 @@
               },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "period": {
                 "type": "number",

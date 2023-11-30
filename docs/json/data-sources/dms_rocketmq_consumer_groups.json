@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_consumer_groups": {
+          "block": {
+            "attributes": {
+              "broadcast": {
+                "type": "bool",
+                "optional": true,
+                "default": false
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "broadcast": "bool",
+                      "brokers": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "string",
+                      "enabled": "bool",
+                      "name": "string",
+                      "retry_max_times": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "retry_max_times": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

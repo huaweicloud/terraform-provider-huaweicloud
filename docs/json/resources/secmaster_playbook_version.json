@@ -1,0 +1,143 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_playbook_version": {
+          "block": {
+            "attributes": {
+              "action_strategy": {
+                "type": "string",
+                "description": "Specifies the action strategy of the playbook version.",
+                "optional": true,
+                "computed": true
+              },
+              "approve_name": {
+                "type": "string",
+                "description": "Indicates the approver name.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the created time of the playbook version.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "Indicates the creator ID.",
+                "computed": true
+              },
+              "dataclass_id": {
+                "type": "string",
+                "description": "Specifies the data class ID of the playbook version.",
+                "required": true
+              },
+              "dataclass_name": {
+                "type": "string",
+                "description": "Indicates the data class name.",
+                "computed": true
+              },
+              "dataobject_create": {
+                "type": "bool",
+                "description": "Specifies whether to trigger the playbook when data object is created.",
+                "optional": true,
+                "computed": true
+              },
+              "dataobject_delete": {
+                "type": "bool",
+                "description": "Specifies whether to trigger the playbook when data object is deleted.",
+                "optional": true,
+                "computed": true
+              },
+              "dataobject_update": {
+                "type": "bool",
+                "description": "Specifies whether to trigger the playbook when data object is updated.",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the playbook version.",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Indicates whether the playbook version is enabled.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "modifier_id": {
+                "type": "string",
+                "description": "Indicates the modifier ID.",
+                "computed": true
+              },
+              "playbook_id": {
+                "type": "string",
+                "description": "Specifies playbook ID of the playbook version.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_enable": {
+                "type": "bool",
+                "description": "Specifies whether to enable playbook rule.",
+                "optional": true,
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the playbook rule ID.",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the plaubook.",
+                "computed": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "Specifies the trigger type.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the updated time of the playbook version.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Indicates the version number.",
+                "computed": true
+              },
+              "version_type": {
+                "type": "number",
+                "description": "Indicates the version type.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the playbook version belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

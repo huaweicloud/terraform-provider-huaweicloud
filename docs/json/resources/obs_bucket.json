@@ -178,6 +178,17 @@
                     }
                   },
                   "block_types": {
+                    "abort_incomplete_multipart_upload": {
+                      "block": {
+                        "attributes": {
+                          "days": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
                     "expiration": {
                       "block": {
                         "attributes": {
