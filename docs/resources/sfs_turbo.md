@@ -4,7 +4,7 @@ subcategory: "Scalable File Service (SFS)"
 
 # huaweicloud_sfs_turbo
 
-Provides an Shared File System (SFS) Turbo resource.
+Provides a Shared File System (SFS) Turbo resource.
 
 ## Example Usage
 
