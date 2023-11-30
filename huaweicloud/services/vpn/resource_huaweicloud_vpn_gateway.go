@@ -804,6 +804,7 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			}
 
 			pendingStatus := []string{
+				"ACTIVE",
 				"PENDING_DELETE",
 			}
 			if utils.StrSliceContains(pendingStatus, status) {
