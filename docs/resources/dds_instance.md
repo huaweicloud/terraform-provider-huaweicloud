@@ -246,7 +246,7 @@ The `backup_strategy` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the the DB instance ID.
-* `db_username` - Indicates the DB Administator name.
+* `db_username` - Indicates the DB Administrator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.

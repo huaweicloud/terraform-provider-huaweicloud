@@ -88,7 +88,7 @@ The `target_server_disks` block supports:
 
 * `used_size` - (Optional, Int, ForceNew) Specifies the used space in MB. Changing this parameter will create a new resource.
 
-* `physical_volumes` - (Optional, List, ForceNew) Specifies an array of physical volume informations.
+* `physical_volumes` - (Optional, List, ForceNew) Specifies an array of physical volume information.
   The [object](#physical_volumes_object) is documented below. Changing this parameter will create a new resource.
 
 <a name="physical_volumes_object"></a>

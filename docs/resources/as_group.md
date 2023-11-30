@@ -229,7 +229,7 @@ The `networks` block supports:
 
 * `ipv6_bandwidth_id` - (Optional, String) Specifies the ID of the shared bandwidth of an IPv6 address.
 
-* `source_dest_check` - (Optional, Bool) Specifies whether processesing only traffic that is destined specifically
+* `source_dest_check` - (Optional, Bool) Specifies whether process only traffic that is destined specifically
   for it. Defaults to true.
 
 <a name="group_security_group_object"></a>

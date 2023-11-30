@@ -42,8 +42,8 @@ In addition to all arguments above, the following attributes are exported:
 * `nics` - An array of one or more networks to attach to the IEC server. The object structure is documented below.
 * `volume_attached` - An array of one or more disks to attach to the IEC server. The object structure is documented
   below.
-* `public_ip` - The EIP address that is associted to the IEC server.
-* `system_disk_id` - The system disk voume ID.
+* `public_ip` - The EIP address that is associated to the IEC server.
+* `system_disk_id` - The system disk volume ID.
 * `key_pair` - The name of a key pair to put on the IEC server.
 * `user_data` - The user data (information after encoding) configured during IEC server creation.
 

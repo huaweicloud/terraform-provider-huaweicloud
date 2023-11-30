@@ -43,7 +43,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the application description.
   The description can contain a maximum of `128` characters.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise projcet ID to which the application
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the application
   belongs. Changing this will create a new resource.
 
 * `environment` - (Optional, List) Specifies the configurations of the environment variables.

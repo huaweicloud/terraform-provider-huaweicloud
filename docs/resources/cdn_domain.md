@@ -264,7 +264,7 @@ The `force_redirect` and `compress` blocks support:
 <a name="cache_url_parameter_filter_object"></a>
 The `cache_url_parameter_filter` block support:
 
-* `type` - (Optional, String) Specifies the operation type for caching URL parameters. Posiible values are:
+* `type` - (Optional, String) Specifies the operation type for caching URL parameters. Valid values are:
   **full_url**: cache all parameters
   **ignore_url_params**: ignore all parameters
   **del_args**: ignore specific URL parameters

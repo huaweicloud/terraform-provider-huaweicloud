@@ -180,7 +180,7 @@ The `condition` block supports:
   Note: If period is set to 1, the raw metric data is used to determine whether to generate an alarm. When the value of
   `alarm_type` is **EVENT.SYS** or **EVENT.CUSTOM**, period can be set to 0.
 
-* `filter` - (Required, String) Specifies the data rollup methods. The value can be max, min, average, sum, and vaiance.
+* `filter` - (Required, String) Specifies the data rollup methods. The value can be max, min, average, sum, and variance.
 
 * `comparison_operator` - (Required, String) Specifies the comparison condition of alarm thresholds. The value can be >,
   =, <, >=, or <=.

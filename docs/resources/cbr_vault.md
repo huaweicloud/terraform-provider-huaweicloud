@@ -4,7 +4,7 @@ subcategory: "Cloud Backup and Recovery (CBR)"
 
 # huaweicloud_cbr_vault
 
-Manages a CBR Vault resource within Huaweicloud.
+Manages a CBR Vault resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -186,7 +186,7 @@ The following arguments are supported:
   characters, which may consist of letters, digits, underscores(_) and hyphens (-).
 
 * `type` - (Required, String, ForceNew) Specifies the object type of the CBR vault.
-  Changing this will create a new vault. Vaild values are as follows:
+  Changing this will create a new vault. Valid values are as follows:
   + **server** (Elastic Cloud Server)
   + **disk** (EVS Disk)
   + **turbo** (SFS Turbo file system)

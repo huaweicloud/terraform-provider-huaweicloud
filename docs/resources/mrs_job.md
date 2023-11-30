@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `job_type` - (Required, Int, ForceNew) Job type 1: MapReduce 2: Spark 3: Hive Script 4: HiveQL
   (not supported currently) 5: DistCp, importing and exporting data. 6: Spark Script 7: Spark SQL, submitting Spark SQL
-  statements. (not supported in this APIcurrently) NOTE: Spark and Hive jobs can be added to only clusters including
+  statements. (not supported in this API currently) NOTE: Spark and Hive jobs can be added to only clusters including
   Spark and Hive components.
 
 * `job_name` - (Required, String, ForceNew) Job name Contains only 1 to 64 letters, digits, hyphens

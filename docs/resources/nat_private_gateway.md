@@ -56,7 +56,7 @@ The following arguments are supported:
   NAT gateway belongs.  
   Changing this will create a new resource.
 
-* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the private NAT geteway.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the private NAT gateway.
 
 ## Attribute Reference
 

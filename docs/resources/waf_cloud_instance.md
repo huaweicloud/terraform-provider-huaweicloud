@@ -138,7 +138,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The current status of the cloud WAF.
   + **0**: Normal.
-  + **1**: Freezen.
+  + **1**: Frozen.
   + **2**: Deleted.
 
 ## Timeouts

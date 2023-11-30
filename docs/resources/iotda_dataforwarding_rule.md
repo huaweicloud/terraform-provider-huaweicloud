@@ -204,7 +204,7 @@ Data forwarding rules can be imported using the `id`, e.g.
 $ terraform import huaweicloud_iotda_dataforwarding_rule.test 10022532f4f94f26b01daa1e424853e1
 ```
 
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `password` of `kafka_forwarding`. It is
 generally recommended running `terraform plan` after importing the resource. You can then decide if changes should be
 applied to the resource, or the resource definition should be updated to align with the group. Also you can ignore

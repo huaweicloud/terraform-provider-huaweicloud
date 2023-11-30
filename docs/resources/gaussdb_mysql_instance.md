@@ -4,7 +4,7 @@ subcategory: "GaussDB(for MySQL)"
 
 # huaweicloud_gaussdb_mysql_instance
 
-GaussDB mysql instance management within HuaweiCoud.
+GaussDB mysql instance management within HuaweiCould.
 
 ## Example Usage
 

@@ -14,7 +14,7 @@ Manages an Identity Center system policy attachment resource within HuaweiCloud.
 ```hcl
 variable "permission_set_id" {}
 variable "iam_policy_ids" {
-  type = list(stirng)
+  type = list(string)
 }
 
 data "huaweicloud_identitycenter_instance" "system" {}

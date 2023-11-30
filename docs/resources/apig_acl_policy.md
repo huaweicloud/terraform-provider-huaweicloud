@@ -14,7 +14,7 @@ Manages an ACL policy resource within HuaweiCloud.
 variable "instance_id" {}
 variable "policy_name" {}
 variable "ip_addresses" {
-  type = list(stirng)
+  type = list(string)
 }
 
 resource "huaweicloud_apig_acl_policy" "ip_rule" {
@@ -32,7 +32,7 @@ resource "huaweicloud_apig_acl_policy" "ip_rule" {
 variable "instance_id" {}
 variable "policy_name" {}
 variable "domain_names" {
-  type = list(stirng)
+  type = list(string)
 }
 
 resource "huaweicloud_apig_acl_policy" "domain_rule" {
@@ -50,7 +50,7 @@ resource "huaweicloud_apig_acl_policy" "domain_rule" {
 variable "instance_id" {}
 variable "policy_name" {}
 variable "domain_ids" {
-  type = list(stirng)
+  type = list(string)
 }
 
 resource "huaweicloud_apig_acl_policy" "domain_id_rule" {

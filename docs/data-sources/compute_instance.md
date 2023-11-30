@@ -43,8 +43,8 @@ In addition to all arguments above, the following attributes are exported:
 * `image_name` - The image name of the instance.
 * `flavor_name` - The flavor name of the instance.
 * `key_pair` - The key pair that is used to authenticate the instance.
-* `public_ip` - The EIP address that is associted to the instance.
-* `system_disk_id` - The system disk voume ID.
+* `public_ip` - The EIP address that is associated to the instance.
+* `system_disk_id` - The system disk volume ID.
 * `user_data` - The user data (information after encoding) configured during instance creation.
 * `security_groups` - An array of one or more security groups to associate with the instance.
 * `security_group_ids` - An array of one or more security group IDs to associate with the instance.

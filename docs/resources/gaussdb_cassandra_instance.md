@@ -4,7 +4,7 @@ subcategory: "GaussDB NoSQL"
 
 # huaweicloud_gaussdb_cassandra_instance
 
-GaussDB for Cassandra instance management within HuaweiCoud.
+GaussDB for Cassandra instance management within HuaweiCould.
 
 ## Example Usage
 

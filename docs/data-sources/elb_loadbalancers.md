@@ -4,7 +4,7 @@ subcategory: Dedicated Load Balance (Dedicated ELB)
 
 # huaweicloud_elb_loadbalancers
 
-Use this data source to get the list of ELB load blancers.
+Use this data source to get the list of ELB load balancers.
 
 ## Example Usage
 
@@ -50,7 +50,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `loadbalancers` - Lists the loadalancers.
+* `loadbalancers` - The List of load balancers.
   The [loadbalancers](#Elb_loadbalancer_loadbalancers) structure is documented below.
 
 <a name="Elb_loadbalancer_loadbalancers"></a>

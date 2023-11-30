@@ -160,7 +160,7 @@ which means greater than or equal to 20 and less than 30.
 
 * `data_validatiy_period` - (Optional, Int) Specifies data validity period, Unit is `seconds`. Defaults to `300`.
 For example, if Data Validity Period is set to 30 minutes, a device generates data at 19:00, and the platform receives
-the data at 20:00, the action is nottriggered regardless of whether the conditions are met.
+the data at 20:00, the action is not triggered regardless of whether the conditions are met.
 
 <a name="IoTDA_simple_timer_condition"></a>
 The `simple_timer_condition` block supports:
@@ -201,7 +201,7 @@ is `DEVICE_ALARM`. The [device_alarm](#IoTDA_device_alarm) structure is document
 <a name="IoTDA_device_command"></a>
 The `device_command` block supports:
 
-* `device_id` - (Required, String) Specifies the device id which excutes the command.
+* `device_id` - (Required, String) Specifies the device id which executes the command.
 
 * `service_id` - (Required, String) Specifies the service id to which the command belongs.
 

@@ -57,7 +57,7 @@ The following arguments are supported:
 * `auto_scale_min_partition_count` - (Optional, Int, ForceNew) Minimum number of partition for automatic scaling.
   Changing this parameter will create a new resource.
 
-* `data_schema` - (Optional, String, ForceNew) User's JOSN, CSV format data schema, described with Avro schema. Changing
+* `data_schema` - (Optional, String, ForceNew) User's JSON, CSV format data schema, described with Avro schema. Changing
   this parameter will create a new resource.
 
 * `compression_format` - (Optional, String, ForceNew) Data compression type. The value is one of snappy, gzip and zip.

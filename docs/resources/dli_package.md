@@ -60,4 +60,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - Time when a queue is created.
 
-* `updated_at` - The last time when the package configuration update has complated.
+* `updated_at` - The last time when the package configuration update has completed.

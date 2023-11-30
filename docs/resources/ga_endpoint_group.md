@@ -77,7 +77,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The endpointgroup can be imported using the `id`, e.g.
+The endpoint group can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_ga_endpoint_group.test <id>

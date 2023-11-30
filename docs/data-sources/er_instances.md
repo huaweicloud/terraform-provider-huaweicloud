@@ -4,7 +4,7 @@ subcategory: "Enterprise Router (ER)"
 
 # huaweicloud_er_instances
 
-Use this data source to filter ER instances within Huaweicloud.
+Use this data source to filter ER instances within HuaweiCloud.
 
 ## Example Usage
 

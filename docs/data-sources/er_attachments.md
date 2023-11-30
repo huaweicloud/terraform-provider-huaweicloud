@@ -4,7 +4,7 @@ subcategory: "Enterprise Router (ER)"
 
 # huaweicloud_er_attachments
 
-Use this data source to filter ER attachments within Huaweicloud.
+Use this data source to filter ER attachments within HuaweiCloud.
 
 ## Example Usage
 

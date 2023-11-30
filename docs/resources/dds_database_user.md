@@ -45,7 +45,7 @@ The following arguments are supported:
   Changing this parameter will create a new user.
 
 * `password` - (Required, String) Specifies the user password.
-  The assword content must meet the following conditions:
+  The password content must meet the following conditions:
   + `8` to `32` characters long.
   + Must contains uppercase and lowercase letters, digits, and at least one special character (`~!@#%^*-_=+?`).
 

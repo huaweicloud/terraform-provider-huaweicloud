@@ -42,9 +42,9 @@ The following arguments are supported:
   Only chinese and english letters, digits, hyphens (-), and underscores (_) are allowed.
   **default** is the name of the default workspace reserved by the system.
 
-* `description` - (Optional, String) The description of the worksapce.  
+* `description` - (Optional, String) The description of the workspace.  
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the worksapce.  
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the workspace.  
   Value 0 indicates the default enterprise project.
 
   Changing this parameter will create a new resource.

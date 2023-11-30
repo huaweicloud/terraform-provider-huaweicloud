@@ -188,7 +188,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The protectionrule can be imported using `object_id`, `id`, separated by a slash, e.g.
+The protection rule can be imported using `object_id`, `id`, separated by a slash, e.g.
 
 ```sh
 $ terraform import huaweicloud_cfw_protection_rule.test <object_id>/<id>

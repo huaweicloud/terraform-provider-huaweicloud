@@ -211,7 +211,7 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The status of the instance.
 * `description` - The description of the instance.
 * `image_name` - The image_name of the instance.
-* `public_ip` - The EIP address that is associted to the instance.
+* `public_ip` - The EIP address that is associated to the instance.
 * `nics` - An array of one or more networks to attach to the instance.
   The [nics_struct](#BMS_Response_nics_struct) structure is documented below.
 * `disk_ids` - The ID of disks attached.
