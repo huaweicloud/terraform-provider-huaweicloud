@@ -4,7 +4,7 @@ subcategory: "Distributed Message Service (DMS)"
 
 # huaweicloud_dms_maintainwindow
 
-Use this data source to get the ID of an available HuaweiCloud dms maintainwindow.
+Use this data source to get the ID of an available HuaweiCloud dms maintenance windows.
 
 ## Example Usage
 
@@ -16,7 +16,7 @@ data "huaweicloud_dms_maintainwindow" "maintainwindow1" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the dms maintainwindows. If omitted, the provider-level
+* `region` - (Optional, String) The region in which to obtain the dms maintenance windows. If omitted, the provider-level
   region will be used.
 
 * `seq` - (Optional, Int) Indicates the sequential number of a maintenance time window.

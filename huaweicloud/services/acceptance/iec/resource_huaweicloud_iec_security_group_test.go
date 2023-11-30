@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecSecurityGroupResource_basic(t *testing.T) {
+func TestAccSecurityGroupResource_basic(t *testing.T) {
 	resourceName := "huaweicloud_iec_security_group.my_group"
 	rName := fmt.Sprintf("iec-secgroup-%s", acctest.RandString(5))
 	description := "This is a test of iec security group"
@@ -24,12 +24,12 @@ func TestAccIecSecurityGroupResource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecSecurityGroupV1Destory,
+		CheckDestroy:      testAccCheckSecurityGroupDestory,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecSecurityGroupV1_Basic(rName, description),
+				Config: testAccSecurityGroup_Basic(rName, description),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecSecurityGroupV1Exists(resourceName, &group),
+					testAccCheckSecurityGroupExists(resourceName, &group),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", description),
 					resource.TestCheckResourceAttr(resourceName, "security_group_rules.#", "0"),
@@ -44,7 +44,7 @@ func TestAccIecSecurityGroupResource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecSecurityGroupV1Exists(n string, group *groups.RespSecurityGroupEntity) resource.TestCheckFunc {
+func testAccCheckSecurityGroupExists(n string, group *groups.RespSecurityGroupEntity) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[n]
 		if !ok {
@@ -74,7 +74,7 @@ func testAccCheckIecSecurityGroupV1Exists(n string, group *groups.RespSecurityGr
 	}
 }
 
-func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
+func testAccCheckSecurityGroupDestory(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecClient, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
@@ -94,7 +94,7 @@ func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
 	return nil
 }
 
-func testAccIecSecurityGroupV1_Basic(rName, description string) string {
+func testAccSecurityGroup_Basic(rName, description string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
   name        = "%s"

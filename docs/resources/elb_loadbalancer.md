@@ -108,10 +108,10 @@ The following arguments are supported:
 * `vpc_id` - (Optional, String, ForceNew) The vpc on which to create the loadbalancer. Changing this creates a new
   loadbalancer.
 
-* `ipv4_subnet_id` - (Optional, String) The **IPv4 subnet ID** of the subnet on which to allocate the loadbalancer's
+* `ipv4_subnet_id` - (Optional, String) The **IPv4 subnet ID** of the subnet on which to allocate the loadbalancer
   ipv4 address.
 
-* `ipv6_network_id` - (Optional, String) The **ID** of the subnet on which to allocate the loadbalancer's ipv6 address.
+* `ipv6_network_id` - (Optional, String) The **ID** of the subnet on which to allocate the loadbalancer ipv6 address.
 
 * `ipv6_bandwidth_id` - (Optional, String) The ipv6 bandwidth id. Only support shared bandwidth.
 

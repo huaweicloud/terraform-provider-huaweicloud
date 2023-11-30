@@ -264,7 +264,7 @@ The `force_redirect` and `compress` blocks support:
 <a name="cache_url_parameter_filter_object"></a>
 The `cache_url_parameter_filter` block support:
 
-* `type` - (Optional, String) Specifies the operation type for caching URL parameters. Posiible values are:
+* `type` - (Optional, String) Specifies the operation type for caching URL parameters. Valid values are:
   **full_url**: cache all parameters
   **ignore_url_params**: ignore all parameters
   **del_args**: ignore specific URL parameters
@@ -283,16 +283,19 @@ The `cache_settings` block support:
 <a name="rules_object"></a>
 The `rules` block support:
 
-* `rule_type` - (Required, Int) Specifies the rule type. Possible value are:
-  **0**: All types of files are matched. It is the default value.
-  **1**: Files are matched based on their suffixes.
-  **2**: Files are matched based on their directories.
-  **3**: Files are matched based on their full paths.
+* `rule_type` - (Required, String) Specifies the rule type. Possible value are:
+  + **all**: All types of files are matched. It is the default value.
+  + **file_extension**: Files are matched based on their suffixes.
+  + **catalog**: Files are matched based on their directories.
+  + **full_path**: Files are matched based on their full paths.
 
 * `ttl` - (Required, Int) Specifies the cache age. The maximum cache age is 365 days.
 
-* `ttl_type` - (Required, Int) Specifies the unit of the cache age. Possible values: **1** (second), **2** (minute),
-  **3** (hour), and **4** (day).
+* `ttl_type` - (Required, String) Specifies the unit of the cache age. Possible values:
+  + **s**: Second
+  + **m**: Minute
+  + **h**: Hour
+  + **d**: Day
 
 * `priority` - (Required, Int) Specifies the priority weight of this rule. The default value is 1.
   A larger value indicates a higher priority. The value ranges from 1 to 100. The weight values must be unique.

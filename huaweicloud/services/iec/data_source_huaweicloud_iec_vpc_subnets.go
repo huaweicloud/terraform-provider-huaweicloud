@@ -13,9 +13,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
-func DataSourceIECVpcSubnets() *schema.Resource {
+func DataSourceVpcSubnets() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECVpcSubnetIdsRead,
+		ReadContext: dataSourceVpcSubnetsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -79,7 +79,7 @@ func DataSourceIECVpcSubnets() *schema.Resource {
 	}
 }
 
-func dataSourceIECVpcSubnetIdsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	iecClient, err := cfg.IECV1Client(region)

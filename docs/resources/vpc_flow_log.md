@@ -62,7 +62,7 @@ The following arguments are supported:
   + *accept*: Specifies that only accepted inbound and outbound traffic of the specified resource will be logged.
   + *reject*: Specifies that only rejected inbound and outbound traffic of the specified resource will be logged.
 
-  Defauts to *all*. Changing this creates a new VPC flow log.
+  Defaults to *all*. Changing this creates a new VPC flow log.
 
 * `enabled` - (Optional, Bool) Specifies whether to enable the flow log function, the default value is *true*.
 

@@ -73,7 +73,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `kafka_detail` - (Optional, List, ForceNew) Specifies the configuration details of the kafka intance.
+* `kafka_detail` - (Optional, List, ForceNew) Specifies the configuration details of the kafka instance.
   This parameter is required when the `type` is set to **KAFKA**.
 
   Changing this parameter will create a new resource.
@@ -82,23 +82,23 @@ The [KafkaDetail](#Connection_KafkaDetail) structure is documented below.
 <a name="Connection_KafkaDetail"></a>
 The `KafkaDetail` block supports:
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the kafka intance.
+* `instance_id` - (Required, String, ForceNew) Specifies the ID of the kafka instance.
 
   Changing this parameter will create a new resource.
 
-* `connect_address` - (Required, String, ForceNew) Specifies the IP address of the kafka intance.
+* `connect_address` - (Required, String, ForceNew) Specifies the IP address of the kafka instance.
 
   Changing this parameter will create a new resource.
 
-* `user_name` - (Optional, String, ForceNew) Specifies the user name of the kafka intance.
+* `user_name` - (Optional, String, ForceNew) Specifies the user name of the kafka instance.
 
   Changing this parameter will create a new resource.
 
-* `password` - (Optional, String, ForceNew) Specifies the password of the kafka intance.
+* `password` - (Optional, String, ForceNew) Specifies the password of the kafka instance.
 
   Changing this parameter will create a new resource.
 
-* `acks` - (Optional, String, ForceNew) Specifies the number of confirmation signals the procuder needs to receive
+* `acks` - (Optional, String, ForceNew) Specifies the number of confirmation signals the prouder needs to receive
   to consider the message sent successfully. The acks represents the availability of data backup.
   The value can be:
   + **0**: Indicates that the producer does not need to wait for any confirmation of received information,

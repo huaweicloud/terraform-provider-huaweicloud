@@ -460,7 +460,7 @@ The `groups` block supports:
 * `cce_managed` - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
   **runtime** components. Only one group can be set to true. The default value is **false**.
   Changing this parameter will create a new resource.
-* `selector_names` - (Required, List, ForceNew) Specifies the list of names of seletors to match.
+* `selector_names` - (Required, List, ForceNew) Specifies the list of names of selectors to match.
   This parameter corresponds to name in `selectors`. A group can match multiple selectors,
   but a selector can match only one group. Changing this parameter will create a new resource.
 * `virtual_spaces` - (Required, List, ForceNew) Specifies the detailed management of space configuration in a group.

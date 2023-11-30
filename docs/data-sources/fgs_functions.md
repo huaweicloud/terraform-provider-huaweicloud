@@ -4,7 +4,7 @@ subcategory: "FunctionGraph"
 
 # huaweicloud_fgs_functions
 
-Use this data source to filter FGS functions within Huaweicloud.
+Use this data source to filter FGS functions within HuaweiCloud.
 
 ## Example Usage
 

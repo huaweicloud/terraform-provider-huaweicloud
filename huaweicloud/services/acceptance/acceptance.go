@@ -184,6 +184,9 @@ var (
 	// The CMDB sub-application ID of AOM service
 	HW_AOM_SUB_APPLICATION_ID = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
 
+	// the ID of ECS instance which has installed uniagent
+	HW_COC_INSTANCE_ID = os.Getenv("HW_COC_INSTANCE_ID")
+
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
 	HW_SRC_SECRET_KEY = os.Getenv("HW_SRC_SECRET_KEY")
@@ -208,6 +211,8 @@ var (
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
 	HW_CCI_NAMESPACE = os.Getenv("HW_CCI_NAMESPACE")
+
+	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -908,6 +913,13 @@ func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
 func TestAccPreCheckAomSubApplicationId(t *testing.T) {
 	if HW_AOM_SUB_APPLICATION_ID == "" {
 		t.Skip("HW_AOM_SUB_APPLICATION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCocInstanceID(t *testing.T) {
+	if HW_COC_INSTANCE_ID == "" {
+		t.Skip("HW_COC_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 

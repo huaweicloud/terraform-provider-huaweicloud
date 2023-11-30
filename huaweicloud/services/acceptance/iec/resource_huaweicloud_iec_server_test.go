@@ -14,19 +14,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecServerResource_basic(t *testing.T) {
+func TestAccServerResource_basic(t *testing.T) {
 	var cloudserver cloudservers.CloudServer
 	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_server.server_test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecServerDestory,
+		CheckDestroy:      testAccCheckServerDestory,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecServer_basic(rName),
+				Config: testAccServer_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecServerExists(resourceName, &cloudserver),
+					testAccCheckServerExists(resourceName, &cloudserver),
 					resource.TestCheckResourceAttr(resourceName, "name", "server-"+rName),
 					resource.TestCheckResourceAttr(resourceName, "image_name", "Ubuntu 16.04 server 64bit"),
 					resource.TestCheckResourceAttr(resourceName, "nics.#", "1"),
@@ -53,7 +54,7 @@ func TestAccIecServerResource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecServerExists(n string, cloudserver *cloudservers.CloudServer) resource.TestCheckFunc {
+func testAccCheckServerExists(n string, cloudserver *cloudservers.CloudServer) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[n]
 		if !ok {
@@ -84,7 +85,7 @@ func testAccCheckIecServerExists(n string, cloudserver *cloudservers.CloudServer
 	}
 }
 
-func testAccCheckIecServerDestory(s *terraform.State) error {
+func testAccCheckServerDestory(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecClient, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
@@ -104,7 +105,7 @@ func testAccCheckIecServerDestory(s *terraform.State) error {
 	return nil
 }
 
-func testAccIecServer_basic(rName string) string {
+func testAccServer_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {}
 

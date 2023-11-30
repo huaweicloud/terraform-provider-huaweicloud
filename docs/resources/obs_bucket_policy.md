@@ -96,7 +96,7 @@ OBS format bucket policy can be imported using the `<bucket>`, e.g.
 $ terraform import huaweicloud_obs_bucket_policy.policy <bucket-name>
 ```
 
-S3 foramt bucket policy can be imported using the `<bucket>` and "s3" by a slash, e.g.
+S3 format bucket policy can be imported using the `<bucket>` and "s3" by a slash, e.g.
 
 ```
 $ terraform import huaweicloud_obs_bucket_policy.s3_policy <bucket-name>/s3

@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIecSites() *schema.Resource {
+func DataSourceSites() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIecSitesV1Read,
+		ReadContext: dataSourceSitesV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"area": {
@@ -91,11 +91,11 @@ func DataSourceIecSites() *schema.Resource {
 	}
 }
 
-func dataSourceIecSitesV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceSitesV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	listOpts := sites.ListSiteOpts{

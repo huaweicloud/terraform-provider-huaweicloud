@@ -4,7 +4,7 @@ subcategory: "Distributed Cache Service (DCS)"
 
 # huaweicloud_dcs_maintainwindow
 
-Use this data source to get the ID of an available DCS maintainwindow.
+Use this data source to get the ID of an available DCS maintenance windows.
 
 ## Example Usage
 
@@ -16,7 +16,7 @@ data "huaweicloud_dcs_maintainwindow" "maintainwindow1" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the dcs maintainwindows. If omitted, the provider-level
+* `region` - (Optional, String) The region in which to obtain the dcs maintenance windows. If omitted, the provider-level
   region will be used.
 
 * `seq` - (Optional, Int) Specifies the sequential number of a maintenance time window.

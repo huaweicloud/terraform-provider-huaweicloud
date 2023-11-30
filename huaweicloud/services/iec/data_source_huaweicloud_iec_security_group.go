@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIECSecurityGroup() *schema.Resource {
+func DataSourceSecurityGroup() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECSecurityGroupRead,
+		ReadContext: dataSourceSecurityGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -81,11 +81,11 @@ func DataSourceIECSecurityGroup() *schema.Resource {
 	}
 }
 
-func dataSourceIECSecurityGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceSecurityGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	allSecGroups, err := groups.List(iecClient, nil).Extract()

@@ -93,9 +93,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `created_at` - Indicates the created time of the playbook version.
+* `created_at` - Indicates the created time of the playbook rule.
 
-* `updated_at` - Indicates the updated time of the playbook version.
+* `updated_at` - Indicates the updated time of the playbook rule.
 
 ## Import
 

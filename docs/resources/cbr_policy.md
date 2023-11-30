@@ -4,7 +4,7 @@ subcategory: "Cloud Backup and Recovery (CBR)"
 
 # huaweicloud_cbr_policy
 
-Manages a CBR Policy resource within Huaweicloud.
+Manages a CBR Policy resource within HuaweiCloud.
 
 ## Example Usage
 

@@ -288,7 +288,7 @@ func resourcePlaybookRuleRead(_ context.Context, d *schema.ResourceData, meta in
 	getPlaybookRuleResp, err := getPlaybookRuleClient.Request("GET", getPlaybookRulePath, &getPlaybookRuleOpt)
 
 	if err != nil {
-		if hasErrorCode(err, AlertNotExistsCode) {
+		if hasErrorCode(err, PlaybookRuleNotExistsCode) {
 			err = golangsdk.ErrDefault404{}
 		}
 		return common.CheckDeletedDiag(d, err, "error retrieving PlaybookRule")

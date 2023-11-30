@@ -71,7 +71,7 @@ The `Instance` block supports:
 
 * `mode` - Specifies the mode of the database instance.
 
-* `db_username` - Indicates the DB Administator name.
+* `db_username` - Indicates the DB Administrator name.
 
 * `status` - Indicates the the DB instance status.
 

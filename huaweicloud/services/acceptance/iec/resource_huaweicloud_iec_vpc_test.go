@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecVpcV1_basic(t *testing.T) {
+func TestAccVpc_basic(t *testing.T) {
 	var iecVPC ieccommon.VPC
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -25,21 +25,21 @@ func TestAccIecVpcV1_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVpcV1Destroy,
+		CheckDestroy:      testAccCheckVpcDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecVpcV1_system(rName),
+				Config: testAccVpc_system(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVpcV1Exists(resourceName, &iecVPC),
+					testAccCheckVpcExists(resourceName, &iecVPC),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "mode", "SYSTEM"),
 				),
 			},
 			{
-				Config: testAccIecVpcV1_system_update(rNameUpdate),
+				Config: testAccVpc_system_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVpcV1Exists(resourceName, &iecVPC),
+					testAccCheckVpcExists(resourceName, &iecVPC),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 				),
 			},
@@ -52,7 +52,7 @@ func TestAccIecVpcV1_basic(t *testing.T) {
 	})
 }
 
-func TestAccIecVpcV1_customer(t *testing.T) {
+func TestAccVpc_customer(t *testing.T) {
 	var iecVPC ieccommon.VPC
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -62,21 +62,21 @@ func TestAccIecVpcV1_customer(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVpcV1Destroy,
+		CheckDestroy:      testAccCheckVpcDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecVpcV1_customer(rName),
+				Config: testAccVpc_customer(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVpcV1Exists(resourceName, &iecVPC),
+					testAccCheckVpcExists(resourceName, &iecVPC),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "172.16.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "mode", "CUSTOMER"),
 				),
 			},
 			{
-				Config: testAccIecVpcV1_customer_update(rNameUpdate),
+				Config: testAccVpc_customer_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVpcV1Exists(resourceName, &iecVPC),
+					testAccCheckVpcExists(resourceName, &iecVPC),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "172.30.0.0/16"),
 				),
@@ -90,11 +90,11 @@ func TestAccIecVpcV1_customer(t *testing.T) {
 	})
 }
 
-func testAccCheckIecVpcV1Destroy(s *terraform.State) error {
+func testAccCheckVpcDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating IEC client: %s", err)
+		return fmt.Errorf("error creating IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -111,7 +111,7 @@ func testAccCheckIecVpcV1Destroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIecVpcV1Exists(n string, vpcResource *ieccommon.VPC) resource.TestCheckFunc {
+func testAccCheckVpcExists(n string, vpcResource *ieccommon.VPC) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -125,7 +125,7 @@ func testAccCheckIecVpcV1Exists(n string, vpcResource *ieccommon.VPC) resource.T
 		conf := acceptance.TestAccProvider.Meta().(*config.Config)
 		iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating IEC client: %s", err)
+			return fmt.Errorf("error creating IEC client: %s", err)
 		}
 
 		found, err := vpcs.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -143,7 +143,7 @@ func testAccCheckIecVpcV1Exists(n string, vpcResource *ieccommon.VPC) resource.T
 	}
 }
 
-func testAccIecVpcV1_system(rName string) string {
+func testAccVpc_system(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "test" {
   name = "%s"
@@ -152,7 +152,7 @@ resource "huaweicloud_iec_vpc" "test" {
 `, rName)
 }
 
-func testAccIecVpcV1_system_update(rName string) string {
+func testAccVpc_system_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "test" {
   name = "%s"
@@ -161,7 +161,7 @@ resource "huaweicloud_iec_vpc" "test" {
 `, rName)
 }
 
-func testAccIecVpcV1_customer(rName string) string {
+func testAccVpc_customer(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "customer" {
   name = "%s"
@@ -171,7 +171,7 @@ resource "huaweicloud_iec_vpc" "customer" {
 `, rName)
 }
 
-func testAccIecVpcV1_customer_update(rName string) string {
+func testAccVpc_customer_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "customer" {
   name = "%s"

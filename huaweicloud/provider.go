@@ -512,17 +512,17 @@ func Provider() *schema.Provider {
 			"huaweicloud_identitycenter_users":    identitycenter.DataSourceIdentityCenterUsers(),
 
 			"huaweicloud_iec_bandwidths":     iec.DataSourceBandWidths(),
-			"huaweicloud_iec_eips":           iec.DataSourceNetworkEips(),
-			"huaweicloud_iec_flavors":        iec.DataSourceIecFlavors(),
-			"huaweicloud_iec_images":         iec.DataSourceIecImages(),
-			"huaweicloud_iec_keypair":        iec.DataSourceIECKeypair(),
+			"huaweicloud_iec_eips":           iec.DataSourceEips(),
+			"huaweicloud_iec_flavors":        iec.DataSourceFlavors(),
+			"huaweicloud_iec_images":         iec.DataSourceImages(),
+			"huaweicloud_iec_keypair":        iec.DataSourceKeypair(),
 			"huaweicloud_iec_network_acl":    iec.DataSourceNetworkACL(),
-			"huaweicloud_iec_port":           iec.DataSourceIECPort(),
-			"huaweicloud_iec_security_group": iec.DataSourceIECSecurityGroup(),
-			"huaweicloud_iec_server":         iec.DataSourceIECServer(),
-			"huaweicloud_iec_sites":          iec.DataSourceIecSites(),
-			"huaweicloud_iec_vpc":            iec.DataSourceIECVpc(),
-			"huaweicloud_iec_vpc_subnets":    iec.DataSourceIECVpcSubnets(),
+			"huaweicloud_iec_port":           iec.DataSourcePort(),
+			"huaweicloud_iec_security_group": iec.DataSourceSecurityGroup(),
+			"huaweicloud_iec_server":         iec.DataSourceServer(),
+			"huaweicloud_iec_sites":          iec.DataSourceSites(),
+			"huaweicloud_iec_vpc":            iec.DataSourceVpc(),
+			"huaweicloud_iec_vpc_subnets":    iec.DataSourceVpcSubnets(),
 
 			"huaweicloud_images_image":  ims.DataSourceImagesImageV2(),
 			"huaweicloud_images_images": ims.DataSourceImagesImages(),
@@ -771,6 +771,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_network_instance":       cc.ResourceNetworkInstance(),
 			"huaweicloud_cc_bandwidth_package":      cc.ResourceBandwidthPackage(),
 			"huaweicloud_cc_inter_region_bandwidth": cc.ResourceInterRegionBandwidth(),
+			"huaweicloud_cc_central_network":        cc.ResourceCentralNetwork(),
+			"huaweicloud_cc_central_network_policy": cc.ResourceCentralNetworkPolicy(),
 
 			"huaweicloud_cce_cluster":     cce.ResourceCluster(),
 			"huaweicloud_cce_node":        cce.ResourceNode(),
@@ -788,6 +790,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cci_network":      cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":          cci.ResourcePersistentVolumeClaimV1(),
 
+			"huaweicloud_ccm_certificate_push":    ccm.ResourceCcmCertificatePush(),
 			"huaweicloud_ccm_private_ca":          ccm.ResourcePrivateCertificateAuthority(),
 			"huaweicloud_ccm_private_certificate": ccm.ResourceCcmPrivateCertificate(),
 
@@ -822,7 +825,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_eip_associate":    ecs.ResourceComputeEIPAssociate(),
 			"huaweicloud_compute_volume_attach":    ecs.ResourceComputeVolumeAttach(),
 
-			"huaweicloud_coc_script": coc.ResourceScript(),
+			"huaweicloud_coc_script":         coc.ResourceScript(),
+			"huaweicloud_coc_script_execute": coc.ResourceScriptExecute(),
 
 			"huaweicloud_cph_server": cph.ResourceCphServer(),
 
@@ -997,16 +1001,16 @@ func Provider() *schema.Provider {
 			"huaweicloud_identitycenter_custom_policy_attachment": identitycenter.ResourceCustomPolicyAttachment(),
 			"huaweicloud_identitycenter_custom_role_attachment":   identitycenter.ResourceCustomRoleAttachment(),
 
-			"huaweicloud_iec_eip":                 iec.ResourceIecNetworkEip(),
+			"huaweicloud_iec_eip":                 iec.ResourceEip(),
 			"huaweicloud_iec_keypair":             iec.ResourceKeypair(),
 			"huaweicloud_iec_network_acl":         iec.ResourceNetworkACL(),
 			"huaweicloud_iec_network_acl_rule":    iec.ResourceNetworkACLRule(),
-			"huaweicloud_iec_security_group_rule": iec.ResourceIecSecurityGroupRule(),
-			"huaweicloud_iec_security_group":      iec.ResourceIecSecurityGroup(),
-			"huaweicloud_iec_server":              iec.ResourceIecServer(),
-			"huaweicloud_iec_vip":                 iec.ResourceIecVip(),
-			"huaweicloud_iec_vpc":                 iec.ResourceIecVpc(),
-			"huaweicloud_iec_vpc_subnet":          iec.ResourceIecSubnet(),
+			"huaweicloud_iec_security_group_rule": iec.ResourceSecurityGroupRule(),
+			"huaweicloud_iec_security_group":      iec.ResourceSecurityGroup(),
+			"huaweicloud_iec_server":              iec.ResourceServer(),
+			"huaweicloud_iec_vip":                 iec.ResourceVip(),
+			"huaweicloud_iec_vpc":                 iec.ResourceVpc(),
+			"huaweicloud_iec_vpc_subnet":          iec.ResourceSubnet(),
 
 			"huaweicloud_images_image":                ims.ResourceImsImage(),
 			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
@@ -1150,6 +1154,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_playbook":         secmaster.ResourcePlaybook(),
 			"huaweicloud_secmaster_playbook_version": secmaster.ResourcePlaybookVersion(),
 			"huaweicloud_secmaster_playbook_rule":    secmaster.ResourcePlaybookRule(),
+			"huaweicloud_secmaster_playbook_action":  secmaster.ResourcePlaybookAction(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
 			"huaweicloud_servicestage_component_instance":          servicestage.ResourceComponentInstance(),
@@ -1158,10 +1163,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
 
-			"huaweicloud_sfs_access_rule": sfs.ResourceSFSAccessRuleV2(),
-			"huaweicloud_sfs_file_system": sfs.ResourceSFSFileSystemV2(),
-			"huaweicloud_sfs_turbo":       sfs.ResourceSFSTurbo(),
-			"huaweicloud_sfs_turbo_dir":   sfs.ResourceSfsTurboDir(),
+			"huaweicloud_sfs_access_rule":     sfs.ResourceSFSAccessRuleV2(),
+			"huaweicloud_sfs_file_system":     sfs.ResourceSFSFileSystemV2(),
+			"huaweicloud_sfs_turbo":           sfs.ResourceSFSTurbo(),
+			"huaweicloud_sfs_turbo_dir":       sfs.ResourceSfsTurboDir(),
+			"huaweicloud_sfs_turbo_dir_quota": sfs.ResourceSfsTurboDirQuota(),
 
 			"huaweicloud_smn_topic":            smn.ResourceTopic(),
 			"huaweicloud_smn_subscription":     smn.ResourceSubscription(),
@@ -1238,9 +1244,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_group_associate":            waf.ResourceWafInstGroupAssociate(),
 			"huaweicloud_waf_reference_table":                     waf.ResourceWafReferenceTableV1(),
 
-			"huaweicloud_workspace_desktop": workspace.ResourceDesktop(),
-			"huaweicloud_workspace_service": workspace.ResourceService(),
-			"huaweicloud_workspace_user":    workspace.ResourceUser(),
+			"huaweicloud_workspace_access_policy":    workspace.ResourceAccessPolicy(),
+			"huaweicloud_workspace_desktop":          workspace.ResourceDesktop(),
+			"huaweicloud_workspace_policy_group":     workspace.ResourcePolicyGroup(),
+			"huaweicloud_workspace_service":          workspace.ResourceService(),
+			"huaweicloud_workspace_terminal_binding": workspace.ResourceTerminalBinding(),
+			"huaweicloud_workspace_user":             workspace.ResourceUser(),
 
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),
@@ -1252,7 +1261,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_deploy_group":       codearts.ResourceDeployGroup(),
 			"huaweicloud_codearts_deploy_host":        codearts.ResourceDeployHost(),
 
-			"huaweicloud_codearts_inspector_website": codearts.ResourceInspectorWebsite(),
+			"huaweicloud_codearts_inspector_website":      codearts.ResourceInspectorWebsite(),
+			"huaweicloud_codearts_inspector_website_scan": codearts.ResourceInspectorWebsiteScan(),
 
 			"huaweicloud_dsc_instance":  dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs": dsc.ResourceAssetObs(),

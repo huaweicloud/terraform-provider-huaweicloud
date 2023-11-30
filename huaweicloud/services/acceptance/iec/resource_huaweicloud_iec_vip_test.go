@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecVipResource_basic(t *testing.T) {
+func TestAccVipResource_basic(t *testing.T) {
 	var iecPort ieccommon.Port
 	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
@@ -23,12 +23,12 @@ func TestAccIecVipResource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVipDestroy,
+		CheckDestroy:      testAccCheckVipDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecVip_basic(rName),
+				Config: testAccVip_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVipExists(resourceName, &iecPort),
+					testAccCheckVipExists(resourceName, &iecPort),
 					resource.TestCheckResourceAttr(resourceName, "ip_address", "192.168.0.100"),
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 				),
@@ -42,7 +42,7 @@ func TestAccIecVipResource_basic(t *testing.T) {
 	})
 }
 
-func TestAccIecVipResource_associate(t *testing.T) {
+func TestAccVipResource_associate(t *testing.T) {
 	var iecPort ieccommon.Port
 	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
@@ -50,18 +50,18 @@ func TestAccIecVipResource_associate(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVipDestroy,
+		CheckDestroy:      testAccCheckVipDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecVip_associate(rName),
+				Config: testAccVip_associate(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVipExists(resourceName, &iecPort),
+					testAccCheckVipExists(resourceName, &iecPort),
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.#", "1"),
 				),
 			},
 			{
-				Config: testAccIecVip_disassociate(rName),
+				Config: testAccVip_disassociate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.#", "0"),
@@ -71,11 +71,11 @@ func TestAccIecVipResource_associate(t *testing.T) {
 	})
 }
 
-func testAccCheckIecVipDestroy(s *terraform.State) error {
+func testAccCheckVipDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating IEC client: %s", err)
+		return fmt.Errorf("error creating IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -92,7 +92,7 @@ func testAccCheckIecVipDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIecVipExists(n string, vipResource *ieccommon.Port) resource.TestCheckFunc {
+func testAccCheckVipExists(n string, vipResource *ieccommon.Port) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -106,7 +106,7 @@ func testAccCheckIecVipExists(n string, vipResource *ieccommon.Port) resource.Te
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating IEC client: %s", err)
+			return fmt.Errorf("error creating IEC client: %s", err)
 		}
 
 		found, err := ports.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -124,7 +124,7 @@ func testAccCheckIecVipExists(n string, vipResource *ieccommon.Port) resource.Te
 	}
 }
 
-func testAccIecVip_base(rName string) string {
+func testAccVip_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
@@ -144,7 +144,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 `, rName, rName)
 }
 
-func testAccIecVip_basic(rName string) string {
+func testAccVip_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -152,10 +152,10 @@ resource "huaweicloud_iec_vip" "vip_test" {
   subnet_id  = huaweicloud_iec_vpc_subnet.subnet_test.id
   ip_address = "192.168.0.100"
 }
-`, testAccIecVip_base(rName))
+`, testAccVip_base(rName))
 }
 
-func testAccIecVip_associate(rName string) string {
+func testAccVip_associate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -163,15 +163,15 @@ resource "huaweicloud_iec_vip" "vip_test" {
   subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
   port_ids  = [huaweicloud_iec_server.server_test.nics[0].port]
 }
-`, testAccIecServer_basic(rName))
+`, testAccServer_basic(rName))
 }
 
-func testAccIecVip_disassociate(rName string) string {
+func testAccVip_disassociate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_iec_vip" "vip_test" {
   subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
 }
-`, testAccIecServer_basic(rName))
+`, testAccServer_basic(rName))
 }

@@ -127,7 +127,7 @@ The following arguments are supported:
   This parameter and `ports` are alternative.
 
 * `ports` - (Optional, String, ForceNew) Specifies the allowed port value range, which supports single port (80),
-  continuous port (1-30) and discontinous port (22, 3389, 80) The valid port values is range form `1` to `65,535`.
+  continuous port (1-30) and discontinuous port (22, 3389, 80) The valid port values is range form `1` to `65,535`.
   Changing this creates a new security group rule.
 
 * `remote_ip_prefix` - (Optional, String, ForceNew) Specifies the remote CIDR, the value needs to be a valid CIDR (i.e.

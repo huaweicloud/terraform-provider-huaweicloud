@@ -305,29 +305,32 @@ func resourceePolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("error creating policy assignment resource: %s", err)
 	}
-	d.SetId(resp.ID)
 
-	assignmentId := d.Id()
-	log.Printf("[DEBUG] Waiting for the policy assignment (%s) status to become enabled.", assignmentId)
-	stateConf := &resource.StateChangeConf{
-		Pending:                   []string{AssignmentStatusDisabled, AssignmentStatusEvaluating},
-		Target:                    []string{AssignmentStatusEnabled},
-		Refresh:                   policyAssignmentRefreshFunc(client, domainId, assignmentId),
-		Timeout:                   d.Timeout(schema.TimeoutCreate),
-		Delay:                     10 * time.Second,
-		PollInterval:              10 * time.Second,
-		ContinuousTargetOccurence: 2,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for the policy assignment (%s) status to become enabled: %s",
-			assignmentId, err)
-	}
+	assignmentId := resp.ID
+	d.SetId(assignmentId)
 
+	// it will take too long time to become enabled when the resources are very huge.
+	// so we wait for the enabled status only when user want to disable it during creating.
 	if statusConfig := d.Get("status").(string); statusConfig == AssignmentStatusDisabled {
+		log.Printf("[DEBUG] Waiting for the policy assignment (%s) status to become enabled, then disable it", assignmentId)
+		stateConf := &resource.StateChangeConf{
+			Pending:                   []string{AssignmentStatusDisabled, AssignmentStatusEvaluating},
+			Target:                    []string{AssignmentStatusEnabled},
+			Refresh:                   policyAssignmentRefreshFunc(client, domainId, assignmentId),
+			Timeout:                   d.Timeout(schema.TimeoutCreate),
+			Delay:                     10 * time.Second,
+			PollInterval:              10 * time.Second,
+			ContinuousTargetOccurence: 2,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error waiting for the policy assignment (%s) status to become enabled: %s",
+				assignmentId, err)
+		}
+
 		err = updatePolicyAssignmentStatus(client, domainId, assignmentId, statusConfig)
 		if err != nil {
-			return diag.Errorf("error updating the status of the policy assignment: %s", err)
+			return diag.Errorf("error disabling the status of the policy assignment: %s", err)
 		}
 	}
 	return resourceePolicyAssignmentRead(ctx, d, meta)
@@ -478,8 +481,8 @@ func resourceePolicyAssignmentUpdate(ctx context.Context, d *schema.ResourceData
 			log.Printf("[DEBUG] Waiting for the policy assignment (%s) status to become %s.", assignmentId,
 				strings.ToLower(newVal.(string)))
 			stateConf := &resource.StateChangeConf{
-				Pending:                   []string{oldVal.(string), AssignmentStatusEvaluating},
-				Target:                    []string{newVal.(string)},
+				Pending:                   []string{oldVal.(string)},
+				Target:                    []string{AssignmentStatusEvaluating, AssignmentStatusEnabled},
 				Refresh:                   policyAssignmentRefreshFunc(client, domainId, assignmentId),
 				Timeout:                   d.Timeout(schema.TimeoutUpdate),
 				Delay:                     10 * time.Second,

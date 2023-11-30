@@ -469,10 +469,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
 * `status` - The status of the instance.
-* `system_disk_id` - The system disk voume ID.
+* `system_disk_id` - The system disk volume ID.
 * `flavor_name` - The flavor name of the instance.
 * `security_groups` - An array of one or more security groups to associate with the instance.
-* `public_ip` - The EIP address that is associted to the instance.
+* `public_ip` - The EIP address that is associated to the instance.
 * `access_ip_v4` - The first detected Fixed IPv4 address or the Floating IP.
 * `access_ip_v6` - The first detected Fixed IPv6 address.
 * `created_at` - The creation time, in UTC format.

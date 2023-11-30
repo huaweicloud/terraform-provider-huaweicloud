@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the name of the host group.  
   The valid length is limited from `1` to `64`, only Chinese and English letters, digits, hyphens (-), underscores (_)
-  dots (.), plusses (+) and asterisks (*) are allowed.  
+  dots (.), pluses (+) and asterisks (*) are allowed.  
   The Chinese characters must be in **UTF-8** or **Unicode**
   format.
 

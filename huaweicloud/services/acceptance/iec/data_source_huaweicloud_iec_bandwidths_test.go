@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -30,7 +29,6 @@ func TestAccBandWidthsDataSource_basic(t *testing.T) {
 				Config: testAccBWsDataSource_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					testAccBandWidthsDataSourceID(dataSourceName),
 					resource.TestMatchResourceAttr(dataSourceName, "bandwidths.#", regexp.MustCompile(`[1-9]\d*`)),
 					resource.TestCheckResourceAttrSet(dataSourceName, "site_info"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "bandwidths.0.id"),
@@ -42,21 +40,6 @@ func TestAccBandWidthsDataSource_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccBandWidthsDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("can't find IEC public IPs data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("the ID of the IEC public IPs data source not set")
-		}
-
-		return nil
-	}
 }
 
 var testAccBWsDataSource_config = `

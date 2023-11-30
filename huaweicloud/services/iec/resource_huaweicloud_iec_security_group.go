@@ -18,11 +18,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func ResourceIecSecurityGroup() *schema.Resource {
+func ResourceSecurityGroup() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecSecurityGroupV1Create,
-		ReadContext:   resourceIecSecurityGroupV1Read,
-		DeleteContext: resourceIecSecurityGroupV1Delete,
+		CreateContext: resourceSecurityGroupCreate,
+		ReadContext:   resourceSecurityGroupRead,
+		DeleteContext: resourceSecurityGroupDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -96,7 +96,7 @@ func ResourceIecSecurityGroup() *schema.Resource {
 	}
 }
 
-func resourceIecSecurityGroupV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -114,10 +114,10 @@ func resourceIecSecurityGroupV1Create(ctx context.Context, d *schema.ResourceDat
 	}
 
 	d.SetId(group.ID)
-	return resourceIecSecurityGroupV1Read(ctx, d, meta)
+	return resourceSecurityGroupRead(ctx, d, meta)
 }
 
-func resourceIecSecurityGroupV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -163,7 +163,7 @@ func resourceIecSecurityGroupV1Read(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceIecSecurityGroupV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {

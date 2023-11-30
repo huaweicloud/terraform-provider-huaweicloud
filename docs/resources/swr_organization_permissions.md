@@ -60,7 +60,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `creator` - The creator user name of the organization.
 
-* `self_permission` - The permission informations of current user.
+* `self_permission` - The permission information of current user.
 
 The `self_permission` block supports:
 

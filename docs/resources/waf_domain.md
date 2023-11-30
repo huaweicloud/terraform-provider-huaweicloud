@@ -44,6 +44,23 @@ resource "huaweicloud_waf_domain" "domain_1" {
   proxy                 = true
   enterprise_project_id = var.enterprise_project_id
 
+  custom_page {
+    http_return_code = "404"
+    block_page_type  = "application/json"
+    page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
+  }
+
+  timeout_settings {
+    connection_timeout = 100
+    read_timeout       = 1000
+    write_timeout      = 1000
+  }
+
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
@@ -85,6 +102,35 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF domain.
   Changing this parameter will create a new resource.
 
+* `custom_page` - (Optional, List) Specifies the custom page. Only supports one custom alarm page.
+  The [custom_page](#Domain_custom_page) structure is documented below.
+
+* `redirect_url` - (Optional, String) Specifies the URL of the redirected page. The root domain name of the redirection
+  address must be the name of the currently protected domain (including a wildcard domain name).
+  The available **${http_host}** can be used to indicate the currently protected domain name and port.
+  For example: **${http_host}/error.html**.
+
+-> The fields `redirect_url` and `custom_page` are mutually exclusive and cannot be specified simultaneously.
+
+* `http2_enable` - (Optional, Bool) Specifies whether to use the http2 protocol.
+  This field is only used for communication between clients and WAF.
+  Things to note when using this field are as follows:
+  + There must be at least one server configuration with client protocol set to `HTTPS`, or this configuration is unable
+    to work.
+  + This field cannot not work if the client supports TLS 1.3.
+  + This field can work only when the client supports TLS 1.2 or earlier versions.
+  + If you want to use HTTP/2 forwarding, use a dedicated WAF instance.
+
+  Defaults to **false**.
+
+* `ipv6_enable` - (Optional, Bool) Specifies whether IPv6 protection is enabled.
+  Enable IPv6 protection if the domain name is accessible using an IPv6 address.
+  After you enable it, WAF assigns an IPv6 address to the domain name.
+  Defaults to **false**.
+
+* `timeout_settings` - (Optional, List) Specifies the timeout setting. Only supports one timeout setting.
+  The [timeout_settings](#Domain_timeout_settings) structure is documented below.
+
 The `server` block supports:
 
 * `client_protocol` - (Required, String) Protocol type of the client. The options include `HTTP` and `HTTPS`.
@@ -96,6 +142,31 @@ The `server` block supports:
   `192.168.1.1` or `www.a.com`.
 
 * `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
+
+<a name="Domain_custom_page"></a>
+The `custom_page` block supports:
+
+* `http_return_code` - (Required, String) Specifies the HTTP return code.
+  The value can be a positive integer in the range of 200-599 except 408, 444 and 499.
+
+* `block_page_type` - (Required, String) Specifies the content type of the custom alarm page.
+  The value can be **text/html**, **text/xml** or **application/json**.
+
+* `page_content` - (Required, String) Specifies the page content. The page content based on the selected page type.
+  The available **${waf_event_id}** in the page content indicates an event ID, and only one **${waf_event_id}** variable
+  can be available.
+
+<a name="Domain_timeout_settings"></a>
+The `timeout_settings` block supports:
+
+* `connection_timeout` - (Optional, Int) Specifies the timeout for WAF to connect to the origin server. The unit is second.
+  Valid value ranges from `0` to `180`.
+
+* `read_timeout` - (Optional, Int) Specifies the timeout for WAF to receive responses from the origin server.
+  The unit is second. Valid value ranges from `0` to `3,600`.
+
+* `write_timeout` - (Optional, Int) Specifies the timeout for WAF to send requests to the origin server. The unit is second.
+  Valid value ranges from `0` to `3,600`.
 
 ## Attribute Reference
 
@@ -124,4 +195,24 @@ $ terraform import huaweicloud_waf_domain.test <id>
 
 ```bash
 $ terraform import huaweicloud_waf_domain.test <id>/<enterprise_project_id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `keep_policy`, `charging_mode`, `ipv6_enable`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also, you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_waf_domain" "test" {
+  ...
+  
+  lifecycle {
+    ignore_changes = [
+      keep_policy,
+      charging_mode,
+      ipv6_enable,
+    ]
+  }
+}
 ```

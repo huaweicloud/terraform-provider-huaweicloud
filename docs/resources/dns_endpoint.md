@@ -38,16 +38,17 @@ The following arguments are supported:
 * `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint. The value can be *inbound* or *outbound*.
   Changing this creates a new DNS endpoint.
 
-* `ip_addresses` - (Required, List, ForceNew) Specifies the IP address list of the DNS endpoint.
-  The List length limit range form 2 to 6. Changing this creates a new DNS endpoint.
+* `ip_addresses` - (Required, List) Specifies the IP address list of the DNS endpoint.
+  The List length limit range form 2 to 6.
   The [ip_address](#Address) structure is documented below.
 
 <a name="Address"></a>
 The `ip_address` block supports:
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the subnet id of the IP address. Changing this creates a new DNS endpoint.
+* `subnet_id` - (Required, String) Specifies the subnet id of the IP address.
 
-* `ip` - (Optional, String, ForceNew) Specifies the IP of the IP address. Changing this creates a new DNS endpoint.
+* `ip` - (Optional, String) Specifies the unique IP of the IP address. If `ip` is not declare, it will be distributed by
+  cloud service.
 
 ## Attribute Reference
 

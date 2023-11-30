@@ -195,7 +195,7 @@ The following arguments are supported:
   `delete_obs` is used to delete the OBS created by the BCS instance of the Kafka consensus strategy. Default is false.
 
 * `eip_enable` - (Optional, Bool, ForceNew) Specifies whether to use the EIP of the CCE to bind the BCS instance.
-  Changing this will create a new instance. Defalut is true.
+  Changing this will create a new instance. Default is true.
   + `true` means an EIP bound to the cluster will be used as the blockchain network access address. If the cluster is
       not bound with any EIP, bind an EIP to the cluster first. Please make sure that the cluster is bound to EIP.
   + `false` means a private address of the cluster will be used ad the blockchain network access address to ensure
@@ -214,7 +214,7 @@ The following arguments are supported:
 * `sfs_turbo` - (Optional, List, ForceNew) Specifies the information about the SFS Turbo file system. Changing this will
   create a new instance. The sfs_turbo object structure is documented below.
 
-* `security_mechanism` - (Optional, String, ForceNew) Specifies the secutity mechanism used by the BCS instance. Valid
+* `security_mechanism` - (Optional, String, ForceNew) Specifies the security mechanism used by the BCS instance. Valid
   values are `ECDSA` and `SM2`(Chinese cryptographic algorithms, The basic and professional don't support this
   algorithm). Default is `ECDSA`. Changing this will create a new instance.
 
@@ -242,10 +242,10 @@ The `channels` block supports:
 
 The `couchdb` block supports:
 
-* `user_name` - (Required, String, ForceNew) Specifies the user name of the couch datebase. Changing this creates a new
+* `user_name` - (Required, String, ForceNew) Specifies the user name of the couch database. Changing this creates a new
   instance.
 
-* `password` - (Required, String, ForceNew) Specifies the password of the couch datebase. The password consists of 8 to
+* `password` - (Required, String, ForceNew) Specifies the password of the couch database. The password consists of 8 to
   26 characters and must consist at least three of following: uppercase letters, lowercase letters, digits, special
   characters(!@$%^-_=+[{}]:,./?). Changing this creates a new instance.
 
@@ -265,12 +265,12 @@ The `sfs_turbo` block supports:
 The `block_info` block supports:
 
 * `transaction_quantity` - (Optional, Int, ForceNew) Specifies the number of transactions included in the block. The
-  defalt value is 500. Changing this creates a new instance.
+  default value is 500. Changing this creates a new instance.
 
 * `block_size` - (Optional, Int, ForceNew) Specifies the volume of the block, the unit is MB. The default value is 2.
   Changing this creates a new instance.
 
-* `generation_interval` - (Optional, Int, ForceNew) Specifies the block generation time, the unit is second. The defalt
+* `generation_interval` - (Optional, Int, ForceNew) Specifies the block generation time, the unit is second. The default
   value is 2. Changing this creates a new instance.
 
 The `kafka` block supports:
@@ -306,7 +306,7 @@ In addition to all arguments above, the following attributes are exported:
 * `rollback_support` - Whether rollback is supported when the BCS service fails to br upgraded.
 * `old_service_version` - The version of an old BCS service.
 * `agent_portal_address` - The agent addresses and port numbers on the user data plane of the BCS service.
-* `peer_orgs/pvc_name` - The name of the PersistenetVolumeClaim (PVC) used by the peer.
+* `peer_orgs/pvc_name` - The name of the PersistentVolumeClaim (PVC) used by the peer.
 * `peer_orgs/status` - The peer status. The value contains `IsCreating`, `IsUpgrading`, `Adding/IsScaling`,
   `Isdeleting`, `Normal`, `AbNormal` and `Unknown`.
 * `peer_orgs/status_detail` - The peer status in the format like `1/1`. The denominator is the total number of peers in

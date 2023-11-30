@@ -103,7 +103,7 @@ The `data_source` block supports:
 * `cluster_id` - (Optional, String, ForceNew) Specifies the cluster ID of DWS/MRS when `data_type` is `1` or `4`.
  Changing this parameter will create a new resource.
 
-* `user_name` - (Optional, String, ForceNew) Specifies the user name of databse when `data_type` is `1`.
+* `user_name` - (Optional, String, ForceNew) Specifies the user name of database when `data_type` is `1`.
  Changing this parameter will create a new resource.
 
 * `password` - (Optional, String, ForceNew) Specifies the password of database when `data_type` is `1`.

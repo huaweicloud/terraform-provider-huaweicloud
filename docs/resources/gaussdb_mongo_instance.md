@@ -4,7 +4,7 @@ subcategory: "GaussDB NoSQL"
 
 # huaweicloud_gaussdb_mongo_instance
 
-GaussDB for mongo instance management within HuaweiCoud.
+GaussDB for mongo instance management within HuaweiCould.
 
 ## Example Usage
 

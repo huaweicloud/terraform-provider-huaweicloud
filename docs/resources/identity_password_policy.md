@@ -38,7 +38,7 @@ The following arguments are supported:
   consecutive identical characters are allowed in a password. For example, value `2` indicates that two consecutive
   identical characters are not allowed in a password.
 
-* `number_of_recent_passwords_disallowed` - (Optional, Int) Specifies the mumber of previously used passwords that are
+* `number_of_recent_passwords_disallowed` - (Optional, Int) Specifies the member of previously used passwords that are
   not allowed. The value ranges from `0` to `10` and defaults to `1`. For example, value `3` indicates that the user cannot
   set the last three passwords that the user has previously used when setting a new password.
 

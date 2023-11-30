@@ -71,7 +71,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The blackwhitelist can be imported using `object_id`, `list_type`, `address`, separated by slashes, e.g.
+The black whitelist can be imported using `object_id`, `list_type`, `address`, separated by slashes, e.g.
 
 ```bash
 $ terraform import huaweicloud_cfw_black_white_list.test <object_id>/<list_type>/<address>

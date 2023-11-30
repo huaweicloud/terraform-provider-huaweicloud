@@ -218,3 +218,35 @@ func ExpandVolumes(c *golangsdk.ServiceClient, opts VolumeExpandOpts) (*ExpandVo
 	})
 	return &r, err
 }
+
+// RebuildOpts is the structure that used to modify desktop image and os.
+type RebuildOpts struct {
+	// ID list of workspace desktops that wants to rebuild.
+	DesktopIds []string `json:"desktop_ids" required:"true"`
+	// New image type.
+	ImageType string `json:"image_type" required:"true"`
+	// New image ID.
+	ImageId string `json:"image_id" required:"true"`
+	// New OS type.
+	OsType string `json:"os_type,omitempty"`
+	// Delay time.
+	DelayTime string `json:"delay_time,omitempty"`
+	// Rebuild message send to the users.
+	Message string `json:"message,omitempty"`
+	// Enterprise project ID.
+	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
+}
+
+// Rebuild is the method that used to modify desktop using given parameters.
+func Rebuild(c *golangsdk.ServiceClient, opts RebuildOpts) (*RebuildResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r RebuildResp
+	_, err = c.Post(rebuildURL(c), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}

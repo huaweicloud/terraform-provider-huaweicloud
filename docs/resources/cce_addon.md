@@ -8,6 +8,8 @@ Provides a CCE add-on resource within HuaweiCloud.
 
 ## Example Usage
 
+### Basic Example
+
 ```hcl
 variable "cluster_id" {}
 
@@ -17,6 +19,12 @@ resource "huaweicloud_cce_addon" "addon_test" {
   version       = "1.0.0"
 }
 ```
+
+### More Examples
+
+Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_json` add-on parameters depends on
+the add-on type and version. For more detailed description of add-ons
+see [add-ons description](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/cce-addon-templates.md)
 
 ## Argument Reference
 
@@ -56,10 +64,6 @@ The `values` block supports:
 * `flavor` - (Optional, Map) Specifies the key/value pairs vary depending on the add-on.
   Only supports non-nested structure and only supports string type elements.
   This is an alternative to `flavor_json`, but it is not recommended.
-
-Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_json` add-on parameters depends on
-the add-on type and version. For more detailed description of add-ons
-see [add-ons description](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/cce-addon-templates.md)
 
 ## Attribute Reference
 

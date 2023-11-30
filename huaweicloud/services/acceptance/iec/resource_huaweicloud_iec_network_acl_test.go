@@ -16,12 +16,12 @@ import (
 )
 
 func getNetworkACLResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
+	iecClient, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IEC v1 client: %s", err)
+		return nil, fmt.Errorf("error creating IEC client: %s", err)
 	}
 
-	fwGroup, err := firewalls.Get(iecV1Client, state.Primary.ID).Extract()
+	fwGroup, err := firewalls.Get(iecClient, state.Primary.ID).Extract()
 	if err != nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
@@ -47,7 +47,7 @@ func TestAccNetworkACLResource_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecNetworkACL_basic(name),
+				Config: testAccNetworkACL_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -61,7 +61,7 @@ func TestAccNetworkACLResource_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIecNetworkACL_basic_update(name),
+				Config: testAccNetworkACL_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
@@ -90,11 +90,11 @@ func TestAccNetworkACLResource_no_subnets(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecNetworkACL_no_subnets(name),
+				Config: testAccNetworkACL_no_subnets(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"-noSubnet"),
-					resource.TestCheckResourceAttr(rName, "description", "Iec network acl without subents"),
+					resource.TestCheckResourceAttr(rName, "description", " network acl without subents"),
 					resource.TestCheckResourceAttr(rName, "status", "INACTIVE"),
 				),
 			},
@@ -111,7 +111,7 @@ func testAccCheckNetworkACLNetBlockExists(r *firewalls.Firewall) resource.TestCh
 	}
 }
 
-var testAccIecNetworkACLRules = `
+var testAccNetworkACLRules = `
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_vpc" "vpc_test" {
@@ -129,7 +129,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 }
 `
 
-func testAccIecNetworkACL_basic(rName string) string {
+func testAccNetworkACL_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -141,10 +141,10 @@ resource "huaweicloud_iec_network_acl" "acl_demo" {
     subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
   }
 }
-`, testAccIecNetworkACLRules, rName)
+`, testAccNetworkACLRules, rName)
 }
 
-func testAccIecNetworkACL_basic_update(rName string) string {
+func testAccNetworkACL_basic_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -156,14 +156,14 @@ resource "huaweicloud_iec_network_acl" "acl_demo" {
     subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
   }
 }
-`, testAccIecNetworkACLRules, rName)
+`, testAccNetworkACLRules, rName)
 }
 
-func testAccIecNetworkACL_no_subnets(rName string) string {
+func testAccNetworkACL_no_subnets(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_network_acl" "acl_demo" {
   name        = "%s-noSubnet"
-  description = "Iec network acl without subents"
+  description = " network acl without subents"
 }
 `, rName)
 }

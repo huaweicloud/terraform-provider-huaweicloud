@@ -4,7 +4,7 @@ subcategory: "GaussDB NoSQL"
 
 # huaweicloud_gaussdb_influx_instance
 
-GaussDB for influx instance management within HuaweiCoud.
+GaussDB for influx instance management within HuaweiCould.
 
 ## Example Usage
 

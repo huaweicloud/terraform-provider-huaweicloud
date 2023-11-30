@@ -4,7 +4,7 @@ subcategory: "GaussDB NoSQL"
 
 # huaweicloud_gaussdb_redis_instance
 
-GaussDB for Redis instance management within HuaweiCoud.
+GaussDB for Redis instance management within HuaweiCould.
 
 ## Example Usage
 

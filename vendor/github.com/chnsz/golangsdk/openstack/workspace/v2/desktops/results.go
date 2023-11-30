@@ -201,3 +201,13 @@ type ProductInfo struct {
 	// Charging info.
 	ChargingMode string `json:"charge_mode"`
 }
+
+// RebuildResp is the structure that represents the response of the Rebuild method.
+type RebuildResp struct {
+	// Job ID.
+	JobId string `json:"job_id"`
+	// Error Code.
+	ErrorCode string `json:"error_code"`
+	// Error message.
+	ErrorMsg string `json:"error_msg"`
+}

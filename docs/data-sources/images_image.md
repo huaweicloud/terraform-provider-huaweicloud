@@ -47,7 +47,7 @@ data "huaweicloud_images_image" "bms_image" {
 
 * `name` - (Optional, String) The name of the image. Cannot be used simultaneously with `name_regex`.
 
-* `name_regex` - (Optional, String) The regular expressian of the name of the image.
+* `name_regex` - (Optional, String) The regular expression of the name of the image.
   Cannot be used simultaneously with `name`.
 
 * `visibility` - (Optional, String) The visibility of the image. Must be one of

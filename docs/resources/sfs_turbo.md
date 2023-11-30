@@ -4,7 +4,7 @@ subcategory: "Scalable File Service (SFS)"
 
 # huaweicloud_sfs_turbo
 
-Provides an Shared File System (SFS) Turbo resource.
+Provides a Shared File System (SFS) Turbo resource.
 
 ## Example Usage
 
@@ -180,7 +180,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `version` - The version ID of the SFS Turbo file system.
 
-* `export_location` - Tthe mount point of the SFS Turbo file system.
+* `export_location` - The mount point of the SFS Turbo file system.
 
 * `available_capacity` - The available capacity of the SFS Turbo file system in the unit of GB.
 

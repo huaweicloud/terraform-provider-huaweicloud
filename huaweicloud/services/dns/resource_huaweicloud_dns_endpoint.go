@@ -54,7 +54,6 @@ func ResourceDNSEndpoint() *schema.Resource {
 			"ip_addresses": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 6,
 				MinItems: 2,
 				Elem: &schema.Resource{
@@ -62,13 +61,11 @@ func ResourceDNSEndpoint() *schema.Resource {
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"ip": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 						"ip_address_id": {
 							Type:     schema.TypeString,
@@ -196,6 +193,13 @@ func resourceDNSEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if d.HasChange("ip_addresses") {
+		err = updateIpAddresses(dnsClient, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	log.Printf("[DEBUG] Waiting for DNS endpoint (%s) to become available", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"ACTIVE"},
@@ -214,6 +218,116 @@ func resourceDNSEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return resourceDNSEndpointRead(ctx, d, meta)
+}
+
+func updateIpAddresses(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		oldRaws, newRaws = d.GetChange("ip_addresses")
+		num              = len(oldRaws.([]interface{}))
+		endpointID       = d.Id()
+	)
+	log.Printf("[DEBUG] update IP Address oldRaws (%s), newRaws (%s)", oldRaws, newRaws)
+	addRaws := getDisjointPart(newRaws.([]interface{}), oldRaws.([]interface{}))
+	log.Printf("[DEBUG] update IP Address addRaws (%s)", addRaws)
+	removeRaws := getDisjointPart(oldRaws.([]interface{}), newRaws.([]interface{}))
+	log.Printf("[DEBUG] update IP Address removeRaws (%s)", removeRaws)
+	var err error
+	for {
+		if len(addRaws) == 0 && len(removeRaws) == 0 {
+			return nil
+		}
+		if num < 6 && len(addRaws) > 0 {
+			addRaws, err = addIpAddress(client, addRaws, endpointID)
+			if err != nil {
+				return err
+			}
+			num++
+			continue
+		}
+		removeRaws, err = removeIpAddress(client, removeRaws, endpointID)
+		if err != nil {
+			return err
+		}
+		num--
+	}
+}
+
+// getDisjointPart get the part in "from" array but not in "to" array
+func getDisjointPart(from []interface{}, to []interface{}) []ipaddress.ListObject {
+	type IPMsg struct {
+		IPAddressID string
+		SubnetID    string
+		IP          string
+		IsMatched   bool
+	}
+
+	var fIPList = make([]IPMsg, len(from))
+	for i, f := range from {
+		fMap := f.(map[string]interface{})
+		fIPList[i] = IPMsg{
+			IPAddressID: fMap["ip_address_id"].(string),
+			SubnetID:    fMap["subnet_id"].(string),
+			IP:          fMap["ip"].(string),
+		}
+	}
+
+	var tIPList = make([]IPMsg, len(to))
+	for i, t := range to {
+		tMap := t.(map[string]interface{})
+		tIPList[i] = IPMsg{
+			IPAddressID: tMap["ip_address_id"].(string),
+			SubnetID:    tMap["subnet_id"].(string),
+			IP:          tMap["ip"].(string),
+		}
+	}
+
+	for i, fIP := range fIPList {
+		for j, tIP := range tIPList {
+			if !tIP.IsMatched && fIP.IP == tIP.IP {
+				if fIP.SubnetID == tIP.SubnetID {
+					fIPList[i].IsMatched = true
+					tIPList[j].IsMatched = true
+				} else {
+					fIPList[i].IP = ""
+				}
+			}
+		}
+	}
+
+	var res []ipaddress.ListObject
+	for _, ip := range fIPList {
+		if !ip.IsMatched {
+			res = append(res, ipaddress.ListObject{
+				ID:       ip.IPAddressID,
+				SubnetID: ip.SubnetID,
+				IP:       ip.IP,
+			})
+		}
+	}
+	return res
+}
+
+func addIpAddress(client *golangsdk.ServiceClient, list []ipaddress.ListObject, endpointID string) ([]ipaddress.ListObject, error) {
+	opts := ipaddress.CreateOpts{IPAddress: ipaddress.IPAddress{
+		SubnetID: list[0].SubnetID,
+		IP:       list[0].IP,
+	}}
+	_, err := ipaddress.Create(client, opts, endpointID).Extract()
+	if err != nil {
+		return nil, err
+	}
+	return list[1:], nil
+}
+
+func removeIpAddress(client *golangsdk.ServiceClient, list []ipaddress.ListObject, endpointID string) ([]ipaddress.ListObject, error) {
+	err := ipaddress.Delete(client, endpointID, list[0].ID).ExtractErr()
+	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return list[1:], nil
+		}
+		return nil, err
+	}
+	return list[1:], nil
 }
 
 func resourceDNSEndpointRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
