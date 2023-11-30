@@ -130,7 +130,7 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     dedicatedDomainCustomPageSchema(),
+				Elem:     domainCustomPageSchema(),
 			},
 			"redirect_url": {
 				Type:     schema.TypeString,
@@ -164,7 +164,7 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
-				Elem:     dedicatedDomainTimeoutSettingSchema(),
+				Elem:     domainTimeoutSettingSchema(),
 			},
 			"traffic_mark": {
 				Type:     schema.TypeList,
@@ -246,7 +246,7 @@ func dedicatedDomainServerSchema() *schema.Resource {
 	return &sc
 }
 
-func dedicatedDomainCustomPageSchema() *schema.Resource {
+func domainCustomPageSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"http_return_code": {
@@ -309,7 +309,7 @@ func dedicatedDomainConnectionProtectionSchema() *schema.Resource {
 	return &sc
 }
 
-func dedicatedDomainTimeoutSettingSchema() *schema.Resource {
+func domainTimeoutSettingSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"connection_timeout": {
