@@ -763,6 +763,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_bandwidth_package":      cc.ResourceBandwidthPackage(),
 			"huaweicloud_cc_inter_region_bandwidth": cc.ResourceInterRegionBandwidth(),
 			"huaweicloud_cc_central_network":        cc.ResourceCentralNetwork(),
+			"huaweicloud_cc_central_network_policy": cc.ResourceCentralNetworkPolicy(),
 
 			"huaweicloud_cce_cluster":     cce.ResourceCluster(),
 			"huaweicloud_cce_node":        cce.ResourceNode(),
