@@ -93,7 +93,7 @@ func resourceNetworkACLCreate(ctx context.Context, d *schema.ResourceData, meta 
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	createOpts := firewalls.CreateOpts{
@@ -129,7 +129,7 @@ func resourceNetworkACLRead(_ context.Context, d *schema.ResourceData, meta inte
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	var mErr *multierror.Error
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	fwGroup, err := firewalls.Get(iecClient, d.Id()).Extract()
@@ -164,7 +164,7 @@ func resourceNetworkACLUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	if d.HasChanges("name", "description", "networks") {
@@ -196,7 +196,7 @@ func resourceNetworkACLDelete(_ context.Context, d *schema.ResourceData, meta in
 	conf := meta.(*config.Config)
 	iecClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	// Unbind subents before deleting the network acl.

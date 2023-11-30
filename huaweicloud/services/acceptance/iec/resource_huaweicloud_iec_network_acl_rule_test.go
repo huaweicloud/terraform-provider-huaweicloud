@@ -15,12 +15,12 @@ import (
 )
 
 func getNetworkACLRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
+	iecClient, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IEC v1 client: %s", err)
+		return nil, fmt.Errorf("error creating IEC client: %s", err)
 	}
 
-	fwGroup, err := firewalls.Get(iecV1Client, state.Primary.ID).Extract()
+	fwGroup, err := firewalls.Get(iecClient, state.Primary.ID).Extract()
 	if err != nil {
 		return nil, err
 	}

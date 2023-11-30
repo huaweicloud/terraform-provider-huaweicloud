@@ -73,7 +73,7 @@ func dataSourceBandWidthsRead(_ context.Context, d *schema.ResourceData, meta in
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	listOpts := bandwidths.ListOpts{

@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIECKeypair() *schema.Resource {
+func DataSourceKeypair() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECKeypairRead,
+		ReadContext: dataSourceKeypairRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -35,7 +35,7 @@ func DataSourceIECKeypair() *schema.Resource {
 	}
 }
 
-func dataSourceIECKeypairRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {

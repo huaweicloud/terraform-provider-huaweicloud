@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceIECServer() *schema.Resource {
+func DataSourceServer() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIECServerRead,
+		ReadContext: dataSourceServerRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -92,8 +92,8 @@ func DataSourceIECServer() *schema.Resource {
 				},
 			},
 
-			"nics":            iecServerNicsSchema,
-			"volume_attached": iecVolumeAttachedSchema,
+			"nics":            serverNicsSchema,
+			"volume_attached": volumeAttachedSchema,
 			"public_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -106,11 +106,11 @@ func DataSourceIECServer() *schema.Resource {
 	}
 }
 
-func dataSourceIECServerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceServerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IEC v1 client: %s", err)
+		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
 	listOpts := &servers.ListOpts{
@@ -140,9 +140,9 @@ func dataSourceIECServerRead(_ context.Context, d *schema.ResourceData, meta int
 
 	d.SetId(server.ID)
 
-	allNics, eip := expandIecServerNics(&server)
+	allNics, eip := expandServerNics(&server)
 	// set volume fields
-	allVolumes, sysDiskID := expandIecServerVolumeAttached(iecClient, &server)
+	allVolumes, sysDiskID := expandServerVolumeAttached(iecClient, &server)
 
 	mErr := multierror.Append(nil,
 		d.Set("name", server.Name),

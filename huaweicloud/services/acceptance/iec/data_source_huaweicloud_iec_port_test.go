@@ -11,13 +11,13 @@ import (
 
 func TestAccPortDataSource_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
-	resourceName := "data.huaweicloud_iec_port.test"
-	dc := acceptance.InitDataSourceCheck(resourceName)
+	dataSourceName := "data.huaweicloud_iec_port.test"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVpcSubnetV1Destroy,
+		CheckDestroy:      testAccCheckVpcSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIECNetworkConfig_base(rName),
@@ -26,8 +26,8 @@ func TestAccPortDataSource_basic(t *testing.T) {
 				Config: testAccIECPortDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
-					resource.TestCheckResourceAttrSet(resourceName, "site_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "mac_address"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "site_id"),
 				),
 			},
 		},

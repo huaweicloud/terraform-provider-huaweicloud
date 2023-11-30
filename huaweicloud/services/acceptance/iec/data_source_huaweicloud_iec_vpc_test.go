@@ -11,19 +11,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIECVpcDataSource_basic(t *testing.T) {
+func TestAccVpcDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-vpc-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVpcV1Destroy,
+		CheckDestroy:      testAccCheckVpcDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceIECVpc_basic(rName),
+				Config: testAccVpcDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceIECVpcCheck("data.huaweicloud_iec_vpc.by_id", rName),
-					testAccDataSourceIECVpcCheck("data.huaweicloud_iec_vpc.by_name", rName),
+					testAccVpcDataSourceCheck("data.huaweicloud_iec_vpc.by_id", rName),
+					testAccVpcDataSourceCheck("data.huaweicloud_iec_vpc.by_name", rName),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_iec_vpc.by_id", "mode", "SYSTEM"),
 					resource.TestCheckResourceAttr(
@@ -34,7 +34,7 @@ func TestAccIECVpcDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceIECVpcCheck(n, rName string) resource.TestCheckFunc {
+func testAccVpcDataSourceCheck(n, rName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -64,7 +64,7 @@ func testAccDataSourceIECVpcCheck(n, rName string) resource.TestCheckFunc {
 	}
 }
 
-func testAccDataSourceIECVpc_basic(rName string) string {
+func testAccVpcDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "test" {
   name = "%s"

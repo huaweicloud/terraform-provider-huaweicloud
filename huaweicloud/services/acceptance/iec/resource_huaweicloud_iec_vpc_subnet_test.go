@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecVPCSubnetV1_basic(t *testing.T) {
+func TestAccVpcSubnet_basic(t *testing.T) {
 	var iecSubnet ieccommon.Subnet
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -25,12 +25,12 @@ func TestAccIecVPCSubnetV1_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecVpcSubnetV1Destroy,
+		CheckDestroy:      testAccCheckVpcSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecVpcSubnetV1_customer(rName),
+				Config: testAccVpcSubnet_customer(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVpcSubnetV1Exists(resourceName, &iecSubnet),
+					testAccCheckVpcSubnetExists(resourceName, &iecSubnet),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-subnet", rName)),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.128.0/18"),
 					resource.TestCheckResourceAttr(resourceName, "gateway_ip", "192.168.128.1"),
@@ -38,9 +38,9 @@ func TestAccIecVPCSubnetV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccIecVpcSubnetV1_customer_update(rName, rNameUpdate),
+				Config: testAccVpcSubnet_customer_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecVpcSubnetV1Exists(resourceName, &iecSubnet),
+					testAccCheckVpcSubnetExists(resourceName, &iecSubnet),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-subnet", rNameUpdate)),
 				),
 			},
@@ -53,11 +53,11 @@ func TestAccIecVPCSubnetV1_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecVpcSubnetV1Destroy(s *terraform.State) error {
+func testAccCheckVpcSubnetDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecV1Client, err := conf.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating IEC client: %s", err)
+		return fmt.Errorf("error creating IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -74,7 +74,7 @@ func testAccCheckIecVpcSubnetV1Destroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIecVpcSubnetV1Exists(n string, subnetResource *ieccommon.Subnet) resource.TestCheckFunc {
+func testAccCheckVpcSubnetExists(n string, subnetResource *ieccommon.Subnet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -88,7 +88,7 @@ func testAccCheckIecVpcSubnetV1Exists(n string, subnetResource *ieccommon.Subnet
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmt.Errorf("error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := subnets.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -106,7 +106,7 @@ func testAccCheckIecVpcSubnetV1Exists(n string, subnetResource *ieccommon.Subnet
 	}
 }
 
-func testAccIecVpcSubnetV1_customer(rName string) string {
+func testAccVpcSubnet_customer(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
@@ -126,7 +126,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 `, rName, rName)
 }
 
-func testAccIecVpcSubnetV1_customer_update(rName, rNameUpdate string) string {
+func testAccVpcSubnet_customer_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 

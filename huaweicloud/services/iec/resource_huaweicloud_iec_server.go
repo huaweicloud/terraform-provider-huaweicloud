@@ -23,7 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var iecServerNicsSchema = &schema.Schema{
+var serverNicsSchema = &schema.Schema{
 	Type:     schema.TypeList,
 	Computed: true,
 	Elem: &schema.Resource{
@@ -44,7 +44,7 @@ var iecServerNicsSchema = &schema.Schema{
 	},
 }
 
-var iecVolumeAttachedSchema = &schema.Schema{
+var volumeAttachedSchema = &schema.Schema{
 	Type:     schema.TypeList,
 	Computed: true,
 	Elem: &schema.Resource{
@@ -73,12 +73,12 @@ var iecVolumeAttachedSchema = &schema.Schema{
 	},
 }
 
-func ResourceIecServer() *schema.Resource {
+func ResourceServer() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecServerCreate,
-		ReadContext:   resourceIecServerRead,
-		UpdateContext: resourceIecServerUpdate,
-		DeleteContext: resourceIecServerDelete,
+		CreateContext: resourceServerCreate,
+		ReadContext:   resourceServerRead,
+		UpdateContext: resourceServerUpdate,
+		DeleteContext: resourceServerDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -228,8 +228,8 @@ func ResourceIecServer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"nics":            iecServerNicsSchema,
-			"volume_attached": iecVolumeAttachedSchema,
+			"nics":            serverNicsSchema,
+			"volume_attached": volumeAttachedSchema,
 			"public_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -330,7 +330,7 @@ func buildServerCoverage(d *schema.ResourceData) ieccommon.Coverage {
 	return coverageOpts
 }
 
-func resourceIecServerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceServerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -406,10 +406,10 @@ func resourceIecServerCreate(ctx context.Context, d *schema.ResourceData, meta i
 		log.Printf("[WARN] updating name of IEC server (%s) failed: %s", serverID, err)
 	}
 
-	return resourceIecServerRead(ctx, d, meta)
+	return resourceServerRead(ctx, d, meta)
 }
 
-func resourceIecServerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceServerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -424,8 +424,8 @@ func resourceIecServerRead(_ context.Context, d *schema.ResourceData, meta inter
 	edgeServer := iecServers.Server
 	log.Printf("[DEBUG] retrieved server %s: %+v", d.Id(), edgeServer)
 
-	allNics, eip := expandIecServerNics(edgeServer)
-	allVolumes, sysDiskID := expandIecServerVolumeAttached(iecClient, edgeServer)
+	allNics, eip := expandServerNics(edgeServer)
+	allVolumes, sysDiskID := expandServerVolumeAttached(iecClient, edgeServer)
 
 	mErr := multierror.Append(
 		d.Set("name", edgeServer.Name),
@@ -455,7 +455,7 @@ func resourceIecServerRead(_ context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
-func resourceIecServerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceServerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -475,13 +475,13 @@ func resourceIecServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error updating IEC server: %s", err)
 		}
 
-		return resourceIecServerRead(ctx, d, meta)
+		return resourceServerRead(ctx, d, meta)
 	}
 
 	return nil
 }
 
-func resourceIecServerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceServerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	iecClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -541,7 +541,7 @@ func serverStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource
 	}
 }
 
-func expandIecServerNics(edgeServer *servers.Server) ([]map[string]interface{}, string) {
+func expandServerNics(edgeServer *servers.Server) ([]map[string]interface{}, string) {
 	var publicIP string
 	allNics := make([]map[string]interface{}, 0)
 
@@ -563,7 +563,7 @@ func expandIecServerNics(edgeServer *servers.Server) ([]map[string]interface{}, 
 	return allNics, publicIP
 }
 
-func expandIecServerVolumeAttached(client *golangsdk.ServiceClient, edgeServer *servers.Server) ([]map[string]interface{}, string) {
+func expandServerVolumeAttached(client *golangsdk.ServiceClient, edgeServer *servers.Server) ([]map[string]interface{}, string) {
 	var sysDiskID string
 	allVolumes := make([]map[string]interface{}, 0, len(edgeServer.VolumeAttached))
 

@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func buildIecSubnetDNSList(d *schema.ResourceData) []string {
+func buildSubnetDNSList(d *schema.ResourceData) []string {
 	rawDNSN := d.Get("dns_list").([]interface{})
 
 	// set the default DNS if it was not specified
@@ -33,12 +33,12 @@ func buildIecSubnetDNSList(d *schema.ResourceData) []string {
 	return dnsn
 }
 
-func ResourceIecSubnet() *schema.Resource {
+func ResourceSubnet() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecSubnetCreate,
-		ReadContext:   resourceIecSubnetRead,
-		UpdateContext: resourceIecSubnetUpdate,
-		DeleteContext: resourceIecSubnetDelete,
+		CreateContext: resourceSubnetCreate,
+		ReadContext:   resourceSubnetRead,
+		UpdateContext: resourceSubnetUpdate,
+		DeleteContext: resourceSubnetDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -104,7 +104,7 @@ func ResourceIecSubnet() *schema.Resource {
 	}
 }
 
-func resourceIecSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	subnetClient, err := conf.IECV1Client(conf.GetRegion(d))
 
@@ -120,7 +120,7 @@ func resourceIecSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		SiteID:     d.Get("site_id").(string),
 		GatewayIP:  d.Get("gateway_ip").(string),
 		DhcpEnable: &dhcp,
-		DNSList:    buildIecSubnetDNSList(d),
+		DNSList:    buildSubnetDNSList(d),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -135,7 +135,7 @@ func resourceIecSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"UNKNOWN"},
 		Target:     []string{"ACTIVE"},
-		Refresh:    waitForIecSubnetStatus(subnetClient, n.ID),
+		Refresh:    waitForSubnetStatus(subnetClient, n.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -148,10 +148,10 @@ func resourceIecSubnetCreate(ctx context.Context, d *schema.ResourceData, meta i
 			n.ID, stateErr)
 	}
 
-	return resourceIecSubnetRead(ctx, d, conf)
+	return resourceSubnetRead(ctx, d, conf)
 }
 
-func resourceIecSubnetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSubnetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	subnetClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
@@ -179,7 +179,7 @@ func resourceIecSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceIecSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	subnetClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
@@ -205,10 +205,10 @@ func resourceIecSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error updating IEC subnets: %s", err)
 	}
 
-	return resourceIecSubnetRead(ctx, d, meta)
+	return resourceSubnetRead(ctx, d, meta)
 }
 
-func resourceIecSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	subnetClient, err := conf.IECV1Client(conf.GetRegion(d))
 	if err != nil {
@@ -224,7 +224,7 @@ func resourceIecSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE", "UNKNOWN"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForIecSubnetStatus(subnetClient, d.Id()),
+		Refresh:    waitForSubnetStatus(subnetClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -240,7 +240,7 @@ func resourceIecSubnetDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func waitForIecSubnetStatus(subnetClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForSubnetStatus(subnetClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := subnets.Get(subnetClient, id).Extract()
 		if err != nil {

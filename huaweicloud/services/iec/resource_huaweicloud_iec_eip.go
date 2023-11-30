@@ -21,12 +21,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 )
 
-func ResourceIecNetworkEip() *schema.Resource {
+func ResourceEip() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecEipCreate,
-		ReadContext:   resourceIecEipRead,
-		UpdateContext: resourceIecEipUpdate,
-		DeleteContext: resourceIecEipDelete,
+		CreateContext: resourceEipCreate,
+		ReadContext:   resourceEipRead,
+		UpdateContext: resourceEipUpdate,
+		DeleteContext: resourceEipDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -102,7 +102,7 @@ func ResourceIecNetworkEip() *schema.Resource {
 	}
 }
 
-func resourceIecEipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	eipClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -133,7 +133,7 @@ func resourceIecEipCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] waiting for public IP (%s) to become active", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE", "UNBOUND"},
-		Refresh:    waitForIecEipStatus(eipClient, d.Id()),
+		Refresh:    waitForEipStatus(eipClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -153,10 +153,10 @@ func resourceIecEipCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	return resourceIecEipRead(ctx, d, cfg)
+	return resourceEipRead(ctx, d, cfg)
 }
 
-func resourceIecEipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	eipClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -200,7 +200,7 @@ func resourceIecEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func resourceIecEipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	eipClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -225,10 +225,10 @@ func resourceIecEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	return resourceIecEipRead(ctx, d, meta)
+	return resourceEipRead(ctx, d, meta)
 }
 
-func resourceIecEipDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEipDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	eipClient, err := cfg.IECV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -251,7 +251,7 @@ func resourceIecEipDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	// waiting for public IP to become deleted
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"DELETED"},
-		Refresh:    waitForIecEipStatus(eipClient, d.Id()),
+		Refresh:    waitForEipStatus(eipClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -283,7 +283,7 @@ func operateOnPort(d *schema.ResourceData, client *golangsdk.ServiceClient, port
 	return nil
 }
 
-func waitForIecEipStatus(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func waitForEipStatus(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := publicips.Get(client, id).Extract()
 		if err != nil {

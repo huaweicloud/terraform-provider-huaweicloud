@@ -20,12 +20,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func ResourceIecVip() *schema.Resource {
+func ResourceVip() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIecVIPCreate,
-		UpdateContext: resourceIecVIPUpdate,
-		ReadContext:   resourceIecVIPRead,
-		DeleteContext: resourceIecVIPDelete,
+		CreateContext: resourceVipCreate,
+		UpdateContext: resourceVipUpdate,
+		ReadContext:   resourceVipRead,
+		DeleteContext: resourceVipDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -66,7 +66,7 @@ func ResourceIecVip() *schema.Resource {
 	}
 }
 
-func getIecVipPortIDs(d *schema.ResourceData) []string {
+func getVipPortIDs(d *schema.ResourceData) []string {
 	rawPortIDs := d.Get("port_ids").([]interface{})
 	portids := make([]string, len(rawPortIDs))
 	for i, raw := range rawPortIDs {
@@ -75,7 +75,7 @@ func getIecVipPortIDs(d *schema.ResourceData) []string {
 	return portids
 }
 
-func resourceIecVIPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVipCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	iecClient, err := conf.IECV1Client(region)
@@ -124,17 +124,17 @@ func resourceIecVIPCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	// associate ports with the vip
-	portids := getIecVipPortIDs(d)
+	portids := getVipPortIDs(d)
 	if len(portids) > 0 {
-		if err = updateIecVipAssociate(iecClient, p.ID, portids); err != nil {
+		if err = updateVipAssociate(iecClient, p.ID, portids); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	return resourceIecVIPRead(ctx, d, meta)
+	return resourceVipRead(ctx, d, meta)
 }
 
-func resourceIecVIPRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVipRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	iecClient, err := conf.IECV1Client(region)
@@ -167,7 +167,7 @@ func resourceIecVIPRead(_ context.Context, d *schema.ResourceData, meta interfac
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceIecVIPUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVipUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	iecClient, err := conf.IECV1Client(region)
@@ -175,15 +175,15 @@ func resourceIecVIPUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
-	portids := getIecVipPortIDs(d)
-	if err = updateIecVipAssociate(iecClient, d.Id(), portids); err != nil {
-		return diag.Errorf("error updateIecVipAssociate: %s", err)
+	portids := getVipPortIDs(d)
+	if err = updateVipAssociate(iecClient, d.Id(), portids); err != nil {
+		return diag.Errorf("error updateVipAssociate: %s", err)
 	}
 
-	return resourceIecVIPRead(ctx, d, meta)
+	return resourceVipRead(ctx, d, meta)
 }
 
-func resourceIecVIPDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVipDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	iecClient, err := conf.IECV1Client(region)
@@ -191,10 +191,10 @@ func resourceIecVIPDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating IEC client: %s", err)
 	}
 
-	if len(getIecVipPortIDs(d)) > 0 {
+	if len(getVipPortIDs(d)) > 0 {
 		// disassociate ports
-		if err := updateIecVipAssociate(iecClient, d.Id(), []string{}); err != nil {
-			return diag.Errorf("error updateIecVipAssociate: %s", err)
+		if err := updateVipAssociate(iecClient, d.Id(), []string{}); err != nil {
+			return diag.Errorf("error updateVipAssociate: %s", err)
 		}
 	}
 
@@ -255,7 +255,7 @@ func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) reso
 	}
 }
 
-func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portIDs []string) error {
+func updateVipAssociate(client *golangsdk.ServiceClient, vipID string, portIDs []string) error {
 	allAddrs := make([]string, len(portIDs))
 	action := "associate"
 	if len(portIDs) == 0 {

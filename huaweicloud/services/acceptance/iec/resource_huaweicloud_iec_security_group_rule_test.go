@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccIecSecurityGroupRuleResource_Basic(t *testing.T) {
+func TestAccSecurityGroupRuleResource_Basic(t *testing.T) {
 	groupName := "huaweicloud_iec_security_group.my_group"
 	ruleName1 := "huaweicloud_iec_security_group_rule.rule_1"
 	ruleName2 := "huaweicloud_iec_security_group_rule.rule_2"
@@ -27,18 +27,18 @@ func TestAccIecSecurityGroupRuleResource_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckIecSecurityGroupRuleV1Destory,
+		CheckDestroy:      testAccCheckSecurityGroupRuleDestory,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecSecurityGroupRuleV1_Basic(rName),
+				Config: testAccSecurityGroupRule_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecSecGroupV1Exists(groupName, &group),
-					testAccCheckIecSecurityGroupRuleV1Exists(ruleName1, &rule1),
+					testAccCheckSecurityGroupExists(groupName, &group),
+					testAccCheckSecurityGroupRuleExists(ruleName1, &rule1),
 					resource.TestCheckResourceAttr(ruleName1, "direction", "egress"),
 					resource.TestCheckResourceAttr(ruleName1, "protocol", "tcp"),
 					resource.TestCheckResourceAttr(ruleName1, "port_range_min", "445"),
 					resource.TestCheckResourceAttr(ruleName1, "port_range_max", "445"),
-					testAccCheckIecSecurityGroupRuleV1Exists(ruleName2, &rule2),
+					testAccCheckSecurityGroupRuleExists(ruleName2, &rule2),
 					resource.TestCheckResourceAttr(ruleName2, "direction", "ingress"),
 					resource.TestCheckResourceAttr(ruleName2, "protocol", "udp"),
 					resource.TestCheckResourceAttr(ruleName2, "port_range_min", "20"),
@@ -49,37 +49,7 @@ func TestAccIecSecurityGroupRuleResource_Basic(t *testing.T) {
 	})
 }
 
-func testAccCheckIecSecGroupV1Exists(n string, group *groups.RespSecurityGroupEntity) resource.TestCheckFunc {
-	return func(state *terraform.State) error {
-		rs, ok := state.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID has been seted")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		iecClient, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating IEC client: %s", err)
-		}
-
-		found, err := groups.Get(iecClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IEC Security group not found")
-		}
-		*group = *found
-		return nil
-	}
-}
-
-func testAccCheckIecSecurityGroupRuleV1Exists(n string, rule *rules.RespSecurityGroupRule) resource.TestCheckFunc {
+func testAccCheckSecurityGroupRuleExists(n string, rule *rules.RespSecurityGroupRule) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[n]
 		if !ok {
@@ -108,7 +78,7 @@ func testAccCheckIecSecurityGroupRuleV1Exists(n string, rule *rules.RespSecurity
 	}
 }
 
-func testAccCheckIecSecurityGroupRuleV1Destory(state *terraform.State) error {
+func testAccCheckSecurityGroupRuleDestory(state *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecClient, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
@@ -129,7 +99,7 @@ func testAccCheckIecSecurityGroupRuleV1Destory(state *terraform.State) error {
 	return nil
 }
 
-func testAccIecSecurityGroupRuleV1_Basic(rName string) string {
+func testAccSecurityGroupRule_Basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
   name = "%s"
