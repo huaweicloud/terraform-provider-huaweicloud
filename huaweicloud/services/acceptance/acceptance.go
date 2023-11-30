@@ -211,6 +211,8 @@ var (
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
 	HW_CCI_NAMESPACE = os.Getenv("HW_CCI_NAMESPACE")
+
+	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
