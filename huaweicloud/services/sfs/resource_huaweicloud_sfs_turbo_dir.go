@@ -173,6 +173,9 @@ func resourceSfsTurboDirDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	_, err = sfsClient.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
+		if utils.IsResourceNotFound(err) {
+			return nil
+		}
 		return diag.Errorf("error deleting SFS Turbo directory: %s", err)
 	}
 
