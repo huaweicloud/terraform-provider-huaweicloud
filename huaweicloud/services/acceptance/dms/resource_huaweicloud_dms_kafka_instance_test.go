@@ -241,7 +241,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "kafka"),
 					resource.TestCheckResourceAttr(resourceName, "broker_num", "4"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id",
-						"data.huaweicloud_dms_kafka_flavors.test", "flavors.1.id"),
+						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "storage_space", "600"),
@@ -433,12 +433,11 @@ func testAccKafkaInstance_newFormat(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type = "cluster"
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
 }
 
 locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
-
   flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 }
 
@@ -455,7 +454,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     data.huaweicloud_availability_zones.test.names[1],
     data.huaweicloud_availability_zones.test.names[2]
   ]
-  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version = "2.7"
   storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num     = 3
 
@@ -485,14 +484,12 @@ func testAccKafkaInstance_newFormatUpdate(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type = "cluster"
+  type      = "cluster"
+  flavor_id = "c6.4u8g.cluster"
 }
 
 locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
-
-  flavor    = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
-  newFlavor = data.huaweicloud_dms_kafka_flavors.test.flavors[1]
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -501,14 +498,14 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
 
-  flavor_id          = local.newFlavor.id
+  flavor_id          = local.flavor.id
   storage_spec_code  = local.flavor.ios[0].storage_spec_code
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0],
     data.huaweicloud_availability_zones.test.names[1],
     data.huaweicloud_availability_zones.test.names[2]
   ]
-  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version = "2.7"
   storage_space  = 600
   broker_num     = 4
 
@@ -541,11 +538,11 @@ func testAccKafkaInstance_newFormat_prePaid(baseNetwork, rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type = "cluster"
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
 }
 
 locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
   flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 }
 
@@ -561,7 +558,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0]
   ]
 
-  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version = "2.7"
   storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num     = 3
 
@@ -587,11 +584,11 @@ func testAccKafkaInstance_newFormat_prePaid_update(baseNetwork, updateName strin
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type = "cluster"
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
 }
 
 locals {
-  query_results = data.huaweicloud_dms_kafka_flavors.test
   flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
 }
 
@@ -608,7 +605,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0]
   ]
 
-  engine_version = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version = "2.7"
   storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num     = 3
 

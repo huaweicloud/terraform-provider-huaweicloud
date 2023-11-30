@@ -354,7 +354,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	d.SetId(id.(string))
 
 	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
-		if err = updateCrossVpcAccess(createRocketmqInstanceClient, d); err != nil {
+		if err = updateCrossVpcAccess(ctx, createRocketmqInstanceClient, d); err != nil {
 			return diag.Errorf("failed to update default advertised IP: %v", err)
 		}
 	}
@@ -546,7 +546,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		}
 
 		if d.HasChange("cross_vpc_accesses") {
-			if err = updateCrossVpcAccess(updateRocketmqInstanceClient, d); err != nil {
+			if err = updateCrossVpcAccess(ctx, updateRocketmqInstanceClient, d); err != nil {
 				return diag.Errorf("error updating DMS rocketMQ Cross-VPC access information: %s", err)
 			}
 		}
