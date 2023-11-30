@@ -13,6 +13,8 @@ import (
 var (
 	// ErrPageNotAvailable is returned from a Pager when a next or previous page is requested, but does not exist.
 	ErrPageNotAvailable = errors.New("The requested page does not exist.")
+	// the maximum pager is 1000
+	MaxPager = 1000
 )
 
 // Page must be satisfied by the result type of any resource collection.
@@ -89,10 +91,17 @@ func (p Pager) EachPage(handler func(Page) (bool, error)) error {
 	if p.Err != nil {
 		return p.Err
 	}
+
+	currentPager := 0
 	currentURL := p.initialURL
 	for {
-		var currentPage Page
+		currentPager++
+		// If the nextpage is stil not empty after {MaxPager} times, shut it down
+		if currentPager > MaxPager {
+			return fmt.Errorf("A timeout occurred")
+		}
 
+		var currentPage Page
 		// if first page has already been fetched, no need to fetch it again
 		if p.firstPage != nil {
 			currentPage = p.firstPage
