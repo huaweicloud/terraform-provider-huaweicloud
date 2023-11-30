@@ -68,7 +68,7 @@ func TestAccDNSEndpoint_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDNSEndpoint_basic_update(name),
+				Config: testDNSEndpoint_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
@@ -81,7 +81,7 @@ func TestAccDNSEndpoint_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "ip_addresses.0.subnet_id",
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "ip_addresses.1.subnet_id",
-						"huaweicloud_vpc_subnet.test", "id"),
+						"huaweicloud_vpc_subnet.test_update", "id"),
 					resource.TestCheckResourceAttrSet(rName, "ip_addresses.0.ip"),
 					resource.TestCheckResourceAttrSet(rName, "ip_addresses.1.ip"),
 					resource.TestCheckResourceAttrSet(rName, "ip_addresses.0.ip_address_id"),
@@ -138,18 +138,26 @@ resource "huaweicloud_dns_endpoint" "test" {
 }`, testVpcSubnet_basic(rName), rName)
 }
 
-func testDNSEndpoint_basic_update(rName string) string {
+func testDNSEndpoint_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
+resource "huaweicloud_vpc_subnet" "test_update" {
+  name              = "%[2]s_update"
+  cidr              = "192.168.100.0/24"
+  gateway_ip        = "192.168.100.1"
+  vpc_id            = huaweicloud_vpc.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
 resource "huaweicloud_dns_endpoint" "test" {
-  name      = "%s_update"
+  name      = "%[2]s_update"
   direction = "inbound"
   ip_addresses {
     subnet_id = huaweicloud_vpc_subnet.test.id
   }
   ip_addresses {
-    subnet_id = huaweicloud_vpc_subnet.test.id
+    subnet_id = huaweicloud_vpc_subnet.test_update.id
   }
 }`, testVpcSubnet_basic(rName), rName)
 }
