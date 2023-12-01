@@ -1,9 +1,0 @@
-info:
-  version: 
-  title: resource_huaweicloud_ccm_private_ca
-  description: 
-schemes:
-  - https
-host: huaweicloud.com
-tags:
-paths:

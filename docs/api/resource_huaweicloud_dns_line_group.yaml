@@ -1,9 +1,0 @@
-info:
-  version: 
-  title: resource_huaweicloud_dns_line_group
-  description: 
-schemes:
-  - https
-host: huaweicloud.com
-tags:
-paths:
