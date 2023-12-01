@@ -62,7 +62,7 @@ func TestAccInspectorWebsiteScan_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_codearts_inspector_website_scan.test"
 	// The normal trigger time needs to be after the current time.
-	timer := utils.FormatTimeStampUTC(time.Now().Add(1 * time.Hour).Unix())
+	timer := utils.FormatTimeStampUTC(time.Now().Add(48 * time.Hour).Unix())
 
 	rc := acceptance.InitResourceCheck(
 		rName,
