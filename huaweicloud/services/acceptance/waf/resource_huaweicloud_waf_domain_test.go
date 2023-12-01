@@ -57,6 +57,11 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "50"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "200"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "200"),
+					resource.TestCheckResourceAttr(resourceName, "description", "web_description_1"),
+					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "ip_hash"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key1", "$time_local"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$tenant_id"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
 				),
 			},
 			{
@@ -73,6 +78,11 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "100"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "100"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "100"),
+					resource.TestCheckResourceAttr(resourceName, "description", "web_description_2"),
+					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "round_robin"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteNameUpdate"),
 				),
 			},
 			{
@@ -85,6 +95,7 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "180"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "session_hash"),
 				),
 			},
 			{
@@ -128,6 +139,7 @@ func TestAccWafDomainV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", ""),
 				),
 			},
 			{
@@ -309,6 +321,9 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   proxy            = false
+  description      = "web_description_1"
+  website_name     = "websiteName"
+  lb_algorithm     = "ip_hash"
 
   custom_page {
     http_return_code = "400"
@@ -325,6 +340,11 @@ EOF
     connection_timeout = 50
     read_timeout       = 200
     write_timeout      = 200
+  }
+
+  forward_header_map = {
+    "key1" = "$time_local"
+    "key2" = "$tenant_id"
   }
 
   server {
@@ -349,11 +369,19 @@ resource "huaweicloud_waf_domain" "domain_1" {
   http2_enable     = true
   ipv6_enable      = true
   redirect_url     = "$${http_host}/error.html"
+  description      = "web_description_2"
+  lb_algorithm     = "round_robin"
+  website_name   = "websiteNameUpdate"
   
   timeout_settings {
     connection_timeout = 100
     read_timeout       = 100
     write_timeout      = 100
+  }
+
+  forward_header_map = {
+    "key2" = "$request_length"
+    "key3" = "$remote_addr"
   }
 
   server {
@@ -384,6 +412,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   policy_id        = huaweicloud_waf_policy.policy_1.id
   proxy            = true
+  lb_algorithm     = "session_hash"
 
   timeout_settings {
     connection_timeout = 180

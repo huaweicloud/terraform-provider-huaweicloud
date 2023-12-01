@@ -43,6 +43,13 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_name      = huaweicloud_waf_certificate.certificate_1.name
   proxy                 = true
   enterprise_project_id = var.enterprise_project_id
+  description           = "test description"
+  website_name          = "websiteName"
+  
+  forward_header_map = {
+    "key1" = "$time_local"
+    "key2" = "$tenant_id"
+  }
 
   custom_page {
     http_return_code = "404"
@@ -127,6 +134,46 @@ The following arguments are supported:
   Enable IPv6 protection if the domain name is accessible using an IPv6 address.
   After you enable it, WAF assigns an IPv6 address to the domain name.
   Defaults to **false**.
+
+* `website_name` - (Optional, String) Specifies the website name.
+  This website name must start with a letter and only letters, digits, underscores (_),
+  hyphens (-), colons (:) and periods (.) are allowed.
+  The value contains 1 to 128 characters.
+  The website name must be unique within this account.
+
+* `description` - (Optional, String) Specifies the description of the WAF domain.
+
+* `lb_algorithm` - (Optional, String) Specifies the load balancing algorithms used to
+  distribute requests across origin servers.
+  Only the professional edition (original enterprise edition) and platinum edition
+  (original ultimate edition) support configuring the load balancing algorithm.
+  The options of value are as follows:
+  + **ip_hash** : Requests from the same IP address are routed to the same backend server.
+  + **round_robin** : Requests are distributed across backend servers in turn based on the
+  weight you assign to each server.
+  + **session_hash** : Direct requests with the same session ID to the same origin server.
+  Before using this configuration, please make sure to configure the traffic identifier for
+  attack punishment after adding the domain name, otherwise the session hash configuration will not take effect.
+
+* `forward_header_map` - (Optional, Map) Specifies the field forwarding configuration. WAF inserts the added fields into
+  the header and forwards the header to the origin server. The key cannot be the same as the native Nginx field.
+  The options of value are as follows:
+  + **$time_local**
+  + **$request_id**
+  + **$connection_requests**
+  + **$tenant_id**
+  + **$project_id**
+  + **$remote_addr**
+  + **$remote_port**
+  + **$scheme**
+  + **$request_method**
+  + **$http_host**
+  + **$origin_uri**
+  + **$request_length**
+  + **$ssl_server_name**
+  + **$ssl_protocol**
+  + **$ssl_curves**
+  + **$ssl_session_reused**
 
 * `timeout_settings` - (Optional, List) Specifies the timeout setting. Only supports one timeout setting.
   The [timeout_settings](#Domain_timeout_settings) structure is documented below.

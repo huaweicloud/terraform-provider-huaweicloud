@@ -384,7 +384,7 @@ func buildCreatePremiumHostOpts(d *schema.ResourceData, cfg *config.Config, cert
 		Servers:             buildCreatePremiumHostServerOpts(d),
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		BlockPage:           buildPremiumHostBlockPageOpts(d),
-		ForwardHeaderMap:    buildPremiumHostForwardHeaderMapOpts(d),
+		ForwardHeaderMap:    buildHostForwardHeaderMapOpts(d),
 		Description:         d.Get("description").(string),
 	}
 }
@@ -421,7 +421,7 @@ func buildPremiumHostBlockPageOpts(d *schema.ResourceData) *domains.BlockPage {
 	}
 }
 
-func buildPremiumHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
+func buildHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
 	if v, ok := d.GetOk("forward_header_map"); ok {
 		return utils.ExpandToStringMap(v.(map[string]interface{}))
 	}
@@ -621,7 +621,7 @@ func updateWafDedicatedDomain(dedicatedClient *golangsdk.ServiceClient, d *schem
 	}
 
 	if d.HasChange("forward_header_map") && !d.IsNewResource() {
-		updateOpts.ForwardHeaderMap = buildPremiumHostForwardHeaderMapOpts(d)
+		updateOpts.ForwardHeaderMap = buildHostForwardHeaderMapOpts(d)
 	}
 
 	_, err := domains.Update(dedicatedClient, d.Id(), updateOpts)

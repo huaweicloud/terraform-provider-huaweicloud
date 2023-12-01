@@ -91,6 +91,8 @@ type UpdateOpts struct {
 	TimeoutConfig       *TimeoutConfig    `json:"timeout_config,omitempty"`
 	ForwardHeaderMap    map[string]string `json:"forward_header_map,omitempty"`
 	EnterpriseProjectId string            `q:"enterprise_project_id" json:"-"`
+	Description         *string           `json:"description,omitempty"`
+	LbAlgorithm         *string           `json:"lb_algorithm,omitempty"`
 }
 
 // BlockPage contains the alarm page information
