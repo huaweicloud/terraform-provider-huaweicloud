@@ -102,6 +102,29 @@ func ResourceWafDomain() *schema.Resource {
 					"custom_page",
 				},
 			},
+			"website_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"lb_algorithm": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"forward_header_map": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"http2_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -175,6 +198,10 @@ func buildCreateDomainHostOpts(d *schema.ResourceData, cfg *config.Config) *doma
 		Proxy:               utils.Bool(d.Get("proxy").(bool)),
 		PaidType:            d.Get("charging_mode").(string),
 		PolicyId:            d.Get("policy_id").(string),
+		Description:         d.Get("description").(string),
+		ForwardHeaderMap:    buildHostForwardHeaderMapOpts(d),
+		LbAlgorithm:         d.Get("lb_algorithm").(string),
+		WebTag:              d.Get("website_name").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 }
@@ -294,11 +321,13 @@ func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
-	if d.HasChanges("certificate_id", "server", "proxy") {
+	// Fields "certificate_id", "proxy", and "ipv6_enable" are valid only when they are used together with fields "server" in the update interface
+	if d.HasChanges("certificate_id", "server", "proxy", "ipv6_enable") {
 		updateOpts.CertificateId = d.Get("certificate_id").(string)
 		updateOpts.CertificateName = d.Get("certificate_name").(string)
 		updateOpts.Servers = buildWafDomainServers(d)
 		updateOpts.Proxy = utils.Bool(d.Get("proxy").(bool))
+		updateOpts.Ipv6Enable = utils.Bool(d.Get("ipv6_enable").(bool))
 	}
 
 	if d.HasChanges("custom_page", "redirect_url") {
@@ -309,12 +338,24 @@ func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
 		updateOpts.Http2Enable = utils.Bool(d.Get("http2_enable").(bool))
 	}
 
-	if d.HasChange("ipv6_enable") {
-		updateOpts.Ipv6Enable = utils.Bool(d.Get("ipv6_enable").(bool))
-	}
-
 	if d.HasChange("timeout_settings") {
 		updateOpts.TimeoutConfig = buildUpdateDomainTimeoutSettingOpts(d)
+	}
+
+	if d.HasChange("description") && !d.IsNewResource() {
+		updateOpts.Description = utils.String(d.Get("description").(string))
+	}
+
+	if d.HasChange("forward_header_map") && !d.IsNewResource() {
+		updateOpts.ForwardHeaderMap = buildHostForwardHeaderMapOpts(d)
+	}
+
+	if d.HasChange("lb_algorithm") && !d.IsNewResource() {
+		updateOpts.LbAlgorithm = utils.String(d.Get("lb_algorithm").(string))
+	}
+
+	if d.HasChange("website_name") && !d.IsNewResource() {
+		updateOpts.WebTag = utils.String(d.Get("website_name").(string))
 	}
 
 	if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
@@ -374,6 +415,10 @@ func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("redirect_url", dm.BlockPage.RedirectUrl),
 		d.Set("http2_enable", dm.Http2Enable),
 		d.Set("timeout_settings", flattenDomainTimeoutSetting(dm)),
+		d.Set("description", dm.Description),
+		d.Set("forward_header_map", dm.ForwardHeaderMap),
+		d.Set("lb_algorithm", dm.LbAlgorithm),
+		d.Set("website_name", dm.WebTag),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
