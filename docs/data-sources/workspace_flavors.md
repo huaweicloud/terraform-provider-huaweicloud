@@ -1,5 +1,5 @@
 ---
-subcategory: "Workspace Flavors Service (Workspace)"
+subcategory: "Workspace"
 ---
 
 # huaweicloud_workspace_flavors
