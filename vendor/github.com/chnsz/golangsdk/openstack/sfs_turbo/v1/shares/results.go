@@ -124,6 +124,10 @@ type UpdateNameResult struct {
 	golangsdk.ErrResult
 }
 
+type UpdateSecurityGroupIdResult struct {
+	golangsdk.ErrResult
+}
+
 // Extract will get the Turbo response object from the CreateResult
 func (r CreateResult) Extract() (*TurboResponse, error) {
 	var resp TurboResponse
