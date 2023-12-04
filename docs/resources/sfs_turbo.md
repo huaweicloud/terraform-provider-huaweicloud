@@ -117,8 +117,7 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network ID of the subnet. Changing this will create a new
   resource.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies the security group ID. Changing this will create a new
-  resource.
+* `security_group_id` - (Required, String) Specifies the security group ID.
 
 * `enhanced` - (Optional, Bool, ForceNew) Specifies whether the file system is enhanced or not. Changing this will
   create a new resource.

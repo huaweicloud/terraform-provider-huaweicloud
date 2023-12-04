@@ -64,6 +64,8 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "200"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
 				),
 			},
 			{
@@ -75,11 +77,13 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 				Config: testAccSFSTurbo_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "size", "600"),
-					resource.TestCheckResourceAttr(resourceName, "status", "221"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
+					resource.TestCheckResourceAttr(resourceName, "status", "232"),
 				),
 			},
 		},
@@ -394,17 +398,22 @@ resource "huaweicloud_sfs_turbo" "test" {
 
 func testAccSFSTurbo_update(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name                 = "%[2]s_update"
+  delete_default_rules = true
+}
 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
-  name              = "%s-update"
+  name              = "%[2]s_update"
   size              = 600
   share_proto       = "NFS"
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   tags = {

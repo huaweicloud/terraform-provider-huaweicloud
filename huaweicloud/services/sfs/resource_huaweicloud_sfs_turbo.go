@@ -102,7 +102,6 @@ func ResourceSFSTurbo() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"crypt_key_id": {
 				Type:     schema.TypeString,
@@ -527,6 +526,27 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		err = shares.UpdateName(sfsClient, d.Id(), updateNameOpts).Err
 		if err != nil {
 			return diag.Errorf("error updating name of SFS Turbo: %s", err)
+		}
+	}
+
+	if d.HasChange("security_group_id") {
+		updateSecurityGroupIdOpts := shares.UpdateSecurityGroupIdOpts{
+			SecurityGroupId: d.Get("security_group_id").(string),
+		}
+		err = shares.UpdateSecurityGroupId(sfsClient, d.Id(), updateSecurityGroupIdOpts).Err
+		if err != nil {
+			return diag.Errorf("error updating security group ID of SFS Turbo: %s", err)
+		}
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"132"},
+			Target:       []string{"232", "200"},
+			Refresh:      waitForSFSTurboSubStatus(sfsClient, resourceId),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			PollInterval: 5 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error updating SFS Turbo: %s", err)
 		}
 	}
 
