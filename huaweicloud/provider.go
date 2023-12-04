@@ -1119,6 +1119,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_share": ram.ResourceRAMShare(),
 
 			"huaweicloud_rds_mysql_account":                rds.ResourceMysqlAccount(),
+			"huaweicloud_rds_mysql_binlog":                 rds.ResourceMysqlBinlog(),
 			"huaweicloud_rds_mysql_database":               rds.ResourceMysqlDatabase(),
 			"huaweicloud_rds_mysql_database_privilege":     rds.ResourceMysqlDatabasePrivilege(),
 			"huaweicloud_rds_pg_account":                   rds.ResourcePgAccount(),
