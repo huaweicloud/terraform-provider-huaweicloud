@@ -2,6 +2,7 @@ package waf
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -50,6 +51,8 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.weight", "1"),
 					resource.TestCheckResourceAttr(resourceName, "http2_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "custom_page.0.http_return_code", "400"),
 					resource.TestCheckResourceAttr(resourceName, "custom_page.0.block_page_type", "application/json"),
@@ -57,7 +60,16 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "50"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "200"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "200"),
+					resource.TestCheckResourceAttr(resourceName, "description", "web_description_1"),
+					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "ip_hash"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key1", "$time_local"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$tenant_id"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
 				),
+			},
+			{
+				Config:      testAccWafDomainV1_withIpv6Enable(randName, domainName),
+				ExpectError: regexp.MustCompile(`when type in server contains ipv6`),
 			},
 			{
 				Config: testAccWafDomainV1_update1(randName, domainName),
@@ -66,6 +78,14 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv6"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.weight", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.0"),
+					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_1"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.ip_tags.0", "ip_tag"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.ip_tags.1", "$remote_addr"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.session_tag", "session_tag"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.user_tag", "user_tag"),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "http2_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "ipv6_enable", "true"),
@@ -73,18 +93,34 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "100"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "100"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "100"),
+					resource.TestCheckResourceAttr(resourceName, "description", "web_description_2"),
+					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "round_robin"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
+					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "newname"),
 				),
 			},
 			{
 				Config: testAccWafDomainV1_update2(randName, domainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.weight", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
+					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_2"),
+					resource.TestCheckResourceAttr(resourceName, "pci_3ds", "true"),
+					resource.TestCheckResourceAttr(resourceName, "pci_dss", "true"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.ip_tags.0", "ip_tag_update"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.ip_tags.1", "ip_tag_another"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.session_tag", "session_tag_update"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_mark.0.user_tag", "user_tag_update"),
 					resource.TestCheckResourceAttrPair(resourceName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "custom_page.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "redirect_url", ""),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.connection_timeout", "180"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "session_hash"),
 				),
 			},
 			{
@@ -125,9 +161,13 @@ func TestAccWafDomainV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "domain", domainName),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ipv6_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv6"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.weight", "1"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", ""),
 				),
 			},
 			{
@@ -137,6 +177,8 @@ func TestAccWafDomainV1_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.weight", "3"),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 				),
 			},
@@ -180,6 +222,8 @@ func TestAccWafDomainV1_withPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.weight", "3"),
 					resource.TestCheckResourceAttrPair(resourceName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
 				),
 			},
@@ -246,7 +290,7 @@ GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMTA1MzEwOTI1NTJaFw0yMjA1
 MzEwOTI1NTJaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
 HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
 AQUAA4IBDwAwggEKAoIBAQCvmuH5ViGtGOlevJ8vOoN3Ak4pp3SescdAfQa/r4cO
-z/bmBqBcZJTX9HODhiQzdemyLLs9aOkQXYIc8OrcaIsjns92XITVDpFW0ThGyjhT
+z/bmBqBcZJTX9HODhiQzdemyLLs9aOkQXYIc8Orcllsjns92XITVDpFW0ThGyjhT
 ZdELj9LsbIcVzNPPclTcebZBlzAyX0oLqpHK73OUYQY2E6l44U9G8Id763Bnws9N
 Rn3cg0qufrlUgdim/pYZ8ubjvlDJ9eEIhcsu9zu8c8i2+8qLjEsonx5PrwzNlYP3
 JqAmZ2dcbQeSPfv5U6ZceKEZfegK+Cxv4rFd5F4Rdxl+SAIY+6mr7qu1dAlcVMLS
@@ -309,6 +353,9 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   proxy            = false
+  description      = "web_description_1"
+  website_name     = "websiteName"
+  lb_algorithm     = "ip_hash"
 
   custom_page {
     http_return_code = "400"
@@ -327,11 +374,17 @@ EOF
     write_timeout      = 200
   }
 
+  forward_header_map = {
+    "key1" = "$time_local"
+    "key2" = "$tenant_id"
+  }
+
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
     address         = "119.8.0.14"
     port            = 8080
+	type            = "ipv4"
   }
 }
 `, testAccWafDomainV1_base(randName), domainName)
@@ -349,6 +402,11 @@ resource "huaweicloud_waf_domain" "domain_1" {
   http2_enable     = true
   ipv6_enable      = true
   redirect_url     = "$${http_host}/error.html"
+  description      = "web_description_2"
+  lb_algorithm     = "round_robin"
+  website_name     = "newname"
+  tls              = "TLS v1.0"
+  cipher           = "cipher_1"
   
   timeout_settings {
     connection_timeout = 100
@@ -356,11 +414,24 @@ resource "huaweicloud_waf_domain" "domain_1" {
     write_timeout      = 100
   }
 
+  forward_header_map = {
+    "key2" = "$request_length"
+    "key3" = "$remote_addr"
+  }
+
+  traffic_mark {
+    ip_tags     = ["ip_tag", "$remote_addr"]
+    session_tag = "session_tag"
+    user_tag    = "user_tag"
+  }
+
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
-    address         = "119.8.0.14"
+    address         = "3ffe:1900:fe21:4545:0000:0000:0000:0000"
     port            = 8443
+	type            = "ipv6"
+	weight          = 2
   }
 }
 `, testAccWafDomainV1_base(randName), domainName)
@@ -384,6 +455,11 @@ resource "huaweicloud_waf_domain" "domain_1" {
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   policy_id        = huaweicloud_waf_policy.policy_1.id
   proxy            = true
+  lb_algorithm     = "session_hash"
+  tls              = "TLS v1.2"
+  cipher           = "cipher_2"
+  pci_3ds          = "true"
+  pci_dss          = "true"
 
   timeout_settings {
     connection_timeout = 180
@@ -391,11 +467,68 @@ resource "huaweicloud_waf_domain" "domain_1" {
     write_timeout      = 3600
   }
 
+  traffic_mark {
+    ip_tags     = ["ip_tag_update", "ip_tag_another"]
+    session_tag = "session_tag_update"
+    user_tag    = "user_tag_update"
+  }
+
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
     address         = "119.8.0.14"
     port            = 8443
+	type            = "ipv4"
+	weight          = 3
+  }
+}
+`, testAccWafDomainV1_base(randName), domainName)
+}
+
+func testAccWafDomainV1_withIpv6Enable(randName, domainName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_policy" "policy_1" {
+  name = "%[2]s"
+
+  depends_on = [
+    huaweicloud_waf_cloud_instance.test
+  ]
+}
+
+resource "huaweicloud_waf_domain" "domain_1" {
+  domain           = "%[2]s"
+  certificate_id   = huaweicloud_waf_certificate.certificate_1.id
+  certificate_name = huaweicloud_waf_certificate.certificate_1.name
+  policy_id        = huaweicloud_waf_policy.policy_1.id
+  proxy            = true
+  ipv6_enable      = false
+  lb_algorithm     = "session_hash"
+  tls              = "TLS v1.2"
+  cipher           = "cipher_2"
+  pci_3ds          = "true"
+  pci_dss          = "true"
+
+  timeout_settings {
+    connection_timeout = 180
+    read_timeout       = 3600
+    write_timeout      = 3600
+  }
+
+  traffic_mark {
+    ip_tags     = ["ip_tag_update", "ip_tag_another"]
+    session_tag = "session_tag_update"
+    user_tag    = "user_tag_update"
+  }
+
+  server {
+    client_protocol = "HTTPS"
+    server_protocol = "HTTP"
+    address         = "3ffe:1900:fe21:4545:0000:0000:0000:0000"
+    port            = 8443
+    type            = "ipv6"
+    weight          = 3
   }
 }
 `, testAccWafDomainV1_base(randName), domainName)
@@ -426,6 +559,8 @@ resource "huaweicloud_waf_domain" "domain_1" {
     server_protocol = "HTTP"
     address         = "119.8.0.14"
     port            = 8080
+	type            = "ipv4"
+	weight          = 3
   }
 }
 `, testAccWafDomainV1_base(randName), randName, domainName)
@@ -470,7 +605,7 @@ MzEwOTI1NTJaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
 HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
 AQUAA4IBDwAwggEKAoIBAQCvmuH5ViGtGOlevJ8vOoN3Ak4pp3SescdAfQa/r4cO
 z/bmBqBcZJTX9HODhiQzdemyLLs9aOkQXYIc8OrcaIsjns92XITVDpFW0ThGyjhT
-ZdELj9LsbIcVzNPPclTcebZBlzAyX0oLqpHK73OUYQY2E6l44U9G8Id763Bnws9N
+ZdELj9LsbIcVzNPPclTjkbZBlzAyX0oLqpHK73OUYQY2E6l44U9G8Id763Bnws9N
 Rn3cg0qufrlUgdim/pYZ8ubjvlDJ9eEIhcsu9zu8c8i2+8qLjEsonx5PrwzNlYP3
 JqAmZ2dcbQeSPfv5U6ZceKEZfegK+Cxv4rFd5F4Rdxl+SAIY+6mr7qu1dAlcVMLS
 QcLlJLRWQ5NmqL9xju7Fbj2VZt+L6nb512iKaedPo2GfAgMBAAGjUzBRMB0GA1Ud
@@ -535,12 +670,15 @@ resource "huaweicloud_waf_domain" "domain_1" {
   proxy                 = false
   keep_policy           = false
   enterprise_project_id = "%s"
+  ipv6_enable           = true
 
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
-    address         = "119.8.0.14"
+    address         = "3ffe:1900:fe21:4545:0000:0000:0000:0000"
     port            = 8080
+	type            = "ipv6"
+	weight          = 1
   }
 }
 `, testAccWafDomainV1_base_withEpsID(randName, epsID), domainName, epsID)
@@ -563,6 +701,8 @@ resource "huaweicloud_waf_domain" "domain_1" {
     server_protocol = "HTTP"
     address         = "119.8.0.14"
     port            = 8443
+	type            = "ipv4"
+	weight          = 3
   }
 }
 `, testAccWafDomainV1_base_withEpsID(randName, epsID), domainName, epsID)
