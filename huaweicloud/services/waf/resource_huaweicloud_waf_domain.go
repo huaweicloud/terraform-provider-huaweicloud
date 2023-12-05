@@ -3,6 +3,7 @@ package waf
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -102,6 +103,35 @@ func ResourceWafDomain() *schema.Resource {
 					"custom_page",
 				},
 			},
+			"pci_3ds": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"tls", "cipher"},
+			},
+			"pci_dss": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"tls", "cipher"},
+			},
+			"tls": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"cipher": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"traffic_mark": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     dedicatedDomainTrafficMarkSchema(),
+			},
 			"website_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -184,6 +214,15 @@ func domainServerSchema() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 65535),
 				Required:     true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"weight": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
 		},
 	}
 	return &sc
@@ -217,6 +256,8 @@ func buildWafDomainServers(d *schema.ResourceData) []domains.ServerOpts {
 			BackProtocol:  server["server_protocol"].(string),
 			Address:       server["address"].(string),
 			Port:          server["port"].(int),
+			Type:          server["type"].(string),
+			Weight:        server["weight"].(int),
 		}
 	}
 
@@ -231,6 +272,8 @@ func flattenDomainServerAttrs(dm *domains.Domain) []map[string]interface{} {
 			"server_protocol": server.BackProtocol,
 			"address":         server.Address,
 			"port":            server.Port,
+			"type":            server.Type,
+			"weight":          server.Weight,
 		}
 	}
 	return servers
@@ -258,6 +301,28 @@ func flattenDomainTimeoutSetting(dm *domains.Domain) []map[string]interface{} {
 			"connection_timeout": timeoutConfig.ConnectTimeout,
 			"read_timeout":       timeoutConfig.ReadTimeout,
 			"write_timeout":      timeoutConfig.SendTimeout,
+		},
+	}
+}
+
+func flattenDomainComplianceCertificationAttrs(dm *domains.Domain) map[string]interface{} {
+	f := dm.Flag
+
+	pciDss, _ := strconv.ParseBool(f.PciDss)
+	pci3ds, _ := strconv.ParseBool(f.Pci3ds)
+	return map[string]interface{}{
+		"pci_dss": pciDss,
+		"pci_3ds": pci3ds,
+	}
+}
+
+func flattenDomainTrafficMark(dm *domains.Domain) []map[string]interface{} {
+	trafficMark := dm.TrafficMark
+	return []map[string]interface{}{
+		{
+			"ip_tags":     trafficMark.Sip,
+			"session_tag": trafficMark.Cookie,
+			"user_tag":    trafficMark.Params,
 		},
 	}
 }
@@ -316,7 +381,56 @@ func buildUpdateDomainTimeoutSettingOpts(d *schema.ResourceData) *domains.Timeou
 	return nil
 }
 
+func buildDomainHostFlag(d *schema.ResourceData) (*domains.Flag, error) {
+	pci3ds := d.Get("pci_3ds").(bool)
+	pciDss := d.Get("pci_dss").(bool)
+	if !pci3ds && !pciDss {
+		return nil, nil
+	}
+
+	// required tls="TLS v1.2" && cipher="cipher_2"
+	if d.Get("tls").(string) != "TLS v1.2" || d.Get("cipher").(string) != "cipher_2" {
+		return nil, fmt.Errorf("pci_3ds and pci_dss must be used together with tls and cipher. " +
+			"Tls must be set to TLS v1.2, and cipher must be set to cipher_2")
+	}
+	return &domains.Flag{
+		Pci3ds: strconv.FormatBool(pci3ds),
+		PciDss: strconv.FormatBool(pciDss),
+	}, nil
+}
+
+func updatePremiumHostTrafficMarkOpts(d *schema.ResourceData) *domains.TrafficMark {
+	if v, ok := d.GetOk("traffic_mark"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return &domains.TrafficMark{
+			Sip:    utils.ExpandToStringList(raw["ip_tags"].([]interface{})),
+			Cookie: raw["session_tag"].(string),
+			Params: raw["user_tag"].(string),
+		}
+	}
+	return nil
+}
+
 func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	// check is ipv6_enable valid
+	servers := buildWafDomainServers(d)
+	ipv6_enable := d.Get("ipv6_enable").(bool)
+	for _, server := range servers {
+		if server.Type == "ipv6" && !ipv6_enable {
+			diag.Errorf("ipv6cuowu")
+			return fmt.Errorf("when type in server contains ipv6, `ipv6_enable` should be true")
+		}
+	}
+
 	updateOpts := domains.UpdateOpts{
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
@@ -325,9 +439,9 @@ func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
 	if d.HasChanges("certificate_id", "server", "proxy", "ipv6_enable") {
 		updateOpts.CertificateId = d.Get("certificate_id").(string)
 		updateOpts.CertificateName = d.Get("certificate_name").(string)
-		updateOpts.Servers = buildWafDomainServers(d)
+		updateOpts.Servers = servers
 		updateOpts.Proxy = utils.Bool(d.Get("proxy").(bool))
-		updateOpts.Ipv6Enable = utils.Bool(d.Get("ipv6_enable").(bool))
+		updateOpts.Ipv6Enable = utils.Bool(ipv6_enable)
 	}
 
 	if d.HasChanges("custom_page", "redirect_url") {
@@ -356,6 +470,23 @@ func updateWafDomain(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
 
 	if d.HasChange("website_name") && !d.IsNewResource() {
 		updateOpts.WebTag = utils.String(d.Get("website_name").(string))
+	}
+
+	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
+		updateOpts.Tls = d.Get("tls").(string)
+		updateOpts.Cipher = d.Get("cipher").(string)
+		// `pci_3ds` and `pci_dss` must be used together with `tls` and `cipher`.
+		if d.HasChanges("pci_3ds", "pci_dss") {
+			flag, err := buildDomainHostFlag(d)
+			if err != nil {
+				return err
+			}
+			updateOpts.Flag = flag
+		}
+	}
+
+	if d.HasChange("traffic_mark") {
+		updateOpts.TrafficMark = updatePremiumHostTrafficMarkOpts(d)
 	}
 
 	if _, err := domains.Update(wafClient, d.Id(), updateOpts).Extract(); err != nil {
@@ -419,7 +550,18 @@ func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("forward_header_map", dm.ForwardHeaderMap),
 		d.Set("lb_algorithm", dm.LbAlgorithm),
 		d.Set("website_name", dm.WebTag),
+		d.Set("cipher", dm.Cipher),
+		d.Set("tls", dm.Tls),
+		d.Set("traffic_mark", flattenDomainTrafficMark(dm)),
 	)
+
+	if dm.Flag.Pci3ds != "" {
+		mErr = multierror.Append(mErr, d.Set("pci_3ds", utils.StringToBool(dm.Flag.Pci3ds)))
+	}
+
+	if dm.Flag.PciDss != "" {
+		mErr = multierror.Append(mErr, d.Set("pci_dss", utils.StringToBool(dm.Flag.PciDss)))
+	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting WAF domain fields: %s", err)

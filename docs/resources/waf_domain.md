@@ -68,11 +68,19 @@ EOF
     write_timeout      = 1000
   }
 
+  traffic_mark {
+    ip_tags     = ["ip_tag"]
+    session_tag = "session_tag"
+    user_tag    = "user_tag"
+  }
+
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
     address         = "119.8.0.13"
     port            = "8080"
+    type            = "ipv4"
+    weight          = 1
   }
 }
 ```
@@ -87,7 +95,8 @@ The following arguments are supported:
 * `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, `www.example.com` or
   `*.example.com`. Changing this creates a new domain.
 
-* `server` - (Required, List) Specifies an array of origin web servers. The object structure is documented below.
+* `server` - (Required, List) Specifies an array of origin web servers.
+  The [server](#Domain_server) structure is documented below.
 
 * `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
   is set to HTTPS.
@@ -131,8 +140,10 @@ The following arguments are supported:
   Defaults to **false**.
 
 * `ipv6_enable` - (Optional, Bool) Specifies whether IPv6 protection is enabled.
-  Enable IPv6 protection if the domain name is accessible using an IPv6 address.
-  After you enable it, WAF assigns an IPv6 address to the domain name.
+  When both IPv4 and IPv6 exist at the origin site, WAF will automatically perform differentiated forwarding of traffic.
+  Requests from IPv6 addresses will be forwarded to the IPv6 origin site,
+  and requests from IPv4 addresses will be forwarded to the IPv4 origin site.
+  Closing is not supported.
   Defaults to **false**.
 
 * `website_name` - (Optional, String) Specifies the website name.
@@ -142,6 +153,25 @@ The following arguments are supported:
   The website name must be unique within this account.
 
 * `description` - (Optional, String) Specifies the description of the WAF domain.
+
+* `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check.
+  The options include `true` and `false`. This parameter must be used together with tls and cipher.
+
+  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2. The PCI 3DS compliance certification
+  check cannot be disabled after being enabled.
+  The field `pci_3ds` is meaningful only if `certificate_id` is specified.
+
+* `pci_dss` - (Optional, Bool) Specifies the status of the PCI DSS compliance certification check. The options
+  include `true` and `false`. This parameter must be used together with tls and cipher.
+
+  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2.
+  The field `pci_dss` is meaningful only if `certificate_id` is specified.
+
+* `cipher` - (Optional, String) Specifies the cipher suite of domain.
+  The options include `cipher_1`, `cipher_2`,`cipher_3`, `cipher_4`, `cipher_default`.
+
+* `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
+  `TLS v1.2`.
 
 * `lb_algorithm` - (Optional, String) Specifies the load balancing algorithms used to
   distribute requests across origin servers.
@@ -175,9 +205,16 @@ The following arguments are supported:
   + **$ssl_curves**
   + **$ssl_session_reused**
 
+* `traffic_mark` - (Optional, List) Specifies the traffic identifier.
+  WAF uses the configurations to identify the malicious client IP address (proxy mode) in the header, session in the cookie, and user attribute in the parameter,
+  and then triggers the corresponding known attack source rules to block attack sources.
+  Only supports one traffic identifier.
+  The [traffic_mark](#Domain_traffic_mark) structure is documented below.
+
 * `timeout_settings` - (Optional, List) Specifies the timeout setting. Only supports one timeout setting.
   The [timeout_settings](#Domain_timeout_settings) structure is documented below.
 
+[<a name="Domain_server"></a>]
 The `server` block supports:
 
 * `client_protocol` - (Required, String) Protocol type of the client. The options include `HTTP` and `HTTPS`.
@@ -189,6 +226,13 @@ The `server` block supports:
   `192.168.1.1` or `www.a.com`.
 
 * `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, 8080.
+
+* `type` - (Required, String) Server network type, IPv4 or IPv6. Valid values are: `ipv4` and `ipv6`.
+  If the value of this field is **ipv6**, then the corresponding server ip address should be of ipv6 type.
+
+* `weight` - (Optional, Int) The load balancing algorithm will assign requests to the origin
+  site according to this weight. It`s a redundant field in cloud mode.
+  Defaults to **1**.
 
 <a name="Domain_custom_page"></a>
 The `custom_page` block supports:
@@ -214,6 +258,26 @@ The `timeout_settings` block supports:
 
 * `write_timeout` - (Optional, Int) Specifies the timeout for WAF to send requests to the origin server. The unit is second.
   Valid value ranges from `0` to `3,600`.
+
+<a name="Domain_traffic_mark"></a>
+The `traffic_mark` block supports:
+
+* `ip_tags` - (Optional, List) Specifies the IP tags. HTTP request header field of the original client IP address.
+  This field is used to store the real IP address of the client. After the configuration, WAF preferentially reads the
+  configured field to obtain the real IP address of the client. If multiple fields are configured, WAF reads the IP
+  address list in order. Note:
+  + If you want to use a TCP connection IP address as the client IP address, set IP Tag to `$remote_addr`.
+  + If WAF does not obtain the real IP address of a client from fields you configure, WAF reads the `cdn-src-ip`,
+    `x-real-ip`, `x-forwarded-for` and `$remote_addr` fields in sequence to read the client IP address.
+  + When the website setting `proxy` is configured as `false`, this field does not take effect, and the client IP is only obtained through the `$remote_addr` field.
+
+* `session_tag` - (Optional, String) Specifies the session tag. This tag is used by known attack source rules to block
+  malicious attacks based on cookie attributes. This parameter must be configured in known attack source rules to block
+  requests based on cookie attributes.
+
+* `user_tag` - (Optional, String) Specifies the user tag. This tag is used by known attack source rules to block malicious
+  attacks based on params attributes. This parameter must be configured to block requests based on the params attributes.
+
 
 ## Attribute Reference
 
