@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -47,9 +49,8 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			},
 
 			"availability_zone": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -256,24 +257,15 @@ func ResourceLoadBalancerV3() *schema.Resource {
 	}
 }
 
-func resourceElbV3AvailabilityZone(d *schema.ResourceData) []string {
-	azList := make([]string, len(d.Get("availability_zone").([]interface{})))
-	for i, az := range d.Get("availability_zone").([]interface{}) {
-		azList[i] = az.(string)
-	}
-	return azList
-}
-
 func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
-
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
 	createOpts := loadbalancers.CreateOpts{
-		AvailabilityZoneList: resourceElbV3AvailabilityZone(d),
+		AvailabilityZoneList: utils.ExpandToStringListBySet(d.Get("availability_zone").(*schema.Set)),
 		IPTargetEnable:       &iPTargetEnable,
 		VpcID:                d.Get("vpc_id").(string),
 		VipSubnetID:          d.Get("ipv4_subnet_id").(string),
@@ -537,7 +529,112 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
+	// update availability_zone
+	if d.HasChange("availability_zone") {
+		elbV3Client, err := cfg.ElbV3Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating ELB 3.0 client: %s", err)
+		}
+		availabilityZoneErr := updateResourceAvailabilityZone(elbV3Client, d, d.Id())
+		if availabilityZoneErr != nil {
+			return diag.Errorf("error updating availability zone of LoadBalancer:%s, err:%s", d.Id(), availabilityZoneErr)
+		}
+	}
+
 	return resourceLoadBalancerV3Read(ctx, d, meta)
+}
+
+func updateResourceAvailabilityZone(client *golangsdk.ServiceClient, d *schema.ResourceData, id string) error {
+	oldAvailabilityZone, newAvailabilityZone := d.GetChange("availability_zone")
+	err := addResourceAvailabilityZone(client, utils.ExpandToStringListBySet(d.Get("availability_zone").(*schema.Set)), id)
+	if err != nil {
+		return err
+	}
+	var (
+		rmSet = oldAvailabilityZone.(*schema.Set).Difference(newAvailabilityZone.(*schema.Set))
+	)
+	if rmSet.Len() > 0 {
+		rmErr := deleteResourceAvailabilityZone(client, utils.ExpandToStringListBySet(rmSet), id)
+		if rmErr != nil {
+			return rmErr
+		}
+	}
+
+	return nil
+}
+
+func addResourceAvailabilityZone(client *golangsdk.ServiceClient, newAzList []string, id string) error {
+	bodyParams := map[string]interface{}{
+		"availability_zone_list": newAzList,
+	}
+	var (
+		addAvailabilityZoneHttpUrl = "v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/batch-add"
+	)
+	addAvailabilityZonePath := client.Endpoint + addAvailabilityZoneHttpUrl
+	addAvailabilityZonePath = strings.ReplaceAll(addAvailabilityZonePath, "{project_id}", client.ProjectID)
+	addAvailabilityZonePath = strings.ReplaceAll(addAvailabilityZonePath, "{loadbalancer_id}", id)
+
+	addAvailabilityZoneOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	}
+	addAvailabilityZoneOpt.JSONBody = utils.RemoveNil(bodyParams)
+	addAvailabilityZoneResp, addAvailabilityZoneErr := client.Request("POST", addAvailabilityZonePath, &addAvailabilityZoneOpt)
+	if addAvailabilityZoneErr != nil {
+		return addAvailabilityZoneErr
+	}
+
+	availabilityZoneBody, err := utils.FlattenResponse(addAvailabilityZoneResp)
+	if err != nil {
+		return err
+	}
+
+	_, e := jmespath.Search("loadbalancer.id", availabilityZoneBody)
+	if e != nil {
+		return e
+	}
+
+	return nil
+}
+
+func deleteResourceAvailabilityZone(client *golangsdk.ServiceClient, removeAzList []string, id string) error {
+	bodyParams := map[string]interface{}{
+		"availability_zone_list": removeAzList,
+	}
+	var (
+		removeAvailabilityZoneHttpUrl = "v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/batch-remove"
+	)
+	removeAvailabilityZonePath := client.Endpoint + removeAvailabilityZoneHttpUrl
+	removeAvailabilityZonePath = strings.ReplaceAll(removeAvailabilityZonePath, "{project_id}", client.ProjectID)
+	removeAvailabilityZonePath = strings.ReplaceAll(removeAvailabilityZonePath, "{loadbalancer_id}", id)
+
+	removeAvailabilityZoneOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200,
+		},
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	}
+	removeAvailabilityZoneOpt.JSONBody = utils.RemoveNil(bodyParams)
+	removeAvailabilityZoneResp, removeAvailabilityZoneErr :=
+		client.Request("POST", removeAvailabilityZonePath, &removeAvailabilityZoneOpt)
+	if removeAvailabilityZoneErr != nil {
+		return removeAvailabilityZoneErr
+	}
+
+	removeAvailabilityZoneBody, err := utils.FlattenResponse(removeAvailabilityZoneResp)
+	if err != nil {
+		return err
+	}
+
+	_, e := jmespath.Search("loadbalancer.id", removeAvailabilityZoneBody)
+	if e != nil {
+		return e
+	}
+	return nil
 }
 
 func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.UpdateOpts {
