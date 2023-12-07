@@ -407,7 +407,6 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("root_volume", flattenDesktopRootVolume(resp.RootVolume)),
 		d.Set("data_volume", flattenDesktopDataVolumes(resp.DataVolumes)),
 		d.Set("availability_zone", resp.AvailabilityZone),
-		d.Set("security_groups", flattenDesktopSecurityGroups(resp.SecurityGroups)),
 		d.Set("user_group", resp.UserGroup),
 		d.Set("name", resp.Name),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
@@ -418,6 +417,13 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		mErr = multierror.Append(mErr, d.Set("image_id", imageId))
 	} else {
 		mErr = multierror.Append(mErr, fmt.Errorf("the image_id field does not found in metadata structure"))
+	}
+
+	securityGroups := resp.SecurityGroups
+	if len(securityGroups) < 1 {
+		mErr = multierror.Append(mErr, fmt.Errorf("the security_groups field does not found in API response"))
+	} else {
+		mErr = multierror.Append(mErr, d.Set("security_groups", flattenDesktopSecurityGroups(securityGroups)))
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
