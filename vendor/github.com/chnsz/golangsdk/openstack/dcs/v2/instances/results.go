@@ -68,6 +68,10 @@ type ResizeResponse struct {
 	OrderId string `json:"order_id"`
 }
 
+type ResizePrePaidResponse struct {
+	OrderId string `json:"order_id"`
+}
+
 type RestartResponse struct {
 	Results []RestartResultResponse `json:"results"`
 }

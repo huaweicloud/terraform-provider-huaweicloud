@@ -148,6 +148,32 @@ func ResizeInstance(c *golangsdk.ServiceClient, id string, opts ResizeInstanceOp
 	return nil, err
 }
 
+type ResizePrePaidInstanceOpts struct {
+	AutoOpenSecurityGroupRule bool    `json:"auto_open_security_group_rule,omitempty"`
+	ExecuteImmediately        bool    `json:"execute_immediately,omitempty"`
+	NewCapacity               float64 `json:"new_capacity,omitempty"`
+	Password                  string  `json:"password,omitempty"`
+	SpecCode                  string  `json:"spec_code,omitempty"`
+}
+
+func ResizePrePaidInstance(c *golangsdk.ServiceClient, id string, opts ResizePrePaidInstanceOpts) (*ResizePrePaidResponse, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst golangsdk.Result
+	_, err = c.Post(resizePrePaidResourceURL(c, id), b, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err == nil {
+		var r ResizePrePaidResponse
+		rst.ExtractInto(&r)
+		return &r, nil
+	}
+	return nil, err
+}
+
 func Get(c *golangsdk.ServiceClient, id string) (*DcsInstance, error) {
 	var rst golangsdk.Result
 	_, err := c.Get(resourceURL(c, id), &rst.Body, &golangsdk.RequestOpts{
