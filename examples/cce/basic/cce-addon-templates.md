@@ -22,7 +22,7 @@ It is recommended to use `basic_json`, `custom_json` and `flavor_json` for more 
 
 ```hcl
 variable "cluster_id" {}
-variable "tenant_id" {}
+variable "project_id" {}
 
 data "huaweicloud_cce_addon_template" "autoscaler" {
   cluster_id = var.cluster_id
@@ -41,7 +41,7 @@ resource "huaweicloud_cce_addon" "autoscaler" {
       jsondecode(data.huaweicloud_cce_addon_template.autoscaler.spec).parameters.custom,
       {
         cluster_id = var.cluster_id
-        tenant_id  = var.tenant_id
+        tenant_id  = var.project_id
       }
     ))
     flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.autoscaler.spec).parameters.flavor2)
@@ -54,7 +54,7 @@ resource "huaweicloud_cce_addon" "autoscaler" {
 
 ```hcl
 variable "cluster_id" {}
-variable "tenant_id" {}
+variable "project_id" {}
 
 data "huaweicloud_cce_addon_template" "autoscaler" {
   cluster_id = var.cluster_id
@@ -73,7 +73,7 @@ resource "huaweicloud_cce_addon" "autoscaler" {
       jsondecode(data.huaweicloud_cce_addon_template.autoscaler.spec).parameters.custom,
       {
         cluster_id = var.cluster_id
-        tenant_id  = var.tenant_id
+        tenant_id  = var.project_id
       }
     )
   }
