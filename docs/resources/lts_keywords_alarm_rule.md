@@ -51,7 +51,7 @@ The following arguments are supported:
   The [Frequency](#KeywordsAlarmRule_Frequency) structure is documented below.
 
 * `alarm_level` - (Required, String) Specifies the alarm level.
-  The value can be: **INFO**, **MINOR**, **MAJOR** and **CRIRICAL**.
+  The value can be: **INFO**, **MINOR**, **MAJOR** and **CRITICAL**.
 
 * `description` - (Optional, String) Specifies the description of the keywords alarm rule.
 
