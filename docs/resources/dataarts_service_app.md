@@ -15,10 +15,10 @@ Each app corresponds to a unique identity credential and can be classified based
 variable "workspace_id" {}
 
 resource "huaweicloud_dataarts_service_app" "test" {
-  workspace_id  = var.workspace_id
-  dlm_type   = "SHARED"
-  app_type   = "APP"
-  name       = "demo"
+  workspace_id = var.workspace_id
+  dlm_type     = "SHARED"
+  app_type     = "APP"
+  name         = "demo"
 }
 ```
 
