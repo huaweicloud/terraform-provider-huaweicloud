@@ -969,8 +969,8 @@ func TestAccPreCheckCERT(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckDataartsWorkspace(t *testing.T) {
+func TestAccPreCheckDataArtsWorkSpaceID(t *testing.T) {
 	if HW_DATAARTS_WORKSPACE_ID == "" {
-		t.Skip("This environment does not support DataArts DataService tests")
+		t.Skip("This environment does not support DataArts Studio tests")
 	}
 }

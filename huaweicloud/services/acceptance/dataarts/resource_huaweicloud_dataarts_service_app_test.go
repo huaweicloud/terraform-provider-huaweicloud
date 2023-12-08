@@ -71,7 +71,7 @@ func TestAccServiceApp_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDataartsWorkspace(t)
+			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

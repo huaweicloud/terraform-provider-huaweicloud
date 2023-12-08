@@ -1084,8 +1084,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_network":                modelarts.ResourceModelartsNetwork(),
 			"huaweicloud_modelarts_resource_pool":          modelarts.ResourceModelartsResourcePool(),
 
-			"huaweicloud_dataarts_studio_instance": dataarts.ResourceStudioInstance(),
-			"huaweicloud_dataarts_service_app":     dataarts.ResourceServiceApp(),
+			"huaweicloud_dataarts_studio_instance":  dataarts.ResourceStudioInstance(),
+			"huaweicloud_dataarts_studio_directory": dataarts.ResourceDataArtsStudioDirectory(),
+			"huaweicloud_dataarts_service_app":      dataarts.ResourceServiceApp(),
 
 			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
 			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
