@@ -887,6 +887,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_instance":       dms.ResourceDmsKafkaInstance(),
 			"huaweicloud_dms_kafka_topic":          dms.ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_kafka_consumer_group": dms.ResourceDmsKafkaConsumerGroup(),
+			"huaweicloud_dms_kafka_smart_connect":  dms.ResourceDmsKafkaSmartConnect(),
 
 			"huaweicloud_dms_rabbitmq_instance": dms.ResourceDmsRabbitmqInstance(),
 
