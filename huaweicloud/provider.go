@@ -1091,6 +1091,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_studio_directory":      dataarts.ResourceDataArtsStudioDirectory(),
 			"huaweicloud_dataarts_service_app":           dataarts.ResourceServiceApp(),
 			"huaweicloud_dataarts_studio_permission_set": dataarts.ResourcePermissionSet(),
+			"huaweicloud_dataarts_studio_resource":       dataarts.ResourceStudioResource(),
 
 			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
 			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
