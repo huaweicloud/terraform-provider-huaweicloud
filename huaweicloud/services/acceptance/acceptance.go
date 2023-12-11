@@ -215,6 +215,7 @@ var (
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
 	HW_DATAARTS_WORKSPACE_ID = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
+	HW_DATAARTS_MANAGER_ID   = os.Getenv("HW_DATAARTS_MANAGER_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -971,6 +972,13 @@ func TestAccPreCheckCERT(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckDataArtsWorkSpaceID(t *testing.T) {
 	if HW_DATAARTS_WORKSPACE_ID == "" {
+		t.Skip("This environment does not support DataArts Studio tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsManagerID(t *testing.T) {
+	if HW_DATAARTS_MANAGER_ID == "" {
 		t.Skip("This environment does not support DataArts Studio tests")
 	}
 }
