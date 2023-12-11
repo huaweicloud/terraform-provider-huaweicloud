@@ -7,8 +7,10 @@ Terraform HuaweiCloud Provider
 * [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
 * Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
 
-<!-- markdownlint-disable-next-line MD033 -->
-<a href="https://www.huaweicloud.com/"><img width="450px" height="102px" src="https://console-static.huaweicloud.com/static/authui/20210202115135/public/custom/images/logo-en.svg"></a>
+<a href="https://www.huaweicloud.com/">
+  <img src="https://console-static.huaweicloud.com/static/authui/20210202115135/public/custom/images/logo-en.svg"
+    alt="HUAWEI CLOUD" width="450px" height="102px">
+</a>
 
 Requirements
 ------------
