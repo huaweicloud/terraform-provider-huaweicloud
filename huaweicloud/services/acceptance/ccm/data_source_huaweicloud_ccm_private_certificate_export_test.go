@@ -10,27 +10,20 @@ import (
 )
 
 func TestAccCcmPrivateCertificateExport_basic(t *testing.T) {
-	var obj interface{}
 	rName := acceptance.RandomAccResourceName()
-	expEesourceName := "data.huaweicloud_ccm_private_certificate_export.test3"
-	resourceName := "huaweicloud_ccm_private_certificate.test"
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getCertificateResourceFunc,
-	)
-
+	dataSourceName := "data.huaweicloud_ccm_private_certificate_export.basiccert"
+	dc := acceptance.InitDataSourceCheck(dataSourceName)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCcmPrivateCertificateExport_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(expEesourceName, "private_key"),
-					resource.TestCheckResourceAttrSet(expEesourceName, "certificate"),
-					resource.TestCheckResourceAttrSet(expEesourceName, "certificate_chain"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "private_key"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "certificate"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "certificate_chain"),
 				),
 			},
 		},
@@ -38,30 +31,52 @@ func TestAccCcmPrivateCertificateExport_basic(t *testing.T) {
 }
 
 func TestAccCcmPrivateCertificateExport_SM2(t *testing.T) {
-	var obj interface{}
 	rName := acceptance.RandomAccResourceName()
-	expEesourceSM2Name := "data.huaweicloud_ccm_private_certificate_export.test4"
-	resourceName := "huaweicloud_ccm_private_certificate.test"
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getCertificateResourceFunc,
-	)
-
+	dataSourceSM2Name := "data.huaweicloud_ccm_private_certificate_export.sm2cert"
+	dc := acceptance.InitDataSourceCheck(dataSourceSM2Name)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCcmPrivateCertificateSM2Export_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(expEesourceSM2Name, "private_key"),
-					resource.TestCheckResourceAttrSet(expEesourceSM2Name, "certificate"),
-					resource.TestCheckResourceAttrSet(expEesourceSM2Name, "certificate_chain"),
-					resource.TestCheckResourceAttrSet(expEesourceSM2Name, "enc_certificate"),
-					resource.TestCheckResourceAttrSet(expEesourceSM2Name, "enc_sm2_enveloped_key"),
-					resource.TestCheckResourceAttrSet(expEesourceSM2Name, "signed_and_enveloped_data"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceSM2Name, "private_key"),
+					resource.TestCheckResourceAttrSet(dataSourceSM2Name, "certificate"),
+					resource.TestCheckResourceAttrSet(dataSourceSM2Name, "certificate_chain"),
+					resource.TestCheckResourceAttrSet(dataSourceSM2Name, "enc_certificate"),
+					resource.TestCheckResourceAttrSet(dataSourceSM2Name, "enc_sm2_enveloped_key"),
+					resource.TestCheckResourceAttrSet(dataSourceSM2Name, "signed_and_enveloped_data"),
+				),
+			},
+		},
+	})
+}
+func TestAccCcmPrivateCertificateExport_compressed(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	tomcatDataSourceName := "data.huaweicloud_ccm_private_certificate_export.tomcatcert"
+	iisDataSourceName := "data.huaweicloud_ccm_private_certificate_export.iiscert"
+	dcTomcat := acceptance.InitDataSourceCheck(tomcatDataSourceName)
+	dcIIS := acceptance.InitDataSourceCheck(iisDataSourceName)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCcmPrivateCertificateExport_TOMCAT(rName),
+				Check: resource.ComposeTestCheckFunc(
+					dcTomcat.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(tomcatDataSourceName, "keystore_pass"),
+					resource.TestCheckResourceAttrSet(tomcatDataSourceName, "server_jks"),
+				),
+			},
+			{
+				Config: testAccCcmPrivateCertificateExport_IIS(rName),
+				Check: resource.ComposeTestCheckFunc(
+					dcIIS.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(iisDataSourceName, "keystore_pass"),
+					resource.TestCheckResourceAttrSet(iisDataSourceName, "server_pfx"),
 				),
 			},
 		},
@@ -71,10 +86,32 @@ func TestAccCcmPrivateCertificateExport_SM2(t *testing.T) {
 // lintignore:AT004
 func testAccCcmPrivateCertificateExport_basic(commonName string) string {
 	return fmt.Sprintf(`
-  %s
+%s
 
-data "huaweicloud_ccm_private_certificate_export" "test3" {
+data "huaweicloud_ccm_private_certificate_export" "basiccert" {
     type           = "other"
+    certificate_id = huaweicloud_ccm_private_certificate.test.id
+}`, tesCmdbCertificate_basic(commonName))
+}
+
+// lintignore:AT004
+func testAccCcmPrivateCertificateExport_TOMCAT(commonName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_ccm_private_certificate_export" "tomcatcert" {
+    type           = "TOMCAT"
+    certificate_id = huaweicloud_ccm_private_certificate.test.id
+}`, tesCmdbCertificate_basic(commonName))
+}
+
+// lintignore:AT004
+func testAccCcmPrivateCertificateExport_IIS(commonName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_ccm_private_certificate_export" "iiscert" {
+    type           = "IIS"
     certificate_id = huaweicloud_ccm_private_certificate.test.id
 }`, tesCmdbCertificate_basic(commonName))
 }
@@ -120,7 +157,7 @@ resource "huaweicloud_ccm_private_certificate" "test2" {
   }
 }
 	  
-data "huaweicloud_ccm_private_certificate_export" "test4" {
+data "huaweicloud_ccm_private_certificate_export" "sm2cert" {
   type           = "other"
   certificate_id = huaweicloud_ccm_private_certificate.test2.id
   sm_standard    = "true"
