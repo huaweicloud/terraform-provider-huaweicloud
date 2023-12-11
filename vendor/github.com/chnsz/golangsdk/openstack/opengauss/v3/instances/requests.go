@@ -92,7 +92,6 @@ func Create(client *golangsdk.ServiceClient, opts CreateGaussDBBuilder) (r Creat
 	}
 
 	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return
@@ -118,7 +117,6 @@ func UpdateVolume(client *golangsdk.ServiceClient, opts UpdateVolumeOptsBuilder,
 	}
 
 	_, r.Err = client.Post(updateURL(client, id, "action"), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return
@@ -153,7 +151,6 @@ func UpdateCluster(client *golangsdk.ServiceClient, opts UpdateClusterOptsBuilde
 	}
 
 	_, r.Err = client.Post(updateURL(client, id, "action"), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return
@@ -189,7 +186,6 @@ func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult)
 	url := deleteURL(client, instanceId)
 
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 
@@ -315,7 +311,6 @@ func Rename(client *golangsdk.ServiceClient, opts RenameOptsBuilder, id string) 
 	}
 
 	_, r.Err = client.Put(updateURL(client, id, "name"), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{200},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return
@@ -341,7 +336,6 @@ func RestorePassword(client *golangsdk.ServiceClient, opts RestorePasswordOptsBu
 	}
 
 	_, r.Err = client.Post(updateURL(client, id, "password"), b, nil, &golangsdk.RequestOpts{
-		OkCodes:     []int{200},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return

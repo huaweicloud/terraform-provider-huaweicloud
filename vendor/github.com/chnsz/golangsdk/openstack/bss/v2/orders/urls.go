@@ -9,3 +9,7 @@ func unsubscribeURL(sc *golangsdk.ServiceClient) string {
 func getURL(sc *golangsdk.ServiceClient, id string) string {
 	return sc.ServiceURL("orders/customer-orders/details", id)
 }
+
+func payOrderURL(sc *golangsdk.ServiceClient) string {
+	return sc.ServiceURL("orders/customer-orders/pay")
+}

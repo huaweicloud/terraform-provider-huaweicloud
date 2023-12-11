@@ -20,17 +20,17 @@ type ListResp struct {
 // If with-detail is set to false in the URI, only values of tables-related parameters data_location, table_name,
 // and table_type are returned.
 type Table4List struct {
-	CreateTime       int    `json:"create_time"`
-	DataType         string `json:"data_type"`
-	DataLocation     string `json:"data_location"`
-	LastAccessTime   int    `json:"last_access_time"`
-	Location         string `json:"location"`
-	Owner            string `json:"owner"`
-	TableName        string `json:"table_name"`
-	TableSize        int    `json:"table_size"`
-	PartitionColumns string `json:"partition_columns"`
-	PageSize         int    `json:"page-size"`
-	CurrentPage      int    `json:"current-page"`
+	CreateTime       int      `json:"create_time"`
+	DataType         string   `json:"data_type"`
+	DataLocation     string   `json:"data_location"`
+	LastAccessTime   int      `json:"last_access_time"`
+	Location         string   `json:"location"`
+	Owner            string   `json:"owner"`
+	TableName        string   `json:"table_name"`
+	TableSize        int      `json:"table_size"`
+	PartitionColumns []string `json:"partition_columns"`
+	PageSize         int      `json:"page-size"`
+	CurrentPage      int      `json:"current-page"`
 	// Type of a table.
 	// EXTERNAL: Indicates an OBS table.
 	// MANAGED: Indicates a DLI table.

@@ -14,6 +14,10 @@ func resizeResourceURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(c.ProjectID, "instances", id, "resize")
 }
 
+func resizePrePaidResourceURL(c *golangsdk.ServiceClient, id string) string {
+	return c.ServiceURL(c.ProjectID, "orders/instances", id, "resize")
+}
+
 func updatePasswordURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(c.ProjectID, "instances", id, "password")
 }
