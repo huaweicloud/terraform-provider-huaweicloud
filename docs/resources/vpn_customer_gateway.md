@@ -8,6 +8,8 @@ Manages a VPN customer gateway resource within HuaweiCloud.
 
 ## Example Usage
 
+### Manages a common VPN customer gateway
+
 ```hcl
 variable "name" {}
 variable "ip" {}
@@ -15,6 +17,20 @@ variable "ip" {}
 resource "huaweicloud_vpn_customer_gateway" "test" {
   name = var.name
   ip   = var.ip
+}
+```
+
+### Manages a VPN customer gateway with CA certificate
+
+```hcl
+variable "name" {}
+variable "ip" {}
+variable "certificate_content" {}
+
+resource "huaweicloud_vpn_customer_gateway" "test" {
+  name                = var.name
+  ip                  = var.ip
+  certificate_content = var.certificate_content
 }
 ```
 
@@ -41,11 +57,25 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
+* `certificate_content` - (Optional, String)  The CA certificate content of the customer gateway.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `serial_number` - Indicates the serial number of the customer gateway certificate.
+
+* `signature_algorithm` - Indicates the signature algorithm of the customer gateway certificate.
+
+* `issuer` - Indicates the issuer of the customer gateway certificate.
+
+* `subject` - Indicates the subject of the customer gateway certificate.
+
+* `expire_time` - Indicates the expire time of the customer gateway certificate.
+
+* `is_updatable` - Indicates whether the customer gateway certificate is updatable.
 
 * `created_at` - The create time.
 

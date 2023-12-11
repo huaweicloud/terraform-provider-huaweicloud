@@ -196,6 +196,7 @@ var (
 	HW_IMAGE_SHARE_SOURCE_IMAGE_ID = os.Getenv("HW_IMAGE_SHARE_SOURCE_IMAGE_ID")
 
 	HW_CERTIFICATE_CONTENT         = os.Getenv("HW_CERTIFICATE_CONTENT")
+	HW_CERTIFICATE_CONTENT_UPDATE  = os.Getenv("HW_CERTIFICATE_CONTENT_UPDATE")
 	HW_CERTIFICATE_PRIVATE_KEY     = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY")
 	HW_CERTIFICATE_ROOT_CA         = os.Getenv("HW_CERTIFICATE_ROOT_CA")
 	HW_NEW_CERTIFICATE_CONTENT     = os.Getenv("HW_NEW_CERTIFICATE_CONTENT")
@@ -838,6 +839,13 @@ func TestAccPreCheckCcePartitionAz(t *testing.T) {
 func TestAccPreCheckCnEast3(t *testing.T) {
 	if HW_REGION_NAME != "cn-east-3" {
 		t.Skip("HW_REGION_NAME must be cn-east-3 for this test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckUpdateCertificateContent(t *testing.T) {
+	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_CONTENT_UPDATE == "" {
+		t.Skip("HW_CERTIFICATE_CONTENT, HW_CERTIFICATE_CONTENT_UPDATE must be set for this test")
 	}
 }
 
