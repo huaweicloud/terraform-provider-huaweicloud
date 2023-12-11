@@ -29,7 +29,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of advanced Anti-DDoS instance.
   Changing this will create a new rule resource.
 
-* `ip` - (Required, String, ForceNew) Specifies the public IP addresss to which Advanced Anti-DDoS instance
+* `ip` - (Required, String, ForceNew) Specifies the public IP address to which Advanced Anti-DDoS instance
   belongs. Changing this will create a new rule resource.
 
 * `forward_protocol` - (Required, String) Specifies the forward protocol.
