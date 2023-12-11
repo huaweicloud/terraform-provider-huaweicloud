@@ -211,8 +211,8 @@ The following arguments are supported:
 
 * `kms_key_id` - (Optional, String) Specifies the ID of a KMS key. If omitted, the default master key will be used.
 
-* `kms_key_project_id` - (Optional, String) Specifies the project ID to which the KMS key belongs. If omitted, the ID
-  of the provider-level project will be used.
+* `kms_key_project_id` - (Optional, String) Specifies the project ID to which the KMS key belongs. This field is valid
+  only when `kms_key_id` is specified.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the OBS bucket.
   Defaults to `0`.
