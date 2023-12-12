@@ -178,10 +178,6 @@ func ResourceDesktop() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"eip_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 		},
 	}
 }
@@ -400,8 +396,7 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
 	}
 
-	desktopId := d.Id()
-	resp, err := desktops.Get(client, desktopId)
+	resp, err := desktops.Get(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Workspace desktop")
 	}
@@ -431,31 +426,10 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		mErr = multierror.Append(mErr, d.Set("security_groups", flattenDesktopSecurityGroups(securityGroups)))
 	}
 
-	eipId, err := getAssociateEipId(client, desktopId)
-	if err != nil {
-		mErr = multierror.Append(mErr, err)
-	} else {
-		mErr = multierror.Append(mErr, d.Set("eip_id", eipId))
-	}
-
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting desktop fields: %s", err)
 	}
-
 	return nil
-}
-
-func getAssociateEipId(client *golangsdk.ServiceClient, desktopId string) (string, error) {
-	eips, err := desktops.ListEips(client, desktopId)
-	if err != nil {
-		return "", fmt.Errorf("error getting desktop EIPs info: %s", err)
-	}
-
-	if len(eips) < 1 {
-		return "", err
-	}
-
-	return eips[0].ID, err
 }
 
 func updateDesktopFlavor(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -504,7 +478,7 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 		newLen := len(newRaw)
 		oldLen := len(oldRaw)
 		if newLen < oldLen {
-			return fmt.Errorf("the number of volumes cannot be reduced")
+			return fmt.Errorf("The number of volumes cannot be reduced")
 		}
 		lengthDiff = newLen - oldLen
 
@@ -574,36 +548,6 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
-func updateDesktopEip(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	oldVal, newVal := d.GetChange("eip_id")
-	eipId := newVal.(string)
-	desktopId := d.Id()
-	if oldVal.(string) != "" {
-		opts := desktops.UnbindEipOpt{
-			DesktopIds: []string{desktopId},
-		}
-		err := desktops.UnbindEip(client, opts)
-
-		if err != nil {
-			return fmt.Errorf("error unbinding desktop EIP: %s", err)
-		}
-	}
-
-	if newVal.(string) == "" {
-		return nil
-	}
-
-	updateOpts := desktops.BindEipOpts{
-		DesktopId: desktopId,
-		ID:        eipId,
-	}
-	err := desktops.BindEip(client, updateOpts)
-	if err != nil {
-		return fmt.Errorf("error binding desktop EIP: %s", err)
-	}
-	return nil
-}
-
 func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
@@ -645,12 +589,6 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		err = utils.UpdateResourceTags(client, d, "desktops", desktopId)
 		if err != nil {
 			return diag.Errorf("error updating tags of Workspace desktop (%s): %s", desktopId, err)
-		}
-	}
-
-	if d.HasChange("eip_id") {
-		if err = updateDesktopEip(client, d); err != nil {
-			return diag.Errorf("error updating EIP of Workspace desktop (%s): %s", desktopId, err)
 		}
 	}
 
