@@ -198,6 +198,14 @@ func TestAccObsBucket_encryption(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "kms_key_id"),
 				),
 			},
+			{
+				Config: testAccObsBucket_encryptionByDefaultKMSMasterKey(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "kms_key_id", ""),
+				),
+			},
 		},
 	})
 }
@@ -566,6 +574,22 @@ resource "huaweicloud_obs_bucket" "bucket" {
   }
 }
 `, randInt, randInt)
+}
+
+func testAccObsBucket_encryptionByDefaultKMSMasterKey(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "tf-test-bucket-%d"
+  storage_class = "STANDARD"
+  acl           = "private"
+  encryption    = true
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, randInt)
 }
 
 func testAccObsBucket_epsId(randInt int, enterpriseProjectId string) string {
