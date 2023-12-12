@@ -70,6 +70,10 @@ The `attachments` block supports:
 
 * `status` - The current status of the attachment.
 
+* `associated` - Whether this attachment has been associated.
+
+* `resource_id` - The associated resource ID.
+
 * `created_at` - The creation time of the attachment.
 
 * `updated_at` - The latest update time of the attachment.
