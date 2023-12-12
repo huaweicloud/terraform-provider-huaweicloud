@@ -56,15 +56,24 @@ The arguments of this data source act as filters for querying the available VPCs
 
 The following attributes are exported:
 
-* `id` - Indicates a data source ID.
-* `vpcs` - Indicates a list of all VPCs found. Structure is documented below.
+* `id` - The data source ID.
+
+* `vpcs` - The list of all VPCs found. Structure is documented below.
 
 The `vpcs` block supports:
 
-* `id` - Indicates the ID of the VPC.
-* `name` - Indicates the name of the VPC.
-* `cidr` - Indicates the cidr block of the VPC.
-* `status` - Indicates the current status of the VPC.
-* `enterprise_project_id` - Indicates the the enterprise project ID of the VPC.
-* `description` - Indicates the description of the VPC.
-* `tags` - Indicates the key/value pairs which associated with the VPC.
+* `id` - The ID of the VPC.
+
+* `name` - The name of the VPC.
+
+* `cidr` - The cidr block of the VPC.
+
+* `status` - The current status of the VPC.
+
+* `enterprise_project_id` - The the enterprise project ID of the VPC.
+
+* `description` - The description of the VPC.
+
+* `tags` - The key/value pairs which associated with the VPC.
+
+* `secondary_cidrs` - The secondary CIDR blocks of the VPC.
