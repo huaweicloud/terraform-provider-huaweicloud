@@ -1,6 +1,9 @@
 package desktops
 
-import "github.com/chnsz/golangsdk/openstack/common/tags"
+import (
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/pagination"
+)
 
 // RequestResp is the structure that represents the API response of desktop methods request.
 type RequestResp struct {
@@ -210,4 +213,38 @@ type RebuildResp struct {
 	ErrorCode string `json:"error_code"`
 	// Error message.
 	ErrorMsg string `json:"error_msg"`
+}
+
+// EipPage is a single page maximum result representing a query by offset page.
+type EipPage struct {
+	pagination.OffsetPageBase
+}
+
+// EipResp is the structure that represents the bind information between EIP and desktop.
+type EipResp struct {
+	// EIP ID.
+	ID string `json:"id"`
+	// + bandwidth: billed by bandwidth
+	// + traffic: billed by traffic
+	// Defaults to bandwidth.
+	ChargeMode string `json:"eip_charge_mode"`
+	// address of EIP
+	Address string `json:"address"`
+	// bandwidth size of EIP
+	BandWidthSize int `json:"bandwidth_size"`
+	// creation time, in UTC format: yyyy-MM-ddTHH:mm:ss.
+	CreateAt string `json:"create_time"`
+	// Desktop id of binded.
+	AttachedDesktopId string `json:"attached_desktop_id"`
+	// Desktop name of binded.
+	AttachedDesktopName string `json:"attached_desktop_name"`
+	// EnterpriseProject ID of desktop
+	EnterpriseProjectId string `json:"enterprise_project_id"`
+}
+
+// ExtractEips is a method to extract the list of EIP information.
+func ExtractEips(r pagination.Page) ([]EipResp, error) {
+	var s []EipResp
+	err := r.(EipPage).Result.ExtractIntoSlicePtr(&s, "eips")
+	return s, err
 }

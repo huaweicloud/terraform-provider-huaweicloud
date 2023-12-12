@@ -17,6 +17,7 @@ variable "vpc_id" {}
 variable "network_id" {}
 variable "security_group_id" {}
 variable "desktop_name" {}
+variable "eip_id" {}
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -29,6 +30,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   flavor_id  = var.flavor_id
   image_type = "market"
   image_id   = var.image_id
+  eip_id     = var.eip_id
 
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = var.vpc_id
@@ -127,6 +129,8 @@ The following arguments are supported:
 
 * `delete_user` - (Optional, Bool) Specifies whether to delete user associated with this desktop after deleting it.
   The user can only be successfully deleted if the user has no other desktops.
+
+* `eip_id` - (Optional, String) Specifies the EIP ID bound to the desktop.
 
 <a name="desktop_volume"></a>
 The `root_volume` and `data_volume` block supports:

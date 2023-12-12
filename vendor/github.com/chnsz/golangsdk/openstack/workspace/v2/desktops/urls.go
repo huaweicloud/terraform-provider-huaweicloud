@@ -25,3 +25,11 @@ func volumeExpandURL(c *golangsdk.ServiceClient) string {
 func rebuildURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("desktops/rebuild")
 }
+
+func eipsURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("eips")
+}
+
+func bindEipURL(c *golangsdk.ServiceClient, bindType string) string {
+	return c.ServiceURL("eips", bindType)
+}
