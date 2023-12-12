@@ -7,6 +7,7 @@ const (
 	resourcePath = "loadbalancers"
 	statusPath   = "statuses"
 	forcePath    = "force-elb"
+	azPath       = "availability-zone"
 )
 
 func rootURL(c *golangsdk.ServiceClient) string {
@@ -23,4 +24,8 @@ func statusRootURL(c *golangsdk.ServiceClient, id string) string {
 
 func resourceForceDeleteURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(rootPath, resourcePath, id, forcePath)
+}
+
+func updateAvailabilityZoneURL(c *golangsdk.ServiceClient, id string, action string) string {
+	return c.ServiceURL(rootPath, resourcePath, id, azPath, action)
 }
