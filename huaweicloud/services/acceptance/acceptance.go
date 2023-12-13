@@ -979,6 +979,6 @@ func TestAccPreCheckDataArtsWorkSpaceID(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckDataArtsManagerID(t *testing.T) {
 	if HW_DATAARTS_MANAGER_ID == "" {
-		t.Skip("This environment does not support DataArts Studio tests")
+		t.Skip("This environment does not support DataArts Studio permission set tests")
 	}
 }
