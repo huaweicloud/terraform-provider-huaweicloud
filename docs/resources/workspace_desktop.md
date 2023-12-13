@@ -35,7 +35,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   security_groups   = setunion(data.huaweicloud_networking_secgroups.test.security_groups[*].id,
     [var.security_group_id])
 
-  nics {
+  nic {
     network_id = var.network_id
   }
 
@@ -108,8 +108,8 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
-* `nic` - (Optional, List, ForceNew) Specifies the NIC information corresponding to the desktop.
-  The [object](#desktop_nic) structure is documented below. Changing this will create a new resource.
+* `nic` - (Optional, List) Specifies the NIC information corresponding to the desktop.
+  The [object](#desktop_nic) structure is documented below.
 
 * `name` - (Optional, String, ForceNew) Specifies the desktop name.
   The name can contain `1` to `15` characters, only letters, digits and hyphens (-) are allowed.
@@ -146,8 +146,7 @@ The `root_volume` and `data_volume` block supports:
 <a name="desktop_nic"></a>
 The `nic` block supports:
 
-* `network_id` - (Required, String, ForceNew) Specifies the network ID of subnet resource.
-  Changing this will create a new resource.
+* `network_id` - (Required, String) Specifies the network ID of subnet resource.
 
 ## Attribute Reference
 
