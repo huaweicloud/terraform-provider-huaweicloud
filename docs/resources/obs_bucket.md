@@ -142,6 +142,22 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 ```
 
+### using encryption
+
+```hcl
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "my-tf-encryption-bucket"
+  storage_class = "STANDARD"
+  acl           = "private"
+  encryption    = true
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -207,9 +223,16 @@ The following arguments are supported:
   bucket, but the name of a deleted bucket can be reused for another bucket at least 30 minutes after the deletion.
   Exercise caution when changing this field.
 
-* `encryption` - (Optional, Bool) Whether enable default server-side encryption of the bucket in SSE-KMS mode.
+* `encryption` - (Optional, Bool) Whether to enable default server-side encryption of the bucket.
 
-* `kms_key_id` - (Optional, String) Specifies the ID of a KMS key. If omitted, the default master key will be used.
+* `sse_algorithm` - (Optional, String) Specifies the mode of encryption algorithm. The valid values are:
+  + **kms**: Server-side encryption with keys hosted by KMS are used to encrypt your objects.
+  + **AES256**: Server-side encryption with keys managed by OBS are used to encrypt your objects.
+
+  Defaults to **kms**.
+
+* `kms_key_id` - (Optional, String) Specifies the ID of a KMS key. If omitted, the default master key will be used. This
+  field is used only when `sse_algorithm` value is **kms**.
 
 * `kms_key_project_id` - (Optional, String) Specifies the project ID to which the KMS key belongs. This field is valid
   only when `kms_key_id` is specified.

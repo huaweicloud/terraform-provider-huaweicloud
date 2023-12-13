@@ -206,6 +206,34 @@ func TestAccObsBucket_encryption(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "kms_key_id", ""),
 				),
 			},
+			{
+				Config: testAccObsBucket_encryptionBySSEObsMode(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "AES256"),
+				),
+			},
+			{
+				Config: testAccObsBucket_updateEncryptionToSSEKMSMode(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", "kms"),
+				),
+			},
+			{
+				Config: testAccObsBucket_basic(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "bucket_domain_name", testAccObsBucketDomainName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
+					resource.TestCheckResourceAttr(resourceName, "sse_algorithm", ""),
+				),
+			},
 		},
 	})
 }
@@ -583,6 +611,40 @@ resource "huaweicloud_obs_bucket" "bucket" {
   storage_class = "STANDARD"
   acl           = "private"
   encryption    = true
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, randInt)
+}
+
+func testAccObsBucket_encryptionBySSEObsMode(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "tf-test-bucket-%d"
+  storage_class = "STANDARD"
+  acl           = "private"
+  encryption    = true
+  sse_algorithm = "AES256"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, randInt)
+}
+
+func testAccObsBucket_updateEncryptionToSSEKMSMode(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "tf-test-bucket-%d"
+  storage_class = "STANDARD"
+  acl           = "private"
+  encryption    = true
+  sse_algorithm = "kms"
 
   tags = {
     foo = "bar"
