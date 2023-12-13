@@ -47,6 +47,10 @@ func ResourceDmsKafkaUser() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -66,6 +70,7 @@ func resourceDmsKafkaUserCreate(ctx context.Context, d *schema.ResourceData, met
 		Body: &model.CreateInstanceUserReq{
 			UserName:   utils.String(instanceUser),
 			UserPasswd: utils.String(d.Get("password").(string)),
+			UserDesc:   utils.String(d.Get("description").(string)),
 		},
 	}
 
@@ -110,6 +115,7 @@ func resourceDmsKafkaUserRead(ctx context.Context, d *schema.ResourceData, meta 
 			if *user.UserName == instanceUser {
 				d.Set("instance_id", instanceId)
 				d.Set("name", instanceUser)
+				d.Set("description", user.UserDesc)
 				return nil
 			}
 		}
@@ -131,15 +137,18 @@ func resourceDmsKafkaUserUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	instanceId := d.Get("instance_id").(string)
 
-	updateOpts := &model.ResetUserPasswrodRequest{
+	updateOpts := &model.UpdateInstanceUserRequest{
+		Engine:     "kafka",
 		InstanceId: instanceId,
 		UserName:   d.Get("name").(string),
-		Body: &model.ResetUserPasswrodReq{
+		Body: &model.UpdateUserReq{
+			UserName:    utils.String(d.Get("name").(string)),
 			NewPassword: utils.String(d.Get("password").(string)),
+			UserDesc:    utils.String(d.Get("description").(string)),
 		},
 	}
 
-	_, err = client.ResetUserPasswrod(updateOpts)
+	_, err = client.UpdateInstanceUser(updateOpts)
 	if err != nil {
 		return diag.Errorf("error updating DMS instance user: %s", err)
 	}

@@ -55,6 +55,8 @@ func TestAccDmsKafkaUser_basic(t *testing.T) {
 	resourceName := "huaweicloud_dms_kafka_user.test"
 	password := acceptance.RandomPassword()
 	passwordUpdate := password + "update"
+	description := "add destription"
+	descriptionUpdate := ""
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -68,17 +70,19 @@ func TestAccDmsKafkaUser_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDmsKafkaUser_basic(rName, password),
+				Config: testAccDmsKafkaUser_basic(rName, password, description),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", description),
 				),
 			},
 			{
-				Config: testAccDmsKafkaUser_basic(rName, passwordUpdate),
+				Config: testAccDmsKafkaUser_basic(rName, passwordUpdate, descriptionUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", descriptionUpdate),
 				),
 			},
 			{
@@ -91,14 +95,15 @@ func TestAccDmsKafkaUser_basic(t *testing.T) {
 	})
 }
 
-func testAccDmsKafkaUser_basic(rName, password string) string {
+func testAccDmsKafkaUser_basic(rName, password string, description string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_dms_kafka_user" "test" {
   instance_id = huaweicloud_dms_kafka_instance.test.id
-  name        = "%s"
-  password    = "%s"
+  name        = "%[2]s"
+  password    = "%[3]s"
+  description = "%[4]s"
 }
-`, testAccKafkaInstance_basic(rName), rName, password)
+`, testAccKafkaInstance_basic(rName), rName, password, description)
 }
