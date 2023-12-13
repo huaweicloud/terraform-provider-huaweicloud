@@ -33,6 +33,10 @@ The following arguments are supported:
   + **APACHE**: This parameter is recommended if you want to use the certificate for an Apache server.
   + **NGINX**: This parameter is recommended if you want to use the certificate for an Nginx server.
   + **OTHER**: This parameter is recommended if you want to download a certificate in PEM format.
+  + **IIS**: This parameter is recommended if you want to use the certificate for an IIS server.
+  + **TOMCAT**: This parameter is recommended if you want to use the certificate for a TOMCAT server.
+
+  -> **NOTE:** When the **type** is "IIS" or "TOMCAT" the export certificate file is different everytime.
 
 * `sm_standard` - (Optional, String) Specifies the GB/T GMT0009 standard specifications and
   GB/T GMT0010 standard. When the certificate algorithm is SM2,
@@ -61,4 +65,9 @@ In addition to all arguments above, the following attributes are exported:
   
 * `signed_and_enveloped_data` - Indicates the National Security GMT0010 Standard Specification for
   Encrypting Private Keys - Signature Digital Envelope.
-  
+
+* `keystore_pass` - Indicates the keystore password. If argument "password" passed in, it will be empty.
+
+* `server_pfx` - Indicates the certificate file for IIS server. Encoding by base64.
+
+* `server_jks` - Indicates the certificate file for TOMCAT server. Encoding by base64.
