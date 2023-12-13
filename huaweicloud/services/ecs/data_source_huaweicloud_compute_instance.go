@@ -249,7 +249,7 @@ func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("your query returned more than one result, please try a more specific search criteria.")
 	}
 
-	server := allServers[0]
+	server := filterServers[0].(cloudservers.CloudServer)
 	log.Printf("[DEBUG] fetching the ECS instance: %#v", server)
 
 	d.SetId(server.ID)
