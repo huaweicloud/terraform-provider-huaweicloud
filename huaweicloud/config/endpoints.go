@@ -35,6 +35,7 @@ var multiCatalogKeys = map[string][]string{
 	"rds":          {"rdsv1"},
 	"waf":          {"waf-dedicated"},
 	"geminidb":     {"geminidbv31"},
+	"dataarts":     {"dataarts-dlf"},
 	"dli":          {"dliv2"},
 	"dcs":          {"dcsv1"},
 	"dis":          {"disv3"},
@@ -601,6 +602,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 	"dataarts": {
 		Name:    "dayu",
+		Version: "v1",
+		Product: "DataArtsStudio",
+	},
+	"dataarts-dlf": {
+		Name:    "dayu-dlf",
 		Version: "v1",
 		Product: "DataArtsStudio",
 	},
