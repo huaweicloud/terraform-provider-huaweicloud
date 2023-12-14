@@ -63,3 +63,18 @@ func WaitForOrderSuccess(client *golangsdk.ServiceClient, secs int, orderID stri
 		return false, nil
 	})
 }
+
+type PayOrderResult struct {
+	golangsdk.Result
+}
+
+type PayOrderResponse struct {
+	ErrorCode string `json:"error_code"`
+	ErrorMsg  string `json:"error_msg"`
+}
+
+func (r PayOrderResult) Extract() (*PayOrderResponse, error) {
+	var response PayOrderResponse
+	err := r.ExtractInto(&response)
+	return &response, err
+}

@@ -316,7 +316,7 @@ The `func_graph_policy` block supports:
 
 * `version` - (Optional, String) Specifies the version of the FunctionGraph function.
 
-* `backend_params` - (Optional, List) Specifies the configaiton list of the backend parameters.  
+* `backend_params` - (Optional, List) Specifies the configuration list of the backend parameters.  
   The maximum of request parameters is `50`.  
   The [object](#apig_api_backend_params) structure is documented above.
 

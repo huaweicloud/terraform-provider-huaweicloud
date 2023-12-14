@@ -1,5 +1,5 @@
 ---
-subcategory: "MapReduce Service (MRS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_mrs\_job

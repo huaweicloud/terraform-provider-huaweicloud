@@ -740,10 +740,12 @@ func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.Obs
 		input.SSEAlgorithm = obs.DEFAULT_SSE_KMS_ENCRYPTION_OBS
 		input.KMSMasterKeyID = d.Get("kms_key_id").(string)
 
-		if v, ok := d.GetOk("kms_key_project_id"); ok {
-			input.ProjectID = v.(string)
-		} else {
-			input.ProjectID = config.GetProjectID(config.GetRegion(d))
+		if _, ok := d.GetOk("kms_key_id"); ok {
+			if v, ok := d.GetOk("kms_key_project_id"); ok {
+				input.ProjectID = v.(string)
+			} else {
+				input.ProjectID = config.GetProjectID(config.GetRegion(d))
+			}
 		}
 
 		log.Printf("[DEBUG] enable default encryption of OBS bucket %s: %#v", bucket, input)

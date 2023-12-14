@@ -16,7 +16,7 @@
     },
     "MD033": {
         "allowed_elements": [
-            "a", "br"
+            "a", "br", "img"
         ]
     },
     "MD040": false,

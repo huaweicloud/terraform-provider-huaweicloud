@@ -80,7 +80,7 @@ resource "huaweicloud_dli_table" "test" {
   }
 
   columns {
-    name = "addrss"
+    name        = "addrss"
     type        = "string"
     description = "home address"
   }
@@ -156,15 +156,16 @@ resource "huaweicloud_dli_table" "test" {
   bucket_location = "obs://${huaweicloud_obs_bucket_object.test.bucket}/user/data"
 
   columns {
-    name = "name"
+    name        = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    name = "addrss"
-    type        = "string"
-    description = "home address"
+    name         = "addrss"
+    type         = "string"
+    description  = "home address"
+    is_partition = true
   }
 
 }
