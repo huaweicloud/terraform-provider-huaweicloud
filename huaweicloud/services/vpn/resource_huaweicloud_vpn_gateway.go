@@ -213,6 +213,12 @@ func ResourceGateway() *schema.Resource {
 				ForceNew:     true,
 				RequiredWith: []string{"access_private_ip_1"},
 			},
+			"certificate": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     GatewayCertificateSchema(),
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -237,6 +243,98 @@ func ResourceGateway() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: `The number of used connections.`,
+			},
+		},
+	}
+}
+
+func GatewayCertificateSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				Computed: true,
+			},
+			"content": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"private_key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"certificate_chain": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"enc_certificate": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"enc_private_key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"certificate_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"issuer": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"signature_algorithm": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"certificate_serial_number": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"certificate_subject": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"certificate_expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"certificate_chain_serial_number": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"certificate_chain_subject": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"certificate_chain_expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enc_certificate_serial_number": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enc_certificate_subject": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enc_certificate_expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -323,8 +421,9 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	// createGateway: Create a VPN Gateway.
 	var (
-		createGatewayHttpUrl = "v5/{project_id}/vpn-gateways"
-		createGatewayProduct = "vpn"
+		createGatewayHttpUrl            = "v5/{project_id}/vpn-gateways"
+		createGatewayCertificateHttpUrl = "v5/{project_id}/vpn-gateways/{gateway_id}/certificate"
+		createGatewayProduct            = "vpn"
 	)
 	createGatewayClient, err := cfg.NewServiceClient(createGatewayProduct, region)
 	if err != nil {
@@ -361,7 +460,37 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if err != nil {
 		return diag.Errorf("error waiting for the Create of Gateway (%s) to complete: %s", d.Id(), err)
 	}
+
+	certificateContent := d.Get("certificate").([]interface{})
+	if len(certificateContent) == 1 {
+		createGatewayCertificatePath := createGatewayClient.Endpoint + createGatewayCertificateHttpUrl
+		createGatewayCertificatePath = strings.ReplaceAll(createGatewayCertificatePath, "{project_id}", createGatewayClient.ProjectID)
+		createGatewayCertificatePath = strings.ReplaceAll(createGatewayCertificatePath, "{gateway_id}", d.Id())
+		createGatewayCertificateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		createGatewayCertificateOpt.JSONBody = utils.RemoveNil(buildCreateGatewayCertificateBodyParams(certificateContent[0]))
+		_, err = createGatewayClient.Request("POST", createGatewayCertificatePath, &createGatewayCertificateOpt)
+		if err != nil {
+			return diag.Errorf("error creating Gateway certificate: %s", err)
+		}
+	}
 	return resourceGatewayRead(ctx, d, meta)
+}
+
+func buildCreateGatewayCertificateBodyParams(certificateContent interface{}) map[string]interface{} {
+	certificateMap := certificateContent.(map[string]interface{})
+	bodyParams := map[string]interface{}{
+		"certificate": map[string]interface{}{
+			"name":              utils.ValueIngoreEmpty(certificateMap["name"].(string)),
+			"certificate":       utils.ValueIngoreEmpty(certificateMap["content"].(string)),
+			"private_key":       utils.ValueIngoreEmpty(certificateMap["private_key"].(string)),
+			"certificate_chain": utils.ValueIngoreEmpty(certificateMap["certificate_chain"].(string)),
+			"enc_certificate":   utils.ValueIngoreEmpty(certificateMap["enc_certificate"].(string)),
+			"enc_private_key":   utils.ValueIngoreEmpty(certificateMap["enc_private_key"].(string)),
+		},
+	}
+	return bodyParams
 }
 
 func buildCreateGatewayBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
@@ -505,8 +634,9 @@ func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	// getGateway: Query the VPN gateway detail
 	var (
-		getGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
-		getGatewayProduct = "vpn"
+		getGatewayHttpUrl            = "v5/{project_id}/vpn-gateways/{id}"
+		getGatewayCertificateHttpUrl = "v5/{project_id}/vpn-gateways/{gateway_id}/certificate/{certificate_id}"
+		getGatewayProduct            = "vpn"
 	)
 	getGatewayClient, err := cfg.NewServiceClient(getGatewayProduct, region)
 	if err != nil {
@@ -564,7 +694,56 @@ func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("access_private_ip_2", utils.PathSearch("vpn_gateway.access_private_ip_2", getGatewayRespBody, nil)),
 	)
 
+	certificateContent := d.Get("certificate").([]interface{})
+	if len(certificateContent) == 1 {
+		certificateMap := certificateContent[0].(map[string]interface{})
+		getGatewayCertificatePath := getGatewayClient.Endpoint + getGatewayCertificateHttpUrl
+		getGatewayCertificatePath = strings.ReplaceAll(getGatewayCertificatePath, "{project_id}", getGatewayClient.ProjectID)
+		getGatewayCertificatePath = strings.ReplaceAll(getGatewayCertificatePath, "{gateway_id}", d.Id())
+		getGatewayCertificatePath = strings.ReplaceAll(getGatewayCertificatePath, "{certificate_id}", certificateMap["certificate_id"].(string))
+		log.Printf("[INFO] getGatewayCertificatePath: %s", getGatewayCertificatePath)
+		getGatewayCertificateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getGatewayCertificateResp, err := getGatewayClient.Request("GET", getGatewayCertificatePath, &getGatewayCertificateOpt)
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error retrieving Gateway certificate")
+		}
+		mErr = multierror.Append(
+			mErr,
+			d.Set("certificate", flattenGetGatewayCertificateResponse(getGatewayCertificateResp)),
+		)
+	}
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenGetGatewayCertificateResponse(resp interface{}) []interface{} {
+	var rst []interface{}
+	curJson, err := jmespath.Search(fmt.Sprintf("certificate"), resp)
+	if err != nil {
+		log.Printf("[ERROR] error parsing certificate from response= %#v", resp)
+		return rst
+	}
+	rst = []interface{}{
+		map[string]interface{}{
+			"certificate_id":                  utils.PathSearch("id", curJson, nil),
+			"status":                          utils.PathSearch("status", curJson, nil),
+			"issuer":                          utils.PathSearch("issuer", curJson, nil),
+			"signature_algorithm":             utils.PathSearch("signature_algorithm", curJson, nil),
+			"certificate_serial_number":       utils.PathSearch("certificate_serial_number", curJson, nil),
+			"certificate_subject":             utils.PathSearch("certificate_subject", curJson, nil),
+			"certificate_expire_time":         utils.PathSearch("certificate_expire_time", curJson, nil),
+			"certificate_chain_serial_number": utils.PathSearch("certificate_chain_serial_number", curJson, nil),
+			"certificate_chain_subject":       utils.PathSearch("certificate_chain_subject", curJson, nil),
+			"certificate_chain_expire_time":   utils.PathSearch("certificate_chain_expire_time", curJson, nil),
+			"enc_certificate_serial_number":   utils.PathSearch("enc_certificate_serial_number", curJson, nil),
+			"enc_certificate_subject":         utils.PathSearch("enc_certificate_subject", curJson, nil),
+			"enc_certificate_expire_time":     utils.PathSearch("enc_certificate_expire_time", curJson, nil),
+			"created_at":                      utils.PathSearch("created_at", curJson, nil),
+			"updated_at":                      utils.PathSearch("updated_at", curJson, nil),
+		},
+	}
+	return rst
 }
 
 func flattenGetGatewayResponseBodyVPNGatewayBody(resp interface{}, paramName string) []interface{} {
@@ -597,8 +776,9 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	// updateGateway: Update the configuration of VPN gateway
 	var (
-		updateGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
-		updateGatewayProduct = "vpn"
+		updateGatewayHttpUrl            = "v5/{project_id}/vpn-gateways/{id}"
+		updateGatewayCertificateHttpUrl = "v5/{project_id}/vpn-gateways/{gateway_id}/certificate/{certificate_id}"
+		updateGatewayProduct            = "vpn"
 	)
 	updateGatewayClient, err := cfg.NewServiceClient(updateGatewayProduct, region)
 	if err != nil {
@@ -611,7 +791,6 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChanges(updateGatewayHasChanges...) {
-
 		updateGatewayPath := updateGatewayClient.Endpoint + updateGatewayHttpUrl
 		updateGatewayPath = strings.ReplaceAll(updateGatewayPath, "{project_id}", updateGatewayClient.ProjectID)
 		updateGatewayPath = strings.ReplaceAll(updateGatewayPath, "{id}", gatewayId)
@@ -645,7 +824,38 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
+	if d.HasChanges("certificate") {
+		certificateContent := d.Get("certificate").([]map[string]interface{})
+		certificateMap := certificateContent[0]
+		updateGatewayCertificateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		updateGatewayCertificatePath := updateGatewayClient.Endpoint + updateGatewayCertificateHttpUrl
+		updateGatewayCertificatePath = strings.ReplaceAll(updateGatewayCertificatePath, "{project_id}", updateGatewayClient.ProjectID)
+		updateGatewayCertificatePath = strings.ReplaceAll(updateGatewayCertificatePath, "{gateway_id}", d.Id())
+		log.Printf("[INFO] updateGatewayCertificatePath: %s", updateGatewayCertificatePath)
+		updateGatewayCertificateOpt.JSONBody = utils.RemoveNil(buildUpdateGatewayCertificateBodyParams(certificateMap))
+		_, err = updateGatewayClient.Request("PUT", updateGatewayCertificatePath, &updateGatewayCertificateOpt)
+		if err != nil {
+			return diag.Errorf("error updating Gateway certificate: %s", err)
+		}
+	}
+
 	return resourceGatewayRead(ctx, d, meta)
+}
+
+func buildUpdateGatewayCertificateBodyParams(certificateContent interface{}) map[string]interface{} {
+	certificateMap := certificateContent.(map[string]interface{})
+	return map[string]interface{}{
+		"certificate": map[string]interface{}{
+			"name":              utils.ValueIngoreEmpty(certificateMap["name"].(string)),
+			"certificate":       utils.ValueIngoreEmpty(certificateMap["content"].(string)),
+			"private_key":       utils.ValueIngoreEmpty(certificateMap["private_key"].(string)),
+			"certificate_chain": utils.ValueIngoreEmpty(certificateMap["certificate_chain"].(string)),
+			"enc_certificate":   utils.ValueIngoreEmpty(certificateMap["enc_certificate"].(string)),
+			"enc_private_key":   utils.ValueIngoreEmpty(certificateMap["enc_private_key"].(string)),
+		},
+	}
 }
 
 func buildUpdateGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
