@@ -15,6 +15,7 @@ resource "huaweicloud_dms_kafka_user" "user" {
   instance_id = var.kafka_instance_id
   name        = "user_1"
   password    = "Test@123"
+  description = "test_description"
 }
 ```
 
@@ -33,6 +34,8 @@ The following arguments are supported:
 * `password` - (Required, String) Specifies the password of the user. The parameter must be 8 to 32 characters
   long and contain only letters(case-sensitive), digits, and special characters(`~!@#$%^&*()-_=+|[{}]:'",<.>/?).
   The value must be different from name.
+
+* `description` - (Optional, String) Specifies the description of the user.
 
 ## Attribute Reference
 
