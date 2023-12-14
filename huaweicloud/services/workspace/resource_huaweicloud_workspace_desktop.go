@@ -145,13 +145,12 @@ func ResourceDesktop() *schema.Resource {
 			"nic": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -388,6 +387,25 @@ func flattenDesktopSecurityGroups(securityGroups []desktops.SecurityGroup) []int
 	return result
 }
 
+func getDesktopNetwork(client *golangsdk.ServiceClient, desktopId string) ([]map[string]interface{}, error) {
+	network, err := desktops.GetNetwork(client, desktopId)
+	if err != nil {
+		return nil, fmt.Errorf("error getting desktop network info: %s", err)
+	}
+
+	if len(network) < 1 {
+		return nil, fmt.Errorf("unable to find any network information under Workspace desktop (%s)", desktopId)
+	}
+
+	nic := []map[string]interface{}{
+		{
+			"network_id": network[0].Subnet.ID,
+		},
+	}
+
+	return nic, err
+}
+
 func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -396,7 +414,8 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
 	}
 
-	resp, err := desktops.Get(client, d.Id())
+	desktopId := d.Id()
+	resp, err := desktops.Get(client, desktopId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Workspace desktop")
 	}
@@ -424,6 +443,13 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		mErr = multierror.Append(mErr, fmt.Errorf("the security_groups field does not found in API response"))
 	} else {
 		mErr = multierror.Append(mErr, d.Set("security_groups", flattenDesktopSecurityGroups(securityGroups)))
+	}
+
+	nicVal, err := getDesktopNetwork(client, desktopId)
+	if err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("nic", nicVal))
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -478,7 +504,7 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 		newLen := len(newRaw)
 		oldLen := len(oldRaw)
 		if newLen < oldLen {
-			return fmt.Errorf("The number of volumes cannot be reduced")
+			return fmt.Errorf("the number of volumes cannot be reduced")
 		}
 		lengthDiff = newLen - oldLen
 
@@ -548,6 +574,39 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
+func updateDesktopNetwork(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	nicRaw := d.Get("nic").([]interface{})
+	if len(nicRaw) < 1 {
+		return nil
+	}
+
+	nicVal := nicRaw[0].(map[string]interface{})
+	securityGroups := d.Get("security_groups").(*schema.Set)
+	listId := make([]string, securityGroups.Len())
+	for i, id := range securityGroups.List() {
+		listId[i] = id.(string)
+	}
+
+	desktopId := d.Id()
+	opts := desktops.UpdateNetworkOpts{
+		DesktopId:        desktopId,
+		VpcId:            d.Get("vpc_id").(string),
+		SubnetId:         nicVal["network_id"].(string),
+		SecurityGroupIds: listId,
+	}
+
+	resp, err := desktops.UpdateNetwork(client, opts)
+	if err != nil {
+		return fmt.Errorf("error updating the network of the Workspace desktop (%s): %s", desktopId, err)
+	}
+	_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+	}
+	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+	return nil
+}
+
 func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
@@ -589,6 +648,13 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		err = utils.UpdateResourceTags(client, d, "desktops", desktopId)
 		if err != nil {
 			return diag.Errorf("error updating tags of Workspace desktop (%s): %s", desktopId, err)
+		}
+	}
+
+	if d.HasChange("nic") {
+		err = updateDesktopNetwork(ctx, client, d)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
