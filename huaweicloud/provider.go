@@ -1087,7 +1087,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_network":                modelarts.ResourceModelartsNetwork(),
 			"huaweicloud_modelarts_resource_pool":          modelarts.ResourceModelartsResourcePool(),
 
-
 			"huaweicloud_dataarts_studio_instance":        dataarts.ResourceStudioInstance(),
 			"huaweicloud_dataarts_studio_directory":       dataarts.ResourceDataArtsStudioDirectory(),
 			"huaweicloud_dataarts_studio_subject":         dataarts.ResourceDataArtsStudioSubject(),
