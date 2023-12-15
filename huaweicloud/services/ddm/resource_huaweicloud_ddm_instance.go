@@ -274,7 +274,7 @@ func resourceDdmInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATE", "SET_CONFIGURATION"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(id.(string), region, cfg),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -411,7 +411,7 @@ func updateInstanceName(ctx context.Context, d *schema.ResourceData, cfg *config
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"MODIFY_NAME"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), region, cfg),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
@@ -470,7 +470,6 @@ func updateInstanceNodeNum(ctx context.Context, d *schema.ResourceData, cfg *con
 
 	var updateInstanceNodeNumHttpUrl string
 	var nodeNumber int
-	var pendingStatus string
 	oldNodeNumRaw, newNodeNumRaw := d.GetChange("node_num")
 	oldNodeNum := oldNodeNumRaw.(int)
 	newNodeNum := newNodeNumRaw.(int)
@@ -478,11 +477,9 @@ func updateInstanceNodeNum(ctx context.Context, d *schema.ResourceData, cfg *con
 	if oldNodeNum < newNodeNum {
 		updateInstanceNodeNumHttpUrl = updateInstanceNodeEnlargeNumHttpUrl
 		nodeNumber = newNodeNum - oldNodeNum
-		pendingStatus = "GROWING"
 	} else {
 		updateInstanceNodeNumHttpUrl = updateInstanceNodeReduceNumHttpUrl
 		nodeNumber = oldNodeNum - newNodeNum
-		pendingStatus = "REDUCING"
 	}
 	updateInstanceNodeNumPath := updateInstanceNodeNumClient.Endpoint + updateInstanceNodeNumHttpUrl
 	updateInstanceNodeNumPath = strings.ReplaceAll(updateInstanceNodeNumPath, "{project_id}", updateInstanceNodeNumClient.ProjectID)
@@ -501,7 +498,7 @@ func updateInstanceNodeNum(ctx context.Context, d *schema.ResourceData, cfg *con
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{pendingStatus},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), region, cfg),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
@@ -551,7 +548,7 @@ func updateInstanceFlavor(ctx context.Context, d *schema.ResourceData, cfg *conf
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"RESIZING"},
+		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), region, cfg),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
@@ -820,7 +817,7 @@ func resourceDdmInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"RUNNING", "DELETING"},
+			Pending:      []string{"RUNNING", "PENDING"},
 			Target:       []string{"DELETED"},
 			Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), region, cfg),
 			Timeout:      d.Timeout(schema.TimeoutDelete),
@@ -867,7 +864,7 @@ func resourceDdmInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"RUNNING", "DELETING"},
+		Pending:      []string{"RUNNING", "PENDING"},
 		Target:       []string{"DELETED"},
 		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), region, cfg),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
@@ -921,7 +918,7 @@ func ddmInstanceStatusRefreshFunc(id, region string, cfg *config.Config) resourc
 		}
 		getJobStatusResp, err := getInstanceClient.Request("GET", getJobStatusPath, &getJobStatusOpt)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault400); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return getJobStatusResp, "DELETED", nil
 			}
 			return nil, "", err
@@ -932,7 +929,13 @@ func ddmInstanceStatusRefreshFunc(id, region string, cfg *config.Config) resourc
 			return nil, "", err
 		}
 
-		status := utils.PathSearch("status", getJobStatusRespBody, "")
-		return getJobStatusRespBody, status.(string), nil
+		status := utils.PathSearch("status", getJobStatusRespBody, "").(string)
+		if status == "CREATEFAILED" || status == "ERROR" {
+			return nil, status, fmt.Errorf("the DDM instance created fail")
+		}
+		if status == "RUNNING" {
+			return getJobStatusRespBody, status, nil
+		}
+		return getJobStatusRespBody, "PENDING", nil
 	}
 }
