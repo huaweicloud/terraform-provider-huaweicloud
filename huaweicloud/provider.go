@@ -443,6 +443,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_secret_version": dew.DataSourceDewCsmsSecret(),
 			"huaweicloud_css_flavors":         css.DataSourceCssFlavors(),
 
+			"huaweicloud_dataarts_studio_workspaces": dataarts.DataSourceDataArtsStudioWorkspaces(),
+
 			"huaweicloud_dbss_flavors": dbss.DataSourceDbssFlavors(),
 
 			"huaweicloud_dcs_flavors":         dcs.DataSourceDcsFlavorsV2(),
