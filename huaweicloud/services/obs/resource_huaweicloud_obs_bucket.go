@@ -307,6 +307,11 @@ func ResourceObsBucket() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"sse_algorithm": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"kms_key_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -422,7 +427,7 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	if d.HasChanges("encryption", "kms_key_id", "kms_key_project_id") {
+	if d.HasChanges("encryption", "sse_algorithm", "kms_key_id", "kms_key_project_id") {
 		if err := resourceObsBucketEncryptionUpdate(conf, obsClientWithSignature, d); err != nil {
 			return diag.FromErr(err)
 		}
@@ -737,14 +742,21 @@ func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.Obs
 	if d.Get("encryption").(bool) {
 		input := &obs.SetBucketEncryptionInput{}
 		input.Bucket = bucket
-		input.SSEAlgorithm = obs.DEFAULT_SSE_KMS_ENCRYPTION_OBS
-		input.KMSMasterKeyID = d.Get("kms_key_id").(string)
 
-		if _, ok := d.GetOk("kms_key_id"); ok {
-			if v, ok := d.GetOk("kms_key_project_id"); ok {
-				input.ProjectID = v.(string)
-			} else {
-				input.ProjectID = config.GetProjectID(config.GetRegion(d))
+		if v, ok := d.GetOk("sse_algorithm"); ok {
+			input.SSEAlgorithm = v.(string)
+		} else {
+			input.SSEAlgorithm = obs.DEFAULT_SSE_KMS_ENCRYPTION_OBS
+		}
+
+		if input.SSEAlgorithm == obs.DEFAULT_SSE_KMS_ENCRYPTION_OBS {
+			if raw, ok := d.GetOk("kms_key_id"); ok {
+				input.KMSMasterKeyID = raw.(string)
+				if v, ok := d.GetOk("kms_key_project_id"); ok {
+					input.ProjectID = v.(string)
+				} else {
+					input.ProjectID = config.GetProjectID(config.GetRegion(d))
+				}
 			}
 		}
 
@@ -1270,6 +1282,7 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 					d.Set("encryption", false),
 					d.Set("kms_key_id", nil),
 					d.Set("kms_key_project_id", nil),
+					d.Set("sse_algorithm", nil),
 				)
 				if mErr.ErrorOrNil() != nil {
 					return fmt.Errorf("error saving encryption of OBS bucket %s: %s", bucket, mErr)
@@ -1283,17 +1296,19 @@ func setObsBucketEncryption(obsClient *obs.ObsClient, d *schema.ResourceData) er
 
 	log.Printf("[DEBUG] getting encryption configuration of OBS bucket %s: %+v", bucket, output.BucketEncryptionConfiguration)
 	mErr := &multierror.Error{}
-	if output.SSEAlgorithm != "" {
+	if sseAlgorithm := output.SSEAlgorithm; sseAlgorithm != "" {
 		mErr = multierror.Append(mErr,
 			d.Set("encryption", true),
 			d.Set("kms_key_id", output.KMSMasterKeyID),
 			d.Set("kms_key_project_id", output.ProjectID),
+			d.Set("sse_algorithm", sseAlgorithm),
 		)
 	} else {
 		mErr = multierror.Append(mErr,
 			d.Set("encryption", false),
 			d.Set("kms_key_id", nil),
 			d.Set("kms_key_project_id", nil),
+			d.Set("sse_algorithm", nil),
 		)
 	}
 	if mErr.ErrorOrNil() != nil {
