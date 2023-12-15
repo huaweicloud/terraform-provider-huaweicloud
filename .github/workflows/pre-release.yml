@@ -92,7 +92,7 @@ jobs:
         run: |
           cp terraform-api-scan/scan-marked-comment-file/*.go terraform-provider-huaweicloud/
           cd terraform-provider-huaweicloud
-          go run main.go -basePath=../../terraform-provider-huaweicloud/ -outputDir=../../terraform-provider-huaweicloud/docs/api -providerSchemaPath=../schema.json
+          go run main.go -basePath=./ -outputDir=./docs/api/ -providerSchemaPath=../terraform-api-scan/schema.json
           cd ..
 
       - name: commit APIs that resources depend-on
