@@ -1,0 +1,14 @@
+info:
+    title: data_source_huaweicloud_rds_pg_plugins
+    description: Use this data source to get the list of RDS PostgreSQL plugins.
+host: myhuaweicloud.com
+tags:
+    - name: RDS
+servers:
+    - url: https://rds.cn-north-4.myhuaweicloud.com/
+paths:
+    /v3/{project_id}/instances/{instance_id}/extensions:
+        GET:
+            tag: RDS
+            operationId: ListPgPlugins
+            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/extensions
