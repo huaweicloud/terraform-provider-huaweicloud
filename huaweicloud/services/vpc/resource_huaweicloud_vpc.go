@@ -225,11 +225,9 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 	if err != nil {
 		diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
 	}
-	var extendCidr string
 	if len(res.Vpc.ExtendCidrs) > 0 {
-		extendCidr = res.Vpc.ExtendCidrs[0]
+		d.Set("secondary_cidr", res.Vpc.ExtendCidrs[0])
 	}
-	d.Set("secondary_cidr", extendCidr)
 
 	return nil
 }
