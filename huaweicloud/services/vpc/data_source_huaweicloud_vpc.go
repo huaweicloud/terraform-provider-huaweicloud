@@ -75,15 +75,21 @@ func DataSourceVpcV1() *schema.Resource {
 					},
 				},
 			},
+			"secondary_cidrs": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
 
 func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	v1Client, err := conf.NetworkingV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -91,10 +97,10 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 		Name:                d.Get("name").(string),
 		Status:              d.Get("status").(string),
 		CIDR:                d.Get("cidr").(string),
-		EnterpriseProjectID: config.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
 	}
 
-	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
+	refinedVpcs, err := vpcs.List(v1Client, listOpts)
 	if err != nil {
 		return diag.Errorf("unable to retrieve vpcs: %s", err)
 	}
@@ -111,10 +117,10 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 
 	Vpc := refinedVpcs[0]
 
-	log.Printf("[INFO] Retrieved Vpc using given filter %s: %+v", Vpc.ID, Vpc)
+	log.Printf("[INFO] retrieved VPC using given filter (%s): %+v", Vpc.ID, Vpc)
 	d.SetId(Vpc.ID)
 
-	d.Set("region", config.GetRegion(d))
+	d.Set("region", region)
 	d.Set("name", Vpc.Name)
 	d.Set("cidr", Vpc.CIDR)
 	d.Set("enterprise_project_id", Vpc.EnterpriseProjectID)
@@ -132,8 +138,8 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	d.Set("routes", s)
 
 	// save VirtualPrivateCloudV2 tags
-	if vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d)); err == nil {
-		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
+	if v2Client, err := conf.NetworkingV2Client(region); err == nil {
+		if resourceTags, err := tags.Get(v2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
 				return diag.Errorf("error saving tags to state for VPC (%s): %s", d.Id(), err)
@@ -142,6 +148,18 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	}
+
+	// save VirtualPrivateCloudV3 extend_cidr
+	v3Client, err := conf.HcVpcV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v3 client: %s", err)
+	}
+
+	res, err := obtainV3VpcResp(v3Client, d.Id())
+	if err != nil {
+		diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
+	}
+	d.Set("secondary_cidrs", res.Vpc.ExtendCidrs)
 
 	return nil
 }
