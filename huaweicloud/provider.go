@@ -609,6 +609,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_file_system": sfs.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
 
+			"huaweicloud_swr_organizations": swr.DataSourceOrganizations(),
+
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
 			"huaweicloud_vpc_bandwidth": eip.DataSourceBandWidth(),
