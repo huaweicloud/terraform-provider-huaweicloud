@@ -73,6 +73,34 @@ func ResourceCustomerGateway() *schema.Resource {
 				ForceNew:    true,
 				Description: `The BGP ASN number of the customer gateway, only required when the route_mode is bgp, the default value is 65000.`,
 			},
+			"certificate_content": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"serial_number": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"signature_algorithm": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"issuer": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"subject": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_updatable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -88,15 +116,15 @@ func ResourceCustomerGateway() *schema.Resource {
 }
 
 func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createCustomerGateway: Create a VPN Customer Gateway.
 	var (
 		createCustomerGatewayHttpUrl = "v5/{project_id}/customer-gateways"
 		createCustomerGatewayProduct = "vpn"
 	)
-	createCustomerGatewayClient, err := config.NewServiceClient(createCustomerGatewayProduct, region)
+	createCustomerGatewayClient, err := cfg.NewServiceClient(createCustomerGatewayProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CustomerGateway Client: %s", err)
 	}
@@ -110,7 +138,7 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 			201,
 		},
 	}
-	createCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildCreateCustomerGatewayBodyParams(d, config))
+	createCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildCreateCustomerGatewayBodyParams(d))
 	createCustomerGatewayResp, err := createCustomerGatewayClient.Request("POST", createCustomerGatewayPath, &createCustomerGatewayOpt)
 	if err != nil {
 		return diag.Errorf("error creating CustomerGateway: %s", err)
@@ -130,7 +158,7 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCustomerGatewayRead(ctx, d, meta)
 }
 
-func buildCreateCustomerGatewayBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildCreateCustomerGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"customer_gateway": buildCreateCustomerGatewayCustomerGatewayChildBody(d),
 	}
@@ -144,12 +172,17 @@ func buildCreateCustomerGatewayCustomerGatewayChildBody(d *schema.ResourceData) 
 		"bgp_asn":    utils.ValueIngoreEmpty(d.Get("asn")),
 		"route_mode": utils.ValueIngoreEmpty(d.Get("route_mode")),
 	}
+	if certificateContent, ok := d.GetOk("certificate_content"); ok {
+		params["ca_certificate"] = map[string]interface{}{
+			"content": certificateContent,
+		}
+	}
 	return params
 }
 
-func resourceCustomerGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceCustomerGatewayRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -158,7 +191,7 @@ func resourceCustomerGatewayRead(ctx context.Context, d *schema.ResourceData, me
 		getCustomerGatewayHttpUrl = "v5/{project_id}/customer-gateways/{id}"
 		getCustomerGatewayProduct = "vpn"
 	)
-	getCustomerGatewayClient, err := config.NewServiceClient(getCustomerGatewayProduct, region)
+	getCustomerGatewayClient, err := cfg.NewServiceClient(getCustomerGatewayProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CustomerGateway Client: %s", err)
 	}
@@ -191,6 +224,18 @@ func resourceCustomerGatewayRead(ctx context.Context, d *schema.ResourceData, me
 		d.Set("ip", utils.PathSearch("customer_gateway.ip", getCustomerGatewayRespBody, nil)),
 		d.Set("asn", utils.PathSearch("customer_gateway.bgp_asn", getCustomerGatewayRespBody, nil)),
 		d.Set("route_mode", utils.PathSearch("customer_gateway.route_mode", getCustomerGatewayRespBody, nil)),
+		d.Set("serial_number", utils.PathSearch("customer_gateway.ca_certificate.serial_number",
+			getCustomerGatewayRespBody, nil)),
+		d.Set("signature_algorithm", utils.PathSearch("customer_gateway.ca_certificate.signature_algorithm",
+			getCustomerGatewayRespBody, nil)),
+		d.Set("issuer", utils.PathSearch("customer_gateway.ca_certificate.issuer",
+			getCustomerGatewayRespBody, nil)),
+		d.Set("subject", utils.PathSearch("customer_gateway.ca_certificate.subject",
+			getCustomerGatewayRespBody, nil)),
+		d.Set("expire_time", utils.PathSearch("customer_gateway.ca_certificate.expire_time",
+			getCustomerGatewayRespBody, nil)),
+		d.Set("is_updatable", utils.PathSearch("customer_gateway.ca_certificate.is_updatable",
+			getCustomerGatewayRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("customer_gateway.created_at", getCustomerGatewayRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("customer_gateway.updated_at", getCustomerGatewayRespBody, nil)),
 	)
@@ -199,20 +244,21 @@ func resourceCustomerGatewayRead(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceCustomerGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updateCustomerGatewayhasChanges := []string{
+	updateCustomerGatewayHasChanges := []string{
 		"name",
+		"certificate_content",
 	}
 
-	if d.HasChanges(updateCustomerGatewayhasChanges...) {
+	if d.HasChanges(updateCustomerGatewayHasChanges...) {
 		// updateCustomerGateway: Update the configuration of VPN customer gateway
 		var (
 			updateCustomerGatewayHttpUrl = "v5/{project_id}/customer-gateways/{id}"
 			updateCustomerGatewayProduct = "vpn"
 		)
-		updateCustomerGatewayClient, err := config.NewServiceClient(updateCustomerGatewayProduct, region)
+		updateCustomerGatewayClient, err := cfg.NewServiceClient(updateCustomerGatewayProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating CustomerGateway Client: %s", err)
 		}
@@ -227,7 +273,7 @@ func resourceCustomerGatewayUpdate(ctx context.Context, d *schema.ResourceData, 
 				200,
 			},
 		}
-		updateCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateCustomerGatewayBodyParams(d, config))
+		updateCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateCustomerGatewayBodyParams(d))
 		_, err = updateCustomerGatewayClient.Request("PUT", updateCustomerGatewayPath, &updateCustomerGatewayOpt)
 		if err != nil {
 			return diag.Errorf("error updating CustomerGateway: %s", err)
@@ -236,7 +282,7 @@ func resourceCustomerGatewayUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCustomerGatewayRead(ctx, d, meta)
 }
 
-func buildUpdateCustomerGatewayBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
+func buildUpdateCustomerGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"customer_gateway": buildUpdateCustomerGatewayCustomerGatewayChildBody(d),
 	}
@@ -247,19 +293,24 @@ func buildUpdateCustomerGatewayCustomerGatewayChildBody(d *schema.ResourceData) 
 	params := map[string]interface{}{
 		"name": utils.ValueIngoreEmpty(d.Get("name")),
 	}
+	if certificateContent, ok := d.GetOk("certificate_content"); ok {
+		params["ca_certificate"] = map[string]interface{}{
+			"content": certificateContent,
+		}
+	}
 	return params
 }
 
-func resourceCustomerGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceCustomerGatewayDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteCustomerGateway: Delete an existing VPN customer Gateway
 	var (
 		deleteCustomerGatewayHttpUrl = "v5/{project_id}/customer-gateways/{id}"
 		deleteCustomerGatewayProduct = "vpn"
 	)
-	deleteCustomerGatewayClient, err := config.NewServiceClient(deleteCustomerGatewayProduct, region)
+	deleteCustomerGatewayClient, err := cfg.NewServiceClient(deleteCustomerGatewayProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CustomerGateway Client: %s", err)
 	}

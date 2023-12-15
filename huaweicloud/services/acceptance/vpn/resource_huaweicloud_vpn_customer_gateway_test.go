@@ -68,7 +68,7 @@ func TestAccCustomerGateway_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "ip", "172.16.1.1"),
+					resource.TestCheckResourceAttr(rName, "ip", ipAddress),
 				),
 			},
 			{
@@ -76,7 +76,7 @@ func TestAccCustomerGateway_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", nameUpdate),
-					resource.TestCheckResourceAttr(rName, "ip", "172.16.1.1"),
+					resource.TestCheckResourceAttr(rName, "ip", ipAddress),
 				),
 			},
 			{
@@ -88,11 +88,81 @@ func TestAccCustomerGateway_basic(t *testing.T) {
 	})
 }
 
+func TestAccCustomerGateway_certificate(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_customer_gateway.test"
+	ipAddress := "172.16.2.1"
+	certificateContent := acceptance.HW_CERTIFICATE_CONTENT
+	certificateContentUpdate := acceptance.HW_CERTIFICATE_CONTENT_UPDATE
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCustomerGatewayResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckUpdateCertificateContent(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCustomerGateway_certificate(name, ipAddress, certificateContent),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ip", ipAddress),
+					resource.TestCheckResourceAttrSet(rName, "serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "signature_algorithm"),
+					resource.TestCheckResourceAttrSet(rName, "issuer"),
+					resource.TestCheckResourceAttrSet(rName, "subject"),
+					resource.TestCheckResourceAttrSet(rName, "expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "is_updatable"),
+				),
+			},
+			{
+				Config: testCustomerGateway_certificate(name, ipAddress, certificateContentUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ip", ipAddress),
+					resource.TestCheckResourceAttrSet(rName, "serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "signature_algorithm"),
+					resource.TestCheckResourceAttrSet(rName, "issuer"),
+					resource.TestCheckResourceAttrSet(rName, "subject"),
+					resource.TestCheckResourceAttrSet(rName, "expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "is_updatable"),
+				),
+			},
+			{
+				ResourceName: rName,
+				ImportState:  true,
+				ImportStateVerifyIgnore: []string{
+					"content",
+				},
+			},
+		},
+	})
+}
+
 func testCustomerGateway_basic(name, ipAddress string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpn_customer_gateway" "test" {
   name = "%s"
   ip   = "%s"
+}`, name, ipAddress)
 }
-`, name, ipAddress)
+
+func testCustomerGateway_certificate(name, ipAddress string, certificateContent string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpn_customer_gateway" "test" {
+  name                = "%s"
+  ip                  = "%s"
+  certificate_content = "%s"
+}`, name, ipAddress, certificateContent)
 }
