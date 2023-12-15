@@ -123,6 +123,11 @@ resource "huaweicloud_workspace_service" "test" {
     huaweicloud_vpc_subnet.standby.id,
   ]
 }
+
+data "huaweicloud_images_images" "test" {
+  name_regex = "WORKSPACE"
+  visibility = "market"
+}
 `, common.TestBaseNetwork(rName), rName)
 }
 
@@ -137,7 +142,7 @@ locals {
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large2"
   image_type        = "market"
-  image_id          = "8451dedf-b353-43aa-b5fb-5bccadda2207"
+  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "")
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [
@@ -188,7 +193,7 @@ locals {
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large4"
   image_type        = "market"
-  image_id          = "8451dedf-b353-43aa-b5fb-5bccadda2207"
+  image_id          = try(data.huaweicloud_images_images.test.images[0].id, "")
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [
@@ -239,7 +244,7 @@ locals {
 resource "huaweicloud_workspace_desktop" "test" {
   flavor_id         = "workspace.x86.ultimate.large4"
   image_type        = "market"
-  image_id          = "4d698843-d653-4ffd-80be-4f47a0cabce0"
+  image_id          = try(data.huaweicloud_images_images.test.images[1].id, "")
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   security_groups   = [
