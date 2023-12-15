@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -178,9 +179,9 @@ func resourceSFSFileSystemV2Create(ctx context.Context, d *schema.ResourceData, 
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
-	_, StateErr := stateConf.WaitForState()
-	if StateErr != nil {
-		return diag.Errorf("error waiting for SFS file system (%s) to be available: %s ", d.Id(), StateErr)
+	_, stateErr := stateConf.WaitForStateContext(ctx)
+	if stateErr != nil {
+		return diag.Errorf("error waiting for SFS file system (%s) to be available: %s ", d.Id(), stateErr)
 	}
 
 	// specified the "access_to" field, apply first access rule to share file
@@ -240,15 +241,17 @@ func resourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error retrieving SFS file system: %s", err)
 	}
 
-	d.Set("name", n.Name)
-	d.Set("share_proto", n.ShareProto)
-	d.Set("size", n.Size)
-	d.Set("description", n.Description)
-	d.Set("is_public", n.IsPublic)
-	d.Set("availability_zone", n.AvailabilityZone)
-	d.Set("region", region)
-	d.Set("export_location", n.ExportLocation)
-	d.Set("enterprise_project_id", n.Metadata["enterprise_project_id"])
+	mErr := multierror.Append(nil,
+		d.Set("name", n.Name),
+		d.Set("share_proto", n.ShareProto),
+		d.Set("size", n.Size),
+		d.Set("description", n.Description),
+		d.Set("is_public", n.IsPublic),
+		d.Set("availability_zone", n.AvailabilityZone),
+		d.Set("region", region),
+		d.Set("export_location", n.ExportLocation),
+		d.Set("enterprise_project_id", n.Metadata["enterprise_project_id"]),
+	)
 
 	// NOTE: only support the following metadata key
 	var metaKeys = [3]string{"#sfs_crypt_key_id", "#sfs_crypt_domain_id", "#sfs_crypt_alias"}
@@ -262,7 +265,7 @@ func resourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, meta
 			}
 		}
 	}
-	d.Set("metadata", md)
+	mErr = multierror.Append(mErr, d.Set("metadata", md))
 
 	// list access rules
 	rules, err := shares.ListAccessRights(sfsClient, d.Id()).ExtractAccessRights()
@@ -289,25 +292,28 @@ func resourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, meta
 
 		// find share_access_id
 		if accessID != "" && rule.ID == accessID {
-			d.Set("access_rule_status", rule.State)
-			d.Set("access_to", rule.AccessTo)
-			d.Set("access_type", rule.AccessType)
-			d.Set("access_level", rule.AccessLevel)
+			mErr = multierror.Append(mErr,
+				d.Set("access_rule_status", rule.State),
+				d.Set("access_to", rule.AccessTo),
+				d.Set("access_type", rule.AccessType),
+				d.Set("access_level", rule.AccessLevel),
+			)
+
 			ruleExist = true
 		}
 	}
 
 	if accessID != "" && !ruleExist {
 		log.Printf("[WARN] access rule (%s) of SFS file system %s was not exist!", accessID, d.Id())
-		d.Set("share_access_id", "")
+		mErr = multierror.Append(mErr, d.Set("share_access_id", ""))
 	}
-	d.Set("access_rules", allAccessRules)
+	mErr = multierror.Append(mErr, d.Set("access_rules", allAccessRules))
 
 	if len(rules) != 0 {
-		d.Set("status", n.Status)
+		mErr = multierror.Append(mErr, d.Set("status", n.Status))
 	} else {
 		// The file system is not bind with any VPC.
-		d.Set("status", "unavailable")
+		mErr = multierror.Append(mErr, d.Set("status", "unavailable"))
 	}
 
 	// set tags
@@ -320,7 +326,7 @@ func resourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, meta
 		log.Printf("[WARN] Error fetching tags of SFS file system (%s): %s", d.Id(), err)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceSFSFileSystemV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -405,7 +411,7 @@ func resourceSFSFileSystemV2Update(ctx context.Context, d *schema.ResourceData, 
 	return resourceSFSFileSystemV2Read(ctx, d, meta)
 }
 
-func resourceSFSFileSystemV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSFSFileSystemV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -425,7 +431,7 @@ func resourceSFSFileSystemV2Delete(_ context.Context, d *schema.ResourceData, me
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("timeout waiting for SFS file system deletion to complete %s", err)
 	}
@@ -448,13 +454,13 @@ func waitForSFSFileRefresh(sfsClient *golangsdk.ServiceClient, shareID string) r
 	}
 }
 
-func resourceSFSMetadataV2(d *schema.ResourceData, config *config.Config) map[string]string {
+func resourceSFSMetadataV2(d *schema.ResourceData, cfg *config.Config) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("metadata").(map[string]interface{}) {
 		m[key] = val.(string)
 	}
 
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := cfg.GetEnterpriseProjectID(d)
 
 	if epsID != "" {
 		m["enterprise_project_id"] = epsID
