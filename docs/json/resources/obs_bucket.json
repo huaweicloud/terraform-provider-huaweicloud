@@ -81,6 +81,11 @@
                 "type": "string",
                 "computed": true
               },
+              "sse_algorithm": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "storage_class": {
                 "type": "string",
                 "optional": true,

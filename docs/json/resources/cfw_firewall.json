@@ -1,0 +1,181 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_firewall": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the charging mode.",
+                "optional": true,
+                "forcenew": true,
+                "default": "postPaid"
+              },
+              "east_west_firewall_er_id": {
+                "type": "string",
+                "description": "Specifies the ER ID of the east-west firewall.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "east_west_firewall_inspection_cidr": {
+                "type": "string",
+                "description": "Specifies the inspection cidr of the east-west firewall.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "east_west_firewall_inspection_vpc_id": {
+                "type": "string",
+                "description": "The east-west firewall inspection VPC ID.",
+                "computed": true
+              },
+              "east_west_firewall_mode": {
+                "type": "string",
+                "description": "Specifies the mode of the east-west firewall.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "east_west_firewall_status": {
+                "type": "number",
+                "description": "Specifies the protection statue of the east-west firewall.",
+                "optional": true
+              },
+              "engine_type": {
+                "type": "number",
+                "description": "The engine type",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of the firewall.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ha_type": {
+                "type": "number",
+                "description": "The HA type.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the firewall name.",
+                "required": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "protect_objects": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "object_id": "string",
+                      "object_name": "string",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "The protect objects list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_type": {
+                "type": "number",
+                "description": "The service type.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The firewall status.",
+                "computed": true
+              },
+              "support_ipv6": {
+                "type": "bool",
+                "description": "Whether IPv6 is supported.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the firewall.",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "flavor": {
+                "block": {
+                  "attributes": {
+                    "extend_bandwidth": {
+                      "type": "number",
+                      "description": "Specifies the extend bandwidth of the firewall.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "extend_eip_count": {
+                      "type": "number",
+                      "description": "Specifies the extend EIP number of the firewall.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "extend_vpc_count": {
+                      "type": "number",
+                      "description": "Specifies the extend VPC number of the firewall.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Specifies the version of the firewall.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the flavor of the firewall."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

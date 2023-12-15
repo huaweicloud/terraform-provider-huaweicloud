@@ -2,12 +2,14 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dms_kafka_user": {
+        "huaweicloud_dms_kafka_smart_connect": {
           "block": {
             "attributes": {
-              "description": {
+              "bandwidth": {
                 "type": "string",
-                "optional": true
+                "description": "Specifies the bandwidth of the smart connect.",
+                "optional": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -15,22 +17,25 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "Specifies the ID of the Kafka instance.",
                 "required": true,
                 "forcenew": true
               },
-              "name": {
-                "type": "string",
-                "required": true,
+              "node_count": {
+                "type": "number",
+                "description": "Specifies the node count of the smart connect.",
+                "optional": true,
                 "forcenew": true
-              },
-              "password": {
-                "type": "string",
-                "required": true,
-                "sensitive": true
               },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "storage_spec_code": {
+                "type": "string",
+                "description": "Specifies the specification code of the smart connect.",
+                "required": true,
+                "forcenew": true
               }
             }
           },

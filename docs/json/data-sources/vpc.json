@@ -33,6 +33,13 @@
                 "type": "string",
                 "computed": true
               },
+              "secondary_cidrs": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "optional": true,

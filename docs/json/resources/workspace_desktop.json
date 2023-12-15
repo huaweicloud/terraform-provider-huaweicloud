@@ -126,13 +126,11 @@
                   "attributes": {
                     "network_id": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "root_volume": {
                 "block": {

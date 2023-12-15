@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_connection_health_checks": {
+          "block": {
+            "attributes": {
+              "connection_health_checks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "connection_id": "string",
+                      "destination_ip": "string",
+                      "id": "string",
+                      "proto_type": "string",
+                      "source_ip": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "connection_id": {
+                "type": "string",
+                "optional": true
+              },
+              "destination_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

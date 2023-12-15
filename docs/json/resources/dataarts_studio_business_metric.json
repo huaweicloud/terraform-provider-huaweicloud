@@ -1,0 +1,196 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_studio_business_metric": {
+          "block": {
+            "attributes": {
+              "apply_scenario": {
+                "type": "string",
+                "description": "Specifies the application scenarios.",
+                "optional": true
+              },
+              "biz_catalog_id": {
+                "type": "string",
+                "description": "Specifies the process architecture ID.",
+                "required": true
+              },
+              "biz_catalog_path": {
+                "type": "string",
+                "description": "The process architecture path.",
+                "computed": true
+              },
+              "biz_metric": {
+                "type": "string",
+                "description": "The business indicator synchronization status.",
+                "computed": true
+              },
+              "code": {
+                "type": "string",
+                "description": "Specifies the indicator encoding.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The create time.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The creator.",
+                "computed": true
+              },
+              "data_origin": {
+                "type": "string",
+                "description": "Specifies the data sources.",
+                "optional": true
+              },
+              "definition": {
+                "type": "string",
+                "description": "Specifies the indicator definition.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "destination": {
+                "type": "string",
+                "description": "Specifies the purpose of setting.",
+                "required": true
+              },
+              "dimensions": {
+                "type": "string",
+                "description": "Specifies the statistical dimension.",
+                "optional": true
+              },
+              "expression": {
+                "type": "string",
+                "description": "Specifies the calculation formula.",
+                "required": true
+              },
+              "general_filters": {
+                "type": "string",
+                "description": "Specifies the statistical caliber and modifiers.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval_type": {
+                "type": "string",
+                "description": "Specifies the refresh frequency.",
+                "required": true
+              },
+              "l1": {
+                "type": "string",
+                "description": "The subject domain grouping Chinese name.",
+                "computed": true
+              },
+              "l2": {
+                "type": "string",
+                "description": "The subject field Chinese name.",
+                "computed": true
+              },
+              "l3": {
+                "type": "string",
+                "description": "The business object Chinese name.",
+                "computed": true
+              },
+              "measure": {
+                "type": "string",
+                "description": "Specifies the measurement object.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name.",
+                "required": true
+              },
+              "name_alias": {
+                "type": "string",
+                "description": "Specifies the indicator alias.",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Specifies the name of person responsible for the indicator.",
+                "required": true
+              },
+              "owner_department": {
+                "type": "string",
+                "description": "Specifies the indicator management department name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status.",
+                "computed": true
+              },
+              "summary_status": {
+                "type": "string",
+                "description": "The synchronize statistics status.",
+                "computed": true
+              },
+              "technical_metric": {
+                "type": "number",
+                "description": "Specifies the related technical indicators.",
+                "optional": true
+              },
+              "technical_metric_name": {
+                "type": "string",
+                "description": "The related technical indicator name.",
+                "computed": true
+              },
+              "technical_metric_type": {
+                "type": "string",
+                "description": "The related technical indicator type.",
+                "computed": true
+              },
+              "time_filters": {
+                "type": "string",
+                "description": "Specifies the statistical frequency.",
+                "required": true
+              },
+              "unit": {
+                "type": "string",
+                "description": "Specifies the unit of measurement.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "description": "The editor.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of DataArts Studio workspace.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

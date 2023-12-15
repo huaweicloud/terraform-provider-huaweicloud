@@ -1,48 +1,42 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "data_source_schemas": {
-        "huaweicloud_ccm_private_certificate_export": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_studio_directory": {
           "block": {
             "attributes": {
-              "certificate": {
+              "children": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "created_at": {
                 "type": "string",
                 "computed": true
               },
-              "certificate_chain": {
+              "created_by": {
                 "type": "string",
                 "computed": true
               },
-              "certificate_id": {
+              "description": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
-              },
-              "enc_certificate": {
-                "type": "string",
-                "computed": true
-              },
-              "enc_private_key": {
-                "type": "string",
-                "computed": true
-              },
-              "enc_sm2_enveloped_key": {
-                "type": "string",
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "keystore_pass": {
+              "name": {
                 "type": "string",
-                "computed": true
+                "required": true
               },
-              "password": {
+              "parent_id": {
                 "type": "string",
                 "optional": true
               },
-              "private_key": {
+              "qualified_name": {
                 "type": "string",
                 "computed": true
               },
@@ -50,23 +44,23 @@
                 "type": "string",
                 "computed": true
               },
-              "server_jks": {
+              "root_id": {
                 "type": "string",
                 "computed": true
-              },
-              "server_pfx": {
-                "type": "string",
-                "computed": true
-              },
-              "signed_and_enveloped_data": {
-                "type": "string",
-                "computed": true
-              },
-              "sm_standard": {
-                "type": "string",
-                "optional": true
               },
               "type": {
+                "type": "string",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
@@ -74,11 +68,11 @@
             }
           },
           "product": {
-            "short": "CCM",
-            "name": "Cloud Certificate Manager Service",
-            "catalog": "Security & Compliance",
-            "name_cn": "云证书管理服务",
-            "catalog_cn": "安全与合规"
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
           }
         }
       }

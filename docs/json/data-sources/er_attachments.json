@@ -16,10 +16,12 @@
                   [
                     "object",
                     {
+                      "associated": "bool",
                       "created_at": "string",
                       "description": "string",
                       "id": "string",
                       "name": "string",
+                      "resource_id": "string",
                       "route_table_id": "string",
                       "status": "string",
                       "tags": [

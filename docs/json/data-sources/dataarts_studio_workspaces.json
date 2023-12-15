@@ -2,10 +2,10 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_vpcs": {
+        "huaweicloud_dataarts_studio_workspaces": {
           "block": {
             "attributes": {
-              "cidr": {
+              "created_by": {
                 "type": "string",
                 "optional": true
               },
@@ -15,8 +15,11 @@
               },
               "id": {
                 "type": "string",
-                "optional": true,
                 "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
               },
               "name": {
                 "type": "string",
@@ -26,37 +29,28 @@
                 "type": "string",
                 "computed": true
               },
-              "status": {
+              "workspace_id": {
                 "type": "string",
                 "optional": true
               },
-              "tags": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true
-              },
-              "vpcs": {
+              "workspaces": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "cidr": "string",
+                      "bad_record_location_name": "string",
+                      "created_at": "string",
+                      "created_by": "string",
                       "description": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
+                      "is_default": "number",
+                      "job_log_location_name": "string",
+                      "member_num": "number",
                       "name": "string",
-                      "secondary_cidrs": [
-                        "list",
-                        "string"
-                      ],
-                      "status": "string",
-                      "tags": [
-                        "map",
-                        "string"
-                      ]
+                      "updated_at": "string",
+                      "updated_by": "string"
                     }
                   ]
                 ],
@@ -65,11 +59,11 @@
             }
           },
           "product": {
-            "short": "VPC",
-            "name": "Virtual Private Cloud",
-            "catalog": "Networking",
-            "name_cn": "虚拟私有云",
-            "catalog_cn": "网络"
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
           }
         }
       }
