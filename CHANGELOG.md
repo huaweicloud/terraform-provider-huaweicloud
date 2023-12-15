@@ -1,8 +1,46 @@
 # CHANGELOG
 
+## 1.59.0 (December 15, 2023)
+
+* **New Resource:**
+  + `huaweicloud_rds_mysql_binlog` [GH-3775]
+  + `huaweicloud_dms_kafka_smart_connect` [GH-3784]
+  + `huaweicloud_workspace_user_group` [GH-3789]
+  + `huaweicloud_cfw_firewall` [GH-3830]
+
+  + `huaweicloud_dataarts_studio_service_app` [GH-3793]
+  + `huaweicloud_dataarts_studio_directory` [GH-3791]
+  + `huaweicloud_dataarts_studio_permission_set` [GH-3801]
+  + `huaweicloud_dataarts_studio_resource` [GH-3802]
+  + `huaweicloud_dataarts_studio_subject` [GH-3811]
+  + `huaweicloud_dataarts_studio_business_metric` [GH-3819]
+
+* **New Data Source:**
+  + `huaweicloud_rds_parametergroups` [GH-3783]
+  + `huaweicloud_vpn_connection_health_checks` [GH-3790]
+  + `huaweicloud_nat_private_gateways` [GH-3798]
+  + `huaweicloud_rds_mysql_databases` [GH-3800]
+  + `huaweicloud_waf_address_groups` [GH-3806]
+  + `huaweicloud_rds_mysql_accounts` [GH-3816]
+  + `huaweicloud_waf_dedicated_domains` [GH-3821]
+  + `huaweicloud_dataarts_studio_workspaces` [GH-3828]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_waf_domain: Add `description`, `lb_algorithom`, `website_name` and `forward_header_map` params [GH-3781]
+* data/huaweicloud_ccm_private_certificate_export: Support exporting IIS and TOMCAT type certificate [GH-3803]
+* resource/huaweicloud_vpn_customer_gateway: Support `certificate_content` parameter [GH-3808]
+* resource/huaweicloud_vpc: Support importing `secondary_cidr` attribute [GH-3815]
+* resource/huaweicloud_obs_bucket: Support SSE-OBS encryption mode [GH-3825]
+* resource/huaweicloud_dms_kafka_user: Support `description` parameter [GH-3826]
+
+BUG FIXES:
+
+* resource/huaweicloud_obs_bucket: Fix the issue when using default KMS key [GH-3804]
+
 ## 1.58.0 (December 1, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_as_planned_task` [GH-3650]
   + `huaweicloud_apig_endpoint_whitelist` [GH-3608]
   + `huaweicloud_cbr_backup_share` [GH-3664]
@@ -65,7 +103,7 @@ ENHANCEMENTS:
 
 ## 1.57.0 (October 31, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_mapreduce_scaling_policy` [GH-3472]
   + `huaweicloud_lts_structuring_custom_configuration` [GH-3480]
   + `huaweicloud_organizations_policy` [GH-3491]
@@ -127,7 +165,7 @@ BUG FIXES:
 
 ## 1.56.0 (September 28, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_codearts_deploy_host` [GH-3368]
   + `huaweicloud_codearts_deploy_application` [GH-3420]
   + `huaweicloud_modelarts_network` [GH-3374]
@@ -176,7 +214,7 @@ BUG FIXES:
 
 ## 1.55.0 (August 31, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_lts_transfer` [GH-3288]
   + `huaweicloud_modelarts_authorization` [GH-3297]
   + `huaweicloud_apig_appcode` [GH-3318]
@@ -224,7 +262,7 @@ BUG FIXES:
 
 ## 1.54.0 (August 15, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_modelarts_workspace` [GH-3241]
   + `huaweicloud_waf_rule_information_leakage_prevention` [GH-3278]
   + `huaweicloud_waf_rule_anti_crawler` [GH-3286]
@@ -253,7 +291,7 @@ BUG FIXES:
 
 ## 1.53.0 (July 31, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_api_gateway_environment` [GH-3186]
   + `huaweicloud_apig_certificate` [GH-3187]
   + `huaweicloud_cc_bandwidth_package` [GH-3192]
@@ -299,7 +337,7 @@ BUG FIXES:
 
 ## 1.52.0 (July 14, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_cnad_advanced_protected_object` [GH-3094]
   + `huaweicloud_cnad_advanced_policy` [GH-3158]
   + `huaweicloud_cnad_advanced_black_white_list` [GH-3160]
@@ -325,7 +363,7 @@ BUG FIXES:
 
 ## 1.51.0 (June 30, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_ges_backup` [GH-3112]
   + `huaweicloud_vpc_bandwidth_associate` [GH-3153]
   + `huaweicloud_sdrs_protection_group` [GH-3117]
@@ -369,7 +407,7 @@ BUG FIXES:
 
 ## 1.50.0 (June 13, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_organizations_organization` [GH-3076]
   + `huaweicloud_organizations_organizational_unit` [GH-3076]
   + `huaweicloud_ram_resource_share` [GH-3081]
@@ -395,7 +433,7 @@ BUG FIXES:
 
 ## 1.49.0 (May 31, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_secmaster_incident` [GH-2943]
   + `huaweicloud_live_bucket_authorization` [GH-2992]
   + `huaweicloud_live_snapshot` [GH-2994]
@@ -451,7 +489,7 @@ BUG FIXES:
 
 ## 1.48.0 (April 28, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_images_image_share` [GH-2885]
   + `huaweicloud_images_image_share_accepter` [GH-2885]
   + `huaweicloud_apig_acl_policy_associate` [GH-2892]
@@ -513,7 +551,7 @@ ENHANCEMENTS:
 
 ## 1.47.0 (March 31, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_nat_private_dnat_rule` [GH-2817]
   + `huaweicloud_nat_private_snat_rule` [GH-2821]
   + `huaweicloud_dli_datasource_connection` [GH-2809]
@@ -546,7 +584,7 @@ ENHANCEMENTS:
 
 ## 1.46.0 (March 17, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_ddm_schema` [GH-2764]
   + `huaweicloud_as_notification` [GH-2771]
   + `huaweicloud_nat_private_gateway` [GH-2785]
@@ -589,7 +627,7 @@ BUG FIXES:
 
 ## 1.45.0 (March 3, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_kms_grant` [GH-2707]
   + `huaweicloud_vpc_flow_log` [GH-2714]
   + `huaweicloud_rms_policy_assignment` [GH-2721]
@@ -637,7 +675,7 @@ BUG FIXES:
 
 ## 1.44.1 (January 20, 2023)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_dms_rocketmq_user` [GH-2576]
 
 * **New Data Source:**
@@ -660,7 +698,7 @@ BUG FIXES:
 
 ## 1.44.0 (December 30, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_ga_accelerator` [GH-2545]
   + `huaweicloud_ga_listener` [GH-2571]
   + `huaweicloud_ga_endpoint_group` [GH-2584]
@@ -691,7 +729,7 @@ ENHANCEMENTS:
 
 ## 1.43.0 (November 30, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_codehub_repository` [GH-2354]
   + `huaweicloud_rds_backup` [GH-2467]
   + `huaweicloud_er_instance` [GH-2471]
@@ -737,7 +775,7 @@ BUG FIXES:
 
 ## 1.42.0 (October 31, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_workspace_desktop` [GH-2420]
   + `huaweicloud_workspace_user` [GH-2426]
   + `huaweicloud_workspace_service` [GH-2453]
@@ -764,7 +802,7 @@ BUG FIXES:
 
 ## 1.41.0 (September 30, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_rds_database_privilege` [GH-2374]
   + `huaweicloud_as_bandwidth_policy` [GH-2375]
   + `huaweicloud_gaussdb_influx_instance` [GH-2393]
@@ -796,7 +834,7 @@ BUG FIXES:
 
 ## 1.40.2 (September 16, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_projectman_project` [GH-2279]
 
 ENHANCEMENTS:
@@ -824,7 +862,7 @@ ENHANCEMENTS:
 
 ## 1.40.0 (August 27, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_aad_forward_rule` [GH-2312]
 
 * **New Data Source:**
@@ -847,7 +885,7 @@ BUG FIXES:
 
 ## 1.39.0 (August 15, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_meeting_user` [GH-2249]
   + `huaweicloud_meeting_admin_assignment` [GH-2251]
   + `huaweicloud_dds_database_role` [GH-2270]
@@ -897,7 +935,7 @@ BUG FIXES:
 
 ## 1.38.0 (July 2, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_iotda_amqp` [GH-2216]
   + `huaweicloud_iotda_device` [GH-2182]
   + `huaweicloud_iotda_device_group` [GH-2206]
@@ -929,7 +967,7 @@ BUG FIXES:
 
 ## 1.37.0 (June 4, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_live_domain` [GH-2151]
   + `huaweicloud_live_record_callback` [GH-2155]
   + `huaweicloud_live_transcoding` [GH-2158]
@@ -966,7 +1004,7 @@ ENHANCEMENTS:
 
 ## 1.36.0 (May 13, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_servicestage_environment` [GH-2064]
   + `huaweicloud_servicestage_application` [GH-2099]
   + `huaweicloud_servicestage_component` [GH-2133]
@@ -991,7 +1029,7 @@ ENHANCEMENTS:
 
 ## 1.35.2 (April 24, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_cpts_project` [GH-2090]
   + `huaweicloud_cts_data_tracker` [GH-2093]
   + `huaweicloud_rds_account` [GH-2095]
@@ -1020,7 +1058,7 @@ BUG FIXES:
 
 ## 1.35.0 (March 31, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_tms_tags` [GH-2007]
   + `huaweicloud_modelarts_dataset` [GH-2010]
   + `huaweicloud_kps_keypair` [GH-2032]
@@ -1048,7 +1086,7 @@ BUG FIXES:
 
 ## 1.34.1 (March 4, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_vpc_address_group` [GH-1972]
   + `huaweicloud_fgs_dependency` [GH-1999]
 
@@ -1064,7 +1102,7 @@ ENHANCEMENTS:
 
 ## 1.34.0 (February 28, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_drs_job` [GH-1978]
   + `huaweicloud_modelarts_notebook` [GH-1920]
   + `huaweicloud_modelarts_notebook_mount_storage` [GH-1941]
@@ -1093,7 +1131,7 @@ BUG FIXES:
 
 ## 1.33.0 (January 29, 2022)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_csms_secret` [GH-1889]
 
 * **New Data Source:**
@@ -1138,7 +1176,7 @@ BUG FIXES:
 
 ## 1.32.0 (December 31, 2021)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_cdm_link` [GH-1819]
   + `huaweicloud_cdm_job` [GH-1840]
 
@@ -1167,7 +1205,7 @@ DEPRECATE:
 
 ## 1.31.1 (December 10, 2021)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_dli_flinkjar_job` [GH-1666]
   + `huaweicloud_dli_permission` [GH-1695]
   + `huaweicloud_identity_provider` [GH-1625]
@@ -1198,7 +1236,7 @@ Removed:
 
 ## 1.31.0 (November 30, 2021)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_cci_namespace` [GH-1648]
   + `huaweicloud_swr_repository_sharing` [GH-1671]
   + `huaweicloud_enterprise_project` [GH-1731]
@@ -1232,7 +1270,7 @@ BUG FIXES:
 
 ## 1.30.0 (October 30, 2021)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_apig_api_publishment` [GH-1595]
   + `huaweicloud_cce_namespace` [GH-1650]
   + `huaweicloud_dli_database` [GH-1607]
@@ -1291,7 +1329,7 @@ ENHANCEMENTS:
 
 ## 1.29.0 (September 29, 2021)
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_vpc_route_table` [GH-1359]
   + `huaweicloud_fgs_trigger` [GH-1372]
   + `huaweicloud_css_thesaurus` [GH-1513]
@@ -1339,7 +1377,7 @@ BUG FIXES:
 
 FEATURES:
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_dms_kafka_topic` [GH-1379]
   + `huaweicloud_gaussdb_redis_instance` [GH-1399]
   + `huaweicloud_waf_dedicated_instance` [GH-1407]
@@ -1393,7 +1431,7 @@ ENHANCEMENTS:
 
 FEATURES:
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_mapreduce_job` [GH-1324]
   + `huaweicloud_apig_api` [GH-1360]
 
@@ -1413,7 +1451,7 @@ BUG FIXES:
 
 FEATURES:
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_apig_throttling_policy` ([#1296](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1296))
   + `huaweicloud_apig_custom_authorizer` ([#1297](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1297))
   + `huaweicloud_mapreduce_cluster` ([#1324](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1324))
@@ -1439,7 +1477,7 @@ BUG FIXES:
 
 FEATURES:
 
-* **New Resurce:**
+* **New Resource:**
   + `huaweicloud_waf_certificate` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
   + `huaweicloud_waf_domain` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
   + `huaweicloud_waf_policy` ([#1257](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1257))
