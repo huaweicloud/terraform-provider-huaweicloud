@@ -147,7 +147,8 @@ var (
 	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
 
 	// The CFW instance ID
-	HW_CFW_INSTANCE_ID = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_EAST_WEST_FIREWALL = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
@@ -766,6 +767,13 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwEastWestFirewall(t *testing.T) {
+	if HW_CFW_EAST_WEST_FIREWALL == "" {
+		t.Skip("HW_CFW_EAST_WEST_FIREWALL must be set for CFW east-west firewall acceptance tests")
 	}
 }
 
