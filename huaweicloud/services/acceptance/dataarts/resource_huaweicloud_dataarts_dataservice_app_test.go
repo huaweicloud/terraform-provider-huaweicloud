@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getServiceAppResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDataServiceAppResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getApp: Query the app
 	var (
@@ -24,7 +24,7 @@ func getServiceAppResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 	)
 	getAppClient, err := cfg.NewServiceClient(getAppProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DataArtsStudio client: %s", err)
+		return nil, fmt.Errorf("error creating DataArts Studio client: %s", err)
 	}
 
 	getAppPath := getAppClient.Endpoint + getAppHttpUrl
@@ -56,16 +56,16 @@ func getServiceAppResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 	return getAppRespBody, nil
 }
 
-func TestAccServiceApp_basic(t *testing.T) {
+func TestAccDataServiceApp_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dataarts_service_app.test"
+	rName := "huaweicloud_dataarts_dataservice_app.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getServiceAppResourceFunc,
+		getDataServiceAppResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -77,7 +77,7 @@ func TestAccServiceApp_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testServiceApp_basic(name),
+				Config: testDataServiceApp_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -88,7 +88,7 @@ func TestAccServiceApp_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testServiceApp_basic_update(name + "update"),
+				Config: testDataServiceApp_basic_update(name + "update"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
@@ -103,15 +103,15 @@ func TestAccServiceApp_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testServiceAppImportState(rName),
+				ImportStateIdFunc: testDataServiceAppImportState(rName),
 			},
 		},
 	})
 }
 
-func testServiceApp_basic(name string) string {
+func testDataServiceApp_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_service_app" "test" {
+resource "huaweicloud_dataarts_dataservice_app" "test" {
   workspace_id = "%[1]s"
   dlm_type     = "SHARED"
   name         = "%[2]s"
@@ -119,9 +119,9 @@ resource "huaweicloud_dataarts_service_app" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
 }
 
-func testServiceApp_basic_update(name string) string {
+func testDataServiceApp_basic_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_service_app" "test" {
+resource "huaweicloud_dataarts_dataservice_app" "test" {
   workspace_id = "%[1]s"
   dlm_type     = "SHARED"
   name         = "%[2]s"
@@ -130,7 +130,7 @@ resource "huaweicloud_dataarts_service_app" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
 }
 
-func testServiceAppImportState(name string) resource.ImportStateIdFunc {
+func testDataServiceAppImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {

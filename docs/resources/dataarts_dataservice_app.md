@@ -2,7 +2,7 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_service_app
+# huaweicloud_dataarts_dataservice_app
 
 Manages an app resource of DataArts DataService within HuaweiCloud.
 
@@ -14,7 +14,7 @@ Each app corresponds to a unique identity credential and can be classified based
 ```hcl
 variable "workspace_id" {}
 
-resource "huaweicloud_dataarts_service_app" "test" {
+resource "huaweicloud_dataarts_dataservice_app" "test" {
   workspace_id = var.workspace_id
   dlm_type     = "SHARED"
   app_type     = "APP"
@@ -29,27 +29,28 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `workspace_id` - (Required, String, ForceNew) The workspace ID.
+* `workspace_id` - (Required, String, ForceNew) Specifies the workspace ID.
 
   Changing this parameter will create a new resource.
 
-* `dlm_type` - (Required, String, ForceNew) The type of DLM.  
+* `dlm_type` - (Required, String, ForceNew) Specifies the type of DLM engine.  
   The valid values are as follows:
-    - **SHARED**: Shared data service.
-    - **EXCLUSIVE**: The exclusive data service.
+  + **SHARED**: Shared data service.
+  + **EXCLUSIVE**: The exclusive data service.
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String) The name of the app.  
-  The name must be the account name when the `app_type` is **IAM**.
+* `name` - (Required, String) Specifies the name of the application.  
+  The name must be the **account** name when the `app_type` is **IAM**.
 
-* `description` - (Optional, String) The description of the app.
+* `description` - (Optional, String) Specifies the description of the application.
 
-* `app_type` - (Optional, String, ForceNew) The type of the app.  
-  The valid values are **APP** and **IAM**.
-  Defaults to **APP**.
+* `app_type` - (Optional, String, ForceNew) Specifies the type of the application.  
+  The valid values are as follows:
+  + **APP**: access through app authentication.
+  + **IAM**: IAM authentication is used, which means access using a token.
 
-  Changing this parameter will create a new resource.
+  Defaults to **APP**. Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
@@ -63,8 +64,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The DataArts app can be imported using **workspace_id**, **dlm_type** and **id**, separated by a slash, e.g.
+The DataArts DataService app can be imported using `workspace_id`, `dlm_type` and `id` separated by slashes, e.g.
 
 ```bash
-$ terraform import huaweicloud_dataarts_service_app.test <workspace_id>/<dlm_type>/<id>
+$ terraform import huaweicloud_dataarts_dataservice_app.test <workspace_id>/<dlm_type>/<id>
 ```
