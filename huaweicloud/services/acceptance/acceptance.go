@@ -216,9 +216,15 @@ var (
 
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
-	HW_DATAARTS_WORKSPACE_ID   = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
-	HW_DATAARTS_MANAGER_ID     = os.Getenv("HW_DATAARTS_MANAGER_ID")
-	HW_DATAARTS_BIZ_CATALOG_ID = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
+	HW_DATAARTS_WORKSPACE_ID            = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
+	HW_DATAARTS_MANAGER_ID              = os.Getenv("HW_DATAARTS_MANAGER_ID")
+	HW_DATAARTS_BIZ_CATALOG_ID          = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
+	HW_DATAARTS_SECRECY_LEVEL_ID        = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID")
+	HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE")
+	HW_DATAARTS_CATEGORY_ID             = os.Getenv("HW_DATAARTS_CATEGORY_ID")
+	HW_DATAARTS_CATEGORY_ID_UPDATE      = os.Getenv("HW_DATAARTS_CATEGORY_ID_UPDATE")
+	HW_DATAARTS_BUILTIN_RULE_ID         = os.Getenv("HW_DATAARTS_BUILTIN_RULE_ID")
+	HW_DATAARTS_BUILTIN_RULE_NAME       = os.Getenv("HW_DATAARTS_BUILTIN_RULE_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1004,5 +1010,23 @@ func TestAccPreCheckDataArtsManagerID(t *testing.T) {
 func TestAccPreCheckDataArtsBizCatalogID(t *testing.T) {
 	if HW_DATAARTS_BIZ_CATALOG_ID == "" {
 		t.Skip("HW_DATAARTS_BIZ_CATALOG_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsDataClassificationID(t *testing.T) {
+	if HW_DATAARTS_SECRECY_LEVEL_ID == "" || HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE == "" {
+		t.Skip("HW_DATAARTS_SECRECY_LEVEL_ID and HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE must be set for the acceptance test")
+	}
+
+	if HW_DATAARTS_CATEGORY_ID == "" || HW_DATAARTS_CATEGORY_ID_UPDATE == "" {
+		t.Skip("HW_DATAARTS_CATEGORY_ID and HW_DATAARTS_CATEGORY_ID_UPDATE must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsBuiltinRule(t *testing.T) {
+	if HW_DATAARTS_BUILTIN_RULE_ID == "" || HW_DATAARTS_BUILTIN_RULE_NAME == "" {
+		t.Skip("HW_DATAARTS_BUILTIN_RULE_ID and HW_DATAARTS_BUILTIN_RULE_NAME must be set for the acceptance test")
 	}
 }
