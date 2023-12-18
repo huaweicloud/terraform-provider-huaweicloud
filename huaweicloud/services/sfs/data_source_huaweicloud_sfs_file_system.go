@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -137,31 +138,43 @@ func dataSourceSFSFileSystemV2Read(_ context.Context, d *schema.ResourceData, me
 	log.Printf("[INFO] Retrieved Shares using given filter %s: %+v", share.ID, share)
 	d.SetId(share.ID)
 
-	d.Set("availability_zone", share.AvailabilityZone)
-	d.Set("description", share.Description)
-	d.Set("is_public", share.IsPublic)
-	d.Set("name", share.Name)
-	d.Set("share_proto", share.ShareProto)
-	d.Set("size", share.Size)
-	d.Set("status", share.Status)
-	d.Set("export_location", share.ExportLocation)
-	d.Set("metadata", share.Metadata)
-	d.Set("region", region)
+	mErr := multierror.Append(nil,
+		d.Set("availability_zone", share.AvailabilityZone),
+		d.Set("description", share.Description),
+		d.Set("is_public", share.IsPublic),
+		d.Set("name", share.Name),
+		d.Set("share_proto", share.ShareProto),
+		d.Set("size", share.Size),
+		d.Set("status", share.Status),
+		d.Set("export_location", share.ExportLocation),
+		d.Set("metadata", share.Metadata),
+		d.Set("region", region),
+	)
 
 	n, err := shares.ListAccessRights(sfsClient, share.ID).ExtractAccessRights()
+	if err != nil {
+		return diag.Errorf("error extracting the AccessRight slice from the response: %s", err)
+	}
 	shareaccess := n[0]
-	d.Set("access_type", shareaccess.AccessType)
-	d.Set("access_to", shareaccess.AccessTo)
-	d.Set("access_level", shareaccess.AccessLevel)
-	d.Set("state", shareaccess.State)
-	d.Set("share_access_id", shareaccess.ID)
+	mErr = multierror.Append(mErr,
+		d.Set("access_type", shareaccess.AccessType),
+		d.Set("access_to", shareaccess.AccessTo),
+		d.Set("access_level", shareaccess.AccessLevel),
+		d.Set("state", shareaccess.State),
+		d.Set("share_access_id", shareaccess.ID),
+	)
 
 	mount, err := shares.GetExportLocations(sfsClient, share.ID).ExtractExportLocations()
-	MountTarget := mount[0]
+	if err != nil {
+		return diag.Errorf("error getting the Mount/Export Locations of the SFS specified: %S", err)
+	}
+	mountTarget := mount[0]
 
-	d.Set("mount_id", MountTarget.ID)
-	d.Set("preferred", MountTarget.Preferred)
-	d.Set("share_instance_id", MountTarget.ShareInstanceID)
+	mErr = multierror.Append(mErr,
+		d.Set("mount_id", mountTarget.ID),
+		d.Set("preferred", mountTarget.Preferred),
+		d.Set("share_instance_id", mountTarget.ShareInstanceID),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

@@ -175,7 +175,7 @@ func flattenTurbos(turbos []interface{}) ([]map[string]interface{}, []string) {
 	return result, ids
 }
 
-func dataSourceTurbosRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceTurbosRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.SfsV1Client(region)
