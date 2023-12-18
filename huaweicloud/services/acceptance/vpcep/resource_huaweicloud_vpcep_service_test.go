@@ -152,13 +152,13 @@ func testAccVPCEPService_Basic(rName string) string {
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
-  name        = "%s"
-  server_type = "VM"
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  port_id     = huaweicloud_compute_instance.ecs.network[0].port
-  approval    = false
-  description = "test description"
-  permissions = ["iam:domain::1234", "iam:domain::5678"]
+  name                     = "%s"
+  server_type              = "VM"
+  vpc_id                   = data.huaweicloud_vpc.myvpc.id
+  port_id                  = huaweicloud_compute_instance.ecs.network[0].port
+  approval                 = false
+  description              = "test description"
+  permissions              = ["iam:domain::6e9dfd5d1124e8d8498dce894923a0dd", "iam:domain::6e9dfd5d1124e8d8498dce894923a0de"]
   organization_permissions = ["organizations:orgPath::1234", "organizations:orgPath::5678"]
 
   port_mapping {
@@ -177,13 +177,13 @@ func testAccVPCEPService_Update(rName string) string {
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
-  name        = "tf-%s"
-  server_type = "VM"
-  vpc_id      = data.huaweicloud_vpc.myvpc.id
-  port_id     = huaweicloud_compute_instance.ecs.network[0].port
-  approval    = true
-  description = "test description update"
-  permissions = ["*"]
+  name                     = "tf-%s"
+  server_type              = "VM"
+  vpc_id                   = data.huaweicloud_vpc.myvpc.id
+  port_id                  = huaweicloud_compute_instance.ecs.network[0].port
+  approval                 = true
+  description              = "test description update"
+  permissions              = ["*"]
   organization_permissions = ["organizations:orgPath::*"]
 
   port_mapping {
@@ -209,7 +209,7 @@ resource "huaweicloud_vpcep_service" "test" {
   approval      = false
   description   = "test description"
   enable_policy = true
-  permissions   = ["iam:domain::1234", "iam:domain::5678"]
+  permissions   = ["iam:domain::6e9dfd5d1124e8d8498dce894923a0dd", "iam:domain::6e9dfd5d1124e8d8498dce894923a0de"]
 
   port_mapping {
     service_port  = 8080
