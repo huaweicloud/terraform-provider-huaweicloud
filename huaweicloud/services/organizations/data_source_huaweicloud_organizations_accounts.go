@@ -126,7 +126,6 @@ func dataSourceAccountsRead(_ context.Context, d *schema.ResourceData, meta inte
 	d.SetId(uuid)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", region),
 		d.Set("accounts", orgAccounts),
 	)
 
