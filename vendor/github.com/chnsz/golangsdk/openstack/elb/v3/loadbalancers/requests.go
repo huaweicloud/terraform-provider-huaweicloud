@@ -278,3 +278,39 @@ func GetStatuses(c *golangsdk.ServiceClient, id string) (r GetStatusesResult) {
 	_, r.Err = c.Get(statusRootURL(c, id), &r.Body, nil)
 	return
 }
+
+type UpdateAvailabilityZone interface {
+	ToAvailabilityZoneUpdateMap() (map[string]interface{}, error)
+}
+
+// Availability Zone List.
+type AvailabilityZoneOpts struct {
+	AvailabilityZoneList []string `json:"availability_zone_list" required:"true"`
+}
+
+// ToAvailabilityZoneUpdateMap builds a request body from AvailabilityZoneOpts.
+func (opts AvailabilityZoneOpts) ToAvailabilityZoneUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// AddAvailabilityZone will add availability zone list
+func AddAvailabilityZone(c *golangsdk.ServiceClient, id string, opts AvailabilityZoneOpts) (r UpdateResult) {
+	b, err := opts.ToAvailabilityZoneUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(updateAvailabilityZoneURL(c, id, "batch-add"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
+
+// RemoveAvailabilityZone will remove availability zone list
+func RemoveAvailabilityZone(c *golangsdk.ServiceClient, id string, opts AvailabilityZoneOpts) (r UpdateResult) {
+	b, err := opts.ToAvailabilityZoneUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(updateAvailabilityZoneURL(c, id, "batch-remove"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
