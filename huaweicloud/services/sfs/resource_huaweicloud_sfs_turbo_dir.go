@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: SFSTurbo POST /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir
+// API: SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir
+// API: SFSTurbo DELETE /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir
 func ResourceSfsTurboDir() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSfsTurboDirCreate,

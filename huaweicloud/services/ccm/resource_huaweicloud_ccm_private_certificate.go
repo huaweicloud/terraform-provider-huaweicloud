@@ -18,6 +18,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: CCM POST /v1/private-certificates
+// API: CCM POST /v1/private-certificates/{id}/tags/create
+// API: CCM DELETE /v1/private-certificates/{id}/tags/delete
+// API: CCM GET /v1/private-certificates/{certificate_id}
+// API: CCM GET /v1/private-certificates/{id}/tags
+// API: CCM DELETE /v1/private-certificates/{certificate_id}
 func ResourceCcmPrivateCertificate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCcmPrivateCertificateCreate,

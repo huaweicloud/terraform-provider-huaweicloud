@@ -20,6 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: RDS POST /v3/{project_id}/instances/{instance_id}/extensions
+// API: RDS GET /v3/{project_id}/instances
+// API: RDS GET /v3/{project_id}/instances/{instance_id}/extensions
+// API: RDS DELETE /v3/{project_id}/instances/{instance_id}/extensions
 func ResourceRdsPgPlugin() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsPgPluginCreate,
