@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getServiceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getServiceFunc(conf *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.WorkspaceV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Workspace v2 client: %s", err)
@@ -47,7 +47,7 @@ func TestAccService_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccService_basic(rName),
+				Config: testAccService_basic_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
@@ -66,7 +66,7 @@ func TestAccService_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccService_update(rName),
+				Config: testAccService_basic_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "network_ids.0",
@@ -76,6 +76,17 @@ func TestAccService_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "internet_access_port", "9001"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.receive_mode", "VMFA"),
+				),
+			},
+			{
+				Config: testAccService_basic_step3(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.rule_type", "ACCESS_MODE"),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.rule", "PRIVATE"),
 				),
 			},
 			{
@@ -109,7 +120,7 @@ func TestAccService_localAD(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccService_localAD_basic(rName),
+				Config: testAccService_localAD_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "LOCAL_AD"),
@@ -133,7 +144,7 @@ func TestAccService_localAD(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccService_localAD_update(rName),
+				Config: testAccService_localAD_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "network_ids.0", acceptance.HW_WORKSPACE_AD_NETWORK_ID),
@@ -144,6 +155,16 @@ func TestAccService_localAD(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "internet_access_port", "9001"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.receive_mode", "VMFA"),
+				),
+			},
+			{
+				Config: testAccService_localAD_step3(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.rule_type", "ACCESS_MODE"),
+					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.rule", "PRIVATE"),
 				),
 			},
 			{
@@ -183,7 +204,7 @@ resource "huaweicloud_vpc_subnet" "standby" {
 `, rName)
 }
 
-func testAccService_basic(rName string) string {
+func testAccService_basic_step1(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -197,7 +218,7 @@ resource "huaweicloud_workspace_service" "test" {
 `, testAccService_base(rName))
 }
 
-func testAccService_update(rName string) string {
+func testAccService_basic_step2(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -211,6 +232,36 @@ resource "huaweicloud_workspace_service" "test" {
 
   internet_access_port = 9001
   enterprise_id        = "%[2]s"
+
+  otp_config_info {
+    enable       = true
+    receive_mode = "VMFA"
+  }
+}
+`, testAccService_base(rName), rName)
+}
+
+func testAccService_basic_step3(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_service" "test" {
+  access_mode = "INTERNET"
+  vpc_id      = huaweicloud_vpc.test.id
+  network_ids = [
+    huaweicloud_vpc_subnet.master.id,
+    huaweicloud_vpc_subnet.standby.id,
+  ]
+
+  internet_access_port = 9001
+  enterprise_id        = "%[2]s"
+
+  otp_config_info {
+    enable       = true
+    receive_mode = "VMFA"
+    rule_type    = "ACCESS_MODE"
+    rule         = "PRIVATE"
+  }
 }
 `, testAccService_base(rName), rName)
 }
@@ -239,7 +290,7 @@ resource "huaweicloud_vpc_subnet" "standby" {
 `, acceptance.HW_WORKSPACE_AD_VPC_ID, rName)
 }
 
-func testAccService_localAD_basic(rName string) string {
+func testAccService_localAD_step1(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -262,7 +313,7 @@ resource "huaweicloud_workspace_service" "test" {
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
 
-func testAccService_localAD_update(rName string) string {
+func testAccService_localAD_step2(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -292,6 +343,54 @@ resource "huaweicloud_workspace_service" "test" {
 
   internet_access_port = 9001
   enterprise_id        = "%[7]s"
+
+  otp_config_info {
+    enable       = true
+    receive_mode = "VMFA"
+  }
+}
+`, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,
+		rName)
+}
+
+func testAccService_localAD_step3(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_service" "test" {
+  depends_on = [
+    huaweicloud_vpc_subnet.master,
+	huaweicloud_vpc_subnet.standby,
+  ]
+
+  ad_domain {
+    name               = "%[2]s"
+    admin_account      = "Administrator"
+    password           = "%[3]s"
+    active_domain_ip   = "%[4]s"
+    active_domain_name = "server.%[2]s"
+    active_dns_ip      = "%[4]s"
+  }
+
+  auth_type   = "LOCAL_AD"
+  access_mode = "INTERNET"
+  vpc_id      = "%[5]s"
+  network_ids = [
+    "%[6]s",
+    huaweicloud_vpc_subnet.master.id,
+    huaweicloud_vpc_subnet.standby.id,
+  ]
+
+  internet_access_port = 9001
+  enterprise_id        = "%[7]s"
+
+  otp_config_info {
+    enable       = true
+    receive_mode = "VMFA"
+    rule_type    = "ACCESS_MODE"
+    rule         = "PRIVATE"
+  }
 }
 `, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,

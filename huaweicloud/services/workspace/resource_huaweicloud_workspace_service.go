@@ -95,6 +95,49 @@ func securityGroupSchemaResource() *schema.Resource {
 	}
 }
 
+func assistAuthSchemaResource() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"receive_mode": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"auth_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"app_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"app_secret": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"auth_server_access_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"cert_content": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"rule": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"rule_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	}
+}
+
 func ResourceService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServiceCreate,
@@ -198,6 +241,12 @@ func ResourceService() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"otp_config_info": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     assistAuthSchemaResource(),
 			},
 		},
 	}
@@ -375,7 +424,34 @@ func flattenServiceServiceGroup(secgroup services.SecurityGroup) []map[string]in
 	}
 }
 
-func resourceServiceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func getAssistAuthConfig(client *golangsdk.ServiceClient) ([]map[string]interface{}, error) {
+	resp, err := services.GetAuthConfig(client)
+	if err != nil {
+		return nil, fmt.Errorf("error getting the auxiliary authentication configuration details: %s", err)
+	}
+
+	authConfig := resp.OptConfigInfo
+	if !authConfig.Enable {
+		return nil, nil
+	}
+
+	result := []map[string]interface{}{
+		{
+			"enable":                  authConfig.Enable,
+			"receive_mode":            authConfig.ReceiveMode,
+			"auth_url":                authConfig.AuthUrl,
+			"app_id":                  authConfig.AppId,
+			"app_secret":              authConfig.AppSecrte,
+			"auth_server_access_mode": authConfig.AuthServerAccessMode,
+			"cert_content":            authConfig.CertContent,
+			"rule_type":               authConfig.ApplyRule.RuleType,
+			"rule":                    authConfig.ApplyRule.Rule,
+		},
+	}
+	return result, err
+}
+
+func resourceServiceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.WorkspaceV2Client(region)
@@ -417,6 +493,13 @@ func resourceServiceRead(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
+	configInfo, err := getAssistAuthConfig(client)
+	if err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("otp_config_info", configInfo))
+	}
+
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting service fields: %s", err)
 	}
@@ -449,7 +532,7 @@ func updateServiceConnection(ctx context.Context, client *golangsdk.ServiceClien
 	return doingUpdate(ctx, client, opts, d.Timeout(schema.TimeoutUpdate))
 }
 
-func updateServiceSubnetIds(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func updateServiceSubnetIds(_ context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	log.Printf("[DEBUG] start updating the network ID list of service")
 	opts := services.UpdateOpts{
 		Subnets: utils.ExpandToStringList(d.Get("network_ids").([]interface{})),
@@ -478,6 +561,37 @@ func updateServiceEnterpriseId(ctx context.Context, client *golangsdk.ServiceCli
 	return doingUpdate(ctx, client, opts, d.Timeout(schema.TimeoutUpdate))
 }
 
+func buildAuthConfig(configInfo map[string]interface{}) *services.OtpConfigInfo {
+	result := services.OtpConfigInfo{
+		Enable:               utils.Bool(configInfo["enable"].(bool)),
+		ReceiveMode:          configInfo["receive_mode"].(string),
+		AuthUrl:              configInfo["auth_url"].(string),
+		AppId:                configInfo["app_id"].(string),
+		AppSecrte:            configInfo["app_secret"].(string),
+		AuthServerAccessMode: configInfo["auth_server_access_mode"].(string),
+		CertContent:          configInfo["cert_content"].(string),
+		ApplyRule: &services.ApplyRule{
+			RuleType: configInfo["rule_type"].(string),
+			Rule:     configInfo["rule"].(string),
+		},
+	}
+
+	return &result
+}
+
+func updateAssistAuthConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	authConfig := d.Get("otp_config_info").([]interface{})
+	if len(authConfig) < 1 {
+		return nil
+	}
+
+	opts := services.UpdateAuthConfigOpts{
+		AuthType:      "OTP",
+		OptConfigInfo: buildAuthConfig(authConfig[0].(map[string]interface{})),
+	}
+	return services.UpdateAssistAuthConfig(client, opts)
+}
+
 func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
@@ -503,6 +617,12 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if d.HasChange("enterprise_id") {
 		if err = updateServiceEnterpriseId(ctx, client, d); err != nil {
 			return diag.Errorf("error updating enterprise ID of service: %s", err)
+		}
+	}
+
+	if d.HasChanges("otp_config_info") {
+		if err = updateAssistAuthConfig(client, d); err != nil {
+			return diag.Errorf("error updating authentication config parameters of service: %s", err)
 		}
 	}
 	return resourceServiceRead(ctx, d, meta)

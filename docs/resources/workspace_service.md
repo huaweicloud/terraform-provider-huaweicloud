@@ -22,6 +22,13 @@ resource "huaweicloud_workspace_service" "test" {
   access_mode = "INTERNET"
   vpc_id      = var.vpc_id
   network_ids = var.network_ids
+
+  otp_config_info {
+    enable       = true
+    receive_mode = "VMFA"
+    rule_type    = "ACCESS_MODE"
+    rule         = "PRIVATE"
+  }
 }
 ```
 
@@ -53,6 +60,13 @@ resource "huaweicloud_workspace_service" "test" {
     active_domain_ip   = var.ad_master_domain_ip
     active_domain_name = format("%s.%s", var.ad_server_name, var.ad_domain_name)
     active_dns_ip      = var.ad_master_dns_ip
+  }
+
+  otp_config_info {
+    enable       = true
+    receive_mode = "VMFA"
+    rule_type    = "ACCESS_MODE"
+    rule         = "PRIVATE"
   }
 }
 ```
@@ -111,6 +125,9 @@ The following arguments are supported:
 
 * `management_subnet_cidr` - (Optional, String, ForceNew) The subnet segment of the management component.
 
+* `otp_config_info` - (Optional, List) Specifies the configuration of auxiliary authentication.
+  The [object](#config_info) structure is documented below.
+
 <a name="service_domain"></a>
 The `ad_domain` block supports:
 
@@ -136,6 +153,35 @@ The `ad_domain` block supports:
 
 * `delete_computer_object` - (Optional, Bool) Specifies whether to delete the corresponding computer object on AD
   while deleting the desktop.
+
+<a name="config_info"></a>
+The `otp_config_info` block supports:
+
+* `enable` - (Required, Bool) Specifies whether to enable auxiliary authentication.
+
+* `receive_mode` - (Required, String) Specifies the verification code receiving mode.
+  + **VMFA**: Indicates virtual MFA device.
+  + **HMFA**: Indicates hardware MFA device.
+  
+* `auth_url` - (Optional, String) Specifies the auxiliary authentication server address.
+
+* `app_id` - (Optional, String) Specifies the auxiliary authentication server access account.
+
+* `app_secret` - (Optional, String) Specifies the authentication service access password.
+
+* `auth_server_access_mode` - (Optional, String) Specifies the authentication service access mode.
+  + **INTERNET**: Indicates internet access.
+  + **DEDICATED**: Indicates dedicated access.
+  + **SYSTEM_DEFAULT**: Indicates system default.
+
+* `cert_content` - (Optional, String) Specifies the PEM format certificate content.
+
+* `rule_type` - (Optional, String) Specifies authentication application object type.
+  + **ACCESS_MODE**: Indicates access type.
+
+* `rule` - (Optional, String) Specifies authentication application object.
+  + **INTERNET**: Indicates Internet access. Optional only when rule_type is **ACCESS_MODE**.
+  + **PRIVATE**: Indicates dedicated line access. Optional only when rule_type is **ACCESS_MODE**.
 
 ## Attribute Reference
 

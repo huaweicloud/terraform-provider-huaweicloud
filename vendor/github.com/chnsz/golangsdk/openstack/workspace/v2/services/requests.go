@@ -156,3 +156,71 @@ func Delete(c *golangsdk.ServiceClient) (*DeleteResp, error) {
 	})
 	return &r, err
 }
+
+// GetAuthConfig is the method that used to query the configuration information of secondary authentication.
+func GetAuthConfig(c *golangsdk.ServiceClient) (*OtpConfigResp, error) {
+	var r OtpConfigResp
+	_, err := c.Get(authConfigURL(c), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// UpdateAuthConfigOpts is the structure by the UpdateAuthConfig method to change auxiliary authentication.configuration.
+type UpdateAuthConfigOpts struct {
+	// Authentication type.
+	// + OTP: Indicates OTP assist authentication.
+	AuthType string `json:"auth_type" required:"true"`
+	// The OTP auxiliary authentication method configuration.
+	OptConfigInfo *OtpConfigInfo `json:"otp_config_info" required:"true"`
+}
+
+// OtpConfigInfo is the structure to specified the OTP auxiliary authentication configuration infomation.
+type OtpConfigInfo struct {
+	// Whether to enable OTP authentication mode.
+	Enable *bool `json:"enable" required:"true"`
+	// Verification code receiving mode.
+	// + VMFA Indicates virtual MFA device.
+	// + HMFA Indicates hardware MFA device.
+	ReceiveMode string `json:"receive_mode" required:"true"`
+	// Auxiliary authentication server address.
+	AuthUrl string `json:"auth_url,omitempty"`
+	// Auxiliary authentication service access account.
+	AppId string `json:"app_id,omitempty"`
+	// Auxiliary authentication service access password.
+	AppSecrte string `json:"app_secret,omitempty"`
+	// Auxiliary authentication service access mode.
+	// + INTERNET: Indicates Internet access.
+	// + DEDICATED: Indicates dedicated line access.
+	// + SYSTEM_DEFAULT：Indicates system default.
+	AuthServerAccessMode string `json:"auth_server_access_mode,omitempty"`
+	// PEM format certificate content.
+	CertContent string `json:"cert_content,omitempty"`
+	// Authentication application object information. If null, it means it is effective for all application objects.
+	ApplyRule *ApplyRule `json:"apply_rule,omitempty"`
+}
+
+// ApplyRule is the object to specified the OTP auxiliary authentication configuration infomation.
+type ApplyRule struct {
+	// Authentication application object type.
+	// + ACCESS_MODE: Indicates access type.
+	RuleType string `json:"rule_type,omitempty"`
+	// Authentication application object.
+	// + INTERNET: Indicates Internet access. Optional only when rule_type is "ACCESS_MODE".
+	// + PRIVATE: Indicates dedicated line access. Optional only when rule_type is "ACCESS_MODE".
+	Rule string `json:"rule,omitempty"`
+}
+
+// UpdateAssistAuthConfig is the method that used to modify the configuration information of auxiliary authentication
+func UpdateAssistAuthConfig(c *golangsdk.ServiceClient, opts UpdateAuthConfigOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Put(authConfigURL(c), b, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+		OkCodes:     []int{204},
+	})
+	return err
+}
