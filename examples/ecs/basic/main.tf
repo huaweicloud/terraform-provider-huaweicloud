@@ -16,12 +16,16 @@ data "huaweicloud_images_image" "myimage" {
   most_recent = true
 }
 
+data "huaweicloud_networking_secgroup" "mysecgroup" {
+  name = "default"
+}
+
 resource "huaweicloud_compute_instance" "basic" {
-  name              = "basic"
-  image_id          = data.huaweicloud_images_image.myimage.id
-  flavor_id         = data.huaweicloud_compute_flavors.myflavor.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  name               = "basic"
+  image_id           = data.huaweicloud_images_image.myimage.id
+  flavor_id          = data.huaweicloud_compute_flavors.myflavor.ids[0]
+  availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.mysecgroup.id]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.mynet.id
