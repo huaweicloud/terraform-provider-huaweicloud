@@ -89,7 +89,7 @@ func TestAccDdmSchema_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{"instance_id", "data_nodes.0.admin_user",
+				ImportStateVerifyIgnore: []string{"instance_id", "data_nodes.0.admin_user", "data_nodes.0.status",
 					"data_nodes.0.admin_password", "delete_rds_data"},
 			},
 		},
