@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: WAF GET /v1/{project_id}/waf/ip-groups
 func DataSourceWafAddressGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: datasourceAddressGroupsRead,

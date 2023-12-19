@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: ELB GET /v3/{project_id}/elb/l7policies/{l7policy_id}/rules
 func DataSourceElbL7rules() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceElbL7rulesRead,

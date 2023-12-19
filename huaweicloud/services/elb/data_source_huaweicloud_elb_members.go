@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: ELB GET /v3/{project_id}/elb/pools/{pool_id}/members
 func DataSourceElbMembers() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceElbMembersRead,

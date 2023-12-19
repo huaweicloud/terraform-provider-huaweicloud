@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: RDS POST /v3/{project_id}/instances/{instance_id}/extensions
 func DataSourcePgPlugins() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourcePgPluginsRead,
