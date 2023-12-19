@@ -115,7 +115,6 @@ func dataSourceOrganizationalUnitsRead(_ context.Context, d *schema.ResourceData
 	d.SetId(uuid)
 
 	mErr := multierror.Append(nil,
-		d.Set("region", region),
 		d.Set("children", childrenOUs),
 	)
 

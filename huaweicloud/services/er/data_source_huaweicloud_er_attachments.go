@@ -82,6 +82,16 @@ func DataSourceAttachments() *schema.Resource {
 							Computed:    true,
 							Description: `The current status of the attachment.`,
 						},
+						"associated": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether this attachment has been associated.`,
+						},
+						"resource_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Associated resource ID.`,
+						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -169,6 +179,8 @@ func flattenAttachments(all []attachments.Attachment) []map[string]interface{} {
 			"name":           attachment.Name,
 			"description":    attachment.Description,
 			"status":         attachment.Status,
+			"associated":     attachment.Associated,
+			"resource_id":    attachment.ResourceId,
 			"created_at":     attachment.CreatedAt,
 			"updated_at":     attachment.UpdatedAt,
 			"tags":           utils.TagsToMap(attachment.Tags),

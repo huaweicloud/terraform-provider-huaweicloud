@@ -16,6 +16,13 @@ paths:
     post:
       tag: Workspace
       operationId: UpdateProduct
+  /v2/{project_id}/desktops/{desktopId}/networks:
+    get:
+      tag: Workspace
+      operationId: GetNetwork
+    put:
+      tag: Workspace
+      operationId: UpdateNetwork
   /v2/{project_id}/desktops/{desktopId}:
     delete:
       tag: Workspace

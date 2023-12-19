@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_address_groups": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accept_count": "number",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "ip_addresses": "string",
+                      "name": "string",
+                      "process_status": "number",
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "policy_id": "string",
+                            "policy_name": "string",
+                            "rule_id": "string",
+                            "rule_name": "string"
+                          }
+                        ]
+                      ],
+                      "share_count": "number"
+                    }
+                  ]
+                ],
+                "description": "Specifies the list of address group.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the IP address or IP address ranges.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the address group.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

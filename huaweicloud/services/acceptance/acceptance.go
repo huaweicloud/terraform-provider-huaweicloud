@@ -147,7 +147,8 @@ var (
 	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
 
 	// The CFW instance ID
-	HW_CFW_INSTANCE_ID = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_EAST_WEST_FIREWALL = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
@@ -196,6 +197,7 @@ var (
 	HW_IMAGE_SHARE_SOURCE_IMAGE_ID = os.Getenv("HW_IMAGE_SHARE_SOURCE_IMAGE_ID")
 
 	HW_CERTIFICATE_CONTENT         = os.Getenv("HW_CERTIFICATE_CONTENT")
+	HW_CERTIFICATE_CONTENT_UPDATE  = os.Getenv("HW_CERTIFICATE_CONTENT_UPDATE")
 	HW_CERTIFICATE_PRIVATE_KEY     = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY")
 	HW_CERTIFICATE_ROOT_CA         = os.Getenv("HW_CERTIFICATE_ROOT_CA")
 	HW_NEW_CERTIFICATE_CONTENT     = os.Getenv("HW_NEW_CERTIFICATE_CONTENT")
@@ -214,9 +216,15 @@ var (
 
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
-	HW_DATAARTS_WORKSPACE_ID   = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
-	HW_DATAARTS_MANAGER_ID     = os.Getenv("HW_DATAARTS_MANAGER_ID")
-	HW_DATAARTS_BIZ_CATALOG_ID = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
+	HW_DATAARTS_WORKSPACE_ID            = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
+	HW_DATAARTS_MANAGER_ID              = os.Getenv("HW_DATAARTS_MANAGER_ID")
+	HW_DATAARTS_BIZ_CATALOG_ID          = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
+	HW_DATAARTS_SECRECY_LEVEL_ID        = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID")
+	HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE")
+	HW_DATAARTS_CATEGORY_ID             = os.Getenv("HW_DATAARTS_CATEGORY_ID")
+	HW_DATAARTS_CATEGORY_ID_UPDATE      = os.Getenv("HW_DATAARTS_CATEGORY_ID_UPDATE")
+	HW_DATAARTS_BUILTIN_RULE_ID         = os.Getenv("HW_DATAARTS_BUILTIN_RULE_ID")
+	HW_DATAARTS_BUILTIN_RULE_NAME       = os.Getenv("HW_DATAARTS_BUILTIN_RULE_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -769,6 +777,13 @@ func TestAccPreCheckCfw(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckCfwEastWestFirewall(t *testing.T) {
+	if HW_CFW_EAST_WEST_FIREWALL == "" {
+		t.Skip("HW_CFW_EAST_WEST_FIREWALL must be set for CFW east-west firewall acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckWorkloadType(t *testing.T) {
 	if HW_WORKLOAD_TYPE == "" {
 		t.Skip("HW_WORKLOAD_TYPE must be set for SWR image trigger acceptance tests")
@@ -842,6 +857,13 @@ func TestAccPreCheckCcePartitionAz(t *testing.T) {
 func TestAccPreCheckCnEast3(t *testing.T) {
 	if HW_REGION_NAME != "cn-east-3" {
 		t.Skip("HW_REGION_NAME must be cn-east-3 for this test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckUpdateCertificateContent(t *testing.T) {
+	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_CONTENT_UPDATE == "" {
+		t.Skip("HW_CERTIFICATE_CONTENT, HW_CERTIFICATE_CONTENT_UPDATE must be set for this test")
 	}
 }
 
@@ -988,5 +1010,23 @@ func TestAccPreCheckDataArtsManagerID(t *testing.T) {
 func TestAccPreCheckDataArtsBizCatalogID(t *testing.T) {
 	if HW_DATAARTS_BIZ_CATALOG_ID == "" {
 		t.Skip("HW_DATAARTS_BIZ_CATALOG_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsDataClassificationID(t *testing.T) {
+	if HW_DATAARTS_SECRECY_LEVEL_ID == "" || HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE == "" {
+		t.Skip("HW_DATAARTS_SECRECY_LEVEL_ID and HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE must be set for the acceptance test")
+	}
+
+	if HW_DATAARTS_CATEGORY_ID == "" || HW_DATAARTS_CATEGORY_ID_UPDATE == "" {
+		t.Skip("HW_DATAARTS_CATEGORY_ID and HW_DATAARTS_CATEGORY_ID_UPDATE must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsBuiltinRule(t *testing.T) {
+	if HW_DATAARTS_BUILTIN_RULE_ID == "" || HW_DATAARTS_BUILTIN_RULE_NAME == "" {
+		t.Skip("HW_DATAARTS_BUILTIN_RULE_ID and HW_DATAARTS_BUILTIN_RULE_NAME must be set for the acceptance test")
 	}
 }

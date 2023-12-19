@@ -58,6 +58,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.size", "70"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "huaweicloud_vpc_subnet.test", "id"),
 				),
 			},
 			{
@@ -82,6 +83,7 @@ func TestAccDesktop_basic(t *testing.T) {
 				Config: testAccDesktop_basic_step3(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "huaweicloud_vpc_subnet.standby", "id"),
 				),
 			},
 			{
@@ -102,7 +104,14 @@ func TestAccDesktop_basic(t *testing.T) {
 
 func testAccDesktop_base(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_vpc_subnet" "standby" {
+  name       = "%[2]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+}
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -111,9 +120,10 @@ resource "huaweicloud_workspace_service" "test" {
   vpc_id      = huaweicloud_vpc.test.id
   network_ids = [
     huaweicloud_vpc_subnet.test.id,
+    huaweicloud_vpc_subnet.standby.id,
   ]
 }
-`, common.TestBaseNetwork(rName))
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDesktop_basic_step1(rName string) string {
@@ -238,7 +248,7 @@ resource "huaweicloud_workspace_desktop" "test" {
   ]
 
   nic {
-    network_id = huaweicloud_vpc_subnet.test.id
+    network_id = huaweicloud_vpc_subnet.standby.id
   }
 
   name       = "%[2]s"

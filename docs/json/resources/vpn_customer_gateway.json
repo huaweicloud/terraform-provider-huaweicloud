@@ -12,9 +12,17 @@
                 "forcenew": true,
                 "default": 65000
               },
+              "certificate_content": {
+                "type": "string",
+                "optional": true
+              },
               "created_at": {
                 "type": "string",
                 "description": "The create time.",
+                "computed": true
+              },
+              "expire_time": {
+                "type": "string",
                 "computed": true
               },
               "id": {
@@ -26,6 +34,14 @@
                 "description": "The IP address of the customer gateway.",
                 "required": true,
                 "forcenew": true
+              },
+              "is_updatable": {
+                "type": "bool",
+                "computed": true
+              },
+              "issuer": {
+                "type": "string",
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -42,6 +58,18 @@
                 "optional": true,
                 "forcenew": true,
                 "default": "bgp"
+              },
+              "serial_number": {
+                "type": "string",
+                "computed": true
+              },
+              "signature_algorithm": {
+                "type": "string",
+                "computed": true
+              },
+              "subject": {
+                "type": "string",
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

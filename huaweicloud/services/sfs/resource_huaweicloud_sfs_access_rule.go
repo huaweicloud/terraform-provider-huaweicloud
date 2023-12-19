@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -99,7 +100,7 @@ func resourceSFSAccessRuleV2Create(ctx context.Context, d *schema.ResourceData, 
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("error creating SFS access rule: %s", err)
 	}
@@ -122,11 +123,14 @@ func resourceSFSAccessRuleV2Read(_ context.Context, d *schema.ResourceData, meta
 
 	for _, rule := range rules {
 		if rule.ID == d.Id() {
-			d.Set("access_to", rule.AccessTo)
-			d.Set("access_type", rule.AccessType)
-			d.Set("access_level", rule.AccessLevel)
-			d.Set("status", rule.State)
-			return nil
+			mErr := multierror.Append(nil,
+				d.Set("access_to", rule.AccessTo),
+				d.Set("access_type", rule.AccessType),
+				d.Set("access_level", rule.AccessLevel),
+				d.Set("status", rule.State),
+			)
+
+			return diag.FromErr(mErr.ErrorOrNil())
 		}
 	}
 
@@ -136,7 +140,7 @@ func resourceSFSAccessRuleV2Read(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceSFSAccessRuleV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSFSAccessRuleV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	sfsClient, err := cfg.SfsV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -159,7 +163,7 @@ func resourceSFSAccessRuleV2Delete(_ context.Context, d *schema.ResourceData, me
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.Errorf("error deleting SFS access rule: %s", err)
 	}

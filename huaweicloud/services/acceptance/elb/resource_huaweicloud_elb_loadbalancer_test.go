@@ -202,6 +202,8 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
 			},
@@ -218,8 +220,59 @@ func TestAccElbV3LoadBalancer_prePaid(t *testing.T) {
 						resourceName, "l4_flavor_id", "data.huaweicloud_elb_flavors.l4flavors", "ids.0"),
 					resource.TestCheckResourceAttrPair(
 						resourceName, "l7_flavor_id", "data.huaweicloud_elb_flavors.l7flavors", "ids.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.1"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccElbV3LoadBalancer_availabilityZone(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_availabilityZone(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_availabilityZoneUpdate(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -443,7 +496,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   auto_renew    = "true"
 
   availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0]
+    data.huaweicloud_availability_zones.test.names[1]
   ]
 
   tags = {
@@ -452,4 +505,55 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   }
 }
 `, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_availabilityZone(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name           = "%[2]s"
+  vpc_id         = huaweicloud_vpc.test.id
+  ipv4_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+	
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  backend_subnets = [
+    huaweicloud_vpc_subnet.test.id
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3LoadBalancerConfig_availabilityZoneUpdate(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  cross_vpc_backend = true
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[1]
+  ]
+
+  tags = {
+    key1  = "value1"
+    owner = "terraform_update"
+  }
+}
+`, common.TestVpc(rName), rNameUpdate)
 }

@@ -88,6 +88,13 @@ jobs:
           go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api -providerSchemaPath=../schema.json
           cd ../../
 
+      - name: parse APIs that marked with comments
+        run: |
+          cp terraform-api-scan/scan-marked-comment-file/*.go terraform-provider-huaweicloud/
+          cd terraform-provider-huaweicloud
+          go run main.go -basePath=./ -outputDir=./docs/api/ -providerSchemaPath=../terraform-api-scan/schema.json
+          cd ..
+
       - name: commit APIs that resources depend-on
         uses: stefanzweifel/git-auto-commit-action@v4
         with:

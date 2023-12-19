@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_dedicated_domains": {
+          "block": {
+            "attributes": {
+              "domain": {
+                "type": "string",
+                "optional": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_status": "number",
+                      "description": "string",
+                      "domain": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "ipv6_enable": "bool",
+                      "is_dual_az": "bool",
+                      "pci_3ds": "bool",
+                      "pci_dds": "bool",
+                      "policy_id": "string",
+                      "protect_status": "number",
+                      "website_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_name": {
+                "type": "string",
+                "optional": true
+              },
+              "protect_status": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

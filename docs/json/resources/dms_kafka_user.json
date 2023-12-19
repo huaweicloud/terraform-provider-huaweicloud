@@ -5,6 +5,10 @@
         "huaweicloud_dms_kafka_user": {
           "block": {
             "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

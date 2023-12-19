@@ -236,7 +236,7 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating DdmSchema: Schema name is not found in API response %s", err)
 	}
 
-	err = waitForInstanceRunning(ctx, d, cfg, instanceID, []string{"CREATE_DATABASE", "BACKUP"}, schema.TimeoutCreate)
+	err = waitForInstanceRunning(ctx, d, cfg, instanceID, schema.TimeoutCreate)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -425,7 +425,7 @@ func resourceDdmSchemaDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	err = waitForInstanceRunning(ctx, d, cfg, instanceID, []string{"DROP_DATABASE", "BACKUP"}, schema.TimeoutDelete)
+	err = waitForInstanceRunning(ctx, d, cfg, instanceID, schema.TimeoutDelete)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -462,11 +462,11 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 }
 
 func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, cfg *config.Config, instanceID string,
-	pending []string, timeout string) error {
+	timeout string) error {
 	region := cfg.GetRegion(d)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      pending,
+		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      ddmInstanceStatusRefreshFunc(instanceID, region, cfg),
 		Timeout:      d.Timeout(timeout),

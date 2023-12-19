@@ -155,8 +155,8 @@ func CheckForRetryableError(err error) *resource.RetryError {
 func WaitOrderComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"3", "6"}, // 3: Processing; 6: Pending payment.
-		Target:       []string{"5"},      // 5: Completed.
+		Pending:      []string{"2", "3", "6"}, // 2: Pending refund 3: Processing; 6: Pending payment.
+		Target:       []string{"5"},           // 5: Completed.
 		Refresh:      refreshOrderStatusFunc(client, orderId),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,

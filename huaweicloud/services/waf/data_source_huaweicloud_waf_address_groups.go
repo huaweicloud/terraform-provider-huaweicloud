@@ -154,7 +154,7 @@ func datasourceAddressGroupsRead(_ context.Context, d *schema.ResourceData, meta
 	getWAFAddressGroupsPath := getWAFAddressGroupClient.Endpoint + getWAFAddressGroupHttpUrl
 	getWAFAddressGroupsPath = strings.ReplaceAll(getWAFAddressGroupsPath, "{project_id}",
 		getWAFAddressGroupClient.ProjectID)
-	getWAFAddressGroupsPath += buildWAFAddressGroupsQueryParams(d)
+	getWAFAddressGroupsPath += buildWAFAddressGroupsQueryParams(d, cfg)
 
 	getWAFAddressGroupsResp, err := pagination.ListAllItems(
 		getWAFAddressGroupClient,
@@ -205,19 +205,20 @@ func flattenListAddressGroupsBody(resp interface{}) []interface{} {
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"ip_addresses":          utils.PathSearch("ips", v, nil),
 			"description":           utils.PathSearch("description", v, nil),
-			"share_count":           utils.PathSearch("share_count", v, nil),
-			"accept_count":          utils.PathSearch("accept_count", v, nil),
-			"process_status":        utils.PathSearch("process_status", v, nil),
+			"share_count":           utils.PathSearch("share_info.share_count", v, nil),
+			"accept_count":          utils.PathSearch("share_info.accept_count", v, nil),
+			"process_status":        utils.PathSearch("share_info.process_status", v, nil),
 			"rules":                 flattenAddressGroupResponseBodyRules(resp),
 		})
 	}
 	return rst
 }
 
-func buildWAFAddressGroupsQueryParams(d *schema.ResourceData) string {
+func buildWAFAddressGroupsQueryParams(d *schema.ResourceData, conf *config.Config) string {
 	res := ""
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, v)
+	epsId := conf.GetEnterpriseProjectID(d)
+	if epsId != "" {
+		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsId)
 	}
 	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, v)

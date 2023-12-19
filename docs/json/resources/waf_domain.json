@@ -23,6 +23,16 @@
                 "forcenew": true,
                 "default": "prePaid"
               },
+              "cipher": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "domain": {
                 "type": "string",
                 "required": true,
@@ -32,6 +42,14 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "forward_header_map": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
               },
               "http2_enable": {
                 "type": "bool",
@@ -51,6 +69,21 @@
                 "type": "bool",
                 "optional": true,
                 "default": true
+              },
+              "lb_algorithm": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "pci_3ds": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "pci_dss": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "policy_id": {
                 "type": "string",
@@ -76,6 +109,16 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "tls": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "website_name": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               }
             },
@@ -118,6 +161,15 @@
                     "server_protocol": {
                       "type": "string",
                       "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "optional": true,
+                      "default": 1
                     }
                   }
                 },
@@ -139,6 +191,32 @@
                     },
                     "write_timeout": {
                       "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "traffic_mark": {
+                "block": {
+                  "attributes": {
+                    "ip_tags": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "session_tag": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "user_tag": {
+                      "type": "string",
                       "optional": true,
                       "computed": true
                     }

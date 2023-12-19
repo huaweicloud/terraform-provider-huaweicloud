@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_user_group": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The create time of the user group.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the user group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the user group.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the user group is located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the user group.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "users": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The description of user.",
+                      "computed": true
+                    },
+                    "email": {
+                      "type": "string",
+                      "description": "The email of user.",
+                      "computed": true,
+                      "sensitive": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of user.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of user.",
+                      "computed": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "description": "The phone of user.",
+                      "computed": true,
+                      "sensitive": true
+                    },
+                    "total_desktops": {
+                      "type": "number",
+                      "description": "The number of desktops the user has.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The user information under the user group."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

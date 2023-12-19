@@ -47,9 +47,8 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			},
 
 			"availability_zone": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -256,24 +255,15 @@ func ResourceLoadBalancerV3() *schema.Resource {
 	}
 }
 
-func resourceElbV3AvailabilityZone(d *schema.ResourceData) []string {
-	azList := make([]string, len(d.Get("availability_zone").([]interface{})))
-	for i, az := range d.Get("availability_zone").([]interface{}) {
-		azList[i] = az.(string)
-	}
-	return azList
-}
-
 func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
-
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
 	createOpts := loadbalancers.CreateOpts{
-		AvailabilityZoneList: resourceElbV3AvailabilityZone(d),
+		AvailabilityZoneList: utils.ExpandToStringListBySet(d.Get("availability_zone").(*schema.Set)),
 		IPTargetEnable:       &iPTargetEnable,
 		VpcID:                d.Get("vpc_id").(string),
 		VipSubnetID:          d.Get("ipv4_subnet_id").(string),
@@ -537,7 +527,90 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
+	// update availability zone
+	if d.HasChange("availability_zone") {
+		if err = updateAvailabilityZone(ctx, cfg, elbClient, d); err != nil {
+			return diag.Errorf("error updating availability zone of LoadBalancer:%s, err:%s", d.Id(), err)
+		}
+	}
+
 	return resourceLoadBalancerV3Read(ctx, d, meta)
+}
+
+func updateAvailabilityZone(ctx context.Context, cfg *config.Config, elbClient *golangsdk.ServiceClient,
+	d *schema.ResourceData) error {
+	oldAvailabilityZone, newAvailabilityZone := d.GetChange("availability_zone")
+	addList := newAvailabilityZone.(*schema.Set).Difference(oldAvailabilityZone.(*schema.Set)).List()
+	rmList := oldAvailabilityZone.(*schema.Set).Difference(newAvailabilityZone.(*schema.Set)).List()
+	err := addAvailabilityZone(ctx, cfg, elbClient, d, addList)
+	if err != nil {
+		return err
+	}
+	err = removeAvailabilityZone(ctx, cfg, elbClient, d, rmList)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func addAvailabilityZone(ctx context.Context, cfg *config.Config, elbClient *golangsdk.ServiceClient,
+	d *schema.ResourceData, addList []interface{}) error {
+	if len(addList) > 0 {
+		updateOpts := loadbalancers.AvailabilityZoneOpts{
+			AvailabilityZoneList: utils.ExpandToStringList(addList),
+		}
+		resp, err := loadbalancers.AddAvailabilityZone(elbClient, d.Id(), updateOpts).ExtractPrepaid()
+		if err != nil {
+			return err
+		}
+		if len(resp.OrderID) > 0 {
+			// wait for the order to be completed.
+			bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+			if err != nil {
+				return err
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+		}
+		// Wait for LoadBalancer to become active before continuing
+		err = waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func removeAvailabilityZone(ctx context.Context, cfg *config.Config, elbClient *golangsdk.ServiceClient,
+	d *schema.ResourceData, rmList []interface{}) error {
+	if len(rmList) > 0 {
+		updateOpts := loadbalancers.AvailabilityZoneOpts{
+			AvailabilityZoneList: utils.ExpandToStringList(rmList),
+		}
+		resp, err := loadbalancers.RemoveAvailabilityZone(elbClient, d.Id(), updateOpts).ExtractPrepaid()
+		if err != nil {
+			return err
+		}
+		if len(resp.OrderID) > 0 {
+			// wait for the order to be completed.
+			bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+			if err != nil {
+				return err
+			}
+			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+		}
+		// Wait for LoadBalancer to become active before continuing
+		err = waitForElbV3LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.UpdateOpts {

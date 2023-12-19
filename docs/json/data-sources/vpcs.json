@@ -48,6 +48,10 @@
                       "enterprise_project_id": "string",
                       "id": "string",
                       "name": "string",
+                      "secondary_cidrs": [
+                        "list",
+                        "string"
+                      ],
                       "status": "string",
                       "tags": [
                         "map",

@@ -95,10 +95,12 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the loadbalancer resource. If omitted, the
   provider-level region will be used. Changing this creates a new loadbalancer.
 
-* `availability_zone` - (Required, List, ForceNew) Specifies the list of AZ names. Changing this parameter will create a
-  new resource.
-
 * `name` - (Required, String) Human-readable name for the loadbalancer.
+
+* `availability_zone` - (Required, List) Specifies the list of AZ names.
+
+  -> **NOTE:** Removing an AZ may disconnect existing connections. Exercise caution when performing this
+  operation.
 
 * `description` - (Optional, String) Human-readable description for the loadbalancer.
 
