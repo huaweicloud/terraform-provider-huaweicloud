@@ -233,7 +233,7 @@ func filterListGatewaysResponseBodyGateways(all []interface{}, d *schema.Resourc
 
 func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
-	epsID := cfg.DataGetEnterpriseProjectID(d)
+	epsID := cfg.GetEnterpriseProjectID(d)
 
 	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, v)
@@ -250,8 +250,8 @@ func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) st
 	if v, ok := d.GetOk("subnet_id"); ok {
 		res = fmt.Sprintf("%s&virsubnet_id=%v", res, v)
 	}
-	if v, ok := d.GetOk(epsID); ok {
-		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, v)
+	if epsID != "" {
+		res = fmt.Sprintf("%s&enterprise_project_id=%s", res, epsID)
 	}
 	if res != "" {
 		res = "?" + res[1:]
