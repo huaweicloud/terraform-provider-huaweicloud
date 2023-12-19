@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: SFSTurbo POST /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-quota
+// API: SFSTurbo PUT /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-quota
+// API: SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-quota
+// API: SFSTurbo DELETE /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-quota
 func ResourceSfsTurboDirQuota() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSfsTurboDirQuotaCreate,

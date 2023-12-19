@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: ELB GET /v3/{project_id}/elb/logtanks
 func DataSourceElbLogtanks() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceElbLogtanksRead,
