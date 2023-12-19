@@ -150,3 +150,44 @@ type SecurityGroup struct {
 	// Security Group name.
 	Name string `json:"name"`
 }
+
+// OtpConfigResp represents that the GetAuthConfig method response details.
+type OtpConfigResp struct {
+	OptConfigInfo OtpConfig `json:"otp_config_info"`
+}
+
+// OtpConfig represents that the Auxiliary authentication configuration details.
+type OtpConfig struct {
+	// Whether to enable OTP authentication mode.
+	Enable bool `json:"enable"`
+	// Verification code receiving mode.
+	// + VMFA Indicates virtual MFA device.
+	// + HMFA Indicates hardware MFA device.
+	ReceiveMode string `json:"receive_mode"`
+	// Auxiliary authentication server address.
+	AuthUrl string `json:"auth_url"`
+	// Auxiliary authentication service access account.
+	AppId string `json:"app_id"`
+	// Auxiliary authentication service access password.
+	AppSecrte string `json:"app_secret"`
+	// Auxiliary authentication service access mode.
+	// + INTERNET: Indicates Internet access.
+	// + DEDICATED: Indicates dedicated line access.
+	// + SYSTEM_DEFAULT：Indicates system default.
+	AuthServerAccessMode string `json:"auth_server_access_mode"`
+	// PEM format certificate content.
+	CertContent string `json:"cert_content"`
+	// Authentication application object information. If null, it means it is effective for all application objects.
+	ApplyRule ApplyRuleInfo `json:"apply_rule"`
+}
+
+// ApplyRuleInfo is an object specified the detail of Authentication application object.
+type ApplyRuleInfo struct {
+	// Authentication application object type.
+	// + ACCESS_MODE: Indicates access type.
+	RuleType string `json:"rule_type"`
+	// Authentication application object.
+	// + INTERNET: Indicates Internet access. Optional only when rule_type is "ACCESS_MODE".
+	// + PRIVATE: Indicates dedicated line access. Optional only when rule_type is "ACCESS_MODE".
+	Rule string `json:"rule"`
+}
