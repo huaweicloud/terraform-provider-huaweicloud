@@ -46,6 +46,10 @@ type Service struct {
 	Created string `json:"created_at"`
 	// the update time of the VPC endpoint service
 	Updated string `json:"updated_at"`
+	// the VPC endpoint service that matches the edge attribute in the filtering result.
+	PublicBorderGroup string `json:"public_border_group"`
+	// the number of VPC endpoints that are in the Creating or Accepted status.
+	ConnectionCount int `json:"connection_count"`
 }
 
 // PortMapping contains the port mappings opened to the VPC endpoint service
@@ -234,6 +238,13 @@ type PublicServicePage struct {
 // extractPublicService is a method to extract the list of tags supported PublicService.
 func extractPublicService(r pagination.Page) ([]PublicService, error) {
 	var s []PublicService
+	err := r.(PublicServicePage).Result.ExtractIntoSlicePtr(&s, "endpoint_services")
+	return s, err
+}
+
+// extractService is a method to extract the list of tags supported Services.
+func extractService(r pagination.Page) ([]Service, error) {
+	var s []Service
 	err := r.(PublicServicePage).Result.ExtractIntoSlicePtr(&s, "endpoint_services")
 	return s, err
 }
