@@ -2,7 +2,7 @@
 subcategory: "Software Repository for Container (SWR)"
 ---
 
-# huaweicloud_swr_organization
+# huaweicloud_swr_organizations
 
 Use this data source to get the list of SWR organizations.
 
