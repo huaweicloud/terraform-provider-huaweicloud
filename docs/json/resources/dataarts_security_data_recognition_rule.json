@@ -2,15 +2,29 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dataarts_studio_directory": {
+        "huaweicloud_dataarts_security_data_recognition_rule": {
           "block": {
             "attributes": {
-              "children": {
-                "type": [
-                  "list",
-                  "string"
-                ],
-                "computed": true
+              "builtin_rule_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "category_id": {
+                "type": "string",
+                "optional": true
+              },
+              "column_expression": {
+                "type": "string",
+                "optional": true
+              },
+              "comment_expression": {
+                "type": "string",
+                "optional": true
+              },
+              "content_expression": {
+                "type": "string",
+                "optional": true
               },
               "created_at": {
                 "type": "string",
@@ -24,33 +38,44 @@
                 "type": "string",
                 "optional": true
               },
+              "enable": {
+                "type": "bool",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "method": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
-                "required": true
-              },
-              "parent_id": {
-                "type": "string",
-                "optional": true
-              },
-              "qualified_name": {
-                "type": "string",
-                "computed": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "root_id": {
+              "rule_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "secrecy_level": {
                 "type": "string",
                 "computed": true
               },
-              "type": {
+              "secrecy_level_id": {
                 "type": "string",
                 "required": true
+              },
+              "secrecy_level_num": {
+                "type": "number",
+                "computed": true
               },
               "updated_at": {
                 "type": "string",
@@ -69,7 +94,7 @@
           },
           "product": {
             "short": "DataArtsStudio",
-            "name": "DataArts Studio",
+            "name": "数据治理中心",
             "catalog": "Analytics",
             "name_cn": "数据治理中心",
             "catalog_cn": "大数据"

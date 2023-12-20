@@ -16,11 +16,10 @@
               },
               "availability_zone": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "backend_subnets": {
                 "type": [
@@ -193,7 +192,7 @@
           },
           "product": {
             "short": "ELB",
-            "name": "Elastic Load Balance",
+            "name": "弹性负载均衡",
             "catalog": "Networking",
             "name_cn": "弹性负载均衡",
             "catalog_cn": "网络"

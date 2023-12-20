@@ -26,7 +26,7 @@
           },
           "product": {
             "short": "SDRS",
-            "name": "Storage Disaster Recovery Service",
+            "name": "存储容灾服务",
             "catalog": "Storage",
             "name_cn": "存储容灾服务",
             "catalog_cn": "存储"

@@ -56,7 +56,7 @@
           },
           "product": {
             "short": "IEC",
-            "name": "Intelligent EdgeCloud",
+            "name": "智能边缘云",
             "catalog": "Content Delivery & Edge Computing",
             "name_cn": "智能边缘云",
             "catalog_cn": "CDN与智能边缘"

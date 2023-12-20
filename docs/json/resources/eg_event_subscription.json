@@ -151,7 +151,7 @@
           },
           "product": {
             "short": "EG",
-            "name": "EventGrid",
+            "name": "事件网格",
             "catalog": "Middleware",
             "name_cn": "事件网格",
             "catalog_cn": "应用中间件"

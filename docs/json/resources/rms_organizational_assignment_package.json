@@ -1,0 +1,111 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_organizational_assignment_package": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time of an organization conformance package.",
+                "computed": true
+              },
+              "excluded_accounts": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the excluded accounts for conformance package deployment.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the assignment package name.",
+                "required": true,
+                "forcenew": true
+              },
+              "org_conformance_pack_urn": {
+                "type": "string",
+                "description": "Indicates the unique identifier of resources in an organization conformance package.",
+                "computed": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Specifies the ID of the organization.",
+                "required": true,
+                "forcenew": true
+              },
+              "owner_id": {
+                "type": "string",
+                "description": "Indicates the creator of an organization conformance package.",
+                "computed": true
+              },
+              "template_body": {
+                "type": "string",
+                "description": "Specifies the content of a custom assignment package.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "template_key": {
+                "type": "string",
+                "description": "Specifies the name of a predefined conformance package.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "template_uri": {
+                "type": "string",
+                "description": "Specifies the OBS address of a conformance package.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the latest update time of an organization conformance package.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "vars_structure": {
+                "block": {
+                  "attributes": {
+                    "var_key": {
+                      "type": "string",
+                      "description": "Specifies the name of a parameter.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "var_value": {
+                      "type": "string",
+                      "description": "Specifies the value of a parameter.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the parameters of a conformance package."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "配置审计",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

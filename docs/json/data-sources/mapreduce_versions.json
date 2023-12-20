@@ -25,7 +25,7 @@
           },
           "product": {
             "short": "MRS",
-            "name": "MapReduce Service",
+            "name": "MapReduce服务",
             "catalog": "Analytics",
             "name_cn": "MapReduce服务",
             "catalog_cn": "大数据"

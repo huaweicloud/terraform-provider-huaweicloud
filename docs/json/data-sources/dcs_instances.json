@@ -82,7 +82,7 @@
           },
           "product": {
             "short": "DCS",
-            "name": "Distributed Cache Service",
+            "name": "分布式缓存服务",
             "catalog": "Middleware",
             "name_cn": "分布式缓存服务",
             "catalog_cn": "应用中间件"

@@ -319,7 +319,7 @@
           },
           "product": {
             "short": "BCS",
-            "name": "Blockchain Service",
+            "name": "区块链服务",
             "catalog": "Blockchain",
             "name_cn": "区块链服务",
             "catalog_cn": "区块链"

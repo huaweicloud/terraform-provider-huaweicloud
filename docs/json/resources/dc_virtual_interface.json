@@ -163,7 +163,7 @@
           },
           "product": {
             "short": "DC",
-            "name": "Direct Connect",
+            "name": "云专线",
             "catalog": "Networking",
             "name_cn": "云专线",
             "catalog_cn": "网络"

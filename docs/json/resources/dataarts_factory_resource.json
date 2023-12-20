@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dataarts_studio_resource": {
+        "huaweicloud_dataarts_factory_resource": {
           "block": {
             "attributes": {
               "description": {
@@ -59,7 +59,7 @@
           },
           "product": {
             "short": "DataArtsStudio",
-            "name": "DataArts Studio",
+            "name": "数据治理中心",
             "catalog": "Analytics",
             "name_cn": "数据治理中心",
             "catalog_cn": "大数据"

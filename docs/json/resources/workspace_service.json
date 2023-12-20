@@ -144,12 +144,56 @@
                 },
                 "nesting_mode": "list",
                 "max_items": 1
+              },
+              "otp_config_info": {
+                "block": {
+                  "attributes": {
+                    "app_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "app_secret": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "auth_server_access_mode": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "auth_url": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "cert_content": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "enable": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "receive_mode": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "rule": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "rule_type": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },
           "product": {
             "short": "Workspace",
-            "name": "Workspace",
+            "name": "云桌面",
             "catalog": "Business Applications",
             "name_cn": "云桌面",
             "catalog_cn": "企业应用"

@@ -51,7 +51,7 @@
           },
           "product": {
             "short": "Config",
-            "name": "Config",
+            "name": "配置审计",
             "catalog": "Management & Governance",
             "name_cn": "配置审计",
             "catalog_cn": "管理与监管"

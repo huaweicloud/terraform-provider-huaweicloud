@@ -73,7 +73,7 @@
           },
           "product": {
             "short": "CCI",
-            "name": "Cloud Container Instance",
+            "name": "云容器实例",
             "catalog": "Containers",
             "name_cn": "云容器实例",
             "catalog_cn": "容器"

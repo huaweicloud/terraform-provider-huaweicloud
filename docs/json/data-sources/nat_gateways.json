@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_nat_gateways": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the NAT gateways belong.",
+                "optional": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "The ID of the NAT gateway.",
+                "optional": true
+              },
+              "gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "spec": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the NAT gateway.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the NAT gateway.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the NAT gateways are located.",
+                "computed": true
+              },
+              "spec": {
+                "type": "string",
+                "description": "The specification of the NAT gateways.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the NAT gateways.",
+                "optional": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The network ID of the downstream interface (the next hop of the DVR)of the NAT gateways.",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the NAT gateways belong.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "NAT",
+            "name": "NAT网关",
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

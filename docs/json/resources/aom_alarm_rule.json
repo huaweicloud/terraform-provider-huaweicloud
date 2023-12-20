@@ -130,7 +130,7 @@
           },
           "product": {
             "short": "AOM",
-            "name": "Application Operations Management",
+            "name": "应用运维管理",
             "catalog": "Management & Governance",
             "name_cn": "应用运维管理",
             "catalog_cn": "管理与监管"

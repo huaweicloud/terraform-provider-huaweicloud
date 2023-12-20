@@ -309,7 +309,7 @@
           },
           "product": {
             "short": "DRS",
-            "name": "Data Replication Service",
+            "name": "数据复制服务",
             "catalog": "Databases",
             "name_cn": "数据复制服务",
             "catalog_cn": "数据库"

@@ -2,9 +2,14 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dataarts_studio_permission_set": {
+        "huaweicloud_dataarts_architecture_subject": {
           "block": {
             "attributes": {
+              "code": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
@@ -13,48 +18,47 @@
                 "type": "string",
                 "computed": true
               },
-              "datasource_type": {
+              "department": {
                 "type": "string",
-                "computed": true
+                "optional": true
               },
               "description": {
                 "type": "string",
                 "optional": true
               },
+              "guid": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "instance_id": {
-                "type": "string",
-                "computed": true
-              },
-              "manager_id": {
-                "type": "string",
+              "level": {
+                "type": "number",
                 "required": true
-              },
-              "manager_name": {
-                "type": "string",
-                "optional": true
-              },
-              "manager_type": {
-                "type": "string",
-                "optional": true
               },
               "name": {
                 "type": "string",
                 "required": true
               },
+              "owner": {
+                "type": "string",
+                "required": true
+              },
               "parent_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "optional": true
+              },
+              "path": {
+                "type": "string",
+                "computed": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "type": {
+              "status": {
                 "type": "string",
                 "computed": true
               },
@@ -75,7 +79,7 @@
           },
           "product": {
             "short": "DataArtsStudio",
-            "name": "DataArts Studio",
+            "name": "数据治理中心",
             "catalog": "Analytics",
             "name_cn": "数据治理中心",
             "catalog_cn": "大数据"

@@ -84,7 +84,7 @@
           },
           "product": {
             "short": "EIP",
-            "name": "Elastic IP",
+            "name": "弹性公网IP",
             "catalog": "Networking",
             "name_cn": "弹性公网IP",
             "catalog_cn": "网络"

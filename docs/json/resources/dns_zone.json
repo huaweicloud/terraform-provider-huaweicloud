@@ -79,7 +79,7 @@
           },
           "product": {
             "short": "DNS",
-            "name": "Domain Name Service",
+            "name": "云解析服务",
             "catalog": "Business Applications",
             "name_cn": "云解析服务",
             "catalog_cn": "企业应用"

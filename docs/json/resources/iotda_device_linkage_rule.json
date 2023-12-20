@@ -249,7 +249,7 @@
           },
           "product": {
             "short": "IoTDA",
-            "name": "IoT Device Access",
+            "name": "设备接入",
             "catalog": "Internet of Things",
             "name_cn": "设备接入",
             "catalog_cn": "IoT物联网"

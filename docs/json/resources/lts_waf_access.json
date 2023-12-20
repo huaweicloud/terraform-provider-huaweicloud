@@ -38,7 +38,7 @@
           },
           "product": {
             "short": "LTS",
-            "name": "Log Tank Service",
+            "name": "云日志服务",
             "catalog": "Management & Governance",
             "name_cn": "云日志服务",
             "catalog_cn": "管理与监管"

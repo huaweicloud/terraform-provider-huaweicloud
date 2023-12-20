@@ -57,7 +57,7 @@
           },
           "product": {
             "short": "AS",
-            "name": "Auto Scaling",
+            "name": "弹性伸缩",
             "catalog": "Compute",
             "name_cn": "弹性伸缩",
             "catalog_cn": "计算"

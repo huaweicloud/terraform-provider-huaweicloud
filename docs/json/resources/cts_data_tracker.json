@@ -72,7 +72,7 @@
           },
           "product": {
             "short": "CTS",
-            "name": "Cloud Trace Service",
+            "name": "云审计服务",
             "catalog": "Management & Governance",
             "name_cn": "云审计服务",
             "catalog_cn": "管理与监管"

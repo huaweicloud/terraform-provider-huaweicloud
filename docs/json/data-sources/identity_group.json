@@ -46,7 +46,7 @@
           },
           "product": {
             "short": "IAM",
-            "name": "Identity and Access Management",
+            "name": "统一身份认证服务",
             "catalog": "Management & Governance",
             "name_cn": "统一身份认证服务",
             "catalog_cn": "管理与监管"

@@ -2,13 +2,15 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dataarts_studio_subject": {
+        "huaweicloud_dataarts_architecture_directory": {
           "block": {
             "attributes": {
-              "code": {
-                "type": "string",
-                "required": true,
-                "forcenew": true
+              "children": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
               },
               "created_at": {
                 "type": "string",
@@ -18,31 +20,15 @@
                 "type": "string",
                 "computed": true
               },
-              "department": {
-                "type": "string",
-                "optional": true
-              },
               "description": {
                 "type": "string",
                 "optional": true
-              },
-              "guid": {
-                "type": "string",
-                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "level": {
-                "type": "number",
-                "required": true
-              },
               "name": {
-                "type": "string",
-                "required": true
-              },
-              "owner": {
                 "type": "string",
                 "required": true
               },
@@ -50,7 +36,7 @@
                 "type": "string",
                 "optional": true
               },
-              "path": {
+              "qualified_name": {
                 "type": "string",
                 "computed": true
               },
@@ -58,9 +44,13 @@
                 "type": "string",
                 "computed": true
               },
-              "status": {
+              "root_id": {
                 "type": "string",
                 "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
               },
               "updated_at": {
                 "type": "string",
@@ -79,7 +69,7 @@
           },
           "product": {
             "short": "DataArtsStudio",
-            "name": "DataArts Studio",
+            "name": "数据治理中心",
             "catalog": "Analytics",
             "name_cn": "数据治理中心",
             "catalog_cn": "大数据"

@@ -62,7 +62,7 @@
           },
           "product": {
             "short": "GES",
-            "name": "Graph Engine Service",
+            "name": "图引擎服务",
             "catalog": "AI",
             "name_cn": "图引擎服务",
             "catalog_cn": "人工智能"

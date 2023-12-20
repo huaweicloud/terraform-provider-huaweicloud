@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_dataservice_app": {
+          "block": {
+            "attributes": {
+              "app_key": {
+                "type": "string",
+                "description": "The key of the application.",
+                "computed": true
+              },
+              "app_secret": {
+                "type": "string",
+                "description": "The secret of the application.",
+                "computed": true
+              },
+              "app_type": {
+                "type": "string",
+                "description": "The type of the application.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the application.",
+                "optional": true
+              },
+              "dlm_type": {
+                "type": "string",
+                "description": "The type of DLM engine.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "数据治理中心",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

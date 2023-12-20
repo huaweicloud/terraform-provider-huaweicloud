@@ -49,7 +49,7 @@
           },
           "product": {
             "short": "CC",
-            "name": "Cloud Connect",
+            "name": "云连接",
             "catalog": "Networking",
             "name_cn": "云连接",
             "catalog_cn": "网络"

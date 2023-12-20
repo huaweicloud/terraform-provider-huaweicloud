@@ -54,6 +54,11 @@
                 "type": "string",
                 "description": "The region where the ER attachments are located."
               },
+              "resource_id": {
+                "type": "string",
+                "description": "The associated resource ID.",
+                "optional": true
+              },
               "status": {
                 "type": "string",
                 "description": "The status used to filter the attachments.",
@@ -76,7 +81,7 @@
           },
           "product": {
             "short": "ER",
-            "name": "Enterprise Router",
+            "name": "企业路由器",
             "catalog": "Networking",
             "name_cn": "企业路由器",
             "catalog_cn": "网络"

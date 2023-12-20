@@ -41,7 +41,7 @@
           },
           "product": {
             "short": "DWS",
-            "name": "Data Warehouse Service",
+            "name": "数据仓库服务",
             "catalog": "Analytics",
             "name_cn": "数据仓库服务",
             "catalog_cn": "大数据"

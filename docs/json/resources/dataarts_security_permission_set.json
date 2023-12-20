@@ -2,53 +2,72 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dataarts_studio_service_app": {
+        "huaweicloud_dataarts_security_permission_set": {
           "block": {
             "attributes": {
-              "app_key": {
+              "created_at": {
                 "type": "string",
-                "description": "The key of the app.",
                 "computed": true
               },
-              "app_secret": {
+              "created_by": {
                 "type": "string",
-                "description": "The secret of the app.",
                 "computed": true
               },
-              "app_type": {
+              "datasource_type": {
                 "type": "string",
-                "description": "The type of the app.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "description": {
                 "type": "string",
-                "description": "The description of the app.",
                 "optional": true
-              },
-              "dlm_type": {
-                "type": "string",
-                "description": "The type of DLM.",
-                "required": true,
-                "forcenew": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "manager_id": {
+                "type": "string",
+                "required": true
+              },
+              "manager_name": {
+                "type": "string",
+                "optional": true
+              },
+              "manager_type": {
+                "type": "string",
+                "optional": true
+              },
               "name": {
                 "type": "string",
-                "description": "The name of the app.",
                 "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "computed": true
+              },
               "workspace_id": {
                 "type": "string",
-                "description": "The workspace ID.",
                 "required": true,
                 "forcenew": true
               }
@@ -56,7 +75,7 @@
           },
           "product": {
             "short": "DataArtsStudio",
-            "name": "DataArts Studio",
+            "name": "数据治理中心",
             "catalog": "Analytics",
             "name_cn": "数据治理中心",
             "catalog_cn": "大数据"

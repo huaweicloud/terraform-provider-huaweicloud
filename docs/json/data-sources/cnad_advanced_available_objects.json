@@ -48,7 +48,7 @@
           },
           "product": {
             "short": "AAD",
-            "name": "Advanced Anti-DDoS",
+            "name": "DDoS高防",
             "catalog": "Security & Compliance",
             "name_cn": "DDoS高防",
             "catalog_cn": "安全与合规"

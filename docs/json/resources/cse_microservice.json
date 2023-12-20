@@ -63,7 +63,7 @@
           },
           "product": {
             "short": "CSE",
-            "name": "Cloud Service Engine",
+            "name": "微服务引擎",
             "catalog": "Middleware",
             "name_cn": "微服务引擎",
             "catalog_cn": "应用中间件"

@@ -133,7 +133,7 @@
           },
           "product": {
             "short": "MPC",
-            "name": "Media Processing Center",
+            "name": "媒体转码",
             "catalog": "Media Services",
             "name_cn": "媒体转码",
             "catalog_cn": "视频"

@@ -36,7 +36,7 @@
           },
           "product": {
             "short": "DDM",
-            "name": "Distributed Database Middleware",
+            "name": "分布式数据库中间件",
             "catalog": "Databases",
             "name_cn": "分布式数据库中间件",
             "catalog_cn": "数据库"

@@ -342,7 +342,7 @@
           },
           "product": {
             "short": "CDN",
-            "name": "Content Delivery Network",
+            "name": "内容分发网络",
             "catalog": "Content Delivery & Edge Computing",
             "name_cn": "内容分发网络",
             "catalog_cn": "CDN与智能边缘"
