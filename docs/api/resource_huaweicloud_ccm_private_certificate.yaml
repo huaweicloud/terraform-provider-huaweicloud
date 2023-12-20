@@ -1,0 +1,27 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ccm_private_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCM
+paths:
+    /v1/private-certificates:
+        POST:
+            tag: CCM
+    /v1/private-certificates/{certificate_id}:
+        DELETE:
+            tag: CCM
+        GET:
+            tag: CCM
+    /v1/private-certificates/{id}/tags:
+        GET:
+            tag: CCM
+    /v1/private-certificates/{id}/tags/create:
+        POST:
+            tag: CCM
+    /v1/private-certificates/{id}/tags/delete:
+        DELETE:
+            tag: CCM

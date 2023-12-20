@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_dataarts_studio_resource
+    title: resource_huaweicloud_dataarts_security_permission_set
     description: ""
 schemes:
     - https
@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: DataArtsStudio
 paths:
-    /v1/{project_id}/resources:
+    /v1/{project_id}/security/permission-sets:
         POST:
             tag: DataArtsStudio
-    /v1/{project_id}/resources/{resource_id}:
+    /v1/{project_id}/security/permission-sets/{permission_set_id}:
         DELETE:
             tag: DataArtsStudio
         GET:

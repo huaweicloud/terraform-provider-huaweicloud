@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dns_line_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v2.1/linegroups:
+        POST:
+            tag: DNS
+    /v2.1/linegroups/{linegroup_id}:
+        DELETE:
+            tag: DNS
+        GET:
+            tag: DNS
+        POST:
+            tag: DNS
+        PUT:
+            tag: DNS

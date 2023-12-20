@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_smart_connect_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DMS
+paths:
+    /v2/{project_id}/connectors/{connector_id}/sink-tasks:
+        GET:
+            tag: Kafka
+        POST:
+            tag: Kafka
+    /v2/{project_id}/connectors/{connector_id}/sink-tasks/{task_id}:
+        DELETE:
+            tag: Kafka

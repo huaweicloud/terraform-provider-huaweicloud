@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_consumer_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DMS
+paths:
+    /v2/{engine}/{project_id}/instances/{instance_id}/groups/{group}:
+        PUT:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/groups/{group}:
+        GET:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/groups/batch-delete:
+        DELETE:
+            tag: Kafka
+    /v2/{project_id}/kafka/instances/{instance_id}/group:
+        POST:
+            tag: Kafka

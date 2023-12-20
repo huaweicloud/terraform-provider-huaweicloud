@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_elb_l7rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v3/{project_id}/elb/l7policies/{l7policy_id}/rules:
+        GET:
+            tag: ELB

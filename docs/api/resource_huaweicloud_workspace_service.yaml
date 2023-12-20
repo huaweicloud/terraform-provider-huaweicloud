@@ -8,6 +8,13 @@ host: huaweicloud.com
 tags:
   - name: Workspace
 paths:
+  /v2/{project_id}/assist-auth-config/method-config:
+    get:
+      tag: Workspace
+      operationId: GetAuthConfig
+    put:
+      tag: Workspace
+      operationId: UpdateAssistAuthConfig
   /v2/{project_id}/workspaces:
     delete:
       tag: Workspace

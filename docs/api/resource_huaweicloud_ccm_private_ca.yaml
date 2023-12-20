@@ -1,0 +1,42 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ccm_private_ca
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCM
+paths:
+    /v1/private-certificate-authorities:
+        POST:
+            tag: CCM
+    /v1/private-certificate-authorities/{id}:
+        DELETE:
+            tag: CCM
+        GET:
+            tag: CCM
+    /v1/private-certificate-authorities/{id}/activate:
+        POST:
+            tag: CCM
+    /v1/private-certificate-authorities/{id}/disable:
+        POST:
+            tag: CCM
+    /v1/private-certificate-authorities/{id}/tags:
+        GET:
+            tag: CCM
+    /v1/private-certificate-authorities/{id}/tags/create:
+        POST:
+            tag: CCM
+    /v1/private-certificate-authorities/{id}/tags/delete:
+        DELETE:
+            tag: CCM
+    /v1/private-certificate-authorities/order:
+        POST:
+            tag: CCM
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_factory_resource
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/resources:
+        POST:
+            tag: DataArtsStudio
+    /v1/{project_id}/resources/{resource_id}:
+        DELETE:
+            tag: DataArtsStudio
+        GET:
+            tag: DataArtsStudio
+        PUT:
+            tag: DataArtsStudio

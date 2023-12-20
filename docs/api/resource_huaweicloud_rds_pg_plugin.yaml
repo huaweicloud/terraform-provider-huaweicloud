@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_rds_pg_plugins
+    title: resource_huaweicloud_rds_pg_plugin
     description: ""
 schemes:
     - https
@@ -8,6 +8,13 @@ host: huaweicloud.com
 tags:
     - name: RDS
 paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/extensions:
+        DELETE:
+            tag: RDS
+        GET:
+            tag: RDS
         POST:
             tag: RDS

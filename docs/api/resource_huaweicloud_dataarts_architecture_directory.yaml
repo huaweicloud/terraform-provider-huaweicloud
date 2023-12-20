@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_dataarts_studio_directory
+    title: resource_huaweicloud_dataarts_architecture_directory
     description: ""
 schemes:
     - https
