@@ -1103,7 +1103,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_studio_service_app":           dataarts.ResourceServiceApp(),
 			"huaweicloud_dataarts_studio_permission_set":        dataarts.ResourcePermissionSet(),
 			"huaweicloud_dataarts_studio_business_metric":       dataarts.ResourceBusinessMetric(),
-			"huaweicloud_dataarts_studio_data_recognition_rule": dataarts.ResourceStudioRule(),
+			"huaweicloud_dataarts_studio_data_recognition_rule": dataarts.ResourceSecurityRule(),
 			// DataArts Factory --- Data Development
 			"huaweicloud_dataarts_studio_resource": dataarts.ResourceStudioResource(),
 
