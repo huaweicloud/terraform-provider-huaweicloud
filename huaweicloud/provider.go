@@ -1097,16 +1097,17 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_network":                modelarts.ResourceModelartsNetwork(),
 			"huaweicloud_modelarts_resource_pool":          modelarts.ResourceModelartsResourcePool(),
 
-			"huaweicloud_dataarts_studio_instance":  dataarts.ResourceStudioInstance(),
-			"huaweicloud_dataarts_studio_directory": dataarts.ResourceDataArtsStudioDirectory(),
-			"huaweicloud_dataarts_studio_subject":   dataarts.ResourceDataArtsStudioSubject(),
-
-			"huaweicloud_dataarts_studio_permission_set":        dataarts.ResourcePermissionSet(),
-			"huaweicloud_dataarts_studio_data_recognition_rule": dataarts.ResourceStudioRule(),
+			// DataArts Studio - Management Center
+			"huaweicloud_dataarts_studio_instance": dataarts.ResourceStudioInstance(),
 			// DataArts Architecture
+			"huaweicloud_dataarts_studio_directory":             dataarts.ResourceDataArtsStudioDirectory(),
+			"huaweicloud_dataarts_studio_subject":               dataarts.ResourceDataArtsStudioSubject(),
 			"huaweicloud_dataarts_architecture_business_metric": dataarts.ResourceBusinessMetric(),
 			// DataArts Factory
 			"huaweicloud_dataarts_studio_resource": dataarts.ResourceStudioResource(),
+			// DataArts Security
+			"huaweicloud_dataarts_studio_permission_set":        dataarts.ResourcePermissionSet(),
+			"huaweicloud_dataarts_studio_data_recognition_rule": dataarts.ResourceStudioRule(),
 			// DataArts DataService
 			"huaweicloud_dataarts_dataservice_app": dataarts.ResourceDataServiceApp(),
 
