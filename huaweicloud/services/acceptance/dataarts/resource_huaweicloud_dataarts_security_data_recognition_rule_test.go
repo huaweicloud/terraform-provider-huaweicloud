@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getSecurityRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	getRuleClient, err := conf.NewServiceClient("dataarts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DataArts Studio V1 client: %s", err)
@@ -38,15 +38,15 @@ func getRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (i
 	return utils.FlattenResponse(getRuleResp)
 }
 
-func TestAccResourceRecognitionRule_custom(t *testing.T) {
+func TestAccResourceSecurityRule_custom(t *testing.T) {
 	var obj interface{}
-	resourceName := "huaweicloud_dataarts_studio_data_recognition_rule.test"
+	resourceName := "huaweicloud_dataarts_security_data_recognition_rule.test"
 	rName := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getRuleResourceFunc,
+		getSecurityRuleResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -59,7 +59,7 @@ func TestAccResourceRecognitionRule_custom(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRule_custom(rName),
+				Config: testAccSecurityRule_custom(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -76,7 +76,7 @@ func TestAccResourceRecognitionRule_custom(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRule_custom_update1(rName),
+				Config: testAccSecurityRule_custom_update1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -97,7 +97,7 @@ func TestAccResourceRecognitionRule_custom(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRule_custom_update2(rName),
+				Config: testAccSecurityRule_custom_update2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -128,14 +128,14 @@ func TestAccResourceRecognitionRule_custom(t *testing.T) {
 	})
 }
 
-func TestAccResourceRecognitionRule_builtin(t *testing.T) {
+func TestAccResourceSecurityRule_builtin(t *testing.T) {
 	var obj interface{}
-	resourceName := "huaweicloud_dataarts_studio_data_recognition_rule.test"
+	resourceName := "huaweicloud_dataarts_security_data_recognition_rule.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getRuleResourceFunc,
+		getSecurityRuleResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -149,7 +149,7 @@ func TestAccResourceRecognitionRule_builtin(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRule_builtin(),
+				Config: testAccSecurityRule_builtin(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_DATAARTS_BUILTIN_RULE_NAME),
@@ -166,7 +166,7 @@ func TestAccResourceRecognitionRule_builtin(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRule_builtin_update(),
+				Config: testAccSecurityRule_builtin_update(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(resourceName, "name"),
@@ -187,9 +187,9 @@ func TestAccResourceRecognitionRule_builtin(t *testing.T) {
 	})
 }
 
-func testAccRule_custom(name string) string {
+func testAccSecurityRule_custom(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id     = "%[1]s"
   rule_type        = "CUSTOM"
   name             = "%[2]s"
@@ -200,9 +200,9 @@ resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_SECRECY_LEVEL_ID, acceptance.HW_DATAARTS_CATEGORY_ID)
 }
 
-func testAccRule_custom_update1(name string) string {
+func testAccSecurityRule_custom_update1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id       = "%[1]s"
   rule_type          = "CUSTOM"
   name               = "%[2]s"
@@ -217,9 +217,9 @@ resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_SECRECY_LEVEL_ID_UPDATE, acceptance.HW_DATAARTS_CATEGORY_ID_UPDATE)
 }
 
-func testAccRule_custom_update2(name string) string {
+func testAccSecurityRule_custom_update2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id       = "%[1]s"
   rule_type          = "CUSTOM"
   name               = "%[2]s"
@@ -234,9 +234,9 @@ resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_SECRECY_LEVEL_ID, acceptance.HW_DATAARTS_CATEGORY_ID)
 }
 
-func testAccRule_builtin() string {
+func testAccSecurityRule_builtin() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id     = "%[1]s"
   rule_type        = "BUILTIN"
   name             = "%[2]s"
@@ -248,9 +248,9 @@ resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
 		acceptance.HW_DATAARTS_SECRECY_LEVEL_ID, acceptance.HW_DATAARTS_CATEGORY_ID)
 }
 
-func testAccRule_builtin_update() string {
+func testAccSecurityRule_builtin_update() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id     = "%[1]s"
   rule_type        = "BUILTIN"
   name             = "%[2]s"

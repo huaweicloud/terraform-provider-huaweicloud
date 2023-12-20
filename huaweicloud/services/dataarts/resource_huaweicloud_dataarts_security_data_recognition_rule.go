@@ -22,12 +22,12 @@ import (
 // API: DataArtsStudio DELETE /v1/{project_id}/security/data-classification/rule/{id}
 // API: DataArtsStudio GET /v1/{project_id}/security/data-classification/rule/{id}
 // API: DataArtsStudio PUT /v1/{project_id}/security/data-classification/rule/{id}
-func ResourceStudioRule() *schema.Resource {
+func ResourceSecurityRule() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceRuleCreate,
-		ReadContext:   resourceRuleRead,
-		UpdateContext: resourceRuleUpdate,
-		DeleteContext: resourceRuleDelete,
+		CreateContext: resourceSecurityRuleCreate,
+		ReadContext:   resourceSecurityRuleRead,
+		UpdateContext: resourceSecurityRuleUpdate,
+		DeleteContext: resourceSecurityRuleDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDataArtsStudioImportState,
@@ -121,7 +121,7 @@ func ResourceStudioRule() *schema.Resource {
 	}
 }
 
-func buildCreateOrUpdateRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateOrUpdateSecurityRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"rule_type":          d.Get("rule_type").(string),
 		"secrecy_level_id":   d.Get("secrecy_level_id").(string),
@@ -137,7 +137,7 @@ func buildCreateOrUpdateRuleBodyParams(d *schema.ResourceData) map[string]interf
 	return bodyParams
 }
 
-func resourceRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	createRuleHttpUrl := "v1/{project_id}/security/data-classification/rule"
@@ -156,10 +156,10 @@ func resourceRuleCreate(ctx context.Context, d *schema.ResourceData, meta interf
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 	}
-	createRuleOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateRuleBodyParams(d))
+	createRuleOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateSecurityRuleBodyParams(d))
 	createRuleResp, err := createRuleClient.Request("POST", createRulePath, &createRuleOpt)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio data recognition rule: %s", err)
+		return diag.Errorf("error creating DataArts Security data recognition rule: %s", err)
 	}
 
 	createRuleRespBody, err := utils.FlattenResponse(createRuleResp)
@@ -169,15 +169,15 @@ func resourceRuleCreate(ctx context.Context, d *schema.ResourceData, meta interf
 
 	id, err := jmespath.Search("uuid", createRuleRespBody)
 	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Studio data recognition rule: ID is not found in API response")
+		return diag.Errorf("error creating DataArts Security data recognition rule: ID is not found in API response")
 	}
 
 	d.SetId(id.(string))
 
-	return resourceRuleRead(ctx, d, meta)
+	return resourceSecurityRuleRead(ctx, d, meta)
 }
 
-func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -200,7 +200,7 @@ func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{
 	}
 	getRuleResp, err := getRuleClient.Request("GET", getRulePath, &getRuleOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseRecognitionRuleError(err), "error retrieving DataArts Studio data recognition rule")
+		return common.CheckDeletedDiag(d, parseSecurityRuleError(err), "error retrieving DataArts Security data recognition rule")
 	}
 
 	getRuleRespBody, err := utils.FlattenResponse(getRuleResp)
@@ -232,7 +232,7 @@ func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{
 }
 
 // The example of error message is: {"error_code": "DLS.4106","error_msg": "Rule is not exist."}
-func parseRecognitionRuleError(err error) error {
+func parseSecurityRuleError(err error) error {
 	var errCode golangsdk.ErrDefault400
 	if errors.As(err, &errCode) {
 		var apiError interface{}
@@ -251,7 +251,7 @@ func parseRecognitionRuleError(err error) error {
 	return err
 }
 
-func resourceRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -271,16 +271,16 @@ func resourceRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 	}
 
-	updateRuleOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateRuleBodyParams(d))
+	updateRuleOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateSecurityRuleBodyParams(d))
 	_, err = updateRuleClient.Request("PUT", updateRulePath, &updateRuleOpt)
 	if err != nil {
-		return diag.Errorf("error updating DataArts Studio data recognition rule: %s", err)
+		return diag.Errorf("error updating DataArts Security data recognition rule: %s", err)
 	}
 
-	return resourceRuleRead(ctx, d, meta)
+	return resourceSecurityRuleRead(ctx, d, meta)
 }
 
-func resourceRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -302,7 +302,7 @@ func resourceRuleDelete(_ context.Context, d *schema.ResourceData, meta interfac
 
 	_, err = deleteRuleClient.Request("DELETE", deleteRulePath, &deleteRuleOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DataArts Studio data recognition rule: %s", err)
+		return diag.Errorf("error deleting DataArts Security data recognition rule: %s", err)
 	}
 
 	return nil

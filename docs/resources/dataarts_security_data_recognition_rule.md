@@ -2,9 +2,9 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_data_recognition_rule
+# huaweicloud_dataarts_security_data_recognition_rule
 
-Manages a DataArts Studio data recognition rule resource within HuaweiCloud.
+Manages a data recognition rule resource of DataArts Security within HuaweiCloud.
 
 ## Example Usage
 
@@ -15,7 +15,7 @@ variable "workspace_id" {}
 variable "secrecy_level_id" {}
 variable "category_id" {}
 
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id       = var.workspace_id
   rule_type          = "CUSTOM"
   name               = "ruleName"
@@ -38,7 +38,7 @@ variable "secrecy_level_id" {}
 variable "category_id" {}
 variable "builtin_rule_id" {}
 
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   workspace_id      = var.workspace_id
   rule_type         = "BUILTIN"
   name              = var.name
@@ -130,10 +130,10 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-DataArts Studio rule can be imported using `<workspace_id>/<id>`, e.g.
+The DataArts Security data recognition rule can be imported using `<workspace_id>/<id>`, e.g.
 
 ```sh
-terraform import huaweicloud_dataarts_studio_data_recognition_rule.test <workspace_id>/<id>
+terraform import huaweicloud_dataarts_security_data_recognition_rule.test <workspace_id>/<id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -143,7 +143,7 @@ You can then decide if changes should be applied to the resource, or the resourc
 with the resource. Also, you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_dataarts_studio_data_recognition_rule" "test" {
+resource "huaweicloud_dataarts_security_data_recognition_rule" "test" {
   ...
   
   lifecycle {
