@@ -20,15 +20,15 @@ import (
 // API: DataArtsStudio DELETE /v1/{project_id}/resources/{resource_id}
 // API: DataArtsStudio GET /v1/{project_id}/resources/{resource_id}
 // API: DataArtsStudio PUT /v1/{project_id}/resources/{resource_id}
-func ResourceStudioResource() *schema.Resource {
+func ResourceFactoryResource() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceStudioResourceCreate,
-		ReadContext:   resourceStudioResourceRead,
-		UpdateContext: resourceStudioResourceUpdate,
-		DeleteContext: resourceStudioResourceDelete,
+		CreateContext: resourceFactoryResourceCreate,
+		ReadContext:   resourceFactoryResourceRead,
+		UpdateContext: resourceFactoryResourceUpdate,
+		DeleteContext: resourceFactoryResourceDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceStudioResourceImportState,
+			StateContext: resourceFactoryResourceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -83,7 +83,7 @@ func ResourceStudioResource() *schema.Resource {
 	}
 }
 
-func resourceStudioResourceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceFactoryResourceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -104,7 +104,7 @@ func resourceStudioResourceCreate(ctx context.Context, d *schema.ResourceData, m
 	createResourceOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateResourceBodyParams(d))
 	createResourceResp, err := createResourceClient.Request("POST", createResourcePath, &createResourceOpt)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio resource: %s", err)
+		return diag.Errorf("error creating DataArts Factory resource: %s", err)
 	}
 
 	createResourceRespBody, err := utils.FlattenResponse(createResourceResp)
@@ -114,10 +114,10 @@ func resourceStudioResourceCreate(ctx context.Context, d *schema.ResourceData, m
 
 	id := utils.PathSearch("resourceId", createResourceRespBody, nil)
 	if id == nil {
-		return diag.Errorf("error creating DataArts Studio resource: %s is not found in API response", "id")
+		return diag.Errorf("error creating DataArts Factory resource: %s is not found in API response", "id")
 	}
 	d.SetId(id.(string))
-	return resourceStudioResourceRead(ctx, d, meta)
+	return resourceFactoryResourceRead(ctx, d, meta)
 }
 
 func buildCreateOrUpdateResourceBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -149,7 +149,7 @@ func buildDependPackagesParams(d *schema.ResourceData) []map[string]string {
 	return dependPackages
 }
 
-func resourceStudioResourceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceFactoryResourceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -173,7 +173,7 @@ func resourceStudioResourceRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 	getResourceResp, err := getResourceClient.Request("GET", getResourcePath, &getResourceOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DataArts Studio resource")
+		return common.CheckDeletedDiag(d, err, "error retrieving DataArts Factory resource")
 	}
 
 	getResourceRespBody, err := utils.FlattenResponse(getResourceResp)
@@ -214,7 +214,7 @@ func flattenDependPackagesInGetResourceResponseBody(getResourceRespBody interfac
 	return dependPackages
 }
 
-func resourceStudioResourceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceFactoryResourceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -239,13 +239,13 @@ func resourceStudioResourceUpdate(ctx context.Context, d *schema.ResourceData, m
 	updateResourceOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateResourceBodyParams(d))
 	_, err = updateResourceClient.Request("PUT", updateResourcePath, &updateResourceOpt)
 	if err != nil {
-		return diag.Errorf("error updating DataArts Studio resource: %s", err)
+		return diag.Errorf("error updating DataArts Factory resource: %s", err)
 	}
 
-	return resourceStudioResourceRead(ctx, d, meta)
+	return resourceFactoryResourceRead(ctx, d, meta)
 }
 
-func resourceStudioResourceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceFactoryResourceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -266,13 +266,13 @@ func resourceStudioResourceDelete(_ context.Context, d *schema.ResourceData, met
 	}
 	_, err = deleteResourceClient.Request("DELETE", deleteResourcePath, &deleteResourceOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DataArts Studio resource: %s", err)
+		return diag.Errorf("error deleting DataArts Factory resource: %s", err)
 	}
 
 	return nil
 }
 
-func resourceStudioResourceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
+func resourceFactoryResourceImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {

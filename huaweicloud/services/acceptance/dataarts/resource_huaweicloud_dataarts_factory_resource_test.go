@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getStudioResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getFactoryResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	getResourceClient, err := conf.NewServiceClient("dataarts-dlf", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DataArts Studio client: %s", err)
@@ -44,15 +44,15 @@ func getStudioResourceFunc(conf *config.Config, state *terraform.ResourceState) 
 	return getResourceRespBody, nil
 }
 
-func TestAccStudioResource_basic(t *testing.T) {
+func TestAccFactoryResource_basic(t *testing.T) {
 	var obj interface{}
-	resourceName := "huaweicloud_dataarts_studio_resource.test"
+	resourceName := "huaweicloud_dataarts_factory_resource.test"
 	rName := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getStudioResourceFunc,
+		getFactoryResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -119,7 +119,7 @@ func testAccResourceImportStateIDFunc(resourceName string) resource.ImportStateI
 
 func testAccResource_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_resource" "test" {
+resource "huaweicloud_dataarts_factory_resource" "test" {
   workspace_id = "%[1]s"
   name         = "%[2]s"
   type         = "jar"
@@ -137,7 +137,7 @@ resource "huaweicloud_dataarts_studio_resource" "test" {
 
 func testAccResource_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_resource" "test" {
+resource "huaweicloud_dataarts_factory_resource" "test" {
   workspace_id = "%[1]s"
   name         = "%[2]s_update"
   type         = "jar"

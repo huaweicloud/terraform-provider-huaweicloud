@@ -2,9 +2,9 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_resource
+# huaweicloud_dataarts_factory_resource
 
-Manages DataArts Studio resource within HuaweiCloud.
+Manages DataArts Factory resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -15,7 +15,7 @@ variable "workspace_id" {}
 variable "name" {}
 variable "directory" {}
 
-resource "huaweicloud_dataarts_studio_resource" "test" {
+resource "huaweicloud_dataarts_factory_resource" "test" {
   workspace_id = var.workspace_id
   name         = var.name
   type         = "jar"
@@ -31,7 +31,7 @@ variable "workspace_id" {}
 variable "name" {}
 variable "directory" {}
 
-resource "huaweicloud_dataarts_studio_resource" "test" {
+resource "huaweicloud_dataarts_factory_resource" "test" {
   workspace_id = var.workspace_id
   name         = var.name
   type         = "jar"
@@ -61,11 +61,11 @@ The following arguments are supported:
   are supported.
 
 * `depend_packages` - (Optional, List) Specifies an array of dependent files.
-  The [depend_packages](#DataArts_Studio_Resource_Depend_Packages) structure is documented below.
+  The [depend_packages](#DataArts_Factory_Resource_Depend_Packages) structure is documented below.
 
 * `description` - (Optional, String) Specifies the resource description.
 
-<a name="DataArts_Studio_Resource_Depend_Packages"></a>
+<a name="DataArts_Factory_Resource_Depend_Packages"></a>
 The `depend_packages` block supports:
 
 * `location` - (Required, String) Specifies the path of the dependent file. Currently, only OBS paths is
@@ -82,8 +82,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-DataArts Studio resource can be imported using `<workspace_id>/<id>`, e.g.
+DataArts Factory resource can be imported using `<workspace_id>/<id>`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dataarts_studio_resource.test <workspace_id>/<id>
+$ terraform import huaweicloud_dataarts_Factory_resource.test <workspace_id>/<id>
 ```
