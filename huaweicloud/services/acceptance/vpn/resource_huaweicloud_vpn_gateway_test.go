@@ -187,6 +187,111 @@ func TestAccGateway_activeStandbyHAMode(t *testing.T) {
 	})
 }
 
+func TestAccGateway_certificate(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_gateway.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGatewayResourceFunc,
+	)
+
+	cert := certificate{
+		name:             "test_gateway_certificate",
+		content:          acceptance.HW_GM_CERTIFICATE_CONTENT,
+		privateKey:       acceptance.HW_GM_CERTIFICATE_PRIVATE_KEY,
+		certificateChain: acceptance.HW_GM_CERTIFICATE_CHAIN,
+		encCertificate:   acceptance.HW_GM_ENC_CERTIFICATE_CONTENT,
+		encPrivateKey:    acceptance.HW_GM_ENC_CERTIFICATE_PRIVATE_KEY,
+	}
+
+	certUpdate := certificate{
+		name:             "test_gateway_certificate_update",
+		content:          acceptance.HW_NEW_GM_CERTIFICATE_CONTENT,
+		privateKey:       acceptance.HW_NEW_GM_CERTIFICATE_PRIVATE_KEY,
+		certificateChain: acceptance.HW_NEW_GM_CERTIFICATE_CHAIN,
+		encCertificate:   acceptance.HW_NEW_GM_ENC_CERTIFICATE_CONTENT,
+		encPrivateKey:    acceptance.HW_NEW_GM_ENC_CERTIFICATE_PRIVATE_KEY,
+	}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckGMCertificate(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testGateway_GMcertificate(name, cert),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "certificate.#", "1"),
+					resource.TestCheckResourceAttr(rName, "certificate.0.name", cert.name),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.content"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.private_key"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_private_key"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_id"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.status"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.issuer"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.signature_algorithm"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_subject"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain_serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain_subject"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain_expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate_serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate_subject"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate_expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.created_at"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.updated_at"),
+				),
+			},
+			{
+				Config: testGateway_GMcertificate(name, certUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "certificate.#", "1"),
+					resource.TestCheckResourceAttr(rName, "certificate.0.name", certUpdate.name),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.content"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.private_key"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_private_key"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_id"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.status"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.issuer"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.signature_algorithm"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_subject"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain_serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain_subject"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.certificate_chain_expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate_serial_number"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate_subject"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.enc_certificate_expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.created_at"),
+					resource.TestCheckResourceAttrSet(rName, "certificate.0.updated_at"),
+				),
+			},
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerifyIgnore: []string{"certificate"},
+			},
+		},
+	})
+}
+
 func TestAccGateway_deprecated(t *testing.T) {
 	var obj interface{}
 
@@ -530,4 +635,56 @@ resource "huaweicloud_vpn_gateway" "test" {
   }
 }
 `, testGateway_base(name), name)
+}
+
+func testGateway_GMcertificate(name string, cert certificate) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpn_gateway_availability_zones" "test" {
+  attachment_type = "er"
+  flavor          = "GM"
+}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%[1]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+}
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name               = "%[1]s"
+  vpc_id             = huaweicloud_vpc.test.id
+  flavor             = "GM"
+  network_type       = "private"
+  local_subnets      = [huaweicloud_vpc_subnet.test.cidr]
+  connect_subnet     = huaweicloud_vpc_subnet.test.id
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
+  certificate {
+    name              = "%[2]s"
+    content           = "%[3]s"
+    private_key       = "%[4]s"
+    certificate_chain = "%[5]s"
+    enc_certificate   = "%[6]s"
+    enc_private_key   = "%[7]s"
+  }
+}
+`, name, cert.name, cert.content, cert.privateKey, cert.certificateChain, cert.encCertificate, cert.encPrivateKey)
+}
+
+type certificate struct {
+	name             string
+	content          string
+	privateKey       string
+	certificateChain string
+	encCertificate   string
+	encPrivateKey    string
 }
