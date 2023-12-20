@@ -244,8 +244,8 @@ func resourceDataServiceAppUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func buildUpdateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        d.Get("name"),
+		"description": d.Get("description"),
 	}
 	return bodyParams
 }

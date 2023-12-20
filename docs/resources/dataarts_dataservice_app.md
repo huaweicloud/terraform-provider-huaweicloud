@@ -52,6 +52,8 @@ The following arguments are supported:
 
   Defaults to **APP**. Changing this parameter will create a new resource.
 
+  -> The IAM app can only have one.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
