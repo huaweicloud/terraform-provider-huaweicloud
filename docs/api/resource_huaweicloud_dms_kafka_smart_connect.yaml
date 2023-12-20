@@ -6,4 +6,14 @@ schemes:
   - https
 host: huaweicloud.com
 tags:
+  - name: Kafka
 paths:
+  /v2/{project_id}/instances/{instance_id}:
+    GET:
+      tag: Kafka
+  /v2/{project_id}/instances/{instance_id}/connector:
+    POST:
+      tag: Kafka
+  /v2/{project_id}/kafka/instances/{instance_id}/delete-connector:
+    POST:
+      tag: Kafka

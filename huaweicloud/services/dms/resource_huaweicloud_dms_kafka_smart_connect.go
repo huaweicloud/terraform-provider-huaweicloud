@@ -21,7 +21,7 @@ import (
 
 // API: Kafka POST /v2/{project_id}/instances/{instance_id}/connector
 // API: Kafka GET /v2/{project_id}/instances/{instance_id}
-// API: Kafka /v2/{project_id}/kafka/instances/{instance_id}/delete-connector
+// API: Kafka POST /v2/{project_id}/kafka/instances/{instance_id}/delete-connector
 func ResourceDmsKafkaSmartConnect() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaSmartConnectCreate,
