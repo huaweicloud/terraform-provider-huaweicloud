@@ -1100,8 +1100,8 @@ func Provider() *schema.Provider {
 			// DataArts Studio - Management Center
 			"huaweicloud_dataarts_studio_instance": dataarts.ResourceStudioInstance(),
 			// DataArts Architecture
-			"huaweicloud_dataarts_studio_directory":             dataarts.ResourceDataArtsStudioDirectory(),
-			"huaweicloud_dataarts_studio_subject":               dataarts.ResourceDataArtsStudioSubject(),
+			"huaweicloud_dataarts_architecture_directory":       dataarts.ResourceArchitectureDirectory(),
+			"huaweicloud_dataarts_architecture_subject":         dataarts.ResourceArchitectureSubject(),
 			"huaweicloud_dataarts_architecture_business_metric": dataarts.ResourceBusinessMetric(),
 			// DataArts Factory
 			"huaweicloud_dataarts_studio_resource": dataarts.ResourceStudioResource(),

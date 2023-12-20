@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDirectoryResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getArchitectureDirectoryResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	getDirectoryClient, err := conf.NewServiceClient("dataarts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DataArts Studio V2 client: %s", err)
@@ -59,15 +59,15 @@ func getDirectoryResourceFunc(conf *config.Config, state *terraform.ResourceStat
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func TestAccResourceDirectory_basic(t *testing.T) {
+func TestAccResourceArchitectureDirectory_basic(t *testing.T) {
 	var obj interface{}
-	resourceName := "huaweicloud_dataarts_studio_directory.test"
+	resourceName := "huaweicloud_dataarts_architecture_directory.test"
 	rName := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getDirectoryResourceFunc,
+		getArchitectureDirectoryResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -79,7 +79,7 @@ func TestAccResourceDirectory_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDirectory_basic(rName),
+				Config: testAccArchitectureDirectory_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -93,7 +93,7 @@ func TestAccResourceDirectory_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDirectory_update(rName),
+				Config: testAccArchitectureDirectory_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -110,13 +110,13 @@ func TestAccResourceDirectory_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccResourceDirectoryImportStateIDFunc(resourceName),
+				ImportStateIdFunc: testAccResourceArchitectureDirectoryImportStateIDFunc(resourceName),
 			},
 		},
 	})
 }
 
-func testAccResourceDirectoryImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccResourceArchitectureDirectoryImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -135,9 +135,9 @@ func testAccResourceDirectoryImportStateIDFunc(resourceName string) resource.Imp
 	}
 }
 
-func testAccDirectory_basic(name string) string {
+func testAccArchitectureDirectory_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_directory" "test" {
+resource "huaweicloud_dataarts_architecture_directory" "test" {
   workspace_id = "%s"
   name         = "%s"
   type         = "STANDARD_ELEMENT"
@@ -145,9 +145,9 @@ resource "huaweicloud_dataarts_studio_directory" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
 }
 
-func testAccDirectory_update(name string) string {
+func testAccArchitectureDirectory_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_directory" "test" {
+resource "huaweicloud_dataarts_architecture_directory" "test" {
   workspace_id = "%s"
   name         = "%s"
   type         = "CODE"

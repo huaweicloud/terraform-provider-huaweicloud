@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getSubjectResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getArchitectureSubjectResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	getSubjectClient, err := conf.NewServiceClient("dataarts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DataArts Studio client: %s", err)
@@ -77,15 +77,15 @@ func getSubjectResourceFunc(conf *config.Config, state *terraform.ResourceState)
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func TestAccResourceSubject_basic(t *testing.T) {
+func TestAccResourceArchitectureSubject_basic(t *testing.T) {
 	var obj interface{}
-	resourceName := "huaweicloud_dataarts_studio_subject.test"
+	resourceName := "huaweicloud_dataarts_architecture_subject.test"
 	rName := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getSubjectResourceFunc,
+		getArchitectureSubjectResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -97,7 +97,7 @@ func TestAccResourceSubject_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSubject_basic(rName),
+				Config: testAccArchitectureSubject_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -114,7 +114,7 @@ func TestAccResourceSubject_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSubject_update(rName),
+				Config: testAccArchitectureSubject_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -134,13 +134,13 @@ func TestAccResourceSubject_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccResourceSubjectImportStateIDFunc(resourceName),
+				ImportStateIdFunc: testAccResourceArchitectureSubjectImportStateIDFunc(resourceName),
 			},
 		},
 	})
 }
 
-func testAccResourceSubjectImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccResourceArchitectureSubjectImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -157,9 +157,9 @@ func testAccResourceSubjectImportStateIDFunc(resourceName string) resource.Impor
 	}
 }
 
-func testAccSubject_basic(name string) string {
+func testAccArchitectureSubject_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_subject" "test" {
+resource "huaweicloud_dataarts_architecture_subject" "test" {
   workspace_id = "%s"
   name         = "%s"
   code         = "%s"
@@ -170,9 +170,9 @@ resource "huaweicloud_dataarts_studio_subject" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name, name, name)
 }
 
-func testAccSubject_update(name string) string {
+func testAccArchitectureSubject_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_subject" "test" {
+resource "huaweicloud_dataarts_architecture_subject" "test" {
   workspace_id = "%s"
   name         = "%s"
   code         = "%s"
