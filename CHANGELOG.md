@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 1.59.1 (December 20, 2023)
+
+* **New Resource:**
+  + `huaweicloud_dms_kafka_smart_connect_task` [GH-3812]
+  + `huaweicloud_dataarts_security_data_recognition_rule` [GH-3831]
+  + `huaweicloud_rms_organizational_assignment_package` [GH-3839]
+
+* **New Data Source:**
+  + `huaweicloud_nat_gateways` [GH-3820]
+  + `huaweicloud_swr_organizations` [GH-3849]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_elb_loadbalancer: Support updating `availability_zone` parameter [GH-3814]
+* resource/huaweicloud_workspace_service: Support the OTP auxiliary authentication [GH-3856]
+* resource/huaweicloud_networking_secgroup_rule: Allow creating security group rule without remote params [GH-3872]
+
+BUG FIXES:
+
+* resource/huaweicloud_dds_audit_log_policy: Waiting for instance audit log policy to be success [GH-3861]
+* resource/huaweicloud_tms_resource: Ignore 404 error while querying resource tags [GH-3874]
+
 ## 1.59.0 (December 15, 2023)
 
 * **New Resource:**
@@ -8,12 +30,12 @@
   + `huaweicloud_workspace_user_group` [GH-3789]
   + `huaweicloud_cfw_firewall` [GH-3830]
 
-  + `huaweicloud_dataarts_studio_service_app` [GH-3793]
-  + `huaweicloud_dataarts_studio_directory` [GH-3791]
-  + `huaweicloud_dataarts_studio_permission_set` [GH-3801]
-  + `huaweicloud_dataarts_studio_resource` [GH-3802]
-  + `huaweicloud_dataarts_studio_subject` [GH-3811]
-  + `huaweicloud_dataarts_studio_business_metric` [GH-3819]
+  + `huaweicloud_dataarts_dataservice_app` [GH-3793]
+  + `huaweicloud_dataarts_architecture_directory` [GH-3791]
+  + `huaweicloud_dataarts_security_permission_set` [GH-3801]
+  + `huaweicloud_dataarts_factory_resource` [GH-3802]
+  + `huaweicloud_dataarts_architecture_subject` [GH-3811]
+  + `huaweicloud_dataarts_architecture_business_metric` [GH-3819]
 
 * **New Data Source:**
   + `huaweicloud_rds_parametergroups` [GH-3783]
