@@ -235,7 +235,7 @@ func resourceBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, m
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio business metric: %s", err)
+		return diag.Errorf("error creating DataArts Architecture business metric: %s", err)
 	}
 
 	createRespBody, err := utils.FlattenResponse(createResp)
@@ -245,7 +245,7 @@ func resourceBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, m
 
 	id, err := jmespath.Search("data.value.id", createRespBody)
 	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Studio business metric: ID is not found in API response")
+		return diag.Errorf("error creating DataArts Architecture business metric: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 
@@ -290,7 +290,7 @@ func resourceBusinessMetricRead(_ context.Context, d *schema.ResourceData, meta 
 
 	getResp, err := readBusinessMetric(client, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseBusinessMetricError(err), "error retrieving DataArts Studio business metric")
+		return common.CheckDeletedDiag(d, parseBusinessMetricError(err), "error retrieving DataArts Architecture business metric")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -399,7 +399,7 @@ func resourceBusinessMetricUpdate(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating DataArts Studio business metric: %s", err)
+		return diag.Errorf("error updating DataArts Architecture business metric: %s", err)
 	}
 	return resourceBusinessMetricRead(ctx, d, meta)
 }
@@ -426,17 +426,17 @@ func resourceBusinessMetricDelete(_ context.Context, d *schema.ResourceData, met
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DataArts Studio business metric: %s", err)
+		return diag.Errorf("error deleting DataArts Architecture business metric: %s", err)
 	}
 
 	// Successful deletion API call does not guarantee that the resource is successfully deleted.
 	// Call the details API to confirm that the resource has been successfully deleted.
 	_, err = readBusinessMetric(client, d)
 	if err == nil {
-		return diag.Errorf("error deleting DataArts Studio business metric: the business metric still exists")
+		return diag.Errorf("error deleting DataArts Architecture business metric: the business metric still exists")
 	}
 
-	return common.CheckDeletedDiag(d, parseBusinessMetricError(err), "error deleting DataArts Studio business metric")
+	return common.CheckDeletedDiag(d, parseBusinessMetricError(err), "error deleting DataArts Architecture business metric")
 }
 
 func buildDeleteBusinessMetricBodyParams(d *schema.ResourceData) map[string]interface{} {
