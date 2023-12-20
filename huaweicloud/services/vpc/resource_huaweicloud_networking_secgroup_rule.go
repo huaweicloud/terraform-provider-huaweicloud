@@ -102,11 +102,10 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 				),
 			},
 			"remote_group_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				ExactlyOneOf: []string{"remote_address_group_id", "remote_ip_prefix"},
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"remote_address_group_id": {
 				Type:          schema.TypeString,
