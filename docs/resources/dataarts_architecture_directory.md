@@ -2,9 +2,9 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_directory
+# huaweicloud_dataarts_architecture_directory
 
-Manages DataArts Studio directory resource within HuaweiCloud.
+Manages DataArts Architecture directory resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -13,13 +13,13 @@ variable "workspace_id" {}
 variable "name" {}
 variable "directory_id" {}
 
-resource "huaweicloud_dataarts_studio_directory" "test-root" {
+resource "huaweicloud_dataarts_architecture_directory" "test-root" {
   workspace_id = var.workspace_id
   name         = var.name
   type         = "STANDARD_ELEMENT"
 }
 
-resource "huaweicloud_dataarts_studio_directory" "test-sub" {
+resource "huaweicloud_dataarts_architecture_directory" "test-sub" {
   workspace_id = var.workspace_id
   name         = var.name
   type         = "STANDARD_ELEMENT"
@@ -68,8 +68,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-DataArts Studio directory can be imported using `<workspace_id>/<type>/<qualified_name>`, e.g.
+DataArts Architecture directory can be imported using `<workspace_id>/<type>/<qualified_name>`, e.g.
 
 ```sh
-terraform import huaweicloud_dataarts_studio_directory.test b606cd4a47b645108a122857204b360f/STANDARD_ELEMENT/root.sub
+terraform import huaweicloud_dataarts_architecture_directory.test b606cd4a47b645108a122857204b360f/STANDARD_ELEMENT/root
 ```

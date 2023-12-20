@@ -2,9 +2,9 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_subject
+# huaweicloud_dataarts_architecture_subject
 
-Manages DataArts Studio subject resource within HuaweiCloud.
+Manages DataArts Architecture subject resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -15,7 +15,7 @@ variable "code" {}
 variable "owner" {}
 variable "subject_id" {}
 
-resource "huaweicloud_dataarts_studio_subject" "test-L1" {
+resource "huaweicloud_dataarts_architecture_subject" "test-L1" {
   workspace_id = var.workspace_id
   name         = var.name
   code         = var.code
@@ -23,7 +23,7 @@ resource "huaweicloud_dataarts_studio_subject" "test-L1" {
   level        = 1
 }
 
-resource "huaweicloud_dataarts_studio_subject" "test-L2" {
+resource "huaweicloud_dataarts_architecture_subject" "test-L2" {
   workspace_id = var.workspace_id
   name         = var.name
   code         = var.code
@@ -82,8 +82,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-DataArts Studio subject can be imported using `<workspace_id>/<path>`, e.g.
+DataArts Architecture subject can be imported using `<workspace_id>/<path>`, e.g.
 
 ```sh
-terraform import huaweicloud_dataarts_studio_subject.test b606cd4a47b645108a122857204b360f/test-L1.test-L2
+terraform import huaweicloud_dataarts_architecture_subject.test b606cd4a47b645108a122857204b360f/test-L1.test-L2
 ```

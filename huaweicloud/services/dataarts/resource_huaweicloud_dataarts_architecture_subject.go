@@ -21,15 +21,15 @@ import (
 // API: DataArtsStudio DELETE /v3/{project_id}/design/subjects
 // API: DataArtsStudio GET /v3/{project_id}/design/subjects
 // API: DataArtsStudio PUT /v3/{project_id}/design/subjects
-func ResourceDataArtsStudioSubject() *schema.Resource {
+func ResourceArchitectureSubject() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceStudioSubjectCreate,
-		ReadContext:   resourceStudioSubjectRead,
-		UpdateContext: resourceStudioSubjectUpdate,
-		DeleteContext: resourceStudioSubjectDelete,
+		CreateContext: resourceArchitectureSubjectCreate,
+		ReadContext:   resourceArchitectureSubjectRead,
+		UpdateContext: resourceArchitectureSubjectUpdate,
+		DeleteContext: resourceArchitectureSubjectDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceStudioSubjectImportState,
+			StateContext: resourceArchitectureSubjectImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -105,7 +105,7 @@ func ResourceDataArtsStudioSubject() *schema.Resource {
 	}
 }
 
-func resourceStudioSubjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureSubjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -123,7 +123,7 @@ func resourceStudioSubjectCreate(ctx context.Context, d *schema.ResourceData, me
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 	}
-	createSubjectOpt.JSONBody = utils.RemoveNil(buildCreateSubjectBodyParams(d))
+	createSubjectOpt.JSONBody = utils.RemoveNil(buildCreateArchitectureSubjectBodyParams(d))
 	createSubjectResp, err := createSubjectClient.Request("POST", createSubjectPath, &createSubjectOpt)
 	if err != nil {
 		return diag.FromErr(err)
@@ -136,15 +136,15 @@ func resourceStudioSubjectCreate(ctx context.Context, d *schema.ResourceData, me
 
 	id, err := jmespath.Search("data.value.id", createSubjectRespBody)
 	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Studio subject: %s is not found in API response", "id")
+		return diag.Errorf("error creating DataArts Architecture subject: %s is not found in API response", "id")
 	}
 
 	d.SetId(id.(string))
 
-	return resourceStudioSubjectRead(ctx, d, meta)
+	return resourceArchitectureSubjectRead(ctx, d, meta)
 }
 
-func buildCreateSubjectBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateArchitectureSubjectBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name_ch":         d.Get("name"),
 		"name_en":         d.Get("code"),
@@ -157,7 +157,7 @@ func buildCreateSubjectBodyParams(d *schema.ResourceData) map[string]interface{}
 	return bodyParams
 }
 
-func resourceStudioSubjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureSubjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -189,7 +189,7 @@ func resourceStudioSubjectRead(_ context.Context, d *schema.ResourceData, meta i
 	for {
 		getSubjectResp, err := getSubjectClient.Request("GET", getSubjectPath, &getSubjectOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving DataArts Studio subject")
+			return common.CheckDeletedDiag(d, err, "error retrieving DataArts Architecture subject")
 		}
 		getSubjectRespBody, err := utils.FlattenResponse(getSubjectResp)
 		if err != nil {
@@ -246,7 +246,7 @@ func resourceStudioSubjectRead(_ context.Context, d *schema.ResourceData, meta i
 	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 }
 
-func resourceStudioSubjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureSubjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -265,7 +265,7 @@ func resourceStudioSubjectUpdate(ctx context.Context, d *schema.ResourceData, me
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 	}
 
-	updateSubjectOpt.JSONBody = utils.RemoveNil(buildUpdateSubjectBodyParams(d))
+	updateSubjectOpt.JSONBody = utils.RemoveNil(buildUpdateArchitectureSubjectBodyParams(d))
 	updateSubjectResp, err := updateSubjectClient.Request("PUT", updateSubjectPath, &updateSubjectOpt)
 	if err != nil {
 		return diag.FromErr(err)
@@ -278,10 +278,10 @@ func resourceStudioSubjectUpdate(ctx context.Context, d *schema.ResourceData, me
 	path := strings.ReplaceAll(utils.PathSearch("data.value.path", updateSubjectRespBody, "").(string), "/", ".")
 	d.Set("path", path)
 
-	return resourceStudioSubjectRead(ctx, d, meta)
+	return resourceArchitectureSubjectRead(ctx, d, meta)
 }
 
-func buildUpdateSubjectBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateArchitectureSubjectBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"id":              d.Id(),
 		"name_ch":         d.Get("name"),
@@ -295,7 +295,7 @@ func buildUpdateSubjectBodyParams(d *schema.ResourceData) map[string]interface{}
 	return bodyParams
 }
 
-func resourceStudioSubjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureSubjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -326,7 +326,7 @@ func resourceStudioSubjectDelete(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceStudioSubjectImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
+func resourceArchitectureSubjectImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {

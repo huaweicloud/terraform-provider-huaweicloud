@@ -21,15 +21,15 @@ import (
 // API: DataArtsStudio DELETE /v2/{project_id}/design/directorys
 // API: DataArtsStudio GET /v2/{project_id}/design/directorys
 // API: DataArtsStudio PUT /v2/{project_id}/design/directorys
-func ResourceDataArtsStudioDirectory() *schema.Resource {
+func ResourceArchitectureDirectory() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceStudioDirectoryCreate,
-		ReadContext:   resourceStudioDirectoryRead,
-		UpdateContext: resourceStudioDirectoryUpdate,
-		DeleteContext: resourceStudioDirectoryDelete,
+		CreateContext: resourceArchitectureDirectoryCreate,
+		ReadContext:   resourceArchitectureDirectoryRead,
+		UpdateContext: resourceArchitectureDirectoryUpdate,
+		DeleteContext: resourceArchitectureDirectoryDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceStudioDirectoryImportState,
+			StateContext: resourceArchitectureDirectoryImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -93,7 +93,7 @@ func ResourceDataArtsStudioDirectory() *schema.Resource {
 	}
 }
 
-func resourceStudioDirectoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDirectoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -112,7 +112,7 @@ func resourceStudioDirectoryCreate(ctx context.Context, d *schema.ResourceData, 
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 	}
-	createDirectoryOpt.JSONBody = utils.RemoveNil(buildCreateDirectoryBodyParams(d))
+	createDirectoryOpt.JSONBody = utils.RemoveNil(buildCreateArchitectureDirectoryBodyParams(d))
 	createDirectoryResp, err := createDirectoryClient.Request("POST", createDirectoryPath, &createDirectoryOpt)
 	if err != nil {
 		return diag.FromErr(err)
@@ -126,21 +126,21 @@ func resourceStudioDirectoryCreate(ctx context.Context, d *schema.ResourceData, 
 
 	id, err := jmespath.Search("id", directory)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio directory: %s is not found in API response", "id")
+		return diag.Errorf("error creating DataArts Architecture directory: %s is not found in API response", "id")
 	}
 
 	// need to set qualified name to filter result in READ.
 	qualifiedName, err := jmespath.Search("qualified_name", directory)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio directory: %s is not found in API response", "qualifiedName")
+		return diag.Errorf("error creating DataArts Architecture directory: %s is not found in API response", "qualifiedName")
 	}
 	d.SetId(id.(string))
 	d.Set("qualified_name", qualifiedName)
 
-	return resourceStudioDirectoryRead(ctx, d, meta)
+	return resourceArchitectureDirectoryRead(ctx, d, meta)
 }
 
-func buildCreateDirectoryBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateArchitectureDirectoryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
 		"type":        d.Get("type"),
@@ -150,7 +150,7 @@ func buildCreateDirectoryBodyParams(d *schema.ResourceData) map[string]interface
 	return bodyParams
 }
 
-func resourceStudioDirectoryRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDirectoryRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -193,7 +193,7 @@ func resourceStudioDirectoryRead(_ context.Context, d *schema.ResourceData, meta
 
 	directories := utils.PathSearch(jsonPaths, getDirectoryRespBody, make([]interface{}, 0)).([]interface{})
 	if len(directories) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DataArts Studio directory")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DataArts Architecture directory")
 	}
 
 	directory := directories[0]
@@ -215,13 +215,13 @@ func resourceStudioDirectoryRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("children", utils.PathSearch(`children[*].name`, directory, make([]interface{}, 0))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting DataArts Studio directory fields: %s", err)
+		return diag.Errorf("error setting DataArts Architecture directory fields: %s", err)
 	}
 
 	return nil
 }
 
-func resourceStudioDirectoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDirectoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -241,7 +241,7 @@ func resourceStudioDirectoryUpdate(ctx context.Context, d *schema.ResourceData, 
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 	}
 
-	updateDirectoryOpt.JSONBody = utils.RemoveNil(buildUpdateDirectoryBodyParams(d))
+	updateDirectoryOpt.JSONBody = utils.RemoveNil(buildUpdateArchitectureDirectoryBodyParams(d))
 	updateDirectoryResp, err := updateDirectoryClient.Request("PUT", updateDirectoryPath, &updateDirectoryOpt)
 	if err != nil {
 		return diag.FromErr(err)
@@ -256,17 +256,17 @@ func resourceStudioDirectoryUpdate(ctx context.Context, d *schema.ResourceData, 
 	// if you change the parent id, the qualified name will be changed, need to set to filter result in READ.
 	qualifiedName, err := jmespath.Search("qualified_name", directory)
 	if err != nil {
-		return diag.Errorf("error updating DataArts Studio directory: %s is not found in API response", "qualifiedName")
+		return diag.Errorf("error updating DataArts Architecture directory: %s is not found in API response", "qualifiedName")
 	}
 	if qualifiedName == nil {
 		qualifiedName = d.Get("qualified_name")
 	}
 	d.Set("qualified_name", qualifiedName)
 
-	return resourceStudioDirectoryRead(ctx, d, meta)
+	return resourceArchitectureDirectoryRead(ctx, d, meta)
 }
 
-func buildUpdateDirectoryBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateArchitectureDirectoryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"id":          d.Id(),
 		"name":        d.Get("name"),
@@ -277,7 +277,7 @@ func buildUpdateDirectoryBodyParams(d *schema.ResourceData) map[string]interface
 	return bodyParams
 }
 
-func resourceStudioDirectoryDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureDirectoryDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -306,7 +306,7 @@ func resourceStudioDirectoryDelete(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceStudioDirectoryImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
+func resourceArchitectureDirectoryImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
