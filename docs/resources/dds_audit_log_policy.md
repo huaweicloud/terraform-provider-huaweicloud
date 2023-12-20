@@ -60,6 +60,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+* `update` - Default is 5 minutes.
+* `delete` - Default is 5 minutes.
+
 ## Import
 
 The DDS audit log policy can be imported using the instance ID, e.g.:

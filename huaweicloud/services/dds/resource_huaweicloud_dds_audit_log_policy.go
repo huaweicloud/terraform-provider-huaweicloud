@@ -13,16 +13,21 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: DDS POST /v3/{project_id}/instances/{instance_id}/auditlog-policy
+// API: DDS GET /v3/{project_id}/instances/{instance_id}/auditlog-policy
+// API: DDS GET /v3/{project_id}/instances
 func ResourceDdsAuditLogPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdsAuditLogPolicyCreate,
@@ -31,6 +36,12 @@ func ResourceDdsAuditLogPolicy() *schema.Resource {
 		DeleteContext: resourceDdsAuditLogPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -79,15 +90,13 @@ func resourceDdsAuditLogPolicyCreate(ctx context.Context, d *schema.ResourceData
 	cfg := meta.(*config.Config)
 
 	instanceId := d.Get("instance_id")
-	err := setAuditLogPolicy(cfg, d, instanceId.(string), "creating")
+	err := setAuditLogPolicy(ctx, cfg, d, instanceId.(string), "creating")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId(instanceId.(string))
 
-	// This is a workaround to avoid db master-slave synchronization
-	time.Sleep(2 * time.Second) // lintignore:R018
 	return resourceDdsAuditLogPolicyRead(ctx, d, meta)
 }
 
@@ -101,18 +110,16 @@ func resourceDdsAuditLogPolicyUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChanges(updateAuditLogPolicyHasChanges...) {
-		err := setAuditLogPolicy(cfg, d, d.Id(), "updating")
+		err := setAuditLogPolicy(ctx, cfg, d, d.Id(), "updating")
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	// This is a workaround to avoid db master-slave synchronization
-	time.Sleep(2 * time.Second) // lintignore:R018
 	return resourceDdsAuditLogPolicyRead(ctx, d, meta)
 }
 
-func setAuditLogPolicy(cfg *config.Config, d *schema.ResourceData, instanceId, operateMethod string) error {
+func setAuditLogPolicy(ctx context.Context, cfg *config.Config, d *schema.ResourceData, instanceId, operateMethod string) error {
 	region := cfg.GetRegion(d)
 	var (
 		setAuditLogPolicyHttpUrl = "v3/{project_id}/instances/{instance_id}/auditlog-policy"
@@ -139,7 +146,54 @@ func setAuditLogPolicy(cfg *config.Config, d *schema.ResourceData, instanceId, o
 	if err != nil {
 		return fmt.Errorf("error %s DDS audit log policy: %s", operateMethod, err)
 	}
+
+	timeout := schema.TimeoutCreate
+	if operateMethod == "updating" {
+		timeout = schema.TimeoutUpdate
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"pending"},
+		Target:       []string{"success"},
+		Refresh:      ddsInstanceAuditLogPolicyRefreshFunc(setAuditLogPolicyClient, instanceId),
+		Timeout:      d.Timeout(timeout),
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for instance (%s) audit log policy to be set: %s ", instanceId, err)
+	}
+
 	return nil
+}
+
+func ddsInstanceAuditLogPolicyRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		opts := instances.ListInstanceOpts{
+			Id: instanceID,
+		}
+		allPages, err := instances.List(client, &opts).AllPages()
+		if err != nil {
+			return nil, "", err
+		}
+		instancesList, err := instances.ExtractInstances(allPages)
+		if err != nil {
+			return nil, "", err
+		}
+
+		if instancesList.TotalCount == 0 {
+			return nil, "", fmt.Errorf("the DDS instance has been deleted")
+		}
+		insts := instancesList.Instances
+
+		actions := insts[0].Actions
+		// wait for updating
+		if utils.StrSliceContains(actions, "OPS_AUDIT_LOG") {
+			return insts[0], "pending", nil
+		}
+		return insts[0], "success", nil
+	}
 }
 
 func buildSetAuditLogPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -209,7 +263,7 @@ func resourceDdsAuditLogPolicyRead(_ context.Context, d *schema.ResourceData, me
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceDdsAuditLogPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDdsAuditLogPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -240,8 +294,19 @@ func resourceDdsAuditLogPolicyDelete(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error deleting DDS audit log policy: %s", err)
 	}
 
-	// This is a workaround to avoid db master-slave synchronization
-	time.Sleep(2 * time.Second) // lintignore:R018
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"pending"},
+		Target:       []string{"success"},
+		Refresh:      ddsInstanceAuditLogPolicyRefreshFunc(deleteAuditLogPolicyClient, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for instance (%s) audit log policy to be deleted: %s", d.Id(), err)
+	}
 
 	return nil
 }
