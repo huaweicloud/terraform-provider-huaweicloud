@@ -270,6 +270,42 @@ func TestAccNetworkingSecGroupRule_remoteAddressGroup(t *testing.T) {
 	})
 }
 
+func TestAccNetworkingSecGroupRule_noRemote(t *testing.T) {
+	var secgroupRule rules.SecurityGroupRule
+	resourceName := "huaweicloud_networking_secgroup_rule.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&secgroupRule,
+		getNetworkSecGroupRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingSecGroupRule_noRemote(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "direction", "egress"),
+					resource.TestCheckResourceAttr(resourceName, "ethertype", "IPv4"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "1"),
+					// the IP address is shown as 0.0.0.0/0 in console, but it is empty from API response
+					resource.TestCheckResourceAttr(resourceName, "remote_ip_prefix", ""),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccNetworkingSecGroupRule_action(t *testing.T) {
 	var (
 		secgroupRule rules.SecurityGroupRule
@@ -450,6 +486,18 @@ resource "huaweicloud_networking_secgroup_rule" "test" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 `, testAccNetworkingSecGroupRule_base(rName))
+}
+
+func testAccNetworkingSecGroupRule_noRemote(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+  direction         = "egress"
+  ethertype         = "IPv4"
+}
+`, testAccSecGroup_noDefaultRules(rName))
 }
 
 func testAccNetworkingSecGroupRule_remoteAddressGroup(rName string) string {

@@ -131,7 +131,8 @@ The following arguments are supported:
   Changing this creates a new security group rule.
 
 * `remote_ip_prefix` - (Optional, String, ForceNew) Specifies the remote CIDR, the value needs to be a valid CIDR (i.e.
-  192.168.0.0/16). Changing this creates a new security group rule.
+  192.168.0.0/16). If not specified, the empty value means all IP addresses, which is same as the value `0.0.0.0/0`.
+  Changing this creates a new security group rule.
 
 * `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group ID. Changing this creates a new security
   group rule.
