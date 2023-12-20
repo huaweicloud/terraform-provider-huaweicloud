@@ -288,6 +288,18 @@ func ResourceRdsInstance() *schema.Resource {
 				Computed: true,
 			},
 
+			"maintain_begin": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"maintain_end": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"maintain_begin"},
+			},
+
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -474,6 +486,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -549,6 +565,12 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	// If the creation of the RDS instance is failed, the length of the private IP list will be zero.
 	if len(privateIps) > 0 {
 		d.Set("fixed_ip", privateIps[0])
+	}
+
+	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
+	if len(maintainWindow) == 2 {
+		d.Set("maintain_begin", maintainWindow[0])
+		d.Set("maintain_end", maintainWindow[1])
 	}
 
 	volume := map[string]interface{}{
@@ -687,6 +709,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err := updateRdsInstanceBackupStrategy(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1516,6 +1542,24 @@ func updateRdsRootPassword(ctx context.Context, d *schema.ResourceData, client *
 	})
 	if err != nil {
 		return fmt.Errorf("error resetting the root password: %s", err)
+	}
+	return nil
+}
+
+func updateRdsInstanceMaintainWindow(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChanges("maintain_begin", "maintain_end") {
+		return nil
+	}
+
+	modifyMaintainWindowOpts := instances.ModifyMaintainWindowOpts{
+		StartTime: d.Get("maintain_begin").(string),
+		EndTime:   d.Get("maintain_end").(string),
+	}
+
+	log.Printf("[DEBUG] Modify RDS instance maintain window opts: %+v", modifyMaintainWindowOpts)
+	r := instances.ModifyMaintainWindow(client, modifyMaintainWindowOpts, instanceID)
+	if r.Err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) maintain window: %s", instanceID, r.Err)
 	}
 	return nil
 }

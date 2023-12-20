@@ -248,6 +248,14 @@ The following arguments are supported:
   configuration. When creating an instance for Dec users, it is needed to be specified for all nodes of the instance
   and separated by commas if database instance type is not standalone or read-only.
 
+* `maintain_begin` - (Optional, String) Specifies the time at which the maintenance time window starts, for example, **22:00**.
+
+* `maintain_end` - (Optional, String) Specifies the time at which the maintenance time window ends, for example, **01:00**.
+
+-> **Note** For RDS for MySQL and RDS for PostgreSQL databases, the maintenance begin time and end time must be on the
+  hour, and the interval between them must be one to four hours.<br>
+  For RDS for SQL Server databases, the interval between the maintenance begin time and end time must be four hours.
+
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance. Each tag is represented by one key-value
   pair.
 
