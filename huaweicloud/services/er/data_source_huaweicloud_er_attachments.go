@@ -45,6 +45,11 @@ func DataSourceAttachments() *schema.Resource {
 				Optional:    true,
 				Description: `The name used to filter the attachments.`,
 			},
+			"resource_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The associated resource ID.`,
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -90,7 +95,7 @@ func DataSourceAttachments() *schema.Resource {
 						"resource_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Associated resource ID.`,
+							Description: `The associated resource ID.`,
 						},
 						"created_at": {
 							Type:        schema.TypeString,
@@ -195,6 +200,7 @@ func buildAttachmentListOpts(d *schema.ResourceData) attachments.ListOpts {
 	return attachments.ListOpts{
 		Statuses:      buildSliceIgnoreEmptyElement(d.Get("status").(string)),
 		ResourceTypes: buildSliceIgnoreEmptyElement(d.Get("type").(string)),
+		ResourceIds:   buildSliceIgnoreEmptyElement(d.Get("resource_id").(string)),
 		SortKey:       []string{"name"},
 	}
 }
