@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getPermissionSetResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getSecurityPermissionSetResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	getPermissionSetClient, err := conf.NewServiceClient("dataarts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DataArts Studio client: %s", err)
@@ -32,27 +32,27 @@ func getPermissionSetResourceFunc(conf *config.Config, state *terraform.Resource
 	}
 	getPermissionSetResp, err := getPermissionSetClient.Request("GET", getPermissionSetPath, &getPermissionSetOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DataArts Studio permission set: %s", err)
+		return nil, fmt.Errorf("error retrieving DataArts Security permission set: %s", err)
 	}
 
 	getPermissionSetRespBody, err := utils.FlattenResponse(getPermissionSetResp)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DataArts Studio permission set: %s", err)
+		return nil, fmt.Errorf("error retrieving DataArts Security permission set: %s", err)
 	}
 
 	return getPermissionSetRespBody, nil
 }
 
-func TestAccResourcePermissionSet_basic(t *testing.T) {
+func TestAccResourceSecurityPermissionSet_basic(t *testing.T) {
 	var obj interface{}
 
-	resourceName := "huaweicloud_dataarts_studio_permission_set.test"
+	resourceName := "huaweicloud_dataarts_security_permission_set.test"
 	rName := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getPermissionSetResourceFunc,
+		getSecurityPermissionSetResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -65,7 +65,7 @@ func TestAccResourcePermissionSet_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPermissionSet_basic(rName),
+				Config: testAccSecurityPermissionSet_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -81,7 +81,7 @@ func TestAccResourcePermissionSet_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPermissionSet_update(rName),
+				Config: testAccSecurityPermissionSet_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
@@ -100,13 +100,13 @@ func TestAccResourcePermissionSet_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccResourcePermissionSetImportStateIDFunc(resourceName),
+				ImportStateIdFunc: testAccResourceSecurityPermissionSetImportStateIDFunc(resourceName),
 			},
 		},
 	})
 }
 
-func testAccResourcePermissionSetImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+func testAccResourceSecurityPermissionSetImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -123,9 +123,9 @@ func testAccResourcePermissionSetImportStateIDFunc(resourceName string) resource
 	}
 }
 
-func testAccPermissionSet_basic(name string) string {
+func testAccSecurityPermissionSet_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_permission_set" "test" {
+resource "huaweicloud_dataarts_security_permission_set" "test" {
   workspace_id = "%[1]s"
   name         = "%[2]s"
   parent_id    = "0"
@@ -135,9 +135,9 @@ resource "huaweicloud_dataarts_studio_permission_set" "test" {
 `, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_MANAGER_ID)
 }
 
-func testAccPermissionSet_update(name string) string {
+func testAccSecurityPermissionSet_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_permission_set" "test" {
+resource "huaweicloud_dataarts_security_permission_set" "test" {
   workspace_id = "%[1]s"
   name         = "%[2]s_update"
   parent_id    = "0"

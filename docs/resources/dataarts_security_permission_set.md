@@ -2,9 +2,9 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_permission_set
+# huaweicloud_dataarts_security_permission_set
 
-Manages DataArts Studio permission set resource within HuaweiCloud.
+Manages DataArts Security permission set resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -13,17 +13,17 @@ variable "workspace_id" {}
 variable "name" {}
 variable "manager_id" {}
 
-resource "huaweicloud_dataarts_studio_permission_set" "test" {
+resource "huaweicloud_dataarts_security_permission_set" "test" {
   workspace_id = var.workspace_id
   name         = var.name
   parent_id    = "0"
   manager_id   = var.manager_id
 }
 
-resource "huaweicloud_dataarts_studio_permission_set" "sub_test" {
+resource "huaweicloud_dataarts_security_permission_set" "sub_test" {
   workspace_id = var.workspace_id
   name         = var.name
-  parent_id    = huaweicloud_dataarts_studio_permission_set.test.id
+  parent_id    = huaweicloud_dataarts_security_permission_set.test.id
   manager_id   = var.manager_id
 }
 ```
@@ -80,8 +80,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The DataArts Studio permission set can be imported using the `workspace_id` and `id` separated by a slash, e.g.
+The DataArts Security permission set can be imported using the `workspace_id` and `id` separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_dataarts_studio_permission_set.test <workspace_id>/<id>
+$ terraform import huaweicloud_dataarts_security_permission_set.test <workspace_id>/<id>
 ```
