@@ -183,6 +183,9 @@ func resourceResourceTagsRead(_ context.Context, d *schema.ResourceData, meta in
 		}
 		resp, err := tags.Get(client, opts)
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				continue
+			}
 			return diag.Errorf("error query resource (%s) tags: %s", resourceId, err)
 		}
 		actualTags := FlattenTagsToMap(resp)
