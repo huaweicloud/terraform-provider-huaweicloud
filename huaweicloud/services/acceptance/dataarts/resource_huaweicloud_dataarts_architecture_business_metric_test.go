@@ -36,7 +36,7 @@ func getBusinessMetricResourceFunc(cfg *config.Config, state *terraform.Resource
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DataArts Studio business metric: %s", err)
+		return nil, fmt.Errorf("error retrieving DataArts Architecture business metric: %s", err)
 	}
 
 	return utils.FlattenResponse(getResp)
@@ -46,7 +46,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dataarts_studio_business_metric.test"
+	rName := "huaweicloud_dataarts_architecture_business_metric.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -171,7 +171,7 @@ func TestAccBusinessMetric_basic(t *testing.T) {
 
 func testBusinessMetric_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_business_metric" "test" {
+resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   name             = "%[1]s"
   workspace_id     = "%[2]s"
   biz_catalog_id   = "%[3]s"
@@ -197,7 +197,7 @@ resource "huaweicloud_dataarts_studio_business_metric" "test" {
 
 func testBusinessMetric_basic_update1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_business_metric" "test" {
+resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   name             = "%[1]s"
   workspace_id     = "%[2]s"
   biz_catalog_id   = "%[3]s"
@@ -223,7 +223,7 @@ resource "huaweicloud_dataarts_studio_business_metric" "test" {
 
 func testBusinessMetric_basic_update2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_business_metric" "test" {
+resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   name             = "%[1]s"
   workspace_id     = "%[2]s"
   biz_catalog_id   = "%[3]s"

@@ -2,9 +2,9 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_business_metric
+# huaweicloud_dataarts_architecture_business_metric
 
-Manages a DataArts Studio business metric resource within HuaweiCloud.
+Manages a DataArts Architecture business metric resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -14,7 +14,7 @@ variable "biz_catalog_id" {}
 variable "owner" {}
 variable "owner_department" {}
 
-resource "huaweicloud_dataarts_studio_business_metric" "test" {
+resource "huaweicloud_dataarts_architecture_business_metric" "test" {
   workspace_id     = var.workspace_id
   biz_catalog_id   = var.biz_catalog_id
   owner            = var.owner
@@ -122,8 +122,9 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The DataArts Studio business metric resource can be imported using the `workspace_id` and `id`, separated by a slash, e.g.
+The DataArts Architecture business metric resource can be imported using the `workspace_id` and `id`, separated by a
+slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_dataarts_studio_business_metric.test <workspace_id>/<id>
+$ terraform import huaweicloud_dataarts_architecture_business_metric.test <workspace_id>/<id>
 ```
