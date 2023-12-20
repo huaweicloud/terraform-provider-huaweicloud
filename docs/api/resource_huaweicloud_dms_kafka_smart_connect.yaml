@@ -15,5 +15,5 @@ paths:
     POST:
       tag: Kafka
   /v2/{project_id}/kafka/instances/{instance_id}/delete-connector:
-    GET:
+    POST:
       tag: Kafka
