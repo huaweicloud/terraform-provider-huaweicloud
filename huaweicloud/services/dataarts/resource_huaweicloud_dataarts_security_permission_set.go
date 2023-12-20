@@ -23,15 +23,15 @@ import (
 // API: DataArtsStudio DELETE /v1/{project_id}/security/permission-sets/{permission_set_id}
 // API: DataArtsStudio GET /v1/{project_id}/security/permission-sets/{permission_set_id}
 // API: DataArtsStudio PUT /v1/{project_id}/security/permission-sets/{permission_set_id}
-func ResourcePermissionSet() *schema.Resource {
+func ResourceSecurityPermissionSet() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePermissionSetCreate,
-		ReadContext:   resourcePermissionSetRead,
-		UpdateContext: resourcePermissionSetUpdate,
-		DeleteContext: resourcePermissionSetDelete,
+		CreateContext: resourceSecurityPermissionSetCreate,
+		ReadContext:   resourceSecurityPermissionSetRead,
+		UpdateContext: resourceSecurityPermissionSetUpdate,
+		DeleteContext: resourceSecurityPermissionSetDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourcePermissionSetImportState,
+			StateContext: resourceSecurityPermissionSetImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -103,7 +103,7 @@ func ResourcePermissionSet() *schema.Resource {
 	}
 }
 
-func resourcePermissionSetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityPermissionSetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -128,21 +128,21 @@ func resourcePermissionSetCreate(ctx context.Context, d *schema.ResourceData, me
 	createPermissionSetOpt.JSONBody = utils.RemoveNil(buildCreatePermissionSetBodyParams(d))
 	createPermissionSetResp, err := createPermissionSetClient.Request("POST", createPermissionSetPath, &createPermissionSetOpt)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio permissions set: %s", err)
+		return diag.Errorf("error creating DataArts Security permissions set: %s", err)
 	}
 
 	createPermissionSetRespBody, err := utils.FlattenResponse(createPermissionSetResp)
 	if err != nil {
-		return diag.Errorf("error retrieving DataArts Studio permission set: %s", err)
+		return diag.Errorf("error retrieving DataArts Security permission set: %s", err)
 	}
 
 	id, err := jmespath.Search("id", createPermissionSetRespBody)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio permission set: ID is not found in API response")
+		return diag.Errorf("error creating DataArts Security permission set: ID is not found in API response")
 	}
 
 	d.SetId(id.(string))
-	return resourcePermissionSetRead(ctx, d, meta)
+	return resourceSecurityPermissionSetRead(ctx, d, meta)
 }
 
 func buildCreatePermissionSetBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -157,7 +157,7 @@ func buildCreatePermissionSetBodyParams(d *schema.ResourceData) map[string]inter
 	return bodyParams
 }
 
-func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityPermissionSetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	workspaceID := d.Get("workspace_id").(string)
@@ -186,12 +186,12 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 		if hasErrorCode(err, "DLS.3027") {
 			err = golangsdk.ErrDefault404{}
 		}
-		return common.CheckDeletedDiag(d, err, "error retrieving DataArts Studio permission set")
+		return common.CheckDeletedDiag(d, err, "error retrieving DataArts Security permission set")
 	}
 
 	getPermissionSetRespBody, err := utils.FlattenResponse(getPermissionSetResp)
 	if err != nil {
-		return diag.Errorf("error retrieving DataArts Studio permission set: %s", err)
+		return diag.Errorf("error retrieving DataArts Security permission set: %s", err)
 	}
 
 	createAt := utils.PathSearch("create_time", getPermissionSetRespBody, 0).(float64)
@@ -218,7 +218,7 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityPermissionSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 
@@ -245,10 +245,10 @@ func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, me
 	updatePermissionSetOpt.JSONBody = utils.RemoveNil(buildUpdatePermissionSetBodyParams(d))
 	_, err = updatePermissionSetClient.Request("PUT", updatePermissionSetPath, &updatePermissionSetOpt)
 	if err != nil {
-		return diag.Errorf("error updating DataArts Studio permission set: %s", err)
+		return diag.Errorf("error updating DataArts Security permission set: %s", err)
 	}
 
-	return resourcePermissionSetRead(ctx, d, meta)
+	return resourceSecurityPermissionSetRead(ctx, d, meta)
 }
 
 func buildUpdatePermissionSetBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -262,7 +262,7 @@ func buildUpdatePermissionSetBodyParams(d *schema.ResourceData) map[string]inter
 	return bodyParams
 }
 
-func resourcePermissionSetDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSecurityPermissionSetDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 
@@ -288,13 +288,13 @@ func resourcePermissionSetDelete(_ context.Context, d *schema.ResourceData, meta
 
 	_, err = deletePermissionSetClient.Request("DELETE", deletePermissionSetPath, &deletePermissionSetOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DataArts Studio permission set: %s", err)
+		return diag.Errorf("error deleting DataArts Security permission set: %s", err)
 	}
 
 	return nil
 }
 
-func resourcePermissionSetImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+func resourceSecurityPermissionSetImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
