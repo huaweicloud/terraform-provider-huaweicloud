@@ -23,12 +23,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func ResourceServiceApp() *schema.Resource {
+func ResourceDataServiceApp() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceServiceAppCreate,
-		UpdateContext: resourceServiceAppUpdate,
-		ReadContext:   resourceServiceAppRead,
-		DeleteContext: resourceServiceAppDelete,
+		CreateContext: resourceDataServiceAppCreate,
+		UpdateContext: resourceDataServiceAppUpdate,
+		ReadContext:   resourceDataServiceAppRead,
+		DeleteContext: resourceDataServiceAppDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceAppImportState,
 		},
@@ -50,40 +50,40 @@ func ResourceServiceApp() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The type of DLM.`,
+				Description: `The type of DLM engine.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The name of the app.`,
+				Description: `The name of the application.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The description of the app.`,
+				Description: `The description of the application.`,
 			},
 			"app_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `The type of the app.`,
+				Description: `The type of the application.`,
 			},
 			"app_key": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The key of the app.`,
+				Description: `The key of the application.`,
 			},
 			"app_secret": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The secret of the app.`,
+				Description: `The secret of the application.`,
 			},
 		},
 	}
 }
 
-func resourceServiceAppCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDataServiceAppCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -129,7 +129,7 @@ func resourceServiceAppCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(id.(string))
 
-	return resourceServiceAppRead(ctx, d, meta)
+	return resourceDataServiceAppRead(ctx, d, meta)
 }
 
 func buildCreateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -141,7 +141,7 @@ func buildCreateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return bodyParams
 }
 
-func resourceServiceAppRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDataServiceAppRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -197,7 +197,7 @@ func resourceServiceAppRead(_ context.Context, d *schema.ResourceData, meta inte
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceServiceAppUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDataServiceAppUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -239,18 +239,18 @@ func resourceServiceAppUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.Errorf("error updating app: %s", err)
 		}
 	}
-	return resourceServiceAppRead(ctx, d, meta)
+	return resourceDataServiceAppRead(ctx, d, meta)
 }
 
 func buildUpdateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        d.Get("name"),
+		"description": d.Get("description"),
 	}
 	return bodyParams
 }
 
-func resourceServiceAppDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDataServiceAppDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
