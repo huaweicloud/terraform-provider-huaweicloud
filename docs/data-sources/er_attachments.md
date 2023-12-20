@@ -41,6 +41,8 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name used to filter the attachments.
 
+* `resource_id` - (Optional, String) Specifies the associated resource ID used to filter the attachments.
+
 * `status` - (Optional, String) Specifies the status used to filter the attachments.
   The valid values are as follows:
   + **available**

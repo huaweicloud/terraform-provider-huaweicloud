@@ -373,3 +373,72 @@ output "not_found_validation_pass" {
 }
 `, testAccAttachmentsDataSource_base(name))
 }
+
+func TestAccAttachmentsDataSource_filterByResourceId(t *testing.T) {
+	var (
+		dName = "data.huaweicloud_er_attachments.filter_by_resource_id"
+		name  = acceptance.RandomAccResourceName()
+
+		dc = acceptance.InitDataSourceCheck(dName)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckER(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAttachmentsDataSource_filterByResourceId(name),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckOutput("is_resource_id_filter_useful", "true"),
+					resource.TestCheckOutput("not_found_validation_pass", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAttachmentsDataSource_filterByResourceId(name string) string {
+	randUUID, _ := uuid.GenerateUUID()
+
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_er_attachments" "filter_by_resource_id" {
+  // Since a specified resource ID is used, there is no dependency relationship with resource attachment, and the
+  // dependency needs to be manually set.
+  depends_on = [
+    huaweicloud_er_vpc_attachment.test,
+  ]
+
+  instance_id = huaweicloud_er_instance.test.id
+  resource_id = huaweicloud_vpc.test.id
+}
+
+data "huaweicloud_er_attachments" "not_found" {
+  // Since a specified resource ID is used, there is no dependency relationship with resource attachment, and the
+  // dependency needs to be manually set.
+  depends_on = [
+    huaweicloud_er_vpc_attachment.test,
+  ]
+
+  instance_id = huaweicloud_er_instance.test.id
+  resource_id = "%[2]s"
+}
+
+locals {
+  filter_result = [for v in data.huaweicloud_er_attachments.filter_by_resource_id.attachments[*].id : v == huaweicloud_er_vpc_attachment.test.id]
+}
+
+output "is_resource_id_filter_useful" {
+  value = alltrue(local.filter_result) && length(local.filter_result) > 0
+}
+
+output "not_found_validation_pass" {
+  value = length(data.huaweicloud_er_attachments.not_found.attachments) == 0
+}
+`, testAccAttachmentsDataSource_base(name), randUUID)
+}
