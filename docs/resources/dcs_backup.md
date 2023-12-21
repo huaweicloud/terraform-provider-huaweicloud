@@ -40,7 +40,9 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID in format of `<instance_id>/<backup_id>`.
+
+* `backup_id` - Indicates the ID of the DCS instance backup.
 
 * `name` - Indicates the backup name.
 
@@ -75,7 +77,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The DCS backup can be imported using the DCS instance ID and backup ID separated by a slash, e.g.:
+The DCS backup can be imported using the `instance_id` and `backup_id` separated by a slash, e.g.:
 
 ```bash
 $ terraform import huaweicloud_dcs_backup.test <instance_id>/<backup_id>

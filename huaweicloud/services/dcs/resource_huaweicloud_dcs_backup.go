@@ -65,6 +65,11 @@ func ResourceDcsBackup() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the format of the DCS instance backup.`,
 			},
+			"backup_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Indicates the ID of the DCS instance backup.",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -76,10 +81,9 @@ func ResourceDcsBackup() *schema.Resource {
 				Description: `Indicates the size of the backup file (byte).`,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Description: `Indicates the backup type. Valid value:
-`,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the backup type.`,
 			},
 			"begin_time": {
 				Type:        schema.TypeString,
@@ -154,7 +158,7 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	id, err := jmespath.Search("backup_id", createBackupRespBody)
 	if err != nil {
-		return diag.Errorf("error creating DcsBackup: backup_id is not found in API response")
+		return diag.Errorf("error creating DCS backup: backup_id is not found in API response")
 	}
 
 	d.SetId(instanceId + "/" + id.(string))
@@ -192,7 +196,6 @@ func resourceDcsBackupRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	// getBackup: Query DCS backup
 	var (
-		getBackupHttpUrl = "v2/{project_id}/instances/{instance_id}/backups"
 		getBackupProduct = "dcs"
 	)
 	getBackupClient, err := cfg.NewServiceClient(getBackupProduct, region)
@@ -204,68 +207,37 @@ func resourceDcsBackupRead(_ context.Context, d *schema.ResourceData, meta inter
 	if len(parts) != 2 {
 		return diag.Errorf("invalid id format, must be <instance_id>/<backup_id>")
 	}
+
 	instanceID := parts[0]
-	backupId := parts[1]
-
-	getBackupPath := getBackupClient.Endpoint + getBackupHttpUrl
-	getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", getBackupClient.ProjectID)
-	getBackupPath = strings.ReplaceAll(getBackupPath, "{instance_id}", instanceID)
-
-	getDdmSchemasOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+	backupID := parts[1]
+	backup, err := getDcsBackup(instanceID, backupID, getBackupClient)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if backup == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+	status := utils.PathSearch("status", backup, "")
+	if status == "deleted" {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	var currentTotal int
-	getBackupPath += buildGetDcsBackupQueryParams(currentTotal)
-
-	for {
-		getBackupResp, err := getBackupClient.Request("GET", getBackupPath, &getDdmSchemasOpt)
-		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving DcsBackup")
-		}
-		getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		backups := utils.PathSearch("backup_record_response", getBackupRespBody, make([]interface{}, 0)).([]interface{})
-		total := utils.PathSearch("total_num", getBackupRespBody, 0)
-		for _, backup := range backups {
-			id := utils.PathSearch("backup_id", backup, "")
-			if id != backupId {
-				continue
-			}
-			status := utils.PathSearch("status", backup, "")
-			if status == "deleted" {
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
-			}
-			mErr = multierror.Append(
-				mErr,
-				d.Set("region", region),
-				d.Set("name", utils.PathSearch("backup_name", backup, nil)),
-				d.Set("instance_id", utils.PathSearch("instance_id", backup, nil)),
-				d.Set("size", utils.PathSearch("size", backup, nil)),
-				d.Set("type", utils.PathSearch("backup_type", backup, nil)),
-				d.Set("begin_time", utils.PathSearch("created_at", backup, nil)),
-				d.Set("end_time", utils.PathSearch("updated_at", backup, nil)),
-				d.Set("status", utils.PathSearch("status", backup, nil)),
-				d.Set("description", utils.PathSearch("remark", backup, nil)),
-				d.Set("is_support_restore", utils.PathSearch("is_support_restore",
-					backup, nil)),
-				d.Set("backup_format", utils.PathSearch("backup_format", backup, nil)),
-			)
-			return diag.FromErr(mErr.ErrorOrNil())
-		}
-		currentTotal += len(backups)
-		if currentTotal == total {
-			break
-		}
-		getBackupPath = updatePathOffset(getBackupPath, currentTotal)
-	}
-
-	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("backup_id", utils.PathSearch("backup_id", backup, nil)),
+		d.Set("name", utils.PathSearch("backup_name", backup, nil)),
+		d.Set("instance_id", utils.PathSearch("instance_id", backup, nil)),
+		d.Set("size", utils.PathSearch("size", backup, nil)),
+		d.Set("type", utils.PathSearch("backup_type", backup, nil)),
+		d.Set("begin_time", utils.PathSearch("created_at", backup, nil)),
+		d.Set("end_time", utils.PathSearch("updated_at", backup, nil)),
+		d.Set("status", utils.PathSearch("status", backup, nil)),
+		d.Set("description", utils.PathSearch("remark", backup, nil)),
+		d.Set("is_support_restore", utils.PathSearch("is_support_restore", backup, nil)),
+		d.Set("backup_format", utils.PathSearch("backup_format", backup, nil)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -287,12 +259,11 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("invalid id format, must be <instance_id>/<backup_id>")
 	}
 	instanceID := parts[0]
-	backupId := parts[1]
-
+	backupID := parts[1]
 	deleteBackupPath := deleteBackupClient.Endpoint + deleteBackupHttpUrl
 	deleteBackupPath = strings.ReplaceAll(deleteBackupPath, "{project_id}", deleteBackupClient.ProjectID)
 	deleteBackupPath = strings.ReplaceAll(deleteBackupPath, "{instance_id}", instanceID)
-	deleteBackupPath = strings.ReplaceAll(deleteBackupPath, "{backup_id}", backupId)
+	deleteBackupPath = strings.ReplaceAll(deleteBackupPath, "{backup_id}", backupID)
 
 	deleteBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -319,7 +290,7 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"waiting", "succeed"},
 		Target:       []string{"deleted"},
-		Refresh:      dcsBackupStatusRefreshFunc(instanceID, backupId, deleteBackupClient),
+		Refresh:      dcsBackupStatusRefreshFunc(instanceID, backupID, deleteBackupClient),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -327,7 +298,7 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for backup (%s) to be deleted: %s", backupId, err)
+		return diag.Errorf("error waiting for backup (%s) to be deleted: %s", backupID, err)
 	}
 
 	return nil
@@ -335,60 +306,58 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 func dcsBackupStatusRefreshFunc(instanceId, backupId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		// getBackup: Query DCS backup
-		var (
-			getBackupHttpUrl = "v2/{project_id}/instances/{instance_id}/backups"
-		)
-
-		getBackupPath := client.Endpoint + getBackupHttpUrl
-		getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", client.ProjectID)
-		getBackupPath = strings.ReplaceAll(getBackupPath, "{instance_id}", instanceId)
-
-		getDdmSchemasOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+		backup, err := getDcsBackup(instanceId, backupId, client)
+		if err != nil {
+			return nil, "", err
 		}
-
-		var currentTotal int
-		getBackupPath += buildGetDcsBackupQueryParams(currentTotal)
-
-		for {
-			getBackupResp, err := client.Request("GET", getBackupPath, &getDdmSchemasOpt)
-			if err != nil {
-				return nil, "", fmt.Errorf("error retrieving DcsBackups")
-			}
-			getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
-			if err != nil {
-				return nil, "", err
-			}
-			backups := utils.PathSearch("backup_record_response", getBackupRespBody,
-				make([]interface{}, 0)).([]interface{})
-			total := utils.PathSearch("total_num", getBackupRespBody, 0)
-			for _, backup := range backups {
-				id := utils.PathSearch("backup_id", backup, "")
-				if backupId != id {
-					continue
-				}
-				status := utils.PathSearch("status", backup, "")
-				return backup, status.(string), nil
-			}
-			currentTotal += len(backups)
-			if currentTotal == total {
-				break
-			}
-			getBackupPath = updatePathOffset(getBackupPath, currentTotal)
-		}
-		return nil, "", fmt.Errorf("error get DCS backup by backup_id (%s)", backupId)
+		status := utils.PathSearch("status", backup, "")
+		return backup, status.(string), nil
 	}
+}
+
+func getDcsBackup(instanceID, backupID string, client *golangsdk.ServiceClient) (interface{}, error) {
+	// getBackup: Query DCS backup
+	var (
+		getBackupHttpUrl = "v2/{project_id}/instances/{instance_id}/backups"
+	)
+
+	getBackupBasePath := client.Endpoint + getBackupHttpUrl
+	getBackupBasePath = strings.ReplaceAll(getBackupBasePath, "{project_id}", client.ProjectID)
+	getBackupBasePath = strings.ReplaceAll(getBackupBasePath, "{instance_id}", instanceID)
+
+	getDdmSchemasOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	var currentTotal int
+	var getBackupPath string
+
+	for {
+		getBackupPath = getBackupBasePath + buildGetDcsBackupQueryParams(currentTotal)
+		getBackupResp, err := client.Request("GET", getBackupPath, &getDdmSchemasOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving DCS backups: %s", err)
+		}
+		getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
+		if err != nil {
+			return "", err
+		}
+		backups := utils.PathSearch("backup_record_response", getBackupRespBody, make([]interface{}, 0)).([]interface{})
+		total := utils.PathSearch("total_num", getBackupRespBody, 0)
+		for _, backup := range backups {
+			id := utils.PathSearch("backup_id", backup, "")
+			if backupID == id {
+				return backup, nil
+			}
+		}
+		currentTotal += len(backups)
+		if currentTotal >= int(total.(float64)) {
+			break
+		}
+	}
+	return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", backupID)
 }
 
 func buildGetDcsBackupQueryParams(offset int) string {
 	return fmt.Sprintf("?limit=10&offset=%v", offset)
-}
-
-func updatePathOffset(path string, offset int) string {
-	index := strings.Index(path, "offset")
-	return fmt.Sprintf("%soffset=%v", path[:index], offset)
 }
