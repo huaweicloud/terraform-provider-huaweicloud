@@ -29,6 +29,18 @@ type ListHostProtectHistoryInfoRequest struct {
 
 	// offset
 	Offset int32 `json:"offset"`
+
+	// 服务器名称
+	HostName *string `json:"host_name,omitempty"`
+
+	// 服务器ip
+	HostIp *string `json:"host_ip,omitempty"`
+
+	// 防护文件
+	FilePath *string `json:"file_path,omitempty"`
+
+	// 文件操作类型   - add: 新增   - delete: 删除   - modify: 修改内容   - attribute: 修改属性
+	FileOperation *string `json:"file_operation,omitempty"`
 }
 
 func (o ListHostProtectHistoryInfoRequest) String() string {

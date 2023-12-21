@@ -12,10 +12,16 @@ import (
 // Thumbnail 截图参数
 type Thumbnail struct {
 
-	// 截图类型。  取值如下： - time：每次进行截图的间隔时间。 - dots: 按照指定的时间点截图。
+	// 截图类型。  取值如下： - time：每次进行截图的间隔时间。 - dots: 按照指定的时间点截图。 - quantity： 按照指定张数，根据视频时长等分视频截图。
 	Type ThumbnailType `json:"type"`
 
-	// **type**取值为time时必填。根据时间间隔采样时的时间间隔值。  取值范围：[1,12]之间的整数。  单位：秒。
+	// **type**取值为quantity时必填。 按照指定张数，根据视频时长等分视频截图。 取值范围：[1,10]之间的整数。
+	Quantity *int32 `json:"quantity,omitempty"`
+
+	// **type**取值为quantity时选填。 按照指定时间间隔取指定张数截图。 取值范围：[0,2147483647]之间的整数。
+	QuantityTime *int32 `json:"quantity_time,omitempty"`
+
+	// 根据时间间隔采样时的时间间隔值。单位：秒。 **type**取值为time时。 默认值：12 取值范围：[0,100]之间的整数。
 	Time *int32 `json:"time,omitempty"`
 
 	// **type**取值为dots时必填。指定时间截图时的时间点数组。
@@ -48,8 +54,9 @@ type ThumbnailType struct {
 }
 
 type ThumbnailTypeEnum struct {
-	TIME ThumbnailType
-	DOTS ThumbnailType
+	TIME     ThumbnailType
+	DOTS     ThumbnailType
+	QUANTITY ThumbnailType
 }
 
 func GetThumbnailTypeEnum() ThumbnailTypeEnum {
@@ -59,6 +66,9 @@ func GetThumbnailTypeEnum() ThumbnailTypeEnum {
 		},
 		DOTS: ThumbnailType{
 			value: "dots",
+		},
+		QUANTITY: ThumbnailType{
+			value: "quantity",
 		},
 	}
 }

@@ -15,7 +15,7 @@ type SourceCdnReq struct {
 	// CDN鉴权秘钥，如果CDN需要进行鉴权，则此选项为必选。  无需授权：无需配置此项。 Qiniu：无需配置此项。 Aliyun：根据authentication_type指定的鉴权方式配置此项。 KingsoftCloud：无需配置此项。
 	AuthenticationKey *string `json:"authentication_key,omitempty"`
 
-	// 鉴权类型: NONE, QINIU_PRIVATE_AUTHENTICATION, ALIYUN_OSS_A, ALIYUN_OSS_B, ALIYUN_OSS_C, KSYUN_PRIVATE_AUTHENTICATION, AZURE_SAS_TOKEN
+	// 鉴权类型: NONE, QINIU_PRIVATE_AUTHENTICATION, ALIYUN_OSS_A, ALIYUN_OSS_B, ALIYUN_OSS_C, KSYUN_PRIVATE_AUTHENTICATION, AZURE_SAS_TOKEN, TENCENT_COS_A, TENCENT_COS_B, TENCENT_COS_C, TENCENT_COS_D
 	AuthenticationType SourceCdnReqAuthenticationType `json:"authentication_type"`
 
 	//   从指定域名获取对象。
@@ -45,6 +45,10 @@ type SourceCdnReqAuthenticationTypeEnum struct {
 	ALIYUN_OSS_B                 SourceCdnReqAuthenticationType
 	ALIYUN_OSS_C                 SourceCdnReqAuthenticationType
 	KSYUN_PRIVATE_AUTHENTICATION SourceCdnReqAuthenticationType
+	TENCENT_COS_A                SourceCdnReqAuthenticationType
+	TENCENT_COS_B                SourceCdnReqAuthenticationType
+	TENCENT_COS_C                SourceCdnReqAuthenticationType
+	TENCENT_COS_D                SourceCdnReqAuthenticationType
 }
 
 func GetSourceCdnReqAuthenticationTypeEnum() SourceCdnReqAuthenticationTypeEnum {
@@ -66,6 +70,18 @@ func GetSourceCdnReqAuthenticationTypeEnum() SourceCdnReqAuthenticationTypeEnum 
 		},
 		KSYUN_PRIVATE_AUTHENTICATION: SourceCdnReqAuthenticationType{
 			value: "KSYUN_PRIVATE_AUTHENTICATION",
+		},
+		TENCENT_COS_A: SourceCdnReqAuthenticationType{
+			value: "TENCENT_COS_A",
+		},
+		TENCENT_COS_B: SourceCdnReqAuthenticationType{
+			value: "TENCENT_COS_B",
+		},
+		TENCENT_COS_C: SourceCdnReqAuthenticationType{
+			value: "TENCENT_COS_C",
+		},
+		TENCENT_COS_D: SourceCdnReqAuthenticationType{
+			value: "TENCENT_COS_D",
 		},
 	}
 }

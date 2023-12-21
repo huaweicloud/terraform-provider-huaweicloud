@@ -8,8 +8,8 @@ import (
 
 // ImportPrivateKeyResponse Response Object
 type ImportPrivateKeyResponse struct {
-	Keypair        *KeypairBean `json:"keypair,omitempty"`
-	HttpStatusCode int          `json:"-"`
+	Keypair        *ImportPrivateKeyAction `json:"keypair,omitempty"`
+	HttpStatusCode int                     `json:"-"`
 }
 
 func (o ImportPrivateKeyResponse) String() string {

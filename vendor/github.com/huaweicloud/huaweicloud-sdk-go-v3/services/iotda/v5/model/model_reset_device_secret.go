@@ -13,6 +13,9 @@ type ResetDeviceSecret struct {
 
 	// **参数说明**：是否强制断开设备的连接，当前仅限长连接。默认值false。
 	ForceDisconnect *bool `json:"force_disconnect,omitempty"`
+
+	// **参数说明**：重置设备秘钥的的类型。 **取值范围**： - PRIMARY：重置主秘钥。设备秘钥鉴权优先使用的密钥，当设备接入物联网平台时，平台将优先使用主密钥进行校验。 - SECONDARY：重置辅秘钥。设备的备用密钥，当主密钥校验不通过时，会启用辅密钥校验，辅密钥与主密钥有相同的效力；辅密钥对coap协议接入的设备不生效。
+	SecretType *string `json:"secret_type,omitempty"`
 }
 
 func (o ResetDeviceSecret) String() string {

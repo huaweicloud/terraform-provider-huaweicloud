@@ -152,6 +152,8 @@ var (
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
+	// The absolute chart path of the CCE
+	HW_CCE_CHART_PATH = os.Getenv("HW_CCE_CHART_PATH")
 	// The cluster name of the CCE
 	HW_CCE_CLUSTER_NAME = os.Getenv("HW_CCE_CLUSTER_NAME")
 	// The cluster ID of the CCE
@@ -801,6 +803,14 @@ func TestAccPreCheckWorkloadName(t *testing.T) {
 func TestAccPreCheckCceClusterId(t *testing.T) {
 	if HW_CCE_CLUSTER_ID == "" {
 		t.Skip("HW_CCE_CLUSTER_ID must be set for SWR image trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCceChartPath(t *testing.T) {
+	// HW_CCE_CHART_PATH is the absolute path of the chart package
+	if HW_CCE_CHART_PATH == "" {
+		t.Skip("HW_CCE_CHART_PATH must be set for CCE chart acceptance tests")
 	}
 }
 

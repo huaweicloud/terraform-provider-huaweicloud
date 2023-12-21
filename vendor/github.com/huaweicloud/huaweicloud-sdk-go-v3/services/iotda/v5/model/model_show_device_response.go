@@ -42,7 +42,7 @@ type ShowDeviceResponse struct {
 	// 设备的sdk信息。
 	DeviceSdkVersion *string `json:"device_sdk_version,omitempty"`
 
-	AuthInfo *AuthInfo `json:"auth_info,omitempty"`
+	AuthInfo *AuthInfoRes `json:"auth_info,omitempty"`
 
 	// 设备关联的产品ID，用于唯一标识一个产品模型。
 	ProductId *string `json:"product_id,omitempty"`

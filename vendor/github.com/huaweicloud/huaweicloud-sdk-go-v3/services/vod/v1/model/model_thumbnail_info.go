@@ -14,6 +14,9 @@ type ThumbnailInfo struct {
 
 	Dots *[]ThumbnailRsp `json:"dots,omitempty"`
 
+	// 视频截图信息，截图类型为数量。
+	Quantity *[]ThumbnailRsp `json:"quantity,omitempty"`
+
 	// 执行情况描述。
 	ExecDesc *string `json:"exec_desc,omitempty"`
 

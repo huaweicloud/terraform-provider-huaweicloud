@@ -23,6 +23,12 @@ type ResizeEngineInstanceReq struct {
 
 	// 实例绑定的弹性IP地址的ID。  以英文逗号隔开多个弹性IP地址的ID。  当oper_type类型是horizontal时，该参数必填。
 	PublicipId *string `json:"publicip_id,omitempty"`
+
+	// 指定的内网IP地址，仅支持指定IPv4。  指定的IP数量只能小于等于新增节点数量。  当指定IP小于节点数量时，未指定的节点随机分配内网IP地址。
+	TenantIps *[]string `json:"tenant_ips,omitempty"`
+
+	// 实例扩容时新节点使用备用子网的id  当实例扩容使用备用子网，则传入此值  需要联系客服添加白名单才能传入此值
+	SecondTenantSubnetId *string `json:"second_tenant_subnet_id,omitempty"`
 }
 
 func (o ResizeEngineInstanceReq) String() string {

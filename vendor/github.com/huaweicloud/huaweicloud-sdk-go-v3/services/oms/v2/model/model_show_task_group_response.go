@@ -85,7 +85,7 @@ type ShowTaskGroupResponse struct {
 	// 迁移任务组包含的对象总数量
 	TotalNum *int64 `json:"total_num,omitempty"`
 
-	// 任务创建的对象总数量
+	// 已完成任务创建的对象总数量
 	CreateCompleteNum *int64 `json:"create_complete_num,omitempty"`
 
 	// 成功的对象数量

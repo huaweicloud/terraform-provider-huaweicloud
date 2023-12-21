@@ -25,6 +25,12 @@ type ResizeInstanceReq struct {
 
 	// 实例绑定的弹性IP地址的ID。 以英文逗号隔开多个弹性IP地址的ID。 如果开启了公网再进行扩容，需要填写此参数。
 	PublicipId *string `json:"publicip_id,omitempty"`
+
+	// 创建节点可以手动指定实例节点的内网IP地址，仅支持指定IPv4地址。  指定内网地址数量必须小于等于购买的节点数量。  当小于购买的节点数量时,未指定的节点则随机分配。
+	TenantIps *[]string `json:"tenant_ips,omitempty"`
+
+	// 实例扩容时新节点使用备用子网的id。  当实例扩容使用备用子网，则传入此值。  需要联系客服添加白名单才能传入此值。
+	SecondTenantSubnetId *string `json:"second_tenant_subnet_id,omitempty"`
 }
 
 func (o ResizeInstanceReq) String() string {

@@ -9,16 +9,16 @@ import (
 // Urls 具体url信息。
 type Urls struct {
 
-	// urlid
+	// url id。
 	Id *int64 `json:"id,omitempty"`
 
 	// url具体值。
 	Url *string `json:"url,omitempty"`
 
-	// url状态。
+	// url状态，状态类型：processing：处理中；succeed：完成；failed：失败；waiting：等待；refreshing：刷新中; preheating : 预热中。
 	Status *string `json:"status,omitempty"`
 
-	// 任务类型。
+	// 任务类型，REFRESH：刷新任务；PREHEATING：预热任务。
 	Type *string `json:"type,omitempty"`
 
 	// 任务id。
@@ -30,7 +30,7 @@ type Urls struct {
 	// 创建时间戳（毫秒）。
 	CreateTime *int64 `json:"create_time,omitempty"`
 
-	// 文件类型，目录还是文件。
+	// 文件类型，directory：目录，或file：文件。
 	FileType *string `json:"file_type,omitempty"`
 
 	// 目录刷新方式，all：刷新目录下全部资源；detect_modify_refresh：刷新目录下已变更的资源，默认值为all。

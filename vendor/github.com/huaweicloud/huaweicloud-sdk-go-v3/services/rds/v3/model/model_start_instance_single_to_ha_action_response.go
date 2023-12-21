@@ -9,8 +9,11 @@ import (
 // StartInstanceSingleToHaActionResponse Response Object
 type StartInstanceSingleToHaActionResponse struct {
 
-	// 任务ID。
-	JobId          *string `json:"job_id,omitempty"`
+	// 单机转主备的任务id。 仅按需实例单机转主备时会返回该参数。
+	JobId *string `json:"job_id,omitempty"`
+
+	// 订单号，包年包月单机转主备时返回该参数。
+	OrderId        *string `json:"order_id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

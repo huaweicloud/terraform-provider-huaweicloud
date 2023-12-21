@@ -22,6 +22,7 @@ package internal
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/impl"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/request"
@@ -40,6 +41,26 @@ const (
 	KeystoneListAuthDomainsUri = "/v3/auth/domains"
 	IamEndpointEnv             = "HUAWEICLOUD_SDK_IAM_ENDPOINT"
 	CreateTokenWithIdTokenUri  = "/v3.0/OS-AUTH/id-token/tokens"
+
+	NoDomainIdFound = `no domain id found, please select one of the following solutions:
+  1. Manually specify domainId when initializing the credentials,
+     credentials := global.NewCredentialsBuilder().
+				WithAk(ak).
+				WithSk(sk).
+				WithDomainId(domainId).
+				Build()
+  2. Use the domain account to grant IAM read permission to the current account
+  3. Replace the ak/sk of the IAM account with the ak/sk of the domain account`
+
+	NoProjectIdFound = `no project id found, please select one of the following solutions:
+  1. Manually specify project_id when initializing the credentials,
+     credentials := basic.NewCredentialsBuilder().
+				WithAk(ak).
+				WithSk(sk).
+				WithProjectId(projectId).
+				Build()
+  2. Use the domain account to grant IAM read permission to the current account
+  3. Replace the ak/sk of the IAM account with the ak/sk of the domain account`
 )
 
 type KeystoneListProjectsResponse struct {
@@ -89,14 +110,19 @@ func KeystoneListProjects(client *impl.DefaultHttpClient, req *request.DefaultHt
 		return "", err
 	}
 
-	if len(*keystoneListProjectResponse.Projects) == 1 {
-		return (*keystoneListProjectResponse.Projects)[0].Id, nil
-	} else if len(*keystoneListProjectResponse.Projects) > 1 {
-		return "", errors.New("multiple project ids have been returned, " +
-			"please specify one when initializing the credentials")
+	projects := *keystoneListProjectResponse.Projects
+	if len(projects) == 1 {
+		return (projects)[0].Id, nil
+	} else if len(projects) > 1 {
+		projectIds := make([]string, 0, len(projects))
+		for _, project := range projects {
+			projectIds = append(projectIds, project.Id)
+		}
+
+		return "", errors.New(fmt.Sprintf("multiple project ids found: [%s], please specify one when initializing the credentials", strings.Join(projectIds, ",")))
 	}
 
-	return "", errors.New("No project id found, please specify project_id manually when initializing the credentials")
+	return "", errors.New(NoProjectIdFound)
 }
 
 type KeystoneListAuthDomainsResponse struct {
@@ -139,10 +165,7 @@ func KeystoneListAuthDomains(client *impl.DefaultHttpClient, req *request.Defaul
 		return (*keystoneListAuthDomainsResponse.Domains)[0].Id, nil
 	}
 
-	return "", errors.New("No domain id found, please select one of the following solutions:\n\t" +
-		"1. Manually specify domain_id when initializing the credentials.\n\t" +
-		"2. Use the domain account to grant the current account permissions of the IAM service.\n\t" +
-		"3. Use AK/SK of the domain account.")
+	return "", errors.New(NoDomainIdFound)
 }
 
 func GetResponseBody(resp *response.DefaultHttpResponse) ([]byte, error) {

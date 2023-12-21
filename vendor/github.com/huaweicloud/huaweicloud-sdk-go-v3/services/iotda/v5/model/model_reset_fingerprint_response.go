@@ -13,8 +13,11 @@ type ResetFingerprintResponse struct {
 	DeviceId *string `json:"device_id,omitempty"`
 
 	// 设备指纹。
-	Fingerprint    *string `json:"fingerprint,omitempty"`
-	HttpStatusCode int     `json:"-"`
+	Fingerprint *string `json:"fingerprint,omitempty"`
+
+	// **参数说明**：重置设备证书指纹的的类型。 **取值范围**： - PRIMARY：重置主指纹。 - SECONDARY：重置辅指纹。
+	FingerprintType *string `json:"fingerprint_type,omitempty"`
+	HttpStatusCode  int     `json:"-"`
 }
 
 func (o ResetFingerprintResponse) String() string {

@@ -14,7 +14,7 @@ type TasksObject struct {
 	// 任务id。
 	Id *string `json:"id,omitempty"`
 
-	// 任务的类型， 其值可以为refresh或preheating。
+	// 任务的类型， 其值可以为refresh：刷新任务，或preheating：预热任务。
 	TaskType *TasksObjectTaskType `json:"task_type,omitempty"`
 
 	// 刷新结果。task_done表示刷新成功  ，task_inprocess表示刷新中。

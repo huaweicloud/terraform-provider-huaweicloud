@@ -54,6 +54,9 @@ type ListHostStatusRequest struct {
 	// region id
 	Region *string `json:"region,omitempty"`
 
+	// 存在告警事件
+	HasIntrusion *bool `json:"has_intrusion,omitempty"`
+
 	// 策略组ID
 	PolicyGroupId *string `json:"policy_group_id,omitempty"`
 
@@ -80,6 +83,9 @@ type ListHostStatusRequest struct {
 
 	// 资产服务器组
 	ServerGroup *string `json:"server_group,omitempty"`
+
+	// agent是否可升级
+	AgentUpgradable *bool `json:"agent_upgradable,omitempty"`
 
 	// 每页显示个数，默认10
 	Limit *int32 `json:"limit,omitempty"`

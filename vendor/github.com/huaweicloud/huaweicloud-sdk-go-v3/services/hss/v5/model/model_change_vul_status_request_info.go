@@ -26,6 +26,12 @@ type ChangeVulStatusRequestInfo struct {
 
 	// 主机维度漏洞列表
 	HostDataList *[]HostVulOperateInfo `json:"host_data_list,omitempty"`
+
+	// 本次漏洞处理的备份信息id，若不传该参数，则不进行备份
+	BackupInfoId *string `json:"backup_info_id,omitempty"`
+
+	// 自定义备份主机使用的存储库及备份名称；不在该列表中的主机备份时系统会自动选取剩余空间最大的存储库，并自动生成备份名称
+	CustomBackupHosts *[]ChangeVulStatusRequestInfoCustomBackupHosts `json:"custom_backup_hosts,omitempty"`
 }
 
 func (o ChangeVulStatusRequestInfo) String() string {

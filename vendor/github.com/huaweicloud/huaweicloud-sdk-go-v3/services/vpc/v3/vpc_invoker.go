@@ -5,6 +5,18 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
 )
 
+type AddSecurityGroupsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddSecurityGroupsInvoker) Invoke() (*model.AddSecurityGroupsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddSecurityGroupsResponse), nil
+	}
+}
+
 type AddSourcesToTrafficMirrorSessionInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -266,6 +278,18 @@ func (i *MigrateSubNetworkInterfaceInvoker) Invoke() (*model.MigrateSubNetworkIn
 		return nil, err
 	} else {
 		return result.(*model.MigrateSubNetworkInterfaceResponse), nil
+	}
+}
+
+type RemoveSecurityGroupsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RemoveSecurityGroupsInvoker) Invoke() (*model.RemoveSecurityGroupsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RemoveSecurityGroupsResponse), nil
 	}
 }
 

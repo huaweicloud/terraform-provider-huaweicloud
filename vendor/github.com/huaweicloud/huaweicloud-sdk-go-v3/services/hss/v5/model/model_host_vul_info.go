@@ -29,7 +29,7 @@ type HostVulInfo struct {
 	// 服务器上受该漏洞影响的软件列表
 	AppList *[]HostVulInfoAppList `json:"app_list,omitempty"`
 
-	// 危险程度   - Critical : 致命   - High : 高危   - Medium : 中危   - Low : 低危
+	// 危险程度   - Critical : 漏洞cvss评分大于等于9；对应控制台页面的高危   - High : 漏洞cvss评分大于等于7，小于9；对应控制台页面的中危   - Medium : 漏洞cvss评分大于等于4，小于7；对应控制台页面的中危   - Low : 漏洞cvss评分小于4；对应控制台页面的低危
 	SeverityLevel *string `json:"severity_level,omitempty"`
 
 	// 解决方案
@@ -58,6 +58,21 @@ type HostVulInfo struct {
 
 	// 首次扫描时间
 	FirstScanTime *int64 `json:"first_scan_time,omitempty"`
+
+	// 软件名称
+	AppName *string `json:"app_name,omitempty"`
+
+	// 软件版本
+	AppVersion *string `json:"app_version,omitempty"`
+
+	// 软件路径
+	AppPath *string `json:"app_path,omitempty"`
+
+	// 主机配额
+	Version *string `json:"version,omitempty"`
+
+	// 是否可以回滚到修复漏洞时创建的备份
+	SupportRestore *bool `json:"support_restore,omitempty"`
 }
 
 func (o HostVulInfo) String() string {

@@ -13,6 +13,9 @@ type ResetFingerprint struct {
 
 	// **参数说明**：是否强制断开设备的连接，当前仅限长连接。默认值false。
 	ForceDisconnect *bool `json:"force_disconnect,omitempty"`
+
+	// **参数说明**：重置设备证书指纹的的类型。 **取值范围**： - PRIMARY：重置主指纹。设备证书鉴权优先使用的指纹，当设备接入物联网平台时，平台将优先使用主指纹进行校验。 - SECONDARY：重置辅指纹。设备的备用指纹，当主指纹校验不通过时，会启用辅指纹校验，辅指纹与主指纹有相同的效力。
+	FingerprintType *string `json:"fingerprint_type,omitempty"`
 }
 
 func (o ResetFingerprint) String() string {

@@ -9,7 +9,7 @@ import (
 type GroupInfoSimple struct {
 
 	// 创建时间。
-	CreatedAt *int32 `json:"createdAt,omitempty"`
+	CreatedAt *int64 `json:"createdAt,omitempty"`
 
 	// 消费组ID。
 	GroupId *string `json:"group_id,omitempty"`

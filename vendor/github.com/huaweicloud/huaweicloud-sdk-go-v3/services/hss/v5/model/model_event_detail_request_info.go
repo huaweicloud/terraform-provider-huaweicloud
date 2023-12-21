@@ -38,6 +38,12 @@ type EventDetailRequestInfo struct {
 
 	// 登录用户名
 	LoginUserName *string `json:"login_user_name,omitempty"`
+
+	// 容器ID
+	ContainerId *string `json:"container_id,omitempty"`
+
+	// 容器名称
+	ContainerName *string `json:"container_name,omitempty"`
 }
 
 func (o EventDetailRequestInfo) String() string {

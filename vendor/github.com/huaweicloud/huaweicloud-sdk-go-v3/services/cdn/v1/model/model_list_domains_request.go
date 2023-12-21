@@ -24,10 +24,10 @@ type ListDomainsRequest struct {
 	// 华为云CDN提供的加速服务范围，包含： - mainland_china 中国大陆 - outside_mainland_china 中国大陆境外 - global 全球。
 	ServiceArea *ListDomainsRequestServiceArea `json:"service_area,omitempty"`
 
-	// 每页加速域名的数量，取值范围1-10000，不设值时默认值为30。
+	// 每页加速域名的数量，取值范围1-10000，默认值为30。
 	PageSize *int32 `json:"page_size,omitempty"`
 
-	// 查询的页码，即：从哪一页开始查询。取值范围1-65535，不设值时默认值为1。
+	// 查询的页码，即：从哪一页开始查询，取值范围1-65535，默认值为1。
 	PageNumber *int32 `json:"page_number,omitempty"`
 
 	// 展示标签标识 true：不展示 false：展示。

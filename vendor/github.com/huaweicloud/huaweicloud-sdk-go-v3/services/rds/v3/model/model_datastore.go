@@ -17,7 +17,7 @@ type Datastore struct {
 	// 数据库版本。 - MySQL引擎支持5.6、5.7、8.0版本。取值示例：5.7。具有相应权限的用户才可使用8.0，您可联系华为云客服人员申请。 - PostgreSQL引擎支持9.5、9.6、10、11版本。取值示例：9.6。 - Microsoft SQL Server：仅支持2017 企业版、2017 标准版、2017 web版、2014 标准版、2014 企业版、2016 标准版、2016 企业版、2012 企业版、2012 标准版、2012 web版、2008 R2 企业版、2008 R2 web版、2014 web版、2016 web版。取值示例2014_SE。 例如：2017标准版可填写2017_SE，2017企业版可填写2017_EE，2017web版可以填写2017_WEB
 	Version string `json:"version"`
 
-	// 数据库完整版本号。仅在数据库引擎是”PostgreSQL”时返回。
+	// 数据库完整版本号。仅在数据库引擎是”MySQL”和”PostgreSQL”时返回。
 	CompleteVersion *string `json:"complete_version,omitempty"`
 }
 

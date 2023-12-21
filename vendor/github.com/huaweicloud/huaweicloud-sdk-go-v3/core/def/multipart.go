@@ -20,12 +20,14 @@
 package def
 
 import (
+	"errors"
 	"fmt"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
 	"io"
 	"mime/multipart"
 	"net/textproto"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -64,9 +66,14 @@ func (f FilePart) Write(w *multipart.Writer, name string) error {
 		h = make(textproto.MIMEHeader)
 	}
 
+	filename := filepath.Base(f.Content.Name())
+	if filename == "" {
+		return errors.New("failed to obtain filename from: " + f.Content.Name())
+	}
+
 	h.Set("Content-Disposition",
 		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
-			escapeQuotes(name), escapeQuotes(f.Content.Name())))
+			escapeQuotes(name), escapeQuotes(filename)))
 
 	if f.Headers.Get("Content-Type") == "" {
 		h.Set("Content-Type", "application/octet-stream")
