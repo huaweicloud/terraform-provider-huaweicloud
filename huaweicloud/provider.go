@@ -1281,6 +1281,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_service":          workspace.ResourceService(),
 			"huaweicloud_workspace_terminal_binding": workspace.ResourceTerminalBinding(),
 			"huaweicloud_workspace_user":             workspace.ResourceUser(),
+			"huaweicloud_workspace_eip_associate":    workspace.ResourceEipAssociate(),
 
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),
