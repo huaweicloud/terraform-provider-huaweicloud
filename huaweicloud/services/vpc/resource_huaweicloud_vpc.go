@@ -62,6 +62,17 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: utils.ValidateCIDR,
+				Description:  "schema: Deprecated; use secondary_cidrs instead",
+			},
+			"secondary_cidrs": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"secondary_cidr"},
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: utils.ValidateCIDR,
+				},
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -150,15 +161,22 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
+	var extendCidrs []string
 	if v, ok := d.GetOk("secondary_cidr"); ok {
+		extendCidrs = []string{v.(string)}
+	}
+	if v, ok := d.GetOk("secondary_cidrs"); ok {
+		extendCidrs = utils.ExpandToStringList(v.(*schema.Set).List())
+	}
+
+	if len(extendCidrs) > 0 {
 		v3Client, err := conf.HcVpcV3Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v3 client: %s", err)
 		}
 
-		extendCidr := v.(string)
-		if err := addSecondaryCIDR(v3Client, d.Id(), extendCidr); err != nil {
-			return diag.Errorf("error adding VPC secondary CIDR: %s", err)
+		if err := addSecondaryCIDR(v3Client, d.Id(), extendCidrs); err != nil {
+			return diag.Errorf("error adding VPC secondary CIDRs: %s", err)
 		}
 	}
 
@@ -215,7 +233,7 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 		log.Printf("[WARN] error fetching tags of VPC (%s): %s", d.Id(), err)
 	}
 
-	// save VirtualPrivateCloudV3 extend_cidr
+	// save VirtualPrivateCloudV3 extend_cidrs
 	v3Client, err := conf.HcVpcV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v3 client: %s", err)
@@ -225,9 +243,16 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 	if err != nil {
 		diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
 	}
-	if len(res.Vpc.ExtendCidrs) > 0 {
-		d.Set("secondary_cidr", res.Vpc.ExtendCidrs[0])
+
+	if val, ok := d.GetOk("secondary_cidr"); ok {
+		for _, extendCidr := range res.Vpc.ExtendCidrs {
+			if extendCidr == val {
+				d.Set("secondary_cidr", extendCidr)
+				break
+			}
+		}
 	}
+	d.Set("secondary_cidrs", res.Vpc.ExtendCidrs)
 
 	return nil
 }
@@ -238,6 +263,10 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	v1Client, err := conf.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
+	}
+	v3Client, err := conf.HcVpcV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
 
 	vpcID := d.Id()
@@ -271,23 +300,35 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("secondary_cidr") {
-		v3Client, err := conf.HcVpcV3Client(region)
-		if err != nil {
-			return diag.Errorf("error creating VPC v3 client: %s", err)
-		}
-
-		old, new := d.GetChange("secondary_cidr")
-		preExtendCidr := old.(string)
-		newExtendCidr := new.(string)
-
+		oldValue, newValue := d.GetChange("secondary_cidr")
+		preExtendCidr := oldValue.(string)
+		newExtendCidr := newValue.(string)
 		if preExtendCidr != "" {
-			if err := removeSecondaryCIDR(v3Client, vpcID, preExtendCidr); err != nil {
+			preExtendCidrs := []string{preExtendCidr}
+			if err := removeSecondaryCIDR(v3Client, vpcID, preExtendCidrs); err != nil {
 				return diag.Errorf("error deleting VPC secondary CIDR: %s", err)
 			}
 		}
 		if newExtendCidr != "" {
-			if err := addSecondaryCIDR(v3Client, vpcID, newExtendCidr); err != nil {
+			newExtendCidrs := []string{newExtendCidr}
+			if err := addSecondaryCIDR(v3Client, vpcID, newExtendCidrs); err != nil {
 				return diag.Errorf("error adding VPC secondary CIDR: %s", err)
+			}
+		}
+	}
+
+	if d.HasChanges("secondary_cidrs") {
+		oldRaws, newRaws := d.GetChange("secondary_cidrs")
+		preExtendCidrs := utils.ExpandToStringListBySet(oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set)))
+		newExtendCidrs := utils.ExpandToStringListBySet(newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set)))
+		if len(preExtendCidrs) > 0 {
+			if err := removeSecondaryCIDR(v3Client, vpcID, preExtendCidrs); err != nil {
+				return diag.Errorf("error deleting VPC secondary CIDRs: %s", err)
+			}
+		}
+		if len(newExtendCidrs) > 0 {
+			if err := addSecondaryCIDR(v3Client, vpcID, newExtendCidrs); err != nil {
+				return diag.Errorf("error adding VPC secondary CIDRs: %s", err)
 			}
 		}
 	}
@@ -381,10 +422,10 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 	}
 }
 
-func addSecondaryCIDR(v3Client *client.VpcClient, vpcID, cidr string) error {
+func addSecondaryCIDR(v3Client *client.VpcClient, vpcID string, cidrs []string) error {
 	reqBody := v3vpc.AddVpcExtendCidrRequestBody{
 		Vpc: &v3vpc.AddExtendCidrOption{
-			ExtendCidrs: []string{cidr},
+			ExtendCidrs: cidrs,
 		},
 	}
 	reqOpts := v3vpc.AddVpcExtendCidrRequest{
@@ -392,15 +433,15 @@ func addSecondaryCIDR(v3Client *client.VpcClient, vpcID, cidr string) error {
 		Body:  &reqBody,
 	}
 
-	log.Printf("[DEBUG] add secondary CIDR %s into VPC %s", cidr, vpcID)
+	log.Printf("[DEBUG] add secondary CIDRs %s into VPC %s", cidrs, vpcID)
 	_, err := v3Client.AddVpcExtendCidr(&reqOpts)
 	return err
 }
 
-func removeSecondaryCIDR(v3Client *client.VpcClient, vpcID, preCidr string) error {
+func removeSecondaryCIDR(v3Client *client.VpcClient, vpcID string, preCidrs []string) error {
 	reqBody := v3vpc.RemoveVpcExtendCidrRequestBody{
 		Vpc: &v3vpc.RemoveExtendCidrOption{
-			ExtendCidrs: []string{preCidr},
+			ExtendCidrs: preCidrs,
 		},
 	}
 	reqOpts := v3vpc.RemoveVpcExtendCidrRequest{
@@ -408,7 +449,7 @@ func removeSecondaryCIDR(v3Client *client.VpcClient, vpcID, preCidr string) erro
 		Body:  &reqBody,
 	}
 
-	log.Printf("[DEBUG] remove secondary CIDR %s from VPC %s", preCidr, vpcID)
+	log.Printf("[DEBUG] remove secondary CIDRs %s from VPC %s", preCidrs, vpcID)
 	_, err := v3Client.RemoveVpcExtendCidr(&reqOpts)
 	return err
 }

@@ -49,7 +49,8 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies supplementary information about the VPC. The value is a string of
   no more than 255 characters and cannot contain angle brackets (< or >).
 
-* `secondary_cidr` - (Optional, String) Specifies the secondary CIDR block of the VPC.
+* `secondary_cidrs` - (Optional, List) Specifies the secondary CIDR blocks of the VPC.
+  Each VPC can have 5 secondary CIDR blocks.
 
   -> The following secondary CIDR blocks cannot be added to a VPC: 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16.
   [View the complete list of unsupported CIDR blocks](https://support.huaweicloud.com/intl/en-us/usermanual-vpc/vpc_vpc_0007.html).

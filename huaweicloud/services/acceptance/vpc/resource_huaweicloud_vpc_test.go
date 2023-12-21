@@ -109,6 +109,69 @@ func TestAccVpcV1_secondaryCIDR(t *testing.T) {
 	})
 }
 
+func TestAccVpcV1_secondaryCIDRs(t *testing.T) {
+	var vpc vpcs.Vpc
+
+	rName := acceptance.RandomAccResourceName()
+	rNameUpdate := rName + "_updated"
+	resourceName := "huaweicloud_vpc.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcV1_secondaryCIDRs(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "secondary_cidrs.0", "168.10.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
+				),
+			},
+			{
+				Config: testAccVpcV1_secondaryCIDRs_update(rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "secondary_cidrs.0", "168.10.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "secondary_cidrs.1", "168.20.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
+				),
+			},
+			{
+				Config: testAccVpcV1_secondaryCIDR_update_null(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "secondary_cidrs.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"secondary_cidrs"},
+			},
+			{
+				Config: testAccVpcV1_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccVpcV1_WithEpsId(t *testing.T) {
 	var vpc vpcs.Vpc
 
@@ -312,6 +375,54 @@ resource "huaweicloud_vpc" "test" {
   cidr           = "192.168.0.0/16"
   secondary_cidr = "168.20.0.0/16"
   description    = "created by acc test"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, rName)
+}
+
+func testAccVpcV1_secondaryCIDRs(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name            = "%s"
+  cidr            = "192.168.0.0/16"
+  secondary_cidrs = ["168.10.0.0/16"]
+  description     = "created by acc test"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, rName)
+}
+
+func testAccVpcV1_secondaryCIDRs_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name            = "%s"
+  cidr            = "192.168.0.0/16"
+  secondary_cidrs = ["168.10.0.0/16", "168.20.0.0/16"]
+  description     = "created by acc test"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, rName)
+}
+
+func testAccVpcV1_secondaryCIDR_update_null(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name            = "%s"
+  cidr            = "192.168.0.0/16"
+  secondary_cidrs = []
+  description     = "created by acc test"
 
   tags = {
     foo = "bar"
