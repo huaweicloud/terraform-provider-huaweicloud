@@ -456,10 +456,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_flavors":   dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_instances": dds.DataSourceDdsInstance(),
 
-			"huaweicloud_dms_kafka_flavors":   dms.DataSourceKafkaFlavors(),
-			"huaweicloud_dms_kafka_instances": dms.DataSourceDmsKafkaInstances(),
-			"huaweicloud_dms_product":         dms.DataSourceDmsProduct(),
-			"huaweicloud_dms_maintainwindow":  dms.DataSourceDmsMaintainWindow(),
+			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
+			"huaweicloud_dms_kafka_instances":           dms.DataSourceDmsKafkaInstances(),
+			"huaweicloud_dms_product":                   dms.DataSourceDmsProduct(),
+			"huaweicloud_dms_maintainwindow":            dms.DataSourceDmsMaintainWindow(),
+			"huaweicloud_dms_kafka_smart_connect_tasks": dms.DataSourceDmsKafkaSmartConnectTasks(),
 
 			"huaweicloud_dms_rabbitmq_flavors": dms.DataSourceRabbitMQFlavors(),
 
