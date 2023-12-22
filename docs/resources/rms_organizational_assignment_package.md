@@ -9,9 +9,12 @@ Manages RMS organizational assignment package resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable organization_id {}
+
 resource "huaweicloud_rms_organizational_assignment_package" "test" {
-  name         = "organizational_assignment_package_name"
-  template_key = "example-001.tf.json"
+  organization_id = var.organization_id
+  name            = "organizational_assignment_package_name"
+  template_key    = "example-001.tf.json"
 }
 ```
 
