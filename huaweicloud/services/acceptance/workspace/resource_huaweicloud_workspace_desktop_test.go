@@ -102,6 +102,58 @@ func TestAccDesktop_basic(t *testing.T) {
 	})
 }
 
+func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
+	var (
+		desktop      desktops.Desktop
+		resourceName = "huaweicloud_workspace_desktop.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&desktop,
+		getDesktopFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDesktop_withEPSId(rName, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "workspace.x86.ultimate.large2"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+rName),
+					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccDesktop_withEPSId(rName, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "workspace.x86.ultimate.large2"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "user_name", "user-"+rName),
+					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func testAccDesktop_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -282,4 +334,48 @@ resource "huaweicloud_workspace_desktop" "test" {
   delete_user = true
 }
 `, testAccDesktop_base(rName), rName)
+}
+
+func testAccDesktop_withEPSId(rName, epsId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_desktop" "test" {
+  flavor_id             = "workspace.x86.ultimate.large2"
+  image_type            = "market"
+  image_id              = try(data.huaweicloud_images_images.test.images[0].id, "")
+  enterprise_project_id = "%[3]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = huaweicloud_vpc.test.id
+  security_groups       = [
+    huaweicloud_workspace_service.test.desktop_security_group.0.id,
+    huaweicloud_networking_secgroup.test.id,
+  ]
+
+  nic {
+    network_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  name       = "%[2]s"
+  user_name  = "user-%[2]s"
+  user_email = "terraform@example.com"
+  user_group = "administrators"
+
+  root_volume {
+    type = "SAS"
+    size = 80
+  }
+
+  data_volume {
+    type = "SAS"
+    size = 50
+  }
+
+  tags = {
+    foo = "bar"
+  }
+
+  delete_user = true
+}
+`, testAccDesktop_base(rName), rName, epsId)
 }
