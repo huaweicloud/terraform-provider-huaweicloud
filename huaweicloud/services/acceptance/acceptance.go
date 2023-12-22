@@ -217,6 +217,7 @@ var (
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
 	HW_DATAARTS_WORKSPACE_ID            = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
+	HW_DATAARTS_CDM_NAME                = os.Getenv("HW_DATAARTS_CDM_NAME")
 	HW_DATAARTS_MANAGER_ID              = os.Getenv("HW_DATAARTS_MANAGER_ID")
 	HW_DATAARTS_BIZ_CATALOG_ID          = os.Getenv("HW_DATAARTS_BIZ_CATALOG_ID")
 	HW_DATAARTS_SECRECY_LEVEL_ID        = os.Getenv("HW_DATAARTS_SECRECY_LEVEL_ID")
@@ -1010,6 +1011,13 @@ func TestAccPreCheckDataArtsManagerID(t *testing.T) {
 func TestAccPreCheckDataArtsBizCatalogID(t *testing.T) {
 	if HW_DATAARTS_BIZ_CATALOG_ID == "" {
 		t.Skip("HW_DATAARTS_BIZ_CATALOG_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsCdmName(t *testing.T) {
+	if HW_DATAARTS_CDM_NAME == "" {
+		t.Skip("HW_DATAARTS_CDM_NAME must be set for the acceptance test")
 	}
 }
 
