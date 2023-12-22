@@ -1103,6 +1103,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_directory":       dataarts.ResourceArchitectureDirectory(),
 			"huaweicloud_dataarts_architecture_subject":         dataarts.ResourceArchitectureSubject(),
 			"huaweicloud_dataarts_architecture_business_metric": dataarts.ResourceBusinessMetric(),
+			"huaweicloud_dataarts_architecture_process":         dataarts.ResourceArchitectureProcess(),
 			// DataArts Factory
 			"huaweicloud_dataarts_factory_resource": dataarts.ResourceFactoryResource(),
 			// DataArts Security
