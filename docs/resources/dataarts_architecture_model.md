@@ -48,8 +48,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of model.
 
-* `dw_type` - (Optional, String) Specifies the data connection type. This parameter should specify when
-  **physical** is **true**. The valid values are:
+* `dw_type` - (Optional, String) Specifies the data connection type. This parameter is mandatory when
+  `physical` is **true**. The valid values are:
   + **DWS**
   + **DLI**
   + **MRS_HIVE**
