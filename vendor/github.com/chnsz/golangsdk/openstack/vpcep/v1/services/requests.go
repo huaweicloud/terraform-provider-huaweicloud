@@ -151,6 +151,12 @@ type ListOpts struct {
 	// asc: VPC endpoint services are sorted in ascending order. The default method is desc.
 	// Default: desc
 	SortDir string `q:"sort_dir"`
+	// Specifies the VPC endpoint service that matches the edge attribute in the filtering result.
+	PublicBorderGroup string `q:"public_border_group"`
+	// Specifies the resource type, which can be:
+	// VM: indicates a cloud server.
+	// LB: indicates a shared load balancer.
+	ServerType string `q:"server_type"`
 }
 
 // ToListQuery formats a ListOpts into a query string.
@@ -224,6 +230,25 @@ func ListAllPublics(client *golangsdk.ServiceClient, opts ListOpts) ([]PublicSer
 		return nil, err
 	}
 	return extractPublicService(pages)
+}
+
+// ListAllServices is a method to query the supported Service list using given parameters with **pagination**.
+func ListAllServices(client *golangsdk.ServiceClient, opts ListOpts) ([]Service, error) {
+	url := rootURL(client)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	pages, err := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		p := PublicServicePage{pagination.OffsetPageBase{PageResult: r}}
+		return p
+	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	return extractService(pages)
 }
 
 // ConnActionOpts used to receive or reject a VPC endpoint for a VPC endpoint service.
