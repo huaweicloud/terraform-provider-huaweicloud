@@ -97,6 +97,52 @@ func TestAccGateway_basic(t *testing.T) {
 	})
 }
 
+func TestAccGateway_UpdateWithEpsId(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_gateway.test"
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGatewayResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testGateway_withEpsId(name, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "local_subnets.1", "192.168.2.0/24"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testGateway_withEpsId(name, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "local_subnets.1", "192.168.2.0/24"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func TestAccGateway_activeStandbyHAMode(t *testing.T) {
 	var obj interface{}
 
@@ -332,6 +378,32 @@ resource "huaweicloud_vpn_gateway" "test" {
   }
 }
 `, testGateway_base(name), name)
+}
+
+func testGateway_withEpsId(name, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name                  = "%s"
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = "%s"
+  local_subnets         = [huaweicloud_vpc_subnet.test.cidr, "192.168.2.0/24"]
+  connect_subnet        = huaweicloud_vpc_subnet.test.id
+  availability_zones    = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
+  eip1 {
+    id = huaweicloud_vpc_eip.test1.id
+  }
+
+  eip2 {
+    id = huaweicloud_vpc_eip.test2.id
+  }
+}
+`, testGateway_base(name), name, epsId)
 }
 
 func testGateway_activeStandbyHAMode(name string) string {

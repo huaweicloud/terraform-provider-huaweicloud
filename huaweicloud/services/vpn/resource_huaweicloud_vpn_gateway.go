@@ -21,6 +21,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -195,7 +196,6 @@ func ResourceGateway() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				Description:  `The enterprise project ID`,
 				ValidateFunc: validation.StringLenBetween(1, 64),
 			},
@@ -593,6 +593,17 @@ func flattenGetGatewayResponseBodyVPNGatewayBody(resp interface{}, paramName str
 func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	gatewayId := d.Id()
+
+	// updateGateway: Update the configuration of VPN gateway
+	var (
+		updateGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
+		updateGatewayProduct = "vpn"
+	)
+	updateGatewayClient, err := cfg.NewServiceClient(updateGatewayProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating Gateway Client: %s", err)
+	}
 
 	updateGatewayHasChanges := []string{
 		"local_subnets",
@@ -600,19 +611,10 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChanges(updateGatewayHasChanges...) {
-		// updateGateway: Update the configuration of VPN gateway
-		var (
-			updateGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
-			updateGatewayProduct = "vpn"
-		)
-		updateGatewayClient, err := cfg.NewServiceClient(updateGatewayProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating Gateway Client: %s", err)
-		}
 
 		updateGatewayPath := updateGatewayClient.Endpoint + updateGatewayHttpUrl
 		updateGatewayPath = strings.ReplaceAll(updateGatewayPath, "{project_id}", updateGatewayClient.ProjectID)
-		updateGatewayPath = strings.ReplaceAll(updateGatewayPath, "{id}", d.Id())
+		updateGatewayPath = strings.ReplaceAll(updateGatewayPath, "{id}", gatewayId)
 
 		updateGatewayOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -627,9 +629,22 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 		err = updateGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Gateway (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the Update of Gateway (%s) to complete: %s", gatewayId, err)
 		}
 	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   gatewayId,
+			ResourceType: "vpn-gateway",
+			RegionId:     region,
+			ProjectId:    updateGatewayClient.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGatewayRead(ctx, d, meta)
 }
 

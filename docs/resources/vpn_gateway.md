@@ -205,9 +205,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID.
-
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) The enterprise project ID.
 
 <a name="Gateway_CreateRequestEip"></a>
 The `eip1` or `eip2` block supports:
