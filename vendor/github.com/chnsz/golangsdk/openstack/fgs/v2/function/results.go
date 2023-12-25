@@ -39,7 +39,8 @@ type Function struct {
 	FuncVpc             FuncVpc        `json:"func_vpc"`
 	MountConfig         MountConfig    `json:"mount_config,omitempty"`
 	Concurrency         int            `json:"-"`
-	DependList          []string       `json:"depend_list"`
+	DependList          []string       `json:"depend_list"` // Deprecated
+	DependVersionList   []string       `json:"depend_version_list"`
 	StrategyConfig      StrategyConfig `json:"strategy_config"`
 	ExtendConfig        string         `json:"extend_config"`
 	Dependencies        []*Dependency  `json:"dependencies"`

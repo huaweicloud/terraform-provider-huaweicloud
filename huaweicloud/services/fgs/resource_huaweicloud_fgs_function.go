@@ -140,7 +140,7 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				StateFunc: utils.DecodeHashAndHexEncode,
 			},
 			"depend_list": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -628,7 +628,7 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("version", f.Version),
 		d.Set("urn", functionUrn),
 		d.Set("app_agency", f.AppXrole),
-		d.Set("depend_list", f.DependList),
+		d.Set("depend_list", f.DependVersionList),
 		d.Set("initializer_handler", f.InitializerHandler),
 		d.Set("initializer_timeout", f.InitializerTimeout),
 		d.Set("enterprise_project_id", f.EnterpriseProjectID),
@@ -736,7 +736,7 @@ func resourceFgsFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 	// lintignore:R019
-	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout", "encrypted_user_data",
+	if d.HasChanges("app", "handler", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name") {
@@ -860,9 +860,9 @@ func resourceFgsFunctionCodeUpdate(fgsClient *golangsdk.ServiceClient, urn strin
 	}
 
 	if v, ok := d.GetOk("depend_list"); ok {
-		dependListRaw := v.([]interface{})
-		dependList := make([]string, 0, len(dependListRaw))
-		for _, depend := range dependListRaw {
+		dependListRaw := v.(*schema.Set)
+		dependList := make([]string, 0, dependListRaw.Len())
+		for _, depend := range dependListRaw.List() {
 			dependList = append(dependList, depend.(string))
 		}
 		updateCodeOpts.DependList = dependList
