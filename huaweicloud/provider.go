@@ -779,12 +779,13 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),
 
-			"huaweicloud_cc_connection":             cc.ResourceCloudConnection(),
-			"huaweicloud_cc_network_instance":       cc.ResourceNetworkInstance(),
-			"huaweicloud_cc_bandwidth_package":      cc.ResourceBandwidthPackage(),
-			"huaweicloud_cc_inter_region_bandwidth": cc.ResourceInterRegionBandwidth(),
-			"huaweicloud_cc_central_network":        cc.ResourceCentralNetwork(),
-			"huaweicloud_cc_central_network_policy": cc.ResourceCentralNetworkPolicy(),
+			"huaweicloud_cc_connection":                   cc.ResourceCloudConnection(),
+			"huaweicloud_cc_network_instance":             cc.ResourceNetworkInstance(),
+			"huaweicloud_cc_bandwidth_package":            cc.ResourceBandwidthPackage(),
+			"huaweicloud_cc_inter_region_bandwidth":       cc.ResourceInterRegionBandwidth(),
+			"huaweicloud_cc_central_network":              cc.ResourceCentralNetwork(),
+			"huaweicloud_cc_central_network_policy":       cc.ResourceCentralNetworkPolicy(),
+			"huaweicloud_cc_central_network_policy_apply": cc.ResourceCentralNetworkPolicyApply(),
 
 			"huaweicloud_cce_cluster":     cce.ResourceCluster(),
 			"huaweicloud_cce_node":        cce.ResourceNode(),
