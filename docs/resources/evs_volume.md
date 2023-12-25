@@ -41,6 +41,40 @@ resource "huaweicloud_evs_volume" "volume" {
 }
 ```
 
+## Example Usage with server_id
+
+```
+variable "security_group_id" {}
+variable "availability_zone" {}
+
+resource "huaweicloud_compute_instance" "myinstance" {
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.security_group_id]
+  availability_zone  = var.availability_zone
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
+}
+
+resource "huaweicloud_evs_volume" "volume" {
+  name              = "volume"
+  description       = "my volume"
+  volume_type       = "SAS"
+  size              = 20
+  availability_zone = var.availability_zone
+  server_id         = huaweicloud_compute_instance.myinstance.id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -151,6 +185,12 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**.
 
+* `server_id` - (Optional, String, ForceNew) Specify the server ID to which the cloudvolume is to be mounted.
+  After specifying the value of this field, the cloudvolume will be automatically attached on the cloudserver.
+  The charging_mode of the created cloudvolume will be consistent with that of the cloudserver.
+  Currently, only ECS cloudservers are supported, and BMS bare metal cloudservers are not supported yet.
+  Changing this creates a new disk.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -180,8 +220,8 @@ $ terraform import huaweicloud_evs_volume.volume_1 14a80bc7-c12c-4fe0-a38a-cb77e
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: **cascade**, **period_unit**, **period**
-and **auto_renew**. It is generally recommended running terraform plan after importing an disk.
+API response, security or some other reason. The missing attributes include: **cascade**, **period_unit**, **period**,
+**server_id** and **auto_renew**. It is generally recommended running terraform plan after importing an disk.
 You can then decide if changes should be applied to the disk, or the resource definition should be updated to align
 with the disk. Also you can ignore changes as below.
 
@@ -191,7 +231,7 @@ resource "huaweicloud_evs_volume" "volume_1" {
 
   lifecycle {
     ignore_changes = [
-      cascade,
+      cascade, server_id, charging_mode, period, period_unit,
     ]
   }
 }

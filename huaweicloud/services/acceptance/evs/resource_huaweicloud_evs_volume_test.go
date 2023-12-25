@@ -211,6 +211,45 @@ func TestAccEvsVolume_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccEvsVolume_withServerId(t *testing.T) {
+	var volume cloudvolumes.Volume
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_evs_volume.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&volume,
+		getVolumeResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEvsVolume_serverId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "attachment.0.instance_id", "huaweicloud_compute_instance.test", "id")),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"cascade", "server_id", "charging_mode", "period", "period_unit",
+				},
+			},
+		},
+	})
+}
+
 func testAccEvsVolume_base() string {
 	return `
 variable "volume_configuration" {
@@ -393,4 +432,86 @@ resource "huaweicloud_evs_volume" "test" {
   auto_renew    = "%[3]v"
 }
 `, testAccEvsVolume_prepaid_base(), rName, isAutoRenew)
+}
+
+const testAccCompute_data = `
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+`
+
+func testAccComputeInstance_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_instance" "test" {
+  name                = "%[2]s"
+  description         = "terraform test"
+  hostname            = "hostname-test"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  stop_before_destroy = true
+  agency_name         = "test111"
+  agent_list          = "hss"
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+
+  system_disk_type = "SAS"
+  system_disk_size = 50
+
+  data_disks {
+    type = "SAS"
+    size = "10"
+  }
+
+  metadata = {
+    foo = "bar"
+    key = "value"
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccEvsVolume_serverId(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+	
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[2]s"
+  volume_type       = "GPSSD"
+  description       = "test volume for charging mode"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  server_id         = huaweicloud_compute_instance.test.id
+  size              = 100
+  charging_mode     = "postPaid"
+}
+`, testAccComputeInstance_basic(rName), rName)
 }
