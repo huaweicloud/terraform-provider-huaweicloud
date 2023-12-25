@@ -20,6 +20,9 @@ type ProtectionPolicyInfo struct {
 	// 是否开启诱饵防护，包含如下1种, 默认为开启防护诱饵防护。   - opened ：开启。   - closed ：关闭。
 	BaitProtectionStatus *string `json:"bait_protection_status,omitempty"`
 
+	// 是否开启动态诱饵防护，包含如下2种, 默认为关闭动态诱饵防护。   - opened ：开启。   - closed ：关闭。
+	DeployMode *string `json:"deploy_mode,omitempty"`
+
 	// 防护目录
 	ProtectionDirectory *string `json:"protection_directory,omitempty"`
 
@@ -43,6 +46,9 @@ type ProtectionPolicyInfo struct {
 
 	// 进程白名单
 	ProcessWhitelist *[]TrustProcessInfo `json:"process_whitelist,omitempty"`
+
+	// 是否为默认策略，包含如下2种。   - 0 ：非默认策略。   - 1 ：默认策略
+	DefaultPolicy *int32 `json:"default_policy,omitempty"`
 }
 
 func (o ProtectionPolicyInfo) String() string {

@@ -97,13 +97,23 @@ type ListInstancesRequestStatus struct {
 }
 
 type ListInstancesRequestStatusEnum struct {
-	CREATING        ListInstancesRequestStatus
-	RUNNING         ListInstancesRequestStatus
-	FAULTY          ListInstancesRequestStatus
-	RESTARTING      ListInstancesRequestStatus
-	RESIZING        ListInstancesRequestStatus
-	RESIZING_FAILED ListInstancesRequestStatus
-	FROZEN          ListInstancesRequestStatus
+	CREATING           ListInstancesRequestStatus
+	RUNNING            ListInstancesRequestStatus
+	RESTARTING         ListInstancesRequestStatus
+	DELETING           ListInstancesRequestStatus
+	ERROR              ListInstancesRequestStatus
+	CREATEFAILED       ListInstancesRequestStatus
+	FREEZING           ListInstancesRequestStatus
+	FROZEN             ListInstancesRequestStatus
+	EXTENDING          ListInstancesRequestStatus
+	SHRINKING          ListInstancesRequestStatus
+	EXTENDEDFAILED     ListInstancesRequestStatus
+	CONFIGURING        ListInstancesRequestStatus
+	UPGRADING          ListInstancesRequestStatus
+	UPGRADINGFAILED    ListInstancesRequestStatus
+	ROLLBACK           ListInstancesRequestStatus
+	ROLLBACKFAILED     ListInstancesRequestStatus
+	VOLUMETYPECHANGING ListInstancesRequestStatus
 }
 
 func GetListInstancesRequestStatusEnum() ListInstancesRequestStatusEnum {
@@ -114,20 +124,50 @@ func GetListInstancesRequestStatusEnum() ListInstancesRequestStatusEnum {
 		RUNNING: ListInstancesRequestStatus{
 			value: "RUNNING",
 		},
-		FAULTY: ListInstancesRequestStatus{
-			value: "FAULTY",
-		},
 		RESTARTING: ListInstancesRequestStatus{
 			value: "RESTARTING",
 		},
-		RESIZING: ListInstancesRequestStatus{
-			value: "RESIZING",
+		DELETING: ListInstancesRequestStatus{
+			value: "DELETING",
 		},
-		RESIZING_FAILED: ListInstancesRequestStatus{
-			value: "RESIZING FAILED",
+		ERROR: ListInstancesRequestStatus{
+			value: "ERROR",
+		},
+		CREATEFAILED: ListInstancesRequestStatus{
+			value: "CREATEFAILED",
+		},
+		FREEZING: ListInstancesRequestStatus{
+			value: "FREEZING",
 		},
 		FROZEN: ListInstancesRequestStatus{
 			value: "FROZEN",
+		},
+		EXTENDING: ListInstancesRequestStatus{
+			value: "EXTENDING",
+		},
+		SHRINKING: ListInstancesRequestStatus{
+			value: "SHRINKING",
+		},
+		EXTENDEDFAILED: ListInstancesRequestStatus{
+			value: "EXTENDEDFAILED",
+		},
+		CONFIGURING: ListInstancesRequestStatus{
+			value: "CONFIGURING",
+		},
+		UPGRADING: ListInstancesRequestStatus{
+			value: "UPGRADING",
+		},
+		UPGRADINGFAILED: ListInstancesRequestStatus{
+			value: "UPGRADINGFAILED",
+		},
+		ROLLBACK: ListInstancesRequestStatus{
+			value: "ROLLBACK",
+		},
+		ROLLBACKFAILED: ListInstancesRequestStatus{
+			value: "ROLLBACKFAILED",
+		},
+		VOLUMETYPECHANGING: ListInstancesRequestStatus{
+			value: "VOLUMETYPECHANGING",
 		},
 	}
 }

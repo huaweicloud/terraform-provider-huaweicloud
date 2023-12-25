@@ -7,6 +7,26 @@ import (
 	"net/http"
 )
 
+func GenReqDefForAddSecurityGroups() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodPut).
+		WithPath("/v3/{project_id}/ports/{port_id}/insert-security-groups").
+		WithResponse(new(model.AddSecurityGroupsResponse)).
+		WithContentType("application/json")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("PortId").
+		WithJsonTag("port_id").
+		WithLocationType(def.Path))
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
 func GenReqDefForAddSourcesToTrafficMirrorSession() *def.HttpRequestDef {
 	reqDefBuilder := def.NewHttpRequestDefBuilder().
 		WithMethod(http.MethodPut).
@@ -435,6 +455,14 @@ func GenReqDefForListTrafficMirrorFilterRules() *def.HttpRequestDef {
 		WithName("Priority").
 		WithJsonTag("priority").
 		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Limit").
+		WithJsonTag("limit").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Marker").
+		WithJsonTag("marker").
+		WithLocationType(def.Query))
 
 	requestDef := reqDefBuilder.Build()
 	return requestDef
@@ -466,6 +494,14 @@ func GenReqDefForListTrafficMirrorFilters() *def.HttpRequestDef {
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("UpdatedAt").
 		WithJsonTag("updated_at").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Limit").
+		WithJsonTag("limit").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Marker").
+		WithJsonTag("marker").
 		WithLocationType(def.Query))
 
 	requestDef := reqDefBuilder.Build()
@@ -531,6 +567,14 @@ func GenReqDefForListTrafficMirrorSessions() *def.HttpRequestDef {
 		WithName("UpdatedAt").
 		WithJsonTag("updated_at").
 		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Limit").
+		WithJsonTag("limit").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Marker").
+		WithJsonTag("marker").
+		WithLocationType(def.Query))
 
 	requestDef := reqDefBuilder.Build()
 	return requestDef
@@ -542,6 +586,26 @@ func GenReqDefForMigrateSubNetworkInterface() *def.HttpRequestDef {
 		WithPath("/v3/{project_id}/vpc/sub-network-interfaces/migrate").
 		WithResponse(new(model.MigrateSubNetworkInterfaceResponse)).
 		WithContentType("application/json")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
+func GenReqDefForRemoveSecurityGroups() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodPut).
+		WithPath("/v3/{project_id}/ports/{port_id}/remove-security-groups").
+		WithResponse(new(model.RemoveSecurityGroupsResponse)).
+		WithContentType("application/json")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("PortId").
+		WithJsonTag("port_id").
+		WithLocationType(def.Path))
 
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("Body").

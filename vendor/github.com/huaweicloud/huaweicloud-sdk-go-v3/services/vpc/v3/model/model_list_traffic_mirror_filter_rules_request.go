@@ -41,6 +41,12 @@ type ListTrafficMirrorFilterRulesRequest struct {
 
 	// 使用规则优先级过滤
 	Priority *string `json:"priority,omitempty"`
+
+	// 功能说明：每页返回的个数 取值范围：0-2000
+	Limit *int32 `json:"limit,omitempty"`
+
+	// 分页查询起始的资源ID，为空时查询第一页
+	Marker *string `json:"marker,omitempty"`
 }
 
 func (o ListTrafficMirrorFilterRulesRequest) String() string {

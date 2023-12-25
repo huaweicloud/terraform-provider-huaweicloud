@@ -14,8 +14,6 @@ type UpdateInstanceRequest struct {
 
 	// 指定替换节点ID。
 	InstanceId string `json:"instance_id"`
-
-	Body *UpdateInstanceRequestBody `json:"body,omitempty"`
 }
 
 func (o UpdateInstanceRequest) String() string {

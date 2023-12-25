@@ -208,6 +208,27 @@ func (c *LiveClient) CreateTranscodingsTemplateInvoker(request *model.CreateTran
 	return &CreateTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateUrlAuthchain 生成URL鉴权串
+//
+// 生成URL鉴权串
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) CreateUrlAuthchain(request *model.CreateUrlAuthchainRequest) (*model.CreateUrlAuthchainResponse, error) {
+	requestDef := GenReqDefForCreateUrlAuthchain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateUrlAuthchainResponse), nil
+	}
+}
+
+// CreateUrlAuthchainInvoker 生成URL鉴权串
+func (c *LiveClient) CreateUrlAuthchainInvoker(request *model.CreateUrlAuthchainRequest) *CreateUrlAuthchainInvoker {
+	requestDef := GenReqDefForCreateUrlAuthchain()
+	return &CreateUrlAuthchainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteDomain 删除直播域名
 //
 // 删除域名。只有在域名停用（off）状态时才能删除。
@@ -269,6 +290,27 @@ func (c *LiveClient) DeleteDomainMapping(request *model.DeleteDomainMappingReque
 func (c *LiveClient) DeleteDomainMappingInvoker(request *model.DeleteDomainMappingRequest) *DeleteDomainMappingInvoker {
 	requestDef := GenReqDefForDeleteDomainMapping()
 	return &DeleteDomainMappingInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeletePublishTemplate 删除直播推流通知配置
+//
+// 删除直播推流通知配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) DeletePublishTemplate(request *model.DeletePublishTemplateRequest) (*model.DeletePublishTemplateResponse, error) {
+	requestDef := GenReqDefForDeletePublishTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeletePublishTemplateResponse), nil
+	}
+}
+
+// DeletePublishTemplateInvoker 删除直播推流通知配置
+func (c *LiveClient) DeletePublishTemplateInvoker(request *model.DeletePublishTemplateRequest) *DeletePublishTemplateInvoker {
+	requestDef := GenReqDefForDeletePublishTemplate()
+	return &DeletePublishTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteRecordCallbackConfig 删除录制回调配置
@@ -376,6 +418,72 @@ func (c *LiveClient) DeleteTranscodingsTemplateInvoker(request *model.DeleteTran
 	return &DeleteTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListDelayConfig 查询播放域名延时配置
+//
+// 查询播放域名延时配置。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ListDelayConfig(request *model.ListDelayConfigRequest) (*model.ListDelayConfigResponse, error) {
+	requestDef := GenReqDefForListDelayConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListDelayConfigResponse), nil
+	}
+}
+
+// ListDelayConfigInvoker 查询播放域名延时配置
+func (c *LiveClient) ListDelayConfigInvoker(request *model.ListDelayConfigRequest) *ListDelayConfigInvoker {
+	requestDef := GenReqDefForListDelayConfig()
+	return &ListDelayConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListGeoBlockingConfig 获取地域限制配置列表
+//
+// 查询播放域名的地域限制列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ListGeoBlockingConfig(request *model.ListGeoBlockingConfigRequest) (*model.ListGeoBlockingConfigResponse, error) {
+	requestDef := GenReqDefForListGeoBlockingConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListGeoBlockingConfigResponse), nil
+	}
+}
+
+// ListGeoBlockingConfigInvoker 获取地域限制配置列表
+func (c *LiveClient) ListGeoBlockingConfigInvoker(request *model.ListGeoBlockingConfigRequest) *ListGeoBlockingConfigInvoker {
+	requestDef := GenReqDefForListGeoBlockingConfig()
+	return &ListGeoBlockingConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListIpAuthList 查询IP黑/白名单
+//
+// 查询推流/播放域名的IP黑/白名单。
+// - 黑名单模式：禁止指定的IP或网段
+// - 白名单模式：仅允许指定的IP或网段
+// - 默认：全放通。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ListIpAuthList(request *model.ListIpAuthListRequest) (*model.ListIpAuthListResponse, error) {
+	requestDef := GenReqDefForListIpAuthList()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListIpAuthListResponse), nil
+	}
+}
+
+// ListIpAuthListInvoker 查询IP黑/白名单
+func (c *LiveClient) ListIpAuthListInvoker(request *model.ListIpAuthListRequest) *ListIpAuthListInvoker {
+	requestDef := GenReqDefForListIpAuthList()
+	return &ListIpAuthListInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListLiveSampleLogs 获取直播播放日志
 //
 // 获取直播播放日志，基于域名以5分钟粒度进行打包，日志内容以 \&quot;|\&quot; 进行分隔。
@@ -416,6 +524,27 @@ func (c *LiveClient) ListLiveStreamsOnline(request *model.ListLiveStreamsOnlineR
 func (c *LiveClient) ListLiveStreamsOnlineInvoker(request *model.ListLiveStreamsOnlineRequest) *ListLiveStreamsOnlineInvoker {
 	requestDef := GenReqDefForListLiveStreamsOnline()
 	return &ListLiveStreamsOnlineInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPublishTemplate 查询直播推流通知配置
+//
+// 查询直播推流通知配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ListPublishTemplate(request *model.ListPublishTemplateRequest) (*model.ListPublishTemplateResponse, error) {
+	requestDef := GenReqDefForListPublishTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPublishTemplateResponse), nil
+	}
+}
+
+// ListPublishTemplateInvoker 查询直播推流通知配置
+func (c *LiveClient) ListPublishTemplateInvoker(request *model.ListPublishTemplateRequest) *ListPublishTemplateInvoker {
+	requestDef := GenReqDefForListPublishTemplate()
+	return &ListPublishTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListRecordCallbackConfigs 查询录制回调配置列表
@@ -586,6 +715,27 @@ func (c *LiveClient) ShowDomainKeyChainInvoker(request *model.ShowDomainKeyChain
 	return &ShowDomainKeyChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowPullSourcesConfig 查询直播拉流回源配置
+//
+// 查询直播拉流回源配置。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ShowPullSourcesConfig(request *model.ShowPullSourcesConfigRequest) (*model.ShowPullSourcesConfigResponse, error) {
+	requestDef := GenReqDefForShowPullSourcesConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowPullSourcesConfigResponse), nil
+	}
+}
+
+// ShowPullSourcesConfigInvoker 查询直播拉流回源配置
+func (c *LiveClient) ShowPullSourcesConfigInvoker(request *model.ShowPullSourcesConfigRequest) *ShowPullSourcesConfigInvoker {
+	requestDef := GenReqDefForShowPullSourcesConfig()
+	return &ShowPullSourcesConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowRecordCallbackConfig 查询录制回调配置
 //
 // 查询录制回调配置接口
@@ -649,6 +799,27 @@ func (c *LiveClient) ShowTranscodingsTemplateInvoker(request *model.ShowTranscod
 	return &ShowTranscodingsTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateDelayConfig 修改播放域名延时配置
+//
+// 修改播放域名延时配置。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateDelayConfig(request *model.UpdateDelayConfigRequest) (*model.UpdateDelayConfigResponse, error) {
+	requestDef := GenReqDefForUpdateDelayConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDelayConfigResponse), nil
+	}
+}
+
+// UpdateDelayConfigInvoker 修改播放域名延时配置
+func (c *LiveClient) UpdateDelayConfigInvoker(request *model.UpdateDelayConfigRequest) *UpdateDelayConfigInvoker {
+	requestDef := GenReqDefForUpdateDelayConfig()
+	return &UpdateDelayConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateDomain 修改直播域名
 //
 // 修改直播播放、RTMP推流加速域名相关信息
@@ -710,6 +881,93 @@ func (c *LiveClient) UpdateDomainKeyChain(request *model.UpdateDomainKeyChainReq
 func (c *LiveClient) UpdateDomainKeyChainInvoker(request *model.UpdateDomainKeyChainRequest) *UpdateDomainKeyChainInvoker {
 	requestDef := GenReqDefForUpdateDomainKeyChain()
 	return &UpdateDomainKeyChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateGeoBlockingConfig 修改地域限制配置
+//
+// 修改播放域名的地域限制，选中地域允许接入。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateGeoBlockingConfig(request *model.UpdateGeoBlockingConfigRequest) (*model.UpdateGeoBlockingConfigResponse, error) {
+	requestDef := GenReqDefForUpdateGeoBlockingConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateGeoBlockingConfigResponse), nil
+	}
+}
+
+// UpdateGeoBlockingConfigInvoker 修改地域限制配置
+func (c *LiveClient) UpdateGeoBlockingConfigInvoker(request *model.UpdateGeoBlockingConfigRequest) *UpdateGeoBlockingConfigInvoker {
+	requestDef := GenReqDefForUpdateGeoBlockingConfig()
+	return &UpdateGeoBlockingConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateIpAuthList 修改IP黑/白名单
+//
+// 修改推流/播放域名的IP黑/白名单，当前仅支持ipv4。
+// - 黑名单模式：禁止指定的IP或网段
+// - 白名单模式：仅允许指定的IP或网段
+// - 默认：全放通。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateIpAuthList(request *model.UpdateIpAuthListRequest) (*model.UpdateIpAuthListResponse, error) {
+	requestDef := GenReqDefForUpdateIpAuthList()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateIpAuthListResponse), nil
+	}
+}
+
+// UpdateIpAuthListInvoker 修改IP黑/白名单
+func (c *LiveClient) UpdateIpAuthListInvoker(request *model.UpdateIpAuthListRequest) *UpdateIpAuthListInvoker {
+	requestDef := GenReqDefForUpdateIpAuthList()
+	return &UpdateIpAuthListInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePublishTemplate 新增、覆盖直播推流通知配置
+//
+// 新增、覆盖直播推流通知配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdatePublishTemplate(request *model.UpdatePublishTemplateRequest) (*model.UpdatePublishTemplateResponse, error) {
+	requestDef := GenReqDefForUpdatePublishTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdatePublishTemplateResponse), nil
+	}
+}
+
+// UpdatePublishTemplateInvoker 新增、覆盖直播推流通知配置
+func (c *LiveClient) UpdatePublishTemplateInvoker(request *model.UpdatePublishTemplateRequest) *UpdatePublishTemplateInvoker {
+	requestDef := GenReqDefForUpdatePublishTemplate()
+	return &UpdatePublishTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePullSourcesConfig 修改直播拉流回源配置
+//
+// 修改直播拉流回源配置。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdatePullSourcesConfig(request *model.UpdatePullSourcesConfigRequest) (*model.UpdatePullSourcesConfigResponse, error) {
+	requestDef := GenReqDefForUpdatePullSourcesConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdatePullSourcesConfigResponse), nil
+	}
+}
+
+// UpdatePullSourcesConfigInvoker 修改直播拉流回源配置
+func (c *LiveClient) UpdatePullSourcesConfigInvoker(request *model.UpdatePullSourcesConfigRequest) *UpdatePullSourcesConfigInvoker {
+	requestDef := GenReqDefForUpdatePullSourcesConfig()
+	return &UpdatePullSourcesConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateRecordCallbackConfig 修改录制回调配置

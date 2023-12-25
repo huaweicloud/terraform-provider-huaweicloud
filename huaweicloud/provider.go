@@ -796,6 +796,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_namespace":   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":         cce.ResourceCcePersistentVolumeClaimsV1(),
 			"huaweicloud_cce_partition":   cce.ResourcePartition(),
+			"huaweicloud_cce_chart":       cce.ResourceChart(),
 
 			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
 			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),

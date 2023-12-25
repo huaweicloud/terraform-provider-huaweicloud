@@ -12,7 +12,7 @@ type VulHostInfo struct {
 	// 主机id
 	HostId *string `json:"host_id,omitempty"`
 
-	// 危险程度   - Critical : 高危   - High : 中危   - Medium : 中危   - Low : 低危
+	// 危险程度   - Critical : 漏洞cvss评分大于等于9；对应控制台页面的高危   - High : 漏洞cvss评分大于等于7，小于9；对应控制台页面的中危   - Medium : 漏洞cvss评分大于等于4，小于7；对应控制台页面的中危   - Low : 漏洞cvss评分小于4；对应控制台页面的低危
 	SeverityLevel *string `json:"severity_level,omitempty"`
 
 	// 受影响资产名称
@@ -68,6 +68,9 @@ type VulHostInfo struct {
 
 	// 扫描时间
 	ScanTime *int64 `json:"scan_time,omitempty"`
+
+	// 是否可以回滚到修复漏洞时创建的备份
+	SupportRestore *bool `json:"support_restore,omitempty"`
 }
 
 func (o VulHostInfo) String() string {

@@ -77,7 +77,7 @@ type ShowTaskResponse struct {
 	// 任务启动时间（Unix时间戳，毫秒）。
 	StartTime *int64 `json:"start_time,omitempty"`
 
-	// 任务状态。 1：等待调度 2：正在执行 3：停止 4：失败 5：成功
+	// 任务状态。 1：等待调度 2：正在执行 3：停止 4：失败 5：成功 7：等待中
 	Status *int32 `json:"status,omitempty"`
 
 	// 迁移成功对象数量。

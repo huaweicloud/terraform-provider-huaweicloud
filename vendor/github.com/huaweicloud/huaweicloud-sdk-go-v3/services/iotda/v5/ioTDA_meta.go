@@ -1470,6 +1470,10 @@ func GenReqDefForListProducts() *def.HttpRequestDef {
 		WithJsonTag("app_id").
 		WithLocationType(def.Query))
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ProductName").
+		WithJsonTag("product_name").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("Offset").
 		WithJsonTag("offset").
 		WithLocationType(def.Query))

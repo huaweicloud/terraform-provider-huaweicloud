@@ -27,7 +27,7 @@ type TaskGroupSrcNode struct {
 	// 源端所在桶
 	Bucket *string `json:"bucket,omitempty"`
 
-	// 源端云服务提供商，当task_type为URL_LIST时，本参数为URLSource。可选值有AWS、Azure、Aliyun、Tencent、HuaweiCloud、QingCloud、KingsoftCloud、Baidu、Qiniu、URLSource或者UCloud。默认值为Aliyun。
+	// 源端云服务提供商，当task_type为URL_LIST时，本参数为URLSource且必选。可选值有AWS、Azure、Aliyun、Tencent、HuaweiCloud、QingCloud、KingsoftCloud、Baidu、Qiniu、URLSource或者UCloud。默认值为Aliyun。
 	CloudType *string `json:"cloud_type,omitempty"`
 
 	ListFile *ListFile `json:"list_file,omitempty"`

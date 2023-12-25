@@ -149,6 +149,18 @@ func (i *CreateKafkaConsumerGroupInvoker) Invoke() (*model.CreateKafkaConsumerGr
 	}
 }
 
+type CreateKafkaUserClientQuotaTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateKafkaUserClientQuotaTaskInvoker) Invoke() (*model.CreateKafkaUserClientQuotaTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateKafkaUserClientQuotaTaskResponse), nil
+	}
+}
+
 type CreatePartitionInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -230,6 +242,18 @@ func (i *DeleteInstanceInvoker) Invoke() (*model.DeleteInstanceResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.DeleteInstanceResponse), nil
+	}
+}
+
+type DeleteKafkaUserClientQuotaTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteKafkaUserClientQuotaTaskInvoker) Invoke() (*model.DeleteKafkaUserClientQuotaTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteKafkaUserClientQuotaTaskResponse), nil
 	}
 }
 
@@ -362,6 +386,18 @@ func (i *ListTopicProducersInvoker) Invoke() (*model.ListTopicProducersResponse,
 		return nil, err
 	} else {
 		return result.(*model.ListTopicProducersResponse), nil
+	}
+}
+
+type ModifyInstanceConfigsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyInstanceConfigsInvoker) Invoke() (*model.ModifyInstanceConfigsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyInstanceConfigsResponse), nil
 	}
 }
 
@@ -533,6 +569,18 @@ func (i *ShowInstanceInvoker) Invoke() (*model.ShowInstanceResponse, error) {
 	}
 }
 
+type ShowInstanceConfigsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowInstanceConfigsInvoker) Invoke() (*model.ShowInstanceConfigsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowInstanceConfigsResponse), nil
+	}
+}
+
 type ShowInstanceExtendProductInfoInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -614,6 +662,18 @@ func (i *ShowKafkaTopicPartitionDiskusageInvoker) Invoke() (*model.ShowKafkaTopi
 		return nil, err
 	} else {
 		return result.(*model.ShowKafkaTopicPartitionDiskusageResponse), nil
+	}
+}
+
+type ShowKafkaUserClientQuotaInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowKafkaUserClientQuotaInvoker) Invoke() (*model.ShowKafkaUserClientQuotaResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowKafkaUserClientQuotaResponse), nil
 	}
 }
 
@@ -770,6 +830,18 @@ func (i *UpdateInstanceUserInvoker) Invoke() (*model.UpdateInstanceUserResponse,
 		return nil, err
 	} else {
 		return result.(*model.UpdateInstanceUserResponse), nil
+	}
+}
+
+type UpdateKafkaUserClientQuotaTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateKafkaUserClientQuotaTaskInvoker) Invoke() (*model.UpdateKafkaUserClientQuotaTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateKafkaUserClientQuotaTaskResponse), nil
 	}
 }
 

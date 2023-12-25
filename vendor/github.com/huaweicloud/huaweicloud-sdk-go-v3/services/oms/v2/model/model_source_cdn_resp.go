@@ -18,7 +18,7 @@ type SourceCdnResp struct {
 	// 协议类型，支持http和https协议。
 	Protocol SourceCdnRespProtocol `json:"protocol"`
 
-	// 鉴权类型: NONE, QINIU_PRIVATE_AUTHENTICATION, ALIYUN_OSS_A, ALIYUN_OSS_B, ALIYUN_OSS_C, KSYUN_PRIVATE_AUTHENTICATION, AZURE_SAS_TOKEN
+	// 鉴权类型: NONE, QINIU_PRIVATE_AUTHENTICATION, ALIYUN_OSS_A, ALIYUN_OSS_B, ALIYUN_OSS_C, KSYUN_PRIVATE_AUTHENTICATION, AZURE_SAS_TOKEN, TENCENT_COS_A, TENCENT_COS_B, TENCENT_COS_C, TENCENT_COS_D
 	AuthenticationType *SourceCdnRespAuthenticationType `json:"authentication_type,omitempty"`
 }
 
@@ -90,6 +90,10 @@ type SourceCdnRespAuthenticationTypeEnum struct {
 	ALIYUN_OSS_C                 SourceCdnRespAuthenticationType
 	KSYUN_PRIVATE_AUTHENTICATION SourceCdnRespAuthenticationType
 	AZURE_SAS_TOKEN              SourceCdnRespAuthenticationType
+	TENCENT_COS_A                SourceCdnRespAuthenticationType
+	TENCENT_COS_B                SourceCdnRespAuthenticationType
+	TENCENT_COS_C                SourceCdnRespAuthenticationType
+	TENCENT_COS_D                SourceCdnRespAuthenticationType
 }
 
 func GetSourceCdnRespAuthenticationTypeEnum() SourceCdnRespAuthenticationTypeEnum {
@@ -114,6 +118,18 @@ func GetSourceCdnRespAuthenticationTypeEnum() SourceCdnRespAuthenticationTypeEnu
 		},
 		AZURE_SAS_TOKEN: SourceCdnRespAuthenticationType{
 			value: "AZURE_SAS_TOKEN",
+		},
+		TENCENT_COS_A: SourceCdnRespAuthenticationType{
+			value: "TENCENT_COS_A",
+		},
+		TENCENT_COS_B: SourceCdnRespAuthenticationType{
+			value: "TENCENT_COS_B",
+		},
+		TENCENT_COS_C: SourceCdnRespAuthenticationType{
+			value: "TENCENT_COS_C",
+		},
+		TENCENT_COS_D: SourceCdnRespAuthenticationType{
+			value: "TENCENT_COS_D",
 		},
 	}
 }

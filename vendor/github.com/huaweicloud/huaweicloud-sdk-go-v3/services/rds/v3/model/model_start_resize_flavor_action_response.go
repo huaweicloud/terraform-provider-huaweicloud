@@ -9,8 +9,11 @@ import (
 // StartResizeFlavorActionResponse Response Object
 type StartResizeFlavorActionResponse struct {
 
-	// 任务ID。
-	JobId          *string `json:"job_id,omitempty"`
+	// 规格变更的任务id。 仅规格变更按需实例时会返回该参数。
+	JobId *string `json:"job_id,omitempty"`
+
+	// 订单号，规格变更包年包月时返回该参数。
+	OrderId        *string `json:"order_id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

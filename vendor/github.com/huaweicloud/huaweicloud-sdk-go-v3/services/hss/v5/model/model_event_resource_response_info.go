@@ -36,6 +36,24 @@ type EventResourceResponseInfo struct {
 	// 容器ID
 	ContainerId *string `json:"container_id,omitempty"`
 
+	// 容器状态
+	ContainerStatus *string `json:"container_status,omitempty"`
+
+	// pod uid
+	PodUid *string `json:"pod_uid,omitempty"`
+
+	// pod name
+	PodName *string `json:"pod_name,omitempty"`
+
+	// namespace
+	Namespace *string `json:"namespace,omitempty"`
+
+	// 集群id
+	ClusterId *string `json:"cluster_id,omitempty"`
+
+	// 集群名称
+	ClusterName *string `json:"cluster_name,omitempty"`
+
 	// 镜像ID
 	ImageId *string `json:"image_id,omitempty"`
 

@@ -8,10 +8,13 @@ import (
 
 // ListCertsResponse Response Object
 type ListCertsResponse struct {
-	DefaultCerts *DefaultCertsResource `json:"defaultCerts,omitempty"`
 
-	CustomCerts    *CustomCertsResource `json:"customCerts,omitempty"`
-	HttpStatusCode int                  `json:"-"`
+	// 默认证书列表。
+	DefaultCerts *[]DefaultCertsResource `json:"defaultCerts,omitempty"`
+
+	// 自定义证书列表。
+	CustomCerts    *[]CustomCertsResource `json:"customCerts,omitempty"`
+	HttpStatusCode int                    `json:"-"`
 }
 
 func (o ListCertsResponse) String() string {

@@ -18,7 +18,7 @@ type BatchRestartOrDeleteInstanceReq struct {
 	Action BatchRestartOrDeleteInstanceReqAction `json:"action"`
 
 	// 参数值为kafka，表示删除租户所有创建失败的Kafka实例。
-	AllFailure *BatchRestartOrDeleteInstanceReqAllFailure `json:"allFailure,omitempty"`
+	AllFailure *BatchRestartOrDeleteInstanceReqAllFailure `json:"all_failure,omitempty"`
 }
 
 func (o BatchRestartOrDeleteInstanceReq) String() string {

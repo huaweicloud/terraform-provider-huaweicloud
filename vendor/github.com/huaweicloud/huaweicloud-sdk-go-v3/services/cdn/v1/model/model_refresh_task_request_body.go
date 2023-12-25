@@ -11,13 +11,16 @@ import (
 
 type RefreshTaskRequestBody struct {
 
-	// 刷新的类型，其值可以为file 或directory，默认为file
+	// 刷新的类型，其值可以为file：文件，或directory：目录，默认为file。
 	Type *RefreshTaskRequestBodyType `json:"type,omitempty"`
 
 	// 目录刷新方式，all：刷新目录下全部资源；detect_modify_refresh：刷新目录下已变更的资源，默认值为all。
 	Mode *RefreshTaskRequestBodyMode `json:"mode,omitempty"`
 
-	// 输入URL必须带有“http://”或“https://”，多个URL用逗号分隔，单个url的长度限制为4096字符，单次最多输入1000个url。 >   如果您需要刷新的URL中有中文，请同时刷新中文URL和转码后的URL。
+	// 是否对url中的中文字符进行编码后刷新，false代表不开启，true代表开启，开启后仅刷新转码后的URL。
+	ZhUrlEncode *bool `json:"zh_url_encode,omitempty"`
+
+	// 需要刷新的URL必须带有“http://”或“https://”，多个URL用逗号分隔，单个url的长度限制为4096字符，单次最多输入1000个url，如果输入的是目录，支持100个目录刷新。  >   如果您需要刷新的URL中有中文，请同时刷新中文URL和转码后的URL。
 	Urls []string `json:"urls"`
 }
 

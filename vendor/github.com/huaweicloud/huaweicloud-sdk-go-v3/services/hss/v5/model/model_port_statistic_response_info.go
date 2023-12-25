@@ -17,6 +17,9 @@ type PortStatisticResponseInfo struct {
 
 	// 端口数量
 	Num *int32 `json:"num,omitempty"`
+
+	// 危险类型:danger/unknown
+	Status *string `json:"status,omitempty"`
 }
 
 func (o PortStatisticResponseInfo) String() string {

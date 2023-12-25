@@ -30,13 +30,13 @@ type ShowHistoryTasksRequest struct {
 	// 查询结束时间，相对于UTC 1970-01-01到当前时间相隔的毫秒数。
 	EndDate *int64 `json:"end_date,omitempty"`
 
-	// 用来排序的字段，支持的字段有“task_type”，“total”，“processing”， “succeed”，“failed”，“create_time”。order_field和order_type必须同时传值，否则使用默认值\"create_time\" 和 \"desc\"。
+	// 用来排序的字段，支持的字段有“task_type”：任务的类型，“total”：url总数，“processing”：处理中的url个数， “succeed”：成功处理的url个数，“failed”：处理失败的url个数，“create_time”：任务的创建时间。order_field和order_type必须同时传值，否则使用默认值\"create_time\" 和 \"desc\"：降序。
 	OrderField *string `json:"order_field,omitempty"`
 
-	// desc 或者asc。默认值desc。
+	// desc：降序，或者asc：升序。默认值desc。
 	OrderType *string `json:"order_type,omitempty"`
 
-	// file：文件,directory：目录。
+	// 默认是文件file。file：文件,directory：目录。
 	FileType *ShowHistoryTasksRequestFileType `json:"file_type,omitempty"`
 
 	// 任务类型，refresh：刷新任务；preheating：预热任务

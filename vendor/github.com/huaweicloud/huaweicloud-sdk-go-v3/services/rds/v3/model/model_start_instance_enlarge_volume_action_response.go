@@ -9,8 +9,11 @@ import (
 // StartInstanceEnlargeVolumeActionResponse Response Object
 type StartInstanceEnlargeVolumeActionResponse struct {
 
-	// 任务ID。
-	JobId          *string `json:"job_id,omitempty"`
+	// 扩容数据库磁盘空间的任务id。 仅磁盘扩容按需实例时会返回该参数。
+	JobId *string `json:"job_id,omitempty"`
+
+	// 订单号，磁盘扩容包年包月时返回该参数。
+	OrderId        *string `json:"order_id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

@@ -19,6 +19,27 @@ func VpcClientBuilder() *http_client.HcHttpClientBuilder {
 	return builder
 }
 
+// AddSecurityGroups 端口插入安全组
+//
+// 端口插入安全组
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) AddSecurityGroups(request *model.AddSecurityGroupsRequest) (*model.AddSecurityGroupsResponse, error) {
+	requestDef := GenReqDefForAddSecurityGroups()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddSecurityGroupsResponse), nil
+	}
+}
+
+// AddSecurityGroupsInvoker 端口插入安全组
+func (c *VpcClient) AddSecurityGroupsInvoker(request *model.AddSecurityGroupsRequest) *AddSecurityGroupsInvoker {
+	requestDef := GenReqDefForAddSecurityGroups()
+	return &AddSecurityGroupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // AddSourcesToTrafficMirrorSession 流量镜像会话添加镜像源
 //
 // 流量镜像会话添加镜像源
@@ -479,6 +500,27 @@ func (c *VpcClient) MigrateSubNetworkInterface(request *model.MigrateSubNetworkI
 func (c *VpcClient) MigrateSubNetworkInterfaceInvoker(request *model.MigrateSubNetworkInterfaceRequest) *MigrateSubNetworkInterfaceInvoker {
 	requestDef := GenReqDefForMigrateSubNetworkInterface()
 	return &MigrateSubNetworkInterfaceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RemoveSecurityGroups 端口移除安全组
+//
+// 端口移除安全组
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VpcClient) RemoveSecurityGroups(request *model.RemoveSecurityGroupsRequest) (*model.RemoveSecurityGroupsResponse, error) {
+	requestDef := GenReqDefForRemoveSecurityGroups()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RemoveSecurityGroupsResponse), nil
+	}
+}
+
+// RemoveSecurityGroupsInvoker 端口移除安全组
+func (c *VpcClient) RemoveSecurityGroupsInvoker(request *model.RemoveSecurityGroupsRequest) *RemoveSecurityGroupsInvoker {
+	requestDef := GenReqDefForRemoveSecurityGroups()
+	return &RemoveSecurityGroupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // RemoveSourcesFromTrafficMirrorSession 流量镜像会话移除镜像源

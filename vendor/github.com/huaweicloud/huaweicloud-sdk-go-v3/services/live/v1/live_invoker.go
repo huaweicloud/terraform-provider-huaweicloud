@@ -113,6 +113,18 @@ func (i *CreateTranscodingsTemplateInvoker) Invoke() (*model.CreateTranscodingsT
 	}
 }
 
+type CreateUrlAuthchainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateUrlAuthchainInvoker) Invoke() (*model.CreateUrlAuthchainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateUrlAuthchainResponse), nil
+	}
+}
+
 type DeleteDomainInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -146,6 +158,18 @@ func (i *DeleteDomainMappingInvoker) Invoke() (*model.DeleteDomainMappingRespons
 		return nil, err
 	} else {
 		return result.(*model.DeleteDomainMappingResponse), nil
+	}
+}
+
+type DeletePublishTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeletePublishTemplateInvoker) Invoke() (*model.DeletePublishTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeletePublishTemplateResponse), nil
 	}
 }
 
@@ -209,6 +233,42 @@ func (i *DeleteTranscodingsTemplateInvoker) Invoke() (*model.DeleteTranscodingsT
 	}
 }
 
+type ListDelayConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListDelayConfigInvoker) Invoke() (*model.ListDelayConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListDelayConfigResponse), nil
+	}
+}
+
+type ListGeoBlockingConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListGeoBlockingConfigInvoker) Invoke() (*model.ListGeoBlockingConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListGeoBlockingConfigResponse), nil
+	}
+}
+
+type ListIpAuthListInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListIpAuthListInvoker) Invoke() (*model.ListIpAuthListResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListIpAuthListResponse), nil
+	}
+}
+
 type ListLiveSampleLogsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -230,6 +290,18 @@ func (i *ListLiveStreamsOnlineInvoker) Invoke() (*model.ListLiveStreamsOnlineRes
 		return nil, err
 	} else {
 		return result.(*model.ListLiveStreamsOnlineResponse), nil
+	}
+}
+
+type ListPublishTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPublishTemplateInvoker) Invoke() (*model.ListPublishTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPublishTemplateResponse), nil
 	}
 }
 
@@ -329,6 +401,18 @@ func (i *ShowDomainKeyChainInvoker) Invoke() (*model.ShowDomainKeyChainResponse,
 	}
 }
 
+type ShowPullSourcesConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowPullSourcesConfigInvoker) Invoke() (*model.ShowPullSourcesConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowPullSourcesConfigResponse), nil
+	}
+}
+
 type ShowRecordCallbackConfigInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -365,6 +449,18 @@ func (i *ShowTranscodingsTemplateInvoker) Invoke() (*model.ShowTranscodingsTempl
 	}
 }
 
+type UpdateDelayConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDelayConfigInvoker) Invoke() (*model.UpdateDelayConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDelayConfigResponse), nil
+	}
+}
+
 type UpdateDomainInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -398,6 +494,54 @@ func (i *UpdateDomainKeyChainInvoker) Invoke() (*model.UpdateDomainKeyChainRespo
 		return nil, err
 	} else {
 		return result.(*model.UpdateDomainKeyChainResponse), nil
+	}
+}
+
+type UpdateGeoBlockingConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateGeoBlockingConfigInvoker) Invoke() (*model.UpdateGeoBlockingConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateGeoBlockingConfigResponse), nil
+	}
+}
+
+type UpdateIpAuthListInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateIpAuthListInvoker) Invoke() (*model.UpdateIpAuthListResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateIpAuthListResponse), nil
+	}
+}
+
+type UpdatePublishTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdatePublishTemplateInvoker) Invoke() (*model.UpdatePublishTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdatePublishTemplateResponse), nil
+	}
+}
+
+type UpdatePullSourcesConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdatePullSourcesConfigInvoker) Invoke() (*model.UpdatePullSourcesConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdatePullSourcesConfigResponse), nil
 	}
 }
 

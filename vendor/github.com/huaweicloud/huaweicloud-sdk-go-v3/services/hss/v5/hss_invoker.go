@@ -41,6 +41,30 @@ func (i *BatchCreateTagsInvoker) Invoke() (*model.BatchCreateTagsResponse, error
 	}
 }
 
+type BatchScanSwrImageInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchScanSwrImageInvoker) Invoke() (*model.BatchScanSwrImageResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchScanSwrImageResponse), nil
+	}
+}
+
+type ChangeBlockedIpInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ChangeBlockedIpInvoker) Invoke() (*model.ChangeBlockedIpResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ChangeBlockedIpResponse), nil
+	}
+}
+
 type ChangeEventInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -62,6 +86,30 @@ func (i *ChangeHostsGroupInvoker) Invoke() (*model.ChangeHostsGroupResponse, err
 		return nil, err
 	} else {
 		return result.(*model.ChangeHostsGroupResponse), nil
+	}
+}
+
+type ChangeIsolatedFileInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ChangeIsolatedFileInvoker) Invoke() (*model.ChangeIsolatedFileResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ChangeIsolatedFileResponse), nil
+	}
+}
+
+type ChangeVulScanPolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ChangeVulScanPolicyInvoker) Invoke() (*model.ChangeVulScanPolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ChangeVulScanPolicyResponse), nil
 	}
 }
 
@@ -185,6 +233,30 @@ func (i *ListAutoLaunchsInvoker) Invoke() (*model.ListAutoLaunchsResponse, error
 	}
 }
 
+type ListBlockedIpInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListBlockedIpInvoker) Invoke() (*model.ListBlockedIpResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListBlockedIpResponse), nil
+	}
+}
+
+type ListContainerNodesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListContainerNodesInvoker) Invoke() (*model.ListContainerNodesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListContainerNodesResponse), nil
+	}
+}
+
 type ListHostGroupsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -242,6 +314,54 @@ func (i *ListHostVulsInvoker) Invoke() (*model.ListHostVulsResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListHostVulsResponse), nil
+	}
+}
+
+type ListImageRiskConfigRulesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListImageRiskConfigRulesInvoker) Invoke() (*model.ListImageRiskConfigRulesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListImageRiskConfigRulesResponse), nil
+	}
+}
+
+type ListImageRiskConfigsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListImageRiskConfigsInvoker) Invoke() (*model.ListImageRiskConfigsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListImageRiskConfigsResponse), nil
+	}
+}
+
+type ListImageVulnerabilitiesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListImageVulnerabilitiesInvoker) Invoke() (*model.ListImageVulnerabilitiesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListImageVulnerabilitiesResponse), nil
+	}
+}
+
+type ListIsolatedFileInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListIsolatedFileInvoker) Invoke() (*model.ListIsolatedFileResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListIsolatedFileResponse), nil
 	}
 }
 
@@ -413,6 +533,18 @@ func (i *ListSecurityEventsInvoker) Invoke() (*model.ListSecurityEventsResponse,
 	}
 }
 
+type ListSwrImageRepositoryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListSwrImageRepositoryInvoker) Invoke() (*model.ListSwrImageRepositoryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListSwrImageRepositoryResponse), nil
+	}
+}
+
 type ListUserChangeHistoriesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -473,6 +605,18 @@ func (i *ListVulnerabilitiesInvoker) Invoke() (*model.ListVulnerabilitiesRespons
 	}
 }
 
+type ListVulnerabilityCveInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListVulnerabilityCveInvoker) Invoke() (*model.ListVulnerabilityCveResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListVulnerabilityCveResponse), nil
+	}
+}
+
 type ListWeakPasswordUsersInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -494,6 +638,18 @@ func (i *ListWtpProtectHostInvoker) Invoke() (*model.ListWtpProtectHostResponse,
 		return nil, err
 	} else {
 		return result.(*model.ListWtpProtectHostResponse), nil
+	}
+}
+
+type RunImageSynchronizeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RunImageSynchronizeInvoker) Invoke() (*model.RunImageSynchronizeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RunImageSynchronizeResponse), nil
 	}
 }
 
@@ -557,6 +713,18 @@ func (i *ShowCheckRuleDetailInvoker) Invoke() (*model.ShowCheckRuleDetailRespons
 	}
 }
 
+type ShowImageCheckRuleDetailInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowImageCheckRuleDetailInvoker) Invoke() (*model.ShowImageCheckRuleDetailResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowImageCheckRuleDetailResponse), nil
+	}
+}
+
 type ShowResourceQuotasInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -578,6 +746,30 @@ func (i *ShowRiskConfigDetailInvoker) Invoke() (*model.ShowRiskConfigDetailRespo
 		return nil, err
 	} else {
 		return result.(*model.ShowRiskConfigDetailResponse), nil
+	}
+}
+
+type ShowVulScanPolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowVulScanPolicyInvoker) Invoke() (*model.ShowVulScanPolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowVulScanPolicyResponse), nil
+	}
+}
+
+type ShowVulStaticsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowVulStaticsInvoker) Invoke() (*model.ShowVulStaticsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowVulStaticsResponse), nil
 	}
 }
 
