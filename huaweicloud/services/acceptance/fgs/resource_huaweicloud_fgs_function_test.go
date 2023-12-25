@@ -24,9 +24,12 @@ func getResourceObj(conf *config.Config, state *terraform.ResourceState) (interf
 }
 
 func TestAccFgsV2Function_basic(t *testing.T) {
-	var f function.Function
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_fgs_function.test"
+	var (
+		f              function.Function
+		randName       = acceptance.RandomAccResourceName()
+		obsOjectConfig = zipFileUploadResourcesConfig()
+		resourceName   = "huaweicloud_fgs_function.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -40,28 +43,39 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_basic(randName),
+				Config: testAccFgsV2Function_basic_step1(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					// Default value is v2. Some regions support only v1, the default value is v1
 					resource.TestMatchResourceAttr(resourceName, "functiongraph_version", regexp.MustCompile(`v1|v2`)),
+					resource.TestCheckResourceAttr(resourceName, "description", "function test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
+					resource.TestCheckResourceAttr(resourceName, "code_type", "inline"),
 				),
 			},
 			{
-				Config: testAccFgsV2Function_update(randName),
+				Config: testAccFgsV2Function_basic_step2(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "function test update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "depend_list.#", "1"),
+				),
+			},
+			{
+				Config: testAccFgsV2Function_basic_step3(randName, obsOjectConfig),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "depend_list.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "code_type", "obs"),
 				),
 			},
 			{
@@ -285,13 +299,48 @@ func TestAccFgsV2Function_logConfig(t *testing.T) {
 	})
 }
 
-func testAccFgsV2Function_basic(rName string) string {
+func zipFileUploadResourcesConfig() string {
+	randName := acceptance.RandomAccResourceNameWithDash()
+
+	return fmt.Sprintf(`
+variable "script_content" {
+  type    = string
+  default = <<EOT
+def main():  
+    print("Hello, World!")  
+
+if __name__ == "__main__":  
+    main()
+EOT
+}
+
+resource "huaweicloud_obs_bucket" "test" {
+  bucket = "%[1]s"
+  acl    = "private"
+
+  provisioner "local-exec" {
+    command = "echo '${var.script_content}' >> test.py\nzip -r test.zip test.py"
+  }
+  provisioner "local-exec" {
+    command = "rm test.zip test.py"
+    when    = destroy
+  }
+}
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket = huaweicloud_obs_bucket.test.bucket
+  key    = "test.zip"
+  source = abspath("./test.zip")
+}`, randName)
+}
+
+func testAccFgsV2Function_basic_step1(rName string) string {
 	//nolint:revive
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
-  description = "fuction test"
+  description = "function test"
   handler     = "index.handler"
   memory_size = 128
   timeout     = 3
@@ -307,15 +356,20 @@ resource "huaweicloud_fgs_function" "test" {
 `, rName)
 }
 
-func testAccFgsV2Function_update(rName string) string {
+func testAccFgsV2Function_basic_step2(rName string) string {
 	//nolint:revive
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_fgs_dependencies" "test" {
+  type    = "public"
+  runtime = "Python2.7"
+}
+
 resource "huaweicloud_fgs_function" "test" {
   name        = "%[2]s"
   app         = "default"
-  description = "fuction test update"
+  description = "function test update"
   handler     = "index.handler"
   memory_size = 128
   timeout     = 3
@@ -325,6 +379,7 @@ resource "huaweicloud_fgs_function" "test" {
   agency      = "function_vpc_trust"
   vpc_id      = huaweicloud_vpc.test.id
   network_id  = huaweicloud_vpc_subnet.test.id
+  depend_list = try(slice(data.huaweicloud_fgs_dependencies.test.packages[*].id, 0, 1), [])
 
   tags = {
     foo    = "baar"
@@ -332,6 +387,41 @@ resource "huaweicloud_fgs_function" "test" {
   }
 }
 `, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccFgsV2Function_basic_step3(rName, obsConfig string) string {
+	//nolint:revive
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+data "huaweicloud_fgs_dependencies" "test" {
+  type    = "public"
+  runtime = "Python2.7"
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[3]s"
+  app         = "default"
+  description = "fuction test update"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "obs"
+  code_url    = format("https://%%s/%%s", huaweicloud_obs_bucket.test.bucket_domain_name, huaweicloud_obs_bucket_object.test.key)
+  agency      = "function_vpc_trust"
+  vpc_id      = huaweicloud_vpc.test.id
+  network_id  = huaweicloud_vpc_subnet.test.id
+  depend_list = try(slice(data.huaweicloud_fgs_dependencies.test.packages[*].id, 0, 2), [])
+
+  tags = {
+    foo    = "baar"
+    newkey = "value"
+  }
+}
+`, common.TestBaseNetwork(rName), obsConfig, rName)
 }
 
 func testAccFgsV2Function_text(rName string) string {
