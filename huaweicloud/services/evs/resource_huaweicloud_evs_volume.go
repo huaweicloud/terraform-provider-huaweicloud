@@ -562,7 +562,7 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 			opts := block_devices.DetachOpts{
 				ServerId: attachment.ServerID,
 			}
-			job, err := block_devices.Detach(computeClient, attachment.AttachmentID, opts)
+			job, err := block_devices.Detach(computeClient, attachment.VolumeID, opts)
 			if err != nil {
 				return diag.FromErr(err)
 			}
