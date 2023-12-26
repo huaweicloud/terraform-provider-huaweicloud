@@ -611,8 +611,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_file_system": sfs.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
 
-			"huaweicloud_swr_organizations": swr.DataSourceOrganizations(),
-			"huaweicloud_swr_repositories":  swr.DataSourceRepositories(),
+			"huaweicloud_swr_organizations":  swr.DataSourceOrganizations(),
+			"huaweicloud_swr_repositories":   swr.DataSourceRepositories(),
+			"huaweicloud_swr_image_triggers": swr.DataSourceImageTriggers(),
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
