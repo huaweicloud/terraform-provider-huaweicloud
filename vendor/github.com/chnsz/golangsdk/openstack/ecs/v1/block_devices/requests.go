@@ -84,7 +84,7 @@ func Detach(c *golangsdk.ServiceClient, volumeId string, opts DetachOpts) (*jobs
 	url += query.String()
 
 	var r jobs.Job
-	_, err = c.DeleteWithBody(url, &r, &golangsdk.RequestOpts{
+	_, err = c.DeleteWithResponse(url, &r, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
