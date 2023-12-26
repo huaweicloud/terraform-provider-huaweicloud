@@ -485,6 +485,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_er_availability_zones": er.DataSourceAvailabilityZones(),
 
 			"huaweicloud_evs_volumes":      evs.DataSourceEvsVolumesV2(),
+			"huaweicloud_evs_snapshots":    evs.DataSourceEvsSnapshots(),
 			"huaweicloud_fgs_dependencies": fgs.DataSourceFunctionGraphDependencies(),
 			"huaweicloud_fgs_functions":    fgs.DataSourceFunctionGraphFunctions(),
 
