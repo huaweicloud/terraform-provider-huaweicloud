@@ -100,6 +100,7 @@ github.com/chnsz/golangsdk/openstack/css/v1/cluster
 github.com/chnsz/golangsdk/openstack/css/v1/snapshots
 github.com/chnsz/golangsdk/openstack/css/v1/thesaurus
 github.com/chnsz/golangsdk/openstack/cts/v1/tracker
+github.com/chnsz/golangsdk/openstack/dayu/v1/connections
 github.com/chnsz/golangsdk/openstack/dayu/v1/instances
 github.com/chnsz/golangsdk/openstack/dc/v3/gateways
 github.com/chnsz/golangsdk/openstack/dc/v3/interfaces

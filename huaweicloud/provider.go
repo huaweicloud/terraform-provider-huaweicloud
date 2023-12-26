@@ -1103,7 +1103,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_resource_pool":          modelarts.ResourceModelartsResourcePool(),
 
 			// DataArts Studio - Management Center
-			"huaweicloud_dataarts_studio_instance": dataarts.ResourceStudioInstance(),
+			"huaweicloud_dataarts_studio_data_connection": dataarts.ResourceDataConnection(),
+			"huaweicloud_dataarts_studio_instance":        dataarts.ResourceStudioInstance(),
 			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_directory":       dataarts.ResourceArchitectureDirectory(),
 			"huaweicloud_dataarts_architecture_model":           dataarts.ResourceArchitectureModel(),
