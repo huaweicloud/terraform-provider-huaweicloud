@@ -140,55 +140,18 @@ func ResourceInstance() *schema.Resource {
 	}
 }
 
-func addResourceTags(client *golangsdk.ServiceClient, resourceType, resourceId, key, value string) error {
-	var (
-		addTagsHttpUrl = "v3/{project_id}/{resource_type}/{resource_id}/tags"
-	)
-
-	addTagsPath := client.Endpoint + addTagsHttpUrl
-	addTagsPath = strings.ReplaceAll(addTagsPath, "{project_id}", client.ProjectID)
-	addTagsPath = strings.ReplaceAll(addTagsPath, "{resource_type}", resourceType)
-	addTagsPath = strings.ReplaceAll(addTagsPath, "{resource_id}", resourceId)
-
-	addTagsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
-	}
-	addTagsOpt.JSONBody = map[string]interface{}{
-		"tag": map[string]interface{}{
-			"key":   key,
-			"value": value,
-		},
-	}
-	_, err := client.Request("POST", addTagsPath, &addTagsOpt)
-	if err != nil {
-		return fmt.Errorf("error adding tags to ER instance: %s", err)
-	}
-
-	return nil
-}
-
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	// createInstance: Create an Enterprise router instance.
-	var (
-		createInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances"
-		createInstanceProduct = "er"
-	)
-	createInstanceClient, err := cfg.NewServiceClient(createInstanceProduct, region)
+	createInstanceHttpUrl := "enterprise-router/instances"
+	client, err := cfg.ErV3Client(region)
 	if err != nil {
-		return diag.Errorf("error creating Instance Client: %s", err)
+		return diag.Errorf("error creating ER v3 Client: %s", err)
 	}
 
-	createInstancePath := createInstanceClient.Endpoint + createInstanceHttpUrl
-	createInstancePath = strings.ReplaceAll(createInstancePath, "{project_id}", createInstanceClient.ProjectID)
+	createInstancePath := client.ResourceBaseURL() + createInstanceHttpUrl
 
 	createInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -197,7 +160,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		},
 	}
 	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg))
-	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
+	createInstanceResp, err := client.Request("POST", createInstancePath, &createInstanceOpt)
 	if err != nil {
 		return diag.Errorf("error creating Instance: %s", err)
 	}
@@ -250,13 +213,9 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	if tags, ok := d.GetOk("tags"); ok {
-		for k, v := range tags.(map[string]interface{}) {
-			err := addResourceTags(createInstanceClient, "instance", id.(string), k, v.(string))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
+	err = utils.UpdateResourceTags(client, d, "instance", d.Id())
+	if err != nil {
+		return diag.Errorf("error creating instance tags: %s", err)
 	}
 
 	return resourceInstanceRead(ctx, d, meta)
@@ -416,61 +375,12 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func deleteResourceTags(client *golangsdk.ServiceClient, resourceType, resourceId, key string) error {
-	var (
-		deleteTagsHttpUrl = "v3/{project_id}/{resource_type}/{resource_id}/tags/{key}"
-	)
-
-	deleteTagsPath := client.Endpoint + deleteTagsHttpUrl
-	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{project_id}", client.ProjectID)
-	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_type}", resourceType)
-	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_id}", resourceId)
-	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{key}", key)
-
-	deleteTagsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
-	}
-
-	_, err := client.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
-	if err != nil {
-		return fmt.Errorf("error deleting tags from ER instance: %s", err)
-	}
-
-	return nil
-}
-
-func updateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	oRaw, nRaw := d.GetChange("tags")
-	oMap := oRaw.(map[string]interface{})
-	nMap := nRaw.(map[string]interface{})
-	instanceId := d.Id()
-
-	for k := range oMap {
-		err := deleteResourceTags(client, "instance", instanceId, k)
-		if err != nil {
-			return err
-		}
-	}
-
-	for k, v := range nMap {
-		err := addResourceTags(client, "instance", instanceId, k, v.(string))
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("er", region)
+	client, err := cfg.ErV3Client(region)
 	if err != nil {
-		return diag.Errorf("error creating ER Client: %s", err)
+		return diag.Errorf("error creating ER v3 Client: %s", err)
 	}
 
 	updateInstancehasChanges := []string{
@@ -485,8 +395,8 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstancehasChanges...) {
 		// updateInstance: Update the configuration of Enterprise router instance
-		updateInstanceHttpUrl := "v3/{project_id}/enterprise-router/instances/{id}"
-		updateInstancePath := client.Endpoint + updateInstanceHttpUrl
+		updateInstanceHttpUrl := "enterprise-router/instances/{id}"
+		updateInstancePath := client.ResourceBaseURL() + updateInstanceHttpUrl
 		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{project_id}", client.ProjectID)
 		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{id}", d.Id())
 
@@ -513,8 +423,8 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstanceAvailabilityZoneshasChanges...) {
 		// updateInstanceAvailabilityZones: Update the availability zone list where the Enterprise router instance is located
-		updateInstanceAvailabilityZonesHttpUrl := "v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids"
-		updateInstanceAvailabilityZonesPath := client.Endpoint + updateInstanceAvailabilityZonesHttpUrl
+		updateInstanceAvailabilityZonesHttpUrl := "enterprise-router/instances/{id}/change-availability-zone-ids"
+		updateInstanceAvailabilityZonesPath := client.ResourceBaseURL() + updateInstanceAvailabilityZonesHttpUrl
 		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{project_id}", client.ProjectID)
 		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{id}", d.Id())
 
@@ -536,8 +446,9 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if d.HasChange("tags") {
-		if err := updateResourceTags(client, d); err != nil {
-			return diag.FromErr(err)
+		err = utils.UpdateResourceTags(client, d, "instance", d.Id())
+		if err != nil {
+			return diag.Errorf("error updating instance tags: %s", err)
 		}
 	}
 	return resourceInstanceRead(ctx, d, meta)
