@@ -59,28 +59,39 @@ The following arguments are supported:
 <a name="centralNetworkPolicy_AssociateErInstanceDocument"></a>
 The `er_instances` block supports:
 
-* `project_id` - (Optional, String) Project ID.
+* `project_id` - (Required, String, ForceNew) Project ID.
 
-* `region_id` - (Optional, String) Region ID.
+  Changing this parameter will create a new resource.
 
-* `enterprise_router_id` - (Optional, String) Enterprise router ID.
+* `region_id` - (Required, String, ForceNew) Region ID.
+
+  Changing this parameter will create a new resource.
+  
+* `enterprise_router_id` - (Required, String, ForceNew) Enterprise router ID.
+
+  Changing this parameter will create a new resource.
 
 <a name="centralNetworkPolicy_CentralNetworkPolicyPlaneDocument"></a>
 The `planes` block supports:
 
-* `associate_er_tables` - (Optional, List) List of route tables associated with the central network policy.
+* `associate_er_tables` - (Required, List, ForceNew) List of route tables associated with the central network policy.
   The [associate_er_tables](#centralNetworkPolicy_AssociateErTableDocument) structure is documented below.
+  Changing this parameter will create a new resource.
 
 <a name="centralNetworkPolicy_AssociateErTableDocument"></a>
 The `associate_er_tables` block supports:
 
-* `project_id` - (Optional, String) Project ID.
+* `project_id` - (Required, String, ForceNew) Project ID.
+  Changing this parameter will create a new resource.
 
-* `region_id` - (Optional, String) Region ID.
+* `region_id` - (Required, String, ForceNew) Region ID.
+  Changing this parameter will create a new resource.
 
-* `enterprise_router_id` - (Optional, String) Enterprise router ID.
+* `enterprise_router_id` - (Required, String, ForceNew) Enterprise router ID.
+  Changing this parameter will create a new resource.
 
-* `enterprise_router_table_id` - (Optional, String) Enterprise router table ID.
+* `enterprise_router_table_id` - (Required, String, ForceNew) Enterprise router table ID.
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

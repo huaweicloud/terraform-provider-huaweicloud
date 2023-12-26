@@ -72,7 +72,10 @@ func TestAccCentralNetworkPolicy_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -88,6 +91,23 @@ func TestAccCentralNetworkPolicy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "is_applied", "false"),
 					resource.TestCheckResourceAttrSet(rName, "document_template_version"),
 					resource.TestCheckResourceAttrSet(rName, "version"),
+					resource.TestCheckResourceAttr(rName, "planes.0.associate_er_tables.#", "0"),
+				),
+			},
+			{
+				Config: testCentralNetworkPolicy_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "central_network_id",
+						"huaweicloud_cc_central_network.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "er_instances.0.enterprise_router_id",
+						"huaweicloud_er_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "state", "AVAILABLE"),
+					resource.TestCheckResourceAttr(rName, "is_applied", "false"),
+					resource.TestCheckResourceAttrSet(rName, "document_template_version"),
+					resource.TestCheckResourceAttrSet(rName, "version"),
+					resource.TestCheckResourceAttrPair(rName, "planes.0.associate_er_tables.0.enterprise_router_id",
+						"huaweicloud_er_instance.test", "id"),
 				),
 			},
 			{
@@ -101,6 +121,38 @@ func TestAccCentralNetworkPolicy_basic(t *testing.T) {
 }
 
 func testCentralNetworkPolicy_basic(name string) string {
+	return fmt.Sprintf(`
+
+data "huaweicloud_er_availability_zones" "test" {}
+
+resource "huaweicloud_er_instance" "test" {
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
+
+  name                           = "%[1]s"
+  asn                            = 64512
+  enable_default_propagation     = true
+  enable_default_association     = true
+  auto_accept_shared_attachments = true
+}
+
+ resource "huaweicloud_cc_central_network" "test" {
+   name        = "%[1]s"
+   description = "This is an accaptance test"
+ }
+
+resource "huaweicloud_cc_central_network_policy" "test" {
+  central_network_id = huaweicloud_cc_central_network.test.id
+
+  er_instances {
+    project_id           = "%[2]s"
+    region_id            = "%[3]s"
+    enterprise_router_id = huaweicloud_er_instance.test.id
+  }
+}
+`, name, acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
+}
+
+func testCentralNetworkPolicy_update(name string) string {
 	return fmt.Sprintf(`
 
 data "huaweicloud_er_availability_zones" "test" {}
