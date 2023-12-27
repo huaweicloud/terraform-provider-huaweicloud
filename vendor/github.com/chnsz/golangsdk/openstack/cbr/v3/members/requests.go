@@ -81,6 +81,42 @@ func List(client *golangsdk.ServiceClient, opts ListOpts) ([]Member, error) {
 	return ExtractMembers(pages)
 }
 
+// UpdateOpts is the structure that used to modify the shared member status.
+type UpdateOpts struct {
+	// Backup ID.
+	BackupId string `json:"-" required:"true"`
+	// Member ID.
+	MemberId string `json:"-" required:"true"`
+	// Status of a shared backup
+	// The valid values are as follows:
+	// + accepted
+	// + pending
+	// + rejected
+	Status string `json:"status" required:"true"`
+	// Vault in which the shared backup is to be stored.
+	// Only UUID is supported.
+	// When updating the status of a backup sharing member:
+	// + If the backup is accepted, vault_id must be specified.
+	// + If the backup is rejected, vault_id is not required.
+	VaultId string `json:"vault_id,omitempty"`
+}
+
+// Update is a method used to modify the specified shared member using given parameters.
+func Update(client *golangsdk.ServiceClient, opts UpdateOpts) (*Member, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r struct {
+		Member Member `json:"member"`
+	}
+	_, err = client.Put(resourceURL(client, opts.BackupId, opts.MemberId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r.Member, err
+}
+
 // Delete is a method to remove a specified member from the specified backup.
 func Delete(client *golangsdk.ServiceClient, backupId, memberId string) error {
 	_, err := client.Delete(resourceURL(client, backupId, memberId), &golangsdk.RequestOpts{
