@@ -104,7 +104,7 @@ func ResourceNode() *schema.Resource {
 						},
 						"value": {
 							Type:     schema.TypeString,
-							Required: false,
+							Optional:  true,
 							ForceNew: true,
 						},
 						"effect": {
