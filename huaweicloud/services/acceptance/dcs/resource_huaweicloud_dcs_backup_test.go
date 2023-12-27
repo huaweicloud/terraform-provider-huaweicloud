@@ -32,25 +32,22 @@ func getDcsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<backup_id>")
 	}
 	instanceID := parts[0]
-	backupId := parts[1]
-	getBackupPath := getBackupClient.Endpoint + getBackupHttpUrl
-	getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", getBackupClient.ProjectID)
-	getBackupPath = strings.ReplaceAll(getBackupPath, "{instance_id}", instanceID)
+	backupID := parts[1]
+	getBackupBasePath := getBackupClient.Endpoint + getBackupHttpUrl
+	getBackupBasePath = strings.ReplaceAll(getBackupBasePath, "{project_id}", getBackupClient.ProjectID)
+	getBackupBasePath = strings.ReplaceAll(getBackupBasePath, "{instance_id}", instanceID)
 
 	getDdmSchemasOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
 	var currentTotal int
-	getBackupPath += buildGetDcsBackupQueryParams(currentTotal)
-
+	var getBackupPath string
 	for {
+		getBackupPath = getBackupBasePath + buildGetDcsBackupQueryParams(currentTotal)
 		getBackupResp, err := getBackupClient.Request("GET", getBackupPath, &getDdmSchemasOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving DcsBackup")
+			return nil, fmt.Errorf("error retrieving DCS backup: %s", err)
 		}
 		getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
 		if err != nil {
@@ -60,31 +57,25 @@ func getDcsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 		total := utils.PathSearch("total_num", getBackupRespBody, 0)
 		for _, backup := range backups {
 			id := utils.PathSearch("backup_id", backup, "")
-			if id != backupId {
+			if id != backupID {
 				continue
 			}
 			status := utils.PathSearch("status", backup, "")
 			if status == "deleted" {
-				return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", backupId)
+				return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", backupID)
 			}
 			return backup, nil
 		}
 		currentTotal += len(backups)
-		if currentTotal == total {
+		if currentTotal == int(total.(float64)) {
 			break
 		}
-		getBackupPath = updatePathOffset(getBackupPath, currentTotal)
 	}
-	return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", state.Primary.ID)
+	return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", backupID)
 }
 
 func buildGetDcsBackupQueryParams(offset int) string {
 	return fmt.Sprintf("?limit=10&offset=%v", offset)
-}
-
-func updatePathOffset(path string, offset int) string {
-	index := strings.Index(path, "offset")
-	return fmt.Sprintf("%soffset=%v", path[:index], offset)
 }
 
 func TestAccDcsBackup_basic(t *testing.T) {
@@ -114,6 +105,7 @@ func TestAccDcsBackup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "status", "succeed"),
 					resource.TestCheckResourceAttr(rName, "description", "test DCS backup remark"),
 					resource.TestCheckResourceAttr(rName, "backup_format", "rdb"),
+					resource.TestCheckResourceAttrSet(rName, "backup_id"),
 					resource.TestCheckResourceAttrSet(rName, "name"),
 					resource.TestCheckResourceAttrSet(rName, "size"),
 					resource.TestCheckResourceAttrSet(rName, "type"),
