@@ -955,6 +955,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_er_route_table":    er.ResourceRouteTable(),
 			"huaweicloud_er_static_route":   er.ResourceStaticRoute(),
 			"huaweicloud_er_vpc_attachment": er.ResourceVpcAttachment(),
+			"huaweicloud_er_flow_log":       er.ResourceFlowLog(),
 
 			"huaweicloud_evs_snapshot": evs.ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":   evs.ResourceEvsVolume(),
