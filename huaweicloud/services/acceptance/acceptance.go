@@ -239,6 +239,7 @@ var (
 	HW_DATAARTS_CATEGORY_ID_UPDATE      = os.Getenv("HW_DATAARTS_CATEGORY_ID_UPDATE")
 	HW_DATAARTS_BUILTIN_RULE_ID         = os.Getenv("HW_DATAARTS_BUILTIN_RULE_ID")
 	HW_DATAARTS_BUILTIN_RULE_NAME       = os.Getenv("HW_DATAARTS_BUILTIN_RULE_NAME")
+	HW_DATAARTS_SUBJECT_ID              = os.Getenv("HW_DATAARTS_SUBJECT_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1072,5 +1073,12 @@ func TestAccPreCheckDataArtsDataClassificationID(t *testing.T) {
 func TestAccPreCheckDataArtsBuiltinRule(t *testing.T) {
 	if HW_DATAARTS_BUILTIN_RULE_ID == "" || HW_DATAARTS_BUILTIN_RULE_NAME == "" {
 		t.Skip("HW_DATAARTS_BUILTIN_RULE_ID and HW_DATAARTS_BUILTIN_RULE_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsSubjectID(t *testing.T) {
+	if HW_DATAARTS_SUBJECT_ID == "" {
+		t.Skip("HW_DATAARTS_SUBJECT_ID must be set for the acceptance test")
 	}
 }
