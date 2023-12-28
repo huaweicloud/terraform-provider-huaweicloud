@@ -32,6 +32,9 @@ The following arguments are supported:
 * `traffic_threshold` - (Required, Int) Specifies the traffic cleaning threshold in Mbps.
   The value can be 10, 30, 50, 70, 100, 120, 150, 200, 250, 300, 1000 Mbps.
 
+* `topic_urn` - (Optional, String) Specifies the SMN topic URN. When the value is not empty, it means turning on the alarm
+  notification. When the value is empty, it means turning off the alarm notification.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

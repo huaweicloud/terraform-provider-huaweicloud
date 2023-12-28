@@ -22,6 +22,7 @@ github.com/chnsz/golangsdk/internal
 github.com/chnsz/golangsdk/openstack
 github.com/chnsz/golangsdk/openstack/aad/v1/rules
 github.com/chnsz/golangsdk/openstack/antiddos/v1/antiddos
+github.com/chnsz/golangsdk/openstack/antiddos/v2/alarmreminding
 github.com/chnsz/golangsdk/openstack/aom/v1/icagents
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/acls
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups
