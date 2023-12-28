@@ -70,8 +70,7 @@
                 "type": "string",
                 "description": "The enterprise project ID",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "er_id": {
                 "type": "string",
@@ -152,6 +151,98 @@
               }
             },
             "block_types": {
+              "certificate": {
+                "block": {
+                  "attributes": {
+                    "certificate_chain": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "certificate_chain_expire_time": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "certificate_chain_serial_number": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "certificate_chain_subject": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "certificate_expire_time": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "certificate_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "certificate_serial_number": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "certificate_subject": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "content": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "enc_certificate": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "enc_certificate_expire_time": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "enc_certificate_serial_number": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "enc_certificate_subject": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "enc_private_key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "private_key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "signature_algorithm": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "eip1": {
                 "block": {
                   "attributes": {
@@ -323,7 +414,8 @@
                       "computed": true,
                       "forcenew": true
                     }
-                  }
+                  },
+                  "description": "schema:{\"Internal\":true};"
                 },
                 "nesting_mode": "list",
                 "forcenew": true,
@@ -382,7 +474,8 @@
                       "computed": true,
                       "forcenew": true
                     }
-                  }
+                  },
+                  "description": "schema:{\"Internal\":true};"
                 },
                 "nesting_mode": "list",
                 "forcenew": true,

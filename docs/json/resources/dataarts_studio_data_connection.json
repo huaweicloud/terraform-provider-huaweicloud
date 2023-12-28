@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_studio_data_connection": {
+          "block": {
+            "attributes": {
+              "agent_id": {
+                "type": "string",
+                "description": "The agent ID.",
+                "optional": true,
+                "computed": true
+              },
+              "agent_name": {
+                "type": "string",
+                "description": "The agent name.",
+                "optional": true,
+                "computed": true
+              },
+              "config": {
+                "type": "string",
+                "description": "The dynamic configuration for the specified type of data connection.",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the data connection.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The name of the data connection creator.",
+                "computed": true
+              },
+              "env_type": {
+                "type": "number",
+                "description": "The data connection mode.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The data connection name.",
+                "required": true
+              },
+              "qualified_name": {
+                "type": "string",
+                "description": "The qualified name of this data connection.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the data connection is located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The data connection type.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the data connection belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

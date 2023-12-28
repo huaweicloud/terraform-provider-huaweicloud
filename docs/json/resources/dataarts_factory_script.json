@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_factory_script": {
+          "block": {
+            "attributes": {
+              "auto_acquire_lock": {
+                "type": "bool",
+                "computed": true
+              },
+              "configuration": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "connection_name": {
+                "type": "string",
+                "required": true
+              },
+              "content": {
+                "type": "string",
+                "required": true
+              },
+              "created_by": {
+                "type": "string",
+                "computed": true
+              },
+              "database": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "directory": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "queue_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "target_status": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "approvers": {
+                "block": {
+                  "attributes": {
+                    "approver_name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

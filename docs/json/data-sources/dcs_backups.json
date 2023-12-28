@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_backups": {
+          "block": {
+            "attributes": {
+              "backup_format": {
+                "type": "string",
+                "description": "Specifies the format of the DCS instance backup.",
+                "optional": true
+              },
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance backup.",
+                "optional": true
+              },
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_format": "string",
+                      "begin_time": "string",
+                      "description": "string",
+                      "end_time": "string",
+                      "error_code": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "is_support_restore": "string",
+                      "name": "string",
+                      "progress": "string",
+                      "size": "number",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of backup records.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the start time (UTC) of DCS backups.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time (UTC) of DCS backups.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true
+              },
+              "is_support_restore": {
+                "type": "string",
+                "description": "Specifies whether restoration is supported.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the backup name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the backup status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the backup type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

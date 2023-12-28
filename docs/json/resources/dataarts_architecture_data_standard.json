@@ -1,0 +1,155 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_data_standard": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time of the data standard.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "Indicates the name of creator.",
+                "computed": true
+              },
+              "directory_id": {
+                "type": "string",
+                "description": "Specifies the directory ID that the data standard belongs to.",
+                "required": true
+              },
+              "directory_path": {
+                "type": "string",
+                "description": "Indicates the path of the directory.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "new_biz": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_id": "string",
+                      "biz_info": "string",
+                      "biz_type": "string",
+                      "biz_version": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the biz info of manager.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the data standard.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the latest update time of the data standard.",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "description": "Indicates the name of updater.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID of DataArts Architecture.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "values": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "Indicates the creation time of the data standard.",
+                      "computed": true
+                    },
+                    "created_by": {
+                      "type": "string",
+                      "description": "Indicates the name of creator.",
+                      "computed": true
+                    },
+                    "directory_id": {
+                      "type": "string",
+                      "description": "Indicates the directory ID that the attribute belongs to.",
+                      "computed": true
+                    },
+                    "fd_id": {
+                      "type": "string",
+                      "description": "Indicates the ID of the data standard attribute.",
+                      "computed": true
+                    },
+                    "fd_name": {
+                      "type": "string",
+                      "description": "Specifies the name of the data standard attribute.",
+                      "required": true
+                    },
+                    "fd_value": {
+                      "type": "string",
+                      "description": "Specifies the value of the data standard attribute.",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Indicates the ID of the data standard attribute.",
+                      "computed": true
+                    },
+                    "row_id": {
+                      "type": "string",
+                      "description": "Indicates the ID of data standard.",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Indicates the status of the data standard.",
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "Indicates the latest update time of the data standard.",
+                      "computed": true
+                    },
+                    "updated_by": {
+                      "type": "string",
+                      "description": "Indicates the name of updater.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the value of data standard attributes."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

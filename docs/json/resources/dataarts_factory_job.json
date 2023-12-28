@@ -1,0 +1,479 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_factory_job": {
+          "block": {
+            "attributes": {
+              "directory": {
+                "type": "string",
+                "description": "Path of a job in the directory tree.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_path": {
+                "type": "string",
+                "description": "The OBS path where job execution logs are stored.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Job name.",
+                "required": true
+              },
+              "process_type": {
+                "type": "string",
+                "description": "Job type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "basic_config": {
+                "block": {
+                  "attributes": {
+                    "custom_fields": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Custom fields.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "execute_user": {
+                      "type": "string",
+                      "description": "Job execution user. The value must be an existing user.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "instance_timeout": {
+                      "type": "number",
+                      "description": "Maximum execution time of a job instance.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "owner": {
+                      "type": "string",
+                      "description": "Job owner.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "priority": {
+                      "type": "number",
+                      "description": "Job priority.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Baisc job information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "nodes": {
+                "block": {
+                  "attributes": {
+                    "fail_policy": {
+                      "type": "string",
+                      "description": "Node failure policy.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_execution_time": {
+                      "type": "number",
+                      "description": "Maximum execution time of a node.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Node name.",
+                      "required": true
+                    },
+                    "polling_interval": {
+                      "type": "number",
+                      "description": "Interval at which node running results are checked.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pre_node_name": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Name of the previous node on which the current node depends.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "retry_interval": {
+                      "type": "number",
+                      "description": "Interval at which a retry is performed upon a failure.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "retry_times": {
+                      "type": "number",
+                      "description": "Number of the node retries.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Node type.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "expression": {
+                            "type": "string",
+                            "description": "EL expression.",
+                            "required": true
+                          },
+                          "pre_node_name": {
+                            "type": "string",
+                            "description": "Name of the previous node on which the current node depends.",
+                            "required": true
+                          }
+                        },
+                        "description": "Node execution condition."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "cron_trigger": {
+                      "block": {
+                        "attributes": {
+                          "concurrent": {
+                            "type": "number",
+                            "description": "Number of concurrent executions allowed.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "depend_pre_period": {
+                            "type": "bool",
+                            "description": "Indicates whether to depend on the execution result of the current\n                 job's dependent job in the previous scheduling period.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "end_time": {
+                            "type": "string",
+                            "description": "Scheduling end time.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "expression": {
+                            "type": "string",
+                            "description": "Cron expression in the format of **<second><minute><hour><day><month><week>**.",
+                            "required": true
+                          },
+                          "expression_time_zone": {
+                            "type": "string",
+                            "description": "Time zone corresponding to the Cron expression.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "period": {
+                            "type": "string",
+                            "description": "Job execution interval consisting of a time and time unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "start_time": {
+                            "type": "string",
+                            "description": "Scheduling start time.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "depend_jobs": {
+                            "block": {
+                              "attributes": {
+                                "depend_fail_policy": {
+                                  "type": "string",
+                                  "description": "Dependency job failure policy.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "depend_period": {
+                                  "type": "string",
+                                  "description": "Dependency period.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "jobs": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "A list of dependent jobs. Only the existing jobs can be depended on.",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "Cron trigger for the real-time job node"
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "event_trigger": {
+                      "block": {
+                        "attributes": {
+                          "channel": {
+                            "type": "string",
+                            "description": "DIS stream name.",
+                            "required": true
+                          },
+                          "concurrent": {
+                            "type": "number",
+                            "description": "Number of the concurrently scheduled jobs.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "event_type": {
+                            "type": "string",
+                            "description": "Event type.",
+                            "required": true
+                          },
+                          "fail_policy": {
+                            "type": "string",
+                            "description": "Job failure policy.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "read_policy": {
+                            "type": "string",
+                            "description": "Access policy.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Event trigger for the real-time job node."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "location": {
+                      "block": {
+                        "attributes": {
+                          "x": {
+                            "type": "number",
+                            "description": "Position of the node on the horizontal axis of the job canvas.",
+                            "required": true
+                          },
+                          "y": {
+                            "type": "number",
+                            "description": "Position of the node on the vertical axis of the job canvas.",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Property name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Property value.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Node property. Each type of node has its own property definition."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Node definition."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "params": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of a parameter.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Parameter type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Value of the parameter.",
+                      "required": true
+                    }
+                  },
+                  "description": "Job parameter definition."
+                },
+                "nesting_mode": "list"
+              },
+              "schedule": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "description": "Scheduling type.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "cron": {
+                      "block": {
+                        "attributes": {
+                          "depend_pre_period": {
+                            "type": "bool",
+                            "description": "Indicates whether to depend on the execution result of \n                the current job's dependent job in the previous scheduling period.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "end_time": {
+                            "type": "string",
+                            "description": "Scheduling end time in the format of **yyyy-MM-dd'T'HH:mm:ssZ**, \n                which is an ISO 8601 time format.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "expression": {
+                            "type": "string",
+                            "description": "Cron expression in the format of **<second><minute><hour><day><month><week>**.",
+                            "required": true
+                          },
+                          "expression_time_zone": {
+                            "type": "string",
+                            "description": "Time zone corresponding to the Cron expression.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "start_time": {
+                            "type": "string",
+                            "description": "Scheduling start time in the format of **yyyy-MM-dd'T'HH:mm:ssZ**, \n                which is an ISO 8601 time format.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "depend_jobs": {
+                            "block": {
+                              "attributes": {
+                                "depend_fail_policy": {
+                                  "type": "string",
+                                  "description": "Dependency job failure policy.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "depend_period": {
+                                  "type": "string",
+                                  "description": "Dependency period.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "jobs": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "A list of dependent jobs. Only the existing jobs can be depended on.",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "event": {
+                      "block": {
+                        "attributes": {
+                          "channel": {
+                            "type": "string",
+                            "description": "DIS stream name.",
+                            "required": true
+                          },
+                          "concurrent": {
+                            "type": "number",
+                            "description": "Number of the concurrently scheduled jobs.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "event_type": {
+                            "type": "string",
+                            "description": "Event type.",
+                            "required": true
+                          },
+                          "fail_policy": {
+                            "type": "string",
+                            "description": "Job failure policy.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "read_policy": {
+                            "type": "string",
+                            "description": "Access policy.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Scheduling configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -30,9 +30,13 @@
                 "type": "string",
                 "computed": true
               },
-              "secondary_cidr": {
-                "type": "string",
-                "optional": true
+              "secondary_cidrs": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
               },
               "status": {
                 "type": "string",

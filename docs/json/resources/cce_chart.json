@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_chart": {
+          "block": {
+            "attributes": {
+              "chart_url": {
+                "type": "string",
+                "computed": true
+              },
+              "content": {
+                "type": "string",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instruction": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "parameters": {
+                "type": "string",
+                "optional": true
+              },
+              "public": {
+                "type": "bool",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "computed": true
+              },
+              "translate": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

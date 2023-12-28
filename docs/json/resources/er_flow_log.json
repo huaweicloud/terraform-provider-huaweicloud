@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_er_flow_log": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "log_store_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "resource_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

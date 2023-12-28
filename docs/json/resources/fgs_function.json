@@ -34,7 +34,7 @@
               },
               "depend_list": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "optional": true,

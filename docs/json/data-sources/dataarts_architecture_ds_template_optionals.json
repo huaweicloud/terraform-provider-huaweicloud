@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_ds_template_optionals": {
+          "block": {
+            "attributes": {
+              "fd_name": {
+                "type": "string",
+                "description": "Specifies the name of the optional field.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "optional_fields": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "description_en": "string",
+                      "fd_name": "string",
+                      "required": "bool",
+                      "searchable": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of DataArts Architecture data standard template optional fields.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "required": {
+                "type": "bool",
+                "description": "Specifies whether the field is required.",
+                "optional": true
+              },
+              "searchable": {
+                "type": "bool",
+                "description": "Specifies whether the field is search supported.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID of DataArts Architecture.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

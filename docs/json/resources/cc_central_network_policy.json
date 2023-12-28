@@ -47,20 +47,20 @@
                     "enterprise_router_id": {
                       "type": "string",
                       "description": "Enterprise router ID.",
-                      "optional": true,
-                      "computed": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "project_id": {
                       "type": "string",
                       "description": "Project ID.",
-                      "optional": true,
-                      "computed": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "region_id": {
                       "type": "string",
                       "description": "Region ID.",
-                      "optional": true,
-                      "computed": true
+                      "required": true,
+                      "forcenew": true
                     }
                   },
                   "description": "List of the enterprise routers on the central network policy."
@@ -79,31 +79,33 @@
                           "enterprise_router_id": {
                             "type": "string",
                             "description": "Enterprise router ID.",
-                            "optional": true,
-                            "computed": true
+                            "required": true,
+                            "forcenew": true
                           },
                           "enterprise_router_table_id": {
                             "type": "string",
                             "description": "Enterprise router table ID.",
-                            "optional": true,
-                            "computed": true
+                            "required": true,
+                            "forcenew": true
                           },
                           "project_id": {
                             "type": "string",
                             "description": "Project ID.",
-                            "optional": true,
-                            "computed": true
+                            "required": true,
+                            "forcenew": true
                           },
                           "region_id": {
                             "type": "string",
                             "description": "Region ID.",
-                            "optional": true,
-                            "computed": true
+                            "required": true,
+                            "forcenew": true
                           }
                         },
                         "description": "List of route tables associated with the central network policy."
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
                     }
                   },
                   "description": "List of the central network policy planes."

@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_nat_private_transit_ips": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the transit IPs belong.",
+                "optional": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "The ID of the private NAT gateway to which the transit IP belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "The IP address of the transit IP.",
+                "optional": true
+              },
+              "network_interface_id": {
+                "type": "string",
+                "description": "The network interface ID of the transit IP for private NAT.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the transit IPs are located."
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of the subnet to which the transit IPs belong.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the transit IPs.",
+                "optional": true
+              },
+              "transit_ip_id": {
+                "type": "string",
+                "description": "The ID of the transit IP.",
+                "optional": true
+              },
+              "transit_ips": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "enterprise_project_id": "string",
+                      "gateway_id": "string",
+                      "id": "string",
+                      "ip_address": "string",
+                      "network_interface_id": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the transit IPs.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "NAT",
+            "name": "NAT Gateway",
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

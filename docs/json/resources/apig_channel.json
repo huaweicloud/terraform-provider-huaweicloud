@@ -245,22 +245,17 @@
                           "label_key": {
                             "type": "string",
                             "description": "The service label key.",
-                            "optional": true
+                            "required": true
                           },
                           "label_value": {
                             "type": "string",
                             "description": "The service label value.",
-                            "optional": true
+                            "required": true
                           },
                           "namespace": {
                             "type": "string",
                             "description": "The name of the CCE namespace.",
                             "required": true
-                          },
-                          "workload_name": {
-                            "type": "string",
-                            "description": "The workload name.",
-                            "optional": true
                           },
                           "workload_type": {
                             "type": "string",

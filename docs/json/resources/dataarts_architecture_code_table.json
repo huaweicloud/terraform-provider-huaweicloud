@@ -1,0 +1,122 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_code_table": {
+          "block": {
+            "attributes": {
+              "code": {
+                "type": "string",
+                "description": "The code of the code table.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The time when the code table was created.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The user who created the code table.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the code table.",
+                "optional": true
+              },
+              "directory_id": {
+                "type": "string",
+                "description": "The directory ID of the code table.",
+                "required": true
+              },
+              "directory_path": {
+                "type": "string",
+                "description": "The directory path of the code table.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the code table.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the code table.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The time when the code table was updated.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of DataArts Studio workspace.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "fields": {
+                "block": {
+                  "attributes": {
+                    "code": {
+                      "type": "string",
+                      "description": "The code of a field.",
+                      "required": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of a field.",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the field.",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of a field.",
+                      "required": true
+                    },
+                    "ordinal": {
+                      "type": "number",
+                      "description": "The ordinal of a field.",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of a field.",
+                      "required": true
+                    }
+                  },
+                  "description": "The fields information of the code table."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

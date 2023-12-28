@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpcep_services": {
+          "block": {
+            "attributes": {
+              "endpoint_services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "approval_enabled": "bool",
+                      "connection_count": "number",
+                      "created_at": "string",
+                      "description": "string",
+                      "enable_policy": "bool",
+                      "id": "string",
+                      "public_border_group": "string",
+                      "server_type": "string",
+                      "service_name": "string",
+                      "service_type": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "tcp_proxy": "string",
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_type": {
+                "type": "string",
+                "optional": true
+              },
+              "service_id": {
+                "type": "string",
+                "optional": true
+              },
+              "service_name": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPCEP",
+            "name": "VPC Endpoint",
+            "catalog": "Networking",
+            "name_cn": "VPC终端节点",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

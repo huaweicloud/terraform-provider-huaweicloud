@@ -12,6 +12,11 @@
                 "computed": true,
                 "forcenew": true
               },
+              "backup_id": {
+                "type": "string",
+                "description": "Indicates the ID of the DCS instance backup.",
+                "computed": true
+              },
               "begin_time": {
                 "type": "string",
                 "description": "Indicates the time when the backup task is created.",
@@ -65,7 +70,7 @@
               },
               "type": {
                 "type": "string",
-                "description": "Indicates the backup type. Valid value:\n",
+                "description": "Indicates the backup type.",
                 "computed": true
               }
             }

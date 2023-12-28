@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_data_standard_template": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "custom_fields": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "Indicates the creation time of the field.",
+                      "computed": true
+                    },
+                    "created_by": {
+                      "type": "string",
+                      "description": "Indicates the name of creator.",
+                      "computed": true
+                    },
+                    "fd_name": {
+                      "type": "string",
+                      "description": "Specifies the name of the field.",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Indicates the ID of the custom field.",
+                      "computed": true
+                    },
+                    "optional_values": {
+                      "type": "string",
+                      "description": "Specifies the optional values of the field.",
+                      "optional": true
+                    },
+                    "required": {
+                      "type": "bool",
+                      "description": "Specifies whether the field is required.",
+                      "optional": true
+                    },
+                    "searchable": {
+                      "type": "bool",
+                      "description": "Specifies whether the field is search supported.",
+                      "optional": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "Indicates the latest update time of the field.",
+                      "computed": true
+                    },
+                    "updated_by": {
+                      "type": "string",
+                      "description": "Indicates the name of updater.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the custom fields of the data standard template to be added."
+                },
+                "nesting_mode": "set"
+              },
+              "optional_fields": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "Indicates the creation time of the field.",
+                      "computed": true
+                    },
+                    "created_by": {
+                      "type": "string",
+                      "description": "Indicates the name of creator.",
+                      "computed": true
+                    },
+                    "fd_name": {
+                      "type": "string",
+                      "description": "Specifies the name of the field.",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Indicates the ID of the optional field.",
+                      "computed": true
+                    },
+                    "required": {
+                      "type": "bool",
+                      "description": "Specifies whether the field is required.",
+                      "optional": true
+                    },
+                    "searchable": {
+                      "type": "bool",
+                      "description": "Specifies whether the field is search supported.",
+                      "optional": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "Indicates the latest update time of the field.",
+                      "computed": true
+                    },
+                    "updated_by": {
+                      "type": "string",
+                      "description": "Indicates the name of updater.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the optional fields of the data standard template to be activated."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

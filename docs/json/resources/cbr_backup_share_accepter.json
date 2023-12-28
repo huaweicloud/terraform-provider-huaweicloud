@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_backup_share_accepter": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "The ID of the shared source backup.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the backup will be stored.",
+                "computed": true
+              },
+              "source_project_id": {
+                "type": "string",
+                "description": "The ID of the project to which the source backup belongs.",
+                "computed": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "The ID of the vault which the backup will be stored.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

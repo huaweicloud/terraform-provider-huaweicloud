@@ -25,12 +25,17 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "flavor_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "computed": true
               },
               "id": {
                 "type": "string",

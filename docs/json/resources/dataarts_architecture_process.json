@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_process": {
+          "block": {
+            "attributes": {
+              "children": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The name list of subordinate process.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the process.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The creator of the process.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of process.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of catalog.",
+                "required": true
+              },
+              "next_id": {
+                "type": "string",
+                "description": "The ID of the next node in the process.",
+                "optional": true,
+                "computed": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The name of person responsible for process.",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "The parent process ID of process.",
+                "optional": true
+              },
+              "prev_id": {
+                "type": "string",
+                "description": "The ID of the previous node in the process.",
+                "optional": true,
+                "computed": true
+              },
+              "qualified_id": {
+                "type": "string",
+                "description": "The ID of all superior processes.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the process is located.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the process.",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "description": "The last editor of the process.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of DataArts Studio workspace.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

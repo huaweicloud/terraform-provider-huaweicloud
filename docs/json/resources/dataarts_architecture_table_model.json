@@ -1,0 +1,628 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_table_model": {
+          "block": {
+            "attributes": {
+              "business_asset_status": {
+                "type": "string",
+                "computed": true
+              },
+              "catalog_path": {
+                "type": "string",
+                "computed": true
+              },
+              "code": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "compression": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "configs": {
+                "type": "string",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "computed": true
+              },
+              "data_format": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "data_quality_status": {
+                "type": "string",
+                "computed": true
+              },
+              "db_name": {
+                "type": "string",
+                "optional": true
+              },
+              "del_type": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "required": true
+              },
+              "dev_physical_table_status": {
+                "type": "string",
+                "computed": true
+              },
+              "dirty_out_database": {
+                "type": "string",
+                "optional": true
+              },
+              "dirty_out_prefix": {
+                "type": "string",
+                "optional": true
+              },
+              "dirty_out_suffix": {
+                "type": "string",
+                "optional": true
+              },
+              "dirty_out_switch": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "distribute": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "distribute_column": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dlf_task_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dw_id": {
+                "type": "string",
+                "optional": true
+              },
+              "dw_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dw_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "env_type": {
+                "type": "string",
+                "computed": true
+              },
+              "extend_info": {
+                "type": "string",
+                "computed": true
+              },
+              "has_related_logic_table": {
+                "type": "bool",
+                "computed": true
+              },
+              "has_related_physical_table": {
+                "type": "bool",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_partition": {
+                "type": "bool",
+                "computed": true
+              },
+              "logic_tb_guid": {
+                "type": "string",
+                "computed": true
+              },
+              "meta_data_link_status": {
+                "type": "string",
+                "computed": true
+              },
+              "model_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "obs_location": {
+                "type": "string",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "optional": true
+              },
+              "parent_table_code": {
+                "type": "string",
+                "computed": true
+              },
+              "parent_table_id": {
+                "type": "string",
+                "optional": true
+              },
+              "parent_table_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "partition_conf": {
+                "type": "string",
+                "optional": true
+              },
+              "physical_table_name": {
+                "type": "string",
+                "required": true
+              },
+              "physical_table_status": {
+                "type": "string",
+                "computed": true
+              },
+              "queue_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "related_logic_model_id": {
+                "type": "string",
+                "optional": true
+              },
+              "related_logic_model_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "related_logic_table_model_id": {
+                "type": "string",
+                "optional": true
+              },
+              "related_logic_table_model_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "reversed": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "schema": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subject_id": {
+                "type": "string",
+                "required": true
+              },
+              "summary_status": {
+                "type": "string",
+                "computed": true
+              },
+              "table_name": {
+                "type": "string",
+                "required": true
+              },
+              "table_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "tb_guid": {
+                "type": "string",
+                "computed": true
+              },
+              "technical_asset_status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "computed": true
+              },
+              "use_recently_partition": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "attributes": {
+                "block": {
+                  "attributes": {
+                    "code": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "data_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "data_type_extend": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "domain_type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "extend_field": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "is_foreign_key": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_partition_key": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_primary_key": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name_en": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "not_null": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ordinal": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "related_logic_attr_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "related_logic_attr_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "related_logic_attr_name_en": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "stand_row_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "stand_row_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              },
+              "mappings": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "created_by": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "src_model_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "src_model_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "updated_by": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "view_text": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "source_fields": {
+                      "block": {
+                        "attributes": {
+                          "changed": {
+                            "type": "bool",
+                            "computed": true
+                          },
+                          "field_ids": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "field_names": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "target_field_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "transform_expression": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "source_tables": {
+                      "block": {
+                        "attributes": {
+                          "join_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "table1_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "table1_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "table2_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "table2_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "join_fields": {
+                            "block": {
+                              "attributes": {
+                                "field1_id": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "field1_name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "field2_id": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "field2_name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "relations": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "created_by": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "role": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "source_table_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_table_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "source_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "target_table_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "target_table_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "target_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "updated_by": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "mappings": {
+                      "block": {
+                        "attributes": {
+                          "created_at": {
+                            "type": "string",
+                            "computed": true
+                          },
+                          "created_by": {
+                            "type": "string",
+                            "computed": true
+                          },
+                          "id": {
+                            "type": "string",
+                            "computed": true
+                          },
+                          "source_field_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "source_field_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "target_field_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "target_field_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "updated_at": {
+                            "type": "string",
+                            "computed": true
+                          },
+                          "updated_by": {
+                            "type": "string",
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

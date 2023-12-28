@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_reviewer": {
+          "block": {
+            "attributes": {
+              "email": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "phone_number": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "reviewer_id": {
+                "type": "string",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "user_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}
