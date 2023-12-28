@@ -77,7 +77,7 @@
           },
           "product": {
             "short": "RocketMQ",
-            "name": "分布式消息服务 RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
             "catalog": "Middleware",
             "name_cn": "分布式消息服务 RocketMQ",
             "catalog_cn": "应用中间件"

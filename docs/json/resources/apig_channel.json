@@ -245,17 +245,22 @@
                           "label_key": {
                             "type": "string",
                             "description": "The service label key.",
-                            "required": true
+                            "optional": true
                           },
                           "label_value": {
                             "type": "string",
                             "description": "The service label value.",
-                            "required": true
+                            "optional": true
                           },
                           "namespace": {
                             "type": "string",
                             "description": "The name of the CCE namespace.",
                             "required": true
+                          },
+                          "workload_name": {
+                            "type": "string",
+                            "description": "The workload name.",
+                            "optional": true
                           },
                           "workload_type": {
                             "type": "string",
@@ -285,7 +290,7 @@
           },
           "product": {
             "short": "APIG",
-            "name": "API网关",
+            "name": "API Gateway",
             "catalog": "Middleware",
             "name_cn": "API网关",
             "catalog_cn": "应用中间件"

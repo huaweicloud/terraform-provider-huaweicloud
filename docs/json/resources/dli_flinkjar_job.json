@@ -145,7 +145,7 @@
           },
           "product": {
             "short": "DLI",
-            "name": "数据湖探索",
+            "name": "Data Lake Insight",
             "catalog": "Analytics",
             "name_cn": "数据湖探索",
             "catalog_cn": "大数据"

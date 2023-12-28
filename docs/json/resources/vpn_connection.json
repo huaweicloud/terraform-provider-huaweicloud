@@ -24,6 +24,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The enterprise project ID.",
+                "optional": true,
                 "computed": true
               },
               "gateway_id": {
@@ -158,6 +159,12 @@
                       "optional": true,
                       "computed": true
                     },
+                    "pfs": {
+                      "type": "string",
+                      "description": "The DH key group used by PFS.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "phase1_negotiation_mode": {
                       "type": "string",
                       "description": "The negotiation mode, only works when the ike_version is v1.",
@@ -275,7 +282,7 @@
           },
           "product": {
             "short": "VPN",
-            "name": "虚拟专用网络",
+            "name": "Virtual Private Network",
             "catalog": "Networking",
             "name_cn": "虚拟专用网络",
             "catalog_cn": "网络"

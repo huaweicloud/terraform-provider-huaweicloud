@@ -202,7 +202,7 @@
           },
           "product": {
             "short": "CCM",
-            "name": "云证书管理服务",
+            "name": "Cloud Certificate Manager Service",
             "catalog": "Security & Compliance",
             "name_cn": "云证书管理服务",
             "catalog_cn": "安全与合规"

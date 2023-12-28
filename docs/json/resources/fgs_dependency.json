@@ -46,7 +46,7 @@
           },
           "product": {
             "short": "FunctionGraph",
-            "name": "函数工作流",
+            "name": "FunctionGraph",
             "catalog": "Compute",
             "name_cn": "函数工作流",
             "catalog_cn": "计算"

@@ -190,7 +190,7 @@
           },
           "product": {
             "short": "CBR",
-            "name": "云备份",
+            "name": "Cloud Backup and Recovery",
             "catalog": "Storage",
             "name_cn": "云备份",
             "catalog_cn": "存储"

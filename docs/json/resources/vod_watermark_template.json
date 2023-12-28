@@ -77,7 +77,7 @@
           },
           "product": {
             "short": "VOD",
-            "name": "视频点播",
+            "name": "Video on Demand",
             "catalog": "Media Services",
             "name_cn": "视频点播",
             "catalog_cn": "视频"

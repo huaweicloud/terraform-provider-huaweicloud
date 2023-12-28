@@ -31,7 +31,7 @@
           },
           "product": {
             "short": "IMS",
-            "name": "镜像服务",
+            "name": "Image Management Service",
             "catalog": "Compute",
             "name_cn": "镜像服务",
             "catalog_cn": "计算"

@@ -122,7 +122,7 @@
           },
           "product": {
             "short": "DIS",
-            "name": "数据接入服务",
+            "name": "Data Ingestion Service",
             "catalog": "Analytics",
             "name_cn": "数据接入服务",
             "catalog_cn": "大数据"

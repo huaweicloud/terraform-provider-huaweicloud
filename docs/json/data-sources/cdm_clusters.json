@@ -72,7 +72,7 @@
           },
           "product": {
             "short": "CDM",
-            "name": "云数据迁移",
+            "name": "Cloud Data Migration",
             "catalog": "Migration",
             "name_cn": "云数据迁移",
             "catalog_cn": "迁移"

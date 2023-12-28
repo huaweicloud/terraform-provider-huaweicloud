@@ -242,7 +242,7 @@
           },
           "product": {
             "short": "CFW",
-            "name": "云防火墙",
+            "name": "Cloud Firewall",
             "catalog": "Security & Compliance",
             "name_cn": "云防火墙",
             "catalog_cn": "安全与合规"

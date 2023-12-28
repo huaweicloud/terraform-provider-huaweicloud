@@ -59,7 +59,7 @@
           },
           "product": {
             "short": "SMS",
-            "name": "主机迁移服务",
+            "name": "Server Migration Service",
             "catalog": "Migration",
             "name_cn": "主机迁移服务",
             "catalog_cn": "迁移"

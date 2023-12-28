@@ -86,7 +86,7 @@
           },
           "product": {
             "short": "APIG",
-            "name": "API网关",
+            "name": "API Gateway",
             "catalog": "Middleware",
             "name_cn": "API网关",
             "catalog_cn": "应用中间件"

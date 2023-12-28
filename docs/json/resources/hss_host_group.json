@@ -60,7 +60,7 @@
           },
           "product": {
             "short": "HSS",
-            "name": "企业主机安全",
+            "name": "Host Security Service",
             "catalog": "Security & Compliance",
             "name_cn": "企业主机安全",
             "catalog_cn": "安全与合规"

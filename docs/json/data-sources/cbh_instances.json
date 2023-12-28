@@ -71,7 +71,7 @@
           },
           "product": {
             "short": "CBH",
-            "name": "云堡垒机",
+            "name": "Cloud Bastion Host",
             "catalog": "Security & Compliance",
             "name_cn": "云堡垒机",
             "catalog_cn": "安全与合规"

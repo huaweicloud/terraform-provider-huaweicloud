@@ -204,7 +204,7 @@
           },
           "product": {
             "short": "GaussDBforNoSQL",
-            "name": "云数据库 GeminiDB",
+            "name": "GeminiDB",
             "catalog": "Databases",
             "name_cn": "云数据库 GeminiDB",
             "catalog_cn": "数据库"

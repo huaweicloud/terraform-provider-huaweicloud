@@ -40,7 +40,7 @@
           },
           "product": {
             "short": "OBS",
-            "name": "对象存储服务",
+            "name": "Object Storage Service",
             "catalog": "Storage",
             "name_cn": "对象存储服务",
             "catalog_cn": "存储"
