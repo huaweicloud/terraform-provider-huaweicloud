@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product Workspace
-// ---------------------------------------------------------------
-
 package workspace
 
 import (
@@ -24,6 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: Workspace GET /v2/{project_id}/products
 func DataSourceWorkspaceFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceWorkspaceFlavorsRead,
