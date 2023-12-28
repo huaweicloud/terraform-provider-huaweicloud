@@ -5,19 +5,22 @@ import "github.com/chnsz/golangsdk"
 const (
 	GenericJdbcConnector   = "generic-jdbc-connector"
 	ObsConnector           = "obs-connector"
-	ThirdpartyObsConnector = "thirdparty-obs-connector"
 	HdfsConnector          = "hdfs-connector"
 	HbaseConnector         = "hbase-connector"
 	HiveConnector          = "hive-connector"
 	SftpConnector          = "sftp-connector"
 	FtpConnector           = "ftp-connector"
 	MongodbConnector       = "mongodb-connector"
+	RedisConnector         = "redis-connector"
 	KafkaConnector         = "kafka-connector"
 	DisConnector           = "dis-connector"
 	ElasticsearchConnector = "elasticsearch-connector"
 	DliConnector           = "dli-connector"
 	OpentsdbConnector      = "opentsdb-connector"
 	DmsKafkaConnector      = "dms-kafka-connector"
+
+	// thirdparty-obs-connector is deprecated now
+	ThirdpartyObsConnector = "thirdparty-obs-connector"
 )
 
 type LinkCreateOpts struct {
@@ -28,20 +31,18 @@ type Link struct {
 	Name string `json:"name" required:"true"`
 	// Connector name. The mappings between the connectors and links are as follows:
 	// generic-jdbc-connector: link to a relational database;
-	// obs-connector: link to OBS and link to OSS on Alibaba Cloud
+	// obs-connector: link to OBS;
 	// hdfs-connector: link to HDFS;
-	// hbase-connector: link to HBase and link to CloudTable; hive-connector: link to Hive;
+	// hbase-connector: link to HBase and link to CloudTable;
+	// hive-connector: link to Hive;
 	// ftp-connector/sftp-connector: link to an FTP or SFTP server;
 	// mongodb-connector: link to MongoDB;
-	// redis-connector: link to Redis/DCS;
-	// nas-connector: link to NAS/SFS;
+	// redis-connector: link to Redis;
 	// kafka-connector: link to Kafka;
 	// dis-connector: link to DIS;
 	// elasticsearch-connector: link to Elasticsearch/Cloud Search Service;
 	// dli-connector: link to DLI;
 	// opentsdb-connector: link to CloudTable OpenTSDB;
-	// http-connector: link to HTTP/HTTPS (No link parameters are required.);
-	// thirdparty-obs-connector: link to KODO/COS/Amazon S3;
 	// dms-kafka-connector: link to DMS Kafka
 	ConnectorName    string      `json:"connector-name" required:"true"`
 	LinkConfigValues LinkConfigs `json:"link-config-values" required:"true"`

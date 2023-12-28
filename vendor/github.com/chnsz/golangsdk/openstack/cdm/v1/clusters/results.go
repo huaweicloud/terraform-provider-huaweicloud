@@ -209,6 +209,9 @@ type Cluster struct {
 	// Cluster configuration status. The options are as follows: In-Sync: configuration synchronized;
 	// Applying: being configured; Sync-Failure: configuration failed
 	Actions []string `json:"actions"`
+
+	// the ID of enterprise project
+	EnterpriseProjectId string `json:"eps_id"`
 }
 
 type PublicEndpointStatus struct {

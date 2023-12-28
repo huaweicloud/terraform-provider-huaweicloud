@@ -622,3 +622,23 @@ func ModifyAlias(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanc
 	})
 	return
 }
+
+type ModifyMaintainWindowOpts struct {
+	StartTime string `json:"start_time" required:"true"`
+	EndTime   string `json:"end_time" required:"true"`
+}
+
+func (opts ModifyMaintainWindowOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifyMaintainWindow is a method used to modify maintain window.
+func ModifyMaintainWindow(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r ModifyMaintainWindowResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(updateURL(c, instanceId, "ops-window"), b, nil, &golangsdk.RequestOpts{})
+	return
+}

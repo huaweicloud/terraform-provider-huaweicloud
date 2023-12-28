@@ -30,6 +30,10 @@ type ModifyAliasResult struct {
 	commonResult
 }
 
+type ModifyMaintainWindowResult struct {
+	commonResult
+}
+
 type SingleToHaResult struct {
 	commonResult
 }

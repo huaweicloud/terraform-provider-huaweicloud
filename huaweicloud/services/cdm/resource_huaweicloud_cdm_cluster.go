@@ -84,6 +84,7 @@ func ResourceCdmCluster() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -195,6 +196,11 @@ func ResourceCdmCluster() *schema.Resource {
 			},
 
 			"public_endpoint": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"flavor_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -322,6 +328,8 @@ func resourceCdmClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("public_ip", detail.Instances[0].PublicIp),
 		d.Set("public_endpoint", detail.PublicEndpoint),
 		d.Set("status", detail.StatusDetail),
+		d.Set("enterprise_project_id", detail.EnterpriseProjectId),
+		d.Set("flavor_name", detail.FlavorName),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

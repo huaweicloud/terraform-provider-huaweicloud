@@ -81,18 +81,18 @@ The following arguments are supported:
  source to be connected. Changing this parameter will create a new resource. The options are as follows:
 
   - **generic-jdbc-connector**: link to a relational database.
-  - **obs-connector**: link to OBS and link to OSS on Alibaba Cloud.
+  - **obs-connector**: link to OBS.
   - **hdfs-connector**: link to HDFS.
   - **hbase-connector**: link to HBase and link to CloudTable.
   - **hive-connector**: link to Hive.
   - **ftp-connector/sftp-connector**: link to an FTP or SFTP server.
   - **mongodb-connector**: link to MongoDB.
+  - **redis-connector**: link to Redis.
   - **kafka-connector**: link to Kafka.
   - **dis-connector**: link to DIS.
   - **elasticsearch-connector**: link to Elasticsearch/Cloud Search Service.
   - **dli-connector**: link to DLI.
   - **opentsdb-connector**: link to CloudTable OpenTSDB.
-  - **thirdparty-obs-connector**: link to KODO/COS/Amazon S3.
   - **dms-kafka-connector**: link to DMS Kafka.
 
 * `config` - (Required, Map) Specifies the link configuration parameters. Each type of the data source to be connected
@@ -100,20 +100,18 @@ The following arguments are supported:
 
   - **Link to a Relational Database**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0030.html)
   - **Link to OBS**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0031.html)
-  - **Link to OSS on Alibaba Cloud**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0081.html)
-  - **Link to KODO/COS**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0087.html)
   - **Link to HDFS**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0032.html)
   - **Link to HBase**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0033.html)
   - **Link to CloudTable**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0085.html)
   - **Link to Hive**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0034.html)
   - **Link to an FTP or SFTP Server**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0036.html)
   - **Link to MongoDB**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0072.html)
+  - **Link to Redis**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0037.html)
   - **Link to Kafka**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0035.html)
   - **Link to DIS**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0075.html)
   - **Link to Elasticsearch/Cloud Search Service**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0076.html)
   - **Link to DLI**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0070.html)
   - **Link to CloudTable OpenTSDB**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0089.html)
-  - **Link to Amazon S3**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0094.html)
   - **Link to DMS Kafka**: [configuration detail](https://support.huaweicloud.com/intl/en-us/api-cdm/cdm_02_0095.html)
 
 -> Please remove the `linkconfig.` in the parameter key listed in the document. Configuration parameters such as
