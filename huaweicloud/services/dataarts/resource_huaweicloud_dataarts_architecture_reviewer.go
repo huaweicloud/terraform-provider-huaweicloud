@@ -89,13 +89,17 @@ func resourceArchitectureReviewerCreate(ctx context.Context, d *schema.ResourceD
 	createReviewerOpt.JSONBody = utils.RemoveNil(buildCreateReviewerParams(d))
 	createReviewerResp, err := reviewerClient.Request("POST", createReviewerPath, &createReviewerOpt)
 	if err != nil {
-		return diag.Errorf("DataArts Studio architecture reviewer: %s", err)
+		return diag.Errorf("error creating DataArts Studio architecture reviewer: %s", err)
 	}
+
 	createReviewerBody, err := utils.FlattenResponse(createReviewerResp)
-	reviewer := utils.PathSearch("data.value", createReviewerBody, nil)
-	userName, err := jmespath.Search("user_name", reviewer)
 	if err != nil {
-		return diag.Errorf("error creating DataArts Studio architecture Reviewer: %s is not found in API response", "user_name")
+		return diag.FromErr(err)
+	}
+
+	userName, err := jmespath.Search("data.value.user_name", createReviewerBody)
+	if err != nil {
+		return diag.Errorf("error creating DataArts Studio architecture Reviewer: user_name is not found in API response")
 	}
 	d.SetId(userName.(string))
 
@@ -108,13 +112,13 @@ func buildCreateReviewerParams(d *schema.ResourceData) map[string]interface{} {
 		"user_id":       d.Get("user_id"),
 		"email":         utils.ValueIngoreEmpty(d.Get("email")),
 		"phone_number":  utils.ValueIngoreEmpty(d.Get("phone_number")),
-		"email_notify":  checkBoolValueIgnoreEmpty(d, "email"),
-		"sms_notify":    checkBoolValueIgnoreEmpty(d, "phone_number"),
+		"email_notify":  isFieldExist(d, "email"),
+		"sms_notify":    isFieldExist(d, "phone_number"),
 	}
 	return bodyParams
 }
 
-func checkBoolValueIgnoreEmpty(d *schema.ResourceData, key string) interface{} {
+func isFieldExist(d *schema.ResourceData, key string) interface{} {
 	_, ok := d.GetOk(key)
 	return ok
 }
@@ -146,13 +150,15 @@ func resourceArchitectureReviewerRead(_ context.Context, d *schema.ResourceData,
 	}
 
 	getArchitectureReviewerRespBody, err := utils.FlattenResponse(getArchitectureReviewerResp)
-	jsonPaths := "data.value.records"
-	reviewers := utils.PathSearch(jsonPaths, getArchitectureReviewerRespBody, make([]interface{}, 0)).([]interface{})
-	if len(reviewers) == 0 {
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	reviewer := utils.PathSearch("data.value.records|[0]", getArchitectureReviewerRespBody, nil)
+	if reviewer == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "DataArts Studio architecture reviewer")
 	}
 
-	reviewer := reviewers[0]
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("user_name", utils.PathSearch("approver_name", reviewer, nil)),
@@ -160,7 +166,7 @@ func resourceArchitectureReviewerRead(_ context.Context, d *schema.ResourceData,
 		d.Set("reviewer_id", utils.PathSearch("id", reviewer, nil)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting DataArts Studio reviewer fields: %s", err)
+		return diag.Errorf("error setting DataArts Studio architecture reviewer fields: %s", err)
 	}
 
 	return nil
@@ -188,7 +194,7 @@ func resourceArchitectureReviewerDelete(_ context.Context, d *schema.ResourceDat
 	_, err = reviewerClient.Request("DELETE", delReviewerPath, &delReviewerOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DataArts Studio architecture reviewer")
+		return diag.Errorf("error deleting DataArts Studio architecture reviewer: %s", err)
 	}
 	return nil
 }
@@ -199,7 +205,10 @@ func resourceArchitectureReviewerImport(_ context.Context, d *schema.ResourceDat
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid format of import ID, must be <workspace_id>/<user_name>")
 	}
-	d.Set("workspace_id", parts[0])
+	err := d.Set("workspace_id", parts[0])
+	if err != nil {
+		return nil, fmt.Errorf("error setting DataArts Studio architecture reviewer fields: %s", err)
+	}
 	d.SetId(parts[1])
 	return []*schema.ResourceData{d}, nil
 }

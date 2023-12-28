@@ -46,13 +46,12 @@ func getArchitectureReviewerResourceFunc(cfg *config.Config, state *terraform.Re
 		return nil, err
 	}
 
-	jsonPaths := "data.value.records"
-	reviewers := utils.PathSearch(jsonPaths, getRespBody, make([]interface{}, 0)).([]interface{})
-	if len(reviewers) > 0 {
-		return reviewers, nil
+	reviewer := utils.PathSearch("data.value.records|[0]", getRespBody, nil)
+	if reviewer == nil {
+		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	return reviewer, nil
 }
 
 func TestAccResourceArchitectureReviewer_basic(t *testing.T) {
