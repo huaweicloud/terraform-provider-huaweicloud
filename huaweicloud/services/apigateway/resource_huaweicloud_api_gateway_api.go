@@ -1,27 +1,31 @@
-package huaweicloud
+package apigateway
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/apis"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceAPIGatewayAPI() *schema.Resource {
+func ResourceAPI() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAPIGatewayAPICreate,
-		Read:   resourceAPIGatewayAPIRead,
-		Update: resourceAPIGatewayAPIUpdate,
-		Delete: resourceAPIGatewayAPIDelete,
+		CreateContext: resourceAPIGatewayAPICreate,
+		ReadContext:   resourceAPIGatewayAPIRead,
+		UpdateContext: resourceAPIGatewayAPIUpdate,
+		DeleteContext: resourceAPIGatewayAPIDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -270,59 +274,63 @@ func ResourceAPIGatewayAPI() *schema.Resource {
 	}
 }
 
-func resourceAPIGatewayAPICreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
+func resourceAPIGatewayAPICreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	apigwClient, err := cfg.ApiGatewayV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return diag.Errorf("error creating API Gateway client: %s", err)
 	}
 
 	createOpts, err := buildApiParameter(d)
 	if err != nil {
-		return err
+		return diag.Errorf("error creating API Gateway parameter: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Create API Options: %#v", createOpts)
+	log.Printf("[DEBUG] create API options: %#v", createOpts)
 	v, err := apis.Create(apigwClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud api gateway api: %s", err)
+		return diag.Errorf("error creating API Gateway API: %s", err)
 	}
 
 	// Store the ID now
 	d.SetId(v.Id)
 
-	return resourceAPIGatewayAPIRead(d, meta)
+	return resourceAPIGatewayAPIRead(ctx, d, meta)
 }
 
-func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
+func resourceAPIGatewayAPIRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	apigwClient, err := cfg.ApiGatewayV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return diag.Errorf("error creating API Gateway client: %s", err)
 	}
 
 	v, err := apis.Get(apigwClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "API GateWay api")
+		return common.CheckDeletedDiag(d, err, "API Gateway API")
 	}
 
-	logp.Printf("[DEBUG] Retrieved api gateway api %s: %+v", d.Id(), v)
+	log.Printf("[DEBUG] retrieved API Gateway API %s: %+v", d.Id(), v)
 
-	d.Set("group_id", v.GroupId)
-	d.Set("group_name", v.GroupName)
-	d.Set("name", v.Name)
-	d.Set("description", v.Remark)
-	d.Set("tags", v.Tags)
-	d.Set("version", v.Version)
-	d.Set("visibility", v.Type)
-	d.Set("auth_type", v.AuthType)
-	d.Set("request_protocol", v.ReqProtocol)
-	d.Set("request_method", v.ReqMethod)
-	d.Set("request_uri", v.ReqUri)
-	d.Set("backend_type", v.BackendType)
-	d.Set("example_success_response", v.ResultNormalSample)
-	d.Set("example_failure_response", v.ResultFailureSample)
-	d.Set("cors", v.Cors)
+	mErr := multierror.Append(
+		d.Set("group_id", v.GroupId),
+		d.Set("group_name", v.GroupName),
+		d.Set("name", v.Name),
+		d.Set("description", v.Remark),
+		d.Set("tags", v.Tags),
+		d.Set("version", v.Version),
+		d.Set("visibility", v.Type),
+		d.Set("auth_type", v.AuthType),
+		d.Set("request_protocol", v.ReqProtocol),
+		d.Set("request_method", v.ReqMethod),
+		d.Set("request_uri", v.ReqUri),
+		d.Set("backend_type", v.BackendType),
+		d.Set("example_success_response", v.ResultNormalSample),
+		d.Set("example_failure_response", v.ResultFailureSample),
+		d.Set("cors", v.Cors),
+	)
 
 	var requestParameters []map[string]interface{}
 	for _, val := range v.ReqParams {
@@ -339,9 +347,8 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		parameters["description"] = val.Remark
 		requestParameters = append(requestParameters, parameters)
 	}
-	if err = d.Set("request_parameter", requestParameters); err != nil {
-		return fmtp.Errorf("Saving request parameters failed: %s", err)
-	}
+
+	mErr = multierror.Append(mErr, d.Set("request_parameter", requestParameters))
 	var backendParameters []map[string]interface{}
 	for _, val := range v.BackendParams {
 		parameters := make(map[string]interface{})
@@ -352,10 +359,8 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		parameters["description"] = val.Remark
 		backendParameters = append(backendParameters, parameters)
 	}
-	if err = d.Set("backend_parameter", backendParameters); err != nil {
-		return fmtp.Errorf("Saving backend parameters failed: %s", err)
-	}
 
+	mErr = multierror.Append(mErr, d.Set("backend_parameter", backendParameters))
 	backend := make([]map[string]interface{}, 0, 1)
 	switch v.BackendType {
 	case "HTTP":
@@ -368,9 +373,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 			"timeout":     v.BackendInfo.Timeout,
 		}
 		backend = append(backend, httpInfo)
-		if err := d.Set("http_backend", backend); err != nil {
-			return fmtp.Errorf("failed to save http_backend: %s", err)
-		}
+		mErr = multierror.Append(mErr, d.Set("http_backend", backend))
 	case "FUNCTION":
 		functionInfo := map[string]interface{}{
 			"function_urn":    v.FunctionInfo.FunctionUrn,
@@ -379,9 +382,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 			"timeout":         v.FunctionInfo.Timeout,
 		}
 		backend = append(backend, functionInfo)
-		if err := d.Set("function_backend", backend); err != nil {
-			return fmtp.Errorf("failed to save function_backend: %s", err)
-		}
+		mErr = multierror.Append(mErr, d.Set("function_backend", backend))
 	case "MOCK":
 		mockInfo := map[string]interface{}{
 			"result_content": v.MockInfo.ResultContent,
@@ -389,47 +390,46 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 			"description":    v.MockInfo.Remark,
 		}
 		backend = append(backend, mockInfo)
-		if err := d.Set("mock_backend", backend); err != nil {
-			return fmtp.Errorf("failed to save mock_backend: %s", err)
-		}
+		mErr = multierror.Append(mErr, d.Set("mock_backend", backend))
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceAPIGatewayAPIUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
+func resourceAPIGatewayAPIUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	apigwClient, err := cfg.ApiGatewayV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return diag.Errorf("error creating API Gateway client: %s", err)
 	}
 
 	updateOpts, err := buildApiParameter(d)
 	if err != nil {
-		return err
+		return diag.Errorf("error creating API Gateway options: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Update API Options: %#v", updateOpts)
+	log.Printf("[DEBUG] update API options: %#v", updateOpts)
 	_, err = apis.Update(apigwClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating HuaweiCloud api gateway api: %s", err)
+		return diag.Errorf("error updating API Gateway API: %s", err)
 	}
 
-	return resourceAPIGatewayAPIRead(d, meta)
+	return resourceAPIGatewayAPIRead(ctx, d, meta)
 }
 
-func resourceAPIGatewayAPIDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
+func resourceAPIGatewayAPIDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	apigwClient, err := cfg.ApiGatewayV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return diag.Errorf("error creating API Gateway client: %s", err)
 	}
 
 	if err := apis.Delete(apigwClient, d.Id()).ExtractErr(); err != nil {
-		return CheckDeleted(d, err, "api apis")
+		return common.CheckDeletedDiag(d, err, "API apis")
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -458,19 +458,19 @@ func buildApiParameter(d *schema.ResourceData) (*apis.CreateOpts, error) {
 	case "HTTP":
 		httpBackend := buildHttpBackendParam(d)
 		if httpBackend == nil {
-			return nil, fmtp.Errorf("The argument \"http_backend\" is required under HTTP backend type")
+			return nil, fmt.Errorf("the argument \"http_backend\" is required under HTTP backend type")
 		}
 		opts.BackendOpts = *httpBackend
 	case "FUNCTION":
 		funcBackend := buildFunctionBackendParam(d)
 		if funcBackend == nil {
-			return nil, fmtp.Errorf("The argument \"function_backend\" is required under FUNCTION backend type")
+			return nil, fmt.Errorf("the argument \"function_backend\" is required under FUNCTION backend type")
 		}
 		opts.FunctionOpts = *funcBackend
 	case "MOCK":
 		mockBackend := buildMockBackendParam(d)
 		if mockBackend == nil {
-			return nil, fmtp.Errorf("The argument \"mock_backend\" is required under MOCK backend type")
+			return nil, fmt.Errorf("the argument \"mock_backend\" is required under MOCK backend type")
 		}
 		opts.MockOpts = *mockBackend
 	}
@@ -493,18 +493,18 @@ func buildHttpBackendParam(d *schema.ResourceData) *apis.BackendOpts {
 
 	if len(raw) == 1 {
 		httpBackend := &apis.BackendOpts{}
-		config := raw[0].(map[string]interface{})
-		httpBackend.Protocol = config["protocol"].(string)
-		httpBackend.Method = config["method"].(string)
-		httpBackend.Uri = config["uri"].(string)
-		httpBackend.Timeout = config["timeout"].(int)
+		cfg := raw[0].(map[string]interface{})
+		httpBackend.Protocol = cfg["protocol"].(string)
+		httpBackend.Method = cfg["method"].(string)
+		httpBackend.Uri = cfg["uri"].(string)
+		httpBackend.Timeout = cfg["timeout"].(int)
 
-		if v, ok := config["vpc_channel"]; ok && v.(string) != "" {
+		if v, ok := cfg["vpc_channel"]; ok && v.(string) != "" {
 			httpBackend.VpcStatus = 1
 			httpBackend.VpcInfo.VpcId = v.(string)
 		} else {
 			httpBackend.VpcStatus = 2
-			httpBackend.UrlDomain = config["url_domain"].(string)
+			httpBackend.UrlDomain = cfg["url_domain"].(string)
 		}
 		return httpBackend
 	}
@@ -517,11 +517,11 @@ func buildFunctionBackendParam(d *schema.ResourceData) *apis.FunctionOpts {
 
 	if len(raw) == 1 {
 		funcBackend := &apis.FunctionOpts{}
-		config := raw[0].(map[string]interface{})
-		funcBackend.FunctionUrn = config["function_urn"].(string)
-		funcBackend.InvocationType = config["invocation_type"].(string)
-		funcBackend.Version = config["version"].(string)
-		funcBackend.Timeout = config["timeout"].(int)
+		cfg := raw[0].(map[string]interface{})
+		funcBackend.FunctionUrn = cfg["function_urn"].(string)
+		funcBackend.InvocationType = cfg["invocation_type"].(string)
+		funcBackend.Version = cfg["version"].(string)
+		funcBackend.Timeout = cfg["timeout"].(int)
 		return funcBackend
 	}
 
@@ -534,10 +534,10 @@ func buildMockBackendParam(d *schema.ResourceData) *apis.MockOpts {
 	// all parameters of mock_backend are optional
 	mockBackend := &apis.MockOpts{}
 	if len(raw) == 1 {
-		config := raw[0].(map[string]interface{})
-		mockBackend.ResultContent = config["result_content"].(string)
-		mockBackend.Version = config["version"].(string)
-		mockBackend.Remark = config["description"].(string)
+		cfg := raw[0].(map[string]interface{})
+		mockBackend.ResultContent = cfg["result_content"].(string)
+		mockBackend.Version = cfg["version"].(string)
+		mockBackend.Remark = cfg["description"].(string)
 	}
 
 	return mockBackend
