@@ -2,7 +2,7 @@
 subcategory: "DataArts Studio"
 ---
 
-# huaweicloud_dataarts_studio_architecture_reviewer
+# huaweicloud_dataarts_architecture_reviewer
 
 Manages DataArts Studio architecture reviewer resource within HuaweiCloud.
 
@@ -15,7 +15,7 @@ variable "user_id" {}
 variable "email" {}
 variable "phone_number" {}
 
-resource "huaweicloud_dataarts_studio_architecture_reviewer" "test" {
+resource "huaweicloud_dataarts_architecture_reviewer" "test" {
   workspace_id = var.workspace_id
   user_name    = var.user_name
   user_id      = var.user_id
@@ -32,19 +32,19 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `workspace_id` - (Required, String, ForceNew) Specifies the workspace ID to which the architecture reviewer belongs.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `user_name` - (Required, String, ForceNew) Specifies the user name of the architecture reviewer.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `user_id` - (Required, String, ForceNew) Specifies the user ID of the architecture reviewer.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `email` - (Optional, String, ForceNew) Specifies the email of the architecture reviewer.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `phone_number` - (Optional, String, ForceNew) Specifies the phone number of the architecture reviewer.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
@@ -65,20 +65,18 @@ $ terraform import huaweicloud_dataarts_architecture_reviewer.test <workspace_id
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
 The missing attributes include: `email` and `phone_number`.
-It is generally recommended running `terraform plan` after importing an instance.
-You can then decide if changes should be applied to the instance, or the resource definition should be updated to
-align with the instance. Also you can ignore changes as below.
+It is generally recommended running `terraform plan` after importing a reviewer.
+You can then decide if changes should be applied to the reviewer, or the resource definition should be updated to
+align with the reviewer. Also you can ignore changes as below.
 
 ```
-resource "huaweicloud_dataarts_studio_architecture_reviewer" "test"{
+resource "huaweicloud_dataarts_architecture_reviewer" "test"{
     ...
 
-  data {
-    value {
-      records = [
-        email, phone_number,
-      ]
-    }
+  lifecycle {
+    ignore_changes = [
+      email, phone_number,
+    ]
   }
 }
 ```
