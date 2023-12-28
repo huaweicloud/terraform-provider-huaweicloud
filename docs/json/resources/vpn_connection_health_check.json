@@ -38,7 +38,7 @@
           },
           "product": {
             "short": "VPN",
-            "name": "虚拟专用网络",
+            "name": "Virtual Private Network",
             "catalog": "Networking",
             "name_cn": "虚拟专用网络",
             "catalog_cn": "网络"

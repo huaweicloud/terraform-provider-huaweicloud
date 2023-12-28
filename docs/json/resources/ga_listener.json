@@ -86,7 +86,7 @@
           },
           "product": {
             "short": "GA",
-            "name": "全球加速",
+            "name": "Global Accelerator",
             "catalog": "Networking",
             "name_cn": "全球加速",
             "catalog_cn": "网络"

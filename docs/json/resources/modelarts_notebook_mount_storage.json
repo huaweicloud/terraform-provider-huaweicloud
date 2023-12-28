@@ -44,7 +44,7 @@
           },
           "product": {
             "short": "ModelArts",
-            "name": "AI开发平台",
+            "name": "ModelArts",
             "catalog": "AI",
             "name_cn": "AI开发平台",
             "catalog_cn": "人工智能"

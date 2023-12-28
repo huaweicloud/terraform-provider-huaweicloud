@@ -102,7 +102,7 @@
           },
           "product": {
             "short": "CloudTable",
-            "name": "表格存储服务",
+            "name": "CloudTable Service",
             "catalog": "Analytics",
             "name_cn": "表格存储服务",
             "catalog_cn": "大数据"

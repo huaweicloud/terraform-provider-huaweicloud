@@ -74,7 +74,7 @@
           },
           "product": {
             "short": "CCE",
-            "name": "云容器引擎",
+            "name": "Cloud Container Engine",
             "catalog": "Containers",
             "name_cn": "云容器引擎",
             "catalog_cn": "容器"

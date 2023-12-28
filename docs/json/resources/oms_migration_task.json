@@ -249,7 +249,7 @@
           },
           "product": {
             "short": "OMS",
-            "name": "对象存储迁移服务",
+            "name": "Object Storage Migration Service",
             "catalog": "Migration",
             "name_cn": "对象存储迁移服务",
             "catalog_cn": "迁移"

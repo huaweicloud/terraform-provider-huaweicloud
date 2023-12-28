@@ -90,7 +90,7 @@
           },
           "product": {
             "short": "RAM",
-            "name": "资源访问管理",
+            "name": "Resource Access Manager",
             "catalog": "Management & Governance",
             "name_cn": "资源访问管理",
             "catalog_cn": "管理与监管"

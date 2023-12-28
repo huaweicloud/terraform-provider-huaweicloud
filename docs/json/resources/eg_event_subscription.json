@@ -64,7 +64,8 @@
                     "id": {
                       "type": "string",
                       "description": "The ID of the event source.",
-                      "required": true
+                      "optional": true,
+                      "computed": true
                     },
                     "name": {
                       "type": "string",
@@ -119,7 +120,8 @@
                     "id": {
                       "type": "string",
                       "description": "The ID of the event target.",
-                      "required": true
+                      "optional": true,
+                      "computed": true
                     },
                     "name": {
                       "type": "string",
@@ -151,7 +153,7 @@
           },
           "product": {
             "short": "EG",
-            "name": "事件网格",
+            "name": "EventGrid",
             "catalog": "Middleware",
             "name_cn": "事件网格",
             "catalog_cn": "应用中间件"

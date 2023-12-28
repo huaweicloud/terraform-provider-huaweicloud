@@ -90,7 +90,7 @@
           },
           "product": {
             "short": "CodeArtsDeploy",
-            "name": "部署",
+            "name": "CodeArts Deploy",
             "catalog": "CodeArts",
             "name_cn": "部署",
             "catalog_cn": "软件开发生产线"

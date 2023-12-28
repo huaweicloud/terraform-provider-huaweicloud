@@ -96,7 +96,7 @@
           },
           "product": {
             "short": "SCM",
-            "name": "SSL证书管理",
+            "name": "SSL Certificate Manager",
             "catalog": "Security & Compliance",
             "name_cn": "SSL证书管理",
             "catalog_cn": "安全与合规"
