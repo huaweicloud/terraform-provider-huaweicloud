@@ -43,10 +43,10 @@
             }
           },
           "product": {
-            "short": "VPC",
-            "name": "Virtual Private Cloud",
+            "short": "EIP",
+            "name": "Elastic IP",
             "catalog": "Networking",
-            "name_cn": "虚拟私有云",
+            "name_cn": "弹性公网IP",
             "catalog_cn": "网络"
           }
         }
