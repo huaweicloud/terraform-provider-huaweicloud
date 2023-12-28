@@ -1122,6 +1122,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_code_table":             dataarts.ResourceArchitectureCodeTable(),
 			"huaweicloud_dataarts_architecture_data_standard":          dataarts.ResourceDataStandard(),
 			"huaweicloud_dataarts_architecture_data_standard_template": dataarts.ResourceDataStandardTemplate(),
+			"huaweicloud_dataarts_architecture_reviewer":               dataarts.ResourceDataArtsArchitectureReviewer(),
 			// DataArts Factory
 			"huaweicloud_dataarts_factory_resource": dataarts.ResourceFactoryResource(),
 			"huaweicloud_dataarts_factory_job":      dataarts.ResourceFactoryJob(),

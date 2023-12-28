@@ -245,6 +245,8 @@ var (
 	HW_DATAARTS_BUILTIN_RULE_NAME       = os.Getenv("HW_DATAARTS_BUILTIN_RULE_NAME")
 	HW_DATAARTS_SUBJECT_ID              = os.Getenv("HW_DATAARTS_SUBJECT_ID")
 	HW_DATAARTS_CONNECTION_NAME         = os.Getenv("HW_DATAARTS_CONNECTION_NAME")
+	HW_DATAARTS_ARCHITECTURE_USER_ID    = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_ID")
+	HW_DATAARTS_ARCHITECTURE_USER_NAME  = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1106,5 +1108,12 @@ func TestAccPreCheckDataArtsSubjectID(t *testing.T) {
 func TestAccPreCheckDataArtsConnectionName(t *testing.T) {
 	if HW_DATAARTS_CONNECTION_NAME == "" {
 		t.Skip("HW_DATAARTS_CONNECTION_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsArchitectureReviewer(t *testing.T) {
+	if HW_DATAARTS_ARCHITECTURE_USER_ID == "" || HW_DATAARTS_ARCHITECTURE_USER_NAME == "" {
+		t.Skip("HW_DATAARTS_ARCHITECTURE_USER_ID and HW_DATAARTS_ARCHITECTURE_USER_NAME must be set for the acceptance test")
 	}
 }
