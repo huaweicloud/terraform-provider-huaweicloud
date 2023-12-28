@@ -42,6 +42,7 @@ github.com/chnsz/golangsdk/openstack/apigw/deprecated/dedicated/v2/channels
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/apis
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/environments
 github.com/chnsz/golangsdk/openstack/apigw/shared/v1/groups
+github.com/chnsz/golangsdk/openstack/autoscaling/v1/activitylogs
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/configurations
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/instances

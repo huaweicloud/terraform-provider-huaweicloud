@@ -229,6 +229,8 @@ var (
 
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
+	HW_AS_SCALING_GROUP_ID = os.Getenv("HW_AS_SCALING_GROUP_ID")
+
 	HW_DATAARTS_WORKSPACE_ID            = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
 	HW_DATAARTS_CDM_NAME                = os.Getenv("HW_DATAARTS_CDM_NAME")
 	HW_DATAARTS_MANAGER_ID              = os.Getenv("HW_DATAARTS_MANAGER_ID")
@@ -1027,6 +1029,13 @@ func TestAccPreCheckCDN(t *testing.T) {
 func TestAccPreCheckCERT(t *testing.T) {
 	if HW_CDN_CERT_PATH == "" || HW_CDN_PRIVATE_KEY_PATH == "" {
 		t.Skip("This environment does not support CDN certificate tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckASScalingGroupID(t *testing.T) {
+	if HW_AS_SCALING_GROUP_ID == "" {
+		t.Skip("HW_AS_SCALING_GROUP_ID must be set for the acceptance test")
 	}
 }
 
