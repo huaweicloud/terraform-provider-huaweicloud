@@ -90,6 +90,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `public_endpoint` - EIP bound to the cluster.
 
+* `flavor_name` - The flavor name. Format is `cdm.<flavor_type>`
+
 * `instances` - Instance list. Structure is documented below.
 
 The `instances` block contains:
