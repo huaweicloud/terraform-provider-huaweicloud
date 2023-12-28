@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## 1.60.0 (December 29, 2023)
+
+* **New Resource:**
+  + `huaweicloud_dataarts_studio_data_connection` [GH-3834]
+  + `huaweicloud_dataarts_architecture_process` [GH-3832]
+  + `huaweicloud_dataarts_architecture_model` [GH-3836]
+  + `huaweicloud_dataarts_architecture_data_standard` [GH-3850]
+  + `huaweicloud_dataarts_architecture_code_table` [GH-3890]
+  + `huaweicloud_dataarts_architecture_table_model` [GH-3894]
+  + `huaweicloud_dataarts_architecture_data_standard_template` [GH-3900]
+  + `huaweicloud_dataarts_architecture_reviewer` [GH-3902]
+  + `huaweicloud_dataarts_factory_job` [GH-3837]
+  + `huaweicloud_dataarts_factory_script` [GH-3893]
+  + `huaweicloud_dms_kafka_user_client_quota` [GH-3882]
+  + `huaweicloud_cce_chart` [GH-3884]
+  + `huaweicloud_workspace_eip_associate` [GH-3885]
+  + `huaweicloud_cc_central_network_policy_apply` [GH-3886]
+  + `huaweicloud_cbr_backup_share_accepter` [GH-3888]
+  + `huaweicloud_er_flow_log` [GH-3908]
+
+* **New Data Source:**
+  + `huaweicloud_dcs_backups` [GH-3841]
+  + `huaweicloud_swr_repositories` [GH-3863]
+  + `huaweicloud_dms_kafka_smart_connect_tasks` [GH-3864]
+  + `huaweicloud_vpcep_services` [GH-3866]
+  + `huaweicloud_nat_private_transit_ips` [GH-3879]
+  + `huaweicloud_as_activity_logs` [GH-3891]
+  + `huaweicloud_dataarts_architecture_ds_template_optionals` [GH-3901]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_workspace_desktop: Support migrating enterprise_project_id [GH-3835]
+* resource/huaweicloud_vpn_gateway: Support migrating enterprise_project_id [GH-3847]
+* resource/huaweicloud_vpn_gateway: Support creating a GM VPN gateway with certificate [GH-3865]
+* resource/huaweicloud_vpc: Add `secondary_cidrs` to add more secondary cidrs [GH-3883]
+
 ## 1.59.1 (December 20, 2023)
 
 * **New Resource:**
