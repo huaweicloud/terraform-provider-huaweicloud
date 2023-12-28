@@ -397,6 +397,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_as_configurations": as.DataSourceASConfigurations(),
 			"huaweicloud_as_groups":         as.DataSourceASGroups(),
+			"huaweicloud_as_activity_logs":  as.DataSourceActivityLogs(),
 
 			"huaweicloud_account":            DataSourceAccount(),
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
