@@ -352,7 +352,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"dnsv21": {
 		Name:             "dns",
 		Version:          "v2.1",
-		Scope:            "global",
 		WithOutProjectID: true,
 		Product:          "DNS",
 	},
