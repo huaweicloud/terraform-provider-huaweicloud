@@ -28,6 +28,7 @@ func TestAccAntiDdos_basic(t *testing.T) {
 					testAccCheckAntiDdosExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "traffic_threshold", "200"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttrPair(resourceName, "topic_urn", "huaweicloud_smn_subscription.subscription_1", "topic_urn"),
 					resource.TestCheckResourceAttrPair(resourceName, "public_ip", "huaweicloud_vpc_eip.eip_1", "address"),
 				),
 			},
@@ -36,6 +37,7 @@ func TestAccAntiDdos_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "traffic_threshold", "300"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttrPair(resourceName, "topic_urn", "huaweicloud_smn_subscription.subscription_1", "topic_urn"),
 					resource.TestCheckResourceAttrPair(resourceName, "public_ip", "huaweicloud_vpc_eip.eip_1", "address"),
 				),
 			},
@@ -92,10 +94,23 @@ resource "huaweicloud_vpc_eip" "eip_1" {
     charge_mode = "traffic"
   }
 }
+  
+resource "huaweicloud_smn_topic" "topic_1" {
+  name         = "%s"
+  display_name = "The display name of topic_1"
+}
+
+resource "huaweicloud_smn_subscription" "subscription_1" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "mailtest@gmail.com"
+  protocol  = "email"
+  remark    = "O&M"
+}
 
 resource "huaweicloud_antiddos_basic" "antiddos_1" {
   eip_id            = huaweicloud_vpc_eip.eip_1.id
   traffic_threshold = %d
+  topic_urn = huaweicloud_smn_topic.topic_1.id
 }
-`, rName, threshold)
+`, rName, rName, threshold)
 }

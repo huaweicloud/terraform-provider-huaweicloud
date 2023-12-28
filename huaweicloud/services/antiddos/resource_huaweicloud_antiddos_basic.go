@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -15,10 +16,12 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	antiddossdk "github.com/chnsz/golangsdk/openstack/antiddos/v1/antiddos"
+	warnalertsdk "github.com/chnsz/golangsdk/openstack/antiddos/v2/alarmreminding"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var (
@@ -80,6 +83,11 @@ func ResourceCloudNativeAntiDdos() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"topic_urn": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"traffic_threshold": {
 				Type:         schema.TypeInt,
 				Required:     true,
@@ -138,7 +146,12 @@ func resourceCloudNativeAntiDdosUpdate(ctx context.Context, d *schema.ResourceDa
 	region := cfg.GetRegion(d)
 	client, err := cfg.AntiDDosV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating antiddos client: %s", err)
+		return diag.Errorf("error creating AntiDDoS v1 client: %s", err)
+	}
+
+	warnAlertClient, err := cfg.AntiDDosV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating AntiDDoS v2 client: %s", err)
 	}
 
 	eipID := d.Get("eip_id").(string)
@@ -148,8 +161,32 @@ func resourceCloudNativeAntiDdosUpdate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
+	topicUrn := d.Get("topic_urn").(string)
+	displayName := getDisplayName(topicUrn)
+	if topicUrn != "" && displayName != "" {
+		updateOpts := warnalertsdk.UpdateOps{
+			TopicUrn: topicUrn,
+			WarnConfig: &warnalertsdk.WarnConfig{
+				EnableAntiDDoS: utils.Bool(true),
+			},
+			DisplayName: displayName,
+		}
+		if _, err := warnalertsdk.UpdateWarnAlert(warnAlertClient, updateOpts).Extract(); err != nil {
+			return diag.Errorf("error updating AntiDDoS alarm configuration: %s", err)
+		}
+	}
+
 	d.SetId(eipID)
 	return resourceCloudNativeAntiDdosRead(ctx, d, meta)
+}
+
+func getDisplayName(topUrn string) string {
+	tmpArray := strings.Split(topUrn, ":")
+	if len(tmpArray) == 5 {
+		return tmpArray[len(tmpArray)-1]
+	}
+
+	return ""
 }
 
 func resourceCloudNativeAntiDdosRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -157,8 +194,14 @@ func resourceCloudNativeAntiDdosRead(_ context.Context, d *schema.ResourceData, 
 	region := cfg.GetRegion(d)
 	client, err := cfg.AntiDDosV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating antiddos client: %s", err)
+		return diag.Errorf("error creating AntiDDoS v1 client: %s", err)
 	}
+
+	warnAlertClient, err := cfg.AntiDDosV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating AntiDDoS v2 client: %s", err)
+	}
+
 	vpcClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating VPC client: %s", err)
@@ -174,15 +217,22 @@ func resourceCloudNativeAntiDdosRead(_ context.Context, d *schema.ResourceData, 
 	}
 	results, err := antiddossdk.ListStatus(client, listStatusOpts)
 	if err != nil {
-		return diag.Errorf("error retrieving cloud native AntiDdos: %s", err)
+		return diag.Errorf("error retrieving cloud native AntiDDoS: %s", err)
 	}
 
 	if len(results) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving cloud native AntiDdos")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving cloud native AntiDDoS")
 	}
 
 	ddosStatus := results[0]
-	log.Printf("[DEBUG] Retrieved cloud native AntiDdos %s: %#v", d.Id(), ddosStatus)
+	log.Printf("[DEBUG] Retrieved cloud native AntiDDoS %s: %#v", d.Id(), ddosStatus)
+
+	// query alarm config
+	alarmResult, err := warnalertsdk.GetWarnAlert(warnAlertClient).Extract()
+	log.Printf("[DEBUG] error query alarm configuration: %s", alarmResult.TopicUrn)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retriving AntiDDoS alarm configuration")
+	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -190,6 +240,7 @@ func resourceCloudNativeAntiDdosRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("public_ip", ddosStatus.FloatingIpAddress),
 		d.Set("traffic_threshold", getTrafficThresholdBandwidth(ddosStatus.TrafficThreshold)),
 		d.Set("status", ddosStatus.Status),
+		d.Set("topic_urn", getTopicUrn(alarmResult)),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -198,12 +249,19 @@ func resourceCloudNativeAntiDdosRead(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
+func getTopicUrn(warnalert *warnalertsdk.WarnAlertResponse) string {
+	if warnalert.WarnConfig.AntiDDoS {
+		return warnalert.TopicUrn
+	}
+	return ""
+}
+
 func resourceCloudNativeAntiDdosDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.AntiDDosV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating antiddos client: %s", err)
+		return diag.Errorf("error creating AntiDDoS client: %s", err)
 	}
 
 	if err := updateAntiDdosTrafficThreshold(ctx, d, client, d.Id(), 99, true); err != nil {
@@ -243,9 +301,9 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 			TrafficPosId:        threshold,
 		}
 
-		log.Printf("[DEBUG] AntiDdos updating options: %#v", updateOpts)
+		log.Printf("[DEBUG] AntiDDoS updating options: %#v", updateOpts)
 		if _, err := antiddossdk.Update(client, antiDDoSId, updateOpts).Extract(); err != nil {
-			return fmt.Errorf("error updating AntiDdos: %s", err)
+			return fmt.Errorf("error updating AntiDDoS: %s", err)
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -259,7 +317,7 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 
 		_, stateErr := stateConf.WaitForStateContext(ctx)
 		if stateErr != nil {
-			return fmt.Errorf("error waiting for AntiDdos to become normal: %s", stateErr)
+			return fmt.Errorf("error waiting for AntiDDoS to become normal: %s", stateErr)
 		}
 	}
 
