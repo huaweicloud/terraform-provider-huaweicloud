@@ -91,8 +91,8 @@ func centralNetworkPolicyCentralNetworkPolicyPlaneDocumentSchema() *schema.Resou
 			"associate_er_tables": {
 				Type:        schema.TypeList,
 				Elem:        centralNetworkPolicyCentralNetworkPolicyPlaneDocumentAssociateErTableDocumentSchema(),
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `List of route tables associated with the central network policy.`,
 			},
 		},
@@ -105,26 +105,26 @@ func centralNetworkPolicyCentralNetworkPolicyPlaneDocumentAssociateErTableDocume
 		Schema: map[string]*schema.Schema{
 			"project_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Project ID.`,
 			},
 			"region_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Region ID.`,
 			},
 			"enterprise_router_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Enterprise router ID.`,
 			},
 			"enterprise_router_table_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Enterprise router table ID.`,
 			},
 		},
@@ -137,20 +137,20 @@ func centralNetworkPolicyAssociateErInstanceDocumentSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"project_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Project ID.`,
 			},
 			"region_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Region ID.`,
 			},
 			"enterprise_router_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
+				ForceNew:    true,
 				Description: `Enterprise router ID.`,
 			},
 		},
@@ -218,11 +218,7 @@ func buildCreateCentralNetworkPolicyBodyParams(d *schema.ResourceData) map[strin
 }
 
 func buildCreateCentralNetworkPolicyRequestBodyCentralNetworkPolicyPlaneDocument(rawParams interface{}) []map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-
+	if rawArray, ok := rawParams.([]interface{}); ok && len(rawArray) > 0 {
 		rst := make([]map[string]interface{}, len(rawArray))
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
@@ -233,7 +229,8 @@ func buildCreateCentralNetworkPolicyRequestBodyCentralNetworkPolicyPlaneDocument
 		}
 		return rst
 	}
-	return nil
+
+	return []map[string]interface{}{{"name": "default-plane"}}
 }
 
 func buildCentralNetworkPolicyPlaneAssociateErTableDocument(rawParams interface{}) []map[string]interface{} {
