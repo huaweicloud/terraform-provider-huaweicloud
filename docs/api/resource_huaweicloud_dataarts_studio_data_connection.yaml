@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_studio_data_connection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/data-connections:
+        GET:
+            tag: DataArtsStudio
+        POST:
+            tag: DataArtsStudio
+    /v1/{project_id}/data-connections/{data_connection_id}:
+        DELETE:
+            tag: DataArtsStudio
+        GET:
+            tag: DataArtsStudio
+        PUT:
+            tag: DataArtsStudio
+    /v1/{project_id}/data-connections/validation:
+        POST:
+            tag: DataArtsStudio

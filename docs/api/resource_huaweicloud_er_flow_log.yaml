@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_er_flow_log
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ER
+paths:
+    /v3/{project_id}/enterprise-router/{er_id}/flow-logs:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}:
+        DELETE:
+            tag: ER
+        GET:
+            tag: ER
+        PUT:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/disable:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/enable:
+        POST:
+            tag: ER

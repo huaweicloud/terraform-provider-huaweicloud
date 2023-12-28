@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_architecture_data_standard
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    //v2/{project_id}/design/standards/{id}:
+        GET:
+            tag: DataArtsStudio
+    /v2/{project_id}/design/standards:
+        DELETE:
+            tag: DataArtsStudio
+        GET:
+            tag: DataArtsStudio
+        POST:
+            tag: DataArtsStudio
+    /v2/{project_id}/design/standards/{id}:
+        PUT:
+            tag: DataArtsStudio
