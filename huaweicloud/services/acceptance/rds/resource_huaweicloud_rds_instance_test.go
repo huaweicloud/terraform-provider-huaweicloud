@@ -47,6 +47,8 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", pwd),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "09:00"),
 				),
 			},
 			{
@@ -65,6 +67,8 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8636"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.password", newPwd),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "15:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "17:00"),
 				),
 			},
 			{
@@ -606,6 +610,8 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
   fixed_ip          = "192.168.0.52"
+  maintain_begin    = "06:00"
+  maintain_end      = "09:00"
 
   db {
     password = "%s"
@@ -644,6 +650,8 @@ resource "huaweicloud_rds_instance" "test" {
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
   fixed_ip          = "192.168.0.62"
+  maintain_begin    = "15:00"
+  maintain_end      = "17:00"
 
   db {
     password = "%s"
