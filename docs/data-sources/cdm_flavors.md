@@ -23,13 +23,20 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID in UUID format.
 
 * `version` - The version of the CDM cluster.
 
 * `flavors` - Indicates the flavors information. Structure is documented below.
+  The [flavors](#block-flavors) structure is documented below.
 
-The `flavors` block contains:
+<a name="block-flavors"></a>
+The `flavors` block supports:
 
-* `name` - The name of the CDM flavor.
-* `id` - The id of the CDM flavor.
+* `id` - The ID of the CDM flavor.
+
+* `name` - The name of the CDM flavor. Format is `cdm.<flavor_type>`.
+
+* `cpu` - The numbers of CDM cluster vCPUs.
+
+* `memory` - The memory size in GB.
