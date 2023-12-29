@@ -826,7 +826,9 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
 	}
 
-	r := clusters.GetCert(cceClient, d.Id())
+	// duration -1 is equal to the maximum value 1827 days
+	opts := clusters.GetCertOpts{Duration: -1}
+	r := clusters.GetCert(cceClient, d.Id(), opts)
 
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 
