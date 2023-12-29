@@ -1550,3 +1550,119 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 }
 `, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, acceptance.HW_MAPREDUCE_BOOTSTRAP_SCRIPT)
 }
+
+func TestAccMrsMapReduceCluster_alarm(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsMapReduceClusterConfig_alarm(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
+					resource.TestCheckResourceAttr(resourceName, "safe_mode", "false"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"manager_admin_pass",
+					"node_admin_pass",
+					"template_id",
+					"smn_notify",
+				},
+			},
+		},
+	})
+}
+
+func testAccMrsMapReduceClusterConfig_alarm(rName, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_smn_topic" "topic_1" {
+  name = "%[2]s"
+}
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%[2]s"
+  version            = "MRS 3.1.5"
+  type               = "CUSTOM"
+  safe_mode          = false
+  manager_admin_pass = "%[3]s"
+  node_admin_pass    = "%[3]s"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  template_id        = "mgmt_control_combined_v4.1"
+  component_list     = ["DBService", "Hadoop", "ZooKeeper", "Ranger"]
+
+  master_nodes {
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 100
+    data_volume_type  = "SAS"
+    data_volume_size  = 200
+    data_volume_count = 1
+    assigned_roles    = [
+      "OMSServer:1,2",
+      "SlapdServer:1,2",
+      "KerberosServer:1,2",
+      "KerberosAdmin:1,2",
+      "quorumpeer:1,2,3",
+      "NameNode:2,3",
+      "Zkfc:2,3",
+      "JournalNode:1,2,3",
+      "ResourceManager:2,3",
+      "JobHistoryServer:2,3",
+      "DBServer:1,3",
+      "HttpFS:1,3",
+      "TimelineServer:3",
+      "RangerAdmin:1,2",
+      "UserSync:2",
+      "TagSync:2",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
+  }
+
+  custom_nodes {
+    group_name        = "node_group_1"
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 3
+    root_volume_type  = "SAS"
+    root_volume_size  = 100
+    data_volume_type  = "SAS"
+    data_volume_size  = 200
+    data_volume_count = 1
+    assigned_roles    = [
+      "DataNode",
+      "NodeManager",
+      "KerberosClient",
+      "SlapdClient",
+      "meta"
+    ]
+  }
+
+  smn_notify {
+    topic_urn         = huaweicloud_smn_topic.topic_1.topic_urn
+    subscription_name = "subscription-test"
+  }
+}
+`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd)
+}
