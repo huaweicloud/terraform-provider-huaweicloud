@@ -16,7 +16,7 @@ import (
 func getMigrationTaskResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	c, err := conf.HcOmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating MPC client: %s", err)
+		return nil, fmt.Errorf("error creating OMS client: %s", err)
 	}
 
 	return c.ShowTask(&oms.ShowTaskRequest{TaskId: state.Primary.ID})
@@ -137,8 +137,9 @@ func TestAccMigrationTask_list(t *testing.T) {
 func testMigrationTask_base(sourceBucketName, destBucketName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "source" {
-  bucket = "%s"
-  acl    = "private"
+  bucket        = "%s"
+  acl           = "private"
+  force_destroy = true
 }
 
 resource "huaweicloud_obs_bucket_object" "source" {

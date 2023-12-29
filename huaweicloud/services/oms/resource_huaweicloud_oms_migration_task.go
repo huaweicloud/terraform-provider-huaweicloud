@@ -13,9 +13,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	v2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
-	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
+	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
+	omsmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -252,11 +254,7 @@ func ResourceMigrationTask() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"NONE", "QINIU_PRIVATE_AUTHENTICATION", "ALIYUN_OSS_A", "ALIYUN_OSS_B", "ALIYUN_OSS_C",
-								"KSYUN_PRIVATE_AUTHENTICATION",
-							}, false),
-							Default: "NONE",
+							Default:  "NONE",
 						},
 						"authentication_key": {
 							Type:     schema.TypeString,
@@ -304,13 +302,13 @@ func ResourceMigrationTask() *schema.Resource {
 	}
 }
 
-func buildSrcNodeOpts(rawSrcNode []interface{}) *oms.SrcNodeReq {
+func buildSrcNodeOpts(rawSrcNode []interface{}) *omsmodel.SrcNodeReq {
 	if len(rawSrcNode) != 1 {
 		return nil
 	}
 	srcNode := rawSrcNode[0].(map[string]interface{})
 
-	srcNodeOpts := oms.SrcNodeReq{
+	srcNodeOpts := omsmodel.SrcNodeReq{
 		CloudType:     utils.StringIgnoreEmpty(srcNode["data_source"].(string)),
 		Region:        utils.StringIgnoreEmpty(srcNode["region"].(string)),
 		Ak:            utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
@@ -321,7 +319,7 @@ func buildSrcNodeOpts(rawSrcNode []interface{}) *oms.SrcNodeReq {
 	}
 
 	if srcNode["list_file_bucket"].(string) != "" {
-		srcNodeOpts.ListFile = &oms.ListFile{
+		srcNodeOpts.ListFile = &omsmodel.ListFile{
 			ObsBucket:   srcNode["list_file_bucket"].(string),
 			ListFileKey: srcNode["list_file_key"].(string),
 		}
@@ -346,7 +344,7 @@ func buildSrcNodeOpts(rawSrcNode []interface{}) *oms.SrcNodeReq {
 	return &srcNodeOpts
 }
 
-func buildDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*oms.DstNodeReq, error) {
+func buildDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*omsmodel.DstNodeReq, error) {
 	if len(rawDstNode) != 1 {
 		return nil, nil
 	}
@@ -361,7 +359,7 @@ func buildDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*oms.DstNo
 	}
 	securityToken := getDstSecurityToken(conf, dstNode)
 
-	dstNodeOpts := oms.DstNodeReq{
+	dstNodeOpts := omsmodel.DstNodeReq{
 		Region:        dstNode["region"].(string),
 		Ak:            ak,
 		Sk:            sk,
@@ -403,15 +401,15 @@ func getDstSecurityToken(conf *config.Config, dstNode map[string]interface{}) *s
 	return nil
 }
 
-func buildBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) *[]oms.BandwidthPolicyDto {
+func buildBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) *[]omsmodel.BandwidthPolicyDto {
 	if len(rawBandwidthPolicy) < 1 {
 		return nil
 	}
 
-	bandwidthPolicyOpts := make([]oms.BandwidthPolicyDto, len(rawBandwidthPolicy))
+	bandwidthPolicyOpts := make([]omsmodel.BandwidthPolicyDto, len(rawBandwidthPolicy))
 	for i, rawPolicy := range rawBandwidthPolicy {
 		policy := rawPolicy.(map[string]interface{})
-		bandwidthPolicyOpts[i] = oms.BandwidthPolicyDto{
+		bandwidthPolicyOpts[i] = omsmodel.BandwidthPolicyDto{
 			MaxBandwidth: int64(policy["max_bandwidth"].(int) * 1024 * 1024),
 			Start:        policy["start"].(string),
 			End:          policy["end"].(string),
@@ -421,24 +419,24 @@ func buildBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) *[]oms.Bandwidth
 	return &bandwidthPolicyOpts
 }
 
-func buildSourceCdnOpts(rawSourceCdn []interface{}) (*oms.SourceCdnReq, error) {
+func buildSourceCdnOpts(rawSourceCdn []interface{}) (*omsmodel.SourceCdnReq, error) {
 	if len(rawSourceCdn) != 1 {
 		return nil, nil
 	}
 	sourceCdn := rawSourceCdn[0].(map[string]interface{})
 
-	sourceCdnOpts := oms.SourceCdnReq{
+	sourceCdnOpts := omsmodel.SourceCdnReq{
 		Domain:            sourceCdn["domain"].(string),
 		AuthenticationKey: utils.String(sourceCdn["authentication_key"].(string)),
 	}
 
 	if sourceCdn["protocol"].(string) == "http" {
-		sourceCdnOpts.Protocol = oms.GetSourceCdnReqProtocolEnum().HTTP
+		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTP
 	} else {
-		sourceCdnOpts.Protocol = oms.GetSourceCdnReqProtocolEnum().HTTPS
+		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTPS
 	}
 
-	var authenticationType oms.SourceCdnReqAuthenticationType
+	var authenticationType omsmodel.SourceCdnReqAuthenticationType
 	if err := authenticationType.UnmarshalJSON([]byte(sourceCdn["authentication_type"].(string))); err != nil {
 		return nil, fmt.Errorf("error parsing the argument authentication_type: %s", err)
 	}
@@ -446,21 +444,21 @@ func buildSourceCdnOpts(rawSourceCdn []interface{}) (*oms.SourceCdnReq, error) {
 	return &sourceCdnOpts, nil
 }
 
-func buildSmnConfigOpts(rawSmnConfig []interface{}) *oms.SmnConfig {
+func buildSmnConfigOpts(rawSmnConfig []interface{}) *omsmodel.SmnConfig {
 	if len(rawSmnConfig) != 1 {
 		return nil
 	}
 	smnInfo := rawSmnConfig[0].(map[string]interface{})
 
-	smnInfoOpts := oms.SmnConfig{
+	smnInfoOpts := omsmodel.SmnConfig{
 		TopicUrn:          smnInfo["topic_urn"].(string),
 		TriggerConditions: utils.ExpandToStringList(smnInfo["trigger_conditions"].([]interface{})),
 	}
-	var language oms.SmnConfigLanguage
+	var language omsmodel.SmnConfigLanguage
 	if smnInfo["language"].(string) == "zh-cn" {
-		language = oms.GetSmnConfigLanguageEnum().ZH_CN
+		language = omsmodel.GetSmnConfigLanguageEnum().ZH_CN
 	} else {
-		language = oms.GetSmnConfigLanguageEnum().EN_US
+		language = omsmodel.GetSmnConfigLanguageEnum().EN_US
 	}
 	smnInfoOpts.Language = &language
 
@@ -474,12 +472,12 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	var taskType oms.CreateTaskReqTaskType
+	var taskType omsmodel.CreateTaskReqTaskType
 	if err := taskType.UnmarshalJSON([]byte(d.Get("type").(string))); err != nil {
 		return diag.Errorf("error parsing the argument type: %s", err)
 	}
 
-	createOpts := oms.CreateTaskReq{
+	createOpts := omsmodel.CreateTaskReq{
 		TaskType:                    &taskType,
 		SrcNode:                     buildSrcNodeOpts(d.Get("source_object").([]interface{})),
 		EnableKms:                   utils.Bool(d.Get("enable_kms").(bool)),
@@ -512,7 +510,7 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 
 	log.Printf("[DEBUG] Create Task options: %#v", createOpts)
 
-	resp, err := client.CreateTask(&oms.CreateTaskRequest{Body: &createOpts})
+	resp, err := client.CreateTask(&omsmodel.CreateTaskRequest{Body: &createOpts})
 	if err != nil {
 		return diag.Errorf("error creating OMS migration task: %s", err)
 	}
@@ -530,7 +528,7 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if !d.Get("start_task").(bool) {
-		_, err = client.StopTask(&oms.StopTaskRequest{TaskId: taskID})
+		_, err = client.StopTask(&omsmodel.StopTaskRequest{TaskId: taskID})
 		if err != nil {
 			return diag.Errorf("error stopping OMS migration task: %s", err)
 		}
@@ -553,8 +551,11 @@ func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta i
 
 	taskID := d.Id()
 
-	resp, err := client.ShowTask(&oms.ShowTaskRequest{TaskId: taskID})
+	resp, err := client.ShowTask(&omsmodel.ShowTaskRequest{TaskId: taskID})
 	if err != nil {
+		if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok && responseErr.ErrorCode == "OMS.1009" {
+			err = golangsdk.ErrDefault404{}
+		}
 		return common.CheckDeletedDiag(d, err, "error retrieving OMS migration task")
 	}
 	log.Printf("[DEBUG] Retrieved Task %s: %#v", d.Id(), resp)
@@ -595,9 +596,9 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	if d.HasChange("bandwidth_policy") {
 		updateBandwidthPolicyOpts := buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{}))
-		updateBandwidthPolicyReq := oms.UpdateBandwidthPolicyRequest{
+		updateBandwidthPolicyReq := omsmodel.UpdateBandwidthPolicyRequest{
 			TaskId: taskID,
-			Body: &oms.UpdateBandwidthPolicyReq{
+			Body: &omsmodel.UpdateBandwidthPolicyReq{
 				BandwidthPolicy: *updateBandwidthPolicyOpts,
 			},
 		}
@@ -613,7 +614,7 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 			if err != nil {
 				return diag.FromErr(err)
 			}
-			startTaskRequestOpt := &oms.StartTaskRequest{
+			startTaskRequestOpt := &omsmodel.StartTaskRequest{
 				TaskId: taskID,
 				Body:   startTaskReqOpt,
 			}
@@ -628,7 +629,7 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 				return diag.Errorf("error waiting for task (%s) started: %s", taskID, err)
 			}
 		} else {
-			_, err := client.StopTask(&oms.StopTaskRequest{TaskId: taskID})
+			_, err := client.StopTask(&omsmodel.StopTaskRequest{TaskId: taskID})
 			if err != nil {
 				return diag.Errorf("error stopping OMS migration task: %s", err)
 			}
@@ -643,7 +644,7 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 	return resourceMigrationTaskRead(ctx, d, meta)
 }
 
-func waitForTaskStopped(ctx context.Context, client *v2.OmsClient, taskID string, timeout time.Duration) error {
+func waitForTaskStopped(ctx context.Context, client *oms.OmsClient, taskID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"0", "7"},
 		Target:     []string{"3"},
@@ -657,7 +658,7 @@ func waitForTaskStopped(ctx context.Context, client *v2.OmsClient, taskID string
 	return err
 }
 
-func buildStartTaskReqOpt(conf *config.Config, d *schema.ResourceData) (*oms.StartTaskReq, error) {
+func buildStartTaskReqOpt(conf *config.Config, d *schema.ResourceData) (*omsmodel.StartTaskReq, error) {
 	srcNode := make(map[string]interface{})
 	dstNode := make(map[string]interface{})
 	if sourceObjects := d.Get("source_object").([]interface{}); len(sourceObjects) > 0 {
@@ -677,7 +678,7 @@ func buildStartTaskReqOpt(conf *config.Config, d *schema.ResourceData) (*oms.Sta
 	}
 	dstSecurityToken := getDstSecurityToken(conf, dstNode)
 
-	startTaskReqOpt := &oms.StartTaskReq{
+	startTaskReqOpt := &omsmodel.StartTaskReq{
 		SrcAk:            utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
 		SrcSk:            utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
 		SrcSecurityToken: utils.StringIgnoreEmpty(srcNode["security_token"].(string)),
@@ -702,8 +703,12 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	taskID := d.Id()
 
 	// must stop the running task before deleting it
-	resp, err := client.ShowTask(&oms.ShowTaskRequest{TaskId: taskID})
+	resp, err := client.ShowTask(&omsmodel.ShowTaskRequest{TaskId: taskID})
 	if err != nil {
+		// OMS.1009 means the resource is not found.
+		if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok && responseErr.ErrorCode == "OMS.1009" {
+			return nil
+		}
 		return diag.Errorf("error retrieving OMS migration task: %s", err)
 	}
 
@@ -712,7 +717,7 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if *resp.Status == 2 {
-		_, err = client.StopTask(&oms.StopTaskRequest{TaskId: taskID})
+		_, err = client.StopTask(&omsmodel.StopTaskRequest{TaskId: taskID})
 		if err != nil {
 			// ErrorCode "OMS.0066" means the task is not running, don't need to stop it before deleting
 			if responseErr, ok := err.(*sdkerr.ServiceResponseError); !ok || responseErr.ErrorCode != "OMS.0066" {
@@ -734,7 +739,7 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, err = client.DeleteTask(&oms.DeleteTaskRequest{TaskId: taskID})
+		_, err = client.DeleteTask(&omsmodel.DeleteTaskRequest{TaskId: taskID})
 		if err == nil {
 			return nil
 		}
@@ -756,9 +761,9 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func getTaskStatus(client *v2.OmsClient, taskId string) resource.StateRefreshFunc {
+func getTaskStatus(client *oms.OmsClient, taskId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		taskGet, err := client.ShowTask(&oms.ShowTaskRequest{TaskId: taskId})
+		taskGet, err := client.ShowTask(&omsmodel.ShowTaskRequest{TaskId: taskId})
 		if err != nil {
 			return nil, "", err
 		}
@@ -768,7 +773,7 @@ func getTaskStatus(client *v2.OmsClient, taskId string) resource.StateRefreshFun
 	}
 }
 
-func waitForTaskStartedORCompleted(ctx context.Context, client *v2.OmsClient, taskID string, timeout time.Duration) error {
+func waitForTaskStartedORCompleted(ctx context.Context, client *oms.OmsClient, taskID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"0", "1"},
 		Target:     []string{"2", "5"},
@@ -782,7 +787,7 @@ func waitForTaskStartedORCompleted(ctx context.Context, client *v2.OmsClient, ta
 	return err
 }
 
-func flattenBandwidthPolicy(bandwidthPolicy *[]oms.BandwidthPolicyDto) []map[string]interface{} {
+func flattenBandwidthPolicy(bandwidthPolicy *[]omsmodel.BandwidthPolicyDto) []map[string]interface{} {
 	if bandwidthPolicy == nil {
 		return nil
 	}
@@ -798,7 +803,7 @@ func flattenBandwidthPolicy(bandwidthPolicy *[]oms.BandwidthPolicyDto) []map[str
 	return bandwidthPolicyResult
 }
 
-func flattenSourceCdn(sourceCdn *oms.SourceCdnResp) []map[string]interface{} {
+func flattenSourceCdn(sourceCdn *omsmodel.SourceCdnResp) []map[string]interface{} {
 	if sourceCdn == nil {
 		return nil
 	}
