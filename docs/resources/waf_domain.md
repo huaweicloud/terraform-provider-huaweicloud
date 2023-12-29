@@ -45,6 +45,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   enterprise_project_id = var.enterprise_project_id
   description           = "test description"
   website_name          = "websiteName"
+  protect_status        = 1
   
   forward_header_map = {
     "key1" = "$time_local"
@@ -150,6 +151,14 @@ The following arguments are supported:
   The website name must be unique within this account.
 
 * `description` - (Optional, String) Specifies the description of the WAF domain.
+
+* `protect_status` - (Optional, Int) The protection status of domain. Valid values are:
+  + **0**: The WAF protection is suspended. WAF only forwards requests destined for the domain name and does not detect attacks.
+  + **1**: The WAF protection is enabled. WAF detects attacks based on the policy you configure.
+  + **-1**: The WAF protection is bypassed. Requests of the domain name are directly sent to the backend server and do
+  not pass through WAF.
+
+  Default value is **0**.
 
 * `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check.
   This parameter must be used together with `tls` and `cipher`.
@@ -282,8 +291,6 @@ The `traffic_mark` block supports:
 The following attributes are exported:
 
 * `id` - ID of the domain.
-
-* `protect_status` - The WAF mode. -1: bypassed, 0: disabled, 1: enabled.
 
 * `access_status` - Whether a domain name is connected to WAF. 0: The domain name is not connected to WAF, 1: The domain
   name is connected to WAF.

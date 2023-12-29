@@ -116,3 +116,7 @@ type GetResult struct {
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
+
+type HostProtectStatus struct {
+	ProtectStatus int `json:"protect_status"`
+}
