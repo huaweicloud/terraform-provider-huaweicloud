@@ -6,6 +6,8 @@ subcategory: "Workspace"
 
 Manages a Workspace desktop resource within HuaweiCloud.
 
+-> **NOTE:** Before creating Workspace desktop, ensure that the Workspace service has been registered.
+
 ## Example Usage
 
 ### Create a desktop using market image
