@@ -168,12 +168,18 @@ func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 }
 
 // GetCert retrieves a particular cluster certificate based on its unique ID.
-func GetCert(c *golangsdk.ServiceClient, id string) (r GetCertResult) {
-	_, r.Err = c.Get(certificateURL(c, id), &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{200},
-		MoreHeaders: RequestOpts.MoreHeaders, JSONBody: nil,
-	})
+func GetCert(c *golangsdk.ServiceClient, id string, opts GetCertOpts) (r GetCertResult) {
+	body, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(certificateURL(c, id), body, &r.Body, nil)
 	return
+}
+
+type GetCertOpts struct {
+	Duration int `json:"duration" required:"true"`
 }
 
 // UpdateOpts contains all the values needed to update a new cluster

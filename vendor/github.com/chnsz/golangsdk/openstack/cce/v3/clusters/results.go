@@ -211,6 +211,8 @@ type CertCluster struct {
 	Server string `json:"server"`
 	//Certificate data
 	CertAuthorityData string `json:"certificate-authority-data"`
+	//whether skip tls verify
+	InsecureSkipTLSVerify bool `json:"insecure-skip-tls-verify"`
 }
 
 type CertUsers struct {

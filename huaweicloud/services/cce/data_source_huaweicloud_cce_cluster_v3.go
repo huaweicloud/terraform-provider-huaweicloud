@@ -252,8 +252,10 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 	}
 	mErr = multierror.Append(mErr, d.Set("endpoints", v))
 
-	// set kube_config_raw
-	r := clusters.GetCert(cceClient, d.Id())
+	// set kube_config_raw, duration -1 is equal to the maximum value 1827 days
+	opts := clusters.GetCertOpts{Duration: -1}
+	r := clusters.GetCert(cceClient, d.Id(), opts)
+
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 	if err != nil {
 		logp.Printf("Error marshaling r.Body: %s", err)
@@ -262,7 +264,7 @@ func dataSourceCCEClusterV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	cert, err := r.Extract()
 	if err != nil {
-		logp.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
+		logp.Printf("Error retrieving CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters
