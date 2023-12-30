@@ -201,19 +201,13 @@ func ResourceDcsInstance() *schema.Resource {
 			"maintain_begin": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				RequiredWith: []string{"maintain_end"},
-				Default:      "02:00:00",
-				ValidateFunc: validation.StringInSlice([]string{
-					"22:00:00", "02:00:00", "06:00:00", "10:00:00", "14:00:00", "18:00:00",
-				}, false),
 			},
 			"maintain_end": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "06:00:00",
-				ValidateFunc: validation.StringInSlice([]string{
-					"22:00:00", "02:00:00", "06:00:00", "10:00:00", "14:00:00", "18:00:00",
-				}, false),
+				Computed: true,
 			},
 			"backup_policy": {
 				Type:          schema.TypeList,

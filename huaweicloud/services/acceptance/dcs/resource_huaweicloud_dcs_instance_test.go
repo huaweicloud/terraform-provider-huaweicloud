@@ -52,7 +52,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "1"),
@@ -70,7 +70,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.begin_at", "01:00-02:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.save_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.backup_at.#", "3"),
@@ -118,7 +118,7 @@ func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -133,7 +133,7 @@ func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -144,7 +144,7 @@ func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -186,7 +186,7 @@ func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -201,7 +201,7 @@ func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -243,7 +243,7 @@ func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -258,7 +258,7 @@ func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -300,7 +300,7 @@ func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -315,7 +315,7 @@ func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "16"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -326,7 +326,7 @@ func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -368,7 +368,7 @@ func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -383,7 +383,7 @@ func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -425,7 +425,7 @@ func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -440,7 +440,7 @@ func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -482,7 +482,7 @@ func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -497,7 +497,7 @@ func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "16"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -508,7 +508,7 @@ func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -550,7 +550,7 @@ func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -565,7 +565,7 @@ func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -607,7 +607,7 @@ func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -622,7 +622,7 @@ func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -664,7 +664,7 @@ func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -679,7 +679,7 @@ func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -690,7 +690,7 @@ func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -732,7 +732,7 @@ func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
@@ -747,7 +747,7 @@ func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
@@ -974,7 +974,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
-  maintain_end       = "02:00:00"
+  maintain_end       = "23:00:00"
 
   backup_policy {
     backup_type = "auto"
@@ -1035,7 +1035,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 
   backup_policy {
     backup_type = "auto"
@@ -1097,7 +1097,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
-  maintain_end       = "02:00:00"
+  maintain_end       = "23:00:00"
 }`, instanceName)
 }
 
@@ -1132,7 +1132,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1167,7 +1167,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1202,7 +1202,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1237,7 +1237,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1272,7 +1272,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
-  maintain_end       = "02:00:00"
+  maintain_end       = "23:00:00"
 }`, instanceName)
 }
 
@@ -1307,7 +1307,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1342,7 +1342,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1377,7 +1377,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1412,7 +1412,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1447,7 +1447,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
-  maintain_end       = "02:00:00"
+  maintain_end       = "23:00:00"
 }`, instanceName)
 }
 
@@ -1482,7 +1482,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1517,7 +1517,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1552,7 +1552,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1587,7 +1587,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1622,7 +1622,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
-  maintain_end       = "02:00:00"
+  maintain_end       = "23:00:00"
 }`, instanceName)
 }
 
@@ -1657,7 +1657,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1692,7 +1692,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 
@@ -1727,7 +1727,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
-  maintain_end       = "10:00:00"
+  maintain_end       = "07:00:00"
 }`, instanceName)
 }
 

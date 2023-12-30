@@ -163,25 +163,22 @@ The following arguments are supported:
 * `whitelist_enable` - (Optional, Bool) Enable or disable the IP address whitelists. Defaults to true.
   If the whitelist is disabled, all IP addresses connected to the VPC can access the instance.
 
-* `maintain_begin` - (Optional, String) Time at which the maintenance time window starts.
-  The valid values are `22:00:00`, `02:00:00`, `06:00:00`, `10:00:00`, `14:00:00` and `18:00:00`.
-  Default value is `02:00:00`.
+* `maintain_begin` - (Optional, String) Time at which the maintenance time window starts. Defaults to **02:00:00**.
   + The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
     time window.
-  + Parameters `maintain_begin` and `maintain_end` must be set in pairs.
-  + If parameter maintain_begin is left blank, parameter maintain_end is also blank.
-    In this case, the system automatically allocates the default start time 02:00:00.
+  + The start time must be on the hour, such as **18:00:00**.
+  + If parameter `maintain_begin` is left blank, parameter `maintain_end` is also blank.
+    In this case, the system automatically allocates the default start time **02:00:00**.
 
-* `maintain_end` - (Optional, String) Time at which the maintenance time window ends.
-  The valid values are `22:00:00`, `02:00:00`, `06:00:00`, `10:00:00`, `14:00:00` and `18:00:00`.
-  Default value is `06:00:00`.
+* `maintain_end` - (Optional, String) Time at which the maintenance time window ends. Defaults to **06:00:00**.
   + The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
     time window.
-  + The end time is four hours later than the start time.
-    For example, if the start time is 22:00:00, the end time is 02:00:00.
-  + Parameters `maintain_begin` and `maintain_end` must be set in pairs.
-  + If parameter maintain_end is left blank, parameter maintain_begin is also blank.
-    In this case, the system automatically allocates the default end time 06:00:00.
+  + The end time is one hour later than the start time. For example, if the start time is **18:00:00**, the end time is
+    **19:00:00**.
+  + If parameter `maintain_end` is left blank, parameter `maintain_begin` is also blank.
+    In this case, the system automatically allocates the default end time **06:00:00**.
+
+-> **NOTE:** Parameters `maintain_begin` and `maintain_end` must be set in pairs.
 
 * `backup_policy` - (Optional, List) Specifies the backup configuration to be used with the instance.
   The structure is described below.
