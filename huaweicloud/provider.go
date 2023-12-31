@@ -410,13 +410,14 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
 
-			"huaweicloud_cce_addon_template": cce.DataSourceAddonTemplate(),
-			"huaweicloud_cce_cluster":        cce.DataSourceCCEClusterV3(),
-			"huaweicloud_cce_clusters":       cce.DataSourceCCEClusters(),
-			"huaweicloud_cce_node":           cce.DataSourceNode(),
-			"huaweicloud_cce_nodes":          cce.DataSourceNodes(),
-			"huaweicloud_cce_node_pool":      cce.DataSourceCCENodePoolV3(),
-			"huaweicloud_cci_namespaces":     cci.DataSourceCciNamespaces(),
+			"huaweicloud_cce_addon_template":      cce.DataSourceAddonTemplate(),
+			"huaweicloud_cce_cluster":             cce.DataSourceCCEClusterV3(),
+			"huaweicloud_cce_clusters":            cce.DataSourceCCEClusters(),
+			"huaweicloud_cce_cluster_certificate": cce.DataSourceCCEClusterCertificate(),
+			"huaweicloud_cce_node":                cce.DataSourceNode(),
+			"huaweicloud_cce_nodes":               cce.DataSourceNodes(),
+			"huaweicloud_cce_node_pool":           cce.DataSourceCCENodePoolV3(),
+			"huaweicloud_cci_namespaces":          cci.DataSourceCciNamespaces(),
 
 			"huaweicloud_ccm_private_certificate_export": ccm.DataSourceCcmPrivateCertificateExport(),
 
