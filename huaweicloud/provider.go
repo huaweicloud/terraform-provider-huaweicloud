@@ -743,7 +743,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
-			"huaweicloud_api_gateway_api":         ResourceAPIGatewayAPI(),
+			"huaweicloud_api_gateway_api":         apigateway.ResourceAPI(),
 			"huaweicloud_api_gateway_environment": apigateway.ResourceEnvironment(),
 			"huaweicloud_api_gateway_group":       ResourceAPIGatewayGroup(),
 

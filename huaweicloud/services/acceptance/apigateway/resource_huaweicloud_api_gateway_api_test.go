@@ -1,4 +1,4 @@
-package huaweicloud
+package apigateway
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/apigw/shared/v1/apis"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccApiGatewayAPI_basic(t *testing.T) {
@@ -19,9 +19,9 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckApiGatewayApiDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckApiGatewayApiDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigwAPI_basic(rName),
@@ -57,10 +57,10 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 }
 
 func testAccCheckApiGatewayApiDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	apigwClient, err := config.ApiGatewayV1Client(HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	apigwClient, err := cfg.ApiGatewayV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return fmt.Errorf("error creating API Gateway client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -70,7 +70,7 @@ func testAccCheckApiGatewayApiDestroy(s *terraform.State) error {
 
 		_, err := apis.Get(apigwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("api gateway API still exists")
+			return fmt.Errorf("API Gateway API still exists")
 		}
 	}
 
@@ -81,17 +81,17 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Resource %s not found", n)
+			return fmt.Errorf("resource %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		apigwClient, err := config.ApiGatewayV1Client(HW_REGION_NAME)
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		apigwClient, err := cfg.ApiGatewayV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+			return fmt.Errorf("error creating API Gateway client: %s", err)
 		}
 
 		found, err := apis.Get(apigwClient, rs.Primary.ID).Extract()
@@ -100,7 +100,7 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("apigateway API not found")
+			return fmt.Errorf("API Gateway API not found")
 		}
 
 		return nil
