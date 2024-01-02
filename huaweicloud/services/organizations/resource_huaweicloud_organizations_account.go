@@ -39,13 +39,27 @@ func ResourceAccount() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the name of the account.`,
+			},
+			"email": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"phone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"parent_id": {
 				Type:        schema.TypeString,
@@ -75,15 +89,16 @@ func ResourceAccount() *schema.Resource {
 
 func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createAccount: create Organizations account
 	var (
-		createAccountHttpUrl = "v1/organizations/accounts/add"
+		createAccountHttpUrl = "v1/organizations/accounts"
 		createAccountProduct = "organizations"
 	)
-	createAccountClient, err := cfg.NewServiceClient(createAccountProduct, "")
+	createAccountClient, err := cfg.NewServiceClient(createAccountProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
 	createAccountPath := createAccountClient.Endpoint + createAccountHttpUrl
@@ -102,13 +117,8 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("create_account_status.account_id", createAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Account: ID is not found in API response")
-	}
-	d.SetId(id.(string))
-
-	stateId, err := jmespath.Search("create_account_status.id", createAccountRespBody)
+	// we cannot get the account ID in API response, retrieve it from ShowCreateAccountStatus API
+	statusID, err := jmespath.Search("create_account_status.id", createAccountRespBody)
 	if err != nil {
 		return diag.Errorf("error creating Account: state is not found in API response")
 	}
@@ -116,16 +126,24 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
-		Refresh:      accountStateRefreshFunc(createAccountClient, stateId.(string)),
+		Refresh:      accountStateRefreshFunc(createAccountClient, statusID.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForStateContext(ctx)
+	accountName := d.Get("name").(string)
+	accountStatusRespBody, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for Organizations account (%s) to create: %s", id.(string), err)
+		return diag.Errorf("error waiting for Organizations account (%s) to create: %s", accountName, err)
 	}
+
+	// set the account ID
+	id, err := jmespath.Search("create_account_status.account_id", accountStatusRespBody)
+	if err != nil {
+		return diag.Errorf("error creating Account: ID is not found in API response")
+	}
+	d.SetId(id.(string))
 
 	if v, ok := d.GetOk("parent_id"); ok {
 		parentID, err := getParentIdByAccountId(createAccountClient, id.(string))
@@ -167,20 +185,29 @@ func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId st
 			return nil, "", err
 		}
 
+		reason, err := jmespath.Search("create_account_status.failure_reason", getAccountStatusRespBody)
+		if err == nil && reason != nil {
+			return getAccountStatusRespBody, state.(string), fmt.Errorf("state: %s; failure_reason: %s", state, reason)
+		}
+
 		return getAccountStatusRespBody, state.(string), nil
 	}
 }
 
 func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
-		"tags": utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		"name":        d.Get("name"),
+		"email":       utils.ValueIngoreEmpty(d.Get("email")),
+		"phone":       utils.ValueIngoreEmpty(d.Get("phone")),
+		"agency_name": utils.ValueIngoreEmpty(d.Get("agency_name")),
+		"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams
 }
 
 func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -188,9 +215,9 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 	var (
 		getAccountProduct = "organizations"
 	)
-	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, "")
+	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
 	getAccountHttpUrl := "v1/organizations/accounts/{account_id}"
@@ -237,14 +264,15 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 func resourceAccountUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// updateAccount: update Organizations account
 	var (
 		updateAccountProduct = "organizations"
 	)
-	updateAccountClient, err := cfg.NewServiceClient(updateAccountProduct, "")
+	updateAccountClient, err := cfg.NewServiceClient(updateAccountProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Organizations Client: %s", err)
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
 	if d.HasChange("parent_id") {
