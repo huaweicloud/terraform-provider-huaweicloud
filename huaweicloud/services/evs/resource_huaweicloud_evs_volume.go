@@ -60,6 +60,11 @@ func ResourceEvsVolume() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"server_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"iops": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -232,7 +237,8 @@ func buildEvsVolumeCreateOpts(d *schema.ResourceData, cfg *config.Config) cloudv
 	volumeOpts.Metadata = m
 
 	result := cloudvolumes.CreateOpts{
-		Volume: volumeOpts,
+		Volume:   volumeOpts,
+		ServerID: d.Get("server_id").(string),
 	}
 	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
 		result.ChargeInfo = buildBssParamParams(d)
@@ -306,7 +312,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 	log.Printf("[DEBUG] Waiting for the EVS volume to become available, the volume ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:                   []string{"creating"},
-		Target:                    []string{"available"},
+		Target:                    []string{"available", "in-use"},
 		Refresh:                   CloudVolumeRefreshFunc(evsV2Client, d.Id()),
 		Timeout:                   d.Timeout(schema.TimeoutCreate),
 		Delay:                     3 * time.Second,
