@@ -743,6 +743,10 @@ func (c *Config) AntiDDosV1Client(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("anti-ddos", region)
 }
 
+func (c *Config) AntiDDosV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("anti-ddosv2", region)
+}
+
 func (c *Config) AadV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("aad", region)
 }

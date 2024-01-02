@@ -28,14 +28,16 @@ func TestAccAntiDdos_basic(t *testing.T) {
 					testAccCheckAntiDdosExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "traffic_threshold", "200"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttrPair(resourceName, "topic_urn", "huaweicloud_smn_subscription.subscription_1", "topic_urn"),
 					resource.TestCheckResourceAttrPair(resourceName, "public_ip", "huaweicloud_vpc_eip.eip_1", "address"),
 				),
 			},
 			{
-				Config: testAccAntiDdos_config(rName, 300),
+				Config: testAccAntiDdos_withoutTopicUrn(rName, 300),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "traffic_threshold", "300"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttr(resourceName, "topic_urn", ""),
 					resource.TestCheckResourceAttrPair(resourceName, "public_ip", "huaweicloud_vpc_eip.eip_1", "address"),
 				),
 			},
@@ -80,6 +82,40 @@ func testAccCheckAntiDdosExists(n string) resource.TestCheckFunc {
 }
 
 func testAccAntiDdos_config(rName string, threshold int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    share_type  = "PER"
+    name        = "%s"
+    size        = 5
+    charge_mode = "traffic"
+  }
+}
+  
+resource "huaweicloud_smn_topic" "topic_1" {
+  name         = "%s"
+  display_name = "The display name of topic_1"
+}
+
+resource "huaweicloud_smn_subscription" "subscription_1" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "mailtest@gmail.com"
+  protocol  = "email"
+  remark    = "O&M"
+}
+
+resource "huaweicloud_antiddos_basic" "antiddos_1" {
+  eip_id            = huaweicloud_vpc_eip.eip_1.id
+  traffic_threshold = %d
+  topic_urn         = huaweicloud_smn_topic.topic_1.id
+}
+`, rName, rName, threshold)
+}
+
+func testAccAntiDdos_withoutTopicUrn(rName string, threshold int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
