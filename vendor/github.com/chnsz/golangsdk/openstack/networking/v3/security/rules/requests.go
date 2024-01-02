@@ -89,6 +89,8 @@ type ListOpts struct {
 	// Specifies the number of records that will be returned on each page. The value is from 0 to intmax.
 	// limit can be used together with marker. For details, see the parameter description of marker.
 	Limit int `q:"limit"`
+	// Specifies the security group rule ID.
+	ID string `q:"id"`
 	// Specifies the security group ID.
 	SecurityGroupId string `q:"security_group_id"`
 	// Security group rule protocol, support multiple filtering
