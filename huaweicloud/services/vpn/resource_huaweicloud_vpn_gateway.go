@@ -28,6 +28,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API VPN POST v5/{project_id}/vpn-gateways
+// API VPN POST v5/{project_id}/vpn-gateways/{gateway_id}/certificate
+// API VPN PUT v5/{project_id}/vpn-gateways/{id}
+// API VPN PUT v5/{project_id}/vpn-gateways/{gateway_id}/certificate/{certificate_id}
+// API VPN GET v5/{project_id}/vpn-gateways/{id}
+// API VPN GET v5/{project_id}/vpn-gateways/{gateway_id}/certificate
+// API VPN DELETE v5/{project_id}/vpn-gateways/{id}
+
 func ResourceGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGatewayCreate,
