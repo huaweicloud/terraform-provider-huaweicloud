@@ -172,6 +172,10 @@ var (
 	HW_SWR_TARGET_REGION = os.Getenv("HW_SWR_TARGET_REGION")
 	// The target organization of SWR image auto sync
 	HW_SWR_TARGET_ORGANIZATION = os.Getenv("HW_SWR_TARGET_ORGANIZATION")
+	// The organization of SWR image tag
+	HW_SWR_ORGANIZATION = os.Getenv("HW_SWR_ORGANIZATION")
+	// The repository of SWR image tag
+	HW_SWR_REPOSITORY = os.Getenv("HW_SWR_REPOSITORY")
 
 	// The ID of the CBR backup
 	HW_IMS_BACKUP_ID = os.Getenv("HW_IMS_BACKUP_ID")
@@ -852,6 +856,20 @@ func TestAccPreCheckSwrTargetRegion(t *testing.T) {
 func TestAccPreCheckSwrTargetOrigination(t *testing.T) {
 	if HW_SWR_TARGET_ORGANIZATION == "" {
 		t.Skip("HW_SWR_TARGET_ORGANIZATION must be set for SWR image auto sync tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrOrigination(t *testing.T) {
+	if HW_SWR_ORGANIZATION == "" {
+		t.Skip("HW_SWR_ORGANIZATION must be set for SWR image tags tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrRepository(t *testing.T) {
+	if HW_SWR_REPOSITORY == "" {
+		t.Skip("HW_SWR_REPOSITORY must be set for SWR image tags tests")
 	}
 }
 
