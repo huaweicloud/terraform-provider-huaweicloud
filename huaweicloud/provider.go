@@ -1433,6 +1433,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_trusted_service":         organizations.ResourceTrustedService(),
 			"huaweicloud_organizations_policy":                  organizations.ResourcePolicy(),
 			"huaweicloud_organizations_policy_attach":           organizations.ResourcePolicyAttach(),
+			"huaweicloud_organizations_delegated_administrator": organizations.ResourceDelegatedAdministrator(),
 
 			"huaweicloud_dli_queue_v1":                dli.ResourceDliQueue(),
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),
