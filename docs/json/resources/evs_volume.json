@@ -113,6 +113,11 @@
                 "type": "string",
                 "computed": true
               },
+              "server_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "size": {
                 "type": "number",
                 "optional": true,

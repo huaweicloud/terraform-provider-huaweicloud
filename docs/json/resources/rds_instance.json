@@ -70,6 +70,16 @@
                 "optional": true,
                 "forcenew": true
               },
+              "maintain_begin": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "maintain_end": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true

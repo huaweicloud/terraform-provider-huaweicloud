@@ -2,46 +2,43 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_antiddos_basic": {
+        "huaweicloud_sfs_turbo_perm_rule": {
           "block": {
             "attributes": {
-              "eip_id": {
-                "type": "string",
-                "required": true,
-                "forcenew": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "public_ip": {
+              "ip_cidr": {
                 "type": "string",
-                "computed": true
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "status": {
+              "rw_type": {
                 "type": "string",
-                "computed": true
+                "required": true
               },
-              "topic_urn": {
+              "share_id": {
                 "type": "string",
-                "optional": true
+                "required": true,
+                "forcenew": true
               },
-              "traffic_threshold": {
-                "type": "number",
+              "user_type": {
+                "type": "string",
                 "required": true
               }
             }
           },
           "product": {
-            "short": "Anti-DDoS",
-            "name": "Anti-DDoS",
-            "catalog": "Security & Compliance",
-            "name_cn": "Anti-DDoS流量清洗",
-            "catalog_cn": "安全与合规"
+            "short": "SFS",
+            "name": "Scalable File Service(SFS)",
+            "catalog": "Storage",
+            "name_cn": "弹性文件服务(SFS)",
+            "catalog_cn": "存储"
           }
         }
       }

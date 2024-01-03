@@ -76,12 +76,12 @@
               "maintain_begin": {
                 "type": "string",
                 "optional": true,
-                "default": "02:00:00"
+                "computed": true
               },
               "maintain_end": {
                 "type": "string",
                 "optional": true,
-                "default": "06:00:00"
+                "computed": true
               },
               "max_memory": {
                 "type": "number",

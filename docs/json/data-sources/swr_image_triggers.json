@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_image_triggers": {
+          "block": {
+            "attributes": {
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "condition_type": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "organization": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "required": true
+              },
+              "triggers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "condition_type": "string",
+                      "condition_value": "string",
+                      "container": "string",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "enabled": "string",
+                      "histories": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detail": "string",
+                            "result": "string",
+                            "tag": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "namespace": "string",
+                      "type": "string",
+                      "workload_name": "string",
+                      "workload_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -527,6 +527,27 @@
                 "min_items": 1,
                 "max_items": 1
               },
+              "smn_notify": {
+                "block": {
+                  "attributes": {
+                    "subscription_name": {
+                      "type": "string",
+                      "description": "The subscription rule name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "topic_urn": {
+                      "type": "string",
+                      "description": "The Uniform Resource Name (URN) of the topic.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "streaming_core_nodes": {
                 "block": {
                   "attributes": {

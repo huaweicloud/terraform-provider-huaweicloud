@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_cluster_certificate": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_authority_data": "string",
+                      "insecure_skip_tls_verify": "bool",
+                      "name": "string",
+                      "server": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "contexts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster": "string",
+                      "name": "string",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "current_context": {
+                "type": "string",
+                "computed": true
+              },
+              "duration": {
+                "type": "number",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kube_config_raw": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_certificate_data": "string",
+                      "client_key_data": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

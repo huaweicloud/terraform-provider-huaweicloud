@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_flow_logs": {
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "string",
+                "description": "The switch status of the flow log.",
+                "optional": true
+              },
+              "flow_log_id": {
+                "type": "string",
+                "description": "The ID of the flow log.",
+                "optional": true
+              },
+              "flow_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "enabled": "bool",
+                      "id": "string",
+                      "log_group_id": "string",
+                      "log_store_type": "string",
+                      "log_stream_id": "string",
+                      "name": "string",
+                      "resource_id": "string",
+                      "resource_type": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the flow logs.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the ER instance to which the flow logs belong.",
+                "required": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "The ID of the log group to which the flow logs belong.",
+                "optional": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "The ID of the log stream to which the flow logs belong.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the flow log.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the flow logs are located."
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "The ID of the attachment to which the flow logs belong.",
+                "optional": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The type of the flow logs.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the flow logs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
