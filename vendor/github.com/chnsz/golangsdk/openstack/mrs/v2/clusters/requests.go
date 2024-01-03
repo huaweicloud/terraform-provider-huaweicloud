@@ -124,6 +124,16 @@ type CreateOpts struct {
 	// The OBS path to which cluster logs are dumped.
 	// This parameter is available only for cluster versions that support dumping cluster logs to OBS.
 	LogURI string `json:"log_uri,omitempty"`
+	// The alarm configuration of the cluster.
+	SMNNotifyConfig *SMNNotifyConfigOpts `json:"smn_notify,omitempty"`
+}
+
+// SMNNotifyConfigOpts is a structure representing the alarm configuration information.
+type SMNNotifyConfigOpts struct {
+	// The Uniform Resource Name (URN) of the topic.
+	TopicURN string `json:"topic_urn" required:"true"`
+	// The subscription rule name.
+	SubscriptionName string `json:"subscription_name" required:"true"`
 }
 
 type ExternalDatasource struct {

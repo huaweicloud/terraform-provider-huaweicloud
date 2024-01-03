@@ -240,6 +240,13 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Elem:     bootstrapScriptsSchema(),
 				ForceNew: true,
 			},
+			"smn_notify": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem:     smnNotifySchema(),
+			},
 			"total_node_number": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -491,6 +498,25 @@ func bootstrapScriptsSchema() *schema.Resource {
 	}
 }
 
+func smnNotifySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"topic_urn": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The Uniform Resource Name (URN) of the topic.`,
+			},
+			"subscription_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The subscription rule name.`,
+			},
+		},
+	}
+}
+
 // The 'log_collection' type of the request body is int,
 func buildLogCollection(d *schema.ResourceData) *int {
 	if d.Get("log_collection").(bool) {
@@ -694,6 +720,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		ExternalDatasources:  buildClusterExternalDatasources(d.Get("external_datasources")),
 		BootstrapScripts:     buildBootstrapScripts(d.Get("bootstrap_scripts").(*schema.Set)),
+		SMNNotifyConfig:      buildSMNNotify(d),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -722,6 +749,18 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	return resourceMRSClusterV2Read(ctx, d, meta)
+}
+
+func buildSMNNotify(d *schema.ResourceData) *clusterV2.SMNNotifyConfigOpts {
+	if v, ok := d.GetOk("smn_notify"); ok {
+		smnNotifyConfigs := v.([]interface{})
+		smnNotifyConfig := smnNotifyConfigs[0].(map[string]interface{})
+		return &clusterV2.SMNNotifyConfigOpts{
+			TopicURN:         smnNotifyConfig["topic_urn"].(string),
+			SubscriptionName: smnNotifyConfig["subscription_name"].(string),
+		}
+	}
+	return nil
 }
 
 func buildClusterExternalDatasources(rawParams interface{}) []clusterV2.ExternalDatasource {

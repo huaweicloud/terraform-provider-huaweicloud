@@ -434,6 +434,10 @@ The EIP must have been created and must be in the same region as the cluster.
   The [object](#BootstrapScripts) structure is documented below.
   Changing this will create a new MapReduce cluster resource.
 
+* `smn_notify` - (Optional, List, ForceNew) Specifies the alarm configuration of the cluster. The [smn_notify](#SMNNotify)
+  structure is documented below.
+  Changing this will create a new MapReduce cluster resource.
+
 The `nodes` block supports:
 
 * `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.
@@ -583,6 +587,15 @@ The `bootstrap_scripts` block supports:
   operations.
   Changing this will create a new MapReduce cluster resource.
 
+<a name="SMNNotify"></a>
+The `smn_notify` block supports:
+
+* `topic_urn` - (Required, String, ForceNew) Specifies the Uniform Resource Name (URN) of the topic.
+  Changing this will create a new MapReduce cluster resource.
+
+* `subscription_name` - (Required, String, ForceNew) Specifies the subscription rule name.
+  Changing this will create a new MapReduce cluster resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -620,8 +633,8 @@ terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-9239
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`manager_admin_pass`, `node_admin_pass`,`template_id`, `assigned_roles`, `external_datasources`, and `component_configs`.
-It is generally recommended running `terraform plan` after importing a cluster.
+`manager_admin_pass`, `node_admin_pass`,`template_id`, `assigned_roles`, `external_datasources`, `component_configs`
+and `smn_notify`. It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
@@ -631,7 +644,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   lifecycle {
     ignore_changes = [
-      manager_admin_pass, node_admin_pass, template_id, assigned_roles, external_datasources, component_configs,
+      manager_admin_pass, node_admin_pass, template_id, assigned_roles, external_datasources, component_configs, smn_notify,
     ]
   }
 }
