@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product DNS
-// ---------------------------------------------------------------
-
 package dns
 
 import (
@@ -25,6 +20,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+// API: DNS POST /v2.1/zones/{zone_id}/recordsets
+// API: DNS GET /v2.1/zones/{zone_id}/recordsets/{recordset_id}
+// API: DNS PUT /v2.1/zones/{zone_id}/recordsets/{recordset_id}
+// API: DNS PUT /v2.1/recordsets/{recordset_id}/statuses/set
+// API: DNS DELETE /v2.1/zones/{zone_id}/recordsets/{recordset_id}
+// API: DNS POST /v2/zones/{zone_id}/recordsets
+// API: DNS GET /v2/zones/{zone_id}/recordsets/{recordset_id}
+// API: DNS PUT /v2/zones/{zone_id}/recordsets/{recordset_id}
+// API: DNS DELETE /v2/zones/{zone_id}/recordsets/{recordset_id}
 
 func ResourceDNSRecordset() *schema.Resource {
 	return &schema.Resource{
