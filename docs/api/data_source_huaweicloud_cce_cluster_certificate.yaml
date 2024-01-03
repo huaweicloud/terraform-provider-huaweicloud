@@ -1,6 +1,6 @@
 info:
   version: 
-  title: data_source_huaweicloud_cce_cluster
+  title: data_source_huaweicloud_cce_cluster_certificate
   description: 
 schemes:
   - https
@@ -12,7 +12,3 @@ paths:
     post:
       tag: CCE
       operationId: GetCert
-  /api/v3/projects/{project_id}/clusters:
-    get:
-      tag: CCE
-      operationId: List

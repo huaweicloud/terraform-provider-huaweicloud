@@ -13,7 +13,7 @@ paths:
       tag: AOM
       operationId: Create
   /api/v3/projects/{project_id}/clusters/{id}/clustercert:
-    get:
+    post:
       tag: CCE
       operationId: GetCert
   /api/v3/projects/{project_id}/clusters/{id}/mastereip:

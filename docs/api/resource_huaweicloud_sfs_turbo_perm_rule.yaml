@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_perm_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules:
+        POST:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}:
+        DELETE:
+            tag: SFSTurbo
+        GET:
+            tag: SFSTurbo
+        PUT:
+            tag: SFSTurbo

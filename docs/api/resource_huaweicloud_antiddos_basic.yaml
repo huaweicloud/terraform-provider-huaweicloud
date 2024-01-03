@@ -23,6 +23,14 @@ paths:
     get:
       tag: Anti-DDoS
       operationId: ListStatus
+  /v2/{project_id}/warnalert/alertconfig/query:
+    get:
+      tag: Anti-DDoS
+      operationId: GetWarnAlert
+  /v2/{project_id}/warnalert/alertconfig/update:
+    post:
+      tag: Anti-DDoS
+      operationId: UpdateWarnAlert
   /v1/{project_id}/publicips/{id}:
     get:
       tag: EIP
