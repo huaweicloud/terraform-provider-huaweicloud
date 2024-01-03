@@ -421,8 +421,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ccm_private_certificate_export": ccm.DataSourceCcmPrivateCertificateExport(),
 
-			"huaweicloud_cdm_flavors": DataSourceCdmFlavorV1(),
-
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
 
 			"huaweicloud_cfw_firewalls": cfw.DataSourceFirewalls(),
@@ -437,6 +435,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroups": ecs.DataSourceComputeServerGroups(),
 
 			"huaweicloud_cdm_clusters": cdm.DataSourceCdmClusters(),
+			"huaweicloud_cdm_flavors":  cdm.DataSourceCdmFlavors(),
 
 			"huaweicloud_cph_server_flavors": cph.DataSourceServerFlavors(),
 			"huaweicloud_cph_phone_flavors":  cph.DataSourcePhoneFlavors(),
@@ -684,7 +683,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dds_flavors_v3":   dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_identity_role_v3": iam.DataSourceIdentityRole(),
-			"huaweicloud_cdm_flavors_v1":   DataSourceCdmFlavorV1(),
+			"huaweicloud_cdm_flavors_v1":   cdm.DataSourceCdmFlavors(),
 
 			"huaweicloud_ddm_engines":        ddm.DataSourceDdmEngines(),
 			"huaweicloud_ddm_flavors":        ddm.DataSourceDdmFlavors(),
