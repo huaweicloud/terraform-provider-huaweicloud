@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 1.60.1 (January 3, 2024)
+
+* **New Resource:**
+  + `huaweicloud_sfs_turbo_perm_rule` [GH-3903]
+  + `huaweicloud_organizations_delegated_administrator` [GH-3940]
+
+* **New Data Source:**
+  + `huaweicloud_cce_cluster_certificate` [GH-3905]
+  + `huaweicloud_evs_snapshots` [GH-3907]
+  + `huaweicloud_swr_image_triggers` [GH-3909]
+  + `huaweicloud_er_flow_logs` [GH-3921]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_rds_instance: Support maintain window parameter [GH-3892]
+* resource/huaweicloud_antiddos_basic: Support alarm configuration [GH-3917]
+* resource/huaweicloud_mapreduce_cluster: Support alarm configuration [GH-3931]
+
 ## 1.60.0 (December 29, 2023)
 
 * **New Resource:**
