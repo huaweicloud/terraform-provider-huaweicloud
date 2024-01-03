@@ -746,7 +746,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_api_gateway_api":         apigateway.ResourceAPI(),
 			"huaweicloud_api_gateway_environment": apigateway.ResourceEnvironment(),
-			"huaweicloud_api_gateway_group":       ResourceAPIGatewayGroup(),
+			"huaweicloud_api_gateway_group":       apigateway.ResourceGroup(),
 
 			"huaweicloud_apig_acl_policy":                  apig.ResourceAclPolicy(),
 			"huaweicloud_apig_acl_policy_associate":        apig.ResourceAclPolicyAssociate(),
