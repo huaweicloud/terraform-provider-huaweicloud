@@ -97,7 +97,7 @@ The following arguments are supported:
   -> If the specified disk type is not available in the AZ, the disk will fail to create.
   The volume type **ESSD2** only support in postpaid charging mode.
 
-* `iops` - (Optional, Int, ForceNew) Specifies the IOPS(Input/Output Operations Per Second) for the volume.
+* `iops` - (Optional, Int) Specifies the IOPS(Input/Output Operations Per Second) for the volume.
   The field is valid and required when `volume_type` is set to **GPSSD2** or **ESSD2**.
 
   + If `volume_type` is set to **GPSSD2**. The field `iops` ranging from 3,000 to 128,000.
@@ -106,15 +106,11 @@ The following arguments are supported:
   + If `volume_type` is set to **ESSD2**. The field `iops` ranging from 100 to 256,000.
     This IOPS must also be less than or equal to 1000 multiplying the capacity.
 
-  Changing this creates a new disk.
-
-* `throughput` - (Optional, Int, ForceNew) Specifies the throughput for the volume. The Unit is MiB/s.
+* `throughput` - (Optional, Int) Specifies the throughput for the volume. The Unit is MiB/s.
   The field is valid and required when `volume_type` is set to **GPSSD2**.
 
   + If `volume_type` is set to **GPSSD2**. The field `throughput` ranging from 125 to 1,000.
     This throughput must also be less than or equal to the IOPS divided by 4.
-
-  Changing this creates a new disk.
 
 * `name` - (Optional, String) Specifies the disk name. The value can contain a maximum of 255 bytes.
 

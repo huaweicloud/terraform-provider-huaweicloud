@@ -612,6 +612,10 @@ func (c *Config) BlockStorageV21Client(region string) (*golangsdk.ServiceClient,
 	return c.NewServiceClient("evsv21", region)
 }
 
+func (c *Config) BlockStorageV5Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("evsv5", region)
+}
+
 func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("evs", region)
 }

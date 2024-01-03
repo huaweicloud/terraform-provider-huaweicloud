@@ -251,6 +251,9 @@ var (
 	HW_DATAARTS_CONNECTION_NAME         = os.Getenv("HW_DATAARTS_CONNECTION_NAME")
 	HW_DATAARTS_ARCHITECTURE_USER_ID    = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_NAME  = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_NAME")
+
+	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
+	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -566,6 +569,20 @@ func TestAccPreCheckOBSUserDomainNames(t *testing.T) {
 func TestAccPreCheckChargingMode(t *testing.T) {
 	if HW_CHARGING_MODE != "prePaid" {
 		t.Skip("This environment does not support prepaid tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAvailabilityZoneGPSSD2(t *testing.T) {
+	if HW_EVS_AVAILABILITY_ZONE_GPSSD2 == "" {
+		t.Skip("If you want to change the QoS of a GPSSD2 type cloudvolume, you must specify an availability zone that supports GPSSD2 type under the current region")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAvailabilityZoneESSD2(t *testing.T) {
+	if HW_EVS_AVAILABILITY_ZONE_ESSD2 == "" {
+		t.Skip("If you want to change the QoS of a ESSD2 type cloudvolume, you must specify an availability zone that supports ESSD2 type under the current region")
 	}
 }
 

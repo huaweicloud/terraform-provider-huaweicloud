@@ -184,6 +184,7 @@ github.com/chnsz/golangsdk/openstack/er/v3/vpcattachments
 github.com/chnsz/golangsdk/openstack/evs/v1/jobs
 github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes
 github.com/chnsz/golangsdk/openstack/evs/v2/snapshots
+github.com/chnsz/golangsdk/openstack/evs/v5/cloudvolumes
 github.com/chnsz/golangsdk/openstack/fgs/v2/aliases
 github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies
 github.com/chnsz/golangsdk/openstack/fgs/v2/function
