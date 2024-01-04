@@ -143,7 +143,7 @@ terraform import huaweicloud_cdm_link.test b11b407c-e604-4e8d-8bc4-92398320b847/
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `password` and `secret_key`.
+API response, security or some other reason. The missing attributes include: `password`, `secret_key` and `config`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
@@ -154,7 +154,7 @@ resource "huaweicloud_cdm_link" "test" {
 
   lifecycle {
     ignore_changes = [
-      password, secret_key,
+      password, secret_key, config,
     ]
   }
 }

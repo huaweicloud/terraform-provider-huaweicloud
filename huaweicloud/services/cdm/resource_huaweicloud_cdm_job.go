@@ -615,6 +615,7 @@ func flattenFromOrToConfig(configName string, configs []job.Configs) map[string]
 			for _, v := range item.Inputs {
 				if v.Value != "" {
 					key := strings.Replace(v.Name, configPref, "", 1)
+					// Value in return is encoded, use `url.PathUnescape` to decode it.
 					result[key], _ = url.PathUnescape(v.Value)
 				}
 			}
@@ -646,6 +647,7 @@ func setJobConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
 				case "throttlingConfig.obsBucket":
 					result["throttling_dirty_write_to_bucket"] = v.Value
 				case "throttlingConfig.dirtyDataDirectory":
+					// Value in return is encoded, use `url.PathUnescape` to decode it.
 					result["throttling_dirty_write_to_directory"], pErr = url.PathUnescape(v.Value)
 					err = multierror.Append(err, pErr)
 				case "throttlingConfig.maxErrorRecords":
@@ -662,9 +664,13 @@ func setJobConfigtoState(d *schema.ResourceData, configs []job.Configs) error {
 				case "schedulerConfig.runAt":
 					result["scheduler_run_at"] = v.Value
 				case "schedulerConfig.startDate":
-					result["scheduler_start_date"] = v.Value
+					// Value in return is encoded, use `url.PathUnescape` to decode it.
+					result["scheduler_start_date"], pErr = url.PathUnescape(v.Value)
+					err = multierror.Append(err, pErr)
 				case "schedulerConfig.stopDate":
-					result["scheduler_stop_date"] = v.Value
+					// Value in return is encoded, use `url.PathUnescape` to decode it.
+					result["scheduler_stop_date"], pErr = url.PathUnescape(v.Value)
+					err = multierror.Append(err, pErr)
 				case "schedulerConfig.disposableType":
 					result["scheduler_disposable_type"] = v.Value
 				case "retryJobConfig.retryJobType":

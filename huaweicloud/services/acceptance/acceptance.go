@@ -1135,3 +1135,10 @@ func TestAccPreCheckDataArtsArchitectureReviewer(t *testing.T) {
 		t.Skip("HW_DATAARTS_ARCHITECTURE_USER_ID and HW_DATAARTS_ARCHITECTURE_USER_NAME must be set for the acceptance test")
 	}
 }
+
+// lintignore:AT003
+func TestAccPreCheckAKAndSK(t *testing.T) {
+	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
+		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for acceptance tests")
+	}
+}
