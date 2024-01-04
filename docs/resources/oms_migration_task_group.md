@@ -317,7 +317,8 @@ The `source_cdn` block supports:
 
 * `authentication_type` - (Optional, String, ForceNew) Specifies the authentication type. Valid values are **NONE**,
   **QINIU_PRIVATE_AUTHENTICATION**, **ALIYUN_OSS_A**, **ALIYUN_OSS_B**, **ALIYUN_OSS_C**,
-  **KSYUN_PRIVATE_AUTHENTICATION**. Default value: **None**. Changing this creates a new resource.
+  **KSYUN_PRIVATE_AUTHENTICATION**, **TENCENT_COS_A**, **TENCENT_COS_B**, **TENCENT_COS_C**,
+  **TENCENT_COS_D**. Default value: **None**. Changing this creates a new resource.
 
 * `authentication_key` - (Optional, String, ForceNew) Specifies the CDN authentication key.
   Changing this creates a new resource.
