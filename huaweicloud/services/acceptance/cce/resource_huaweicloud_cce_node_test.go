@@ -179,7 +179,6 @@ func TestAccNode_password(t *testing.T) {
 			{
 				Config: testAccNode_password(rName),
 				Check: resource.ComposeTestCheckFunc(
-					// use provisioner to check whether the node can login successfully
 					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
@@ -187,7 +186,6 @@ func TestAccNode_password(t *testing.T) {
 			{
 				Config: testAccNode_password_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					// use provisioner to check whether the node can login successfully
 					testAccCheckNodeExists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
@@ -320,6 +318,63 @@ resource "huaweicloud_kps_keypair" "test" {
   name = "%[2]s"
 }
 
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = "%[2]s-secgroup"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule1" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = huaweicloud_vpc.test.cidr
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule2" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "30000-32767"
+  protocol          = "udp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule3" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = "30000-32767"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule4" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = "172.16.0.0/24"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule5" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  action            = "allow"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_group_id   = huaweicloud_networking_secgroup.test.id
+}
+
+resource "huaweicloud_networking_secgroup_rule" "rule6" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  action            = "allow"
+  direction         = "egress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
 resource "huaweicloud_cce_cluster" "test" {
   name                   = "%[2]s"
   cluster_type           = "VirtualMachine"
@@ -327,6 +382,8 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
+  container_network_cidr = "172.16.0.0/24"
+  security_group_id      = huaweicloud_networking_secgroup.test.id
 }
 `, common.TestVpc(rName), rName)
 }
@@ -574,25 +631,13 @@ func testAccNode_password(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpc_eip" "test" {
-  publicip {
-    type = "5_bgp"
-  }
-  bandwidth {
-    name        = "test"
-    size        = 8
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
-
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   password          = "Test@123"
-  eip_id            = huaweicloud_vpc_eip.test.id
+  os                = "CentOS 7.6"
 
   root_volume {
     size       = 40
@@ -601,20 +646,6 @@ resource "huaweicloud_cce_node" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
-  }
-
-  provisioner "remote-exec" {
-    connection {
-      user     = "root"
-      password = "Test@123"
-      host     = huaweicloud_vpc_eip.test.address
-      port     = "22"
-      timeout  = "60s"
-    }
-
-    inline = [
-      "date"
-    ]
   }
 }
 `, testAccNode_Base(rName), rName)
@@ -624,25 +655,13 @@ func testAccNode_password_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpc_eip" "test" {
-  publicip {
-    type = "5_bgp"
-  }
-  bandwidth {
-    name        = "test"
-    size        = 8
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
-
 resource "huaweicloud_cce_node" "test" {
   cluster_id        = huaweicloud_cce_cluster.test.id
   name              = "%s"
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   password          = "Test@12345"
-  eip_id            = huaweicloud_vpc_eip.test.id
+  os                = "CentOS 7.6"
 
   root_volume {
     size       = 40
@@ -651,20 +670,6 @@ resource "huaweicloud_cce_node" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
-  }
-
-  provisioner "remote-exec" {
-    connection {
-      user     = "root"
-      password = "Test@12345"
-      host     = huaweicloud_vpc_eip.test.address
-      port     = "22"
-      timeout  = "60s"
-    }
-
-    inline = [
-      "date"
-    ]
   }
 }
 `, testAccNode_Base(rName), rName)
