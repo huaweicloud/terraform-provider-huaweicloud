@@ -241,14 +241,6 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 		mErr = multierror.Append(mErr, d.Set("listener_id", pool.Listeners[0].ID))
 	}
 
-	if len(pool.Loadbalancers) != 0 {
-		d.Set("loadbalancer_id", pool.Loadbalancers[0].ID)
-	}
-
-	if len(pool.Listeners) != 0 {
-		d.Set("listener_id", pool.Listeners[0].ID)
-	}
-
 	if pool.Persistence.Type != "" {
 		var persistence = make([]map[string]interface{}, 1)
 		params := make(map[string]interface{})

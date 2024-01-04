@@ -248,6 +248,11 @@ func poolsPoolPersistenceSchema() *schema.Resource {
 				Computed:    true,
 				Description: `The name of the cookie if persistence mode is set appropriately.`,
 			},
+			"timeout": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The stickiness duration, in minutes.`,
+			},
 		},
 	}
 	return &sc
@@ -413,6 +418,7 @@ func flattenPoolPersistence(resp interface{}) []interface{} {
 		map[string]interface{}{
 			"type":        utils.PathSearch("type", curJson, nil),
 			"cookie_name": utils.PathSearch("cookie_name", curJson, nil),
+			"timeout":     utils.PathSearch("persistence_timeout", curJson, nil),
 		},
 	}
 	return rst
