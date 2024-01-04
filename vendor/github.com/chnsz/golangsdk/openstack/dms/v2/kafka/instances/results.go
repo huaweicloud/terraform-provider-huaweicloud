@@ -96,6 +96,7 @@ type Instance struct {
 	MessageQueryInstEnable     bool               `json:"message_query_inst_enable"`
 	VpcClientPlain             bool               `json:"vpc_client_plain"`
 	SupportFeatures            string             `json:"support_features"`
+	Task                       Task               `json:"task"`
 	TraceEnable                bool               `json:"trace_enable"`
 	PodConnectAddress          string             `json:"pod_connect_address"`
 	DiskEncrypted              bool               `json:"disk_encrypted"`
@@ -103,6 +104,12 @@ type Instance struct {
 	CesVersion                 string             `json:"ces_version"`
 	AccessUser                 string             `json:"access_user"`
 	Tags                       []tags.ResourceTag `json:"tags"`
+}
+
+type Task struct {
+	Name      string `json:"name"`
+	Status    string `json:"status"`
+	CreatedAt string `json:"created_at"`
 }
 
 // UpdateResult is a struct from which can get the result of update method
