@@ -153,6 +153,34 @@ func Update(c *golangsdk.ServiceClient, domainID string, opts UpdateOptsBuilder)
 	return
 }
 
+// updateProtectStatusOpts the struct for updating the protect status of domain.
+type updateProtectStatusOpts struct {
+	ProtectStatus *int `json:"protect_status" required:"true"`
+}
+
+// UpdateProtectStatus update the protect status of domain.
+func UpdateProtectStatus(c *golangsdk.ServiceClient, protectStatus int, instanceId, epsId string) (*HostProtectStatus, error) {
+	opts := updateProtectStatusOpts{
+		ProtectStatus: &protectStatus,
+	}
+
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst golangsdk.Result
+	_, err = c.Put(protectStatusURL(c, instanceId)+utils.GenerateEpsIDQuery(epsId), b, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err == nil {
+		var r HostProtectStatus
+		err := rst.ExtractInto(&r)
+		return &r, err
+	}
+	return nil, err
+}
+
 // Get retrieves a particular Domain based on its unique ID.
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 	return GetWithEpsID(c, id, "")

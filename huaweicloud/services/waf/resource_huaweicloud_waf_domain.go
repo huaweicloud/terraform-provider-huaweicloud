@@ -174,6 +174,7 @@ func ResourceWafDomain() *schema.Resource {
 			},
 			"protect_status": {
 				Type:     schema.TypeInt,
+				Optional: true,
 				Computed: true,
 			},
 			"access_status": {
@@ -504,7 +505,24 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
+	if d.Get("protect_status").(int) != protectStatusEnable {
+		if err := updateWafDomainProtectStatus(wafClient, d, cfg); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceWafDomainRead(ctx, d, meta)
+}
+
+func updateWafDomainProtectStatus(wafClient *golangsdk.ServiceClient, d *schema.ResourceData,
+	cfg *config.Config) error {
+	protectStatus := d.Get("protect_status").(int)
+	epsID := cfg.GetEnterpriseProjectID(d)
+	_, err := domains.UpdateProtectStatus(wafClient, protectStatus, d.Id(), epsID)
+	if err != nil {
+		return fmt.Errorf("error updating WAF domain protect status: %s", err)
+	}
+	return nil
 }
 
 func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -572,6 +590,12 @@ func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.HasChanges("policy_id") {
 		if err := updateWafDomainPolicyHost(d, cfg); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("protect_status") {
+		if err := updateWafDomainProtectStatus(wafClient, d, cfg); err != nil {
 			return diag.FromErr(err)
 		}
 	}

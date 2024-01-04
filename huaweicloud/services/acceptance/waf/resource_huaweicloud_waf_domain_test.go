@@ -65,11 +65,12 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key1", "$time_local"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$tenant_id"),
 					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
+					resource.TestCheckResourceAttr(resourceName, "protect_status", "-1"),
 				),
 			},
 			{
 				Config:      testAccWafDomainV1_withIpv6Enable(randName, domainName),
-				ExpectError: regexp.MustCompile(`when type in server contains ipv6`),
+				ExpectError: regexp.MustCompile(`when type in server contains IPv6 address`),
 			},
 			{
 				Config: testAccWafDomainV1_update1(randName, domainName),
@@ -98,6 +99,7 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
 					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteNameUpdate"),
+					resource.TestCheckResourceAttr(resourceName, "protect_status", "1"),
 				),
 			},
 			{
@@ -121,6 +123,7 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.read_timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "timeout_settings.0.write_timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "lb_algorithm", "session_hash"),
+					resource.TestCheckResourceAttr(resourceName, "protect_status", "0"),
 				),
 			},
 			{
@@ -356,6 +359,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   description      = "web_description_1"
   website_name     = "websiteName"
   lb_algorithm     = "ip_hash"
+  protect_status   = -1
 
   custom_page {
     http_return_code = "400"
@@ -407,6 +411,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   website_name     = "websiteNameUpdate"
   tls              = "TLS v1.0"
   cipher           = "cipher_1"
+  protect_status   = 1
   
   timeout_settings {
     connection_timeout = 100
@@ -460,6 +465,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
   cipher           = "cipher_2"
   pci_3ds          = "true"
   pci_dss          = "true"
+  protect_status   = 0
 
   timeout_settings {
     connection_timeout = 180
