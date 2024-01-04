@@ -172,7 +172,7 @@ func TestAccRdsInstance_ha(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstance_ha(name),
+				Config: testAccRdsInstance_ha(name, "async"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -183,6 +183,20 @@ func TestAccRdsInstance_ha(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
 					resource.TestCheckResourceAttr(resourceName, "ha_replication_mode", "async"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_ha(name, "sync"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2.ha"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
+					resource.TestCheckResourceAttr(resourceName, "ha_replication_mode", "sync"),
 				),
 			},
 		},
@@ -764,18 +778,18 @@ resource "huaweicloud_rds_instance" "test" {
 `, testAccRdsInstance_base(), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccRdsInstance_ha(name string) string {
+func testAccRdsInstance_ha(name, replicationMode string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
+  name                = "%[2]s"
   flavor              = "rds.pg.n1.large.2.ha"
   security_group_id   = data.huaweicloud_networking_secgroup.test.id
   subnet_id           = data.huaweicloud_vpc_subnet.test.id
   vpc_id              = data.huaweicloud_vpc.test.id
   time_zone           = "UTC+08:00"
-  ha_replication_mode = "async"
+  ha_replication_mode = "%[3]s"
   availability_zone   = [
     data.huaweicloud_availability_zones.test.names[0],
     data.huaweicloud_availability_zones.test.names[1],
@@ -801,7 +815,7 @@ resource "huaweicloud_rds_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstance_base(), name)
+`, testAccRdsInstance_base(), name, replicationMode)
 }
 
 // if the instance flavor has been changed, then a temp instance will be kept for 12 hours,

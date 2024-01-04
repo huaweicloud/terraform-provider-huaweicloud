@@ -136,3 +136,8 @@ func ExtractInstances(r pagination.Page) (ListResponse, error) {
 	err := (r.(Page)).ExtractInto(&s)
 	return s, err
 }
+
+// ResetPasswordResult is a struct that contains all the return parameters of ResetPassword function
+type ResetPasswordResult struct {
+	golangsdk.Result
+}

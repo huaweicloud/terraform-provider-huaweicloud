@@ -230,7 +230,6 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"param_group_id": {
@@ -713,6 +712,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateRdsInstanceReplicationMode(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1560,6 +1563,42 @@ func updateRdsInstanceMaintainWindow(d *schema.ResourceData, client *golangsdk.S
 	r := instances.ModifyMaintainWindow(client, modifyMaintainWindowOpts, instanceID)
 	if r.Err != nil {
 		return fmt.Errorf("error modify RDS instance (%s) maintain window: %s", instanceID, r.Err)
+	}
+	return nil
+}
+
+func updateRdsInstanceReplicationMode(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("ha_replication_mode") {
+		return nil
+	}
+
+	modifyReplicationModeOpts := instances.ModifyReplicationModeOpts{
+		Mode: d.Get("ha_replication_mode").(string),
+	}
+
+	log.Printf("[DEBUG] Modify RDS instance replication mode opts: %+v", modifyReplicationModeOpts)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.ModifyReplicationMode(client, modifyReplicationModeOpts, instanceID).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) replication mode: %s", instanceID, err)
+	}
+	job := res.(*instances.ReplicationMode)
+
+	if err = checkRDSInstanceJobFinish(client, job.WorkflowId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) update replication mode completed: %s", instanceID, err)
 	}
 	return nil
 }

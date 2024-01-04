@@ -34,6 +34,10 @@ type ModifyMaintainWindowResult struct {
 	commonResult
 }
 
+type ModifyReplicationModeResult struct {
+	commonResult
+}
+
 type SingleToHaResult struct {
 	commonResult
 }
@@ -185,6 +189,18 @@ type GetConfigurationResp struct {
 
 func (r GetConfigurationResult) Extract() (*GetConfigurationResp, error) {
 	var response GetConfigurationResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type ReplicationMode struct {
+	WorkflowId      string `json:"workflowId"`
+	InstanceId      string `json:"instanceId"`
+	ReplicationMode string `json:"replicationMode"`
+}
+
+func (r ModifyReplicationModeResult) Extract() (*ReplicationMode, error) {
+	var response ReplicationMode
 	err := r.ExtractInto(&response)
 	return &response, err
 }
