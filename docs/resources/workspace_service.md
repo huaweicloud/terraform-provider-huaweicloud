@@ -120,7 +120,9 @@ The following arguments are supported:
 
 * `internet_access_port` - (Optional, Int) Specifies the internet access port.
   The valid value is range from `1,025` to `65,535`.
-
+  
+  -> If you want to modify the internet access port, please open a service ticket to enable this function.  
+  
 * `dedicated_subnets` - (Optional, List) The subnet segments of the dedicated access.
 
 * `management_subnet_cidr` - (Optional, String, ForceNew) The subnet segment of the management component.

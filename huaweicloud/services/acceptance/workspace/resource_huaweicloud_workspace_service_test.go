@@ -60,7 +60,6 @@ func TestAccService_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "infrastructure_security_group.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_security_group.0.name"),
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_security_group.0.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "internet_access_port"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 				),
@@ -73,7 +72,6 @@ func TestAccService_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet.master", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_ids.1",
 						"huaweicloud_vpc_subnet.standby", "id"),
-					resource.TestCheckResourceAttr(resourceName, "internet_access_port", "9001"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
@@ -93,6 +91,45 @@ func TestAccService_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccService_internetAccessPort(t *testing.T) {
+	var (
+		service      services.Service
+		resourceName = "huaweicloud_workspace_service.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&service,
+		getServiceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceInternetAccessPort(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccService_basic_step1(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(resourceName, "internet_access_port"),
+				),
+			},
+			{
+				Config: testAccService_internetAccessPort_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "internet_access_port", acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT),
+				),
 			},
 		},
 	})
@@ -138,7 +175,6 @@ func TestAccService_localAD(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "infrastructure_security_group.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_security_group.0.name"),
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_security_group.0.id"),
-					resource.TestCheckResourceAttrSet(resourceName, "internet_access_port"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 				),
@@ -152,7 +188,6 @@ func TestAccService_localAD(t *testing.T) {
 						"huaweicloud_vpc_subnet.master", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_ids.2",
 						"huaweicloud_vpc_subnet.standby", "id"),
-					resource.TestCheckResourceAttr(resourceName, "internet_access_port", "9001"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
 					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.enable", "true"),
@@ -174,6 +209,45 @@ func TestAccService_localAD(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"ad_domain.0.password",
 				},
+			},
+		},
+	})
+}
+
+func TestAccService_internetAccessPort_localAD(t *testing.T) {
+	var (
+		service      services.Service
+		resourceName = "huaweicloud_workspace_service.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&service,
+		getServiceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceInternetAccessPort(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccService_localAD_step1(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(resourceName, "internet_access_port"),
+				),
+			},
+			{
+				Config: testAccService_localAD_internetAccessPort_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "internet_access_port", acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT),
+				),
 			},
 		},
 	})
@@ -230,7 +304,6 @@ resource "huaweicloud_workspace_service" "test" {
     huaweicloud_vpc_subnet.standby.id,
   ]
 
-  internet_access_port = 9001
   enterprise_id        = "%[2]s"
 
   otp_config_info {
@@ -253,7 +326,6 @@ resource "huaweicloud_workspace_service" "test" {
     huaweicloud_vpc_subnet.standby.id,
   ]
 
-  internet_access_port = 9001
   enterprise_id        = "%[2]s"
 
   otp_config_info {
@@ -341,7 +413,6 @@ resource "huaweicloud_workspace_service" "test" {
     huaweicloud_vpc_subnet.standby.id,
   ]
 
-  internet_access_port = 9001
   enterprise_id        = "%[7]s"
 
   otp_config_info {
@@ -382,7 +453,6 @@ resource "huaweicloud_workspace_service" "test" {
     huaweicloud_vpc_subnet.standby.id,
   ]
 
-  internet_access_port = 9001
   enterprise_id        = "%[7]s"
 
   otp_config_info {
@@ -395,4 +465,58 @@ resource "huaweicloud_workspace_service" "test" {
 `, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,
 		rName)
+}
+
+func testAccService_internetAccessPort_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_service" "test" {
+  access_mode = "INTERNET"
+  vpc_id      = huaweicloud_vpc.test.id
+  network_ids = [
+    huaweicloud_vpc_subnet.master.id,
+    huaweicloud_vpc_subnet.standby.id,
+  ]
+  
+  internet_access_port = "%[2]s"
+  enterprise_id        = "%[3]s"
+}
+`, testAccService_base(rName), acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT, rName)
+}
+
+func testAccService_localAD_internetAccessPort_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_service" "test" {
+  depends_on = [
+    huaweicloud_vpc_subnet.master,
+	huaweicloud_vpc_subnet.standby,
+  ]
+
+  ad_domain {
+    name               = "%[2]s"
+    admin_account      = "Administrator"
+    password           = "%[3]s"
+    active_domain_ip   = "%[4]s"
+    active_domain_name = "server.%[2]s"
+    active_dns_ip      = "%[4]s"
+  }
+
+  auth_type   = "LOCAL_AD"
+  access_mode = "INTERNET"
+  vpc_id      = "%[5]s"
+  network_ids = [
+    "%[6]s",
+    huaweicloud_vpc_subnet.master.id,
+    huaweicloud_vpc_subnet.standby.id,
+  ]
+
+  internet_access_port = "%[7]s"
+  enterprise_id        = "%[8]s"
+}
+`, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,
+		acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT, rName)
 }
