@@ -389,7 +389,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   storage_spec_code = data.huaweicloud_dms_product.test2.storage_spec_code
 
   access_user = "user"
-  password    = "Rabbitmqtest@1234"
+  password    = "Rabbitmqtest@123"
 
   tags = {
     key1  = "value"

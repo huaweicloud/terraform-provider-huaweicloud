@@ -4,12 +4,12 @@ import (
 	"github.com/chnsz/golangsdk"
 )
 
-//Create Result is a struct which represents the create result of policy
+// CreateResult is a struct which represents the create result of policy
 type CreateResult struct {
 	golangsdk.Result
 }
 
-//Extract of CreateResult will deserialize the result of Creation
+// Extract of CreateResult will deserialize the result of Creation
 func (r CreateResult) Extract() (string, error) {
 	var a struct {
 		ID string `json:"scaling_policy_id"`
@@ -18,15 +18,16 @@ func (r CreateResult) Extract() (string, error) {
 	return a.ID, err
 }
 
-//DeleteResult is a struct which represents the delete result.
+// DeleteResult is a struct which represents the delete result.
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
 
-//Policy is a struct that represents the result of get policy
+// Policy is a struct that represents the result of get policy
 type Policy struct {
 	ID             string         `json:"scaling_group_id"`
 	Name           string         `json:"scaling_policy_name"`
+	PolicyID       string         `json:"scaling_policy_id"`
 	Status         string         `json:"policy_status"`
 	Type           string         `json:"scaling_policy_type"`
 	AlarmID        string         `json:"alarm_id"`
@@ -45,11 +46,12 @@ type SchedulePolicy struct {
 }
 
 type Action struct {
-	Operation   string `json:"operation"`
-	InstanceNum int    `json:"instance_number"`
+	Operation          string `json:"operation"`
+	InstanceNum        int    `json:"instance_number"`
+	InstancePercentage int    `json:"instance_percentage"`
 }
 
-//GetResult is a struct which represents the get result
+// GetResult is a struct which represents the get result
 type GetResult struct {
 	golangsdk.Result
 }
@@ -60,16 +62,34 @@ func (r GetResult) Extract() (Policy, error) {
 	return p, err
 }
 
-//UpdateResult is a struct from which can get the result of udpate method
+// UpdateResult is a struct from which can get the result of update method
 type UpdateResult struct {
 	golangsdk.Result
 }
 
-//Extract will deserialize the result to group id with string
+// Extract will deserialize the result to group id with string
 func (r UpdateResult) Extract() (string, error) {
 	var a struct {
 		ID string `json:"scaling_policy_id"`
 	}
 	err := r.Result.ExtractInto(&a)
 	return a.ID, err
+}
+
+type commonResult struct {
+	golangsdk.Result
+}
+
+// ListResult represents a result of the List method.
+type ListResult struct {
+	commonResult
+}
+
+// Extract is a method to extract the list of policies for specified scaling group.
+func (r ListResult) Extract() ([]Policy, error) {
+	var s struct {
+		Policies []Policy `json:"scaling_policies"`
+	}
+	err := r.ExtractInto(&s)
+	return s.Policies, err
 }

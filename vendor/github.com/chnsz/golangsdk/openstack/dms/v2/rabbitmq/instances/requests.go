@@ -295,3 +295,34 @@ func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts)
 	}
 	return "", err
 }
+
+// ResetPasswordOpts is a struct which represents the parameter of ResetPassword function
+type ResetPasswordOpts struct {
+	// Indicates the new password of an instance.
+	NewPassword string `json:"new_password" required:"true"`
+}
+
+// ConvertToResetPasswordMap is used for type convert
+func (opts ResetPasswordOpts) ConvertToResetPasswordMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// ResetPasswordOptsBuilder is an interface which can build the map parameter of ResetPassword function
+type ResetPasswordOptsBuilder interface {
+	ConvertToResetPasswordMap() (map[string]interface{}, error)
+}
+
+// ResetPassword is used to reset password for the instance
+// via accessing to the service with POST method and parameters
+func ResetPassword(client *golangsdk.ServiceClient, id string, opts ResetPasswordOptsBuilder) (r ResetPasswordResult) {
+	body, err := opts.ConvertToResetPasswordMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(resetPasswordURL(client, id), body, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return
+}
