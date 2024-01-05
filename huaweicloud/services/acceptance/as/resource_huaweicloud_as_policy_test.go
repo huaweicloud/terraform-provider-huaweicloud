@@ -86,7 +86,7 @@ func TestAccASPolicy_Alarm(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "600"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "ALARM"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
-					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_percentage", "10"),
 					resource.TestCheckResourceAttrPair(resourceName, "scaling_group_id", "huaweicloud_as_group.acc_as_group", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "alarm_id", "huaweicloud_ces_alarmrule.alarm_rule", "id"),
 				),
@@ -288,8 +288,8 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
   cool_down_time      = 600
 
   scaling_policy_action {
-    operation       = "ADD"
-    instance_number = 1
+    operation           = "ADD"
+    instance_percentage = 10
   }
 }
 `, testASPolicy_base(rName), rName)

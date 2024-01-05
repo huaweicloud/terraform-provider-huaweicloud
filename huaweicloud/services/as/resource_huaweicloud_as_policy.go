@@ -115,7 +115,12 @@ func ResourceASPolicy() *schema.Resource {
 						"instance_number": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  1,
+							Computed: true,
+						},
+						"instance_percentage": {
+							Type:          schema.TypeInt,
+							Optional:      true,
+							ConflictsWith: []string{"scaling_policy_action.0.instance_number"},
 						},
 					},
 				},
@@ -190,8 +195,9 @@ func buildScheduledPolicy(rawScheduledPolicy map[string]interface{}) policies.Sc
 
 func buildPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts {
 	policyAction := policies.ActionOpts{
-		Operation:   rawPolicyAction["operation"].(string),
-		InstanceNum: rawPolicyAction["instance_number"].(int),
+		Operation:          rawPolicyAction["operation"].(string),
+		InstanceNum:        rawPolicyAction["instance_number"].(int),
+		InstancePercentage: rawPolicyAction["instance_percentage"].(int),
 	}
 	return policyAction
 }
@@ -270,8 +276,9 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 func flattenPolicyAction(action policies.Action) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"operation":       action.Operation,
-			"instance_number": action.InstanceNum,
+			"operation":           action.Operation,
+			"instance_number":     action.InstanceNum,
+			"instance_percentage": action.InstancePercentage,
 		},
 	}
 }

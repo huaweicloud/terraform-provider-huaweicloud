@@ -153,7 +153,12 @@ The `scaling_policy_action` block supports:
 * `operation` - (Optional, String) Specifies the operation to be performed. The options include `ADD` (default), `REMOVE`,
   and `SET`.
 
-* `instance_number` - (Optional, Int) Specifies the number of instances to be operated. The default number is 1.
+* `instance_number` - (Optional, Int) Specifies the number of instances to be operated.
+
+* `instance_percentage` - (Optional, Int) Specifies the percentage of instances to be operated.
+
+-> At most one of `instance_number` and `instance_percentage` can be set. When neither `instance_number` nor
+  `instance_percentage` is specified, the number of operation instances is **1**.
 
 ## Attribute Reference
 
