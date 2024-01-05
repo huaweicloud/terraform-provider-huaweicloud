@@ -143,7 +143,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   }
   analysis_core_nodes {
     flavor            = "ac7.4xlarge.4.linux.bigdata"
-    node_number       = %d
+    node_number       = 2
     root_volume_type  = "SAS"
     root_volume_size  = 100
     data_volume_type  = "SAS"
@@ -152,7 +152,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   }
   streaming_core_nodes {
     flavor            = "ac7.4xlarge.4.linux.bigdata"
-    node_number       = %d
+    node_number       = 2
     root_volume_type  = "SAS"
     root_volume_size  = 100
     data_volume_type  = "SAS"
@@ -161,7 +161,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   }
   analysis_task_nodes {
     flavor            = "ac7.4xlarge.4.linux.bigdata"
-    node_number       = %d
+    node_number       = 2
     root_volume_type  = "SAS"
     root_volume_size  = 100
     data_volume_type  = "SAS"
