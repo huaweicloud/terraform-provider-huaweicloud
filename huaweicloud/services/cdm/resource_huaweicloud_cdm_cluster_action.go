@@ -179,7 +179,6 @@ func createClusterActionWaitingForStateCompleted(ctx context.Context, d *schema.
 		Refresh: func() (interface{}, string, error) {
 			cfg := meta.(*config.Config)
 			region := cfg.GetRegion(d)
-			// createClusterActionWaiting: missing operation notes
 			var (
 				createClusterActionWaitingHttpUrl = "v1.1/{project_id}/clusters/{cluster_id}"
 				createClusterActionWaitingProduct = "cdm"
