@@ -165,3 +165,8 @@ type Connection struct {
 	// Listeners IP.
 	ListenersIp string `json:"ip"`
 }
+
+// AutoTopicResult is a struct that contains all the return parameters of UpdateAutoTopic function
+type AutoTopicResult struct {
+	golangsdk.Result
+}
