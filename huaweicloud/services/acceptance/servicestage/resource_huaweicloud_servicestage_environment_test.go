@@ -137,7 +137,7 @@ variable "rds_config" {
 
   default = [
     {fixed_ip = "192.168.0.58", port = "8636"},
-    {fixed_ip = "192.168.0.158", port = "8637"},
+    {fixed_ip = "192.168.0.160", port = "8637"},
   ]
 }
 
@@ -166,7 +166,7 @@ data "huaweicloud_images_image" "test" {
   most_recent = true
 }
 
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_kps_keypair" "test" {
   name = "%[1]s"
 }
 
@@ -240,7 +240,7 @@ resource "huaweicloud_cce_node" "test" {
   name              = "%[1]s-${count.index}"
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  key_pair          = huaweicloud_compute_keypair.test.name
+  key_pair          = huaweicloud_kps_keypair.test.name
 
   root_volume {
     volumetype = "SSD"
@@ -293,7 +293,7 @@ resource "huaweicloud_compute_instance" "test" {
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair.test.name
+  key_pair           = huaweicloud_kps_keypair.test.name
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
 
   network {
@@ -307,7 +307,7 @@ resource "huaweicloud_as_configuration" "test" {
   instance_config {
     flavor   = data.huaweicloud_compute_flavors.test.ids[0]
     image    = data.huaweicloud_images_image.test.id
-    key_name = huaweicloud_compute_keypair.test.name
+    key_name = huaweicloud_kps_keypair.test.name
 
     disk {
       disk_type   = "SYS"

@@ -97,7 +97,7 @@ data "huaweicloud_images_image" "test" {
   most_recent = true
 }
 
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_kps_keypair" "test" {
   name = "%[1]s"
 }
 
@@ -126,7 +126,7 @@ resource "huaweicloud_compute_instance" "test" {
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair.test.name
+  key_pair           = huaweicloud_kps_keypair.test.name
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
 
   enterprise_project_id = "%[2]s"

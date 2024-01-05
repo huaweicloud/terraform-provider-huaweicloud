@@ -593,7 +593,7 @@ func blockchainStateRefreshFunc(client *golangsdk.ServiceClient, instanceID stri
 	return func() (interface{}, string, error) {
 		instance, err := blockchains.Get(client, instanceID).Extract()
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault400); ok {
+			if _, ok := err.(golangsdk.ErrDefault401); ok {
 				return instance, "IsDeleted", nil
 			}
 			return nil, "FOUND ERROR", err
