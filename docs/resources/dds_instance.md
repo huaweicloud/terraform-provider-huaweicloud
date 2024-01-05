@@ -9,6 +9,8 @@ Manages dds instance resource within HuaweiCloud.
 ## Example Usage: Creating a Cluster Community Edition
 
 ```hcl
+variable "dds_password" {}
+
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
@@ -21,7 +23,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = "{{ vpc_id }}"
   subnet_id         = "{{ subnet_network_id }}}"
   security_group_id = "{{ security_group_id }}"
-  password          = "Test@123"
+  password          = var.dds_password
   mode              = "Sharding"
   flavor {
     type      = "mongos"
@@ -52,6 +54,8 @@ resource "huaweicloud_dds_instance" "instance" {
 ## Example Usage: Creating a Replica Set Community Edition
 
 ```hcl
+variable "dds_password" {}
+
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
@@ -64,7 +68,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = "{{ vpc_id }}"
   subnet_id         = "{{ subnet_network_id }}}"
   security_group_id = "{{ security_group_id }}"
-  password          = "Test@123"
+  password          = var.dds_password
   mode              = "ReplicaSet"
   flavor {
     type      = "replica"
@@ -79,6 +83,8 @@ resource "huaweicloud_dds_instance" "instance" {
 ## Example Usage: Creating a Single Community Edition
 
 ```hcl
+variable "dds_password" {}
+
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
@@ -90,7 +96,7 @@ resource "huaweicloud_dds_instance" "instance" {
   vpc_id            = "{{ vpc_id }}"
   subnet_id         = "{{ subnet_network_id }}}"
   security_group_id = "{{ security_group_id }}"
-  password          = "Test@123"
+  password          = var.dds_password
   mode              = "Single"
   
   flavor {

@@ -11,10 +11,12 @@ Manages an IAM user resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "user_1_password" {}
+
 resource "huaweicloud_identity_user" "user_1" {
   name        = "user_1"
   description = "A user"
-  password    = "password123!"
+  password    = var.user_1_password
 }
 ```
 

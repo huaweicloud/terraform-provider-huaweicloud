@@ -14,6 +14,7 @@ Manage DMS RabbitMQ instance resources within HuaweiCloud.
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
+variable "access_password" {}
 variable "availability_zones" {
    default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
 }
@@ -39,7 +40,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   availability_zones = var.availability_zones
 
   access_user = "user"
-  password    = "Rabbitmqtest@123"
+  password    = var.access_password
 }
 ```
 
@@ -49,6 +50,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
+variable "access_password" {}
 variable "availability_zones" {
    default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
 }
@@ -70,7 +72,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   availability_zones = var.availability_zones
   
   access_user = "user"
-  password    = "Rabbitmqtest@123"
+  password    = var.access_password
 }
 ```
 

@@ -10,11 +10,12 @@ Manages a DMS kafka user resource within HuaweiCloud.
 
 ```hcl
 variable "kafka_instance_id" {}
+variable "user_password" {}
 
 resource "huaweicloud_dms_kafka_user" "user" {
   instance_id = var.kafka_instance_id
   name        = "user_1"
-  password    = "Test@123"
+  password    = var.user_password
   description = "test_description"
 }
 ```

@@ -32,6 +32,7 @@ resource "huaweicloud_cse_microservice" "test" {
 variable "engine_conn_addr" {}
 variable "service_name" {}
 variable "app_name" {}
+variable "admin_pass" {}
 
 resource "huaweicloud_cse_microservice" "test" {
   connect_address = var.engine_conn_addr
@@ -41,7 +42,7 @@ resource "huaweicloud_cse_microservice" "test" {
   app_name        = var.app_name
 
   admin_user = "root"
-  admin_pass = "Huawei!123"
+  admin_pass = var.admin_pass
 }
 ```
 
