@@ -109,7 +109,7 @@ func testAccCheckBCSInstanceV2Destroy() resource.TestCheckFunc {
 			id := rs.Primary.ID
 			instance, err := blockchains.Get(client, id).Extract()
 			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault400); ok {
+				if _, ok := err.(golangsdk.ErrDefault401); ok {
 					return nil
 				}
 				return err
@@ -178,11 +178,11 @@ resource "huaweicloud_cce_cluster" "test" {
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
-  cluster_version        = "v1.15.11-r1"
+  cluster_version        = "v1.19.16-r1"
   delete_sfs             = true
 }
 
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_kps_keypair" "test" {
   name = "%s"
 
   lifecycle {
@@ -197,14 +197,10 @@ resource "huaweicloud_cce_node" "test" {
   cluster_id            = huaweicloud_cce_cluster.test.id
   flavor_id             = "s6.xlarge.2"
   availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  key_pair              = huaweicloud_compute_keypair.test.name
+  key_pair              = huaweicloud_kps_keypair.test.name
   max_pods              = 30
   ecs_performance_type  = "normal"
   os                    = "CentOS 7.6"
-  iptype                = "5_bgp"
-  bandwidth_charge_mode = "traffic"
-  sharetype             = "PER"
-  bandwidth_size        = 5
 
   root_volume {
     size       = 40

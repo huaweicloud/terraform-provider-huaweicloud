@@ -153,7 +153,7 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
-resource "huaweicloud_compute_keypair" "acc_key" {
+resource "huaweicloud_kps_keypair" "acc_key" {
   name       = "%s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
@@ -169,7 +169,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
   instance_config {
     image              = data.huaweicloud_images_image.test.id
     flavor             = data.huaweicloud_compute_flavors.test.ids[0]
-    key_name           = huaweicloud_compute_keypair.acc_key.id
+    key_name           = huaweicloud_kps_keypair.acc_key.id
     security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
 
     metadata = {
@@ -220,7 +220,7 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
   scaling_configuration_name = "%s"
   instance_config {
     instance_id = huaweicloud_compute_instance.test.id
-    key_name    = huaweicloud_compute_keypair.acc_key.id
+    key_name    = huaweicloud_kps_keypair.acc_key.id
     user_data   = "IyEvYmluL3NoCmVjaG8gIkhlbGxvIFdvcmxkISBUaGUgdGltZSBpcyBub3cgJChkYXRlIC1SKSEiIHwgdGVlIC9yb290L291dHB1dC50eHQK"
   }
 }

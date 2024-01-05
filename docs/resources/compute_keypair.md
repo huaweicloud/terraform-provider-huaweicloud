@@ -1,10 +1,10 @@
 ---
-subcategory: "Elastic Cloud Server (ECS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_compute_keypair
 
--> **DEPRECATED:**  This resource  has been deprecated. Please use [huaweicloud_kps_keypair](https://www.terraform.io/docs/providers/huaweicloud/r/kps_keypair).
+!> **WARNING:** It has been deprecated, use `huaweicloud_kps_keypair` instead.
 
 Manages a keypair resource within HuaweiCloud.
 

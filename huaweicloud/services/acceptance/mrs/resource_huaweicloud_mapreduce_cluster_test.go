@@ -638,7 +638,7 @@ func testAccMrsMapReduceClusterConfig_keypair(rName, pwd string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_kps_keypair" "test" {
   name = "%s"
 
   lifecycle {
@@ -654,7 +654,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   type               = "STREAMING"
   version            = "MRS 1.9.2"
   manager_admin_pass = "%s"
-  node_key_pair      = huaweicloud_compute_keypair.test.name
+  node_key_pair      = huaweicloud_kps_keypair.test.name
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
   component_list     = ["Storm"]
