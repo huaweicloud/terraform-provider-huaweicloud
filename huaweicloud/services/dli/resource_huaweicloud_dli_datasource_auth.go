@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product DLI
-// ---------------------------------------------------------------
-
 package dli
 
 import (
@@ -23,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI POST /v3/{project_id}/datasource/auth-infos
+// @API DLI GET /v3/{project_id}/datasource/auth-infos
+// @API DLI PUT /v3/{project_id}/datasource/auth-infos
+// @API DLI DELETE /v3/{project_id}/datasource/auth-infos/{auth_info_name}
 func ResourceDatasourceAuth() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatasourceAuthCreate,
@@ -152,7 +151,7 @@ func resourceDatasourceAuthCreate(ctx context.Context, d *schema.ResourceData, m
 
 	// createDatasourceAuth: create a DLI datasource authentication.
 	var (
-		createDatasourceAuthHttpUrl = "v2.0/{project_id}/datasource/auth-infos"
+		createDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos"
 		createDatasourceAuthProduct = "dli"
 	)
 	createDatasourceAuthClient, err := cfg.NewServiceClient(createDatasourceAuthProduct, region)
@@ -206,7 +205,7 @@ func resourceDatasourceAuthRead(_ context.Context, d *schema.ResourceData, meta 
 
 	// getDatasourceAuth: Query the DLI datasource authentication.
 	var (
-		getDatasourceAuthHttpUrl = "v2.0/{project_id}/datasource/auth-infos"
+		getDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos"
 		getDatasourceAuthProduct = "dli"
 	)
 	getDatasourceAuthClient, err := cfg.NewServiceClient(getDatasourceAuthProduct, region)
@@ -247,7 +246,7 @@ func resourceDatasourceAuthRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("auth_infos[0].auth_info_name", getDatasourceAuthRespBody, nil)),
 		d.Set("type", utils.PathSearch("auth_infos[0].datasource_type", getDatasourceAuthRespBody, nil)),
-		d.Set("username", utils.PathSearch("auth_infos[0].username", getDatasourceAuthRespBody, nil)),
+		d.Set("username", utils.PathSearch("auth_infos[0].user_name", getDatasourceAuthRespBody, nil)),
 		d.Set("certificate_location", utils.PathSearch("auth_infos[0].certificate_location", getDatasourceAuthRespBody, nil)),
 		d.Set("truststore_location", utils.PathSearch("auth_infos[0].truststore_location", getDatasourceAuthRespBody, nil)),
 		d.Set("keystore_location", utils.PathSearch("auth_infos[0].keystore_location", getDatasourceAuthRespBody, nil)),
@@ -287,7 +286,7 @@ func resourceDatasourceAuthUpdate(ctx context.Context, d *schema.ResourceData, m
 
 	if d.HasChanges(updateDatasourceAuthChanges...) {
 		var (
-			updateDatasourceAuthHttpUrl = "v2.0/{project_id}/datasource/auth-infos"
+			updateDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos"
 			updateDatasourceAuthProduct = "dli"
 		)
 		updateDatasourceAuthClient, err := cfg.NewServiceClient(updateDatasourceAuthProduct, region)
@@ -334,7 +333,7 @@ func resourceDatasourceAuthDelete(_ context.Context, d *schema.ResourceData, met
 
 	// deleteDatasourceAuth: missing operation notes
 	var (
-		deleteDatasourceAuthHttpUrl = "v2.0/{project_id}/datasource/auth-infos/{id}"
+		deleteDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos/{id}"
 		deleteDatasourceAuthProduct = "dli"
 	)
 	deleteDatasourceAuthClient, err := cfg.NewServiceClient(deleteDatasourceAuthProduct, region)

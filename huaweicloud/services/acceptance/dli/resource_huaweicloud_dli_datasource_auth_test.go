@@ -19,7 +19,7 @@ func getDatasourceAuthResourceFunc(cfg *config.Config, state *terraform.Resource
 	region := acceptance.HW_REGION_NAME
 	// getDatasourceAuth: Query the DLI datasource authentication.
 	var (
-		getDatasourceAuthHttpUrl = "v2.0/{project_id}/datasource/auth-infos"
+		getDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos"
 		getDatasourceAuthProduct = "dli"
 	)
 	getDatasourceAuthClient, err := cfg.NewServiceClient(getDatasourceAuthProduct, region)
