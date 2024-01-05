@@ -149,7 +149,7 @@ func Update(c *golangsdk.ServiceClient, domainID string, opts UpdateOptsBuilder)
 	}
 
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
-	_, r.Err = c.Put(resourceURL(c, domainID)+query.String(), b, nil, reqOpt)
+	_, r.Err = c.Patch(resourceURL(c, domainID)+query.String(), b, nil, reqOpt)
 	return
 }
 
