@@ -5,10 +5,15 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2/model"
 
@@ -25,6 +30,10 @@ func ResourceDmsKafkaPermissions() *schema.Resource {
 		ReadContext:   resourceDmsKafkaPermissionsRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -122,6 +131,17 @@ func resourceDmsKafkaPermissionsCreateOrUpdate(ctx context.Context, d *schema.Re
 
 	id := instanceId + "/" + topicName
 	d.SetId(id)
+
+	cli, err := c.DmsV2Client(c.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating DMS Kafka(v2) client: %s", err)
+	}
+
+	err = waitForKafkaTopicAccessPolicyComplete(ctx, cli, d, instanceId, schema.TimeoutCreate)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceDmsKafkaPermissionsRead(ctx, d, meta)
 }
 
@@ -192,6 +212,16 @@ func resourceDmsKafkaPermissionsDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error deleting DMS kafka permissions: %s", err)
 	}
 
+	cli, err := c.DmsV2Client(c.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating DMS Kafka(v2) client: %s", err)
+	}
+
+	err = waitForKafkaTopicAccessPolicyComplete(ctx, cli, d, instanceId, schema.TimeoutDelete)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return nil
 }
 
@@ -205,4 +235,35 @@ func flattenPolicies(policies []model.PolicyEntity) []map[string]interface{} {
 	}
 
 	return policiesToSet
+}
+
+func waitForKafkaTopicAccessPolicyComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	instanceID string, timeout string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"CREATED"},
+		Refresh:      kafkaInstancePolicyRefreshFunc(client, instanceID),
+		Timeout:      d.Timeout(timeout),
+		Delay:        1 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for DMS Kafka instance (%s) task to be completed: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func kafkaInstancePolicyRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := instances.Get(client, instanceID).Extract()
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		if resp.Task.Name == "updateTopicPolicies" {
+			return resp, "PENDING", nil
+		}
+		return resp, "CREATED", nil
+	}
 }
