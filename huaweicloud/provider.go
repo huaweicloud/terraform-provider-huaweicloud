@@ -821,9 +821,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_private_ca":          ccm.ResourcePrivateCertificateAuthority(),
 			"huaweicloud_ccm_private_certificate": ccm.ResourceCcmPrivateCertificate(),
 
-			"huaweicloud_cdm_cluster": cdm.ResourceCdmCluster(),
-			"huaweicloud_cdm_job":     cdm.ResourceCdmJob(),
-			"huaweicloud_cdm_link":    cdm.ResourceCdmLink(),
+			"huaweicloud_cdm_cluster":        cdm.ResourceCdmCluster(),
+			"huaweicloud_cdm_cluster_action": cdm.ResourceClusterAction(),
+			"huaweicloud_cdm_job":            cdm.ResourceCdmJob(),
+			"huaweicloud_cdm_link":           cdm.ResourceCdmLink(),
 
 			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
