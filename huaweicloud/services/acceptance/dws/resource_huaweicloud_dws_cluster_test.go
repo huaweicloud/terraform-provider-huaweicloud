@@ -56,7 +56,7 @@ func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 	return getDwsClusterRespBody, nil
 }
 
-func TestAccResourceDWS_basic(t *testing.T) {
+func TestAccResourceDWS_basicV1(t *testing.T) {
 	var obj interface{}
 
 	resourceName := "huaweicloud_dws_cluster.test"
@@ -79,25 +79,27 @@ func TestAccResourceDWS_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
+					resource.TestCheckResourceAttr(resourceName, "logical_cluster_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 			{
-				Config: testAccDwsCluster_basic(name, 6, dws.PublicBindTypeAuto, "cluster123@!u", "cat"),
+				Config: testAccDwsCluster_basic(name, 6, dws.PublicBindTypeAuto, "cluster123@!u", "bar"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "6"),
+					resource.TestCheckResourceAttr(resourceName, "logical_cluster_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "cat"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints"},
+				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "logical_cluster_enable"},
 			},
 		},
 	})
@@ -112,15 +114,16 @@ func testAccDwsCluster_basic(rName string, numberOfNode int, publicIpBindType, p
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dws_cluster" "test" {
-  name              = "%s"
-  node_type         = "dwsk2.xlarge"
-  number_of_node    = %d
-  vpc_id            = huaweicloud_vpc.test.id
-  network_id        = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  user_name         = "test_cluster_admin"
-  user_pwd          = "%s"
+  name                   = "%s"
+  node_type              = "dwsk2.xlarge"
+  number_of_node         = %d
+  vpc_id                 = huaweicloud_vpc.test.id
+  network_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  user_name              = "test_cluster_admin"
+  user_pwd               = "%s"
+  logical_cluster_enable = true
 
   public_ip {
     public_bind_type = "%s"

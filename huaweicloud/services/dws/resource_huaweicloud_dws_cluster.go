@@ -180,6 +180,11 @@ func ResourceDwsCluster() *schema.Resource {
 				Optional:    true,
 				Description: `The number of latest manual snapshots that need to be retained when deleting the cluster.`,
 			},
+			"logical_cluster_enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specified whether to enable logical cluster.`,
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -344,6 +349,24 @@ func resourceDwsClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceDwsClusterCreateV1(ctx, d, meta)
 }
 
+func updateDwsLogicalClusterEnable(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	switchDwsClusterPath := client.Endpoint + "v2/{project_id}/clusters/{cluster_id}/logical-clusters/enable"
+	switchDwsClusterPath = strings.ReplaceAll(switchDwsClusterPath, "{project_id}", client.ProjectID)
+	switchDwsClusterPath = strings.ReplaceAll(switchDwsClusterPath, "{cluster_id}", d.Id())
+
+	switchDwsClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"enable": d.Get("logical_cluster_enable"),
+		},
+	}
+	_, err := client.Request("PUT", switchDwsClusterPath, &switchDwsClusterOpt)
+	if err != nil {
+		return fmt.Errorf("error updating DWS logical cluster switch: %s", err)
+	}
+	return nil
+}
+
 func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -392,6 +415,13 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return diag.Errorf("error waiting for the DWS cluster (%s) creation to complete: %s", d.Id(), err)
 	}
+
+	if d.Get("logical_cluster_enable").(bool) {
+		if err := updateDwsLogicalClusterEnable(createDwsClusterClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -443,6 +473,13 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return diag.Errorf("error waiting for the DWS cluster (%s) creation to complete: %s", d.Id(), err)
 	}
+
+	if d.Get("logical_cluster_enable").(bool) {
+		if err := updateDwsLogicalClusterEnable(createDwsClusterClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -881,6 +918,17 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		err = updateClusterTags(clusterClient, d, d.Id())
 		if err != nil {
 			return diag.Errorf("error updating tags of DWS cluster:%s, err:%s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("logical_cluster_enable") {
+		client, err := cfg.NewServiceClient("dws", region)
+		if err != nil {
+			return diag.Errorf("error creating DWS client: %s", err)
+		}
+
+		if err := updateDwsLogicalClusterEnable(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
