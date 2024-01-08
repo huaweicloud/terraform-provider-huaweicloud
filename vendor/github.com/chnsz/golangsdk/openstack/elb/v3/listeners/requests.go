@@ -56,7 +56,7 @@ type CreateOpts struct {
 	Protocol Protocol `json:"protocol" required:"true"`
 
 	// The port on which to listen for client traffic.
-	ProtocolPort int `json:"protocol_port" required:"true"`
+	ProtocolPort int `json:"protocol_port,omitempty"`
 
 	// A list of references to TLS secrets.
 	SniContainerRefs []string `json:"sni_container_refs,omitempty"`

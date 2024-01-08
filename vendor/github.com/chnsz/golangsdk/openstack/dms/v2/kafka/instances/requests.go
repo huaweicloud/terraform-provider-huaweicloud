@@ -345,3 +345,23 @@ func UpdateCrossVpc(c *golangsdk.ServiceClient, instanceId string, opts CrossVpc
 	})
 	return &r, err
 }
+
+// AutoTopicOpts is a struct which represents the parameter of UpdateAutoTopic function
+type AutoTopicOpts struct {
+	// Indicates whether to enable automatic topic creation.
+	EnableAutoTopic *bool `json:"enable_auto_topic" required:"true"`
+}
+
+// UpdateAutoTopic is used to enable or disable automatic topic creation.
+// via accessing to the service with POST method and parameters
+func UpdateAutoTopic(client *golangsdk.ServiceClient, id string,
+	opts AutoTopicOpts) (r AutoTopicResult) {
+	body, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(autoTopicURL(client, id), body, nil, &golangsdk.RequestOpts{})
+	return
+}

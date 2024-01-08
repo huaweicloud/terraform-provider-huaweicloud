@@ -38,11 +38,17 @@ The following arguments are supported:
 * `protocol` - (Required, String, ForceNew) The protocol can either be TCP, UDP, HTTP or HTTPS. Changing this creates a
   new listener.
 
-* `protocol_port` - (Required, Int, ForceNew) The port on which to listen for client traffic. Changing this creates a
-  new listener.
-
 * `loadbalancer_id` - (Required, String, ForceNew) The load balancer on which to provision this listener. Changing this
   creates a new listener.
+
+* `protocol_port` - (Optional, Int, ForceNew) Specifies the port used by the listener. The **QUIC** listener port cannot
+  be **4789** or the same as the **UDP** listener port. If this parameter is set to **0**, `port_ranges` is required.
+  Changing this creates a new listener.
+
+* `port_ranges` - (Optional, List, ForceNew) Specifies the port monitoring range (closed range), specify up to 10 port
+  groups, each group range must not overlap. This field can only be passed in when `protocol_port` is **0** or empty.
+  Only **TCP**, **UDP**, and **TCPSSL** listener support this field. Changing this creates a new listener.
+  The [port_ranges](#ELB_port_ranges) structure is documented below.
 
 * `name` - (Optional, String) Human-readable name for the listener.
 
@@ -113,6 +119,16 @@ The following arguments are supported:
   unbind associated pools. Defaults to **false**.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the listener.
+
+* `gzip_enable` - (Optional, Bool) Specifies whether to enable gzip compression for a load balancer. The default value
+  is **false**. This parameter can be configured only for **HTTP**, **HTTPS**, and **QUIC** listeners.
+
+<a name="ELB_port_ranges"></a>
+The `port_ranges` block supports:
+
+* `start_port` - (Required, Int, ForceNew) Specifies the start port. Changing this creates a new listener.
+
+* `end_port` - (Required, Int, ForceNew) Specifies the end port. Changing this creates a new listener.
 
 ## Attribute Reference
 
