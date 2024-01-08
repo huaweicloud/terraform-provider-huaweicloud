@@ -83,9 +83,8 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the dedicated instance.  
   The description contain a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the dedicated
-  instance belongs.  
-  This parameter is required for enterprise users. Changing this will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the dedicated
+  instance belongs. This parameter is required for enterprise users.
 
 * `bandwidth_size` - (Optional, Int) Specifies the egress bandwidth size of the dedicated instance.  
   The valid value ranges from `0` to `2,000`.

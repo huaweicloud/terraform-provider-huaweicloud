@@ -17,6 +17,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -134,7 +135,6 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The enterprise project ID to which the dedicated instance belongs.`,
 			},
 			"bandwidth_size": {
@@ -594,10 +594,13 @@ func updateInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
+
+	instanceId := d.Id()
 
 	// Update egress access
 	if d.HasChange("bandwidth_size") {
@@ -617,7 +620,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("unable to get the update options of the dedicated instance: %s", err)
 	}
 	if updateOpts != (instances.UpdateOpts{}) {
-		_, err = instances.Update(client, d.Id(), updateOpts).Extract()
+		_, err = instances.Update(client, instanceId, updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating the dedicated instance: %s", err)
 		}
@@ -625,7 +628,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"PENDING"},
 			Target:       []string{"COMPLETED"},
-			Refresh:      InstanceStateRefreshFunc(client, d.Id(), []string{"Running"}),
+			Refresh:      InstanceStateRefreshFunc(client, instanceId, []string{"Running"}),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        20 * time.Second,
 			PollInterval: 20 * time.Second,
@@ -640,6 +643,19 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			return diag.FromErr(err)
 		}
 	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "apig",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
 }
 

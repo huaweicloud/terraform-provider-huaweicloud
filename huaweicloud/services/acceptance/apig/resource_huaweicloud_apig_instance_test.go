@@ -52,7 +52,7 @@ func TestAccInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
@@ -103,13 +103,13 @@ resource "huaweicloud_apig_instance" "test" {
 
   edition               = "BASIC"
   name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
+  enterprise_project_id = "0"
   maintain_begin        = "14:00:00"
   description           = "created by acc test"
 
   tags = {}
 }
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccInstance_basic_step2(rName string) string {
