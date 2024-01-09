@@ -154,6 +154,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The latest update time of the DNAT rule.
 
+* `enterprise_project_id` - The ID of the enterprise project to which the private DNAT rule belongs.
+
 ## Import
 
 DNAT rules can be imported using their `id`, e.g.

@@ -60,6 +60,7 @@ func TestAccPrivateDnatRule_basic(t *testing.T) {
 						"huaweicloud_compute_instance.test", "network.0.port"),
 					resource.TestCheckResourceAttr(rName, "internal_service_port", "2000"),
 					resource.TestCheckResourceAttrSet(rName, "backend_type"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -237,6 +238,7 @@ func TestAccPrivateDnatRule_elbBackend(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "backend_interface_id",
 						"data.huaweicloud_networking_port.test", "id"),
 					resource.TestCheckResourceAttr(rName, "internal_service_port", "2000"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -490,6 +492,7 @@ func TestAccPrivateDnatRule_vipBackend(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "backend_interface_id",
 						"huaweicloud_networking_vip.test", "id"),
 					resource.TestCheckResourceAttr(rName, "internal_service_port", "2000"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -624,6 +627,7 @@ func TestAccPrivateDnatRule_customIpAddress(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "protocol", "any"),
 					resource.TestCheckResourceAttrPair(rName, "transit_ip_id",
 						"huaweicloud_nat_private_transit_ip.test", "id"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
