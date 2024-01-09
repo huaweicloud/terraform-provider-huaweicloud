@@ -621,6 +621,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_organizations":  swr.DataSourceOrganizations(),
 			"huaweicloud_swr_repositories":   swr.DataSourceRepositories(),
 			"huaweicloud_swr_image_triggers": swr.DataSourceImageTriggers(),
+			"huaweicloud_swr_image_tags":     swr.DataSourceImageTags(),
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
