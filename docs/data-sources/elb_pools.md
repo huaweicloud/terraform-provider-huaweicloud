@@ -106,3 +106,5 @@ The `persistence` block supports:
 * `type` - The type of persistence mode.
 
 * `cookie_name` - The name of the cookie if persistence mode is set appropriately.
+
+* `timeout` - The stickiness duration, in minutes.
