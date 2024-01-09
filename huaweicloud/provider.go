@@ -1276,6 +1276,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_vpc_address_group":               vpc.ResourceVpcAddressGroup(),
 			"huaweicloud_vpc_flow_log":                    vpc.ResourceVpcFlowLog(),
+			"huaweicloud_vpc_network_interface":           vpc.ResourceNetworkInterface(),
 			"huaweicloud_vpc_traffic_mirror_filter":       vpc.ResourceTrafficMirrorFilter(),
 			"huaweicloud_vpc_traffic_mirror_filter_rule":  vpc.ResourceTrafficMirrorFilterRule(),
 
