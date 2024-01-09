@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 )
 
@@ -287,11 +288,11 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRdsInstance_sqlserver(name, pwd),
+				Config: testAccRdsInstance_sqlserver_update(name, pwd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
+					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AI"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
 				),
@@ -950,6 +951,17 @@ func testAccRdsInstance_sqlserver(name, pwd string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 8635
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
   db_version    = "2017_EE"
@@ -961,9 +973,9 @@ data "huaweicloud_rds_flavors" "test" {
 resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
   collation         = "Chinese_PRC_CI_AS"
 
   availability_zone = [
@@ -982,7 +994,57 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(), name, pwd)
+`, common.TestBaseNetwork(name), name, pwd)
+}
+
+func testAccRdsInstance_sqlserver_update(name, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 8635
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "SQLServer"
+  db_version    = "2017_EE"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 4
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  collation         = "Chinese_PRC_CI_AI"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  db {
+    password = "%[3]s"
+    type     = "SQLServer"
+    version  = "2017_EE"
+    port     = 8635
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+}
+`, common.TestBaseNetwork(name), name, pwd)
 }
 
 func testAccRdsInstance_mariadb(name, pwd string) string {
