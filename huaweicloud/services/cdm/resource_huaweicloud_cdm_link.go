@@ -3,6 +3,7 @@ package cdm
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -243,7 +244,12 @@ func setLinkConfigToState(d *schema.ResourceData, configs []link.Configs) error 
 					case "accessKey", "ak":
 						d.Set("access_key", v.Value)
 					default:
-						result[key] = v.Value
+						// Value in return is encoded, use `url.PathUnescape` to decode it.
+						rst, err := url.PathUnescape(v.Value)
+						if err != nil {
+							return err
+						}
+						result[key] = rst
 					}
 				}
 			}
