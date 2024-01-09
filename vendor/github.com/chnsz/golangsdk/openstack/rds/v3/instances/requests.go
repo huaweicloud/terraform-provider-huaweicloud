@@ -661,3 +661,22 @@ func ModifyReplicationMode(c *golangsdk.ServiceClient, opts ActionInstanceBuilde
 	_, r.Err = c.Put(updateURL(c, instanceId, "failover/mode"), b, &r.Body, &golangsdk.RequestOpts{})
 	return
 }
+
+type ModifySwitchStrategyOpts struct {
+	RepairStrategy string `json:"repairStrategy" required:"true"`
+}
+
+func (opts ModifySwitchStrategyOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifySwitchStrategy is a method used to modify replication mode.
+func ModifySwitchStrategy(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r ModifySwitchStrategyResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(updateURL(c, instanceId, "failover/strategy"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}

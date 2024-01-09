@@ -219,8 +219,13 @@ The following arguments are supported:
   and international site use UTC by default. The value ranges from UTC-12:00 to UTC+12:00 at the full hour. For
   Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. The time
   zone is expressed as a character string, refer to
-  [HuaweiCloud Document](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617)
-  .
+  [HuaweiCloud Document](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
+
+* `switch_strategy` - (Optional, String) Specifies the database switchover policy.
+  + **reliability**: reliability first.
+  + **availability**: availability first.
+  
+  Defaults to **reliability**.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the RDS DB instance. Valid values are
   **prePaid** and **postPaid**, defaults to **postPaid**. Changing this creates a new resource.

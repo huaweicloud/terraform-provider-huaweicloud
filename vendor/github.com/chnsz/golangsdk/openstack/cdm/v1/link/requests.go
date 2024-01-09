@@ -86,11 +86,16 @@ func Create(c *golangsdk.ServiceClient, clusterId string, opts LinkCreateOpts) (
 }
 
 func Get(c *golangsdk.ServiceClient, clusterId string, linkName string) (*LinkDetail, error) {
-	var rst LinkDetail
-	_, err := c.Get(showLinkURL(c, clusterId, linkName), &rst, &golangsdk.RequestOpts{
+	var rst golangsdk.Result
+	_, err := c.Get(showLinkURL(c, clusterId, linkName), &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
-	return &rst, err
+	if err == nil {
+		var r LinkDetail
+		rst.ExtractInto(&r)
+		return &r, nil
+	}
+	return nil, err
 }
 
 func Update(c *golangsdk.ServiceClient, clusterId string, linkName string, opts LinkCreateOpts) (*LinkUpdateResponse, error) {

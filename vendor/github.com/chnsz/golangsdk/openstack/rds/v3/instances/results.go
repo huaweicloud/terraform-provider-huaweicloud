@@ -38,6 +38,10 @@ type ModifyReplicationModeResult struct {
 	commonResult
 }
 
+type ModifySwitchStrategyResult struct {
+	commonResult
+}
+
 type SingleToHaResult struct {
 	commonResult
 }
