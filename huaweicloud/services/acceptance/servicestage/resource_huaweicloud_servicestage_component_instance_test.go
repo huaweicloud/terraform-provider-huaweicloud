@@ -133,19 +133,6 @@ resource "huaweicloud_vpc_subnet" "test" {
   vpc_id      = huaweicloud_vpc.test.id
   ipv6_enable = true
 }
-
-resource "huaweicloud_vpc_eip" "test" {
-  publicip {
-    type = "5_bgp"
-  }
-
-  bandwidth {
-    share_type  = "PER"
-    size        = 5
-    name        = "%[1]s"
-    charge_mode = "traffic"
-  }
-}
   
 resource "huaweicloud_cce_cluster" "test" {
   name                   = "%[1]s"
@@ -172,7 +159,6 @@ resource "huaweicloud_cce_node" "test" {
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_kps_keypair.test.name
-  eip_id            = huaweicloud_vpc_eip.test.id
 
   root_volume {
     volumetype = "SSD"
