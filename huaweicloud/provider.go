@@ -1027,6 +1027,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_provider":              iam.ResourceIdentityProvider(),
 			"huaweicloud_identity_password_policy":       iam.ResourceIdentityPasswordPolicy(),
 			"huaweicloud_identity_protection_policy":     iam.ResourceIdentityProtectionPolicy(),
+			"huaweicloud_identity_virtual_mfa_device":    iam.ResourceIdentityVirtualMFADevice(),
 
 			"huaweicloud_identitycenter_user":                     identitycenter.ResourceIdentityCenterUser(),
 			"huaweicloud_identitycenter_group":                    identitycenter.ResourceIdentityCenterGroup(),
