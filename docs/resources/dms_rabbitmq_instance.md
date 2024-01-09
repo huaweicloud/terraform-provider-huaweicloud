@@ -116,11 +116,10 @@ The following arguments are supported:
 * `access_user` - (Required, String, ForceNew) Specifies a username. A username consists of 4 to 64 characters and
   supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
 
-* `password` - (Required, String, ForceNew) Specifies the password of the DMS RabbitMQ instance. A password must meet
+* `password` - (Required, String) Specifies the password of the DMS RabbitMQ instance. A password must meet
   the following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following
   character types: lowercase letters, uppercase letters, digits,
   and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
-  Changing this creates a new instance resource.
 
 * `storage_space` - (Optional, Int) Specifies the message storage space, unit is GB.
   It is required when creating a instance with `flavor_id`. Value range:

@@ -78,7 +78,6 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Required:  true,
-				ForceNew:  true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -690,6 +689,31 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 			mErr = multierror.Append(mErr, err)
 		}
 	}
+
+	if d.HasChange("password") {
+		resetPasswordOpts := instances.ResetPasswordOpts{
+			NewPassword: d.Get("password").(string),
+		}
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.ResetPassword(client, d.Id(), resetPasswordOpts).Err
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			e := fmt.Errorf("error resetting password: %s", err)
+			mErr = multierror.Append(mErr, e)
+		}
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error while updating DMS RabbitMQ instances, %s", mErr)
 	}
