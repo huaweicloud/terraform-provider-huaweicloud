@@ -591,7 +591,7 @@ func buildChannelDetail(target map[string]interface{}, channel, projectId string
 		}
 		return &d, nil
 
-	case "kafka_forwarding":
+	case "DMS_KAFKA_FORWARDING":
 		forward := target["kafka_forwarding"].([]interface{})
 		if len(forward) == 0 {
 			return nil, fmt.Errorf("kafka_forwarding is Required when the target type is DMS_KAFKA_FORWARDING")
