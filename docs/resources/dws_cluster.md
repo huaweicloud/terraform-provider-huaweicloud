@@ -95,8 +95,7 @@ The following arguments are supported:
 * `port` - (Optional, Int, ForceNew) Service port of a cluster (8000 to 10000). The default value is 8000.  
   Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map, ForceNew) The key/value pairs to associate with the cluster.
-  Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) The key/value pairs to associate with the cluster.
 
 * `dss_pool_id` - (Optional, String, ForceNew) Dedicated storage pool ID.
   Changing this parameter will create a new resource.
