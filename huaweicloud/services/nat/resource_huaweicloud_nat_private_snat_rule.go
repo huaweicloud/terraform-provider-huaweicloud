@@ -82,6 +82,16 @@ func ResourcePrivateSnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the SNAT rule.",
 			},
+			"transit_ip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The address of the transit IP",
+			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the enterprise project to which the private SNAT rule belongs.",
+			},
 		},
 	}
 }
@@ -132,6 +142,8 @@ func resourcePrivateSnatRuleRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("cidr", resp.Cidr),
 		d.Set("created_at", resp.CreatedAt),
 		d.Set("updated_at", resp.UpdatedAt),
+		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
+		d.Set("transit_ip_address", utils.PathSearch("[0].Address", resp.TransitIpAssociations, nil)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
