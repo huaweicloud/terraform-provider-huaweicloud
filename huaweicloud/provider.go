@@ -655,7 +655,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_groups":     waf.DataSourceWafInstanceGroups(),
 			"huaweicloud_waf_dedicated_domains":   waf.DataSourceWafDedicatedDomains(),
 			"huaweicloud_waf_address_groups":      waf.DataSourceWafAddressGroups(),
-			"huaweicloud_dws_flavors":             dws.DataSourceDwsFlavors(),
+
+			"huaweicloud_dws_flavors":               dws.DataSourceDwsFlavors(),
+			"huaweicloud_dws_logical_cluster_rings": dws.DataSourceLogicalClusterRings(),
 
 			"huaweicloud_workspace_flavors": workspace.DataSourceWorkspaceFlavors(),
 
