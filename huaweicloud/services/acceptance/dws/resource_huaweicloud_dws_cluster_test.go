@@ -231,3 +231,223 @@ resource "huaweicloud_dws_cluster" "test" {
 }
 `, baseNetwork, rName, numberOfNode, password, publicIpBindType, volumeCap, tag)
 }
+
+func TestAccResourceCluster_BindingElb(t *testing.T) {
+	var obj interface{}
+
+	resourceName := "huaweicloud_dws_cluster.test"
+	rName := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getClusterResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCluster_bindingElb(rName, dws.PublicBindTypeAuto, "cluster123@!u"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elb.0.name", rName+"_elb1"),
+				),
+			},
+			{
+				Config: testAccCluster_bindingElb_update(rName, dws.PublicBindTypeAuto, "cluster123@!u"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elb.0.name", rName+"_elb2"),
+				),
+			},
+			{
+				Config: testAccCluster_bindingElb_null(rName, dws.PublicBindTypeAuto, "cluster123@!u"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elb.0.name", ""),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "elb_id"},
+			},
+		},
+	})
+}
+
+func testAccCluster_bindingElb(rName, publicIpBindType, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_dws_flavors" "test" {
+  vcpus          = 4
+  memory         = 32
+  datastore_type = "dws"
+}
+
+resource "huaweicloud_dws_cluster" "test" {
+  name              = "%[2]s"
+  node_type         = "dwsk2.xlarge"
+  number_of_node    = 3
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  user_name         = "test_cluster_admin"
+  user_pwd          = "%[3]s"
+  version           = data.huaweicloud_dws_flavors.test.flavors[0].datastore_version
+  number_of_cn      = 3
+  elb_id            = huaweicloud_elb_loadbalancer.test1.id
+
+  public_ip {
+    public_bind_type = "%[4]s"
+  }
+
+  volume {
+    type     = "SSD"
+    capacity = 150
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
+}
+`, testAccElbV3LoadBalancerConfig_basic(rName), rName, password, publicIpBindType)
+}
+
+func testAccCluster_bindingElb_update(rName, publicIpBindType, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_dws_flavors" "test" {
+  vcpus          = 4
+  memory         = 32
+  datastore_type = "dws"
+}
+
+resource "huaweicloud_dws_cluster" "test" {
+  name              = "%[2]s"
+  node_type         = "dwsk2.xlarge"
+  number_of_node    = 3
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  user_name         = "test_cluster_admin"
+  user_pwd          = "%[3]s"
+  version           = data.huaweicloud_dws_flavors.test.flavors[0].datastore_version
+  number_of_cn      = 3
+  elb_id            = huaweicloud_elb_loadbalancer.test2.id
+
+  public_ip {
+    public_bind_type = "%[4]s"
+  }
+
+  volume {
+    type     = "SSD"
+    capacity = 150
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
+}
+`, testAccElbV3LoadBalancerConfig_basic(rName), rName, password, publicIpBindType)
+}
+
+func testAccCluster_bindingElb_null(rName, publicIpBindType, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_dws_flavors" "test" {
+  vcpus          = 4
+  memory         = 32
+  datastore_type = "dws"
+}
+
+resource "huaweicloud_dws_cluster" "test" {
+  name              = "%[2]s"
+  node_type         = "dwsk2.xlarge"
+  number_of_node    = 3
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  user_name         = "test_cluster_admin"
+  user_pwd          = "%[3]s"
+  version           = data.huaweicloud_dws_flavors.test.flavors[0].datastore_version
+  number_of_cn      = 3
+
+  public_ip {
+    public_bind_type = "%[4]s"
+  }
+
+  volume {
+    type     = "SSD"
+    capacity = 150
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
+}
+`, testAccElbV3LoadBalancerConfig_basic(rName), rName, password, publicIpBindType)
+}
+
+func testAccElbV3LoadBalancerConfig_basic(rName string) string {
+	baseNetwork := common.TestBaseNetwork(rName)
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test1" {
+  name           = "%[2]s_elb1"
+  vpc_id         = huaweicloud_vpc.test.id
+  ipv4_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+	
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  backend_subnets = [
+    huaweicloud_vpc_subnet.test.id
+  ]
+
+  protection_status = "nonProtection"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+resource "huaweicloud_elb_loadbalancer" "test2" {
+  name           = "%[2]s_elb2"
+  vpc_id         = huaweicloud_vpc.test.id
+  ipv4_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+	
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  backend_subnets = [
+    huaweicloud_vpc_subnet.test.id
+  ]
+
+  protection_status = "nonProtection"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, baseNetwork, rName)
+}

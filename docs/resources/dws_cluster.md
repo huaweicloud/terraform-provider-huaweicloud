@@ -116,6 +116,8 @@ The following arguments are supported:
 * `logical_cluster_enable` - (Optional, Bool) Specified whether to enable logical cluster. The switch needs to be turned
   on before creating a logical cluster.
 
+* `elb_id` - (Optional, String) Specifies the ID of the ELB load balancer.
+
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
 
@@ -197,6 +199,9 @@ In addition to all arguments above, the following attributes are exported:
 * `maintain_window` - Cluster maintenance window.
   The [MaintainWindow](#DwsCluster_MaintainWindow) structure is documented below.
 
+* `elb` - The ELB information bound to the cluster.
+  The [elb](#DwsCluster_elb) structure is documented below.
+
 <a name="DwsCluster_Endpoint"></a>
 The `Endpoint` block supports:
 
@@ -218,9 +223,26 @@ The `MaintainWindow` block supports:
   The valid values are **Mon**, **Tue**, **Wed**, **Thu**, **Fri**,
   **Sat**, and **Sun**.
 
-* `start_time` - Maintenance start time in HH:mm format. The time zone is GMT+0.  
+* `start_time` - Maintenance start time in HH:mm format. The time zone is GMT+0.
 
-* `end_time` - Maintenance end time in HH:mm format. The time zone is GMT+0.  
+* `end_time` - Maintenance end time in HH:mm format. The time zone is GMT+0.
+
+<a name="DwsCluster_elb"></a>
+The `elb` block supports:
+
+* `name` - The name of the ELB load balancer.
+
+* `id` - The ID of the ELB load balancer.
+
+* `public_ip` - The public IP address of the ELB load balancer.
+
+* `private_ip` - The private IP address of the ELB load balancer.
+
+* `private_endpoint` - The private endpoint of the ELB load balancer.
+
+* `vpc_id` - The ID of VPC to which the ELB load balancer belongs.
+
+* `private_ip_v6` - The IPv6 address of the ELB load balancer.
 
 ## Timeouts
 
