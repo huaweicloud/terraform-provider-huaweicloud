@@ -53,6 +53,8 @@ The following arguments are supported:
   gateway belongs.  
   Changing this will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the virtual gateway.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

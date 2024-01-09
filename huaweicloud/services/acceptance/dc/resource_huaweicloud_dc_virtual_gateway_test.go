@@ -56,6 +56,8 @@ func TestAccVirtualGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "asn"),
 					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 				),
 			},
 			{
@@ -65,6 +67,8 @@ func TestAccVirtualGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "local_ep_group.0", updateCidr),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "tags.foo1", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value_update"),
 				),
 			},
 			{
@@ -91,6 +95,11 @@ resource "huaweicloud_dc_virtual_gateway" "test" {
   local_ep_group = [
     huaweicloud_vpc.test.cidr,
   ]
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, name, cidr)
 }
@@ -109,6 +118,11 @@ resource "huaweicloud_dc_virtual_gateway" "test" {
   local_ep_group = [
     huaweicloud_vpc.test.cidr,
   ]
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
+  }
 }
 `, name, cidr)
 }

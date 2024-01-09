@@ -239,6 +239,7 @@ func ResourceVirtualInterface() *schema.Resource {
 				Computed:    true,
 				Description: "The creation time of the virtual interface.",
 			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -283,6 +284,11 @@ func resourceVirtualInterfaceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(resp.ID)
 
+	// create tags
+	if err := utils.CreateResourceTags(client, d, "dc-vif", d.Id()); err != nil {
+		return diag.Errorf("error setting tags of DC virtual interface %s: %s", d.Id(), err)
+	}
+
 	return resourceVirtualInterfaceRead(ctx, d, meta)
 }
 
@@ -326,6 +332,7 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("device_id", resp.DeviceId),
 		d.Set("status", resp.Status),
 		d.Set("created_at", resp.CreatedAt),
+		utils.SetResourceTagsToState(d, client, "dc-vif", d.Id()),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -420,6 +427,12 @@ func resourceVirtualInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 		if err = openVirtualInterfaceNetworkDetection(client, d); err != nil {
 			return diag.FromErr(err)
 		}
+	}
+
+	// update tags
+	tagErr := utils.UpdateResourceTags(client, d, "dc-vif", d.Id())
+	if tagErr != nil {
+		return diag.Errorf("error updating tags of DC virtual interface %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceVirtualInterfaceRead(ctx, d, meta)

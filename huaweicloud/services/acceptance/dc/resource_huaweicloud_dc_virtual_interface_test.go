@@ -68,6 +68,8 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "device_id"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 				),
 			},
 			{
@@ -92,6 +94,8 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "device_id"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttr(rName, "tags.foo1", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value_update"),
 				),
 			},
 			{
@@ -145,6 +149,11 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   address_family       = "ipv4"
   local_gateway_v4_ip  = "1.1.1.1/30"
   remote_gateway_v4_ip = "1.1.1.2/30"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccVirtualInterface_base(name), acceptance.HW_DC_DIRECT_CONNECT_ID, name, vlan)
 }
@@ -172,6 +181,11 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   address_family       = "ipv4"
   local_gateway_v4_ip  = "1.1.1.1/30"
   remote_gateway_v4_ip = "1.1.1.2/30"
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
+  }
 }
 `, testAccVirtualInterface_base(name), acceptance.HW_DC_DIRECT_CONNECT_ID, name, vlan)
 }

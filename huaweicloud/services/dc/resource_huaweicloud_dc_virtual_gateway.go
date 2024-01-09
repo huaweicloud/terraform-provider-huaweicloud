@@ -89,6 +89,7 @@ func ResourceVirtualGateway() *schema.Resource {
 				Computed:    true,
 				Description: "The current status of the virtual gateway.",
 			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -118,6 +119,11 @@ func resourceVirtualGatewayCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 	d.SetId(resp.ID)
 
+	// create tags
+	if err := utils.CreateResourceTags(client, d, "dc-vgw", d.Id()); err != nil {
+		return diag.Errorf("error setting tags of DC virtual gateway %s: %s", d.Id(), err)
+	}
+
 	return resourceVirtualGatewayRead(ctx, d, meta)
 }
 
@@ -143,6 +149,7 @@ func resourceVirtualGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("asn", resp.BgpAsn),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("status", resp.Status),
+		utils.SetResourceTagsToState(d, client, "dc-vgw", d.Id()),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -170,6 +177,12 @@ func resourceVirtualGatewayUpdate(ctx context.Context, d *schema.ResourceData, m
 	_, err = gateways.Update(client, gatewayId, opts)
 	if err != nil {
 		return diag.Errorf("error updating virtual gateway (%s): %s", gatewayId, err)
+	}
+
+	// update tags
+	tagErr := utils.UpdateResourceTags(client, d, "dc-vgw", d.Id())
+	if tagErr != nil {
+		return diag.Errorf("error updating tags of DC virtual gateway %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceVirtualGatewayRead(ctx, d, meta)
