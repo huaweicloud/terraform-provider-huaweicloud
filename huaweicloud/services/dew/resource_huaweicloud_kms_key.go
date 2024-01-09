@@ -29,6 +29,19 @@ const (
 	PendingDeletionState  = "4"
 )
 
+// API: DEW POST /v1.0/{project_id}/kms/create-key
+// API: DEW POST /v1.0/{project_id}/kms/disable-key
+// API: DEW POST /v1.0/{project_id}/{resourceType}/{id}/tags/action
+// API: DEW POST /v1.0/{project_id}/kms/enable-key-rotation
+// API: DEW POST /v1.0/{project_id}/kms/update-key-rotation-interval
+// API: DEW POST /v1.0/{project_id}/kms/describe-key
+// API: DEW GET /v1.0/{project_id}/{resourceType}/{id}/tags
+// API: DEW POST /v1.0/{project_id}/kms/get-key-rotation-status
+// API: DEW POST /v1.0/{project_id}/kms/update-key-alias
+// API: DEW POST /v1.0/{project_id}/kms/update-key-description
+// API: DEW POST /v1.0/{project_id}/kms/enable-key
+// API: DEW POST /v1.0/{project_id}/kms/disable-key-rotation
+// API: DEW POST /v1.0/{project_id}/kms/schedule-key-deletion
 func ResourceKmsKey() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceKmsKeyCreate,

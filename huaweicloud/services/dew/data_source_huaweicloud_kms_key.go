@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: DEW POST /v1.0/{project_id}/kms/list-keys
+// API: DEW POST /v1.0/{project_id}/kms/get-key-rotation-status
+// API: DEW GET /v1.0/{project_id}/kms/{key_id}/tags
 func DataSourceKmsKey() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceKmsKeyRead,
