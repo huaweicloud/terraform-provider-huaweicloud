@@ -1,0 +1,348 @@
+package dms
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"strings"
+	"time"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+// API: RabbitMQ PUT /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
+// API: RabbitMQ GET /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
+// API: RabbitMQ GET /v2/{project_id}/instances/{instance_id}/tasks
+func ResourceDmsRabbitmqPlugin() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceDmsRabbitmqPluginCreate,
+		ReadContext:   resourceDmsRabbitmqPluginRead,
+		DeleteContext: resourceDmsRabbitmqPluginDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(50 * time.Minute),
+			Delete: schema.DefaultTimeout(50 * time.Minute),
+		},
+
+		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"instance_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the ID of the rabbitmq instance.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the name of the plugin.`,
+			},
+			"enable": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the plugin is enabled.`,
+			},
+			"running": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the plugin is running.`,
+			},
+			"version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the version of the plugin.`,
+			},
+		},
+	}
+}
+
+func buildRabbitmqPluginBody(d *schema.ResourceData, enable bool) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"plugins": d.Get("name"),
+		"enable":  enable,
+	}
+	return bodyParams
+}
+
+func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		createRabbitmqPluginHttpUrl = "v2/{project_id}/instances/{instance_id}/rabbitmq/plugins"
+		createRabbitmqPluginProduct = "dmsv2"
+	)
+
+	createRabbitmqPluginClient, err := cfg.NewServiceClient(createRabbitmqPluginProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating DMS client: %s", err)
+	}
+
+	instanceID := d.Get("instance_id").(string)
+	createRabbitmqPluginPath := createRabbitmqPluginClient.Endpoint + createRabbitmqPluginHttpUrl
+	createRabbitmqPluginPath = strings.ReplaceAll(createRabbitmqPluginPath, "{project_id}", createRabbitmqPluginClient.ProjectID)
+	createRabbitmqPluginPath = strings.ReplaceAll(createRabbitmqPluginPath, "{instance_id}", instanceID)
+
+	jsonBody := utils.RemoveNil(buildRabbitmqPluginBody(d, true))
+
+	reqOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         jsonBody,
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err = createRabbitmqPluginClient.Request("PUT", createRabbitmqPluginPath, &reqOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rabbitmqInstanceStateRefreshFunc(createRabbitmqPluginClient, instanceID),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return diag.Errorf("error enabling rabbitmq plugin: %s", err)
+	}
+
+	id := fmt.Sprintf("%s/%s", d.Get("instance_id").(string), d.Get("name").(string))
+	d.SetId(id)
+
+	// The enabling plugin is done if the status of its task is SUCCESS.
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      backGroudTaskRefreshFunc(createRabbitmqPluginClient, instanceID, d, "rabbitmqPluginModify"),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        1 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the enabling plugin (%s) to be done: %s", d.Id(), err)
+	}
+
+	return resourceDmsRabbitmqPluginRead(ctx, d, cfg)
+}
+
+func resourceDmsRabbitmqPluginRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		getRabbitmqPluginHttpUrl = "v2/{project_id}/instances/{instance_id}/rabbitmq/plugins"
+		getRabbitmqPluginProduct = "dms"
+	)
+
+	getRabbitmqPluginClient, err := cfg.NewServiceClient(getRabbitmqPluginProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating DMS client: %s", err)
+	}
+
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return diag.Errorf("invalid id format, must be <instance_id>/<name>")
+	}
+	instanceID := parts[0]
+	name := parts[1]
+	getRabbitmqPluginPath := getRabbitmqPluginClient.Endpoint + getRabbitmqPluginHttpUrl
+	getRabbitmqPluginPath = strings.ReplaceAll(getRabbitmqPluginPath, "{project_id}", getRabbitmqPluginClient.ProjectID)
+	getRabbitmqPluginPath = strings.ReplaceAll(getRabbitmqPluginPath, "{instance_id}", instanceID)
+
+	reqOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getRabbitmqPluginResp, err := getRabbitmqPluginClient.Request("GET", getRabbitmqPluginPath,
+		&reqOpt)
+
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving the rabbitmq plugin")
+	}
+
+	getRabbitmqPluginRespBody, err := utils.FlattenResponse(getRabbitmqPluginResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	enable := d.Get("enable").(bool)
+	plugin := filterPlugin(name, enable, getRabbitmqPluginRespBody)
+
+	mErr := multierror.Append(
+		nil,
+		d.Set("region", cfg.GetRegion(d)),
+		d.Set("enable", utils.PathSearch("enable", plugin, nil)),
+		d.Set("version", utils.PathSearch("version", plugin, nil)),
+		d.Set("running", utils.PathSearch("running", plugin, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func filterPlugin(rawName string, rawEnable bool, resp interface{}) interface{} {
+	pluginJson := utils.PathSearch("plugins", resp, make([]interface{}, 0))
+	pluginArray := pluginJson.([]interface{})
+	log.Printf("pluginArray is %#v", pluginArray)
+	if len(pluginArray) < 1 {
+		return nil
+	}
+
+	for _, plugin := range pluginArray {
+		name := utils.PathSearch("name", plugin, nil)
+		enable := utils.PathSearch("enable", plugin, false).(bool)
+		log.Printf("name is %#v", name)
+		log.Printf("enable is %#v, rawEnable is %#v", enable, rawEnable)
+		if rawName == name {
+			log.Printf("plugin is %#v", plugin)
+			return plugin
+		}
+	}
+
+	return nil
+}
+
+func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		deleteRabbitmqPluginHttpUrl = "v2/{project_id}/instances/{instance_id}/rabbitmq/plugins"
+		deleteRabbitmqPluginProduct = "dmsv2"
+	)
+
+	deleteRabbitmqPluginClient, err := cfg.NewServiceClient(deleteRabbitmqPluginProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating DMS client: %s", err)
+	}
+	instanceID := d.Get("instance_id").(string)
+	deleteRabbitmqPluginPath := deleteRabbitmqPluginClient.Endpoint + deleteRabbitmqPluginHttpUrl
+	deleteRabbitmqPluginPath = strings.ReplaceAll(deleteRabbitmqPluginPath, "{project_id}", deleteRabbitmqPluginClient.ProjectID)
+	deleteRabbitmqPluginPath = strings.ReplaceAll(deleteRabbitmqPluginPath, "{instance_id}", instanceID)
+	jsonBody := utils.RemoveNil(buildRabbitmqPluginBody(d, false))
+
+	reqOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         jsonBody,
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err = deleteRabbitmqPluginClient.Request("PUT", deleteRabbitmqPluginPath, &reqOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rabbitmqInstanceStateRefreshFunc(deleteRabbitmqPluginClient, instanceID),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return diag.Errorf("error deleting rabbitmq plugin: %s", err)
+	}
+
+	// The disabling plugin is done if the status of its task is SUCCESS.
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      backGroudTaskRefreshFunc(deleteRabbitmqPluginClient, instanceID, d, "rabbitmqPluginModify"),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        1 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the disabling plugin (%s) to be done: %s", d.Id(), err)
+	}
+
+	return resourceDmsRabbitmqPluginRead(ctx, d, cfg)
+}
+
+func backGroudTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string,
+	d *schema.ResourceData, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		// getBackGroundTask: query back ground task
+		getBackGroundTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
+		getBackGroundTaskPath := client.Endpoint + getBackGroundTaskHttpUrl
+		getBackGroundTaskPath = strings.ReplaceAll(getBackGroundTaskPath, "{project_id}",
+			client.ProjectID)
+		getBackGroundTaskPath = strings.ReplaceAll(getBackGroundTaskPath, "{instance_id}", instanceID)
+
+		reqOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getBackGroundTaskPathResp, err := client.Request("GET", getBackGroundTaskPath,
+			&reqOpt)
+
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+
+		getBackGroundTaskRespBody, err := utils.FlattenResponse(getBackGroundTaskPathResp)
+		if err != nil {
+			return nil, "PARSE ERROR", err
+		}
+
+		task := filterBackGroundTask(taskName, d, getBackGroundTaskRespBody)
+		if task == nil {
+			return nil, "NIL ERROR", fmt.Errorf("can not find the task")
+		}
+		status := utils.PathSearch("status", task, "").(string)
+		return task, status, nil
+	}
+}
+
+func filterBackGroundTask(taskName string, d *schema.ResourceData, resp interface{}) interface{} {
+	taskJson := utils.PathSearch("tasks", resp, make([]interface{}, 0))
+	taskArray := taskJson.([]interface{})
+	if len(taskArray) < 1 {
+		return nil
+	}
+
+	rawName := d.Get("name")
+	for _, task := range taskArray {
+		name := utils.PathSearch("name", task, nil)
+		params := utils.PathSearch("params", task, nil).(string)
+		paramsData := []byte(params)
+		var paramsJons interface{}
+		err := json.Unmarshal(paramsData, &paramsJons)
+		if err != nil {
+			fmt.Println(err)
+		}
+		plugins := utils.PathSearch("plugins", paramsJons, nil)
+
+		if taskName != name {
+			continue
+		}
+		if rawName != plugins {
+			continue
+		}
+		return task
+	}
+
+	return nil
+}
