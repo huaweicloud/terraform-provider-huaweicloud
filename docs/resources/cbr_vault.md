@@ -220,8 +220,7 @@ The following arguments are supported:
 
 * `bind_rules` - (Optional, Map) Specifies the tags to filter resources for automatic association with **auto_bind**.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the vault
-  belongs. Changing this will create a new vault.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the vault belongs.
 
 * `policy` - (Optional, List) Specifies the policy details to associate with the CBR vault.
   The [object](#cbr_vault_policies) structure is documented below.

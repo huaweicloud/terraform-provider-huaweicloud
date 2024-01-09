@@ -15,6 +15,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
 	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -132,7 +133,6 @@ func ResourceVault() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: "The enterprise project ID to which the vault belongs.",
 			},
 			"policy": {
@@ -850,6 +850,7 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CBR v3 client: %s", err)
 	}
 
+	vaultId := d.Id()
 	if d.HasChanges("name", "consistent_level", "size", "auto_expand", "auto_bind", "bind_rules") {
 		if err = updateBasicParameters(client, d); err != nil {
 			return diag.FromErr(err)
@@ -868,7 +869,7 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("tags") {
-		if err = utils.UpdateResourceTags(client, d, "vault", d.Id()); err != nil {
+		if err = utils.UpdateResourceTags(client, d, "vault", vaultId); err != nil {
 			return diag.Errorf("failed to update tags: %s", err)
 		}
 	}
@@ -878,8 +879,20 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the vault (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), vaultId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the vault (%s): %s", vaultId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   vaultId,
+			ResourceType: "vault",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
