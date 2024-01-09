@@ -47,7 +47,7 @@ func ResourceDmsRabbitmqPlugin() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the ID of the rabbitmq instance.`,
+				Description: `Specifies the ID of the RabbitMQ instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -124,7 +124,7 @@ func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData
 	})
 
 	if err != nil {
-		return diag.Errorf("error enabling rabbitmq plugin: %s", err)
+		return diag.Errorf("error enabling the plugin: %s", err)
 	}
 
 	id := fmt.Sprintf("%s/%s", d.Get("instance_id").(string), d.Get("name").(string))
@@ -179,7 +179,7 @@ func resourceDmsRabbitmqPluginRead(_ context.Context, d *schema.ResourceData, me
 		&reqOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving the rabbitmq plugin")
+		return common.CheckDeletedDiag(d, err, "error retrieving the plugin")
 	}
 
 	getRabbitmqPluginRespBody, err := utils.FlattenResponse(getRabbitmqPluginResp)
@@ -191,7 +191,9 @@ func resourceDmsRabbitmqPluginRead(_ context.Context, d *schema.ResourceData, me
 
 	mErr := multierror.Append(
 		nil,
-		d.Set("region", cfg.GetRegion(d)),
+		d.Set("region", region),
+		d.Set("instance_id", instanceID),
+		d.Set("name", name),
 		d.Set("enable", utils.PathSearch("enable", plugin, nil)),
 		d.Set("version", utils.PathSearch("version", plugin, nil)),
 		d.Set("running", utils.PathSearch("running", plugin, nil)),
@@ -256,7 +258,7 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error deleting rabbitmq plugin: %s", err)
+		return diag.Errorf("error disabling the plugin: %s", err)
 	}
 
 	// The disabling plugin is done if the status of its task is SUCCESS.

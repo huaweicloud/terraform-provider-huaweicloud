@@ -36,22 +36,22 @@ func getRabbitmqPluginResourceFunc(cfg *config.Config, state *terraform.Resource
 		KeepResponseBody: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving rabbitmq plugin : %s", err)
+		return nil, fmt.Errorf("error retrieving the plugin : %s", err)
 	}
 
 	body, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing rabbitmq plugin : %s", err)
+		return nil, fmt.Errorf("error parsing the plugin : %s", err)
 	}
 
 	plugin := filterPlugin(name, body)
 	if plugin == nil {
-		return nil, fmt.Errorf("the rabbitmq plugin %s can not be found", name)
+		return nil, fmt.Errorf("the plugin %s can not be found", name)
 	}
 
 	enable := utils.PathSearch("enable", plugin, false).(bool)
 	if !enable {
-		return nil, fmt.Errorf("the rabbitmq plugin %s is disabled", name)
+		return nil, fmt.Errorf("the plugin %s is disabled", name)
 	}
 
 	return plugin, nil
