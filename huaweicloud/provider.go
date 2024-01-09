@@ -621,7 +621,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_organizations":  swr.DataSourceOrganizations(),
 			"huaweicloud_swr_repositories":   swr.DataSourceRepositories(),
 			"huaweicloud_swr_image_triggers": swr.DataSourceImageTriggers(),
-			"huaweicloud_swr_image_tags":     swr.DataSourceImageTags(),
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
@@ -923,6 +922,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_user_client_quota":  dms.ResourceDmsKafkaUserClientQuota(),
 
 			"huaweicloud_dms_rabbitmq_instance": dms.ResourceDmsRabbitmqInstance(),
+			"huaweicloud_dms_rabbitmq_plugin":   dms.ResourceDmsRabbitmqPlugin(),
 
 			"huaweicloud_dms_rocketmq_instance":       dms.ResourceDmsRocketMQInstance(),
 			"huaweicloud_dms_rocketmq_consumer_group": dms.ResourceDmsRocketMQConsumerGroup(),
