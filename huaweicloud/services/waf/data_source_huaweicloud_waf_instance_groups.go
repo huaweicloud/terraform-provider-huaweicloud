@@ -18,6 +18,7 @@ func DataSourceWafInstanceGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: DataSourceWafInstanceGroupsRead,
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
