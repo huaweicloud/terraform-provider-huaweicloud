@@ -58,6 +58,7 @@ func TestAccPrivateGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(rName, "vpc_id"),
 				),
 			},
 			{
@@ -70,6 +71,7 @@ func TestAccPrivateGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "baaar"),
 					resource.TestCheckResourceAttr(rName, "tags.newKey", "value"),
+					resource.TestCheckResourceAttrSet(rName, "vpc_id"),
 				),
 			},
 			{

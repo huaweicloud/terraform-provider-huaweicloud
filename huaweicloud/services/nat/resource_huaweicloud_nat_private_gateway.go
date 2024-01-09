@@ -104,6 +104,11 @@ func ResourcePrivateGateway() *schema.Resource {
 				Computed:    true,
 				Description: "The current status of the private NAT gateway.",
 			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the VPC to which the private NAT gateway belongs.",
+			},
 		},
 	}
 }
@@ -165,6 +170,7 @@ func resourcePrivateGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("created_at", resp.CreatedAt),
 		d.Set("updated_at", resp.UpdatedAt),
 		d.Set("status", resp.Status),
+		d.Set("vpc_id", utils.PathSearch("[0].VpcId", resp.DownLinkVpcs, nil)),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving private NAT gateway fields: %s", err)

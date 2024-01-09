@@ -70,6 +70,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The current status of the private NAT gateway.
 
+* `vpc_id` - The ID of the VPC to which the private NAT gateway belongs.
+
 ## Import
 
 The private NAT gateways can be imported using their `id`, e.g.

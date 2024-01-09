@@ -31,12 +31,20 @@ type Gateway struct {
 	CreatedAt string `json:"created_at"`
 	// The latest update time of the private NAT gateway.
 	UpdatedAt string `json:"updated_at"`
-	// The subnet configuration of the private NAT gateway.
-	DownLinkVpcs []DownLinkVpc `json:"downlink_vpcs"`
+	// The VPC configuration of the private NAT gateway.
+	DownLinkVpcs []DownLinkVpcResp `json:"downlink_vpcs"`
 	// The key/value pairs to associate with the NAT geteway.
 	Tags []tags.ResourceTag `json:"tags"`
 	// The enterprise project ID to which the private NAT gateway belongs.
 	EnterpriseProjectId string `json:"enterprise_project_id"`
+}
+
+// DownLinkVpcResp is an object that represents the VPC configuration to which private NAT gateway belongs.
+type DownLinkVpcResp struct {
+	// The subnet ID to which the private NAT gateway belongs.
+	SubnetId string `json:"virsubnet_id"`
+	// The VPC ID to which the private NAT gateway belongs.
+	VpcId string `json:"vpc_id"`
 }
 
 type createResp struct {
