@@ -134,10 +134,9 @@ The following arguments are supported:
 * `access_user` - (Optional, String, ForceNew) Specifies the username of SASL_SSL user. A username consists of 4
   to 64 characters and supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
 
-* `password` - (Optional, String, ForceNew) Specifies the password of SASL_SSL user. A password must meet the
+* `password` - (Optional, String) Specifies the password of SASL_SSL user. A password must meet the
   following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following character
   types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
-  Changing this creates a new instance resource.
 
   -> **NOTE:** If `access_user` and `password` are specified, the SASL_SSL is enabled for a Kafka instance.
 
