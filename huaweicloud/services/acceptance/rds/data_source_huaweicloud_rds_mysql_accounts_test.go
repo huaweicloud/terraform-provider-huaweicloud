@@ -73,5 +73,5 @@ output "host_filter_is_useful" {
     [for v in data.huaweicloud_rds_mysql_accounts.host_filter.users[*].hosts : contains(v, local.host)]
   )
 }
-`, testMysqlAccount_basic(name, ""))
+`, testMysqlAccount_basic(name))
 }

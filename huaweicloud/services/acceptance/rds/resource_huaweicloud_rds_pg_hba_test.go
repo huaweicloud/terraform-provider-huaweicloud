@@ -169,7 +169,7 @@ resource "huaweicloud_rds_pg_hba" "test" {
     method   = "scram-sha-256"
   }
 }
-`, testAccRdsInstance_basic(name, "HuaweiTest@12345678"))
+`, testAccRdsInstance_basic(name))
 }
 
 func testPgHba_basic_update(name string) string {
@@ -204,5 +204,5 @@ resource "huaweicloud_rds_pg_hba" "test" {
     method   = "reject"
   }
 }
-`, testAccRdsInstance_basic(name, "HuaweiTest@12345678"))
+`, testAccRdsInstance_basic(name))
 }

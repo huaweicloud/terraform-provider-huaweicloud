@@ -126,5 +126,5 @@ resource "huaweicloud_rds_pg_account" "test" {
   password    = "%s"
   description = "%s"
 }
-`, testAccRdsInstance_basic(name, "HuaweiTest@12345678"), name, pwd, description)
+`, testAccRdsInstance_basic(name), name, pwd, description)
 }

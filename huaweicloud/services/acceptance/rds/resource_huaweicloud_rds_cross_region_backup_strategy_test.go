@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -64,8 +63,6 @@ func TestAccBackupStrategy_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_rds_cross_region_backup_strategy.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -82,7 +79,7 @@ func TestAccBackupStrategy_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testBackupStrategy_basic(name, dbPwd),
+				Config: testBackupStrategy_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -94,7 +91,7 @@ func TestAccBackupStrategy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testBackupStrategy_basic_update1(name, dbPwd),
+				Config: testBackupStrategy_basic_update1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -106,7 +103,7 @@ func TestAccBackupStrategy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testBackupStrategy_basic_update2(name, dbPwd),
+				Config: testBackupStrategy_basic_update2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -126,7 +123,7 @@ func TestAccBackupStrategy_basic(t *testing.T) {
 	})
 }
 
-func testBackupStrategy_basic(name, dbPwd string) string {
+func testBackupStrategy_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -137,10 +134,10 @@ resource "huaweicloud_rds_cross_region_backup_strategy" "test" {
   destination_region     = "%s"
   destination_project_id = "%s"
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
+`, testAccRdsInstance_mysql_step1(name), acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }
 
-func testBackupStrategy_basic_update1(name, dbPwd string) string {
+func testBackupStrategy_basic_update1(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -151,10 +148,10 @@ resource "huaweicloud_rds_cross_region_backup_strategy" "test" {
   destination_region     = "%s"
   destination_project_id = "%s"
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
+`, testAccRdsInstance_mysql_step1(name), acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }
 
-func testBackupStrategy_basic_update2(name, dbPwd string) string {
+func testBackupStrategy_basic_update2(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -165,5 +162,5 @@ resource "huaweicloud_rds_cross_region_backup_strategy" "test" {
   destination_region     = "%s"
   destination_project_id = "%s"
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
+`, testAccRdsInstance_mysql_step1(name), acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }

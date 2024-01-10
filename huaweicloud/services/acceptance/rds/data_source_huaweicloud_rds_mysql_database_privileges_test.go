@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -13,8 +12,6 @@ import (
 func TestAccMysqlDatabasePrivileges_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_mysql_database_privileges.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	dc := acceptance.InitDataSourceCheck(rName)
 
@@ -23,7 +20,7 @@ func TestAccMysqlDatabasePrivileges_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMysqlDatabasePrivileges_basic(name, dbPwd),
+				Config: testAccMysqlDatabasePrivileges_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "users.#"),
@@ -37,7 +34,7 @@ func TestAccMysqlDatabasePrivileges_basic(t *testing.T) {
 	})
 }
 
-func testAccMysqlDatabasePrivileges_basic(name string, dbPwd string) string {
+func testAccMysqlDatabasePrivileges_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -81,5 +78,5 @@ output "readonly_filter_is_useful" {
 )
 }
 
-`, testAccRdsDatabasePrivilege_basic(name, dbPwd))
+`, testAccRdsDatabasePrivilege_basic(name))
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
@@ -18,8 +17,6 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 	updateName := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -27,7 +24,7 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadReplicaInstance_basic(name, dbPwd),
+				Config: testAccReadReplicaInstance_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -40,7 +37,6 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"data.huaweicloud_networking_secgroup.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.210"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -54,7 +50,7 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccReadReplicaInstance_update(name, updateName, dbPwd),
+				Config: testAccReadReplicaInstance_update(name, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -66,7 +62,6 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"data.huaweicloud_networking_secgroup.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.220"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8889"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -96,8 +91,6 @@ func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
 	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
 
@@ -110,14 +103,14 @@ func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadReplicaInstance_withEpsId(name, dbPwd, srcEPS),
+				Config: testAccReadReplicaInstance_withEpsId(name, srcEPS),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
 				),
 			},
 			{
-				Config: testAccReadReplicaInstance_withEpsId(name, dbPwd, destEPS),
+				Config: testAccReadReplicaInstance_withEpsId(name, destEPS),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
@@ -127,7 +120,7 @@ func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
 	})
 }
 
-func testAccReadReplicaInstance_basic(name, dbPwd string) string {
+func testAccReadReplicaInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -147,7 +140,6 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
   security_group_id   = data.huaweicloud_networking_secgroup.test.id
-  fixed_ip            = "192.168.0.210"
   ssl_enable          = true
 
   db {
@@ -171,10 +163,10 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), name)
+`, testAccRdsInstance_mysql_step1(name), name)
 }
 
-func testAccReadReplicaInstance_update(name, updateName, dbPwd string) string {
+func testAccReadReplicaInstance_update(name, updateName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -194,7 +186,6 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
   security_group_id   = data.huaweicloud_networking_secgroup.test.id
-  fixed_ip            = "192.168.0.220"
   ssl_enable          = false
 
   db {
@@ -218,10 +209,10 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo_update = "bar_update"
   }
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), updateName)
+`, testAccRdsInstance_mysql_step1(name), updateName)
 }
 
-func testAccReadReplicaInstance_withEpsId(name, dbPwd, epsId string) string {
+func testAccReadReplicaInstance_withEpsId(name, epsId string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -248,5 +239,5 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     trigger_threshold = 10
   }
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), name, epsId)
+`, testAccRdsInstance_mysql_step1(name), name, epsId)
 }

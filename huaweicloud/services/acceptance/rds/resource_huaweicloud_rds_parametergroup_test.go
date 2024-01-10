@@ -109,7 +109,7 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
   }
   datastore {
     type    = "mysql"
-    version = "5.7"
+    version = "8.0"
   }
 }
 `, rName)
@@ -127,7 +127,7 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
   }
   datastore {
     type    = "mysql"
-    version = "5.7"
+    version = "8.0"
   }
 }
 `, updateName)

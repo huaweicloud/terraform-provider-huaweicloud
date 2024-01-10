@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -81,8 +80,6 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_rds_mysql_database_privilege.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
-		acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -96,7 +93,7 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsDatabasePrivilege_basic(name, dbPwd),
+				Config: testAccRdsDatabasePrivilege_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -109,7 +106,7 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRdsDatabasePrivilege_basic_update(name, dbPwd),
+				Config: testAccRdsDatabasePrivilege_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -130,7 +127,7 @@ func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsDatabasePrivilege_basic(rName, dbPwd string) string {
+func testAccRdsDatabasePrivilege_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -148,10 +145,10 @@ resource "huaweicloud_rds_mysql_database_privilege" "test" {
     name = huaweicloud_rds_mysql_account.test_1.name
   }
 }
-`, testMysqlDatabase_basic(rName, dbPwd, rName), rName)
+`, testMysqlDatabase_basic(rName, rName), rName)
 }
 
-func testAccRdsDatabasePrivilege_basic_update(rName, dbPwd string) string {
+func testAccRdsDatabasePrivilege_basic_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -170,5 +167,5 @@ resource "huaweicloud_rds_mysql_database_privilege" "test" {
     readonly = true
   }
 }
-`, testMysqlDatabase_basic(rName, dbPwd, rName), rName)
+`, testMysqlDatabase_basic(rName, rName), rName)
 }

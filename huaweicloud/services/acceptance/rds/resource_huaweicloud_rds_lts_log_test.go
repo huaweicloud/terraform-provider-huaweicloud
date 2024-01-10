@@ -64,7 +64,6 @@ func getRdsLtsLogResourceFunc(cfg *config.Config, state *terraform.ResourceState
 func TestAccRdsLtsLog_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceName()
-	pwd := acceptance.RandomPassword()
 	resourceName := "huaweicloud_rds_lts_log.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -79,7 +78,7 @@ func TestAccRdsLtsLog_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsLtsLog_basic(rName, pwd),
+				Config: testAccRdsLtsLog_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_rds_instance.test", "id"),
@@ -90,7 +89,7 @@ func TestAccRdsLtsLog_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRdsLtsLog_update(rName, pwd),
+				Config: testAccRdsLtsLog_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_rds_instance.test", "id"),
@@ -109,7 +108,7 @@ func TestAccRdsLtsLog_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsLtsLog_basic(rName, pwd string) string {
+func testAccRdsLtsLog_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -129,10 +128,10 @@ resource "huaweicloud_rds_lts_log" "test" {
   log_type      = "error_log"
   lts_group_id  = huaweicloud_lts_group.test.id
   lts_stream_id = huaweicloud_lts_stream.test.id
-}`, testAccRdsInstance_mysql_step1(rName, pwd), rName)
+}`, testAccRdsInstance_mysql_step1(rName), rName)
 }
 
-func testAccRdsLtsLog_update(rName, pwd string) string {
+func testAccRdsLtsLog_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -152,5 +151,5 @@ resource "huaweicloud_rds_lts_log" "test" {
   log_type      = "error_log"
   lts_group_id  = huaweicloud_lts_group.test.id
   lts_stream_id = huaweicloud_lts_stream.test.id
-}`, testAccRdsInstance_mysql_step1(rName, pwd), rName)
+}`, testAccRdsInstance_mysql_step1(rName), rName)
 }

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -74,8 +73,6 @@ func TestAccMysqlDatabase_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_rds_mysql_database.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -89,7 +86,7 @@ func TestAccMysqlDatabase_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testMysqlDatabase_basic(name, dbPwd, "test database"),
+				Config: testMysqlDatabase_basic(name, "test database"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -100,7 +97,7 @@ func TestAccMysqlDatabase_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testMysqlDatabase_basic(name, dbPwd, "test database update"),
+				Config: testMysqlDatabase_basic(name, "test database update"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -119,7 +116,7 @@ func TestAccMysqlDatabase_basic(t *testing.T) {
 	})
 }
 
-func testMysqlDatabase_basic(name, dbPwd, description string) string {
+func testMysqlDatabase_basic(name, description string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -129,5 +126,5 @@ resource "huaweicloud_rds_mysql_database" "test" {
   character_set = "utf8"
   description   = "%s"
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), name, description)
+`, testAccRdsInstance_mysql_step1(name), name, description)
 }

@@ -124,5 +124,5 @@ resource "huaweicloud_rds_sqlserver_account" "test" {
   name        = "%[2]s"
   password    = "%[3]s"
 }
-`, testAccRdsInstance_sqlserver(name, password), name, password)
+`, testAccRdsInstance_sqlserver(name), name, password)
 }

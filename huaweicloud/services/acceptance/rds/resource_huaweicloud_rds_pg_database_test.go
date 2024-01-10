@@ -137,5 +137,5 @@ resource "huaweicloud_rds_pg_database" "test" {
   is_revoke_public_privilege = false
   description                = "%[3]s"
 }
-`, testAccRdsInstance_basic(name, "HuaweiTest@12345678"), name, description)
+`, testAccRdsInstance_basic(name), name, description)
 }
