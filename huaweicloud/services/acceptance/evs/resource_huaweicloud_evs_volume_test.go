@@ -250,6 +250,90 @@ func TestAccEvsVolume_withServerId(t *testing.T) {
 	})
 }
 
+func TestAccEvsVolume_GPSSD2(t *testing.T) {
+	var volume cloudvolumes.Volume
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_evs_volume.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&volume,
+		getVolumeResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Type GPSSD2 is only supported in part availability_zones under the certain region.
+			acceptance.TestAccPreCheckAvailabilityZoneGPSSD2(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEvsVolume_GPSSD2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "availability_zone", acceptance.HW_EVS_AVAILABILITY_ZONE_GPSSD2),
+					resource.TestCheckResourceAttr(resourceName, "volume_type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "iops", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "throughput", "125"),
+				),
+			},
+			{
+				Config: testAccEvsVolume_GPSSD2_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "volume_type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "iops", "4000"),
+					resource.TestCheckResourceAttr(resourceName, "throughput", "150"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccEvsVolume_ESSD2(t *testing.T) {
+	var volume cloudvolumes.Volume
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_evs_volume.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&volume,
+		getVolumeResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Type ESSD2 is only supported in part availability_zones under the certain region.
+			acceptance.TestAccPreCheckAvailabilityZoneESSD2(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEvsVolume_ESSD2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "availability_zone", acceptance.HW_EVS_AVAILABILITY_ZONE_ESSD2),
+					resource.TestCheckResourceAttr(resourceName, "volume_type", "ESSD2"),
+					resource.TestCheckResourceAttr(resourceName, "iops", "3000"),
+				),
+			},
+			{
+				Config: testAccEvsVolume_ESSD2_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "volume_type", "ESSD2"),
+					resource.TestCheckResourceAttr(resourceName, "iops", "4000"),
+				),
+			},
+		},
+	})
+}
+
 func testAccEvsVolume_base() string {
 	return `
 variable "volume_configuration" {
@@ -514,4 +598,58 @@ resource "huaweicloud_evs_volume" "test" {
   charging_mode     = "postPaid"
 }
 `, testAccComputeInstance_basic(rName), rName)
+}
+
+func testAccEvsVolume_GPSSD2(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[1]s"
+  description       = "test volume for updating QoS when volume_type is GPSSD2"
+  availability_zone = "%[2]s"
+  size              = 100
+  volume_type       = "GPSSD2"
+  iops              = 3000
+  throughput        = 125
+}
+`, rName, acceptance.HW_EVS_AVAILABILITY_ZONE_GPSSD2)
+}
+
+func testAccEvsVolume_GPSSD2_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[1]s"
+  description       = "test volume for updating QoS when volume_type is GPSSD2"
+  availability_zone = "%[2]s"
+  size              = 100
+  volume_type       = "GPSSD2"
+  iops              = 4000
+  throughput        = 150
+}
+`, rName, acceptance.HW_EVS_AVAILABILITY_ZONE_GPSSD2)
+}
+
+func testAccEvsVolume_ESSD2(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[1]s"
+  description       = "test volume for updating QoS when volume_type is ESSD2"
+  availability_zone = "%[2]s"
+  size              = 100
+  volume_type       = "ESSD2"
+  iops              = 3000
+}
+`, rName, acceptance.HW_EVS_AVAILABILITY_ZONE_ESSD2)
+}
+
+func testAccEvsVolume_ESSD2_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[1]s"
+  description       = "test volume for updating QoS when volume_type is ESSD2"
+  availability_zone = "%[2]s"
+  size              = 100
+  volume_type       = "ESSD2"
+  iops              = 4000
+}
+`, rName, acceptance.HW_EVS_AVAILABILITY_ZONE_ESSD2)
 }
