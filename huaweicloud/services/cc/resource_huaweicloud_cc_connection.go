@@ -17,6 +17,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -65,7 +66,6 @@ func ResourceCloudConnection() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The enterprise project id of the cloud connection.`,
 			},
 			"domain_id": {
@@ -219,25 +219,26 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 
+	// updateCloudConnection: update the Cloud Connection
+	var (
+		updateCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
+		updateCloudConnectionProduct = "cc"
+	)
+	updateCloudConnectionClient, err := conf.NewServiceClient(updateCloudConnectionProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating CloudConnection Client: %s", err)
+	}
+
+	connectionId := d.Id()
 	updateCloudConnectionhasChanges := []string{
 		"name",
 		"description",
 	}
 
 	if d.HasChanges(updateCloudConnectionhasChanges...) {
-		// updateCloudConnection: update the Cloud Connection
-		var (
-			updateCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
-			updateCloudConnectionProduct = "cc"
-		)
-		updateCloudConnectionClient, err := conf.NewServiceClient(updateCloudConnectionProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating CloudConnection Client: %s", err)
-		}
-
 		updateCloudConnectionPath := updateCloudConnectionClient.Endpoint + updateCloudConnectionHttpUrl
 		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{domain_id}", conf.DomainID)
-		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{id}", d.Id())
+		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{id}", connectionId)
 
 		updateCloudConnectionOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -251,6 +252,19 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 			return diag.Errorf("error updating CloudConnection: %s", err)
 		}
 	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   connectionId,
+			ResourceType: "cc",
+			RegionId:     region,
+			ProjectId:    updateCloudConnectionClient.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceCloudConnectionRead(ctx, d, meta)
 }
 
