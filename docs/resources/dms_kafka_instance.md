@@ -192,11 +192,10 @@ The following arguments are supported:
 * `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable message dumping.
   Changing this creates a new instance resource.
 
-* `enable_auto_topic` - (Optional, Bool, ForceNew) Specifies whether to enable automatic topic creation. If automatic
+* `enable_auto_topic` - (Optional, Bool) Specifies whether to enable automatic topic creation. If automatic
   topic creation is enabled, a topic will be automatically created with 3 partitions and 3 replicas when a message is
   produced to or consumed from a topic that does not exist.
   The default value is false.
-  Changing this creates a new instance resource.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 

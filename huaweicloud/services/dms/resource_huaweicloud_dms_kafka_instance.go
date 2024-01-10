@@ -187,7 +187,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -1004,6 +1003,46 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	if d.HasChange("enable_auto_topic") {
+		enableAutoTopic := d.Get("enable_auto_topic").(bool)
+		autoTopicOpts := instances.AutoTopicOpts{
+			EnableAutoTopic: &enableAutoTopic,
+		}
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.UpdateAutoTopic(client, d.Id(), autoTopicOpts).Err
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			mErr = multierror.Append(mErr, fmt.Errorf("error enabling or disabling automatic topic: %s", err))
+		}
+
+		// The enabling or disabling automatic topic is done if the status of its related task is SUCCESS
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"CREATED"},
+			Target:       []string{"SUCCESS"},
+			Refresh:      autoTopicTaskRefreshFunc(client, d.Id(), "kafkaConfigModify"),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        1 * time.Second,
+			PollInterval: 5 * time.Second,
+		}
+
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			mErr = multierror.Append(mErr,
+				fmt.Errorf("error waiting for the automatic topic task of the instance (%s) to be done: %s", d.Id(), err))
+		}
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error while updating DMS Kafka instances, %s", mErr)
 	}
@@ -1116,7 +1155,7 @@ func doKafkaInstanceResize(ctx context.Context, d *schema.ResourceData, client *
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
+		Pending:      []string{"PENDING", "EXTENDING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      kafkaResizeStateRefresh(client, d, opts.OperType),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
@@ -1354,4 +1393,38 @@ func handleMultiOperationsError(err error) (bool, error) {
 		}
 	}
 	return false, err
+}
+
+func autoTopicTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		// getAutoTopicTask: query automatic topic task
+		getAutoTopicTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
+		getAutoTopicTaskPath := client.Endpoint + getAutoTopicTaskHttpUrl
+		getAutoTopicTaskPath = strings.ReplaceAll(getAutoTopicTaskPath, "{project_id}",
+			client.ProjectID)
+		getAutoTopicTaskPath = strings.ReplaceAll(getAutoTopicTaskPath, "{instance_id}", instanceID)
+
+		getAutoTopicTaskPathOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getAutoTopicTaskPathResp, err := client.Request("GET", getAutoTopicTaskPath,
+			&getAutoTopicTaskPathOpt)
+
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+
+		getAutoTopicTaskRespBody, err := utils.FlattenResponse(getAutoTopicTaskPathResp)
+		if err != nil {
+			return nil, "PARSE ERROR", err
+		}
+
+		task := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']|[0]", taskName), getAutoTopicTaskRespBody, nil)
+		if task == nil {
+			return nil, "NIL ERROR", fmt.Errorf("failed to find the task of the automatic topic")
+		}
+
+		status := utils.PathSearch("status", task, nil)
+		return task, fmt.Sprint(status), nil
+	}
 }
