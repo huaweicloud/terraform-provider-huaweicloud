@@ -70,6 +70,10 @@ type Port struct {
 	PortSecurityEnabled bool `json:"port_security_enabled"`
 	// Availability zone to which the port belongs.
 	ZoneId string `json:"zone_id"`
+	// Whether to enable efi
+	EnableEfi bool `json:"enable_efi"`
+	// The Shared bandwidth ID bound to IPv6
+	Ipv6BandwidthId string `json:"ipv6_bandwidth_id"`
 }
 
 // VifDetail is an Object specifying the VIF details.

@@ -87,3 +87,41 @@ func ExtractDependencies(r pagination.Page) (ListResp, error) {
 	err := r.(DependencyPage).Result.ExtractInto(&s)
 	return s, err
 }
+
+// DependencyVersion is an object struct that represents the dependency (with version info) detail.
+type DependencyVersion struct {
+	// Dependency ID.
+	ID string `json:"id"`
+	// Dependency owner.
+	Owner string `json:"owner"`
+	// URL of the dependency in the OBS console.
+	Link string `json:"link"`
+	// Runtime.
+	Runtime string `json:"runtime"`
+	// Unique ID of the dependency.
+	Etag string `json:"etag"`
+	// Size of the dependency.
+	Size int `json:"size"`
+	// Name of the dependency.
+	Name string `json:"name"`
+	// Description of the dependency.
+	Description string `json:"description"`
+	// File name of the dependency.
+	FileName string `json:"file_name"`
+	// Version of the dependency.
+	Version int `json:"version"`
+	// The ID of the dependency.
+	DepId string `json:"dep_id"`
+	// The last modified time.
+	LastModified int `json:"last_modified"`
+}
+
+type DependencyVersionPage struct {
+	pagination.SinglePageBase
+}
+
+func extractDependencieVersions(r pagination.Page) ([]DependencyVersion, error) {
+	var s []DependencyVersion
+	err := r.(DependencyVersionPage).Result.ExtractIntoSlicePtr(&s, "dependencies")
+	return s, err
+}

@@ -102,13 +102,13 @@ func Get(c *golangsdk.ServiceClient, portID string) (*Port, error) {
 // UpdateOpts is the structure required by the Update method to update the configuration of the specified network port.
 type UpdateOpts struct {
 	// Specifies the ID of the network to which the port belongs.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// Specifies the UUID of the security group.
-	SecurityGroups []string `json:"security_groups"`
+	SecurityGroups []string `json:"security_groups,omitempty"`
 	// Specifies a set of zero or more allowed address pairs.
-	AllowedAddressPairs []AddressPair `json:"allowed_address_pairs"`
+	AllowedAddressPairs []AddressPair `json:"allowed_address_pairs,omitempty"`
 	// Specifies the extended option (extended attribute) of DHCP.
-	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts"`
+	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts,omitempty"`
 }
 
 // Update is a method to update the existing network port.

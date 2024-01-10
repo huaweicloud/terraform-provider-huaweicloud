@@ -55,9 +55,31 @@ func ResourceListenerV3() *schema.Resource {
 			},
 
 			"protocol_port": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"protocol_port", "port_ranges"},
+			},
+
+			"port_ranges": {
+				Type:     schema.TypeSet,
+				Optional: true,
 				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"start_port": {
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+						"end_port": {
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
 			},
 
 			"loadbalancer_id": {
@@ -190,6 +212,12 @@ func ResourceListenerV3() *schema.Resource {
 				Optional: true,
 			},
 
+			"gzip_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"tags": common.TagsSchema(),
 		},
 	}
@@ -220,13 +248,17 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		DefaultTlsContainerRef: d.Get("server_certificate").(string),
 		CAContainerRef:         d.Get("ca_certificate").(string),
 		TlsCiphersPolicy:       d.Get("tls_ciphers_policy").(string),
+		PortRanges:             buildPortRanges(d.Get("port_ranges").(*schema.Set).List()),
 		SniContainerRefs:       sniContainerRefs,
 		Http2Enable:            &http2Enable,
 		EnhanceL7policy:        &enhanceL7policy,
 		ProtectionStatus:       d.Get("protection_status").(string),
 		ProtectionReason:       d.Get("protection_reason").(string),
 	}
-
+	if v, ok := d.GetOk("gzip_enable"); ok {
+		gzipEnable := v.(bool)
+		createOpts.GzipEnable = &gzipEnable
+	}
 	if v, ok := d.GetOk("idle_timeout"); ok {
 		idleTimeout := v.(int)
 		createOpts.KeepaliveTimeout = &idleTimeout
@@ -340,7 +372,17 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("advanced_forwarding_enabled", listener.EnhanceL7policy),
 		d.Set("protection_status", listener.ProtectionStatus),
 		d.Set("protection_reason", listener.ProtectionReason),
+		d.Set("gzip_enable", listener.GzipEnable),
 	)
+
+	var portRanges []map[string]interface{}
+	for _, v := range listener.PortRanges {
+		portRanges = append(portRanges, map[string]interface{}{
+			"start_port": v.StartPort,
+			"end_port":   v.EndPort,
+		})
+	}
+	mErr = multierror.Append(mErr, d.Set("port_ranges", portRanges))
 
 	if listener.IpGroup != (listeners.IpGroup{}) {
 		mErr = multierror.Append(mErr,
@@ -379,7 +421,7 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	updateListenerChanges := []string{"name", "description", "ca_certificate", "default_pool_id", "idle_timeout",
 		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "forward_eip",
 		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
-		"http2_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason"}
+		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason"}
 	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
 		if err != nil {
@@ -468,6 +510,10 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("http2_enable") {
 		http2 := d.Get("http2_enable").(bool)
 		updateOpts.Http2Enable = &http2
+	}
+	if d.HasChange("gzip_enable") {
+		gzipEnable := d.Get("gzip_enable").(bool)
+		updateOpts.GzipEnable = &gzipEnable
 	}
 	if d.HasChange("advanced_forwarding_enabled") {
 		enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
@@ -583,4 +629,20 @@ func resourceELBV3ListenerRefreshFunc(elbClient *golangsdk.ServiceClient, id str
 		// The listener resource has no Status attribute, so a successful Get is the best we can do
 		return listener, "ACTIVE", nil
 	}
+}
+
+func buildPortRanges(rawPortRanges []interface{}) []listeners.PortRange {
+	if len(rawPortRanges) == 0 {
+		return nil
+	}
+	portRanges := make([]listeners.PortRange, 0)
+	for _, rawPortRange := range rawPortRanges {
+		if portRange, ok := rawPortRange.(map[string]interface{}); ok {
+			portRanges = append(portRanges, listeners.PortRange{
+				StartPort: portRange["start_port"].(int),
+				EndPort:   portRange["end_port"].(int),
+			})
+		}
+	}
+	return portRanges
 }
