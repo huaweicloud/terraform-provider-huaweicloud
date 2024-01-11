@@ -147,8 +147,7 @@ The following arguments are supported:
 * `notification_end_time` - (Optional, String, ForceNew) Specifies the alarm notification stop time, for
   example: **22:10**. Changing this creates a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the alarm rule. Changing
-  this creates a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the alarm rule.
 
 -> **Note** If alarm_action_enabled is set to true, either alarm_actions or ok_actions cannot be empty. If alarm_actions
 and ok_actions coexist, their corresponding notification_list must be of the **same value**.
