@@ -84,6 +84,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `version` - (Required, String, ForceNew) The cluster version.
+  [For details](https://support.huaweicloud.com/intl/en-us/versioning-dws/dws_12_0000.html).
   Changing this parameter will create a new resource.
 
 * `volume` - (Required, List, ForceNew) The information about the volume.
