@@ -110,6 +110,7 @@ resource "huaweicloud_fgs_trigger" "test" {
 variable "function_urn" {}
 variable "kafka_instance_id" {}
 variable "kafka_topic_id" {}
+variable "user_password" {}
 
 resource "huaweicloud_fgs_trigger" "test" {
   function_urn = var.function_urn
@@ -118,7 +119,7 @@ resource "huaweicloud_fgs_trigger" "test" {
   kafka {
     instance_id = var.kafka_instance_id
     user_name   = "user"
-    password    = "passWord@123"     
+    password    = var.user_password     
     batch_size  = 100
 
     topic_ids = [

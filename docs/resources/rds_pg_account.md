@@ -10,11 +10,12 @@ Manages RDS PostgreSQL account resource within HuaweiCloud.
 
 ```hcl
 variable "instance_id" {}
+variable "account_password" {}
 
 resource "huaweicloud_rds_pg_account" "test" {
   instance_id = var.instance_id
   name        = "test_account_name"
-  password    = "Test@12345678"
+  password    = var.account_password
 }
 ```
 

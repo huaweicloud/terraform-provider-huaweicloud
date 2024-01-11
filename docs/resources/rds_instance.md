@@ -15,6 +15,7 @@ variable "vpc_id" {}
 variable "subnet_id" {}
 variable "secgroup_id" {}
 variable "availability_zone" {}
+variable "postgreSQL_password" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name              = "terraform_test_rds_instance"
@@ -27,7 +28,7 @@ resource "huaweicloud_rds_instance" "instance" {
   db {
     type     = "PostgreSQL"
     version  = "12"
-    password = "Huangwei!120521"
+    password = var.postgreSQL_password
   }
 
   volume {
@@ -50,6 +51,7 @@ variable "subnet_id" {}
 variable "secgroup_id" {}
 variable "availability_zone1" {}
 variable "availability_zone2" {}
+variable "postgreSQL_password" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name                = "terraform_test_rds_instance"
@@ -65,7 +67,7 @@ resource "huaweicloud_rds_instance" "instance" {
   db {
     type     = "PostgreSQL"
     version  = "12"
-    password = "Huangwei!120521"
+    password = var.postgreSQL_password
   }
   volume {
     type = "ULTRAHIGH"
@@ -86,6 +88,7 @@ variable "subnet_id" {}
 variable "secgroup_id" {}
 variable "availability_zone" {}
 variable "kms_id" {}
+variable "postgreSQL_password" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name              = "terraform_test_rds_instance"
@@ -98,7 +101,7 @@ resource "huaweicloud_rds_instance" "instance" {
   db {
     type     = "PostgreSQL"
     version  = "12"
-    password = "Huangwei!120521"
+    password = var.postgreSQL_password
   }
   volume {
     type               = "ULTRAHIGH"
@@ -119,6 +122,7 @@ variable "vpc_id" {}
 variable "subnet_id" {}
 variable "secgroup_id" {}
 variable "availability_zone" {}
+variable "postgreSQL_password" {}
 
 resource "huaweicloud_rds_instance" "instance" {
   name              = "terraform_test_rds_instance"
@@ -131,7 +135,7 @@ resource "huaweicloud_rds_instance" "instance" {
   db {
     type     = "PostgreSQL"
     version  = "12"
-    password = "Huangwei!120521"
+    password = var.postgreSQL_password
   }
 
   volume {

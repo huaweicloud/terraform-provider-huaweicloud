@@ -9,6 +9,8 @@ Manages a DDM schema resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "rds_password" {}
+
 resource "huaweicloud_vpc" "test" {
   name = "test_vpc"
   cidr = "192.168.0.0/24"
@@ -63,7 +65,7 @@ resource "huaweicloud_rds_instance" "test" {
   ]
 
   db {
-    password = "test_password_123"
+    password = var.rds_password
     type     = "MySQL"
     version  = "5.7"
     port     = 3306
@@ -84,7 +86,7 @@ resource "huaweicloud_ddm_schema" "test"{
   data_nodes {
     id             = huaweicloud_rds_instance.test.id
     admin_user     = "root"
-    admin_password = "test_password_123"
+    admin_password = var.rds_password
   }
 }
 ```

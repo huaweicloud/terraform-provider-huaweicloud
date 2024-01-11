@@ -50,6 +50,7 @@ variable "engine_conn_addr" {}
 variable "microservice_id" {}
 variable "region_name" {}
 variable "az_name" {}
+variable "admin_pass" {}
 
 resource "huaweicloud_cse_microservice_instance" "test" {
   connect_address = var.engine_conn_addr
@@ -77,7 +78,7 @@ resource "huaweicloud_cse_microservice_instance" "test" {
   }
 
   admin_user = "root"
-  admin_pass = "Huawei!123"
+  admin_pass = var.admin_pass
 }
 ```
 

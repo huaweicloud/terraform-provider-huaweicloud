@@ -13,6 +13,7 @@ Manages an IAM user role assignment within HuaweiCloud IAM.
 
 ```hcl
 variable "enterprise_project_id" {}
+variable "user_1_password" {}
 
 data "huaweicloud_identity_role" "test" {
   display_name = "ECS FullAccess"
@@ -21,7 +22,7 @@ data "huaweicloud_identity_role" "test" {
 resource "huaweicloud_identity_user" "test" {
   name        = "user_1"
   description = "A user"
-  password    = "password123!"
+  password    = var.user_1_password
 }
 
 resource "huaweicloud_identity_user_role_assignment" "test" {

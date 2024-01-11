@@ -10,11 +10,12 @@ Manages RDS Mysql account resource within HuaweiCloud.
 
 ```hcl
 variable "instance_id" {}
+variable "account_password" {}
 
 resource "huaweicloud_rds_mysql_account" "test" {
   instance_id = var.instance_id
   name        = "test"
-  password    = "Test@12345678"
+  password    = var.account_password
 }
 ```
 

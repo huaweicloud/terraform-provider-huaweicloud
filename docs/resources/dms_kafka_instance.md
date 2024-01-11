@@ -14,6 +14,8 @@ Manage DMS Kafka instance resources within HuaweiCloud.
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
+variable "access_password" {}
+variable "manager_password" {}
 
 variable "availability_zones" {
   default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
@@ -48,10 +50,10 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   broker_num         = 3
 
   access_user = "user"
-  password    = "Kafka_%^&_Test"
+  password    = var.access_password
 
   manager_user     = "kafka_manager"
-  manager_password = "Kafka_Test^&*("
+  manager_password = var.manager_password
 }
 ```
 
