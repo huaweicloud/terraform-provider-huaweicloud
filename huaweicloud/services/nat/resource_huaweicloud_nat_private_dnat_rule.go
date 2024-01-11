@@ -96,6 +96,11 @@ func ResourcePrivateDnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the DNAT rule.",
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the enterprise project to which the private DNAT rule belongs.",
+			},
 		},
 	}
 }
@@ -151,6 +156,7 @@ func resourcePrivateDnatRuleRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("backend_type", resp.Type),
 		d.Set("created_at", resp.CreatedAt),
 		d.Set("updated_at", resp.UpdatedAt),
+		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 	)
 
 	// Parse the internal service port
