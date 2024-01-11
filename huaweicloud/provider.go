@@ -559,6 +559,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_l7rules":           elb.DataSourceElbL7rules(),
 			"huaweicloud_elb_l7policies":        elb.DataSourceElbL7policies(),
 			"huaweicloud_elb_security_policies": elb.DataSourceElbSecurityPolicies(),
+			"huaweicloud_elb_monitors":          elb.DataSourceElbMonitors(),
 
 			"huaweicloud_nat_gateway":             nat.DataSourcePublicGateway(),
 			"huaweicloud_nat_gateways":            nat.DataSourcePublicGateways(),
