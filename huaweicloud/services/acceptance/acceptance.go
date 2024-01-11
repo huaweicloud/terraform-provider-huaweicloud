@@ -123,6 +123,7 @@ var (
 	HW_WORKSPACE_INTERNET_ACCESS_PORT = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
 
 	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
+	HW_FGS_TEMPLATE_ID        = os.Getenv("HW_FGS_TEMPLATE_ID")
 
 	HW_KMS_ENVIRONMENT    = os.Getenv("HW_KMS_ENVIRONMENT")
 	HW_KMS_HSM_CLUSTER_ID = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
@@ -446,6 +447,13 @@ func TestAccPreCheckMrsBootstrapScript(t *testing.T) {
 func TestAccPreCheckFgsTrigger(t *testing.T) {
 	if HW_FGS_TRIGGER_LTS_AGENCY == "" {
 		t.Skip("HW_FGS_TRIGGER_LTS_AGENCY must be set for FGS trigger acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckFgsTemplateId(t *testing.T) {
+	if HW_FGS_TEMPLATE_ID == "" {
+		t.Skip("HW_FGS_TEMPLATE_ID must be set for FGS acceptance tests")
 	}
 }
 
