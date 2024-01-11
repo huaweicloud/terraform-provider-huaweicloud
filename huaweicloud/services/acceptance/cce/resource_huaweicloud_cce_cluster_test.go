@@ -141,10 +141,20 @@ func TestAccCluster_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckClusterDestroy,
 		Steps: []resource.TestStep{
+			{
+				Config: testAccCluster_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
 			{
 				Config: testAccCluster_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
