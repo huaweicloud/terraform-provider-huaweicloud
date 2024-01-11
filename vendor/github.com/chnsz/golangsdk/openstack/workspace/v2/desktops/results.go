@@ -318,3 +318,23 @@ type UpdateNetworkResp struct {
 	// Error message.
 	ErrorMsg string `json:"error_msg"`
 }
+
+// ActionResp is the structure that represents the response of the DoAction method.
+type ActionResp struct {
+	// Job ID.
+	JobId string `json:"job_id"`
+	// The desktops list of the operation failed.
+	FailedOperationList []FailedOperationList `json:"failed_operation_list"`
+}
+
+// FailedOperationList is the structure that represents the desktops list of the operation failed.
+type FailedOperationList struct {
+	// Desktop ID.
+	DesktopId string `json:"desktop_id"`
+	// Desktop name.
+	DesktopName string `json:"desktop_name"`
+	// Error Code.
+	ErrorCode string `json:"error_code"`
+	// Error message.
+	ErrorMsg string `json:"error_msg"`
+}

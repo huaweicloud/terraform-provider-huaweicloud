@@ -378,3 +378,33 @@ func UpdateNetwork(c *golangsdk.ServiceClient, opts UpdateNetworkOpts) (*UpdateN
 	})
 	return &r, err
 }
+
+// ActionOpts is the structure required by the DoAction method operate the power state of the desktop.
+type ActionOpts struct {
+	// ID list of workspace desktops that wants to operate.
+	DesktopIds []string `json:"desktop_ids" required:"true"`
+	// The power type of the desktop. The valid values are as follows:
+	// + os-start
+	// + os-stop
+	// + reboot
+	// + os-hibernate
+	OpType string `json:"op_type" requires:"true"`
+	// The operation type. The valid values are as follows:
+	// + SOFT: Normal operation.
+	// + HARD: Forced operation.
+	Type string `json:"type,omitempty"`
+}
+
+// DoAction is a method that used to operate the power state of the desktop.
+func DoAction(client *golangsdk.ServiceClient, opts ActionOpts) (*ActionResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r ActionResp
+	_, err = client.Post(actionURL(client), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}

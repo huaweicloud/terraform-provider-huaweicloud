@@ -133,6 +133,7 @@ type CloudServer struct {
 	VolumeAttached      []VolumeAttached     `json:"os-extended-volumes:volumes_attached"`
 	OsSchedulerHints    OsSchedulerHints     `json:"os:scheduler_hints"`
 	Fault               Fault                `json:"fault"`
+	AutoTerminateTime   string               `json:"auto_terminate_time"`
 }
 
 // ECS fault causes

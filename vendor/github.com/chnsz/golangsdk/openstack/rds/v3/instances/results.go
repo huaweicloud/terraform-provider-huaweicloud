@@ -38,6 +38,10 @@ type ModifyReplicationModeResult struct {
 	commonResult
 }
 
+type ModifyCollationResult struct {
+	commonResult
+}
+
 type ModifySwitchStrategyResult struct {
 	commonResult
 }
@@ -209,6 +213,16 @@ func (r ModifyReplicationModeResult) Extract() (*ReplicationMode, error) {
 	return &response, err
 }
 
+type Collation struct {
+	JobId string `json:"job_id"`
+}
+
+func (r ModifyCollationResult) Extract() (*Collation, error) {
+	var response Collation
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
 type ListRdsResult struct {
 	commonResult
 }
@@ -241,6 +255,7 @@ type RdsInstanceResponse struct {
 	BackupStrategy      BackupStrategy     `json:"backup_strategy"`
 	ChargeInfo          ChargeResponse     `json:"charge_info"`
 	MaintenanceWindow   string             `json:"maintenance_window"`
+	Collation           string             `json:"collation"`
 	Nodes               []Nodes            `json:"nodes"`
 	RelatedInstance     []RelatedInstance  `json:"related_instance"`
 	DiskEncryptionId    string             `json:"disk_encryption_id"`
