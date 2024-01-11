@@ -4,7 +4,7 @@ subcategory: "Document Database Service (DDS)"
 
 # huaweicloud_dds_database_role
 
-Manages a database role resource within HuaweiCloud.
+Manages a DDS database role resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -49,7 +49,7 @@ The following arguments are supported:
   -> After a DDS instances is created, the default database is **admin**.
 
 * `roles` - (Optional, List, ForceNew) Specifies the list of roles owned by the current role.
-  The [object](#dds_database_owned_roles) structure is documented below.
+  The [roles](#dds_database_owned_roles) structure is documented below.
   Changing this parameter will create a new role.
 
 <a name="dds_database_owned_roles"></a>
@@ -66,19 +66,19 @@ The `roles` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID in format of `<instance_id>/<db_name>/<name>`.
 
 * `privileges` - The list of database privileges owned by the current role.
-  The [object](#dds_database_privileges) structure is documented below.
+  The [privileges](#dds_database_privileges) structure is documented below.
 
 * `inherited_privileges` - The list of database privileges owned by the current role, includes all privileges
-  inherited by owned roles. The [object](#dds_database_privileges) structure is documented below.
+  inherited by owned roles. The [inherited_privileges](#dds_database_privileges) structure is documented below.
 
 <a name="dds_database_privileges"></a>
 The `privileges` and `inherited_privileges` block supports:
 
 * `resources` - The details of the resource to which the privilege belongs.
-  The [object](#dds_database_resources) structure is documented below.
+  The [resources](#dds_database_resources) structure is documented below.
 
 * `actions` - The operation permission list.
 
@@ -93,14 +93,13 @@ The `resources` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 2 minutes.
-* `delete` - Default is 2 minutes.
+* `create` - Default is 60 minutes.
+* `delete` - Default is 60 minutes.
 
 ## Import
 
-Database roles can be imported using their `id` (combination of `instance_id`, `db_name` and `name`), separated by a
-slash (/), e.g.
+DDS database roles can be imported using the `instance_id`, `db_name` and `name` separated by slashes (/), e.g.
 
-```
-terraform import huaweicloud_dds_database_role.test &ltinstance_id&gt/&ltdb_name&gt/&ltname&gt
+```bash
+terraform import huaweicloud_dds_database_role.test <instance_id>/<db_name>/<name>
 ```
