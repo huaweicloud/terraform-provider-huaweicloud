@@ -46,6 +46,8 @@ resource "huaweicloud_workspace_desktop" "test" {
   user_email         = "terraform@example.com"
   user_group         = "administrators"
   email_notification = true
+  power_action       = "os-stop"
+  power_action_type  = "SOFT"
 
   root_volume {
     type = "SAS"
@@ -122,6 +124,17 @@ The following arguments are supported:
   operations.  
   Defaults to **false**. Changing this will create a new resource.
 
+* `power_action` - (Optional, String) Specifies the power action to be done for the desktop.
+  The valid values are **os-start**, **os-stop**, **reboot**, **os-hibernate**.
+
+  -> The `power_action` is a one-time action.
+     Currently , only Windows is supported for `os-hibernate`.
+  
+* `power_action_type` - (Optional, String) Specifies the power action mechanisms for the desktop.
+  The valid values are as follows:
+  + **SOFT**: Normal operation.
+  + **HARD**: Forced operation.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs of the desktop.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the desktop.
@@ -189,7 +202,7 @@ $ terraform import huaweicloud_workspace_desktop.test 339d2539-e945-4090-a08d-c1
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `nic` and `user_email`.
+API response. The missing attributes include: `user_email`, `power_action` and `power_action_type`.
 It is generally recommended running `terraform plan` after importing a desktop.
 You can then decide if changes should be applied to the desktop, or the resource definition should be updated to
 align with the desktop. Also you can ignore changes as below.
@@ -200,7 +213,7 @@ resource "huaweicloud_workspace_desktop" "test" {
 
   lifecycle {
     ignore_changes = [
-      user_email, nic,
+      user_email, power_action, power_action_type,
     ]
   }
 }

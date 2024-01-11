@@ -37,3 +37,7 @@ func bindEipURL(c *golangsdk.ServiceClient, bindType string) string {
 func networkURL(c *golangsdk.ServiceClient, desktopId string) string {
 	return c.ServiceURL("desktops", desktopId, "networks")
 }
+
+func actionURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("desktops/action")
+}
