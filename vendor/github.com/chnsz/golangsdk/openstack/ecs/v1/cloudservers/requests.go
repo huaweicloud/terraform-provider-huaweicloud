@@ -52,6 +52,8 @@ type CreateOpts struct {
 	ServerTags []tags.ResourceTag `json:"server_tags,omitempty"`
 
 	Description string `json:"description,omitempty"`
+
+	AutoTerminateTime string `json:"auto_terminate_time,omitempty"`
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the
@@ -454,5 +456,14 @@ func UpdateMetadata(client *golangsdk.ServiceClient, id string, opts map[string]
 // DeleteMetadatItem will delete the key-value pair with the given key for the given server ID.
 func DeleteMetadatItem(client *golangsdk.ServiceClient, id, key string) (r DeleteMetadatItemResult) {
 	_, r.Err = client.Delete(metadatItemURL(client, id, key), nil)
+	return
+}
+
+// update auto terminate time for the given server ID.
+func UpdateAutoTerminateTime(client *golangsdk.ServiceClient, id, terminateTime string) (r UpdateResult) {
+	body := map[string]interface{}{
+		"auto_terminate_time": terminateTime,
+	}
+	_, r.Err = client.Post(updateAutoTerminateTimeURL(client, id), body, nil, &golangsdk.RequestOpts{OkCodes: []int{204}})
 	return
 }

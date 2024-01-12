@@ -50,6 +50,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "metadata.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "auto_terminate_time", "2025-10-10T11:11:00Z"),
 				),
 			},
 			{
@@ -67,6 +68,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 					resource.TestCheckResourceAttr(resourceName, "network.0.source_dest_check", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_terminate_time", ""),
 				),
 			},
 			{
@@ -416,6 +418,7 @@ resource "huaweicloud_compute_instance" "test" {
   stop_before_destroy = true
   agency_name         = "test111"
   agent_list          = "hss"
+  auto_terminate_time = "2025-10-10T11:11:00Z"
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id
@@ -457,6 +460,7 @@ resource "huaweicloud_compute_instance" "test" {
   stop_before_destroy = true
   agency_name         = "test222"
   agent_list          = "ces"
+  auto_terminate_time = ""
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id
