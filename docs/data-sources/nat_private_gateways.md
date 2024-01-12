@@ -50,6 +50,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the private NAT
   gateways belong.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate the private NAT gateways.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -93,3 +95,5 @@ The `gateways` block supports:
 * `subnet_id` - The ID of the subnet to which the private NAT gateway belongs.
 
 * `enterprise_project_id` - The ID of the enterprise project to which the private NAT gateway belongs.
+
+* `tags` - The key/value pairs to associate with the private NAT gateway.

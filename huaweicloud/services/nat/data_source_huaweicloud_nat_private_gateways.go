@@ -69,6 +69,12 @@ func DataSourcePrivateGateways() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the private NAT gateways belong.",
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The key/value pairs to associate the private NAT gateways.",
+			},
 			"gateways": {
 				Type:        schema.TypeList,
 				Elem:        gatewayGatewaysSchema(),
@@ -132,6 +138,12 @@ func gatewayGatewaysSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The ID of the enterprise project to which the private NAT gateway belongs.",
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The key/value pairs to associate the private NAT gateway.",
+			},
 		},
 	}
 	return &sc
@@ -183,25 +195,26 @@ func dataSourcePrivateGatewaysRead(_ context.Context, d *schema.ResourceData, me
 	}
 	d.SetId(uuid)
 
+	curJson := utils.PathSearch("gateways", listGatewaysRespBody, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("gateways", filterListGatewaysResponseBodyGateways(flattenListGatewaysResponseBodyGateways(listGatewaysRespBody), d)),
+		d.Set("gateways", flattenListGatewaysResponseBodyGateways(filterListGatewaysResponseByTags(curArray, d))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenListGatewaysResponseBodyGateways(resp interface{}) []interface{} {
+func flattenListGatewaysResponseBodyGateways(resp []interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
 
-	curJson := utils.PathSearch("gateways", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
 		rst = append(rst, map[string]interface{}{
 			"id":                    utils.PathSearch("id", v, nil),
 			"name":                  utils.PathSearch("name", v, nil),
@@ -213,16 +226,23 @@ func flattenListGatewaysResponseBodyGateways(resp interface{}) []interface{} {
 			"vpc_id":                utils.PathSearch("downlink_vpcs[0].vpc_id", v, nil),
 			"subnet_id":             utils.PathSearch("downlink_vpcs[0].virsubnet_id", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
+			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 		})
 	}
 	return rst
 }
 
-func filterListGatewaysResponseBodyGateways(all []interface{}, d *schema.ResourceData) []interface{} {
+func filterListGatewaysResponseByTags(all []interface{}, d *schema.ResourceData) []interface{} {
 	rst := make([]interface{}, 0, len(all))
+	tagFilter := d.Get("tags").(map[string]interface{})
+	if len(tagFilter) == 0 {
+		return all
+	}
+
 	for _, v := range all {
-		if param, ok := d.GetOk("gateway_id"); ok &&
-			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("id", v, nil)) {
+		tags := utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil))
+		tagmap := utils.ExpandToStringMap(tags)
+		if !utils.HasMapContains(tagmap, tagFilter) {
 			continue
 		}
 
@@ -235,6 +255,9 @@ func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) st
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
 
+	if v, ok := d.GetOk("gateway_id"); ok {
+		res = fmt.Sprintf("%s&id=%v", res, v)
+	}
 	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, v)
 	}

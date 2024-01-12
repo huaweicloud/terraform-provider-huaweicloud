@@ -39,6 +39,9 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 
 		byEps   = "data.huaweicloud_nat_private_gateways.filter_by_eps"
 		dcByEps = acceptance.InitDataSourceCheck(byEps)
+
+		byTags   = "data.huaweicloud_nat_private_gateways.filter_by_tags"
+		dcByTags = acceptance.InitDataSourceCheck(byTags)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -71,6 +74,9 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 
 					dcByEps.CheckResourceExists(),
 					resource.TestCheckOutput("eps_filter_is_useful", "true"),
+
+					dcByTags.CheckResourceExists(),
+					resource.TestCheckOutput("tags_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -240,6 +246,24 @@ locals {
 
 output "eps_filter_is_useful" {
   value = alltrue(local.eps_filter_result) && length(local.eps_filter_result) > 0
+}
+
+locals {
+  tags = data.huaweicloud_nat_private_gateways.test.gateways[0].tags
+}
+
+data "huaweicloud_nat_private_gateways" "filter_by_tags" {
+  tags = local.tags
+}
+
+locals {
+  tags_filter_result = [
+    for v in data.huaweicloud_nat_private_gateways.filter_by_tags.gateways[*].tags : v == local.tags
+  ]
+}
+
+output "tags_filter_is_useful" {
+  value = alltrue(local.tags_filter_result) && length(local.tags_filter_result) > 0
 }
 `, baseConfig, name)
 }
