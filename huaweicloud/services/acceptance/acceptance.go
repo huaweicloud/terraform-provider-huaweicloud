@@ -260,6 +260,8 @@ var (
 
 	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
 	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
+
+	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1184,5 +1186,12 @@ func TestAccPreCheckDataArtsArchitectureReviewer(t *testing.T) {
 func TestAccPreCheckAKAndSK(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckECSLaunchTemplateID(t *testing.T) {
+	if HW_ECS_LAUNCH_TEMPLATE_ID == "" {
+		t.Skip("HW_ECS_LAUNCH_TEMPLATE_ID must be set for the acceptance test")
 	}
 }

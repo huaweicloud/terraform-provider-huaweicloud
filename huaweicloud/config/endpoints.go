@@ -157,6 +157,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "IMS",
 	},
+	"cms": {
+		Name:             "cms",
+		Version:          "v2",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "CMS",
+	},
 
 	// ******* catalog for Container *******
 	"ccev1": {
