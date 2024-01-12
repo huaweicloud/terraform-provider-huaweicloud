@@ -177,6 +177,19 @@ func ResourceDesktop() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"power_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"power_action_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -327,6 +340,14 @@ func resourceDesktopCreate(ctx context.Context, d *schema.ResourceData, meta int
 	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 
 	d.SetId(desktopId)
+
+	if action, ok := d.GetOk("power_action"); ok {
+		if action == "os-start" {
+			log.Printf("[WARN] the power action (os-start) is invalid after desktop created")
+		} else if err = updateDesktopPowerAction(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceDesktopRead(ctx, d, meta)
 }
 
@@ -430,6 +451,7 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("name", resp.Name),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
+		d.Set("status", resp.Status),
 	)
 
 	if imageId, ok := resp.Metadata["metering.image_id"]; ok {
@@ -607,6 +629,80 @@ func updateDesktopNetwork(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
+func waitForWorkspaceStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      desktopStatusRefreshFunc(client, d),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+		// The final status of both startup and restart is "ACTIVE". the parameter only applies to "REBOOT" action.
+		ContinuousTargetOccurence: 2,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		desktopId := d.Id()
+		resp, err := desktops.Get(client, desktopId)
+		if err != nil {
+			return resp, "", err
+		}
+
+		// In statusMap, key represents the power action of the desktop, and value represents the status after the desktop operation is completed.
+		// Use statusMap to make a mapping relationship between the power action of the desktop and the final status of the desktop.
+		statusMap := map[string]string{
+			"os-start":     "ACTIVE",
+			"os-stop":      "SHUTOFF",
+			"reboot":       "ACTIVE",
+			"os-hibernate": "SHUTOFF",
+		}
+
+		powerAction := d.Get("power_action").(string)
+		// TaskStatus variable is always an empty string when the desktop power action is completed.
+		// If the desktop power action changes from one state to another, taskStatus is an empty string for a long time,
+		// whether a desktop action is completed cannot be determined only by taskStatus.
+		if resp.TaskStatus == "" && resp.Status == statusMap[powerAction] {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
+	}
+}
+
+func updateDesktopPowerAction(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	desktopId := d.Id()
+	action := d.Get("power_action").(string)
+	opts := desktops.ActionOpts{
+		DesktopIds: []string{desktopId},
+		OpType:     action,
+		Type:       d.Get("power_action_type").(string),
+	}
+
+	resp, err := desktops.DoAction(client, opts)
+	if err != nil {
+		return fmt.Errorf("error updating the power action of the Workspace desktop (%s): %s", desktopId, err)
+	}
+
+	if resp.JobId == "" {
+		err = waitForWorkspaceStatusCompleted(ctx, client, d)
+		if err != nil {
+			return fmt.Errorf("error waiting for power action (%s) for desktop (%s) failed: %s", action, desktopId, err)
+		}
+		return nil
+	}
+
+	// Job ID is returned when cold migration is started.
+	_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+	}
+	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+	return nil
+}
+
 func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -671,12 +767,19 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
+	if d.HasChanges("power_action") {
+		err = updateDesktopPowerAction(ctx, client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDesktopRead(ctx, d, meta)
 }
 
 func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient, desktopId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"ACTIVE", "DELETING"},
+		Pending:      []string{"ACTIVE", "DELETING", "SHUTOFF"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshDesktopStatusFunc(client, desktopId),
 		Timeout:      timeout,

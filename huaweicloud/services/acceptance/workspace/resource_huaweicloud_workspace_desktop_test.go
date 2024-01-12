@@ -93,9 +93,10 @@ func TestAccDesktop_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"delete_user",
 					"image_type",
-					"nic",
 					"user_email",
 					"vpc_id",
+					"power_action",
+					"power_action_type",
 				},
 			},
 		},
@@ -149,6 +150,91 @@ func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "user_group", "administrators"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
 				),
+			},
+		},
+	})
+}
+
+func TestAccDesktop_powerAction(t *testing.T) {
+	var (
+		desktop      desktops.Desktop
+		resourceName = "huaweicloud_workspace_desktop.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&desktop,
+		getDesktopFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccdesktop_powerAction(rName, "os-stop", "SOFT"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "os-stop"),
+					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				Config: testAccdesktop_powerAction(rName, "os-start", "SOFT"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "os-start"),
+					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccdesktop_powerAction(rName, "reboot", "SOFT"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "reboot"),
+					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccdesktop_powerAction(rName, "reboot", "HARD"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "reboot"),
+					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccdesktop_powerAction(rName, "os-hibernate", "HARD"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "os-hibernate"),
+					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"delete_user",
+					"image_type",
+					"user_email",
+					"vpc_id",
+					"power_action",
+					"power_action_type",
+				},
 			},
 		},
 	})
@@ -378,4 +464,44 @@ resource "huaweicloud_workspace_desktop" "test" {
   delete_user = true
 }
 `, testAccDesktop_base(rName), rName, epsId)
+}
+
+func testAccdesktop_powerAction(rName string, powerAction string, powerActionType string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_desktop" "test" {
+  flavor_id         = "workspace.x86.ultimate.large2"
+  image_type        = "market"
+  image_id          = try(data.huaweicloud_images_images.test.images[0].id)
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  security_groups   = [
+    huaweicloud_workspace_service.test.desktop_security_group.0.id,
+    huaweicloud_networking_secgroup.test.id,
+  ]
+  
+  nic {
+    network_id = huaweicloud_vpc_subnet.test.id
+  }
+  
+  name               = "%[2]s"
+  user_name          = "user-%[2]s"
+  user_email         = "terraform@example.com"
+  user_group         = "administrators"
+  delete_user        = true
+  power_action       = "%[3]s"
+  power_action_type  = "%[4]s"
+
+  root_volume {
+    type = "SAS"
+    size = 80
+  }
+  
+  data_volume {
+    type = "SAS"
+    size = 50
+  }
+}
+`, testAccDesktop_base(rName), rName, powerAction, powerActionType)
 }
