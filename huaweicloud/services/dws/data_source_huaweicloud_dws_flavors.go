@@ -25,6 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: DWS GET /v2/{project_id}/node-types
 func DataSourceDwsFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDwsFlavorsRead,
@@ -79,6 +80,11 @@ func dwsFlavorsFlavorsSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The type of datastore.`,
+			},
+			"datastore_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The version of datastore.`,
 			},
 			"vcpus": {
 				Type:        schema.TypeInt,
@@ -204,6 +210,7 @@ func flattenListNodeTypesFlavors(resp interface{}) []interface{} {
 		rst = append(rst, map[string]interface{}{
 			"flavor_id":            utils.PathSearch("spec_name", v, nil),
 			"datastore_type":       utils.PathSearch("datastore_type", v, nil),
+			"datastore_version":    flattenFlavorsDatastoreVersion(v),
 			"vcpus":                utils.PathSearch("vcpus", v, nil),
 			"memory":               utils.PathSearch("ram", v, nil),
 			"volumetype":           utils.PathSearch("detail[?type=='LOCAL_DISK' || type=='SSD' ].type|[0]", v, nil),
@@ -213,6 +220,16 @@ func flattenListNodeTypesFlavors(resp interface{}) []interface{} {
 		})
 	}
 	return rst
+}
+
+func flattenFlavorsDatastoreVersion(resp interface{}) string {
+	version, err := jmespath.Search("datastores[0].version", resp)
+	if err != nil {
+		log.Printf("[WARN] error parsing version from response: %s", err)
+		return ""
+	}
+
+	return version.(string)
 }
 
 func flattenFlavorsElasticVolumeSpecs(resp interface{}) []interface{} {

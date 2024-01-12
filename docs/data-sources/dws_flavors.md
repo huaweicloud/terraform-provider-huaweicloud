@@ -56,6 +56,8 @@ The `Flavors` block supports:
        in single-node or cluster mode.
     - **stream**: built-in time series operators; up to 40:1 compression ratio; applicable to IoT services.
 
+* `datastore_version` - The version of datastore.
+
 * `vcpus` - The vcpus of the dws node flavor.
 
 * `memory` - The ram of the dws node flavor in GB.
