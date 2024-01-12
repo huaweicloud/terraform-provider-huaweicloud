@@ -50,6 +50,10 @@ const (
 	statusDisabled = "DISABLED"
 )
 
+// API: FunctionGraph POST /v2/{project_id}/fgs/triggers/{function_urn}
+// API: FunctionGraph GET /v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}
+// API: FunctionGraph PUT /v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}
+// API: FunctionGraph DELETE /v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}
 func ResourceFunctionGraphTrigger() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFunctionGraphTriggerCreate,

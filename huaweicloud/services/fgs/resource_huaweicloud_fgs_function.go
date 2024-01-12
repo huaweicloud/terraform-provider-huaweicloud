@@ -24,6 +24,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: FunctionGraph POST /v2/{project_id}/fgs/functions
+// API: FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/config
+// API: FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/versions
+// API: FunctionGraph POST /v2/{project_id}/{resource_type}/{resource_id}/tags/create
+// API: FunctionGraph DELETE /v2/{project_id}/{resource_type}/{resource_id}/tags/delete
+// API: FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/code
+// API: FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config
+// API: FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance
+// API: FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/aliases
+// API: FunctionGraph POST /v2/{project_id}/fgs/functions/{function_urn}/aliases
+// API: FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/aliases/{alias_name}
+// API: FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}
 func ResourceFgsFunctionV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFgsFunctionCreate,
