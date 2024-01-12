@@ -816,6 +816,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	d.Set("created_at", server.Created.Format(time.RFC3339))
 	d.Set("updated_at", server.Updated.Format(time.RFC3339))
 	d.Set("auto_terminate_time", server.AutoTerminateTime)
+
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
 	d.Set("flavor_name", flavorInfo.Name)
