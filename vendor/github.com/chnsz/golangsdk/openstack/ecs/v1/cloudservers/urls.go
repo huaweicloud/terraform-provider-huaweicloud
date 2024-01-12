@@ -49,3 +49,7 @@ func metadataURL(client *golangsdk.ServiceClient, serverID string) string {
 func metadatItemURL(client *golangsdk.ServiceClient, serverID, key string) string {
 	return client.ServiceURL("cloudservers", serverID, "metadata", key)
 }
+
+func updateAutoTerminateTimeURL(client *golangsdk.ServiceClient, serverID string) string {
+	return client.ServiceURL("cloudservers", serverID, "actions/update-auto-terminate-time")
+}

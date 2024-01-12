@@ -135,7 +135,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Optional:  true,
-				ForceNew:  true,
 				RequiredWith: []string{
 					"access_user",
 				},
@@ -1040,6 +1039,30 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		if err != nil {
 			mErr = multierror.Append(mErr,
 				fmt.Errorf("error waiting for the automatic topic task of the instance (%s) to be done: %s", d.Id(), err))
+		}
+	}
+
+	if d.HasChange("password") {
+		resetPasswordOpts := instances.ResetPasswordOpts{
+			NewPassword: d.Get("password").(string),
+		}
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.ResetPassword(client, d.Id(), resetPasswordOpts).Err
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			e := fmt.Errorf("error resetting password: %s", err)
+			mErr = multierror.Append(mErr, e)
 		}
 	}
 

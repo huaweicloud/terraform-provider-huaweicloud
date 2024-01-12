@@ -317,7 +317,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   name               = "%s"
   description        = "kafka test update"
   access_user        = "user"
-  password           = "Kafkatest@123"
+  password           = "Kafkatest@1234"
   vpc_id             = huaweicloud_vpc.test.id
   network_id         = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id

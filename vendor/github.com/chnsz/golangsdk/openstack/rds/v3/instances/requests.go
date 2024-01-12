@@ -680,3 +680,22 @@ func ModifySwitchStrategy(c *golangsdk.ServiceClient, opts ActionInstanceBuilder
 	_, r.Err = c.Put(updateURL(c, instanceId, "failover/strategy"), b, &r.Body, &golangsdk.RequestOpts{})
 	return
 }
+
+type ModifyCollationOpts struct {
+	Collation string `json:"collation" required:"true"`
+}
+
+func (opts ModifyCollationOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifyCollation is a method used to modify collation.
+func ModifyCollation(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r ModifyCollationResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(updateURL(c, instanceId, "collations"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
