@@ -15,6 +15,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -55,7 +56,6 @@ func ResourceResourceGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the enterprise project ID of the resource group.`,
 			},
 			"tags": {
@@ -304,6 +304,7 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
+	resourceGroupId := d.Id()
 	var (
 		updateResourceGroupHttpUrl  = "v2/{project_id}/resource-groups/{id}"
 		batchCreateResourcesHttpUrl = "v2/{project_id}/resource-groups/{id}/resources/batch-create"
@@ -325,7 +326,7 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 
 		updateResourceGroupPath := updateResourceGroupClient.Endpoint + updateResourceGroupHttpUrl
 		updateResourceGroupPath = strings.ReplaceAll(updateResourceGroupPath, "{project_id}", updateResourceGroupClient.ProjectID)
-		updateResourceGroupPath = strings.ReplaceAll(updateResourceGroupPath, "{id}", d.Id())
+		updateResourceGroupPath = strings.ReplaceAll(updateResourceGroupPath, "{id}", resourceGroupId)
 
 		updateResourceGroupOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -347,7 +348,7 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 		if len(oldResources.([]interface{})) > 0 {
 			batchDeleteResourcesHttpPath := updateResourceGroupClient.Endpoint + batchDeleteResourcesHttpUrl
 			batchDeleteResourcesHttpPath = strings.ReplaceAll(batchDeleteResourcesHttpPath, "{project_id}", updateResourceGroupClient.ProjectID)
-			batchDeleteResourcesHttpPath = strings.ReplaceAll(batchDeleteResourcesHttpPath, "{id}", d.Id())
+			batchDeleteResourcesHttpPath = strings.ReplaceAll(batchDeleteResourcesHttpPath, "{id}", resourceGroupId)
 
 			batchDeleteResourcesOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -365,7 +366,7 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 		if len(newResources.([]interface{})) > 0 {
 			batchCreateResourcesPath := updateResourceGroupClient.Endpoint + batchCreateResourcesHttpUrl
 			batchCreateResourcesPath = strings.ReplaceAll(batchCreateResourcesPath, "{project_id}", updateResourceGroupClient.ProjectID)
-			batchCreateResourcesPath = strings.ReplaceAll(batchCreateResourcesPath, "{id}", d.Id())
+			batchCreateResourcesPath = strings.ReplaceAll(batchCreateResourcesPath, "{id}", resourceGroupId)
 
 			batchCreateResourcesOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -380,6 +381,19 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 			}
 		}
 	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   resourceGroupId,
+			ResourceType: "CES-resourceGroup",
+			RegionId:     region,
+			ProjectId:    updateResourceGroupClient.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceResourceGroupRead(ctx, d, meta)
 }
 
