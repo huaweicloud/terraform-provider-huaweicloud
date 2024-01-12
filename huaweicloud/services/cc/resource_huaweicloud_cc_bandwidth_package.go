@@ -17,6 +17,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -91,7 +92,6 @@ func ResourceBandwidthPackage() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `ID of the enterprise project that the bandwidth package belongs to.`,
 			},
 			"resource_id": {
@@ -261,6 +261,7 @@ func resourceBandwidthPackageUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating CC Client: %s", err)
 	}
 
+	bandWidthId := d.Id()
 	associateBandwidthPackageChanges := []string{
 		"resource_id",
 		"resource_type",
@@ -270,12 +271,12 @@ func resourceBandwidthPackageUpdate(ctx context.Context, d *schema.ResourceData,
 		idOld, idNew := d.GetChange("resource_id")
 		typeOld, typeNew := d.GetChange("resource_type")
 
-		err = disassociateBandwidthPackage(client, cfg.DomainID, d.Id(), idOld.(string), typeOld.(string))
+		err = disassociateBandwidthPackage(client, cfg.DomainID, bandWidthId, idOld.(string), typeOld.(string))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		err = associateBandwidthPackage(client, cfg.DomainID, d.Id(), idNew.(string), typeNew.(string))
+		err = associateBandwidthPackage(client, cfg.DomainID, bandWidthId, idNew.(string), typeNew.(string))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -288,7 +289,7 @@ func resourceBandwidthPackageUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChanges(updateBandwidthPackageChanges...) {
-		err = updateBandwidthPackage(client, cfg.DomainID, d.Id(), buildUpdateBandwidthPackageBodyParams(d))
+		err = updateBandwidthPackage(client, cfg.DomainID, bandWidthId, buildUpdateBandwidthPackageBodyParams(d))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -306,8 +307,20 @@ func resourceBandwidthPackageUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChanges(updateBandwidthPackageChanges...) {
-		err = updateBandwidthPackage(client, cfg.DomainID, d.Id(), buildUpdateBandwidthPackageBillingModeParams(d))
+		err = updateBandwidthPackage(client, cfg.DomainID, bandWidthId, buildUpdateBandwidthPackageBillingModeParams(d))
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   bandWidthId,
+			ResourceType: "bwp",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

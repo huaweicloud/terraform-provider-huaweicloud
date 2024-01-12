@@ -70,11 +70,8 @@ The following arguments are supported:
 * `description` - (Optional, String) The description about the bandwidth package.  
   The description can contain a maximum of 85 characters.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) ID of the enterprise project that the bandwidth package
-  belongs to.
-  Value 0 indicates the default enterprise project.
-
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) ID of the enterprise project that the bandwidth package
+  belongs to. Value 0 indicates the default enterprise project.
 
 * `resource_id` - (Optional, String) ID of the resource that the bandwidth package is bound to.  
 
