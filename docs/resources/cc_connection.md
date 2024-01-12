@@ -31,10 +31,8 @@ The following arguments are supported:
 * `description` - (Optional, String) The Description about the cloud connection.  
   The description can contain a maximum of 255 characters.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cloud connection.  
+* `enterprise_project_id` - (Optional, String) The enterprise project id of the cloud connection.  
   Value 0 indicates the default enterprise project.
-
-  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

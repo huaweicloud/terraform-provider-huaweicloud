@@ -109,3 +109,60 @@ resource "huaweicloud_cc_connection" "test" {
 }
 `, name)
 }
+
+func TestAccCloudConnection_withEpsId(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_cc_connection.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCloudConnectionResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCloudConnection_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrSet(rName, "domain_id"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "used_scene", "vpc"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttrSet(rName, "network_instance_number"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_package_number"),
+					resource.TestCheckResourceAttrSet(rName, "inter_region_bandwidth_number"),
+				),
+			},
+			{
+				Config: testCloudConnection_updateWithEpsId(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(rName, "description", "demo_description"),
+				),
+			},
+		},
+	})
+}
+
+func testCloudConnection_updateWithEpsId(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cc_connection" "test" {
+  name                  = "%s"
+  enterprise_project_id = "%s"
+  description           = "demo_description"
+}
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
