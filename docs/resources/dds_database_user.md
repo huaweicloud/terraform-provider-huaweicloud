@@ -4,7 +4,7 @@ subcategory: "Document Database Service (DDS)"
 
 # huaweicloud_dds_database_user
 
-Manages a database user resource within HuaweiCloud.
+Manages a DDS database user resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -39,7 +39,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the DDS instance ID to which the user belongs.
   Changing this parameter will create a new user.
 
-* `name` - (Required, String, ForceNew) Specifies the user name.
+* `name` - (Required, String, ForceNew) Specifies the username.
   The name can contain `1` to `64` characters, only letters, digits, underscores (_), hyphens (-) and dots (.) are
   allowed. And cannot use reserved names: **drsFull** or **drsIncremental**.
   Changing this parameter will create a new user.
@@ -56,7 +56,7 @@ The following arguments are supported:
   -> After a DDS instances is created, the default database is **admin**.
 
 * `roles` - (Required, List, ForceNew) Specifies the list of roles owned by the current user.
-  The [object](#dds_database_owned_roles) structure is documented below. Changing this parameter will create a new user.
+  The [roles](#dds_database_owned_roles) structure is documented below. Changing this parameter will create a new user.
 
 <a name="dds_database_owned_roles"></a>
 The `roles` block supports:
@@ -72,19 +72,19 @@ The `roles` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID in format of `<instance_id>/<db_name>/<name>`.
 
 * `privileges` - The list of database privileges owned by the current user.
-  The [object](#dds_database_privileges) structure is documented below.
+  The [privileges](#dds_database_privileges) structure is documented below.
 
 * `inherited_privileges` - The list of database privileges owned by the current user, includes all privileges
-  inherited by owned roles. The [object](#dds_database_privileges) structure is documented below.
+  inherited by owned roles. The [inherited_privileges](#dds_database_privileges) structure is documented below.
 
 <a name="dds_database_privileges"></a>
 The `privileges` and `inherited_privileges` block supports:
 
 * `resources` - The details of the resource to which the privilege belongs.
-  The [object](#dds_database_resources) structure is documented below.
+  The [resources](#dds_database_resources) structure is documented below.
 
 * `actions` - The operation permission list.
 
@@ -99,25 +99,24 @@ The `resources` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 2 minutes.
-* `update` - Default is 2 minutes.
-* `delete` - Default is 2 minutes.
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
+* `delete` - Default is 60 minutes.
 
 ## Import
 
-Database users can be imported using their `id` (combination of `instance_id`, `db_name` and `name`), separated by a
-slash (/), e.g.
+DDS database user can be imported using the `instance_id`, `db_name` and `name` separated by slashes (/), e.g.
 
-```
-terraform import huaweicloud_dds_database_user.test &ltinstance_id&gt/&ltdb_name&gt/&ltname&gt
+```bash
+terraform import huaweicloud_dds_database_user.test <instance_id>/<db_name>/<name>
 ```
 
-Due to security reason, the imported state may not be identical to your resource definition (`password` parameter).
-It is generally recommended running `terraform plan` after importing a user resource.
-You can then decide if changes should be applied to the user, or the resource definition should be updated to align with
-the user. Also you can ignore changes as below.
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from
+the API response. The missing attributes include: `password`. It is generally recommended running `terraform plan` after
+importing a DDS database user. You can then decide if changes should be applied to the DDS database user, or the resource
+definition should be updated to align with the DDS database user. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dds_database_user" "test" {
   ...
 
