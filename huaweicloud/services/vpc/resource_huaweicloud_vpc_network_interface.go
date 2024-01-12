@@ -2,7 +2,6 @@ package vpc
 
 import (
 	"context"
-	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -63,7 +62,6 @@ func ResourceNetworkInterface() *schema.Resource {
 			"allowed_addresses": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"dhcp_lease_time": {
@@ -285,8 +283,9 @@ func resourceNetworkInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 	if d.HasChange("allowed_addresses") {
 		allowedAddrPairs := buildAllowedAddrPairs(d)
-		if allowedAddrPairs != nil {
-			opts.AllowedAddressPairs = allowedAddrPairs
+		opts.AllowedAddressPairs = allowedAddrPairs
+		if allowedAddrPairs == nil {
+			opts.AllowedAddressPairs = make([]ports.AddressPair, 0)
 		}
 	}
 	if d.HasChange("dhcp_lease_time") {
@@ -295,7 +294,7 @@ func resourceNetworkInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 			opts.ExtraDhcpOpts = extraDhcpOpts
 		}
 	}
-	log.Printf("[DEBUG] update VPC network interface options: %#v", opts)
+
 	_, err = ports.Update(client, d.Id(), opts)
 	if err != nil {
 		return diag.Errorf("error updating VPC network interface: %s", err)

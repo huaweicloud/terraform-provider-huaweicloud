@@ -104,11 +104,11 @@ type UpdateOpts struct {
 	// Specifies the name of the port.
 	Name string `json:"name"`
 	// Specifies an array of one or more security group IDs.
-	SecurityGroups []string `json:"security_groups,omitempty"`
+	SecurityGroups []string `json:"security_groups"`
 	// Specifies a set of zero or more allowed address pairs.
-	AllowedAddressPairs []AddressPair `json:"allowed_address_pairs,omitempty"`
+	AllowedAddressPairs []AddressPair `json:"allowed_address_pairs"`
 	// Specifies the extended option (extended attribute) of DHCP.
-	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts,omitempty"`
+	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts"`
 }
 
 // Update is a method to update the existing network port.
