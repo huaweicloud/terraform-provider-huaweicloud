@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// API: DEW POST /v1.0/{project_id}/kms/create-datakey
 func DataSourceKmsDataKeyV1() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceKmsDataKeyV1Read,

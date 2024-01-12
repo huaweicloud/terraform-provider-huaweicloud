@@ -14,6 +14,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// API: DEW GET /v1/{project_id}/secrets/{secret_name}/versions
+// API: DEW GET /v1/{project_id}/secrets/{secret_name}/versions/{version_id}
 func DataSourceDewCsmsSecret() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDewCsmsSecretRead,

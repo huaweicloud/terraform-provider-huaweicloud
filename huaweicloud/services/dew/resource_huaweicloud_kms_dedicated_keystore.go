@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// API: DEW POST /v1.0/{project_id}/keystores
+// API: DEW GET /v1.0/{project_id}/keystores/{keystore_id}
+// API: DEW DELETE /v1.0/{project_id}/keystores/{keystore_id}
 func ResourceKmsDedicatedKeystore() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceKmsDedicatedKeystoreCreate,
