@@ -322,3 +322,31 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 90 minutes.
 * `delete` - Default is 30 minutes.
+
+## Import
+
+The BCS instance can be imported using `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_bcs_instance.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `delete_storage`, `eip_enable`, `enterprise_project_id`, `fabric_version`,
+`orderer_node_num`, `org_disk_size`, `password` and `volume_type`.
+It is generally recommended running `terraform plan` after importing a instance.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to
+align with the instance. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_bcs_instance" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      delete_storage, eip_enable, enterprise_project_id, fabric_version, orderer_node_num, org_disk_size, password, volume_type,
+    ]
+  }
+}
+```
