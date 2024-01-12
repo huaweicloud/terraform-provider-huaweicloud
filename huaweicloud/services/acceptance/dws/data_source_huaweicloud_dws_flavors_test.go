@@ -24,6 +24,7 @@ func TestAccDwsFlavorsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.flavor_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.volumetype"),
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.size"),
+					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.datastore_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.availability_zones.#"),
 					resource.TestCheckResourceAttr(resourceName, "flavors.0.vcpus", "8"),
 				),
