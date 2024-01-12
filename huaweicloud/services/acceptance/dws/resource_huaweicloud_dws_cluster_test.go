@@ -56,7 +56,7 @@ func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 	return getDwsClusterRespBody, nil
 }
 
-func TestAccResourceDWS_basicV1(t *testing.T) {
+func TestAccResourceCluster_basicV1(t *testing.T) {
 	var obj interface{}
 
 	resourceName := "huaweicloud_dws_cluster.test"
@@ -137,7 +137,7 @@ resource "huaweicloud_dws_cluster" "test" {
 `, baseNetwork, rName, numberOfNode, password, publicIpBindType, tag)
 }
 
-func TestAccResourceDWS_basicV2(t *testing.T) {
+func TestAccResourceCluster_basicV2(t *testing.T) {
 	var obj interface{}
 
 	resourceName := "huaweicloud_dws_cluster.test"
@@ -162,8 +162,8 @@ func TestAccResourceDWS_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "version", "8.2.0.103"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.capacity", "100"),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
 			},
 			{
@@ -174,8 +174,8 @@ func TestAccResourceDWS_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "6"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "cat"),
-					resource.TestCheckResourceAttr(resourceName, "version", "8.2.0.103"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.capacity", "150"),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
 			},
 			{
@@ -196,6 +196,12 @@ func testAccDwsCluster_basicV2(rName string, numberOfNode int, publicIpBindType,
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_dws_flavors" "test" {
+  vcpus = 4
+  memory = 32
+  datastore_type = "dws"
+}
+
 resource "huaweicloud_dws_cluster" "test" {
   name              = "%s"
   node_type         = "dwsk2.xlarge"
@@ -206,7 +212,7 @@ resource "huaweicloud_dws_cluster" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   user_name         = "test_cluster_admin"
   user_pwd          = "%s"
-  version           = "8.2.0.103"
+  version           = data.huaweicloud_dws_flavors.test.flavors[0].datastore_version
   number_of_cn      = 3
 
   public_ip {
