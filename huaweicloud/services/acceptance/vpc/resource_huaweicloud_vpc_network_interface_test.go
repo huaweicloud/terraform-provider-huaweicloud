@@ -44,14 +44,15 @@ func TestAccVpcNetworkInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_lease_time", "2h"),
+					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.0", "192.168.1.5"),
 				),
 			},
 			{
 				Config: testAccNetworkInterface_update(rName + "-update"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", ""),
-					resource.TestCheckResourceAttr(resourceName, "dhcp_lease_time", "2h"),
-					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.0", "192.168.1.5"),
+					resource.TestCheckResourceAttr(resourceName, "allowed_addresses.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
 				),
 			},
@@ -86,6 +87,8 @@ func testAccNetworkInterface_basic(rName string) string {
 resource "huaweicloud_vpc_network_interface" "test" {
   name      = "%s"
   subnet_id = huaweicloud_vpc_subnet.test.id
+  allowed_addresses  = ["192.168.1.5"]
+  dhcp_lease_time    = "2h"
 }
 `, testAccNetwork_base(rName), rName)
 }
@@ -99,8 +102,6 @@ func testAccNetworkInterface_update(rName string) string {
 resource "huaweicloud_vpc_network_interface" "test" {
   subnet_id          = huaweicloud_vpc_subnet.test.id
   security_group_ids = [huaweicloud_networking_secgroup.secgroup_1.id]
-  allowed_addresses  = ["192.168.1.5"]
-  dhcp_lease_time    = "2h"
 }
 `, testAccNetwork_base(rName), testAccSecGroup_basic(rName))
 }
