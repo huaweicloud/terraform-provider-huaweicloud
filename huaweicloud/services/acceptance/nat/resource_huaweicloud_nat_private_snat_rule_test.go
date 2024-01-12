@@ -55,6 +55,8 @@ func TestAccPrivateSnatRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttrPair(rName, "subnet_id",
 						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrSet(rName, "transit_ip_address"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -172,6 +174,8 @@ func TestAccPrivateSnatRule_cidr(t *testing.T) {
 						"huaweicloud_nat_private_transit_ip.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "cidr",
 						"huaweicloud_vpc_subnet.test", "cidr"),
+					resource.TestCheckResourceAttrSet(rName, "transit_ip_address"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{

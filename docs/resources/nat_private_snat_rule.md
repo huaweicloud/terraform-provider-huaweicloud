@@ -71,6 +71,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The latest update time of the SNAT rule.
 
+* `transit_ip_address` - The address of the transit IP.
+
+* `enterprise_project_id` - The ID of the enterprise project to which the private SNAT rule belongs.
+
 ## Import
 
 SNAT rules can be imported using their `id`, e.g.
