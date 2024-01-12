@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
@@ -21,6 +19,81 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
+
+// API: DDS POST /v3/{project_id}/instances/{instance_id}/db-role
+// API: DDS GET /v3/{project_id}/instances
+// API: DDS GET /v3/{project_id}/instances/{instance_id}/db-roles
+// API: DDS DELETE /v3/{project_id}/instances/{instance_id}/db-role
+func ResourceDatabaseRole() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceDatabaseRoleCreate,
+		ReadContext:   resourceDatabaseRoleRead,
+		DeleteContext: resourceDatabaseRoleDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(60 * time.Minute),
+		},
+
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceDatabaseRoleImportState,
+		},
+
+		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"db_name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"roles": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"db_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+			"privileges": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     privilegeSchemaResource(),
+			},
+			"inherited_privileges": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     privilegeSchemaResource(),
+			},
+		},
+	}
+}
 
 func privilegeSchemaResource() *schema.Resource {
 	return &schema.Resource{
@@ -45,92 +118,6 @@ func privilegeSchemaResource() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-		},
-	}
-}
-
-func ResourceDatabaseRole() *schema.Resource {
-	return &schema.Resource{
-		CreateContext: resourceDatabaseRoleCreate,
-		ReadContext:   resourceDatabaseRoleRead,
-		DeleteContext: resourceDatabaseRoleDelete,
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(2 * time.Minute),
-			Delete: schema.DefaultTimeout(2 * time.Minute),
-		},
-
-		Importer: &schema.ResourceImporter{
-			StateContext: resourceDatabaseRoleImportState,
-		},
-
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"instance_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\w-.]*$`),
-						"The name can only contain letters, digits, underscores (_), hyphens (-) and dots (.)."),
-					validation.StringLenBetween(1, 64),
-				),
-			},
-			"db_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^\w*$`),
-						"The name can only contain letters, digits and underscores (_)."),
-					validation.StringLenBetween(1, 64),
-				),
-			},
-			"roles": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"db_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^\w*$`),
-									"The name can only contain letters, digits and underscores (_)."),
-								validation.StringLenBetween(1, 64),
-							),
-						},
-					},
-				},
-			},
-			"privileges": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     privilegeSchemaResource(),
-			},
-			"inherited_privileges": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     privilegeSchemaResource(),
 			},
 		},
 	}
@@ -179,23 +166,6 @@ func resourceDatabaseRoleCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	instanceId := d.Get("instance_id").(string)
-	config.MutexKV.Lock(instanceId)
-	defer config.MutexKV.Unlock(instanceId)
-
-	// Before creating database role, we need to ensure that the database is not currently performing operations.
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"ACTIVE"},
-		Refresh:      instanceActionsRefreshFunc(client, instanceId),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        1 * time.Second,
-		PollInterval: 5 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for the action of DDS instance to complete: %s", err)
-	}
-
 	dbName := d.Get("db_name").(string)
 	roleName := d.Get("name").(string)
 	opt := roles.CreateOpts{
@@ -203,7 +173,21 @@ func resourceDatabaseRoleCreate(ctx context.Context, d *schema.ResourceData, met
 		Name:   roleName,
 		Roles:  buildDatabaseRoles(d.Get("roles").([]interface{})),
 	}
-	err = roles.Create(client, instanceId, opt)
+	retryFunc := func() (interface{}, bool, error) {
+		err = roles.Create(client, instanceId, opt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceActionsRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		WaitPending:  []string{"PENDING"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
 	if err != nil {
 		return diag.Errorf("error creating database role: %v", err)
 	}
@@ -242,12 +226,6 @@ func flattenDatabasePrivilegeResource(roleResource roles.Resource) []map[string]
 }
 
 func flattenDatabasePrivileges(privileges []roles.Privilege) (result []map[string]interface{}) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("[ERROR] Recover panic when flattening privileges structure: %#v", r)
-		}
-	}()
-
 	if len(privileges) < 1 {
 		return nil
 	}
@@ -325,34 +303,32 @@ func resourceDatabaseRoleDelete(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	instanceId := d.Get("instance_id").(string)
-	config.MutexKV.Lock(instanceId)
-	defer config.MutexKV.Unlock(instanceId)
-
-	// Before deleting database role, we need to ensure that the database is not currently performing operations.
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"ACTIVE"},
-		Refresh:      instanceActionsRefreshFunc(client, instanceId),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		Delay:        1 * time.Second,
-		PollInterval: 5 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("error waiting for the action of DDS instance to complete: %s", err)
-	}
-
 	name := d.Get("name").(string)
 	dbName := d.Get("db_name").(string)
 	opts := roles.DeleteOpts{
 		DbName: dbName,
 		Name:   name,
 	}
-	err = roles.Delete(client, instanceId, opts)
+	retryFunc := func() (interface{}, bool, error) {
+		err = roles.Delete(client, instanceId, opts)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceActionsRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		WaitPending:  []string{"PENDING"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
 	if err != nil {
 		return diag.Errorf("error deleting database role (%s) from DDS instance (%s): %v", name, instanceId, err)
 	}
-	stateConf = &resource.StateChangeConf{
+
+	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"ACTIVE"},
 		Target:       []string{"DELETED"},
 		Refresh:      databaseRoleRefreshFunc(client, instanceId, dbName, name),
@@ -369,7 +345,7 @@ func resourceDatabaseRoleDelete(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceDatabaseRoleImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 3)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<db_name>/<name>")
 	}
