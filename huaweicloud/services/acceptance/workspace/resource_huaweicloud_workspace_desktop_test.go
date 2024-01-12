@@ -180,6 +180,7 @@ func TestAccDesktop_powerAction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-stop"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
 				),
 			},
 			{
@@ -189,6 +190,7 @@ func TestAccDesktop_powerAction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-start"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
@@ -198,6 +200,7 @@ func TestAccDesktop_powerAction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "reboot"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "SOFT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
@@ -207,6 +210,7 @@ func TestAccDesktop_powerAction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "reboot"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
@@ -216,6 +220,7 @@ func TestAccDesktop_powerAction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-hibernate"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
 				),
 			},
 			{

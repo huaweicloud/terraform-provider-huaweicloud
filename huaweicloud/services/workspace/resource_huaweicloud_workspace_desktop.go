@@ -186,6 +186,10 @@ func ResourceDesktop() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -447,6 +451,7 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("name", resp.Name),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
+		d.Set("status", resp.Status),
 	)
 
 	if imageId, ok := resp.Metadata["metering.image_id"]; ok {
@@ -647,7 +652,6 @@ func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.Resourc
 			return resp, "", err
 		}
 
-		taskStatus := resp.TaskStatus
 		// In statusMap, key represents the power action of the desktop, and value represents the status after the desktop operation is completed.
 		// Use statusMap to make a mapping relationship between the power action of the desktop and the final status of the desktop.
 		statusMap := map[string]string{
@@ -661,7 +665,7 @@ func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.Resourc
 		// TaskStatus variable is always an empty string when the desktop power action is completed.
 		// If the desktop power action changes from one state to another, taskStatus is an empty string for a long time,
 		// whether a desktop action is completed cannot be determined only by taskStatus.
-		if taskStatus == "" && resp.Status == statusMap[powerAction] {
+		if resp.TaskStatus == "" && resp.Status == statusMap[powerAction] {
 			return resp, "COMPLETED", nil
 		}
 		return resp, "PENDING", nil
