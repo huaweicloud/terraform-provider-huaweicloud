@@ -458,7 +458,10 @@ func ResourceComputeInstance() *schema.Resource {
 					"ON", "OFF", "REBOOT", "FORCE-OFF", "FORCE-REBOOT",
 				}, false),
 			},
-
+			"auto_terminate_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			// computed attributes
 			"volume_attached": {
 				Type:     schema.TypeList,
@@ -586,19 +589,20 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	createOpts := &cloudservers.CreateOpts{
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		ImageRef:         imageId,
-		FlavorRef:        flavorId,
-		KeyName:          d.Get("key_pair").(string),
-		VpcId:            vpcId,
-		SecurityGroups:   secGroupIDs,
-		AvailabilityZone: d.Get("availability_zone").(string),
-		RootVolume:       buildInstanceRootVolume(d),
-		DataVolumes:      buildInstanceDataVolumes(d),
-		Nics:             buildInstanceNicsRequest(d),
-		PublicIp:         buildInstancePublicIPRequest(d),
-		UserData:         []byte(d.Get("user_data").(string)),
+		Name:              d.Get("name").(string),
+		Description:       d.Get("description").(string),
+		ImageRef:          imageId,
+		FlavorRef:         flavorId,
+		KeyName:           d.Get("key_pair").(string),
+		VpcId:             vpcId,
+		SecurityGroups:    secGroupIDs,
+		AvailabilityZone:  d.Get("availability_zone").(string),
+		RootVolume:        buildInstanceRootVolume(d),
+		DataVolumes:       buildInstanceDataVolumes(d),
+		Nics:              buildInstanceNicsRequest(d),
+		PublicIp:          buildInstancePublicIPRequest(d),
+		UserData:          []byte(d.Get("user_data").(string)),
+		AutoTerminateTime: d.Get("auto_terminate_time").(string),
 	}
 
 	if tags, ok := d.GetOk("tags"); ok {
@@ -811,6 +815,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	d.Set("charging_mode", normalizeChargingMode(server.Metadata.ChargingMode))
 	d.Set("created_at", server.Created.Format(time.RFC3339))
 	d.Set("updated_at", server.Updated.Format(time.RFC3339))
+	d.Set("auto_terminate_time", server.AutoTerminateTime)
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
@@ -1194,6 +1199,13 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.HasChange("auto_terminate_time") {
+		terminateTime := d.Get("auto_terminate_time").(string)
+		err := cloudservers.UpdateAutoTerminateTime(ecsClient, serverID, terminateTime).ExtractErr()
+		if err != nil {
+			return diag.Errorf("error updating auto-terminate-time of server (%s): %s", serverID, err)
+		}
+	}
 	var diags diag.Diagnostics
 	if d.HasChanges("hostname") {
 		hostname := d.Get("hostname").(string)

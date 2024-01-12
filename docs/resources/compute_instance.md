@@ -369,6 +369,15 @@ The following arguments are supported:
 
   -> **NOTE:** The `power_action` is a one-time action.
 
+* `auto_terminate_time` - (Optional, String) Specifies the auto terminate time.
+  The value is in the format of "yyyy-MM-ddTHH:mm:ssZ" in UTC+0 and complies with ISO8601.
+  If the value of second (ss) is not "00", the system automatically sets to the current value of minute (mm).
+  The auto terminate time must be at least half an hour later than the current time.
+  The auto terminate time cannot be three years later than the current time.
+  For example, set the value to "2024-09-25T12:05:00Z".
+
+  -> **NOTE:** The `auto_terminate_time` is only support in **postpaid** charging mode.
+
 The `network` block supports:
 
 * `uuid` - (Required, String, ForceNew) Specifies the network UUID to attach to the instance.
