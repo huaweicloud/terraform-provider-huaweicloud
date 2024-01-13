@@ -128,7 +128,7 @@ In addition to all arguments above, the following attributes are exported:
 * `supported_features` - The supported features of the APIG dedicated instance.
 * `created_at` - Time when the dedicated instance is created, in RFC-3339 format.
 * `status` - Status of the dedicated instance.
-* `vpcep_service_address` -  The address (full name) of the VPC endpoint service, in the
+* `vpcep_service_address` - The address (full name) of the VPC endpoint service, in the
   "{region}.{vpcep_service_name}.{service_id}" format. If this parameter is not specified, the system automatically
   generates a name in the "{region}.apig.{service_id}" format.
 

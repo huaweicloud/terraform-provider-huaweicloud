@@ -67,7 +67,7 @@ The `endpoint_services` block supports:
 
 * `connection_count` - The number of VPC endpoints that are in the Creating or Accepted status.
 
-* `tcp_proxy` -  Whether the client information, such as IP address, port number and marker_id, is
+* `tcp_proxy` - Whether the client information, such as IP address, port number and marker_id, is
   transmitted to the server.
 
 * `description` - The description of the VPC endpoint service.

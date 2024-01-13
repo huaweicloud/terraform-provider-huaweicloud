@@ -87,7 +87,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `target_server` -  ID of the target server.
+* `target_server` - ID of the target server.
 
 ## Timeouts
 

@@ -96,7 +96,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 * `auto_stop_enabled` - Whether enabled the notebook instance to automatically stop.
-* `status` -  Notebook status. Valid values include: `INIT`, `CREATING`, `STARTING`, `STOPPING`, `DELETING`, `RUNNING`,
+* `status` - Notebook status. Valid values include: `INIT`, `CREATING`, `STARTING`, `STOPPING`, `DELETING`, `RUNNING`,
  `STOPPED`, `SNAPSHOTTING`, `CREATE_FAILED`, `START_FAILED`, `DELETE_FAILED`, `ERROR`, `DELETED`, `FROZEN`.
 * `image_name` - The image name.
 * `image_swr_path` - The image path in swr.

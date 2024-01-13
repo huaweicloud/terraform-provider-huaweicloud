@@ -211,7 +211,7 @@ is two digits, for example: 01:00. Changing this parameter will create a new res
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` -  The resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 
 * `created_at` - Create time. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ
 

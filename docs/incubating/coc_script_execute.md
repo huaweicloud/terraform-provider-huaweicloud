@@ -59,7 +59,7 @@ The `parameters` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` -  The resource ID.
+* `id` - The resource ID.
 * `script_name` - The script name.
 * `status` - The status of the script execution.
 * `created_at` - The start time of the script execution.

@@ -39,7 +39,7 @@ data "huaweicloud_kms_key" "key_1" {
   "2" indicates that the key is enabled. "3" indicates that the key is disabled. "4" indicates that the key is scheduled
   for deletion. Changing this gets a new key.
 
-* `domain_id` - (Optional, String)  - ID of a user domain for the key. Changing this gets a new key.
+* `domain_id` - (Optional, String) The ID of a user domain for the key. Changing this gets a new key.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the kms key.
 

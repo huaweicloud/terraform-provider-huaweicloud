@@ -48,7 +48,7 @@ The `servers` block supports:
 
 * `connected` - Whether the source server is properly connected to SMS.
 
-* `os_type` -  The OS type of the source server. The value can be **WINDOWS** and **LINUX**.
+* `os_type` - The OS type of the source server. The value can be **WINDOWS** and **LINUX**.
 
 * `os_version` - The OS version of the source server, for example, UBUNTU_20_4_64BIT.
 

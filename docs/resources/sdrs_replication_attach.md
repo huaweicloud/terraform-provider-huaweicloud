@@ -62,7 +62,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `status` -  The status of the SDRS protected instance.
+* `status` - The status of the SDRS protected instance.
 
 ## Timeouts
 

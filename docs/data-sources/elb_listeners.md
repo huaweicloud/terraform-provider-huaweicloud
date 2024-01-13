@@ -64,13 +64,13 @@ The `listeners` block supports:
 
 * `http2_enable` - Whether to use HTTP/2 if you want the clients to use HTTP/2 to communicate with the listener.
 
-* `forward_eip` -  Whether to transparently transmit the load balancer EIP to backend servers.
+* `forward_eip` - Whether to transparently transmit the load balancer EIP to backend servers.
 
 * `forward_port` - Whether to transparently transmit the listening port of the load balancer to backend servers.
 
 * `forward_request_port` - Whether to transparently transmit the source port of the client to backend servers.
 
-* `forward_host` -  Whether to rewrite the X-Forwarded-Host header.
+* `forward_host` - Whether to rewrite the X-Forwarded-Host header.
 
 * `sni_certificate` - The IDs of SNI certificates (server certificates with domain names) used by the listener.
 
@@ -84,7 +84,7 @@ The `listeners` block supports:
 
 * `request_timeout` - The timeout duration for waiting for a response from a client, in seconds.
 
-* `response_timeout` -  The timeout duration for waiting for a response from a backend server, in seconds.
+* `response_timeout` - The timeout duration for waiting for a response from a backend server, in seconds.
 
 * `loadbalancer_id` - The ID of the load balancer that the listener is added to.
 
