@@ -7,28 +7,76 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/jmespath/go-jmespath"
 
-	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+func getPrivateCAResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	computeClient, err := conf.NewServiceClient("ecs", state.Primary.Attributes["region"])
+	if err != nil {
+		return nil, fmt.Errorf("error creating compute client: %s", err)
+	}
+
+	listNicsHttpUrl := "v1/{project_id}/cloudservers/{server_id}/os-interface"
+	listNicsPath := computeClient.Endpoint + listNicsHttpUrl
+	listNicsPath = strings.ReplaceAll(listNicsPath, "{project_id}", computeClient.ProjectID)
+	listNicsPath = strings.ReplaceAll(listNicsPath, "{server_id}", state.Primary.Attributes["instance_id"])
+	listNicsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	listNicsResp, err := computeClient.Request("GET", listNicsPath, &listNicsOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving ECS NICs: %s", err)
+	}
+	listNicsRespBody, err := utils.FlattenResponse(listNicsResp)
+	if err != nil {
+		return nil, fmt.Errorf("error prasing ECS NICs: %s", err)
+	}
+
+	jsonPaths := fmt.Sprintf("interfaceAttachments[?port_id=='%s']|[0]", state.Primary.ID)
+	nic, err := jmespath.Search(jsonPaths, listNicsRespBody)
+	if err != nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return nic, nil
+}
+
 func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
-	var ai attachinterfaces.Interface
+	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_compute_interface_attach.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getPrivateCAResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckComputeInterfaceAttachDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInterfaceAttach_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInterfaceAttachExists(resourceName, &ai),
-					testAccCheckComputeInterfaceAttachIP(&ai, "192.168.0.199"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
+						"huaweicloud_networking_secgroup.test", "id"),
+				),
+			},
+			{
+				Config: testAccComputeInterfaceAttach_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
 						"huaweicloud_networking_secgroup.test", "id"),
@@ -38,98 +86,13 @@ func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testComputeInterfaceAttachImportState(resourceName),
 			},
 		},
 	})
 }
 
-func computeInterfaceAttachParseID(id string) (instanceID, portID string, err error) {
-	idParts := strings.Split(id, "/")
-	if len(idParts) < 2 {
-		err = fmt.Errorf("unable to parse the resource ID, must be <instance_id>/<port_id> format")
-		return
-	}
-
-	instanceID = idParts[0]
-	portID = idParts[1]
-	return
-}
-
-func testAccCheckComputeInterfaceAttachDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating compute client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_compute_interface_attach" {
-			continue
-		}
-
-		instanceId, portId, err := computeInterfaceAttachParseID(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		_, err = attachinterfaces.Get(computeClient, instanceId, portId).Extract()
-		if err == nil {
-			return fmt.Errorf("interface attachment still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckComputeInterfaceAttachExists(n string, ai *attachinterfaces.Interface) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		computeClient, err := cfg.ComputeV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating compute client: %s", err)
-		}
-
-		instanceId, portId, err := computeInterfaceAttachParseID(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		found, err := attachinterfaces.Get(computeClient, instanceId, portId).Extract()
-		if err != nil {
-			return err
-		}
-		if found.PortID != portId {
-			return fmt.Errorf("interface attachment not found")
-		}
-
-		*ai = *found
-
-		return nil
-	}
-}
-
-func testAccCheckComputeInterfaceAttachIP(
-	ai *attachinterfaces.Interface, ip string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		for _, i := range ai.FixedIPs {
-			if i.IPAddress == ip {
-				return nil
-			}
-		}
-		return fmt.Errorf("requested ip (%s) does not exist on port", ip)
-	}
-}
-
-func testAccComputeInterfaceAttach_basic(rName string) string {
+func testAccComputeInterfaceAttachBase(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -147,17 +110,6 @@ resource "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_networking_secgroup" "test" {
   name = "%[1]s"
-}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[1]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
 }
 
 data "huaweicloud_compute_flavors" "test" {
@@ -186,12 +138,47 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
+`, rName)
+}
+
+func testAccComputeInterfaceAttach_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_compute_interface_attach" "test" {
   instance_id        = huaweicloud_compute_instance.test.id
   network_id         = huaweicloud_vpc_subnet.test.id
-  fixed_ip           = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 0), 199)
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  source_dest_check  = false
+}
+`, testAccComputeInterfaceAttachBase(rName))
+}
+
+func testAccComputeInterfaceAttach_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_interface_attach" "test" {
+  instance_id        = huaweicloud_compute_instance.test.id
+  network_id         = huaweicloud_vpc_subnet.test.id
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
 }
-`, rName)
+`, testAccComputeInterfaceAttachBase(rName))
+}
+
+// testComputeInterfaceAttachImportState use to return an id with format <instance_id>/<port_id>
+func testComputeInterfaceAttachImportState(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
+		}
+
+		serverID := rs.Primary.Attributes["instance_id"]
+		if serverID == "" {
+			return "", fmt.Errorf("attribute `instance_id` of the resource (%s) not found", name)
+		}
+
+		return serverID + "/" + rs.Primary.ID, nil
+	}
 }
