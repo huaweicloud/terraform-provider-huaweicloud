@@ -42,19 +42,17 @@ func testDmsRabbitmqPlugins_basic(name string) string {
 %s
 
 data "huaweicloud_dms_rabbitmq_plugins" "test" {
-  depends_on  = [huaweicloud_dms_rabbitmq_plugin.test]
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
 }
 
 locals {
-  name    = huaweicloud_dms_rabbitmq_plugin.test.name
-  enable  = huaweicloud_dms_rabbitmq_plugin.test.enable
-  running = huaweicloud_dms_rabbitmq_plugin.test.running
-  version = huaweicloud_dms_rabbitmq_plugin.test.version
+  name    = data.huaweicloud_dms_rabbitmq_plugins.test.plugins[0].name
+  enable  = data.huaweicloud_dms_rabbitmq_plugins.test.plugins[0].enable
+  running = data.huaweicloud_dms_rabbitmq_plugins.test.plugins[0].running
+  version = data.huaweicloud_dms_rabbitmq_plugins.test.plugins[0].version
 }
 
 data "huaweicloud_dms_rabbitmq_plugins" "name_filter" {
-  depends_on  = [huaweicloud_dms_rabbitmq_plugin.test]
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   name        = local.name
 }
@@ -66,7 +64,6 @@ output "name_filter_is_useful" {
 }
 
 data "huaweicloud_dms_rabbitmq_plugins" "enable_filter" {
-  depends_on  = [huaweicloud_dms_rabbitmq_plugin.test]
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   enable      = local.enable
 }
@@ -78,7 +75,6 @@ output "enable_filter_is_useful" {
 }
 
 data "huaweicloud_dms_rabbitmq_plugins" "running_filter" {
-  depends_on  = [huaweicloud_dms_rabbitmq_plugin.test]
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   running     = local.running
 }
@@ -90,7 +86,6 @@ output "running_filter_is_useful" {
 }
 
 data "huaweicloud_dms_rabbitmq_plugins" "version_filter" {
-  depends_on  = [huaweicloud_dms_rabbitmq_plugin.test]
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   version     = local.version
 }
@@ -101,5 +96,5 @@ output "version_filter_is_useful" {
   ) 
 }
 
-`, testRabbitmqPlugin_basic(name))
+`, testAccDmsRabbitmqInstance_basic(name))
 }
