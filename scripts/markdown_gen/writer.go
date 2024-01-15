@@ -147,7 +147,7 @@ func WriteReadOnlyAttributeDescription(w io.Writer, att *schema.Schema) error {
 
 	desc := normalizeDescription(att.Description)
 	if desc != "" {
-		_, err = io.WriteString(w, fmt.Sprintf(" %s\n", desc))
+		_, err = io.WriteString(w, fmt.Sprintf("%s\n", desc))
 	} else {
 		_, err = io.WriteString(w, "<!-- please add the description of the attribute -->\n")
 	}

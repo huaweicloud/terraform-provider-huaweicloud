@@ -146,14 +146,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the instance status.
 
-* `type` -  Indicates the type of the read replica instance. The value can be **Single**, **Ha**, **Replica**,
+* `type` - Indicates the type of the read replica instance. The value can be **Single**, **Ha**, **Replica**,
   **Enterprise**.
 
-* `db/type` -  Indicates the DB engine. The value can be **MySQL**, **PostgreSQL**, **SQLServer**, **MariaDB**.
+* `db/type` - Indicates the DB engine. The value can be **MySQL**, **PostgreSQL**, **SQLServer**, **MariaDB**.
 
-* `db/version` -  Indicates the database version.
+* `db/version` - Indicates the database version.
 
-* `db/user_name` -  Indicates the default username of database.
+* `db/user_name` - Indicates the default username of database.
 
 * `volume/disk_encryption_id` - Indicates the key ID for disk encryption. It is same with the primary instance.
 

@@ -41,7 +41,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` -  The  data source ID.
+* `id` - The data source ID.
 
 * `connection_health_checks` - All resource connection health checks that match the filter parameters.
   The [connection_health_checks](#connection_health_checks) structure is documented below.
@@ -49,7 +49,7 @@ In addition to all arguments above, the following attributes are exported:
 <a name="connection_health_checks"></a>
 The `connection_health_checks` block supports:
 
-* `id` -  The ID of the connection health check.
+* `id` - The ID of the connection health check.
 
 * `status` - The status of the connection health check.
 

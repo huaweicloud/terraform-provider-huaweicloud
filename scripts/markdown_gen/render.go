@@ -143,7 +143,7 @@ Please add the followings if some attributes are missing when importing the reso
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: %[1]s{param1}%[1]s, %[1]s{param2}%[1]s, %[1]s{param3}%[1]s ...
+The missing attributes include: %[1]sparam1%[1]s, %[1]sparam2%[1]s, %[1]sparam3%[1]s ...
 It is generally recommended running %[1]sterraform plan%[1]s after importing the resource.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.

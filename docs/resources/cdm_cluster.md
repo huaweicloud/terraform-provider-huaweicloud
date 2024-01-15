@@ -80,7 +80,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` -  The resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 
 * `created` - Create time. The format is: `YYYY-MM-DDThh:mm:ss`.
 

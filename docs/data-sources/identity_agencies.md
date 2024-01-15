@@ -38,7 +38,7 @@ The `agencies` block contains:
 
 * `expired_at` - The expiration time of agency.
 
-* `created_at` -  The time when the agency was created.
+* `created_at` - The time when the agency was created.
 
 * `trust_domain_id` - The ID of delegated user domain.
 
