@@ -125,7 +125,7 @@ func resourceDatabaseUserCreate(ctx context.Context, d *schema.ResourceData, met
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     instanceActionsRefreshFunc(client, d.Id()),
+		WaitFunc:     instanceActionsRefreshFunc(client, instanceId),
 		WaitTarget:   []string{"ACTIVE"},
 		WaitPending:  []string{"PENDING"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
@@ -199,7 +199,7 @@ func resourceDatabaseUserUpdate(ctx context.Context, d *schema.ResourceData, met
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     instanceActionsRefreshFunc(client, d.Id()),
+		WaitFunc:     instanceActionsRefreshFunc(client, instanceId),
 		WaitTarget:   []string{"ACTIVE"},
 		WaitPending:  []string{"PENDING"},
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
@@ -254,7 +254,7 @@ func resourceDatabaseUserDelete(ctx context.Context, d *schema.ResourceData, met
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     instanceActionsRefreshFunc(client, d.Id()),
+		WaitFunc:     instanceActionsRefreshFunc(client, instanceId),
 		WaitTarget:   []string{"ACTIVE"},
 		WaitPending:  []string{"PENDING"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
