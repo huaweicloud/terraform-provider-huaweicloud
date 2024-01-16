@@ -103,7 +103,7 @@ func resourceChartCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	file, err := os.Open(d.Get("content").(string))
 	if err != nil {
-		diag.Errorf("error opening chart file: %s", err)
+		return diag.Errorf("error opening chart file: %s", err)
 	}
 	defer file.Close()
 
@@ -180,7 +180,7 @@ func resourceChartUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	file, err := os.Open(d.Get("content").(string))
 	if err != nil {
-		diag.Errorf("error opening chart file: %s", err)
+		return diag.Errorf("error opening chart file: %s", err)
 	}
 	defer file.Close()
 
