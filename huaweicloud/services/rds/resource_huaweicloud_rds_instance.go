@@ -241,7 +241,7 @@ func ResourceRdsInstance() *schema.Resource {
 			"collation": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 
 			"switch_strategy": {
@@ -558,6 +558,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	d.Set("security_group_id", instance.SecurityGroupId)
 	d.Set("flavor", instance.FlavorRef)
 	d.Set("time_zone", instance.TimeZone)
+	d.Set("collation", instance.Collation)
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
@@ -731,7 +732,12 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err = updateRdsInstanceReplicationMode(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
+
 	if err = updateRdsInstanceSwitchStrategy(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateRdsInstanceCollation(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1646,6 +1652,42 @@ func updateRdsInstanceSwitchStrategy(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil {
 		return fmt.Errorf("error modify RDS instance (%s) switch strategy: %s", instanceID, err)
+	}
+	return nil
+}
+
+func updateRdsInstanceCollation(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("collation") {
+		return nil
+	}
+
+	modifyCollationOpts := instances.ModifyCollationOpts{
+		Collation: d.Get("collation").(string),
+	}
+
+	log.Printf("[DEBUG] Modify RDS instance collation opts: %+v", modifyCollationOpts)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.ModifyCollation(client, modifyCollationOpts, instanceID).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) collation: %s", instanceID, err)
+	}
+	job := res.(*instances.Collation)
+
+	if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) update collation completed: %s", instanceID, err)
 	}
 	return nil
 }

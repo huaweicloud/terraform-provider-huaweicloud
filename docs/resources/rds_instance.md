@@ -216,8 +216,7 @@ The following arguments are supported:
 * `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID. Changing this parameter will create
   a new resource.
 
-* `collation` - (Optional, String, ForceNew) Specifies the Character Set, only available to Microsoft SQL Server DB instances.
-  Changing this parameter will create a new resource.
+* `collation` - (Optional, String) Specifies the Character Set, only available to Microsoft SQL Server DB instances.
 
 * `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone. For MySQL and PostgreSQL Chinese mainland site
   and international site use UTC by default. The value ranges from UTC-12:00 to UTC+12:00 at the full hour. For
