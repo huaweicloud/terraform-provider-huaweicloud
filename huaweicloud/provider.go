@@ -645,6 +645,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnets":            vpc.DataSourceVpcSubnets(),
 			"huaweicloud_vpc_subnet_ids":         vpc.DataSourceVpcSubnetIdsV1(),
 
+			"huaweicloud_vpcep_endpoints":           vpcep.DataSourceVPCEPEndpoints(),
 			"huaweicloud_vpcep_public_services":     vpcep.DataSourceVPCEPPublicServices(),
 			"huaweicloud_vpcep_services":            vpcep.DataSourceVPCEPServices(),
 			"huaweicloud_vpcep_service_connections": vpcep.DataSourceVPCEPServiceConnections(),
