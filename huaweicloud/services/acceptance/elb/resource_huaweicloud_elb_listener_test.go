@@ -50,7 +50,6 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "gzip_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 				),
 			},
@@ -65,7 +64,6 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "gzip_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
 					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 				),
@@ -204,7 +202,6 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = false
-  gzip_enable                 = true
 
   idle_timeout     = 62
   request_timeout  = 63
@@ -248,7 +245,6 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
-  gzip_enable                 = false
 
   idle_timeout     = 62
   request_timeout  = 63
