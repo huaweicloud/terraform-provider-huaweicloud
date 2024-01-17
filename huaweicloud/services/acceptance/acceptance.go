@@ -866,7 +866,8 @@ func TestAccPreCheckCceClusterId(t *testing.T) {
 func TestAccPreCheckCceChartPath(t *testing.T) {
 	// HW_CCE_CHART_PATH is the absolute path of the chart package
 	if HW_CCE_CHART_PATH == "" {
-		t.Skip("HW_CCE_CHART_PATH must be set for CCE chart acceptance tests")
+		t.Skip("HW_CCE_CHART_PATH must be set for CCE chart acceptance tests, " +
+			"the value is the absolute path of the chart package")
 	}
 }
 
