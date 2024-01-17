@@ -992,6 +992,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_fgs_async_invoke_configuration": fgs.ResourceAsyncInvokeConfiguration(),
 			"huaweicloud_fgs_dependency":                 fgs.ResourceFgsDependency(),
+			"huaweicloud_fgs_dependency_version":         fgs.ResourceDependencyVersion(),
 			"huaweicloud_fgs_function":                   fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_fgs_trigger":                    fgs.ResourceFunctionGraphTrigger(),
 

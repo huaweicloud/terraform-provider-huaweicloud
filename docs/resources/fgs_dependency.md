@@ -6,6 +6,9 @@ subcategory: "FunctionGraph"
 
 Manages a custom dependency package within HuaweiCloud FunctionGraph.
 
+~> This resource will be deprecated in a future version. Please use `huaweicloud_fgs_dependency_version` resource to
+replace it. For specific usage instructions, please refer to the corresponding document.
+
 ## Example Usage
 
 ### Create a custom dependency package using a OBS bucket path where the zip file is located

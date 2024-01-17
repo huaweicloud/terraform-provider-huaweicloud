@@ -571,3 +571,11 @@ func ConvertMemoryUnit(memory interface{}, diffLevel int) int {
 	}
 	return memoryInt * Power(1024, -diffLevel)
 }
+
+// IsUUID is a method used to determine whether a string is in UUID format.
+func IsUUID(uuid string) bool {
+	// Using regular expressions to match UUID formats, with or without underscores.
+	pattern := "[0-9a-fA-F]{8}(-?[0-9a-fA-F]{4}){3}-?[0-9a-fA-F]{12}"
+	match, _ := regexp.MatchString(pattern, uuid)
+	return match
+}
