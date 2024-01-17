@@ -33,6 +33,19 @@ const (
 	PublicBindTypeBindExisting = "bind_existing"
 )
 
+// API: DWS POST /v1.0/{project_id}/clusters
+// API: DWS GET /v1.0/{project_id}/clusters/{id}
+// API: DWS POST /v1.0/{project_id}/clusters/{id}/expand-instance-storage
+// API: DWS POST /v1.0/{project_id}/clusters/{id}/reset-password
+// API: DWS POST /v1.0/{project_id}/clusters/{id}/resize
+// API: DWS DELETE /v1.0/{project_id}/clusters/{id}
+// API: DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-create
+// API: DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-delete
+// API: DWS GET /v1.0/{project_id}/job/{job_id}
+// API: DWS POST /v2/{project_id}/clusters
+// API: DWS PUT /v2/{project_id}/clusters/{cluster_id}/logical-clusters/enable
+// API: DWS POST /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
+// API: DWS DELETE /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,
@@ -184,6 +197,11 @@ func ResourceDwsCluster() *schema.Resource {
 				Optional:    true,
 				Description: `Specified whether to enable logical cluster.`,
 			},
+			"elb_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the ELB load balancer.`,
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -236,6 +254,12 @@ func ResourceDwsCluster() *schema.Resource {
 				Elem:        clusterMaintainWindowSchema(),
 				Computed:    true,
 				Description: `Cluster maintenance window.`,
+			},
+			"elb": {
+				Type:        schema.TypeList,
+				Elem:        clusterElbSchema(),
+				Computed:    true,
+				Description: `The ELB information bound to the cluster.`,
 			},
 		},
 	}
@@ -340,6 +364,49 @@ func clusterMaintainWindowSchema() *schema.Resource {
 	return &sc
 }
 
+func clusterElbSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the ELB load balancer.`,
+			},
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the ELB load balancer.`,
+			},
+			"public_ip": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The public IP address of the ELB load balancer.`,
+			},
+			"private_ip": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The private IP address of the ELB load balancer.`,
+			},
+			"private_endpoint": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The private endpoint of the ELB load balancer.`,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of VPC to which the ELB load balancer belongs.`,
+			},
+			"private_ip_v6": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The IPv6 address of the ELB load balancer.`,
+			},
+		},
+	}
+	return &sc
+}
+
 func resourceDwsClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if _, ok := d.GetOk("version"); ok {
 		return resourceDwsClusterCreateV2(ctx, d, meta)
@@ -421,6 +488,15 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	// The cluster binding ELB load balaner.
+	if v, ok := d.GetOk("elb_id"); ok {
+		elbId := v.(string)
+		err := bindElb(ctx, d, createDwsClusterClient, elbId)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -479,6 +555,14 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	// The cluster binding ELB load balaner.
+	if v, ok := d.GetOk("elb_id"); ok {
+		elbId := v.(string)
+		err := bindElb(ctx, d, createDwsClusterClient, elbId)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -707,6 +791,7 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("recent_event", utils.PathSearch("cluster.recent_event", getDwsClusterRespBody, nil)),
 		d.Set("private_ip", utils.PathSearch("cluster.private_ip", getDwsClusterRespBody, nil)),
 		d.Set("maintain_window", flattenGetDwsClusterRespBodyMaintainWindow(getDwsClusterRespBody)),
+		d.Set("elb", flattenGetDwsClusterRespBodyElb(getDwsClusterRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -779,9 +864,36 @@ func flattenGetDwsClusterRespBodyMaintainWindow(resp interface{}) []interface{} 
 	return rst
 }
 
+func flattenGetDwsClusterRespBodyElb(resp interface{}) []interface{} {
+	var rst []interface{}
+	curJson, err := jmespath.Search("cluster.elb", resp)
+	if err != nil {
+		log.Printf("[WARN] error parsing elb object from response: %#v", err)
+		return rst
+	}
+
+	rst = []interface{}{
+		map[string]interface{}{
+			"name":             utils.PathSearch("name", curJson, nil),
+			"id":               utils.PathSearch("id", curJson, nil),
+			"public_ip":        utils.PathSearch("public_ip", curJson, nil),
+			"private_ip":       utils.PathSearch("private_ip", curJson, nil),
+			"private_endpoint": utils.PathSearch("private_endpoint", curJson, nil),
+			"vpc_id":           utils.PathSearch("vpc_id", curJson, nil),
+			"private_ip_v6":    utils.PathSearch("private_ip_v6", curJson, nil),
+		},
+	}
+
+	return rst
+}
+
 func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	clusterClient, clientErr := cfg.NewServiceClient("dws", region)
+	if clientErr != nil {
+		return diag.Errorf("error creating DWS client: %s", clientErr)
+	}
 
 	err := clusterWaitingForAvailable(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
@@ -796,15 +908,10 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		// expandInstanceStorage: expand instance storage
 		var (
 			expandInstanceStorageHttpUrl = "v1.0/{project_id}/clusters/{id}/expand-instance-storage"
-			expandInstanceStorageProduct = "dws"
 		)
-		expandInstanceStorageClient, err := cfg.NewServiceClient(expandInstanceStorageProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating DWS Client: %s", err)
-		}
 
-		expandInstanceStoragePath := expandInstanceStorageClient.Endpoint + expandInstanceStorageHttpUrl
-		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{project_id}", expandInstanceStorageClient.ProjectID)
+		expandInstanceStoragePath := clusterClient.Endpoint + expandInstanceStorageHttpUrl
+		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{project_id}", clusterClient.ProjectID)
 		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{id}", d.Id())
 
 		expandInstanceStorageOpt := golangsdk.RequestOpts{
@@ -818,7 +925,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		expandInstanceStorageOpt.JSONBody = utils.RemoveNil(buildExpandInstanceStorageBodyParams(d))
-		_, err = expandInstanceStorageClient.Request("POST", expandInstanceStoragePath, &expandInstanceStorageOpt)
+		_, err = clusterClient.Request("POST", expandInstanceStoragePath, &expandInstanceStorageOpt)
 		if err != nil {
 			return diag.Errorf("error updating DWS Cluster: %s", err)
 		}
@@ -835,15 +942,10 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		// resetPasswordOfCluster: reset password of DWS cluster
 		var (
 			resetPasswordOfClusterHttpUrl = "v1.0/{project_id}/clusters/{id}/reset-password"
-			resetPasswordOfClusterProduct = "dws"
 		)
-		resetPasswordOfClusterClient, err := cfg.NewServiceClient(resetPasswordOfClusterProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating DWS Client: %s", err)
-		}
 
-		resetPasswordOfClusterPath := resetPasswordOfClusterClient.Endpoint + resetPasswordOfClusterHttpUrl
-		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{project_id}", resetPasswordOfClusterClient.ProjectID)
+		resetPasswordOfClusterPath := clusterClient.Endpoint + resetPasswordOfClusterHttpUrl
+		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{project_id}", clusterClient.ProjectID)
 		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{id}", d.Id())
 
 		resetPasswordOfClusterOpt := golangsdk.RequestOpts{
@@ -857,7 +959,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		resetPasswordOfClusterOpt.JSONBody = utils.RemoveNil(buildResetPasswordOfClusterBodyParams(d))
-		_, err = resetPasswordOfClusterClient.Request("POST", resetPasswordOfClusterPath, &resetPasswordOfClusterOpt)
+		_, err = clusterClient.Request("POST", resetPasswordOfClusterPath, &resetPasswordOfClusterOpt)
 		if err != nil {
 			return diag.Errorf("error updating DWS Cluster: %s", err)
 		}
@@ -875,15 +977,10 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		// scaleOutCluster: Scale out DWS cluster
 		var (
 			scaleOutClusterHttpUrl = "v1.0/{project_id}/clusters/{id}/resize"
-			scaleOutClusterProduct = "dws"
 		)
-		scaleOutClusterClient, err := cfg.NewServiceClient(scaleOutClusterProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating DWS Client: %s", err)
-		}
 
-		scaleOutClusterPath := scaleOutClusterClient.Endpoint + scaleOutClusterHttpUrl
-		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{project_id}", scaleOutClusterClient.ProjectID)
+		scaleOutClusterPath := clusterClient.Endpoint + scaleOutClusterHttpUrl
+		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{project_id}", clusterClient.ProjectID)
 		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{id}", d.Id())
 
 		scaleOutClusterOpt := golangsdk.RequestOpts{
@@ -897,7 +994,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		scaleOutClusterOpt.JSONBody = utils.RemoveNil(buildScaleOutClusterBodyParams(d))
-		_, err = scaleOutClusterClient.Request("POST", scaleOutClusterPath, &scaleOutClusterOpt)
+		_, err = clusterClient.Request("POST", scaleOutClusterPath, &scaleOutClusterOpt)
 		if err != nil {
 			return diag.Errorf("error updating DWS Cluster: %s", err)
 		}
@@ -910,10 +1007,6 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// change tags
 	if d.HasChange("tags") {
-		clusterClient, err := cfg.NewServiceClient("dws", region)
-		if err != nil {
-			return diag.Errorf("error creating DWS Client: %s", err)
-		}
 		err = updateClusterTags(clusterClient, d, d.Id())
 		if err != nil {
 			return diag.Errorf("error updating tags of DWS cluster:%s, err:%s", d.Id(), err)
@@ -927,6 +1020,22 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		if err := updateDwsLogicalClusterEnable(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("elb_id") {
+		oldElbIdRaw, newElbIdRaw := d.GetChange("elb_id")
+		oldElbId := oldElbIdRaw.(string)
+		newElbId := newElbIdRaw.(string)
+
+		err = unbindElb(ctx, d, clusterClient, oldElbId)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		err = bindElb(ctx, d, clusterClient, newElbId)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1195,4 +1304,139 @@ func updateClusterTags(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 	}
 
 	return nil
+}
+
+func bindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, elbId string) error {
+	if elbId == "" {
+		return nil
+	}
+
+	bindElbHttpUrl := "v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}"
+
+	bindElbPath := client.Endpoint + bindElbHttpUrl
+	bindElbPath = strings.ReplaceAll(bindElbPath, "{project_id}", client.ProjectID)
+	bindElbPath = strings.ReplaceAll(bindElbPath, "{cluster_id}", d.Id())
+	bindElbPath = strings.ReplaceAll(bindElbPath, "{elb_id}", elbId)
+
+	bindElbOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+	}
+
+	bindElbResp, err := client.Request("POST", bindElbPath, &bindElbOpt)
+	if err != nil {
+		return fmt.Errorf("error binding ELB to DWS cluster: %s", err)
+	}
+
+	bindElbRespBody, err := utils.FlattenResponse(bindElbResp)
+	if err != nil {
+		return err
+	}
+
+	jobId, err := jmespath.Search("job_id", bindElbRespBody)
+	if err != nil {
+		return fmt.Errorf("error binding ELB to DWS cluster: job ID is not found in API response")
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"INIT"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      jobStatusRefreshFunc(client, jobId.(string)),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        60 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for binding ELB to DWS cluster: %s", err)
+	}
+
+	return nil
+}
+
+func unbindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, elbId string) error {
+	if elbId == "" {
+		return nil
+	}
+
+	unbindElbHttpUrl := "v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}"
+
+	unbindElbPath := client.Endpoint + unbindElbHttpUrl
+	unbindElbPath = strings.ReplaceAll(unbindElbPath, "{project_id}", client.ProjectID)
+	unbindElbPath = strings.ReplaceAll(unbindElbPath, "{cluster_id}", d.Id())
+	unbindElbPath = strings.ReplaceAll(unbindElbPath, "{elb_id}", elbId)
+
+	bindElbOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+	}
+
+	unbindElbResp, err := client.Request("DELETE", unbindElbPath, &bindElbOpt)
+	if err != nil {
+		return fmt.Errorf("error unbinding ELB from DWS cluster: %s", err)
+	}
+
+	unbindElbRespBody, err := utils.FlattenResponse(unbindElbResp)
+	if err != nil {
+		return err
+	}
+
+	jobId, err := jmespath.Search("job_id", unbindElbRespBody)
+	if err != nil {
+		return fmt.Errorf("error unbinding ELB from DWS cluster: job ID is not found in API response: %s", jobId)
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"INIT"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      jobStatusRefreshFunc(client, jobId.(string)),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        60 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for unbinding ELB from DWS cluster: %s", err)
+	}
+
+	return nil
+}
+
+func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getJobStatusHttpUrl := "v1.0/{project_id}/job/{job_id}"
+
+		getJobStatusPath := client.Endpoint + getJobStatusHttpUrl
+		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{project_id}", client.ProjectID)
+		getJobStatusPath = strings.ReplaceAll(getJobStatusPath, "{job_id}", jobId)
+
+		getJobStatusOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		}
+		getJobStatusResp, err := client.Request("GET", getJobStatusPath, &getJobStatusOpt)
+		if err != nil {
+			return getJobStatusResp, "FAIL", err
+		}
+
+		getJobStatusRespBody, err := utils.FlattenResponse(getJobStatusResp)
+		if err != nil {
+			return nil, "", err
+		}
+
+		status := utils.PathSearch("status", getJobStatusRespBody, "")
+		if status.(string) == "FAIL" {
+			failedCode := utils.PathSearch("failed_code", getJobStatusRespBody, "")
+			failedDetail := utils.PathSearch("failed_detail", getJobStatusRespBody, "")
+			return nil, "", fmt.Errorf("DWS cluster binding ELB job failed,"+
+				" job ID: %s, failed_code: %s, failed_detail: %s", jobId, failedCode, failedDetail)
+		}
+		return getJobStatusRespBody, status.(string), nil
+	}
 }
