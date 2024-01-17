@@ -19,7 +19,7 @@ func getCTSDataTrackerResourceObj(conf *config.Config, state *terraform.Resource
 		return nil, fmt.Errorf("error creating CTS client: %s", err)
 	}
 
-	name := state.Primary.ID
+	name := state.Primary.Attributes["name"]
 	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().DATA
 	listOpts := &cts.ListTrackersRequest{
 		TrackerName: &name,
@@ -88,6 +88,7 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testCTSDataTrackerImportState(resourceName),
 			},
 		},
 	})
@@ -135,4 +136,15 @@ resource "huaweicloud_cts_data_tracker" "tracker" {
   lts_enabled          = false
 }
 `, rName)
+}
+
+func testCTSDataTrackerImportState(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", resourceName, rs)
+		}
+
+		return rs.Primary.Attributes["name"], nil
+	}
 }
