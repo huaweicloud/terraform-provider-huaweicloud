@@ -74,8 +74,90 @@ provider "kubernetes" {
   client_key             = base64decode(huaweicloud_cce_cluster.cluster.certificate_users[0].client_key_data)
 }
 
-resource "kubernetes_namespace" "example" {
+resource "kubernetes_secret" "my-secret" {
   metadata {
-    name = "my-first-namespace"
+    name      = "my-secret"
+    namespace = "default"
+
+    labels = {
+      "secret.kubernetes.io/used-by" = "csi"
+    }
+  }
+
+  data = {
+    "access.key" = "my_access_key"
+    "secret.key" = "my_secret_key"
+  }
+
+  type = "cfe/secure-opaque"
+}
+
+resource "kubernetes_persistent_volume_claim" "my-pvc" {
+  metadata {
+    name      = "my-pvc-obs"
+    namespace = "default"
+
+    annotations = {
+      "everest.io/obs-volume-type"                       = "STANDARD"
+      "csi.storage.k8s.io/fstype"                        = "s3fs"
+      "csi.storage.k8s.io/node-publish-secret-name"      = kubernetes_secret.my-secret.metadata[0].name
+      "csi.storage.k8s.io/node-publish-secret-namespace" = kubernetes_secret.my-secret.metadata[0].namespace
+      "everest.io/enterprise-project-id"                 = "0"
+    }
+  }
+  spec {
+    access_modes = ["ReadWriteMany"]
+    resources {
+      requests = {
+        storage = "1Gi"
+      }
+    }
+    storage_class_name = "csi-obs"
+  }
+}
+
+resource "kubernetes_deployment" "my-deployment" {
+  metadata {
+    name      = "web-demo"
+    namespace = "default"
+  }
+
+  spec {
+    replicas = 2
+
+    selector {
+      match_labels = {
+        app = "web-demo"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "web-demo"
+        }
+      }
+
+      spec {
+        container {
+          name  = "container-1"
+          image = "nginx:latest"
+
+          volume_mount {
+            name       = "pvc-obs-volume"
+            mount_path = "/data"
+          }
+        }
+        image_pull_secrets {
+          name = "default-secret"
+        }
+        volume {
+          name = "pvc-obs-volume"
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim.my-pvc.metadata[0].name
+          }
+        }
+      }
+    }
   }
 }
