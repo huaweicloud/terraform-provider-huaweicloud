@@ -91,9 +91,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the resource group.
-
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the resource group.
 
 * `tags` - (Optional, Map) Specifies the key/value to match resources.
   It's required if the value of type is **TAG**.
