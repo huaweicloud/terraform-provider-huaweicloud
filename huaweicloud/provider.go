@@ -1185,6 +1185,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_obs_bucket_policy":      obs.ResourceObsBucketPolicy(),
 			"huaweicloud_obs_bucket_replication": obs.ResourceObsBucketReplication(),
 
+			"huaweicloud_oms_migration_sync_task":  oms.ResourceMigrationSyncTask(),
 			"huaweicloud_oms_migration_task":       oms.ResourceMigrationTask(),
 			"huaweicloud_oms_migration_task_group": oms.ResourceMigrationTaskGroup(),
 
