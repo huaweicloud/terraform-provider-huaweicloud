@@ -124,7 +124,6 @@ resource "huaweicloud_obs_bucket" "bucket" {
 
   lifecycle_rule {
     name    = "tmp"
-    prefix  = "tmp/"
     enabled = true
 
     noncurrent_version_expiration {
@@ -305,6 +304,8 @@ The `lifecycle_rule` object supports the following:
 * `prefix` - (Optional, String) Object key prefix identifying one or more objects to which the rule applies. If omitted,
   all objects in the bucket will be managed by the lifecycle rule. The prefix cannot start or end with a slash (/),
   cannot have consecutive slashes (/), and cannot contain the following special characters: \:*?"<>|.
+  When configuring multiple `lifecycle_rule`, field `prefix` in multiple `lifecycle_rule` cannot have an inclusive
+  relationship.
 
 * `expiration` - (Optional, List) Specifies a period when objects that have been last updated are automatically
   deleted. (documented below).
@@ -318,7 +319,8 @@ The `lifecycle_rule` object supports the following:
   incomplete upload are automatically deleted. (documented below).
 
 At least one of `expiration`, `transition`, `noncurrent_version_expiration`, `noncurrent_version_transition`,
-`abort_incomplete_multipart_upload` must be specified.
+`abort_incomplete_multipart_upload` must be specified. The parameter `versioning` must be set to **true** before using
+`noncurrent_version_expiration` or `noncurrent_version_transition`.
 
 The `expiration` object supports the following
 
