@@ -391,6 +391,7 @@ var mimeTypes = map[string]string{
 	"zip":     "application/zip",
 	"dotx":    "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
 	"wps":     "application/vnd.ms-works",
+	"wpt":     "x-lml/x-gps",
 	"pptm":    "application/vnd.ms-powerpoint.presentation.macroenabled.12",
 	"heic":    "image/heic",
 	"mkv":     "video/x-matroska",

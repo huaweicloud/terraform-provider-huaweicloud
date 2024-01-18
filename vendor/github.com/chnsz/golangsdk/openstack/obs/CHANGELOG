@@ -1,3 +1,16 @@
+Version 3.23.12
+
+New Features:
+1. Added obs.WithDisableKeepAlive method to implement short connection function.
+2. Added deep archive storage-class.
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Fixed the issue where bucket life cycle configuration failed in some scenarios.
+
+-----------------------------------------------------------------------------------
+
 Version 3.23.9
 
 New Features:

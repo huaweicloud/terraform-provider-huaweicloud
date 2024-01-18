@@ -13,7 +13,7 @@
 package obs
 
 const (
-	OBS_SDK_VERSION        = "3.23.4"
+	OBS_SDK_VERSION        = "3.23.12"
 	USER_AGENT             = "obs-sdk-go/" + OBS_SDK_VERSION
 	HEADER_PREFIX          = "x-amz-"
 	HEADER_PREFIX_META     = "x-amz-meta-"
@@ -288,5 +288,14 @@ var (
 		"ignore-sign-in-query":         true,
 		"name":                         true,
 		"rename":                       true,
+		"customdomain":                 true,
+		"mirrorbacktosource":           true,
+	}
+
+	obsStorageClasses = []string{
+		string(StorageClassStandard),
+		string(StorageClassWarm),
+		string(StorageClassCold),
+		string(StorageClassDeepArchive),
 	}
 )

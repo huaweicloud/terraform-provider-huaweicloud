@@ -118,16 +118,18 @@ func (input CreateBucketInput) trans(isObs bool) (params map[string]string, head
 func (input SetBucketStoragePolicyInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
 	xml := make([]string, 0, 1)
 	if !isObs {
-		storageClass := "STANDARD"
-		if input.StorageClass == StorageClassWarm {
-			storageClass = string(storageClassStandardIA)
+		storageClass := input.StorageClass
+		if storageClass == "" {
+			storageClass = StorageClassStandard
+		} else if input.StorageClass == StorageClassWarm {
+			storageClass = storageClassStandardIA
 		} else if input.StorageClass == StorageClassCold {
-			storageClass = string(storageClassGlacier)
+			storageClass = storageClassGlacier
 		}
 		params = map[string]string{string(SubResourceStoragePolicy): ""}
 		xml = append(xml, fmt.Sprintf("<StoragePolicy><DefaultStorageClass>%s</DefaultStorageClass></StoragePolicy>", storageClass))
 	} else {
-		if input.StorageClass != StorageClassWarm && input.StorageClass != StorageClassCold {
+		if !IsContain(obsStorageClasses, string(input.StorageClass)) {
 			input.StorageClass = StorageClassStandard
 		}
 		params = map[string]string{string(SubResourceStorageClass): ""}
@@ -198,7 +200,7 @@ func (input SetBucketLoggingConfigurationInput) trans(isObs bool) (params map[st
 
 func (input SetBucketLifecycleConfigurationInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
 	params = map[string]string{string(SubResourceLifecycle): ""}
-	data, md5 := ConvertLifecyleConfigurationToXml(input.BucketLifecyleConfiguration, true, isObs)
+	data, md5 := ConvertLifecycleConfigurationToXml(input.BucketLifecycleConfiguration, true, isObs)
 	headers = map[string][]string{HEADER_MD5_CAMEL: {md5}}
 	return
 }
