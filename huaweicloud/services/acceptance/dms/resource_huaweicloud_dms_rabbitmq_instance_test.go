@@ -634,7 +634,8 @@ data "huaweicloud_dms_rabbitmq_flavors" "test" {
 
 locals {
   query_results = data.huaweicloud_dms_rabbitmq_flavors.test
-  newFlavor     = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[1]
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+  newFlavor     = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[1]  
 }
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
@@ -652,7 +653,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   flavor_id         = local.newFlavor.id
   engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
   storage_space     = 600
-  storage_spec_code = local.newFlavor.ios[0].storage_spec_code
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
   access_user       = "user"
   password          = "Rabbitmqtest@123"
 
