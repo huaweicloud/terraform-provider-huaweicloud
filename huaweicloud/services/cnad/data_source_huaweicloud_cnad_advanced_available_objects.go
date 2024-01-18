@@ -83,6 +83,7 @@ func availableProtectedObjectsSchema() *schema.Resource {
 func resourceAvailableProtectedObjectsRead(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -90,7 +91,7 @@ func resourceAvailableProtectedObjectsRead(_ context.Context, d *schema.Resource
 		getProtectedObjectsHttpUrl = "v1/cnad/packages/{package_id}/unbound-protected-ips"
 		getProtectedObjectsProduct = "aad"
 	)
-	getProtectedObjectsClient, err := cfg.NewServiceClient(getProtectedObjectsProduct, "")
+	getProtectedObjectsClient, err := cfg.NewServiceClient(getProtectedObjectsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

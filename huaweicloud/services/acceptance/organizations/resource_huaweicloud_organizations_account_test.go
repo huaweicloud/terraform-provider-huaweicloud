@@ -18,10 +18,11 @@ import (
 func getAccountResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	// getAccount: Query Organizations account
 	var (
+		region            = acceptance.HW_REGION_NAME
 		getAccountHttpUrl = "v1/organizations/accounts/{account_id}"
 		getAccountProduct = "organizations"
 	)
-	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, acceptance.HW_REGION_NAME)
+	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations client: %s", err)
 	}

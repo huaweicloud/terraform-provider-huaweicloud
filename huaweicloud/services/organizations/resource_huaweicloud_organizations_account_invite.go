@@ -86,13 +86,14 @@ canceled, declined, or expired.`,
 
 func resourceAccountInviteCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createAccountInvite: create Organizations account invite
 	var (
 		createAccountInviteHttpUrl = "v1/organizations/accounts/invite"
 		createAccountInviteProduct = "organizations"
 	)
-	createAccountInviteClient, err := cfg.NewServiceClient(createAccountInviteProduct, "")
+	createAccountInviteClient, err := cfg.NewServiceClient(createAccountInviteProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -141,12 +142,13 @@ func buildCreateAccountInviteTargetChildBody(d *schema.ResourceData) map[string]
 
 func resourceAccountInviteRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
 	// getAccountInvite: Query Organizations account invite
 	getAccountInviteProduct := "organizations"
-	getAccountInviteClient, err := cfg.NewServiceClient(getAccountInviteProduct, "")
+	getAccountInviteClient, err := cfg.NewServiceClient(getAccountInviteProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -227,12 +229,13 @@ func resourceAccountInviteUpdate(_ context.Context, _ *schema.ResourceData, _ in
 
 func resourceAccountInviteDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteAccountInvite: Delete Organizations account invite
 	var (
 		deleteAccountInviteProduct = "organizations"
 	)
-	deleteAccountInviteClient, err := cfg.NewServiceClient(deleteAccountInviteProduct, "")
+	deleteAccountInviteClient, err := cfg.NewServiceClient(deleteAccountInviteProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}

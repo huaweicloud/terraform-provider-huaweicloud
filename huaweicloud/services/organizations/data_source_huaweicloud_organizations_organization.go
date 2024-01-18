@@ -74,6 +74,7 @@ func DataSourceOrganization() *schema.Resource {
 
 func dataSourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -81,7 +82,7 @@ func dataSourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta 
 	var (
 		getOrganizationProduct = "organizations"
 	)
-	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, "")
+	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}

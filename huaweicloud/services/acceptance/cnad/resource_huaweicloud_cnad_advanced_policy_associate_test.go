@@ -17,10 +17,11 @@ import (
 
 func getPolicyAssociateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
+		region                    = acceptance.HW_REGION_NAME
 		getProtectedObjectHttpUrl = "v1/cnad/protected-ips"
 		getProtectedObjectProduct = "aad"
 	)
-	getProtectedObjectClient, err := cfg.NewServiceClient(getProtectedObjectProduct, "")
+	getProtectedObjectClient, err := cfg.NewServiceClient(getProtectedObjectProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CNAD Client: %s", err)
 	}

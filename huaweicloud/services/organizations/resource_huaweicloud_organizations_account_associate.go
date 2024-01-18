@@ -68,12 +68,13 @@ func ResourceAccountAssociate() *schema.Resource {
 
 func resourceAccountAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createAccountAssociate: create Organizations account associate
 	var (
 		createAccountAssociateProduct = "organizations"
 	)
-	createAccountAssociateClient, err := cfg.NewServiceClient(createAccountAssociateProduct, "")
+	createAccountAssociateClient, err := cfg.NewServiceClient(createAccountAssociateProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -98,6 +99,7 @@ func resourceAccountAssociateCreate(ctx context.Context, d *schema.ResourceData,
 
 func resourceAccountAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -106,7 +108,7 @@ func resourceAccountAssociateRead(_ context.Context, d *schema.ResourceData, met
 		getAccountAssociateHttpUrl = "v1/organizations/accounts/{account_id}"
 		getAccountAssociateProduct = "organizations"
 	)
-	getAccountAssociateClient, err := cfg.NewServiceClient(getAccountAssociateProduct, "")
+	getAccountAssociateClient, err := cfg.NewServiceClient(getAccountAssociateProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -152,12 +154,13 @@ func resourceAccountAssociateRead(_ context.Context, d *schema.ResourceData, met
 
 func resourceAccountAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// updateAccountAssociate: update Organizations account associate
 	var (
 		updateAccountAssociateProduct = "organizations"
 	)
-	updateAccountAssociateClient, err := cfg.NewServiceClient(updateAccountAssociateProduct, "")
+	updateAccountAssociateClient, err := cfg.NewServiceClient(updateAccountAssociateProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -178,12 +181,13 @@ func resourceAccountAssociateUpdate(ctx context.Context, d *schema.ResourceData,
 
 func resourceAccountAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteAccountAssociate: Delete Organizations account associate
 	var (
 		deleteAccountAssociateProduct = "organizations"
 	)
-	deleteAccountAssociateClient, err := cfg.NewServiceClient(deleteAccountAssociateProduct, "")
+	deleteAccountAssociateClient, err := cfg.NewServiceClient(deleteAccountAssociateProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}

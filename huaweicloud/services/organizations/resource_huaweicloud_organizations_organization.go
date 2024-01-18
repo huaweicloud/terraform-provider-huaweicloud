@@ -97,13 +97,14 @@ func ResourceOrganization() *schema.Resource {
 
 func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createOrganization: create Organizations organization
 	var (
 		createOrganizationHttpUrl = "v1/organizations"
 		createOrganizationProduct = "organizations"
 	)
-	createOrganizationClient, err := cfg.NewServiceClient(createOrganizationProduct, "")
+	createOrganizationClient, err := cfg.NewServiceClient(createOrganizationProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -162,6 +163,7 @@ func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, met
 
 func resourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -169,7 +171,7 @@ func resourceOrganizationRead(_ context.Context, d *schema.ResourceData, meta in
 	var (
 		getOrganizationProduct = "organizations"
 	)
-	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, "")
+	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -356,12 +358,13 @@ func policyStateRefreshFunc(client *golangsdk.ServiceClient, policyType string) 
 
 func resourceOrganizationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// updateOrganization: update Organizations organization
 	var (
 		updateOrganizationProduct = "organizations"
 	)
-	updateOrganizationClient, err := cfg.NewServiceClient(updateOrganizationProduct, "")
+	updateOrganizationClient, err := cfg.NewServiceClient(updateOrganizationProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -401,15 +404,16 @@ func resourceOrganizationUpdate(ctx context.Context, d *schema.ResourceData, met
 	return resourceOrganizationRead(ctx, d, meta)
 }
 
-func resourceOrganizationDelete(_ context.Context, _ *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOrganizationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteOrganization: Delete Organizations organization
 	var (
 		deleteOrganizationHttpUrl = "v1/organizations"
 		deleteOrganizationProduct = "organizations"
 	)
-	deleteOrganizationClient, err := cfg.NewServiceClient(deleteOrganizationProduct, "")
+	deleteOrganizationClient, err := cfg.NewServiceClient(deleteOrganizationProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}

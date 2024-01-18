@@ -19,10 +19,11 @@ import (
 func getPolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	// getPolicy: Query the UCS Policy detail
 	var (
+		region           = acceptance.HW_REGION_NAME
 		getPolicyHttpUrl = "v1/permissions/rules"
 		getPolicyProduct = "ucs"
 	)
-	getPolicyClient, err := cfg.NewServiceClient(getPolicyProduct, "")
+	getPolicyClient, err := cfg.NewServiceClient(getPolicyProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating UCS Client: %s", err)
 	}
@@ -100,6 +101,7 @@ func TestAccPolicy_basic(t *testing.T) {
 				),
 			},
 			{
+				Config:            testPolicy_basic_import(name),
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -155,5 +157,27 @@ output "is_iam_user_ids_different" {
   value = length(setsubtract(huaweicloud_ucs_policy.test.iam_user_ids,
     huaweicloud_identity_user.test[*].id)) != 0
 }
+`, name)
+}
+
+func testPolicy_basic_import(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_user" "test" {
+  count = 2
+
+  name        = "%[1]s-${count.index}"
+  password    = "Test@12345678"
+}
+
+resource "huaweicloud_ucs_policy" "test" {
+	name         = "%[1]s"
+	iam_user_ids = huaweicloud_identity_user.test[*].id
+	type         = "custom"
+	description  = "created by terraform update"
+	details {
+	  operations = ["*"]
+	  resources  = ["*"]
+	}
+  }
 `, name)
 }

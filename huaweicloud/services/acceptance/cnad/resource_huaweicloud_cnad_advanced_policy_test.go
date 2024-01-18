@@ -17,10 +17,11 @@ import (
 
 func getPolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
+		region                 = acceptance.HW_REGION_NAME
 		getPolicyDetailHttpUrl = "v1/cnad/policies/{policy_id}"
 		getPolicyDetailProduct = "aad"
 	)
-	getPolicyDetailClient, err := cfg.NewServiceClient(getPolicyDetailProduct, "")
+	getPolicyDetailClient, err := cfg.NewServiceClient(getPolicyDetailProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CNAD Client: %s", err)
 	}

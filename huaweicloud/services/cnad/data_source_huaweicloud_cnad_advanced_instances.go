@@ -114,13 +114,14 @@ func instanceSchema() *schema.Resource {
 
 func resourceInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 	var (
 		getAdvancedInstancesHttpUrl = "v1/cnad/packages"
 		getAdvancedInstancesProduct = "aad"
 	)
-	getAdvancedInstancesClient, err := cfg.NewServiceClient(getAdvancedInstancesProduct, "")
+	getAdvancedInstancesClient, err := cfg.NewServiceClient(getAdvancedInstancesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
