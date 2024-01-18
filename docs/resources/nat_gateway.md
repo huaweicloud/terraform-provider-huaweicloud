@@ -12,11 +12,12 @@ Manages a gateway resource of the **public** NAT within HuaweiCloud.
 variable "gateway_name" {}
 variable "vpc_id" {}
 variable "network_id" {}
+variable "gateway_specification" {}
 
 resource "huaweicloud_nat_gateway" "test" {
   name        = var.gateway_name
   description = "test for terraform"
-  spec        = "3"
+  spec        = var.gateway_specification
   vpc_id      = var.vpc_id
   subnet_id   = var.network_id
 }
