@@ -29,6 +29,17 @@ type dmsError struct {
 	ErrorMsg  string `json:"error_msg"`
 }
 
+// API: RocketMQ POST /v2/{engine}/{project_id}/instances
+// API: RocketMQ PUT /v2/{project_id}/instances/{instance_id}
+// API: RocketMQ GET /v2/{project_id}/instances/{instance_id}
+// API: RocketMQ DELETE /v2/{project_id}/instances/{instance_id}
+// API: RocketMQ POST /v2/{project_id}/rocketmq/{instance_id}/tags/action
+// API: RocketMQ GET /v2/{project_id}/kafka/{instance_id}/tags
+// API: RocketMQ POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
+// API: BSS GET /v2/orders/customer-orders/details/{order_id}
+// API: BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// API: BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// API: BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceDmsRocketMQInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRocketMQInstanceCreate,
@@ -287,7 +298,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	// createRocketmqInstance: create DMS rocketmq instance
 	var (
-		createRocketmqInstanceHttpUrl = "v2/{project_id}/instances"
+		createRocketmqInstanceHttpUrl = "v2/reliability/{project_id}/instances"
 		createRocketmqInstanceProduct = "dmsv2"
 	)
 	createRocketmqInstanceClient, err := cfg.NewServiceClient(createRocketmqInstanceProduct, region)
