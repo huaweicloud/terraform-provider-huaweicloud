@@ -39,7 +39,7 @@ func TestAccService_basic(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
@@ -109,7 +109,7 @@ func TestAccService_internetAccessPort(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceInternetAccessPort(t)
@@ -148,7 +148,7 @@ func TestAccService_localAD(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceAD(t)
@@ -227,9 +227,10 @@ func TestAccService_internetAccessPort_localAD(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceAD(t)
 			acceptance.TestAccPreCheckWorkspaceInternetAccessPort(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
