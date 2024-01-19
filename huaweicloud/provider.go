@@ -958,6 +958,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_job": drs.ResourceDrsJob(),
 
 			"huaweicloud_dws_cluster":            dws.ResourceDwsCluster(),
+			"huaweicloud_dws_logical_cluster":    dws.ResourceLogicalCluster(),
 			"huaweicloud_dws_event_subscription": dws.ResourceDwsEventSubs(),
 			"huaweicloud_dws_alarm_subscription": dws.ResourceDwsAlarmSubs(),
 			"huaweicloud_dws_snapshot":           dws.ResourceDwsSnapshot(),
