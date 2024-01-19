@@ -19,7 +19,6 @@ resource "huaweicloud_dataarts_factory_script" "test" {
   type            = "DLISQL"
   content         = "#content"
   connection_name = var.connection_name
-  script          = "/"
   queue_name      = "default"
   description     = "test"
   configuration   = {
