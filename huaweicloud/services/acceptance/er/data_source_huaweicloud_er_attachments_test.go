@@ -20,10 +20,9 @@ func TestAccAttachmentsDataSource_basic(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -116,10 +115,9 @@ func TestAccAttachmentsDataSource_filterById(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -179,10 +177,9 @@ func TestAccAttachmentsDataSource_filterByType(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -248,10 +245,9 @@ func TestAccAttachmentsDataSource_filterByStatus(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -309,10 +305,9 @@ func TestAccAttachmentsDataSource_filterByTags(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -382,10 +377,9 @@ func TestAccAttachmentsDataSource_filterByResourceId(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

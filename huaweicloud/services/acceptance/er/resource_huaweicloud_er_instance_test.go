@@ -58,7 +58,7 @@ func TestAccInstance_basic(t *testing.T) {
 		getInstanceResourceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
