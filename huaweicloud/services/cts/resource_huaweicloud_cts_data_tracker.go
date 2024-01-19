@@ -28,7 +28,7 @@ func ResourceCTSDataTracker() *schema.Resource {
 		UpdateContext: resourceCTSDataTrackerUpdate,
 		DeleteContext: resourceCTSDataTrackerDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceCTSDataTrackerImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -182,13 +182,17 @@ func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, m
 		Body: buildCreateRequestBody(d),
 	}
 
-	if _, err := ctsClient.CreateTracker(&createOpts); err != nil {
-		return diag.Errorf("error creating data CTS tracker: %s", err)
+	resp, err := ctsClient.CreateTracker(&createOpts)
+	if err != nil {
+		return diag.Errorf("error creating CTS data tracker: %s", err)
 	}
 
-	trackerName := d.Get("name").(string)
-	d.SetId(trackerName)
+	if resp.Id == nil {
+		return diag.Errorf("error creating CTS data tracker: ID is not found in API response")
+	}
+	d.SetId(*resp.Id)
 
+	trackerName := d.Get("name").(string)
 	// disable status if necessary
 	if enabled := d.Get("enabled").(bool); !enabled {
 		err = updateDataTrackerStatus(ctsClient, trackerName, "disabled")
@@ -207,7 +211,7 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Id()
+	trackerName := d.Get("name").(string)
 	// update status firstly
 	if d.HasChange("enabled") {
 		status := "enabled"
@@ -258,7 +262,7 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Id()
+	trackerName := d.Get("name").(string)
 	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().DATA
 	listOpts := &cts.ListTrackersRequest{
 		TrackerName: &trackerName,
@@ -283,6 +287,12 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 
 	allTrackers := *response.Trackers
 	ctsTracker := allTrackers[0]
+
+	if ctsTracker.Id == nil {
+		return diag.Errorf("error retrieve CTS data tracker: ID is not found in API response")
+	}
+
+	d.SetId(*ctsTracker.Id)
 
 	mErr := multierror.Append(
 		nil,
@@ -345,7 +355,7 @@ func resourceCTSDataTrackerDelete(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Id()
+	trackerName := d.Get("name").(string)
 	trackerType := cts.GetDeleteTrackerRequestTrackerTypeEnum().DATA
 	deleteOpts := cts.DeleteTrackerRequest{
 		TrackerName: &trackerName,
@@ -378,4 +388,11 @@ func updateDataTrackerStatus(c *client.CtsClient, name, status string) error {
 
 	_, err := c.UpdateTracker(&statusReq)
 	return err
+}
+
+func resourceCTSDataTrackerImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	trackerName := d.Id()
+	d.Set("name", trackerName)
+
+	return []*schema.ResourceData{d}, nil
 }

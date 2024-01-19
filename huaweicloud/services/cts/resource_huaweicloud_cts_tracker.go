@@ -130,8 +130,9 @@ func resourceCTSTrackerCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error retrieving CTS tracker: %s", err)
 	}
 
-	if err := createSystemTracker(d, ctsClient); err != nil {
-		return diag.Errorf("error creating system CTS tracker: %s", err)
+	resourceID, err = createSystemTracker(d, ctsClient)
+	if err != nil {
+		return diag.Errorf("error creating CTS tracker: %s", err)
 	}
 
 	d.SetId(resourceID)
@@ -316,7 +317,7 @@ func formatValue(i interface{}) string {
 	return strings.Trim(string(jsonRaw), `"`)
 }
 
-func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) error {
+func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (string, error) {
 	obsInfo := cts.TrackerObsInfo{
 		BucketName:     utils.String(d.Get("bucket_name").(string)),
 		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
@@ -343,8 +344,15 @@ func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) er
 		Body: &reqBody,
 	}
 
-	_, err := ctsClient.CreateTracker(&createOpts)
-	return err
+	resp, err := ctsClient.CreateTracker(&createOpts)
+	if err != nil {
+		return "", err
+	}
+	if resp.Id == nil {
+		return "", fmt.Errorf("ID is not found in API response")
+	}
+
+	return *resp.Id, nil
 }
 
 func getSystemTracker(ctsClient *client.CtsClient) (*cts.TrackerResponseBody, error) {

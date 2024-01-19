@@ -56,7 +56,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID which equals the tracker name.
+* `id` - The resource ID in UUID format.
 * `type` - The tracker type, only **data** is available.
 * `transfer_enabled` - Whether traces will be transferred.
 * `status` - The tracker status, the value can be **enabled**, **disabled** or **error**.
