@@ -328,13 +328,12 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	jobId := rst.Results[0].Id
+	d.SetId(jobId)
 
 	err = waitingforJobStatus(ctx, client, jobId, "create", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	d.SetId(jobId)
 
 	valid := testConnections(client, jobId, opts.Jobs[0])
 	if !valid {
