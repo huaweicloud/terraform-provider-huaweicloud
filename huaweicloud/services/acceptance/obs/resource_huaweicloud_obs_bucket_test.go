@@ -345,7 +345,7 @@ func TestAccObsBucket_lifecycle(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						resourceName, "lifecycle_rule.2.name", "rule3"),
 					resource.TestCheckResourceAttr(
-						resourceName, "lifecycle_rule.2.prefix", "path3/"),
+						resourceName, "lifecycle_rule.2.prefix", ""),
 					resource.TestCheckResourceAttr(
 						resourceName, "lifecycle_rule.1.transition.0.days", "30"),
 					resource.TestCheckResourceAttr(
@@ -788,7 +788,6 @@ resource "huaweicloud_obs_bucket" "bucket" {
   }
   lifecycle_rule {
     name    = "rule3"
-    prefix  = "path3/"
     enabled = true
 
     noncurrent_version_expiration {

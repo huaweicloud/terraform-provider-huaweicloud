@@ -389,3 +389,31 @@ type RenameFolderInput struct {
 type RenameFolderOutput struct {
 	BaseModel
 }
+
+// SetObjectMetadataInput is the input parameter of SetObjectMetadata function
+type SetObjectMetadataInput struct {
+	Bucket                  string
+	Key                     string
+	VersionId               string
+	MetadataDirective       MetadataDirectiveType
+	Expires                 string
+	WebsiteRedirectLocation string
+	StorageClass            StorageClassType
+	Metadata                map[string]string
+	HttpHeader
+}
+
+// SetObjectMetadataOutput is the result of SetObjectMetadata function
+type SetObjectMetadataOutput struct {
+	BaseModel
+	MetadataDirective       MetadataDirectiveType
+	CacheControl            string
+	ContentDisposition      string
+	ContentEncoding         string
+	ContentLanguage         string
+	ContentType             string
+	Expires                 string
+	WebsiteRedirectLocation string
+	StorageClass            StorageClassType
+	Metadata                map[string]string
+}

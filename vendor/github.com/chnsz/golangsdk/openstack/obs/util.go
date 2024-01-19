@@ -122,6 +122,11 @@ func FormatUtcNow(format string) string {
 	return time.Now().UTC().Format(format)
 }
 
+// FormatNow gets a textual representation of the format time value
+func FormatNow(format string) string {
+	return time.Now().Format(format)
+}
+
 // FormatUtcToRfc1123 gets a textual representation of the RFC1123 format time value
 func FormatUtcToRfc1123(t time.Time) string {
 	ret := t.UTC().Format(time.RFC1123)
@@ -612,6 +617,8 @@ func GetReaderLen(reader io.Reader) (int64, error) {
 	case *io.LimitedReader:
 		contentLength = int64(v.N)
 	case *fileReaderWrapper:
+		contentLength = int64(v.totalCount)
+	case *readerWrapper:
 		contentLength = int64(v.totalCount)
 	default:
 		err = fmt.Errorf("can't get reader content length,unkown reader type")

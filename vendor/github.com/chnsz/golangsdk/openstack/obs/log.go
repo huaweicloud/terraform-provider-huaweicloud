@@ -63,21 +63,25 @@ func getDefaultLogConf() logConfType {
 var logConf logConfType
 
 type loggerWrapper struct {
-	fullPath   string
-	fd         *os.File
-	ch         chan string
-	wg         sync.WaitGroup
-	queue      []string
-	logger     *log.Logger
-	index      int
-	cacheCount int
-	closed     bool
+	fullPath        string
+	fd              *os.File
+	ch              chan string
+	wg              sync.WaitGroup
+	queue           []string
+	logger          *log.Logger
+	index           int
+	cacheCount      int
+	closed          bool
+	formatLoggerNow func(string) string
 }
 
 func (lw *loggerWrapper) doInit() {
 	lw.queue = make([]string, 0, lw.cacheCount)
 	lw.logger = log.New(lw.fd, "", 0)
 	lw.ch = make(chan string, lw.cacheCount)
+	if lw.formatLoggerNow == nil {
+		lw.formatLoggerNow = FormatUtcNow
+	}
 	lw.wg.Add(1)
 	go lw.doWrite()
 }
@@ -192,13 +196,22 @@ func reset() {
 	logConf = getDefaultLogConf()
 }
 
+type logConfig func(lw *loggerWrapper)
+
+func WithFormatLoggerTime(formatNow func(string) string) logConfig {
+	return func(lw *loggerWrapper) {
+		lw.formatLoggerNow = formatNow
+	}
+}
+
 // InitLog enable logging function with default cacheCnt
-func InitLog(logFullPath string, maxLogSize int64, backups int, level Level, logToConsole bool) error {
-	return InitLogWithCacheCnt(logFullPath, maxLogSize, backups, level, logToConsole, 50)
+func InitLog(logFullPath string, maxLogSize int64, backups int, level Level, logToConsole bool, logConfigs ...logConfig) error {
+
+	return InitLogWithCacheCnt(logFullPath, maxLogSize, backups, level, logToConsole, 50, logConfigs...)
 }
 
 // InitLogWithCacheCnt enable logging function
-func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, level Level, logToConsole bool, cacheCnt int) error {
+func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, level Level, logToConsole bool, cacheCnt int, logConfigs ...logConfig) error {
 	lock.Lock()
 	defer lock.Unlock()
 	if cacheCnt <= 0 {
@@ -244,6 +257,9 @@ func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, leve
 		}
 
 		fileLogger = &loggerWrapper{fullPath: _fullPath, fd: fd, index: index, cacheCount: cacheCnt, closed: false}
+		for _, logConfig := range logConfigs {
+			logConfig(fileLogger)
+		}
 		fileLogger.doInit()
 	}
 	if maxLogSize > 0 {
@@ -327,7 +343,7 @@ func doLog(level Level, format string, v ...interface{}) {
 			consoleLogger.Printf("%s%s", prefix, msg)
 		}
 		if fileLogger != nil {
-			nowDate := FormatUtcNow("2006-01-02T15:04:05Z")
+			nowDate := fileLogger.formatLoggerNow("2006-01-02T15:04:05.000ZZ")
 			fileLogger.Printf("%s %s%s", nowDate, prefix, msg)
 		}
 	}
