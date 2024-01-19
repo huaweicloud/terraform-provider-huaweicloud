@@ -669,7 +669,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_flavors":               dws.DataSourceDwsFlavors(),
 			"huaweicloud_dws_logical_cluster_rings": dws.DataSourceLogicalClusterRings(),
 
-			"huaweicloud_workspace_flavors": workspace.DataSourceWorkspaceFlavors(),
+			"huaweicloud_workspace_desktops": workspace.DataSourceDesktops(),
+			"huaweicloud_workspace_flavors":  workspace.DataSourceWorkspaceFlavors(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
