@@ -51,6 +51,12 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
 
+* `bandwidth_type` - (Optional, String, ForceNew) Specifies the bandwidth type.
+  Valid values are **share** and **edgeshare**. Default is **share**.
+
+* `public_border_group` - (Optional, String, ForceNew) Specifies the site is center of border.
+  Valid values are **center** and the name of the border site. Default is **center**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -58,8 +64,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - ID of the Shared Bandwidth.
 
 * `share_type` - Indicates whether the bandwidth is shared or dedicated.
-
-* `bandwidth_type` - Indicates the bandwidth type.
 
 * `status` - Indicates the bandwidth status.
 
