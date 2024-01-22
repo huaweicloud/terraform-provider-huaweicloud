@@ -99,12 +99,13 @@ func ResourceCNADAdvancedPolicy() *schema.Resource {
 
 func resourceCNADAdvancedPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var (
 		createPolicyHttpUrl = "v1/cnad/policies"
 		createPolicyProduct = "aad"
 	)
-	createPolicyClient, err := cfg.NewServiceClient(createPolicyProduct, "")
+	createPolicyClient, err := cfg.NewServiceClient(createPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -155,8 +156,9 @@ func buildCreatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} 
 
 func resourceCNADAdvancedPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	getPolicyClient, err := cfg.NewServiceClient("aad", "")
+	getPolicyClient, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -200,8 +202,9 @@ func resourceCNADAdvancedPolicyRead(_ context.Context, d *schema.ResourceData, m
 
 func resourceCNADAdvancedPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	updatePolicyClient, err := cfg.NewServiceClient("aad", "")
+	updatePolicyClient, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -242,12 +245,13 @@ func buildUpdatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} 
 
 func resourceCNADAdvancedPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var (
 		deletePolicyHttpUrl = "v1/cnad/policies/{policy_id}"
 		deletePolicyProduct = "aad"
 	)
-	deletePolicyClient, err := cfg.NewServiceClient(deletePolicyProduct, "")
+	deletePolicyClient, err := cfg.NewServiceClient(deletePolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

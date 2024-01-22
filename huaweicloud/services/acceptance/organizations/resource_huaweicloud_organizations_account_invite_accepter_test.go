@@ -18,10 +18,11 @@ import (
 func getAccountInviteAccepterResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	// getAccountInviteAccepter: Query Organizations account invite accepter
 	var (
+		region                          = acceptance.HW_REGION_NAME
 		getAccountInviteAccepterHttpUrl = "v1/organizations/handshakes/{handshake_id}"
 		getAccountInviteAccepterProduct = "organizations"
 	)
-	getAccountInviteAccepterClient, err := cfg.NewServiceClient(getAccountInviteAccepterProduct, "")
+	getAccountInviteAccepterClient, err := cfg.NewServiceClient(getAccountInviteAccepterProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
 	}

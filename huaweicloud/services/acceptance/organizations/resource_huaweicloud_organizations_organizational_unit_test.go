@@ -18,10 +18,11 @@ import (
 func getOrganizationalUnitResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	// getOrganizationalUnit: Query Organizations organizational unit
 	var (
+		region                       = acceptance.HW_REGION_NAME
 		getOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
 		getOrganizationalUnitProduct = "organizations"
 	)
-	getOrganizationalUnitClient, err := cfg.NewServiceClient(getOrganizationalUnitProduct, "")
+	getOrganizationalUnitClient, err := cfg.NewServiceClient(getOrganizationalUnitProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
 	}

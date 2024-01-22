@@ -47,13 +47,14 @@ func ResourceTrustedService() *schema.Resource {
 
 func resourceTrustedServiceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createTrustedService: create Organizations trusted service
 	var (
 		createTrustedServiceHttpUrl = "v1/organizations/trusted-services/enable"
 		createTrustedServiceProduct = "organizations"
 	)
-	createTrustedServiceClient, err := cfg.NewServiceClient(createTrustedServiceProduct, "")
+	createTrustedServiceClient, err := cfg.NewServiceClient(createTrustedServiceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -84,6 +85,7 @@ func buildTrustedServiceBodyParams(d *schema.ResourceData) map[string]interface{
 
 func resourceTrustedServiceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -92,7 +94,7 @@ func resourceTrustedServiceRead(_ context.Context, d *schema.ResourceData, meta 
 		getTrustedServiceHttpUrl = "v1/organizations/trusted-services"
 		getTrustedServiceProduct = "organizations"
 	)
-	getTrustedServiceClient, err := cfg.NewServiceClient(getTrustedServiceProduct, "")
+	getTrustedServiceClient, err := cfg.NewServiceClient(getTrustedServiceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -162,13 +164,14 @@ func buildGetTrustedServiceQueryParams(marker string) string {
 
 func resourceTrustedServiceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteTrustedService: Delete Organizations trusted service
 	var (
 		deleteTrustedServiceHttpUrl = "v1/organizations/trusted-services/disable"
 		deleteTrustedServiceProduct = "organizations"
 	)
-	deleteTrustedServiceClient, err := cfg.NewServiceClient(deleteTrustedServiceProduct, "")
+	deleteTrustedServiceClient, err := cfg.NewServiceClient(deleteTrustedServiceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}

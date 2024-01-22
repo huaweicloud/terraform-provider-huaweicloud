@@ -18,10 +18,11 @@ import (
 func getFleetResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	// getFleet: Query the UCS Fleet detail
 	var (
+		region          = acceptance.HW_REGION_NAME
 		getFleetHttpUrl = "v1/clustergroups/{id}"
 		getFleetProduct = "ucs"
 	)
-	getFleetClient, err := cfg.NewServiceClient(getFleetProduct, "")
+	getFleetClient, err := cfg.NewServiceClient(getFleetProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating UCS Client: %s", err)
 	}

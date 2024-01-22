@@ -19,10 +19,11 @@ import (
 func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	// getCluster: Query the UCS Cluster detail
 	var (
+		region            = acceptance.HW_REGION_NAME
 		getClusterHttpUrl = "v1/clusters/{id}"
 		getClusterProduct = "ucs"
 	)
-	getClusterClient, err := cfg.NewServiceClient(getClusterProduct, "")
+	getClusterClient, err := cfg.NewServiceClient(getClusterProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating UCS Client: %s", err)
 	}
@@ -172,6 +173,7 @@ resource "huaweicloud_cce_cluster" "test" {
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
+  cluster_version        = "v1.19.16-r1"
 
   tags = {
     foo = "bar"

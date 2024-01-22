@@ -17,10 +17,11 @@ import (
 
 func getBlackWhiteListResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
+		region               = acceptance.HW_REGION_NAME
 		getBlackWhiteHttpUrl = "v1/cnad/policies/{policy_id}"
 		getBlackWhiteProduct = "aad"
 	)
-	getBlackWhiteClient, err := cfg.NewServiceClient(getBlackWhiteProduct, "")
+	getBlackWhiteClient, err := cfg.NewServiceClient(getBlackWhiteProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CNAD Client: %s", err)
 	}

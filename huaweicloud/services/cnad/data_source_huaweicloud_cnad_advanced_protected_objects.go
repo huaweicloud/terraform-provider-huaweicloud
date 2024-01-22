@@ -137,11 +137,12 @@ func dataSourceProtectedObjectsSchema() *schema.Resource {
 func resourceProtectedObjectsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                        = meta.(*config.Config)
+		region                     = cfg.GetRegion(d)
 		mErr                       *multierror.Error
 		getProtectedObjectsHttpUrl = "v1/cnad/protected-ips"
 		getProtectedObjectsProduct = "aad"
 	)
-	getProtectedObjectsClient, err := cfg.NewServiceClient(getProtectedObjectsProduct, "")
+	getProtectedObjectsClient, err := cfg.NewServiceClient(getProtectedObjectsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

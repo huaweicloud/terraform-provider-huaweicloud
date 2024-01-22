@@ -62,13 +62,14 @@ want to create a new organizational unit.`,
 
 func resourceOrganizationalUnitCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createOrganizationalUnit: create Organizations organizational unit
 	var (
 		createOrganizationalUnitHttpUrl = "v1/organizations/organizational-units"
 		createOrganizationalUnitProduct = "organizations"
 	)
-	createOrganizationalUnitClient, err := cfg.NewServiceClient(createOrganizationalUnitProduct, "")
+	createOrganizationalUnitClient, err := cfg.NewServiceClient(createOrganizationalUnitProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -114,6 +115,7 @@ func buildCreateOrganizationalUnitBodyParams(d *schema.ResourceData) map[string]
 
 func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -122,7 +124,7 @@ func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, m
 		getOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
 		getOrganizationalUnitProduct = "organizations"
 	)
-	getOrganizationalUnitClient, err := cfg.NewServiceClient(getOrganizationalUnitProduct, "")
+	getOrganizationalUnitClient, err := cfg.NewServiceClient(getOrganizationalUnitProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -174,13 +176,14 @@ func resourceOrganizationalUnitRead(_ context.Context, d *schema.ResourceData, m
 
 func resourceOrganizationalUnitUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// updateOrganizationalUnit: update Organizations organizational unit
 	var (
 		updateOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
 		updateOrganizationalUnitProduct = "organizations"
 	)
-	updateOrganizationalUnitClient, err := cfg.NewServiceClient(updateOrganizationalUnitProduct, "")
+	updateOrganizationalUnitClient, err := cfg.NewServiceClient(updateOrganizationalUnitProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -222,13 +225,14 @@ func buildUpdateOrganizationalUnitBodyParams(d *schema.ResourceData) map[string]
 
 func resourceOrganizationalUnitDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteOrganizationalUnit: Delete Organizations organizational unit
 	var (
 		deleteOrganizationalUnitHttpUrl = "v1/organizations/organizational-units/{organizational_unit_id}"
 		deleteOrganizationalUnitProduct = "organizations"
 	)
-	deleteOrganizationalUnitClient, err := cfg.NewServiceClient(deleteOrganizationalUnitProduct, "")
+	deleteOrganizationalUnitClient, err := cfg.NewServiceClient(deleteOrganizationalUnitProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
