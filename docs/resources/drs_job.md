@@ -138,8 +138,11 @@ The following arguments are supported:
  is **yyyy-MM-dd HH:mm:ss**. Start immediately by default. Changing this parameter will create a new resource.
 
 * `destination_db_readnoly` - (Optional, Bool, ForceNew) Specifies the destination DB instance as read-only helps
- ensure the migration is successful. Once the migration is complete, the DB instance automatically changes to
- Read/Write. The default value is **true**. Changing this parameter will create a new resource.
+  ensure the migration is successful. Once the migration is complete, the DB instance automatically changes to
+  Read/Write. Changing this parameter will create a new resource.
+
+  -> This parameter is valid only when MySQL migration and DR and `direction` is set to **up**. The default value is **true**,
+  you need to manually set this parameter to **false** in other application scenarios except MySQL migration and DR scenarios.
 
 * `description` - (Optional, String) Specifies the description of the job, which contain a
   maximum of 256 characters, and certain special characters (including !<>&'"\\) are not allowed.
