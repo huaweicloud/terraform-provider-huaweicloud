@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: GET /v2/{project_id}/desktops/detail
+// API: Workspace GET /v2/{project_id}/desktops/detail
 func DataSourceDesktops() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDesktopsRead,
