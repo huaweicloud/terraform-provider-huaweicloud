@@ -57,7 +57,8 @@ func TestAccApplication_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckFgsTrigger(t)
+			// Please read the instructions carefully before use to ensure sufficient permissions.
+			acceptance.TestAccPreCheckFgsAgency(t)
 			acceptance.TestAccPreCheckFgsTemplateId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -96,5 +97,5 @@ resource "huaweicloud_fgs_application" "test" {
   template_id = "%[3]s"
   description = "Created by terraform script"
 }
-`, name, acceptance.HW_FGS_TRIGGER_LTS_AGENCY, acceptance.HW_FGS_TEMPLATE_ID)
+`, name, acceptance.HW_FGS_AGENCY_NAME, acceptance.HW_FGS_TEMPLATE_ID)
 }

@@ -122,8 +122,8 @@ var (
 	// The internet access port to which the Workspace service.
 	HW_WORKSPACE_INTERNET_ACCESS_PORT = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
 
-	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
-	HW_FGS_TEMPLATE_ID        = os.Getenv("HW_FGS_TEMPLATE_ID")
+	HW_FGS_AGENCY_NAME = os.Getenv("HW_FGS_AGENCY_NAME")
+	HW_FGS_TEMPLATE_ID = os.Getenv("HW_FGS_TEMPLATE_ID")
 
 	HW_KMS_ENVIRONMENT    = os.Getenv("HW_KMS_ENVIRONMENT")
 	HW_KMS_HSM_CLUSTER_ID = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
@@ -444,9 +444,17 @@ func TestAccPreCheckMrsBootstrapScript(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckFgsTrigger(t *testing.T) {
-	if HW_FGS_TRIGGER_LTS_AGENCY == "" {
-		t.Skip("HW_FGS_TRIGGER_LTS_AGENCY must be set for FGS trigger acceptance tests")
+func TestAccPreCheckFgsAgency(t *testing.T) {
+	// The agency should be FunctionGraph and authorize these roles:
+	// For the acceptance tests of the async invoke configuration:
+	// + FunctionGraph FullAccess
+	// + DIS Operator
+	// + OBS Administrator
+	// + SMN Administrator
+	// For the acceptance tests of the function trigger and the application:
+	// + LTS Administrator
+	if HW_FGS_AGENCY_NAME == "" {
+		t.Skip("HW_FGS_AGENCY_NAME must be set for FGS acceptance tests")
 	}
 }
 

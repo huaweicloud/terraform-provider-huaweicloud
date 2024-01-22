@@ -36,15 +36,14 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			// The agency should be FunctionGraph and authorize with "FunctionGraph FullAccess" and "DIS Operator"
-			// and "OBS Administrator" and "SMN Administrator"
-			acceptance.TestAccPreCheckFgsTrigger(t)
+			// Please read the instructions carefully before use to ensure sufficient permissions.
+			acceptance.TestAccPreCheckFgsAgency(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAsyncInvokeConfig_basic_step1(name, acceptance.HW_FGS_TRIGGER_LTS_AGENCY),
+				Config: testAccAsyncInvokeConfig_basic_step1(name, acceptance.HW_FGS_AGENCY_NAME),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "function_urn",
@@ -59,7 +58,7 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccAsyncInvokeConfig_basic_step2(name, acceptance.HW_FGS_TRIGGER_LTS_AGENCY),
+				Config: testAccAsyncInvokeConfig_basic_step2(name, acceptance.HW_FGS_AGENCY_NAME),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "function_urn",

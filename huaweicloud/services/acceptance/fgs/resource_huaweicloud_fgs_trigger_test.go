@@ -164,7 +164,11 @@ func TestAccFunctionGraphTrigger_lts(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckFgsTrigger(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Please read the instructions carefully before use to ensure sufficient permissions.
+			acceptance.TestAccPreCheckFgsAgency(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -297,16 +301,6 @@ resource "huaweicloud_lts_stream" "test" {
   stream_name = "%[1]s"
 }
 
-resource "huaweicloud_identity_agency" "test" {
-  name = "%[1]s"
-  delegated_service_name = "%[3]s"
-
-  project_role {
-    project = "%[2]s"
-    roles = ["LTS FullAccess"]
-  }
-}
-
 resource "huaweicloud_fgs_function" "test" {
   name        = "%[1]s"
   app         = "default"
@@ -315,7 +309,7 @@ resource "huaweicloud_fgs_function" "test" {
   timeout     = 10
   runtime     = "Python2.7"
   code_type   = "inline"
-  agency      = huaweicloud_identity_agency.test.name
+  agency      = "%[2]s"
   func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
 
@@ -327,5 +321,5 @@ resource "huaweicloud_fgs_trigger" "test" {
     log_group_id = huaweicloud_lts_group.test.id
     log_topic_id = huaweicloud_lts_stream.test.id
   }
-}`, rName, acceptance.HW_REGION_NAME, acceptance.HW_FGS_TRIGGER_LTS_AGENCY)
+}`, rName, acceptance.HW_FGS_AGENCY_NAME)
 }
