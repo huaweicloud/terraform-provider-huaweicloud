@@ -65,6 +65,7 @@ func TestAccRouteTable_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -131,7 +132,7 @@ resource "huaweicloud_er_route_table" "test" {
   name        = "%[2]s"
 
   tags = {
-    foo = "bar"
+    owner = "terraform"
   }
 }
 `, testRouteTable_base(name, bgpAsNum), name)
