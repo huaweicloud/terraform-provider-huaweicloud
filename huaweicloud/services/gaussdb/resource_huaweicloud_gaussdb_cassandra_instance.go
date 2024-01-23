@@ -849,7 +849,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}, 
 			}
 			// Reduce Nodes
 			shrinkSize := old.(int) - newnum.(int)
-			// API accepts maxinum num of 10
+			// the API accepts maxinum num of 10
 			reduceNum := 10
 			loopSize := shrinkSize / reduceNum
 			lastNum := shrinkSize % reduceNum

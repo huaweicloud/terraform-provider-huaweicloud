@@ -593,7 +593,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
 
-	// API limitation: port_id and ip_version cannot be updated at the same time
+	// the API limitation: port_id and ip_version cannot be updated at the same time
 	if d.HasChanges("name", "publicip.0.ip_version") {
 		err = updateEipConfig(vpcV1Client, d)
 		if err != nil {
