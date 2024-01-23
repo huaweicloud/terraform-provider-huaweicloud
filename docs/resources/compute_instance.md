@@ -289,8 +289,8 @@ The following arguments are supported:
 * `eip_id` - (Optional, String, ForceNew) Specifies the ID of an *existing* EIP assigned to the instance.
   This parameter and `eip_type`, `bandwidth` are alternative. Changing this creates a new instance.
 
-* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation. Text
-  and text files can be injected. Changing this creates a new instance.
+* `user_data` - (Optional, String) Specifies the user data to be injected during the instance creation. Text
+  and text files can be injected. This value support unencrypted, also support base64 encrypted.
 
   -> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init
   installed, the `admin_pass` field becomes invalid.

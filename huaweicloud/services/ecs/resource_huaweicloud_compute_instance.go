@@ -313,9 +313,10 @@ func ResourceComputeInstance() *schema.Resource {
 			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				// just stash the hash for state & diff comparisons
 				StateFunc: utils.HashAndHexEncode,
+				// Suppress changes if we get a base64 format or plaint text user_data
+				DiffSuppressFunc: utils.SuppressUserData,
 			},
 			"metadata": {
 				Type:     schema.TypeMap,
@@ -971,9 +972,10 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	serverID := d.Id()
-	if d.HasChanges("name", "description") {
+	if d.HasChanges("name", "description", "user_data") {
 		var updateOpts cloudservers.UpdateOpts
 		updateOpts.Name = d.Get("name").(string)
+		updateOpts.UserData = []byte(d.Get("user_data").(string))
 		description := d.Get("description").(string)
 		updateOpts.Description = &description
 
