@@ -62,6 +62,7 @@ func TestAccService_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_security_group.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttr(resourceName, "is_locked", "0"),
 				),
 			},
 			{
