@@ -85,7 +85,7 @@ func ResourceCTSTracker() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"tags": common.TagsSchema(),
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -136,6 +136,14 @@ func resourceCTSTrackerCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	d.SetId(resourceID)
+
+	if rawTag := d.Get("tags").(map[string]interface{}); len(rawTag) > 0 {
+		tagList := expandResourceTags(rawTag)
+		_, err = ctsClient.BatchCreateResourceTags(buildCreateTagOpt(tagList, resourceID))
+		if err != nil {
+			return diag.Errorf("error creating CTS tracker tags: %s", err)
+		}
+	}
 
 	// disable status if necessary
 	if enabled := d.Get("enabled").(bool); !enabled {
@@ -197,6 +205,13 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		_, err = ctsClient.UpdateTracker(&updateOpts)
 		if err != nil {
 			return diag.Errorf("error updating CTS tracker: %s", err)
+		}
+
+		if d.HasChange("tags") {
+			err = updateResourceTags(ctsClient, d)
+			if err != nil {
+				return diag.Errorf("error updating CTS tracker tags: %s", err)
+			}
 		}
 	}
 
@@ -296,6 +311,15 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 	_, err = ctsClient.UpdateTracker(&updateOpts)
 	if err != nil {
 		return diag.Errorf("falied to reset CTS system tracker: %s", err)
+	}
+
+	oldRaw, _ := d.GetChange("tags")
+	if oldTags := oldRaw.(map[string]interface{}); len(oldTags) > 0 {
+		oldTagList := expandResourceTags(oldTags)
+		_, err = ctsClient.BatchDeleteResourceTags(buildDeleteTagOpt(oldTagList, d.Id()))
+		if err != nil {
+			return diag.Errorf("falied to delete CTS system tracker tags: %s", err)
+		}
 	}
 
 	return nil

@@ -32,6 +32,7 @@ func TestAccCTSTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", "system"),
 					resource.TestCheckResourceAttr(resourceName, "type", "system"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 			{
@@ -41,13 +42,16 @@ func TestAccCTSTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "file_prefix", "cts-updated"),
 					resource.TestCheckResourceAttr(resourceName, "lts_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "disabled"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCTSTrackerImportState(resourceName),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccCTSTrackerImportState(resourceName),
+				ImportStateVerifyIgnore: []string{"tags"},
 			},
 		},
 	})
@@ -151,6 +155,10 @@ resource "huaweicloud_cts_tracker" "tracker" {
   bucket_name = huaweicloud_obs_bucket.bucket.bucket
   file_prefix = "cts"
   lts_enabled = true
+
+  tags = {
+    foo = "bar"
+  }
 }
 `, rName)
 }
@@ -168,6 +176,11 @@ resource "huaweicloud_cts_tracker" "tracker" {
   file_prefix = "cts-updated"
   lts_enabled = false
   enabled     = false
+
+  tags = {
+    foo    = "bar1"
+    newkey = "value"
+  }
 }
 `, rName)
 }

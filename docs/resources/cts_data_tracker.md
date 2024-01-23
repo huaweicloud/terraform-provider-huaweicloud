@@ -52,6 +52,8 @@ The following arguments are supported:
 
 * `enabled` - (Optional, Bool) Specifies whether tracker is enabled.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CTS data tracker.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -74,4 +76,21 @@ CTS data tracker can be imported using `name`, e.g.:
 
 ```
 $ terraform import huaweicloud_cts_data_tracker.tracker your_tracker_name
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attribute is `tags`.
+
+It is generally recommended running `terraform plan` after importing the resource.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to
+align with the resource. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_cts_data_tracker" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
+}
 ```
