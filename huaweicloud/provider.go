@@ -412,6 +412,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_policies": cbr.DataSourcePolicies(),
 
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
+			"huaweicloud_cbh_flavors":   cbh.DataSourceCbhFlavors(),
 
 			"huaweicloud_cce_addon_template":      cce.DataSourceAddonTemplate(),
 			"huaweicloud_cce_cluster":             cce.DataSourceCCEClusterV3(),
