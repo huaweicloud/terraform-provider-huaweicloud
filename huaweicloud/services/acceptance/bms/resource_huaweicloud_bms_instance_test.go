@@ -39,6 +39,11 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrSet(resourceName, "user_data"),
+					resource.TestCheckResourceAttr(resourceName, "nics.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "nics.0.subnet_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "nics.0.ip_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "nics.0.mac_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "nics.0.port_id"),
 				),
 			},
 			{
@@ -49,6 +54,14 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.tag1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.tag2", "value2"),
+					resource.TestCheckResourceAttr(resourceName, "nics.#", "2"),
+				),
+			},
+			{
+				Config: testAccBmsInstance_update2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "nics.#", "1"),
 				),
 			},
 		},
@@ -189,6 +202,13 @@ data "huaweicloud_images_image" "test" {
 
 resource "huaweicloud_kps_keypair" "test" {
   name = "%s"
+}
+
+resource "huaweicloud_vpc_subnet" "test1" {
+  name       = "%[2]s"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.5.0/24"
+  gateway_ip = "192.168.5.99"
 }`, common.TestBaseNetwork(rName), rName)
 }
 
@@ -331,7 +351,47 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
   key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = "519ea918-1fea-4ebc-911a-593739b1a3bc" # CentOS 7.4 64bit for BareMetal
+  image_id          = data.huaweicloud_images_image.test.id
+
+  name                  = "%[2]s_update"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test1.id
+  }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
+
+  tags = {
+    tag1 = "value1"
+    tag2 = "value2"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "true"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccBmsInstance_update2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  key_pair          = huaweicloud_kps_keypair.test.name
+  image_id          = data.huaweicloud_images_image.test.id
 
   name                  = "%[2]s_update"
   user_id               = "%[3]s"
@@ -345,6 +405,9 @@ resource "huaweicloud_bms_instance" "test" {
     tag1 = "value1"
     tag2 = "value2"
   }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
 
   charging_mode = "prePaid"
   period_unit   = "month"
