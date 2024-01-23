@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -18,6 +19,7 @@ import (
 // MAXFieldLength is the maximum string length of single field when logging
 const MAXFieldLength int = 1024
 
+var logAtomicId int64
 var maxTimeout = 10 * time.Minute
 
 // LogRoundTripper satisfies the http.RoundTripper interface and is used to
@@ -38,28 +40,53 @@ func retryTimeout(count int) time.Duration {
 
 // RoundTrip performs a round-trip HTTP request and logs relevant information about it.
 func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, error) {
+	var err error
+	var response *http.Response
+	var bs bytes.Buffer
+
+	logId := atomic.AddInt64(&logAtomicId, 1)
+	requestAt := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), logId)
+
 	defer func() {
-		if request.Body != nil {
-			request.Body.Close()
+		// logging the API request and response
+		var logErr error
+		if request != nil {
+			log.Printf("[DEBUG] [%s] API Request URL: %s %s\nAPI Request Headers:\n%s",
+				requestAt, request.Method, request.URL, FormatHeaders(request.Header, "\n"))
+
+			if request.Body != nil {
+				logErr = lrt.logRequest(&bs, request.Header.Get("Content-Type"), requestAt)
+				if logErr != nil {
+					log.Printf("[WARN] [%s] failed to log API Request Body: %s", requestAt, logErr)
+				}
+
+				request.Body.Close()
+			}
+		}
+
+		if response != nil {
+			responseAt := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), logId)
+			log.Printf("[DEBUG] [%s] API Response Code: %d\nAPI Response Headers:\n%s",
+				responseAt, response.StatusCode, FormatHeaders(response.Header, "\n"))
+
+			if response.Body != nil {
+				response.Body, logErr = lrt.logResponse(response.Body, response.Header.Get("Content-Type"), responseAt)
+				if logErr != nil {
+					log.Printf("[WARN] [%s] failed to log API Response Body: %s", responseAt, logErr)
+				}
+			}
 		}
 	}()
 
-	// for future reference, this is how to access the Transport struct:
-	//tlsconfig := lrt.Rt.(*http.Transport).TLSClientConfig
-
-	var err error
-
-	log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
-	log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
-
 	if request.Body != nil {
-		request.Body, err = lrt.logRequest(request.Body, request.Header.Get("Content-Type"))
+		request.Body, err = lrt.dumpRequest(request.Body, &bs)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	response, err := lrt.Rt.RoundTrip(request)
+	// executes a single HTTP transaction
+	response, err = lrt.Rt.RoundTrip(request)
 	if response == nil {
 		errMessage := err.Error()
 		if strings.Contains(errMessage, "no such host") {
@@ -70,14 +97,14 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	// Retrying connection
 	retry := 1
 	for response == nil {
-
+		responseAt := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), logId)
 		if retry > lrt.MaxRetries {
-			log.Printf("[DEBUG] connection error, retries exhausted. Aborting")
+			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", responseAt)
 			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
 			return nil, err
 		}
 
-		log.Printf("[DEBUG] connection error, retry number %d: %s", retry, err)
+		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", responseAt, retry, err)
 
 		//lintignore:R018
 		time.Sleep(retryTimeout(retry))
@@ -85,44 +112,43 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		retry++
 	}
 
-	log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
-	log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
-
-	response.Body, err = lrt.logResponse(response.Body, response.Header.Get("Content-Type"))
-
 	return response, err
 }
 
-// logRequest will log the HTTP Request details.
-// If the body is JSON, it will attempt to be pretty-formatted.
-func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType string) (io.ReadCloser, error) {
+// dumpRequest will copy the HTTP Request details to buffer, then close the original.
+func (*LogRoundTripper) dumpRequest(original io.ReadCloser, bs *bytes.Buffer) (io.ReadCloser, error) {
 	defer original.Close()
 
-	var bs bytes.Buffer
-	_, err := io.Copy(&bs, original)
+	_, err := io.Copy(bs, original)
 	if err != nil {
 		return nil, err
-	}
-
-	isJSONFormat := strings.HasPrefix(contentType, "application/json")
-	isXMLFormat := strings.HasPrefix(bs.String(), "<") && !strings.HasPrefix(bs.String(), "<html>")
-	// Handle request contentType
-	switch {
-	case isJSONFormat:
-		debugInfo := formatJSON(bs.Bytes(), true)
-		log.Printf("[DEBUG] API Request Body: %s", debugInfo)
-	case isXMLFormat:
-		log.Printf("[DEBUG] API Request Body: %s", bs.String())
-	default:
-		log.Printf("[DEBUG] Not logging because the request body isn't JSON or XML format")
 	}
 
 	return io.NopCloser(strings.NewReader(bs.String())), nil
 }
 
-// logResponse will log the HTTP Response details.
+// logRequest will log the HTTP Request details.
 // If the body is JSON, it will attempt to be pretty-formatted.
-func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType string) (io.ReadCloser, error) {
+func (*LogRoundTripper) logRequest(bs *bytes.Buffer, contentType, responseAt string) error {
+	isJSONFormat := strings.HasPrefix(contentType, "application/json")
+	isXMLFormat := strings.HasPrefix(bs.String(), "<") && !strings.HasPrefix(bs.String(), "<html>")
+	// Handle request contentType
+	switch {
+	case isJSONFormat:
+		debugInfo := formatJSON(bs.Bytes(), responseAt, true)
+		log.Printf("[DEBUG] [%s] API Request Body: %s", responseAt, debugInfo)
+	case isXMLFormat:
+		log.Printf("[DEBUG] [%s] API Request Body: %s", responseAt, bs.String())
+	default:
+		log.Printf("[DEBUG] [%s] Not logging because the request body isn't JSON or XML format", responseAt)
+	}
+
+	return nil
+}
+
+// logResponse will log the HTTP Response details, then close the original and build a new ReadCloser.
+// If the body is JSON, it will attempt to be pretty-formatted.
+func (*LogRoundTripper) logResponse(original io.ReadCloser, contentType, responseAt string) (io.ReadCloser, error) {
 	defer original.Close()
 
 	var bs bytes.Buffer
@@ -135,12 +161,12 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 	isXMLFormat := strings.HasPrefix(contentType, "application/xml")
 	switch {
 	case isJSONFormat:
-		debugInfo := formatJSON(bs.Bytes(), true)
-		log.Printf("[DEBUG] API Response Body: %s", debugInfo)
+		debugInfo := formatJSON(bs.Bytes(), responseAt, true)
+		log.Printf("[DEBUG] [%s] API Response Body: %s", responseAt, debugInfo)
 	case isXMLFormat:
-		log.Printf("[DEBUG] API Response Body: %s", bs.String())
+		log.Printf("[DEBUG] [%s] API Response Body: %s", responseAt, bs.String())
 	default:
-		log.Printf("[DEBUG] Not logging because the response body isn't JSON or XML format")
+		log.Printf("[DEBUG] [%s] Not logging because the response body isn't JSON or XML format", responseAt)
 	}
 
 	return io.NopCloser(strings.NewReader(bs.String())), nil
@@ -148,7 +174,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 
 // formatJSON will try to pretty-format a JSON body.
 // It will also mask known fields which contain sensitive information.
-func formatJSON(raw []byte, maskBody bool) string {
+func formatJSON(raw []byte, logAt string, maskBody bool) string {
 	var data map[string]interface{}
 
 	if len(raw) == 0 {
@@ -157,7 +183,7 @@ func formatJSON(raw []byte, maskBody bool) string {
 
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Printf("[DEBUG] Unable to parse JSON: %s", err)
+		log.Printf("[DEBUG] [%s] Unable to parse JSON: %s", logAt, err)
 		return string(raw)
 	}
 
@@ -178,7 +204,7 @@ func formatJSON(raw []byte, maskBody bool) string {
 
 	pretty, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Printf("[DEBUG] Unable to re-marshal JSON: %s", err)
+		log.Printf("[DEBUG] [%s] Unable to re-marshal JSON: %s", logAt, err)
 		return string(raw)
 	}
 
