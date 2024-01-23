@@ -464,7 +464,7 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("enterprise_project_id") && !d.IsNewResource() {
-		// API Limitations: still requires `project_id` field when migrating the EPS of OBS bucket
+		// the API Limitations: still requires `project_id` field when migrating the EPS of OBS bucket
 		if err := resourceObsBucketEnterpriseProjectIdUpdate(ctx, d, conf, obsClient, region); err != nil {
 			return diag.FromErr(err)
 		}
