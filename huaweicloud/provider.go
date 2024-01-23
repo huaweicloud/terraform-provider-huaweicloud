@@ -1000,6 +1000,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_snapshot": evs.ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":   evs.ResourceEvsVolume(),
 
+			"huaweicloud_fgs_application":                fgs.ResourceApplication(),
 			"huaweicloud_fgs_async_invoke_configuration": fgs.ResourceAsyncInvokeConfiguration(),
 			"huaweicloud_fgs_dependency":                 fgs.ResourceFgsDependency(),
 			"huaweicloud_fgs_dependency_version":         fgs.ResourceDependencyVersion(),
