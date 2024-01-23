@@ -98,7 +98,7 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-
+			"tags": common.TagsSchema(),
 			"type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -128,6 +128,45 @@ func buildCreateRequestBody(d *schema.ResourceData) *cts.CreateTrackerRequestBod
 
 	log.Printf("[DEBUG] creating data CTS tracker options: %#v", reqBody)
 	return &reqBody
+}
+
+func expandResourceTags(tagmap map[string]interface{}) *[]cts.Tags {
+	taglist := make([]cts.Tags, 0, len(tagmap))
+
+	for k, v := range tagmap {
+		taglist = append(taglist, cts.Tags{
+			Key:   utils.String(k),
+			Value: utils.String(v.(string)),
+		})
+	}
+
+	return &taglist
+}
+
+func buildCreateTagOpt(taglist *[]cts.Tags, id string) *cts.BatchCreateResourceTagsRequest {
+	reqBody := cts.BatchCreateResourceTagsRequestBody{
+		Tags: taglist,
+	}
+	tagOpt := cts.BatchCreateResourceTagsRequest{
+		ResourceId:   id,
+		ResourceType: cts.GetBatchCreateResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
+		Body:         &reqBody,
+	}
+
+	return &tagOpt
+}
+
+func buildDeleteTagOpt(taglist *[]cts.Tags, id string) *cts.BatchDeleteResourceTagsRequest {
+	reqBody := cts.BatchDeleteResourceTagsRequestBody{
+		Tags: taglist,
+	}
+	tagOpt := cts.BatchDeleteResourceTagsRequest{
+		ResourceId:   id,
+		ResourceType: cts.GetBatchDeleteResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
+		Body:         &reqBody,
+	}
+
+	return &tagOpt
 }
 
 func buildDataBucketOpts(d *schema.ResourceData) *cts.DataBucket {
@@ -171,6 +210,29 @@ func buildTransferBucketOpts(d *schema.ResourceData) *cts.TrackerObsInfo {
 	return &transferCfg
 }
 
+func updateResourceTags(ctsClient *client.CtsClient, d *schema.ResourceData) error {
+	oldRaw, newRaw := d.GetChange("tags")
+	id := d.Id()
+
+	if oldTags := oldRaw.(map[string]interface{}); len(oldTags) > 0 {
+		oldTagList := expandResourceTags(oldTags)
+		_, err := ctsClient.BatchDeleteResourceTags(buildDeleteTagOpt(oldTagList, id))
+		if err != nil {
+			return err
+		}
+	}
+
+	if newTags := newRaw.(map[string]interface{}); len(newTags) > 0 {
+		newTagsList := expandResourceTags(newTags)
+		_, err := ctsClient.BatchCreateResourceTags(buildCreateTagOpt(newTagsList, id))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
@@ -191,6 +253,14 @@ func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CTS data tracker: ID is not found in API response")
 	}
 	d.SetId(*resp.Id)
+
+	if rawTag := d.Get("tags").(map[string]interface{}); len(rawTag) > 0 {
+		tagList := expandResourceTags(rawTag)
+		_, err = ctsClient.BatchCreateResourceTags(buildCreateTagOpt(tagList, *resp.Id))
+		if err != nil {
+			return diag.Errorf("error creating CTS tracker tags: %s", err)
+		}
+	}
 
 	trackerName := d.Get("name").(string)
 	// disable status if necessary
@@ -248,6 +318,13 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 		_, err = ctsClient.UpdateTracker(&updateOpts)
 		if err != nil {
 			return diag.Errorf("error updating CTS tracker: %s", err)
+		}
+
+		if d.HasChange("tags") {
+			err = updateResourceTags(ctsClient, d)
+			if err != nil {
+				return diag.Errorf("error updating CTS tracker tags: %s", err)
+			}
 		}
 	}
 

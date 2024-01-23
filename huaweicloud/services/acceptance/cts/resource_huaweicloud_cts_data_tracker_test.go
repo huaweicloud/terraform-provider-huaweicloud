@@ -67,6 +67,7 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "data"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "data_operation.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(resourceName, "data_bucket",
 						"huaweicloud_obs_bucket.data_bucket", "bucket"),
 				),
@@ -82,13 +83,16 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "validate_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "lts_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testCTSDataTrackerImportState(resourceName),
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testCTSDataTrackerImportState(resourceName),
+				ImportStateVerifyIgnore: []string{"tags"},
 			},
 		},
 	})
@@ -105,6 +109,10 @@ resource "huaweicloud_cts_data_tracker" "tracker" {
   name        = "%[1]s"
   data_bucket = huaweicloud_obs_bucket.data_bucket.bucket
   lts_enabled = true
+  
+  tags = {
+    foo = "bar"
+  }
 }
 `, rName)
 }
@@ -134,6 +142,11 @@ resource "huaweicloud_cts_data_tracker" "tracker" {
   file_prefix          = "cts"
   validate_file        = false
   lts_enabled          = false
+
+  tags = {
+    foo    = "bar1"
+    newkey = "value"
+  }
 }
 `, rName)
 }
