@@ -19,10 +19,9 @@ func TestAccInstancesDataSource_basic(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -84,10 +83,9 @@ func TestAccInstancesDataSource_filterById(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -125,10 +123,9 @@ func TestAccInstancesDataSource_filterByStatus(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -166,10 +163,9 @@ func TestAccInstancesDataSource_filterByEpsId(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -212,10 +208,9 @@ func TestAccInstancesDataSource_filterByTags(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

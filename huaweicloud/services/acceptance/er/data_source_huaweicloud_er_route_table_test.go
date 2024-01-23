@@ -19,10 +19,9 @@ func TestAccRouteTablesDataSource_basic(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -46,10 +45,9 @@ func TestAccRouteTablesDataSource_byName(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -73,10 +71,9 @@ func TestAccRouteTablesDataSource_byId(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -100,10 +97,9 @@ func TestAccRouteTablesDataSource_byTags(t *testing.T) {
 		dc = acceptance.InitDataSourceCheck(dName)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

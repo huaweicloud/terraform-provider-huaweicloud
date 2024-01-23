@@ -43,7 +43,7 @@ func TestAccDatasourceFlowLogs_basic(t *testing.T) {
 		dcByLogStreamId = acceptance.InitDataSourceCheck(byLogStreamId)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
