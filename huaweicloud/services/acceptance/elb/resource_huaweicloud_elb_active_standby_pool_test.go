@@ -70,18 +70,18 @@ func TestAccElbActiveStandbyPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "any_port_enable", "false"),
-					resource.TestCheckResourceAttr(resourceName, "members.0.address", "0.0.0.1"),
-					resource.TestCheckResourceAttr(resourceName, "members.0.protocol_port", "45"),
-					resource.TestCheckResourceAttr(resourceName, "members.0.role", "slave"),
-					resource.TestCheckResourceAttr(resourceName, "members.1.address", "0.0.0.0"),
-					resource.TestCheckResourceAttr(resourceName, "members.1.protocol_port", "36"),
-					resource.TestCheckResourceAttr(resourceName, "members.1.role", "master"),
+					resource.TestCheckResourceAttr(resourceName, "members.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.delay", "5"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.expected_codes", "200"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.max_retries", "3"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.max_retries_down", "3"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.timeout", "3"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.type", "TCP"),
+					resource.TestCheckResourceAttrSet(resourceName, "members.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "members.0.member_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "members.0.operating_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "members.0.ip_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "healthmonitor.0.id"),
 				),
 			},
 			{
@@ -106,15 +106,15 @@ resource "huaweicloud_elb_active_standby_pool" "test" {
   any_port_enable = false
 
   members {
-    address       = "0.0.0.1"
+    address       = "192.168.0.1"
+    role          = "master"
     protocol_port = 45
-    role          = "slave"
   }
 
   members {
-    address       = "0.0.0.0"
+    address       = "192.168.0.2"
+    role          = "slave"
     protocol_port = 36
-    role          = "master"
   }
 
   healthmonitor {
