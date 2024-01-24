@@ -214,7 +214,6 @@ func ResourceDeviceRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("name", response.DeviceName),
 		d.Set("device_id", response.DeviceId),
 		d.Set("node_id", response.NodeId),
-		d.Set("name", response.DeviceName),
 		d.Set("product_id", response.ProductId),
 		d.Set("gateway_id", response.GatewayId),
 		d.Set("description", response.Description),
