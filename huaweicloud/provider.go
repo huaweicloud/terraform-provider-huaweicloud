@@ -1005,6 +1005,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_dependency":                 fgs.ResourceFgsDependency(),
 			"huaweicloud_fgs_dependency_version":         fgs.ResourceDependencyVersion(),
 			"huaweicloud_fgs_function":                   fgs.ResourceFgsFunctionV2(),
+			"huaweicloud_fgs_function_event":             fgs.ResourceFunctionEvent(),
 			"huaweicloud_fgs_trigger":                    fgs.ResourceFunctionGraphTrigger(),
 
 			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
