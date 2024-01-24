@@ -312,6 +312,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v3",
 		Product: "VPC",
 	},
+	"geip": {
+		Name:             "eip",
+		Version:          "v3",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "EIP",
+	},
 	"nat": {
 		Name:    "nat",
 		Version: "v2",
