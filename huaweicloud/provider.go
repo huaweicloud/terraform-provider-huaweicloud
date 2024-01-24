@@ -887,6 +887,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_snapshot":      css.ResourceCssSnapshot(),
 			"huaweicloud_css_thesaurus":     css.ResourceCssthesaurus(),
 			"huaweicloud_css_configuration": css.ResourceCssConfiguration(),
+			"huaweicloud_css_scan_task":     css.ResourceScanTask(),
 
 			"huaweicloud_dbss_instance": dbss.ResourceInstance(),
 
