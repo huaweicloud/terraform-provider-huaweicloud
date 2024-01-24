@@ -230,7 +230,7 @@ func ResourceBmsInstance() *schema.Resource {
 			"period":        common.SchemaPeriod([]string{}),
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -413,6 +413,7 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("user_data", server.UserData),
 		d.Set("enterprise_project_id", server.EnterpriseProjectID),
 		d.Set("disk_ids", diskIds),
+		utils.SetResourceTagsToState(d, bmsClient, "baremetalservers", d.Id()),
 	)
 
 	// Set fixed and floating ip
@@ -446,6 +447,13 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
 			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		err = utils.UpdateResourceTags(bmsClient, d, "baremetalservers", d.Id())
+		if err != nil {
+			return diag.Errorf("error updating tags of bms server: %s", err)
 		}
 	}
 
