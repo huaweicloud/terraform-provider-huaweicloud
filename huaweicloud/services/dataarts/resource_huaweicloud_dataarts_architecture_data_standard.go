@@ -22,11 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio POST /v2/{project_id}/design/standards
-// API: DataArtsStudio GET /v2/{project_id}/design/standards
-// API: DataArtsStudio PUT /v2/{project_id}/design/standards/{id}
-// API: DataArtsStudio GET //v2/{project_id}/design/standards/{id}
-// API: DataArtsStudio DELETE /v2/{project_id}/design/standards
+// @API DataArtsStudio POST /v2/{project_id}/design/standards
+// @API DataArtsStudio GET /v2/{project_id}/design/standards
+// @API DataArtsStudio PUT /v2/{project_id}/design/standards/{id}
+// @API DataArtsStudio GET //v2/{project_id}/design/standards/{id}
+// @API DataArtsStudio DELETE /v2/{project_id}/design/standards
 func ResourceDataStandard() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDataStandardCreate,

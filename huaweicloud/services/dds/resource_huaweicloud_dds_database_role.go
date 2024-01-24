@@ -20,10 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: DDS POST /v3/{project_id}/instances/{instance_id}/db-role
-// API: DDS GET /v3/{project_id}/instances
-// API: DDS GET /v3/{project_id}/instances/{instance_id}/db-roles
-// API: DDS DELETE /v3/{project_id}/instances/{instance_id}/db-role
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/db-role
+// @API DDS GET /v3/{project_id}/instances
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/db-roles
+// @API DDS DELETE /v3/{project_id}/instances/{instance_id}/db-role
 func ResourceDatabaseRole() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatabaseRoleCreate,

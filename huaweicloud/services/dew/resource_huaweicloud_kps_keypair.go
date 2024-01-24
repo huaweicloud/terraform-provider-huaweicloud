@@ -28,10 +28,10 @@ const (
 	scopeDomainLabel = "account"
 )
 
-// API: DEW POST /v3/{project_id}/keypairs
-// API: DEW PUT /v3/{project_id}/keypairs/{keypair_name}
-// API: DEW GET /v3/{project_id}/keypairs/{keypair_name}
-// API: DEW DELETE /v3/{project_id}/keypairs/{keypair_name}
+// @API DEW POST /v3/{project_id}/keypairs
+// @API DEW PUT /v3/{project_id}/keypairs/{keypair_name}
+// @API DEW GET /v3/{project_id}/keypairs/{keypair_name}
+// @API DEW DELETE /v3/{project_id}/keypairs/{keypair_name}
 func ResourceKeypair() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceKeypairCreate,

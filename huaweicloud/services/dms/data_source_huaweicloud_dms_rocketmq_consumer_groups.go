@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: RocketMQ GET /v2/{project_id}/instances/{instance_id}/groups
+// @API RocketMQ GET /v2/{project_id}/instances/{instance_id}/groups
 func DataSourceDmsRocketMQConsumerGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDmsRocketMQConsumerGroupsRead,

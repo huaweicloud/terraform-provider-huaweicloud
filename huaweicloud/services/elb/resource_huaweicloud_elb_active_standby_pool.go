@@ -20,9 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: ELB POST /v3/{project_id}/elb/master-slave-pools
-// API: ELB GET /v3/{project_id}/elb/master-slave-pools/{pool_id}
-// API: ELB DELETE /v3/{project_id}/elb/master-slave-pools/{pool_id}
+// @API ELB POST /v3/{project_id}/elb/master-slave-pools
+// @API ELB GET /v3/{project_id}/elb/master-slave-pools/{pool_id}
+// @API ELB DELETE /v3/{project_id}/elb/master-slave-pools/{pool_id}
 func ResourceActiveStandbyPool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceActiveStandbyPoolCreate,

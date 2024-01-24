@@ -16,9 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: Kafka POST /v2/{project_id}/connectors/{connector_id}/sink-tasks
-// API: Kafka GET /v2/{project_id}/connectors/{connector_id}/sink-tasks
-// API: Kafka DELETE /v2/{project_id}/connectors/{connector_id}/sink-tasks/{task_id}
+// @API Kafka POST /v2/{project_id}/connectors/{connector_id}/sink-tasks
+// @API Kafka GET /v2/{project_id}/connectors/{connector_id}/sink-tasks
+// @API Kafka DELETE /v2/{project_id}/connectors/{connector_id}/sink-tasks/{task_id}
 func ResourceDmsKafkaSmartConnectTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaSmartConnectTaskCreate,

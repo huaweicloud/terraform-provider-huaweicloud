@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: FunctionGraph GET /v2/{project_id}/fgs/functions
+// @API FunctionGraph GET /v2/{project_id}/fgs/functions
 func DataSourceFunctionGraphFunctions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceFunctionGraphFunctionsRead,

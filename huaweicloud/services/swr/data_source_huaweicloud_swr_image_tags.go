@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/tags
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/tags
 func DataSourceImageTags() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceImageTagsRead,

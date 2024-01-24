@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio POST /v3/{project_id}/design/subjects
-// API: DataArtsStudio DELETE /v3/{project_id}/design/subjects
-// API: DataArtsStudio GET /v3/{project_id}/design/subjects
-// API: DataArtsStudio PUT /v3/{project_id}/design/subjects
+// @API DataArtsStudio POST /v3/{project_id}/design/subjects
+// @API DataArtsStudio DELETE /v3/{project_id}/design/subjects
+// @API DataArtsStudio GET /v3/{project_id}/design/subjects
+// @API DataArtsStudio PUT /v3/{project_id}/design/subjects
 func ResourceArchitectureSubject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceArchitectureSubjectCreate,

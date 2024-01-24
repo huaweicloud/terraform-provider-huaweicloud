@@ -19,10 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: ECS POST /v2/{domain_id}/auto-launch-groups
-// API: ECS DELETE /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}
-// API: ECS GET /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}
-// API: ECS PUT /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}
+// @API ECS POST /v2/{domain_id}/auto-launch-groups
+// @API ECS DELETE /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}
+// @API ECS GET /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}
+// @API ECS PUT /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}
 func ResourceComputeAutoLaunchGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAutoLaunchGroupCreate,

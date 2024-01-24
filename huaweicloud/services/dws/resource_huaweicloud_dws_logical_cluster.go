@@ -29,9 +29,9 @@ const (
 	deleteFirstLogicalClusterMsg = "the first logical cluster can't be deleted"
 )
 
-// API: DWS POST /v2/{project_id}/clusters/{cluster_id}/logical-clusters
-// API: DWS GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters
-// API: DWS DELETE /v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}
+// @API DWS POST /v2/{project_id}/clusters/{cluster_id}/logical-clusters
+// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters
+// @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}
 func ResourceLogicalCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLogicalClusterCreate,

@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: VPC GET /v3/{project_id}/vpc/security-group-rules
+// @API VPC GET /v3/{project_id}/vpc/security-group-rules
 func DataSourceNetworkingSecGroupRules() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceNetworkingSecGroupRulesRead,

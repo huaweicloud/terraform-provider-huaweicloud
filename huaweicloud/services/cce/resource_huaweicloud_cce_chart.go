@@ -15,10 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: CCE POST /v2/charts
-// API: CCE GET /v2/charts/{chart_id}
-// API: CCE PUT /v2/charts/{chart_id}
-// API: CCE DELETE /v2/charts/{chart_id}
+// @API CCE POST /v2/charts
+// @API CCE GET /v2/charts/{chart_id}
+// @API CCE PUT /v2/charts/{chart_id}
+// @API CCE DELETE /v2/charts/{chart_id}
 
 func ResourceChart() *schema.Resource {
 	return &schema.Resource{

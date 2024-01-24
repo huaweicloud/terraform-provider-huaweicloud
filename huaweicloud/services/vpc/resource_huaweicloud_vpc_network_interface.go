@@ -16,10 +16,10 @@ import (
 
 const DhcpLeaseType = "51"
 
-// API: VPC PUT /v1/{project_id}/ports/{port_id}
-// API: VPC POST /v1/{project_id}/ports
-// API: VPC GET /v1/{project_id}/ports/{port_id}
-// API: VPC DELETE /v1/{project_id}/ports/{port_id}
+// @API VPC PUT /v1/{project_id}/ports/{port_id}
+// @API VPC POST /v1/{project_id}/ports
+// @API VPC GET /v1/{project_id}/ports/{port_id}
+// @API VPC DELETE /v1/{project_id}/ports/{port_id}
 func ResourceNetworkInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkInterfaceCreate,

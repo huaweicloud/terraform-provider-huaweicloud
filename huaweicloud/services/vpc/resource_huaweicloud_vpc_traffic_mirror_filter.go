@@ -15,10 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: VPC POST /v3/{project_id}/vpc/traffic-mirror-filters
-// API: VPC GET /v3/{project_id}/vpc/traffic-mirror-filters/{traffic_mirror_filter_id}
-// API: VPC PUT /v3/{project_id}/vpc/traffic-mirror-filters/{traffic_mirror_filter_id}
-// API: VPC DELETE /v3/{project_id}/vpc/traffic-mirror-filters/{traffic_mirror_filter_id}
+// @API VPC POST /v3/{project_id}/vpc/traffic-mirror-filters
+// @API VPC GET /v3/{project_id}/vpc/traffic-mirror-filters/{traffic_mirror_filter_id}
+// @API VPC PUT /v3/{project_id}/vpc/traffic-mirror-filters/{traffic_mirror_filter_id}
+// @API VPC DELETE /v3/{project_id}/vpc/traffic-mirror-filters/{traffic_mirror_filter_id}
 func ResourceTrafficMirrorFilter() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTrafficMirrorFilterCreate,

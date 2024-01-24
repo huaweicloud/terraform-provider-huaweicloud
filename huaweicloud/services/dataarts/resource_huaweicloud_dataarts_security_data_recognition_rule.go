@@ -18,10 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio POST /v1/{project_id}/security/data-classification/rule
-// API: DataArtsStudio DELETE /v1/{project_id}/security/data-classification/rule/{id}
-// API: DataArtsStudio GET /v1/{project_id}/security/data-classification/rule/{id}
-// API: DataArtsStudio PUT /v1/{project_id}/security/data-classification/rule/{id}
+// @API DataArtsStudio POST /v1/{project_id}/security/data-classification/rule
+// @API DataArtsStudio DELETE /v1/{project_id}/security/data-classification/rule/{id}
+// @API DataArtsStudio GET /v1/{project_id}/security/data-classification/rule/{id}
+// @API DataArtsStudio PUT /v1/{project_id}/security/data-classification/rule/{id}
 func ResourceSecurityRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSecurityRuleCreate,

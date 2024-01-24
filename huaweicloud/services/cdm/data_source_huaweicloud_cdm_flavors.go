@@ -17,8 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: CDM GET /v1.1/{project_id}/datastores
-// API: CDM GET /v1.1/{project_id}/datastores/{id}/flavors
+// @API CDM GET /v1.1/{project_id}/datastores
+// @API CDM GET /v1.1/{project_id}/datastores/{id}/flavors
 func DataSourceCdmFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCdmFlavorsRead,

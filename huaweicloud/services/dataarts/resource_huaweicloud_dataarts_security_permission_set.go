@@ -19,10 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio POST /v1/{project_id}/security/permission-sets
-// API: DataArtsStudio DELETE /v1/{project_id}/security/permission-sets/{permission_set_id}
-// API: DataArtsStudio GET /v1/{project_id}/security/permission-sets/{permission_set_id}
-// API: DataArtsStudio PUT /v1/{project_id}/security/permission-sets/{permission_set_id}
+// @API DataArtsStudio POST /v1/{project_id}/security/permission-sets
+// @API DataArtsStudio DELETE /v1/{project_id}/security/permission-sets/{permission_set_id}
+// @API DataArtsStudio GET /v1/{project_id}/security/permission-sets/{permission_set_id}
+// @API DataArtsStudio PUT /v1/{project_id}/security/permission-sets/{permission_set_id}
 func ResourceSecurityPermissionSet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSecurityPermissionSetCreate,

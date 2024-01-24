@@ -25,9 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DDS POST /v3/{project_id}/instances/{instance_id}/auditlog-policy
-// API: DDS GET /v3/{project_id}/instances/{instance_id}/auditlog-policy
-// API: DDS GET /v3/{project_id}/instances
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/auditlog-policy
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/auditlog-policy
+// @API DDS GET /v3/{project_id}/instances
 func ResourceDdsAuditLogPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdsAuditLogPolicyCreate,

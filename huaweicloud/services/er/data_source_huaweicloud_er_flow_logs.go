@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: ER GET /v3/{project_id}/enterprise-router/{er_id}/flow-logs
+// @API ER GET /v3/{project_id}/enterprise-router/{er_id}/flow-logs
 func DataSourceFlowLogs() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceFlowLogsRead,

@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio GET /v1/{project_id}/workspaces/{instance_id}
+// @API DataArtsStudio GET /v1/{project_id}/workspaces/{instance_id}
 func DataSourceDataArtsStudioWorkspaces() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDataArtsStudioWorkSpaceRead,

@@ -17,11 +17,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: FunctionGraph POST /v2/{project_id}/fgs/dependencies/version
-// API: FunctionGraph GET /v2/{project_id}/fgs/dependencies
-// API: FunctionGraph GET /v2/{project_id}/fgs/dependencies/{depend_id}/version
-// API: FunctionGraph GET /v2/{project_id}/fgs/dependencies/{depend_id}/version/{version}
-// API: FunctionGraph DELETE /v2/{project_id}/fgs/dependencies/{depend_id}/version/{version}
+// @API FunctionGraph POST /v2/{project_id}/fgs/dependencies/version
+// @API FunctionGraph GET /v2/{project_id}/fgs/dependencies
+// @API FunctionGraph GET /v2/{project_id}/fgs/dependencies/{depend_id}/version
+// @API FunctionGraph GET /v2/{project_id}/fgs/dependencies/{depend_id}/version/{version}
+// @API FunctionGraph DELETE /v2/{project_id}/fgs/dependencies/{depend_id}/version/{version}
 func ResourceDependencyVersion() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDependencyVersionCreate,

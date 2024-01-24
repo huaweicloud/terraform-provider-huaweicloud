@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
 func DataSourceRdsMysqlDatabases() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRdsMysqlDatabasesRead,

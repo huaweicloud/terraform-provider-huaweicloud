@@ -25,7 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DWS GET /v2/{project_id}/node-types
+// @API DWS GET /v2/{project_id}/node-types
 func DataSourceDwsFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDwsFlavorsRead,

@@ -22,11 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: Kafka POST /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
-// API: Kafka PUT /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
-// API: Kafka GET /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
-// API: Kafka DELETE /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
-// API: Kafka GET /v2/{project_id}/instances/{instance_id}/tasks
+// @API Kafka POST /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
+// @API Kafka PUT /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
+// @API Kafka GET /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
+// @API Kafka DELETE /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks
 func ResourceDmsKafkaUserClientQuota() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaUserClientQuotaCreate,

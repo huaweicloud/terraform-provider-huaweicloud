@@ -16,11 +16,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: IAM POST /v3.0/OS-MFA/virtual-mfa-devices
-// API: IAM DELETE /v3.0/OS-MFA/virtual-mfa-devices
-// API: IAM GET /v3.0/OS-MFA/users/{user_id}/virtual-mfa-device
-// API: IAM GET /v3.0/OS-USER/users/{user_id}
-// API: IAM GET /v3/auth/domains
+// @API IAM POST /v3.0/OS-MFA/virtual-mfa-devices
+// @API IAM DELETE /v3.0/OS-MFA/virtual-mfa-devices
+// @API IAM GET /v3.0/OS-MFA/users/{user_id}/virtual-mfa-device
+// @API IAM GET /v3.0/OS-USER/users/{user_id}
+// @API IAM GET /v3/auth/domains
 func ResourceIdentityVirtualMFADevice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMFACreate,

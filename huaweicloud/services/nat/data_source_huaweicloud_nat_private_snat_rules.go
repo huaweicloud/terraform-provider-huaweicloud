@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: NAT GET /v3/{project_id}/private-nat/snat-rules
+// @API NAT GET /v3/{project_id}/private-nat/snat-rules
 func DataSourcePrivateSnatRules() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourcePrivateSnatRulesRead,
