@@ -311,7 +311,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != res.Volume.Size {
-		if err = updateRdsInstanceVolumeSize(ctx, d, client, instanceID); err != nil {
+		if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -461,7 +461,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceVolumeSize(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 

@@ -717,7 +717,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if err := updateRdsInstanceVolumeSize(ctx, d, client, instanceID); err != nil {
+	if err := updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1162,7 +1162,7 @@ func updateRdsInstanceFlavor(ctx context.Context, d *schema.ResourceData, cfg *c
 	return nil
 }
 
-func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
 	instanceID string) error {
 	if !d.HasChange("volume.0.size") {
 		return nil
@@ -1172,7 +1172,8 @@ func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, cl
 	volumeItem := volumeRaw[0].(map[string]interface{})
 	enlargeOpts := instances.EnlargeVolumeOpts{
 		EnlargeVolume: &instances.EnlargeVolumeSize{
-			Size: volumeItem["size"].(int),
+			Size:      volumeItem["size"].(int),
+			IsAutoPay: true,
 		},
 	}
 
@@ -1197,8 +1198,33 @@ func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, cl
 	}
 
 	instance := r.(*instances.EnlargeVolumeResp)
-	if err := checkRDSInstanceJobFinish(client, instance.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
-		return fmt.Errorf("error updating instance (%s): %s", instanceID, err)
+	// wait for order success
+	if instance.OrderId != "" {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second),
+			instance.OrderId); err != nil {
+			return fmt.Errorf("error waiting for RDS order %s succuss: %s", instance.OrderId, err)
+		}
+	}
+
+	if instance.JobId != "" {
+		if err := checkRDSInstanceJobFinish(client, instance.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("error updating instance (%s): %s", instanceID, err)
+		}
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for instance (%s) volume size to be updated: %s", instanceID, err)
 	}
 
 	return nil
