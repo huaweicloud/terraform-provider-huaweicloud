@@ -20,12 +20,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs
-// API: ER GET /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
-// API: ER PUT /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
-// API: ER DELETE /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
-// API: ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/enable
-// API: ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/disable
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs
+// @API ER GET /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
+// @API ER PUT /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
+// @API ER DELETE /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/enable
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/disable
 
 func ResourceFlowLog() *schema.Resource {
 	return &schema.Resource{

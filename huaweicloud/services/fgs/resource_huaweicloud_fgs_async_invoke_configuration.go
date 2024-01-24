@@ -16,9 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config
-// API: FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config
-// API: FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config
+// @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config
+// @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config
+// @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config
 func ResourceAsyncInvokeConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAsyncInvokeConfigurationCreate,

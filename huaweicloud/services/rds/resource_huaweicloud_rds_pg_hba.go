@@ -23,8 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: RDS POST /v3/{project_id}/instances/{instance_id}/hba-info
-// API: RDS GET /v3/{project_id}/instances/{instance_id}/hba-info
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/hba-info
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/hba-info
 func ResourcePgHba() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePgHbaCreateOrUpdate,

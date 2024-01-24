@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections
 func DataSourceVPCEPServiceConnections() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: datasourceVpcepServiceConnectionsRead,

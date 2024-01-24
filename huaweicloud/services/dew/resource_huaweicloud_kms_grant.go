@@ -24,9 +24,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DEW POST /v1.0/{project_id}/kms/create-grant
-// API: DEW POST /v1.0/{project_id}/kms/list-grants
-// API: DEW POST /v1.0/{project_id}/kms/revoke-grant
+// @API DEW POST /v1.0/{project_id}/kms/create-grant
+// @API DEW POST /v1.0/{project_id}/kms/list-grants
+// @API DEW POST /v1.0/{project_id}/kms/revoke-grant
 func ResourceKmsGrant() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceKmsGrantCreate,

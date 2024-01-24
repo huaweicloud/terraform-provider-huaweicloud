@@ -99,3 +99,19 @@ jobs:
             grep -B1 "\[ERROR\]" check_result.log
           fi
           exit $ret
+
+  api-comment-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18"
+
+      - name: Check api comments
+        shell: bash {0}
+        run: |
+          cd scripts/api_comment_check
+          go run main.go
+          exit $?

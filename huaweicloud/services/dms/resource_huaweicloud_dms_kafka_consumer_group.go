@@ -15,10 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: Kafka POST /v2/{project_id}/kafka/instances/{instance_id}/group
-// API: Kafka PUT /v2/{engine}/{project_id}/instances/{instance_id}/groups/{group}
-// API: Kafka GET /v2/{project_id}/instances/{instance_id}/groups/{group}
-// API: Kafka DELETE /v2/{project_id}/instances/{instance_id}/groups/batch-delete
+// @API Kafka POST /v2/{project_id}/kafka/instances/{instance_id}/group
+// @API Kafka PUT /v2/{engine}/{project_id}/instances/{instance_id}/groups/{group}
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/groups/{group}
+// @API Kafka DELETE /v2/{project_id}/instances/{instance_id}/groups/batch-delete
 func ResourceDmsKafkaConsumerGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaConsumerGroupCreate,

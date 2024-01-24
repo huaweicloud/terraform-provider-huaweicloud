@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: ELB GET /v3/{project_id}/elb/ipgroups
+// @API ELB GET /v3/{project_id}/elb/ipgroups
 func DataSourceElbIpGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceElbIpGroupsRead,

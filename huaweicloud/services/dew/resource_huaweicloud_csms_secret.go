@@ -26,15 +26,15 @@ const (
 	serviceType = "csms"
 )
 
-// API: DEW POST /v1/{project_id}/secrets
-// API: DEW POST /v1/{project_id}/{resourceType}/{id}/tags/action
-// API: DEW GET /v1/{project_id}/secrets/{secret_name}
-// API: DEW GET /v1/{project_id}/secrets/{secret_name}/versions
-// API: DEW GET /v1/{project_id}/secrets/{secret_name}/versions/{version_id}
-// API: DEW GET /v1/{project_id}/{resourceType}/{id}/tags
-// API: DEW PUT /v1/{project_id}/secrets/{secret_name}
-// API: DEW POST /v1/{project_id}/secrets/{secret_name}/versions
-// API: DEW DELETE /v1/{project_id}/secrets/{secret_name}
+// @API DEW POST /v1/{project_id}/secrets
+// @API DEW POST /v1/{project_id}/{resourceType}/{id}/tags/action
+// @API DEW GET /v1/{project_id}/secrets/{secret_name}
+// @API DEW GET /v1/{project_id}/secrets/{secret_name}/versions
+// @API DEW GET /v1/{project_id}/secrets/{secret_name}/versions/{version_id}
+// @API DEW GET /v1/{project_id}/{resourceType}/{id}/tags
+// @API DEW PUT /v1/{project_id}/secrets/{secret_name}
+// @API DEW POST /v1/{project_id}/secrets/{secret_name}/versions
+// @API DEW DELETE /v1/{project_id}/secrets/{secret_name}
 func ResourceCsmsSecret() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCsmsSecretCreate,

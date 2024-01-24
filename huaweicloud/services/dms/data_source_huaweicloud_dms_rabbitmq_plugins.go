@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: RabbitMQ GET /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
+// @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
 func DataSourceDmsRabbitmqPlugins() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDmsRabbitmqPluginsRead,

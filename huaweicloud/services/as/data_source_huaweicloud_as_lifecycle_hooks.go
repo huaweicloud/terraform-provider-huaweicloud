@@ -20,7 +20,7 @@ var convertHookTypeMap = map[string]string{
 	"INSTANCE_TERMINATING": "REMOVE",
 }
 
-// API: AS GET /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{scaling_group_id}/list
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{scaling_group_id}/list
 func DataSourceLifeCycleHooks() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceLifeCycleHooksRead,

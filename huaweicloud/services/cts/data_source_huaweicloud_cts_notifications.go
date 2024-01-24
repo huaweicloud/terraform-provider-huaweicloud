@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: CTS GET /v3/{project_id}/notifications/{notification_type}
+// @API CTS GET /v3/{project_id}/notifications/{notification_type}
 func DataSourceNotifications() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceNotificationsRead,

@@ -19,11 +19,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: DDS POST /v3/{project_id}/instances/{instance_id}/db-user
-// API: DDS GET /v3/{project_id}/instances
-// API: DDS GET /v3/{project_id}/instances/{instance_id}/db-user/detail
-// API: DDS PUT /v3/{project_id}/instances/{instance_id}/reset-password
-// API: DDS DELETE /v3/{project_id}/instances/{instance_id}/db-user
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/db-user
+// @API DDS GET /v3/{project_id}/instances
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/db-user/detail
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/reset-password
+// @API DDS DELETE /v3/{project_id}/instances/{instance_id}/db-user
 func ResourceDatabaseUser() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatabaseUserCreate,

@@ -21,9 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: FunctionGraph POST /v2/{project_id}/fgs/applications
-// API: FunctionGraph GET /v2/{project_id}/fgs/applications/{id}
-// API: FunctionGraph DELETE /v2/{project_id}/fgs/applications/{id}
+// @API FunctionGraph POST /v2/{project_id}/fgs/applications
+// @API FunctionGraph GET /v2/{project_id}/fgs/applications/{id}
+// @API FunctionGraph DELETE /v2/{project_id}/fgs/applications/{id}
 func ResourceApplication() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApplicationCreate,

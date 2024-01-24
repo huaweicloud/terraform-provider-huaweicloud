@@ -19,17 +19,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: CCM POST /v1/private-certificate-authorities
-// API: CCM POST /v1/private-certificate-authorities/order
-// API: CCM POST /v1/private-certificate-authorities/{id}/activate
-// API: CCM POST /v1/private-certificate-authorities/{id}/tags/create
-// API: BSS GET /v2/orders/customer-orders/details/{order_id}
-// API: CCM GET /v1/private-certificate-authorities/{id}
-// API: CCM GET /v1/private-certificate-authorities/{id}/tags
-// API: CCM DELETE /v1/private-certificate-authorities/{id}
-// API: CCM POST /v1/private-certificate-authorities/{id}/disable
-// API: CCM DELETE /v1/private-certificate-authorities/{id}/tags/delete
-// API: BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API CCM POST /v1/private-certificate-authorities
+// @API CCM POST /v1/private-certificate-authorities/order
+// @API CCM POST /v1/private-certificate-authorities/{id}/activate
+// @API CCM POST /v1/private-certificate-authorities/{id}/tags/create
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API CCM GET /v1/private-certificate-authorities/{id}
+// @API CCM GET /v1/private-certificate-authorities/{id}/tags
+// @API CCM DELETE /v1/private-certificate-authorities/{id}
+// @API CCM POST /v1/private-certificate-authorities/{id}/disable
+// @API CCM DELETE /v1/private-certificate-authorities/{id}/tags/delete
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourcePrivateCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePrivateCACreate,

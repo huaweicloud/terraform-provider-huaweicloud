@@ -33,19 +33,19 @@ const (
 	PublicBindTypeBindExisting = "bind_existing"
 )
 
-// API: DWS POST /v1.0/{project_id}/clusters
-// API: DWS GET /v1.0/{project_id}/clusters/{id}
-// API: DWS POST /v1.0/{project_id}/clusters/{id}/expand-instance-storage
-// API: DWS POST /v1.0/{project_id}/clusters/{id}/reset-password
-// API: DWS POST /v1.0/{project_id}/clusters/{id}/resize
-// API: DWS DELETE /v1.0/{project_id}/clusters/{id}
-// API: DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-create
-// API: DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-delete
-// API: DWS GET /v1.0/{project_id}/job/{job_id}
-// API: DWS POST /v2/{project_id}/clusters
-// API: DWS PUT /v2/{project_id}/clusters/{cluster_id}/logical-clusters/enable
-// API: DWS POST /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
-// API: DWS DELETE /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
+// @API DWS POST /v1.0/{project_id}/clusters
+// @API DWS GET /v1.0/{project_id}/clusters/{id}
+// @API DWS POST /v1.0/{project_id}/clusters/{id}/expand-instance-storage
+// @API DWS POST /v1.0/{project_id}/clusters/{id}/reset-password
+// @API DWS POST /v1.0/{project_id}/clusters/{id}/resize
+// @API DWS DELETE /v1.0/{project_id}/clusters/{id}
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-create
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-delete
+// @API DWS GET /v1.0/{project_id}/job/{job_id}
+// @API DWS POST /v2/{project_id}/clusters
+// @API DWS PUT /v2/{project_id}/clusters/{cluster_id}/logical-clusters/enable
+// @API DWS POST /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
+// @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,

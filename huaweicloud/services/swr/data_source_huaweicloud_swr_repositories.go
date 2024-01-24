@@ -22,7 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: SWR GET /v2/manage/repos
+// @API SWR GET /v2/manage/repos
 func DataSourceRepositories() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRepositoriesRead,

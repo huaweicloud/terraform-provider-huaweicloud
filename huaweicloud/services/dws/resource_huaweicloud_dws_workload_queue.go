@@ -17,9 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DWS PUT /v2/{project_id}/clusters/{cluster_id}/workload/queues
-// API: DWS GET /v2/{project_id}/clusters/{cluster_id}/workload/queues
-// API: DWS DELETE /v2/{project_id}/clusters/{cluster_id}/workload/queues
+// @API DWS PUT /v2/{project_id}/clusters/{cluster_id}/workload/queues
+// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/workload/queues
+// @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/workload/queues
 func ResourceWorkLoadQueue() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWorkLoadQueueCreate,

@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: VPC POST /v3/{project_id}/vpc/sub-network-interfaces
-// API: VPC GET /v3/{project_id}/vpc/sub-network-interfaces/{sub_network_interface_id}
-// API: VPC PUT /v3/{project_id}/vpc/sub-network-interfaces/{sub_network_interface_id}
-// API: VPC DELETE /v3/{project_id}/vpc/sub-network-interfaces/{sub_network_interface_id}
+// @API VPC POST /v3/{project_id}/vpc/sub-network-interfaces
+// @API VPC GET /v3/{project_id}/vpc/sub-network-interfaces/{sub_network_interface_id}
+// @API VPC PUT /v3/{project_id}/vpc/sub-network-interfaces/{sub_network_interface_id}
+// @API VPC DELETE /v3/{project_id}/vpc/sub-network-interfaces/{sub_network_interface_id}
 func ResourceSubNetworkInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSubNetworkInterfaceCreate,

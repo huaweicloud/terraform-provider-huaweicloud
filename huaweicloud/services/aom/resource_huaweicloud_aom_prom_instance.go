@@ -21,9 +21,9 @@ const (
 	prometheusInstanceNotExistsCode = "AOM.11017014"
 )
 
-// API: AOM POST /v1/{project_id}/aom/prometheus
-// API: AOM DELETE /v1/{project_id}/aom/prometheus
-// API: AOM GET /v1/{project_id}/aom/prometheus
+// @API AOM POST /v1/{project_id}/aom/prometheus
+// @API AOM DELETE /v1/{project_id}/aom/prometheus
+// @API AOM GET /v1/{project_id}/aom/prometheus
 func ResourcePromInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePromInstanceCreate,

@@ -18,10 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: SFSTurbo POST /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules
-// API: SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}
-// API: SFSTurbo PUT /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}
-// API: SFSTurbo DELETE /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}
+// @API SFSTurbo POST /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules
+// @API SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}
+// @API SFSTurbo PUT /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}
+// @API SFSTurbo DELETE /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules/{rule_id}
 func ResourceSFSTurboPermRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSFSTurboPermRuleCreate,

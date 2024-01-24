@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: WAF GET /v1/{project_id}/waf/instance
+// @API WAF GET /v1/{project_id}/waf/instance
 func DataSourceWafDomains() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: datasourceDomainsRead,

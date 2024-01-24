@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: FunctionGraph GET /v2/{project_id}/fgs/dependencies
+// @API FunctionGraph GET /v2/{project_id}/fgs/dependencies
 // DataSourceFunctionGraphDependencies provides some parameters to filter dependent packages on the server.
 func DataSourceFunctionGraphDependencies() *schema.Resource {
 	return &schema.Resource{

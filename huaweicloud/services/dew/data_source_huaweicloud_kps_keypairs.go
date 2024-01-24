@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DEW GET /v3/{project_id}/keypairs
+// @API DEW GET /v3/{project_id}/keypairs
 func DataSourceKeypairs() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceKeypairsRead,

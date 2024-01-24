@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: ER GET /v3/{project_id}/enterprise-router/availability-zones
+// @API ER GET /v3/{project_id}/enterprise-router/availability-zones
 func DataSourceAvailabilityZones() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAvailabilityZonesRead,

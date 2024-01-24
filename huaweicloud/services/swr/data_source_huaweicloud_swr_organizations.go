@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: SWR GET /v2/manage/namespaces
+// @API SWR GET /v2/manage/namespaces
 func DataSourceOrganizations() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceOrganizationsRead,
