@@ -52,7 +52,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `clusters` - The list of clusters.
   The [clusters](#MrsClusters_Clusters) structure is documented below.

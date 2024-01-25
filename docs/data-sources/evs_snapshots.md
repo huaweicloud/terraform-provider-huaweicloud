@@ -63,7 +63,7 @@ In addition to all arguments above, the following attributes are exported:
 
 The `snapshots` block supports:
 
-* `id` - The resource ID of EVS cloudvolume snapshot.
+* `id` - The data source ID of EVS cloudvolume snapshot.
 
 * `name` - The name of cloudvolume snapshot. Maximum supported is 64 characters.
 

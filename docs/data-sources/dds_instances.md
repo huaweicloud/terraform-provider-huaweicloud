@@ -39,7 +39,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `instances` - Indicates the list of DDS instances.
   The [Instance](#DdsInstance_Instance) structure is documented below.

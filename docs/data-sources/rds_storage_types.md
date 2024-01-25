@@ -34,7 +34,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `storage_types` - Storage type list. For details, see Data structure of the storage_type field.
   The [storage_type](#Storagetype_storageType) structure is documented below.

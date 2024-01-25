@@ -39,7 +39,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID of the add-on template.
+* `id` - The data source ID of the add-on template.
 
 * `description` - The description of the add-on.
 

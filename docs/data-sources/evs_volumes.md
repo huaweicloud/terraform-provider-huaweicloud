@@ -58,7 +58,7 @@ In addition to all arguments above, the following attributes are exported:
 
 The `volumes` block supports:
 
-* `id` - The resource ID of EVS disk, in UUID format.
+* `id` - The data source ID of EVS disk, in UUID format.
 
 * `attachments` - The disk attachment information. Structure is documented below.
 
