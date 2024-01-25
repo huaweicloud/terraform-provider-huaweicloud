@@ -1,5 +1,80 @@
 # CHANGELOG
 
+## 1.61.0 (January 29, 2024)
+
+* **New Resource:**
+  + `huaweicloud_cdm_cluster_action` [GH-3408]
+  + `huaweicloud_cc_central_network_attachment` [GH-3925]
+  + `huaweicloud_cc_authorization` [GH-3973]
+  + `huaweicloud_elb_active_standby_pool` [GH-3934]
+  + `huaweicloud_identity_virtual_mfa_device` [GH-3948]
+  + `huaweicloud_dataarts_architecture_code_table_values` [GH-3954]
+  + `huaweicloud_compute_auto_launch_group` [GH-3980]
+  + `huaweicloud_dms_rabbitmq_plugin` [GH-3985]
+  + `huaweicloud_cfw_domain_name_group` [GH-3987]
+  + `huaweicloud_dws_workload_queue` [GH-3994]
+  + `huaweicloud_dws_logical_cluster` [GH-4024]
+  + `huaweicloud_fgs_dependency_version` [GH-3999]
+  + `huaweicloud_aom_prom_instance` [GH-4011]
+  + `huaweicloud_dc_hosted_connect` [GH-4013]
+  + `huaweicloud_fgs_application` [GH-4043]
+  + `huaweicloud_oms_migration_sync_task` [GH-4049]
+  + `huaweicloud_rds_pg_hba` [GH-4053]
+  + `huaweicloud_ga_address_group` [GH-4059]
+  + `huaweicloud_global_internet_bandwidth` [GH-4079]
+  + `huaweicloud_global_eip` [GH-4086]
+  + `huaweicloud_css_scan_task` [GH-4081]
+
+  + `huaweicloud_vpc_traffic_mirror_filter` [GH-3944]
+  + `huaweicloud_vpc_traffic_mirror_filter_rule` [GH-3968]
+  + `huaweicloud_vpc_network_interface` [GH-3990]
+  + `huaweicloud_vpc_sub_network_interface` [GH-3965]
+
+* **New Data Source:**
+  + `huaweicloud_networking_secgroup_rules` [GH-3930]
+  + `huaweicloud_swr_image_tags` [GH-3943]
+  + `huaweicloud_as_policies` [GH-3964]
+  + `huaweicloud_waf_domains` [GH-3966]
+  + `huaweicloud_dws_logical_cluster_rings` [GH-3995]
+  + `huaweicloud_dms_rabbitmq_plugins` [GH-4000]
+  + `huaweicloud_as_lifecycle_hooks` [GH-4002]
+  + `huaweicloud_elb_active_standby_pools` [GH-4003]
+  + `huaweicloud_elb_monitors` [GH-4016]
+  + `huaweicloud_cts_notifications` [GH-4019]
+  + `huaweicloud_rds_mysql_binlog` [GH-4027]
+  + `huaweicloud_workspace_desktops` [GH-4032]
+  + `huaweicloud_vpc_bandwidths` [GH-4034]
+  + `huaweicloud_dms_rabbitmq_instances` [GH-4035]
+  + `huaweicloud_nat_private_snat_rules` [GH-4036]
+  + `huaweicloud_nat_private_dnat_rules` [GH-4095]
+  + `huaweicloud_dms_rocketmq_flavors` [GH-4057]
+  + `huaweicloud_cbh_flavors` [GH-4061]
+  + `huaweicloud_rds_pg_accounts` [GH-4068]
+  + `huaweicloud_global_eip_pools` [GH-4069]
+  + `huaweicloud_global_eip_access_sites` [GH-4082]
+
+  + `huaweicloud_vpcep_service_connections` [GH-3947]
+  + `huaweicloud_vpcep_service_permissions` [GH-3955]
+  + `huaweicloud_vpcep_endpoints` [GH-4025]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_waf_domain: Support management protection status of domain [GH-3932]
+* resource/huaweicloud_as_policy: Add `instance_percentage` parameter [GH-3942]
+* resource/huaweicloud_rds_instance: Support updating replication mode [GH-3951]
+* resource/huaweicloud_rds_instance: Support database switchover policy [GH-3958]
+* resource/huaweicloud_dms_rabbitmq_instance: Support changing password [GH-3956]
+* resource/huaweicloud_dc_virtual_gateway: Add tags support [GH-3963]
+* resource/huaweicloud_dws_cluster: Support DWS cluster bind ELB [GH-3977]
+* resource/huaweicloud_elb_listener: Add `port_ranges` and `gzip_enable` parameters [GH-3991]
+* resource/huaweicloud_compute_instance: Support auto terminate time [GH-4015]
+* resource/huaweicloud_cts_tracker: Add tags support [GH-4054]
+* resource/huaweicloud_compute_instance: Support updating `user_data` parameter [GH-4075]
+
+BUG FIXES:
+
+* resource/huaweicloud_dns_recordset: Fix the issue when creating DNS record on **la-north-2** region [GH-3396]
+
 ## 1.60.1 (January 3, 2024)
 
 * **New Resource:**
