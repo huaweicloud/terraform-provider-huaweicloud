@@ -163,8 +163,7 @@ installed, the `admin_pass` field becomes invalid.
   data_disks object structure is documented below. A maximum of 59 disks can be mounted. Changing this creates a new
   instance.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the instance. Changing this creates
-  a new instance.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
   Changing this creates a new instance.

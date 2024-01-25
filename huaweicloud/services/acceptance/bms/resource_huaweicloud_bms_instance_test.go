@@ -31,7 +31,7 @@ func TestAccBmsInstance_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckBmsInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBmsInstance_basic(rName, false),
+				Config: testAccBmsInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBmsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -43,10 +43,13 @@ func TestAccBmsInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccBmsInstance_basic(rName, true),
+				Config: testAccBmsInstance_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.tag1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.tag2", "value2"),
 				),
 			},
 		},
@@ -123,7 +126,7 @@ resource "huaweicloud_kps_keypair" "test" {
 }`, common.TestBaseNetwork(rName), rName)
 }
 
-func testAccBmsInstance_basic(rName string, isAutoRenew bool) string {
+func testAccBmsInstance_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -163,7 +166,53 @@ resource "huaweicloud_bms_instance" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = "1"
-  auto_renew    = "%[5]v"
+  auto_renew    = "false"
 }
-`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, isAutoRenew)
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccBmsInstance_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc_eip" "myeip" {
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    name        = "%[2]s"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  key_pair          = huaweicloud_kps_keypair.test.name
+  image_id          = "519ea918-1fea-4ebc-911a-593739b1a3bc" # CentOS 7.4 64bit for BareMetal
+
+  name                  = "%[2]s_update"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  tags = {
+    tag1 = "value1"
+    tag2 = "value2"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "true"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
