@@ -147,7 +147,9 @@ var (
 	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
 
 	// The direct connection ID (provider does not support direct connection resource).
-	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+	HW_DC_DIRECT_CONNECT_ID  = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+	HW_DC_RESOURCE_TENANT_ID = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
+	HW_DC_HOSTTING_ID        = os.Getenv("HW_DC_HOSTTING_ID")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -846,6 +848,13 @@ func TestAccPreCheckRfArchives(t *testing.T) {
 func TestAccPreCheckDcDirectConnection(t *testing.T) {
 	if HW_DC_DIRECT_CONNECT_ID == "" {
 		t.Skip("Skip the interface acceptance test because of the direct connection ID is missing.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcHostedConnection(t *testing.T) {
+	if HW_DC_RESOURCE_TENANT_ID == "" || HW_DC_HOSTTING_ID == "" {
+		t.Skip("HW_DC_RESOURCE_TENANT_ID, HW_DC_HOSTTING_ID must be set for this acceptance test")
 	}
 }
 
