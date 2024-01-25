@@ -23,6 +23,6 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `char_sets` - Indicates the character set information list.

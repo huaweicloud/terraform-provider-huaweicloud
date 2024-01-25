@@ -32,7 +32,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `flavors` - The list of flavors.
   The [Flavors](#notebookFlavors_Flavors) structure is documented below.

@@ -54,7 +54,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `models` - The list of models.
   The [Models](#Models_Models) structure is documented below.

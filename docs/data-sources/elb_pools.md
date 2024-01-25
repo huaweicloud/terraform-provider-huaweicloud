@@ -52,7 +52,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `pools` - Pool list. For details, see data structure of the pool field.
   The [object](#pools_object) structure is documented below.
