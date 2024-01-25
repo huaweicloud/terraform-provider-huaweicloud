@@ -37,6 +37,7 @@ var (
 	}
 )
 
+// @API Kafka GET /v2/{engine}/products
 func DataSourceKafkaFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceKafkaFlavorsRead,
@@ -45,6 +46,7 @@ func DataSourceKafkaFlavors() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			// We call the product as flavor.
 			"flavor_id": {
@@ -405,7 +407,8 @@ func dataSourceKafkaFlavorsRead(ctx context.Context, d *schema.ResourceData, met
 
 func dataSourceFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}, engine string) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := conf.DmsV2Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	client, err := conf.DmsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error getting DMS v2 client: %v", err)
 	}
@@ -424,6 +427,7 @@ func dataSourceFlavorsRead(_ context.Context, d *schema.ResourceData, meta inter
 	d.SetId(hashcode.Strings(ids))
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("versions", resp.Versions),
 		d.Set("flavors", flattenFlavors(filtered)),
 	)
