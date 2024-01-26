@@ -41,6 +41,15 @@ The following arguments are supported:
 
 * `kms_id` - (Optional, String) Specifies the ID of KMS key used for trace file encryption.
 
+* `compress_type` - (Optional, String) Specifies the compression type of trace files. The value can be
+  **gzip** or **json**. The default value is **gzip**.
+
+* `is_sort_by_service` - (Optional, Bool) Specifies whether to divide the path of the trace file by cloud service.
+  The default value is **true**.
+
+* `exclude_service` - (Optional, List) Specifies the names of the cloud services for which traces don't need to be transferred.
+  Currently, only **KMS** is supported.
+
 * `enabled` - (Optional, Bool) Specifies whether tracker is enabled.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CTS tracker.
