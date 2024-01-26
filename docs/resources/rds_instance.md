@@ -408,7 +408,7 @@ It is generally recommended running `terraform plan` after importing a RDS insta
 should be applied to the instance, or the resource definition should be updated to align with the instance.
 Also, you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_rds_instance" "instance_1" {
   ...
 
