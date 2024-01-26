@@ -1,4 +1,4 @@
-package scm
+package ccm
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func TestAccDatasourceCertificates_basic(t *testing.T) {
 func testAccDatasourceCertificates_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_scm_certificates" "test" {
-	name = "%s"
+  name = "%s"
 }
 `, acceptance.HW_CERTIFICATE_NAME)
 }

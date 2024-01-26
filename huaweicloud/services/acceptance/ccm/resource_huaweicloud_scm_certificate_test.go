@@ -1,4 +1,4 @@
-package scm
+package ccm
 
 import (
 	"fmt"
@@ -12,13 +12,12 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func getSCMResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ScmV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud SCM client: %s", err)
+		return nil, fmt.Errorf("error creating SCM client: %s", err)
 	}
 	return certificates.Get(client, state.Primary.ID).Extract()
 }
@@ -156,18 +155,18 @@ func testAccCheckScmV3CertificatePushExists(
 		// Get the resource info by certificateResorceName
 		certRs, ok := s.RootModule().Resources[certResourceName]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", certResourceName)
+			return fmt.Errorf("not found: %s", certResourceName)
 		}
 
 		if certRs.Primary.ID == "" {
-			return fmtp.Errorf("No id is set for the certificate resource: %s", certResourceName)
+			return fmt.Errorf("no ID is set for the certificate resource: %s", certResourceName)
 		}
 
 		stateService := certRs.Primary.Attributes["target.0.service"]
 		stateProject := certRs.Primary.Attributes["target.0.project.0"]
 		if strings.Compare(service, stateService) != 0 ||
 			strings.Compare(project, stateProject) != 0 {
-			return fmtp.Errorf("Push certificate failed! service: %s, project: %s",
+			return fmt.Errorf("push certificate failed! service: %s, project: %s",
 				service, project)
 		}
 		return nil

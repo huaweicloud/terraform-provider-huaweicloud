@@ -780,7 +780,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:             "scm",
 		Version:          "v3",
 		WithOutProjectID: true,
-		Product:          "SCM",
+		Product:          "CCM",
 	},
 	"ccm": {
 		Name:             "ccm",

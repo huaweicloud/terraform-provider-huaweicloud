@@ -89,7 +89,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sdrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
@@ -627,7 +626,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
-			"huaweicloud_scm_certificates": scm.DataSourceCertificates(),
+			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
 
 			"huaweicloud_sfs_file_system": sfs.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
@@ -846,6 +845,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_certificate_push":    ccm.ResourceCcmCertificatePush(),
 			"huaweicloud_ccm_private_ca":          ccm.ResourcePrivateCertificateAuthority(),
 			"huaweicloud_ccm_private_certificate": ccm.ResourceCcmPrivateCertificate(),
+			"huaweicloud_scm_certificate":         ccm.ResourceScmCertificate(),
 
 			"huaweicloud_cdm_cluster":        cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_cluster_action": cdm.ResourceClusterAction(),
@@ -1323,8 +1323,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_customer_gateway":        vpn.ResourceCustomerGateway(),
 			"huaweicloud_vpn_connection":              vpn.ResourceConnection(),
 			"huaweicloud_vpn_connection_health_check": vpn.ResourceConnectionHealthCheck(),
-
-			"huaweicloud_scm_certificate": scm.ResourceScmCertificate(),
 
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificateV1(),
