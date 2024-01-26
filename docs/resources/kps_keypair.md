@@ -16,6 +16,15 @@ Keys imported support the following cryptographic algorithms:
 
 ## Example Usage
 
+### Create a new keypair and export private key to current folder
+
+```hcl
+resource "huaweicloud_kps_keypair" "test-keypair" {
+  name     = "my-keypair"
+  key_file = "private_key.pem"
+}
+```
+
 ### Create a new keypair which scope is Tenant-level and the private key is managed by HuaweiCloud
 
 ```hcl
@@ -28,15 +37,6 @@ resource "huaweicloud_kps_keypair" "test-keypair" {
   scope           = "account"
   encryption_type = "kms"
   kms_key_name    = huaweicloud_kms_key.test.key_alias
-}
-```
-
-### Create a new keypair and export private key to current folder
-
-```hcl
-resource "huaweicloud_kps_keypair" "test-keypair" {
-  name     = "my-keypair"
-  key_file = "private_key.pem"
 }
 ```
 
