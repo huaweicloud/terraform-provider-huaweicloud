@@ -85,6 +85,8 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
+					resource.TestCheckResourceAttr(resourceName, "compress_type", "json"),
+					resource.TestCheckResourceAttr(resourceName, "is_sort_by_service", "false"),
 				),
 			},
 			{
@@ -142,6 +144,8 @@ resource "huaweicloud_cts_data_tracker" "tracker" {
   file_prefix          = "cts"
   validate_file        = false
   lts_enabled          = false
+  compress_type        = "json"
+  is_sort_by_service   = false
 
   tags = {
     foo    = "bar1"
