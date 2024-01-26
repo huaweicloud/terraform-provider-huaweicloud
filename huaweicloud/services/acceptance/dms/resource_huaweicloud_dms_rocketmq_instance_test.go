@@ -173,8 +173,7 @@ func TestAccDmsRocketMQInstance_publicip(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enable_publicip", "true"),
-					resource.TestCheckResourceAttrSet(resourceName, "publicip_id"),
+					resource.TestCheckResourceAttr(resourceName, "enable_publicip", "false"),
 				),
 			},
 			{
@@ -182,7 +181,8 @@ func TestAccDmsRocketMQInstance_publicip(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "enable_publicip", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enable_publicip", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "publicip_id"),
 				),
 			},
 			{
@@ -342,7 +342,40 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
 func testDmsRocketMQInstance_publicip(name string) string {
 	return fmt.Sprintf(`
 %s
+
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rocketmq_flavors" "test" {
+  type = "single.basic"
+}
+  
+locals {
+  query_results = data.huaweicloud_dms_rocketmq_flavors.test
+  flavor        = data.huaweicloud_dms_rocketmq_flavors.test.flavors[0]
+}
+resource "huaweicloud_dms_rocketmq_instance" "test" {
+  name              = "%s"
+  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  flavor_id         = local.flavor.id
+  storage_space     = 300
+  enable_publicip   = false
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testDmsRocketMQInstance_publicip_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
 data "huaweicloud_dms_rocketmq_flavors" "test" {
   type = "single.basic"
 }
@@ -376,35 +409,6 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   storage_space     = 300
   enable_publicip   = true
   publicip_id       = huaweicloud_vpc_eip.eip1.id
-}
-`, common.TestBaseNetwork(name), name)
-}
-
-func testDmsRocketMQInstance_publicip_update(name string) string {
-	return fmt.Sprintf(`
-%s
-data "huaweicloud_availability_zones" "test" {}
-data "huaweicloud_dms_rocketmq_flavors" "test" {
-  type = "single.basic"
-}
-  
-locals {
-  query_results = data.huaweicloud_dms_rocketmq_flavors.test
-  flavor        = data.huaweicloud_dms_rocketmq_flavors.test.flavors[0]
-}
-resource "huaweicloud_dms_rocketmq_instance" "test" {
-  name              = "%s"
-  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
-  storage_spec_code = local.flavor.ios[0].storage_spec_code
-  flavor_id         = local.flavor.id
-  storage_space     = 300
-  enable_publicip   = false
 }
 `, common.TestBaseNetwork(name), name)
 }
