@@ -133,13 +133,14 @@ The `validity` block supports:
 The `subject_alternative_names` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the type of the alternative name. Currently,
-  only **DNS**, **IP**, **DNS**, and **URI** are allowed. Changing this parameter will create a new resource.
+  only **DNS**, **IP**, **EMAIL**, and **URI** are allowed. Changing this parameter will create a new resource.
 
 * `value` - (Required, String, ForceNew) Specifies the value of the corresponding alternative name type.
-  + **DNS**: Length range: 0 to 253 characters.
-  + **IP**: Length range: 0 to 39 characters.Support ipv4 and ipv6.
-  + **EMAIL**: Length range: 0 to 256 characters.
-  + **URI**: Length range: 0 to 253 characters
+  Changing this parameter will create a new resource.  
+  When `type` is **DNS**, the value length range: 0 to 253 characters.  
+  When `type` is **IP**, the value length range: 0 to 39 characters.Support ipv4 and ipv6.  
+  When `type` is **EMAIL**, the value length range: 0 to 256 characters.  
+  When `type` is **URI**, the value length range: 0 to 253 characters.
 
 ## Attribute Reference
 
