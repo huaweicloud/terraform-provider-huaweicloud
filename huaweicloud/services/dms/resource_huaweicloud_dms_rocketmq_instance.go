@@ -36,6 +36,7 @@ type dmsError struct {
 // @API RocketMQ POST /v2/{project_id}/rocketmq/{instance_id}/tags/action
 // @API RocketMQ GET /v2/{project_id}/kafka/{instance_id}/tags
 // @API RocketMQ POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
+// @API RocketMQ GET /v2/{project_id}/instances/{instance_id}/tasks
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -146,14 +147,12 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 			"enable_publicip": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies whether to enable public access.`,
 			},
 			"publicip_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the EIP bound to the instance.`,
 			},
 			"broker_num": {
@@ -523,27 +522,25 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		"security_group_id",
 		"retention_policy",
 		"enable_acl",
-		"cross_vpc_accesses",
-		"auto_renew",
-		"tags",
+		"enable_publicip",
+		"publicip_id",
 	}
 
+	// updateRocketmqInstance: update DMS rocketmq instance
+	var (
+		updateRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
+		updateRocketmqInstanceProduct = "dmsv2"
+	)
+	updateRocketmqInstanceClient, err := cfg.NewServiceClient(updateRocketmqInstanceProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating DMS Client: %s", err)
+	}
+
+	updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
+	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}", updateRocketmqInstanceClient.ProjectID)
+	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", d.Id()))
+
 	if d.HasChanges(updateRocketmqInstanceHasChanges...) {
-		// updateRocketmqInstance: update DMS rocketmq instance
-		var (
-			updateRocketmqInstanceHttpUrl = "v2/{project_id}/instances/{instance_id}"
-			updateRocketmqInstanceProduct = "dmsv2"
-		)
-		updateRocketmqInstanceClient, err := cfg.NewServiceClient(updateRocketmqInstanceProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating DmsRocketMQInstance Client: %s", err)
-		}
-
-		updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
-		updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}",
-			updateRocketmqInstanceClient.ProjectID)
-		updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", d.Id()))
-
 		updateRocketmqInstanceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			OkCodes: []int{
@@ -551,32 +548,53 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 			},
 		}
 		updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqInstanceBodyParams(d))
-		_, err = updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
+
+		retryFunc := func() (interface{}, bool, error) {
+			_, err := updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rocketmqInstanceStateRefreshFunc(updateRocketmqInstanceClient, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+
 		if err != nil {
-			return diag.Errorf("error updating DmsRocketMQInstance: %s", err)
+			return diag.Errorf("error updating DMS RocketMQ instance: %s", err)
 		}
 
-		if d.HasChange("cross_vpc_accesses") {
-			if err = updateCrossVpcAccess(ctx, updateRocketmqInstanceClient, d); err != nil {
-				return diag.Errorf("error updating DMS rocketMQ Cross-VPC access information: %s", err)
+		if d.HasChange("enable_publicip") {
+			if err = waitUpdatePublicipSuccess(ctx, d, updateRocketmqInstanceClient); err != nil {
+				return diag.FromErr(err)
 			}
 		}
+	}
 
-		if d.HasChange("auto_renew") {
-			bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
-			if err != nil {
-				return diag.Errorf("error creating BSS V2 client: %s", err)
-			}
-			if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-				return diag.Errorf("error updating the auto-renew of the RocketMQ instance (%s): %s", d.Id(), err)
-			}
+	if d.HasChange("cross_vpc_accesses") {
+		if err = updateCrossVpcAccess(ctx, updateRocketmqInstanceClient, d); err != nil {
+			return diag.Errorf("error updating DMS RocketMQ Cross-VPC access information: %s", err)
 		}
-		// update tags
-		if d.HasChange("tags") {
-			tagErr := utils.UpdateResourceTags(updateRocketmqInstanceClient, d, "rocketmq", d.Id())
-			if tagErr != nil {
-				return diag.Errorf("error updating tags of RocketMQ:%s, err:%s", d.Id(), tagErr)
-			}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the RocketMQ instance (%s): %s", d.Id(), err)
+		}
+	}
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := utils.UpdateResourceTags(updateRocketmqInstanceClient, d, "rocketmq", d.Id())
+		if tagErr != nil {
+			return diag.Errorf("error updating tags of RocketMQ:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -597,6 +615,14 @@ func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData) map[string]in
 
 	if d.HasChange("name") {
 		bodyParams["name"] = utils.ValueIngoreEmpty(d.Get("name"))
+	}
+
+	if d.HasChange("enable_publicip") {
+		bodyParams["enable_publicip"] = utils.ValueIngoreEmpty(d.Get("enable_publicip"))
+	}
+
+	if d.HasChange("publicip_id") {
+		bodyParams["publicip_id"] = utils.ValueIngoreEmpty(d.Get("publicip_id"))
 	}
 	return bodyParams
 }
@@ -796,4 +822,60 @@ func rocketmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 		status := utils.PathSearch("status", respBody, "").(string)
 		return respBody, status, nil
 	}
+}
+
+func publicipTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		// getPublicipTask: get publicip task
+		getPublicipTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
+		getPublicipTaskPath := client.Endpoint + getPublicipTaskHttpUrl
+		getPublicipTaskPath = strings.ReplaceAll(getPublicipTaskPath, "{project_id}",
+			client.ProjectID)
+		getPublicipTaskPath = strings.ReplaceAll(getPublicipTaskPath, "{instance_id}", instanceID)
+
+		reqOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getPublicipTaskResp, err := client.Request("GET", getPublicipTaskPath, &reqOpt)
+
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+
+		getPublicipTaskRespBody, err := utils.FlattenResponse(getPublicipTaskResp)
+		if err != nil {
+			return nil, "PARSE ERROR", err
+		}
+
+		task := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']|[0]", taskName), getPublicipTaskRespBody, nil)
+		if task == nil {
+			return nil, "NOT FOUND", nil
+		}
+		status := utils.PathSearch("status", task, "").(string)
+		return task, status, nil
+	}
+}
+
+func waitUpdatePublicipSuccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	// The RocketMQ enabling or disabling publicip is done if the status of its task is SUCCESS.
+	actionName := "unbindInstancePublicIp"
+	if d.Get("enable_publicip").(bool) {
+		actionName = "bindInstancePublicIp"
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      publicipTaskRefreshFunc(client, d.Id(), actionName),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	if err != nil {
+		return fmt.Errorf("error waiting for enabling or diabling publicip to be done: %s", err)
+	}
+
+	return nil
 }
