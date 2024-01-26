@@ -85,12 +85,13 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			},
 			"manager_user": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"manager_password": {
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
 				ForceNew:  true,
 			},

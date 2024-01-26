@@ -15,7 +15,6 @@ variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
 variable "access_password" {}
-variable "manager_password" {}
 
 variable "availability_zones" {
   default = ["your_availability_zones_a", "your_availability_zones_b", "your_availability_zones_c"]
@@ -51,9 +50,6 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   access_user = "user"
   password    = var.access_password
-
-  manager_user     = "kafka_manager"
-  manager_password = var.manager_password
 }
 ```
 
@@ -111,11 +107,11 @@ The following arguments are supported:
 
   ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
 
-* `manager_user` - (Required, String, ForceNew) Specifies the username for logging in to the Kafka Manager. The username
+* `manager_user` - (Optional, String, ForceNew) Specifies the username for logging in to the Kafka Manager. The username
   consists of 4 to 64 characters and can contain letters, digits, hyphens (-), and underscores (_). Changing this
   creates a new instance resource.
 
-* `manager_password` - (Required, String, ForceNew) Specifies the password for logging in to the Kafka Manager. The
+* `manager_password` - (Optional, String, ForceNew) Specifies the password for logging in to the Kafka Manager. The
   password must meet the following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of
   the following character types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_
   =+\\|[{}]:'",<.>/?). Changing this creates a new instance resource.
@@ -272,7 +268,7 @@ API response, security or some other reason. The missing attributes include:
 a DMS Kafka instance. You can then decide if changes should be applied to the instance, or the resource definition
 should be updated to align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dms_kafka_instance" "instance_1" {
     ...
 

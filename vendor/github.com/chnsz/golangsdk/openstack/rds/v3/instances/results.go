@@ -149,7 +149,8 @@ func (r ResizeFlavorResult) Extract() (*ResizeFlavor, error) {
 }
 
 type EnlargeVolumeResp struct {
-	JobId string `json:"job_id"`
+	JobId   string `json:"job_id"`
+	OrderId string `json:"order_id"`
 }
 
 func (r EnlargeVolumeResult) Extract() (*EnlargeVolumeResp, error) {

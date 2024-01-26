@@ -321,7 +321,8 @@ type EnlargeVolumeOpts struct {
 }
 
 type EnlargeVolumeSize struct {
-	Size int `json:"size" required:"true"`
+	Size      int  `json:"size" required:"true"`
+	IsAutoPay bool `json:"is_auto_pay,omitempty"`
 }
 
 func (opts EnlargeVolumeOpts) ToActionInstanceMap() (map[string]interface{}, error) {
