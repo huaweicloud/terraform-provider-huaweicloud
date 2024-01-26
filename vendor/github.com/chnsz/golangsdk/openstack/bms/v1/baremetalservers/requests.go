@@ -216,6 +216,15 @@ func Update(client *golangsdk.ServiceClient, id string, ops UpdateOptsBuilder) (
 	return
 }
 
+// UpdateMetadata updates (or creates) all the metadata specified by opts for
+// the given server ID. This operation does not affect already-existing metadata
+// that is not specified by opts.
+func UpdateMetadata(client *golangsdk.ServiceClient, id string, opts map[string]interface{}) (r UpdateMetadataResult) {
+	b := map[string]interface{}{"metadata": opts}
+	_, r.Err = client.Post(metadataURL(client, id), b, &r.Body, nil)
+	return
+}
+
 func (opts DeleteNicsOpts) ToServerDeleteNicsMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }

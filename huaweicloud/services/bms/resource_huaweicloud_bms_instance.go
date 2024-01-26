@@ -238,7 +238,13 @@ func ResourceBmsInstance() *schema.Resource {
 			"agency_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
+			},
+			// To avoid triggering changes metadata is not backfilled during read.
+			"metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"host_id": {
 				Type:     schema.TypeString,
@@ -358,6 +364,17 @@ func resourceBmsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.SetId(resourceId)
+
+	// update the user-defined metadata if necessary
+	if v, ok := d.GetOk("metadata"); ok {
+		metadataOpts := v.(map[string]interface{})
+		log.Printf("[DEBUG] BMS metadata options: %v", metadataOpts)
+
+		_, err := baremetalservers.UpdateMetadata(bmsClient, d.Id(), metadataOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating the BMS metadata: %s", err)
+		}
+	}
 	return resourceBmsInstanceRead(ctx, d, meta)
 }
 
@@ -406,6 +423,7 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("user_id", server.Metadata.OpSvcUserId),
 		d.Set("image_name", server.Metadata.ImageName),
 		d.Set("vpc_id", server.Metadata.VpcID),
+		d.Set("agency_name", server.Metadata.AgencyName),
 		d.Set("availability_zone", server.AvailabilityZone),
 		d.Set("description", server.Description),
 		d.Set("user_data", server.UserData),
@@ -435,6 +453,23 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		_, err = baremetalservers.Update(bmsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating bms server: %s", err)
+		}
+	}
+
+	if d.HasChange("agency_name") {
+		metadataOpts := map[string]interface{}{
+			"agency_name": d.Get("agency_name").(string),
+		}
+		_, err := baremetalservers.UpdateMetadata(bmsClient, d.Id(), metadataOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating the BMS metadata agency_name: %s", err)
+		}
+	}
+
+	if d.HasChanges("metadata") {
+		_, err := baremetalservers.UpdateMetadata(bmsClient, d.Id(), d.Get("metadata").(map[string]interface{})).Extract()
+		if err != nil {
+			return diag.Errorf("error updating the BMS metadata: %s", err)
 		}
 	}
 

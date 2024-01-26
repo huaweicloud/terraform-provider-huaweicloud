@@ -38,12 +38,16 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "user_data"),
 					resource.TestCheckResourceAttr(resourceName, "nics.#", "1"),
 					resource.TestCheckResourceAttrPair(resourceName, "nics.0.subnet_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "nics.0.ip_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "nics.0.mac_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "nics.0.port_id"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "test111"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.key", "value"),
 				),
 			},
 			{
@@ -55,6 +59,9 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.tag1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.tag2", "value2"),
 					resource.TestCheckResourceAttr(resourceName, "nics.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "test222"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.foo1", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.key1", "value1"),
 				),
 			},
 			{
@@ -246,9 +253,17 @@ EOF
     key = "value"
   }
 
+  agency_name = "test111"
+
+  metadata = {
+    foo = "bar"
+    key = "value"
+  }
+
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = "1"
+  auto_renew    = "false"
 }
 `, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -371,6 +386,13 @@ resource "huaweicloud_bms_instance" "test" {
   tags = {
     tag1 = "value1"
     tag2 = "value2"
+  }
+
+  agency_name = "test222"
+
+  metadata = {
+    foo1 = "bar1"
+    key1 = "value1"
   }
 
   charging_mode = "prePaid"
