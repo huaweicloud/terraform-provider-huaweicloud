@@ -82,6 +82,14 @@ func DataSourceBandWidths() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"created_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"updated_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"publicips": publicIPListComputedSchema(),
 					},
 				},
@@ -139,6 +147,8 @@ func dataSourceBandWidthsRead(_ context.Context, d *schema.ResourceData, meta in
 			"bandwidth_type":        item.BandwidthType,
 			"charge_mode":           item.ChargeMode,
 			"status":                item.Status,
+			"created_at":            item.CreatedAt,
+			"updated_at":            item.UpdatedAt,
 			"publicips":             flattenPublicIPs(item),
 		}
 		rst[i] = bandwidth

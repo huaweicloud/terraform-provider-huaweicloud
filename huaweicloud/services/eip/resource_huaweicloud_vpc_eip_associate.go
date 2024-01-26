@@ -74,7 +74,10 @@ func ResourceEIPAssociate() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"port_id"},
 			},
-
+			"public_ipv6": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"mac_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -200,6 +203,7 @@ func resourceEIPAssociateRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("region", region),
 		d.Set("port_id", eIP.PortID),
 		d.Set("public_ip", eIP.PublicAddress),
+		d.Set("public_ipv6", eIP.PublicIpv6Address),
 		d.Set("fixed_ip", eIP.PrivateAddress),
 		d.Set("network_id", associatedPort.NetworkId),
 		d.Set("mac_address", associatedPort.MacAddress),

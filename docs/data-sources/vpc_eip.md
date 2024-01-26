@@ -29,6 +29,8 @@ data "huaweicloud_vpc_eip" "by_address" {
 
 In addition to all arguments above, the following attributes are exported:
 
+* `name` - The name of the EIP.
+
 * `status` - The status of the EIP.
 
 * `type` - The type of the EIP.
@@ -41,6 +43,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `bandwidth_id` - The bandwidth id of the EIP.
 
+* `bandwidth_name` - The bandwidth name of the EIP.
+
 * `bandwidth_size` - The bandwidth size of the EIP.
 
 * `bandwidth_share_type` - The bandwidth share type of the EIP.
+
+* `created_at` - The create time of the EIP.

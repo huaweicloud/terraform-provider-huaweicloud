@@ -6,13 +6,13 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
-//ApplyOptsBuilder is an interface by which can build the request body of public ip
-//application
+// ApplyOptsBuilder is an interface by which can build the request body of public ip
+// application
 type ApplyOptsBuilder interface {
 	ToPublicIpApplyMap() (map[string]interface{}, error)
 }
 
-//ApplyOpts is a struct which is used to create public ip
+// ApplyOpts is a struct which is used to create public ip
 type ApplyOpts struct {
 	IP                  PublicIpOpts  `json:"publicip" required:"true"`
 	Bandwidth           BandwidthOpts `json:"bandwidth" required:"true"`
@@ -41,7 +41,7 @@ func (opts ApplyOpts) ToPublicIpApplyMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
-//Apply is a method by which can access to apply the public ip
+// Apply is a method by which can access to apply the public ip
 func Apply(client *golangsdk.ServiceClient, opts ApplyOptsBuilder) (r ApplyResult) {
 	b, err := opts.ToPublicIpApplyMap()
 	if err != nil {
@@ -54,20 +54,20 @@ func Apply(client *golangsdk.ServiceClient, opts ApplyOptsBuilder) (r ApplyResul
 	return
 }
 
-//Get is a method by which can get the detailed information of public ip
+// Get is a method by which can get the detailed information of public ip
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(resourceURL(client, id), &r.Body, nil)
 	return
 }
 
-//Delete is a method by which can be able to delete a private ip
+// Delete is a method by which can be able to delete a private ip
 func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	_, r.Err = client.Delete(resourceURL(client, id), nil)
 	return
 }
 
-//UpdateOptsBuilder is an interface by which can be able to build the request
-//body
+// UpdateOptsBuilder is an interface by which can be able to build the request
+// body
 type UpdateOptsBuilder interface {
 	ToPublicIpUpdateMap() (map[string]interface{}, error)
 }
@@ -84,7 +84,7 @@ func (opts UpdateOpts) ToPublicIpUpdateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "publicip")
 }
 
-//Update is a method which can be able to update the port of public ip
+// Update is a method which can be able to update the port of public ip
 func Update(client *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToPublicIpUpdateMap()
 	if err != nil {
@@ -150,4 +150,21 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return PublicIPPage{pagination.LinkedPageBase{PageResult: r}}
 	})
+}
+
+type ChangeToPeriodOpts struct {
+	PublicIPIDs []string           `json:"publicip_ids" required:"true"`
+	ExtendParam structs.ChargeInfo `json:"extendParam" required:"true"`
+}
+
+// ChangeToPeriod is is used to change the EIP to prePaid billing mode
+func ChangeToPeriod(c *golangsdk.ServiceClient, opts ChangeToPeriodOpts) (r ChangeResult) {
+	body, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Post(changeToPeriodURL(c), body, &r.Body, nil)
+	return
 }

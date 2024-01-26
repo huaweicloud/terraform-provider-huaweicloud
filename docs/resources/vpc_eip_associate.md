@@ -74,6 +74,7 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID in UUID format.
 * `mac_address` - The MAC address of the private IP.
 * `status` - The status of EIP, should be **BOUND**.
+* `public_ipv6` - The IPv6 address of the private IP.
 
 ## Timeouts
 

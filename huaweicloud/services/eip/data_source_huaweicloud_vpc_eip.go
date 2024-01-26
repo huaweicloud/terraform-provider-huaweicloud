@@ -38,7 +38,10 @@ func DataSourceVpcEip() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -63,11 +66,19 @@ func DataSourceVpcEip() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"bandwidth_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"bandwidth_share_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -120,6 +131,7 @@ func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
+		d.Set("name", eipInfo.Alias),
 		d.Set("status", NormalizeEipStatus(eipInfo.Status)),
 		d.Set("public_ip", eipInfo.PublicAddress),
 		d.Set("ipv6_address", eipInfo.PublicIpv6Address),
@@ -128,9 +140,11 @@ func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("type", eipInfo.Type),
 		d.Set("private_ip", eipInfo.PrivateAddress),
 		d.Set("bandwidth_id", eipInfo.BandwidthID),
+		d.Set("bandwidth_name", eipInfo.BandwidthName),
 		d.Set("bandwidth_size", eipInfo.BandwidthSize),
 		d.Set("bandwidth_share_type", eipInfo.BandwidthShareType),
 		d.Set("enterprise_project_id", eipInfo.EnterpriseProjectID),
+		d.Set("created_at", eipInfo.CreateTime),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {

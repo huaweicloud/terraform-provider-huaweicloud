@@ -91,6 +91,14 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"publicips": publicIPListComputedSchema(),
 		},
 	}
@@ -280,6 +288,8 @@ func resourceVpcBandWidthV2Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("bandwidth_type", b.BandwidthType),
 		d.Set("public_border_group", b.PublicBorderGroup),
 		d.Set("status", b.Status),
+		d.Set("created_at", b.CreatedAt),
+		d.Set("updated_at", b.UpdatedAt),
 		d.Set("charging_mode", normalizeChargingMode(b.BillingInfo)),
 		d.Set("publicips", flattenPublicIPs(b)),
 	)

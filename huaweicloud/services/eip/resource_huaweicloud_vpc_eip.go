@@ -166,7 +166,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 						"charge_mode": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 							Description: `Whether the bandwidth is billed by traffic or by bandwidth size.`,
 						},
@@ -218,6 +217,10 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 			},
 			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -466,6 +469,7 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("private_ip", publicIp.PrivateAddress),
 		d.Set("port_id", publicIp.PortID),
 		d.Set("enterprise_project_id", publicIp.EnterpriseProjectID),
+		d.Set("created_at", publicIp.CreateTime),
 		d.Set("status", NormalizeEipStatus(publicIp.Status)),
 		d.Set("publicip", flattenEipPublicIpDetails(publicIp)),
 		d.Set("bandwidth", flattenEipBandwidthDetails(publicIp, bandWidth)),
@@ -581,8 +585,9 @@ func updateEipBandwidth(vpcV1Client *golangsdk.ServiceClient, cfg *config.Config
 	}
 
 	updateOpts := bandwidths.UpdateOpts{
-		Size: newMap["size"].(int),
-		Name: newMap["name"].(string),
+		Size:       newMap["size"].(int),
+		Name:       newMap["name"].(string),
+		ChargeMode: newMap["charge_mode"].(string),
 	}
 	log.Printf("[DEBUG] Bandwidth Update Options: %#v", updateOpts)
 	_, err := bandwidths.Update(vpcV1Client, bandwidthId, updateOpts).Extract()
