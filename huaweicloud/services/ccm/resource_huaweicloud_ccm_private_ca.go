@@ -159,6 +159,7 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 						"crl_name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 						"obs_bucket_name": {
@@ -375,16 +376,15 @@ func buildOrderPrivateCABodyParams(d *schema.ResourceData) (map[string]interface
 
 func buildCreatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"type":                d.Get("type"),
-		"distinguished_name":  buildPrivateCARequestBodyDistinguishedName(d.Get("distinguished_name")),
-		"key_algorithm":       d.Get("key_algorithm"),
-		"signature_algorithm": d.Get("signature_algorithm"),
-		"validity":            buildPrivateCARequestBodyValidity(d.Get("validity")),
-		"issuer_id":           utils.ValueIngoreEmpty(d.Get("issuer_id")),
-		"path_length":         utils.ValueIngoreEmpty(d.Get("path_length")),
-		"key_usages":          buildPrivateCARequestBodyKeyUsages(d.Get("type"), d.Get("key_usages")),
-		"crl_configuration": buildPrivateCARequestBodyCrlConfiguration(
-			utils.ValueIngoreEmpty(d.Get("issuer_id")), d.Get("crl_configuration")),
+		"type":                  d.Get("type"),
+		"distinguished_name":    buildPrivateCARequestBodyDistinguishedName(d.Get("distinguished_name")),
+		"key_algorithm":         d.Get("key_algorithm"),
+		"signature_algorithm":   d.Get("signature_algorithm"),
+		"validity":              buildPrivateCARequestBodyValidity(d.Get("validity")),
+		"issuer_id":             utils.ValueIngoreEmpty(d.Get("issuer_id")),
+		"path_length":           utils.ValueIngoreEmpty(d.Get("path_length")),
+		"key_usages":            buildPrivateCARequestBodyKeyUsages(d.Get("type"), d.Get("key_usages")),
+		"crl_configuration":     buildPrivateCARequestBodyCrlConfiguration(d.Get("crl_configuration")),
 		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
 	}
 	return bodyParams
@@ -423,18 +423,15 @@ func buildPrivateCARequestBodyKeyUsages(caType interface{}, rawParams interface{
 	return rawArray
 }
 
-func buildPrivateCARequestBodyCrlConfiguration(issuerID interface{}, rawParams interface{}) map[string]interface{} {
+func buildPrivateCARequestBodyCrlConfiguration(rawParams interface{}) map[string]interface{} {
 	if rawArray, ok := rawParams.([]interface{}); ok {
 		if len(rawArray) == 0 {
 			return nil
 		}
 		raw := rawArray[0].(map[string]interface{})
-		name := utils.ValueIngoreEmpty(raw["crl_name"]).(string)
-		if name == "" {
-			name = issuerID.(string)
-		}
 		params := map[string]interface{}{
-			"crl_name":        name,
+			"enabled":         true,
+			"crl_name":        raw["crl_name"],
 			"obs_bucket_name": raw["obs_bucket_name"],
 			"valid_days":      raw["valid_days"],
 		}
@@ -607,10 +604,9 @@ func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	privateCAOpt.JSONBody = utils.RemoveNil(
-		map[string]interface{}{
-			"pending_days": d.Get("pending_days"),
-		})
+	pendingDays := d.Get("pending_days")
+	privateCAPath += fmt.Sprintf("?pending_days=%v", pendingDays)
+
 	_, err = privateCAClient.Request("DELETE", privateCAPath, &privateCAOpt)
 	if err != nil {
 		return diag.Errorf("error deleting private CA: %s", err)
