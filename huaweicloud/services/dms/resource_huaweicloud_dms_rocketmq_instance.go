@@ -578,6 +578,13 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 				return diag.Errorf("error updating tags of RocketMQ:%s, err:%s", d.Id(), tagErr)
 			}
 		}
+
+		if d.HasChange("enable_publicip") {
+			err = updatePublicip(ctx, d, updateRocketmqInstanceClient, updateRocketmqInstancePath)
+			if err != nil {
+				return diag.Errorf("error enabling or disabling publicip of the RocketMQ instance %s: %s", d.Id(), err)
+			}
+		}
 	}
 
 	return resourceDmsRocketMQInstanceRead(ctx, d, meta)
@@ -796,4 +803,95 @@ func rocketmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 		status := utils.PathSearch("status", respBody, "").(string)
 		return respBody, status, nil
 	}
+}
+
+func publicipTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		// getPublicipTask: get publicip task
+		getPublicipTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
+		getPublicipTaskPath := client.Endpoint + getPublicipTaskHttpUrl
+		getPublicipTaskPath = strings.ReplaceAll(getPublicipTaskPath, "{project_id}",
+			client.ProjectID)
+		getPublicipTaskPath = strings.ReplaceAll(getPublicipTaskPath, "{instance_id}", instanceID)
+
+		reqOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getPublicipTaskResp, err := client.Request("GET", getPublicipTaskPath, &reqOpt)
+
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+
+		getPublicipTaskRespBody, err := utils.FlattenResponse(getPublicipTaskResp)
+		if err != nil {
+			return nil, "PARSE ERROR", err
+		}
+
+		task := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']|[0]", taskName), getPublicipTaskRespBody, nil)
+		if task == nil {
+			return nil, "NOT FOUND", nil
+		}
+		status := utils.PathSearch("status", task, "").(string)
+		return task, status, nil
+	}
+}
+
+func updatePublicip(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, enablePulicipPath string) error {
+	bodyParams := map[string]interface{}{
+		"enable_publicip": utils.ValueIngoreEmpty(d.Get("enable_publicip")),
+	}
+	if d.Get("enable_publicip").(bool) {
+		bodyParams["publicip_id"] = utils.ValueIngoreEmpty(d.Get("publicip_id"))
+	}
+
+	enablePulicipOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	enablePulicipOpt.JSONBody = utils.RemoveNil(bodyParams)
+
+	// public access can be set only when the RocketMQ instance is in the RUNNING state.
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("PUT", enablePulicipPath, &enablePulicipOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rocketmqInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error enabling or diabling publicip failed: bodyParams: %#v, err: %s", bodyParams, err)
+	}
+
+	// The RocketMQ enabling or disabling publicip is done if the status of its task is SUCCESS.
+	actionName := "unbindInstancePublicIp"
+	if d.Get("enable_publicip").(bool) {
+		actionName = "bindInstancePublicIp"
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      publicipTaskRefreshFunc(client, d.Id(), actionName),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+
+	if err != nil {
+		return fmt.Errorf("error waiting for enabling or diabling publicip to be done: %s", err)
+	}
+
+	return nil
 }
