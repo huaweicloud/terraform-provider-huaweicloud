@@ -14,6 +14,8 @@ type BandWidth struct {
 	BandwidthType     string `json:"bandwidth_type"`
 	PublicBorderGroup string `json:"public_border_group"`
 	ChargeMode        string `json:"charge_mode"`
+	CreatedAt         string `json:"created_at"`
+	UpdatedAt         string `json:"updated_at"`
 
 	PublicipInfo []PublicIpinfo `json:"publicip_info"`
 

@@ -61,6 +61,10 @@ type Nic struct {
 	IpAddress string `json:"ip_address,omitempty"`
 }
 
+type DeleteNic struct {
+	ID string `json:"id" required:"true"`
+}
+
 type PublicIp struct {
 	Id  string `json:"id,omitempty"`
 	Eip *Eip   `json:"eip,omitempty"`
@@ -170,8 +174,68 @@ type UpdateOpts struct {
 	Name string `json:"name,omitempty"`
 }
 
+type DeleteNicsOpts struct {
+	Nics []DeleteNic `json:"nics" required:"true"`
+}
+
+type AddNicsOpts struct {
+	Nics []Nic `json:"nics" required:"true"`
+}
+
 type UpdateOptsBuilder interface {
 	ToServerUpdateMap() (map[string]interface{}, error)
+}
+
+type DeleteNicsOptsBuilder interface {
+	ToServerDeleteNicsMap() (map[string]interface{}, error)
+}
+
+type AddNicsOptsBuilder interface {
+	ToServerAddNicsMap() (map[string]interface{}, error)
+}
+
+func (opts StopServerOps) ToServerStopServerMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "os-stop")
+}
+
+func (opts StartServerOps) ToServerStartServerMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "os-start")
+}
+
+func (opts RebootServerOps) ToServerRebootServerMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "reboot")
+}
+
+type StartServerOps struct {
+	Servers []Servers `json:"servers" required:"true"`
+}
+
+type StopServerOps struct {
+	// The value can be: HARD and SOFT. Only HARD takes effect.
+	Type    string    `json:"type" required:"true"`
+	Servers []Servers `json:"servers" required:"true"`
+}
+
+type RebootServerOps struct {
+	// The value can be: HARD and SOFT. Only HARD takes effect.
+	Type    string    `json:"type" required:"true"`
+	Servers []Servers `json:"servers" required:"true"`
+}
+
+type Servers struct {
+	ID string `json:"id" required:"true"`
+}
+
+type RebootServerOpsBuilder interface {
+	ToServerRebootServerMap() (map[string]interface{}, error)
+}
+
+type StartServerOpsBuilder interface {
+	ToServerStartServerMap() (map[string]interface{}, error)
+}
+
+type StopServerOpsBuilder interface {
+	ToServerStopServerMap() (map[string]interface{}, error)
 }
 
 func (opts UpdateOpts) ToServerUpdateMap() (map[string]interface{}, error) {
@@ -193,5 +257,73 @@ func Update(client *golangsdk.ServiceClient, id string, ops UpdateOptsBuilder) (
 	_, r.Err = client.Put(putURL(client, id), b, nil, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
+	return
+}
+
+func (opts DeleteNicsOpts) ToServerDeleteNicsMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func (opts AddNicsOpts) ToServerAddNicsMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func DeleteNics(client *golangsdk.ServiceClient, id string, ops DeleteNicsOptsBuilder) (r JobResult) {
+	reqBody, err := ops.ToServerDeleteNicsMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(deleteNicsURL(client, id), reqBody, &r.Body, nil)
+	return
+}
+
+func AddNics(client *golangsdk.ServiceClient, id string, ops AddNicsOptsBuilder) (r JobResult) {
+	reqBody, err := ops.ToServerAddNicsMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(addNicsURL(client, id), reqBody, &r.Body, nil)
+	return
+}
+
+func GetJobDetail(client *golangsdk.ServiceClient, jobID string) (r JobResult) {
+	_, r.Err = client.Get(jobURL(client, jobID), &r.Body, nil)
+	return
+}
+
+func RebootServer(client *golangsdk.ServiceClient, ops RebootServerOpsBuilder) (r JobResult) {
+	reqBody, err := ops.ToServerRebootServerMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(serverStatusPostURL(client), reqBody, &r.Body, nil)
+	return
+}
+
+func StartServer(client *golangsdk.ServiceClient, ops StartServerOpsBuilder) (r JobResult) {
+	reqBody, err := ops.ToServerStartServerMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(serverStatusPostURL(client), reqBody, &r.Body, nil)
+	return
+}
+
+func StopServer(client *golangsdk.ServiceClient, ops StopServerOpsBuilder) (r JobResult) {
+	reqBody, err := ops.ToServerStopServerMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(serverStatusPostURL(client), reqBody, &r.Body, nil)
 	return
 }

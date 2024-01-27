@@ -9,3 +9,7 @@ func rootURL(c *golangsdk.ServiceClient) string {
 func authConfigURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("assist-auth-config/method-config")
 }
+
+func lockStatusURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("workspaces/lock-status")
+}

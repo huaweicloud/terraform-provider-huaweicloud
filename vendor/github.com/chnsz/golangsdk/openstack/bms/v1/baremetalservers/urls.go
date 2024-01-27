@@ -2,12 +2,15 @@ package baremetalservers
 
 import "github.com/chnsz/golangsdk"
 
+// /baremetalservers/
+const resourcePath = "baremetalservers"
+
 func createURL(sc *golangsdk.ServiceClient) string {
-	return sc.ServiceURL("baremetalservers")
+	return sc.ServiceURL(resourcePath)
 }
 
 func getURL(sc *golangsdk.ServiceClient, serverID string) string {
-	return sc.ServiceURL("baremetalservers", serverID)
+	return sc.ServiceURL(resourcePath, serverID)
 }
 
 func jobURL(sc *golangsdk.ServiceClient, jobId string) string {
@@ -15,5 +18,17 @@ func jobURL(sc *golangsdk.ServiceClient, jobId string) string {
 }
 
 func putURL(sc *golangsdk.ServiceClient, serverID string) string {
-	return sc.ServiceURL("baremetalservers", serverID)
+	return sc.ServiceURL(resourcePath, serverID)
+}
+
+func deleteNicsURL(sc *golangsdk.ServiceClient, serverID string) string {
+	return sc.ServiceURL(resourcePath, serverID, "nics", "delete")
+}
+
+func addNicsURL(sc *golangsdk.ServiceClient, serverID string) string {
+	return sc.ServiceURL(resourcePath, serverID, "nics")
+}
+
+func serverStatusPostURL(sc *golangsdk.ServiceClient) string {
+	return sc.ServiceURL(resourcePath, "action")
 }
