@@ -466,7 +466,6 @@ resource "huaweicloud_compute_instance" "test" {
   agency_name         = "test222"
   agent_list          = "ces"
   auto_terminate_time = ""
-  user_data           = ""
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id
