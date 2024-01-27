@@ -76,7 +76,7 @@ func TestAccComputeInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"stop_before_destroy", "delete_eip_on_termination", "data_disks", "metadata",
+					"stop_before_destroy", "delete_eip_on_termination", "data_disks", "metadata", "user_data",
 				},
 			},
 		},
@@ -419,6 +419,11 @@ resource "huaweicloud_compute_instance" "test" {
   agency_name         = "test111"
   agent_list          = "hss"
   auto_terminate_time = "2025-10-10T11:11:00Z"
+
+  user_data = <<EOF
+#! /bin/bash
+echo user_test > /home/user.txt
+EOF
 
   network {
     uuid              = data.huaweicloud_vpc_subnet.test.id
