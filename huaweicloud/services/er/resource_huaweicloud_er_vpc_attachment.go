@@ -92,7 +92,7 @@ func ResourceVpcAttachment() *schema.Resource {
 				ForceNew:    true,
 				Description: `Whether to automatically configure routes for the VPC which pointing to the ER instance.`,
 			},
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 			// Attributes
 			"status": {
 				Type:        schema.TypeString,
@@ -248,6 +248,13 @@ func resourceVpcAttachmentUpdate(ctx context.Context, d *schema.ResourceData, me
 	if d.HasChanges("name", "description") {
 		if err = updateVpcAttachmentBasicInfo(ctx, client, d); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		err = utils.UpdateResourceTags(client, d, "vpc-attachment", d.Id())
+		if err != nil {
+			return diag.Errorf("error updating VPC attachment tags: %s", err)
 		}
 	}
 
