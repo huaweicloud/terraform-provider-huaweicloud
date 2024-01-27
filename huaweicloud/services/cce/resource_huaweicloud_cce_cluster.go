@@ -20,6 +20,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -242,7 +243,6 @@ func ResourceCluster() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"extend_param": {
@@ -911,13 +911,15 @@ func flattenEniSubnetID(eniNetwork *clusters.EniNetworkSpec) string {
 }
 
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	cceClient, err := config.CceV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	cceClient, err := cfg.CceV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	var updateOpts = clusters.UpdateOpts{}
+	clusterId := d.Id()
+	updateOpts := clusters.UpdateOpts{}
 
 	if d.HasChange("alias") {
 		updateOpts.Metadata = &clusters.UpdateMetadata{
@@ -961,7 +963,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if !reflect.DeepEqual(updateOpts, clusters.UpdateOpts{}) {
-		_, err = clusters.Update(cceClient, d.Id(), updateOpts).Extract()
+		_, err = clusters.Update(cceClient, clusterId, updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating CCE cluster: %s", err)
 		}
@@ -982,20 +984,20 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("eip") {
-		eipClient, err := config.NetworkingV1Client(config.GetRegion(d))
+		eipClient, err := cfg.NetworkingV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v1 client: %s", err)
 		}
 
 		oldEip, newEip := d.GetChange("eip")
 		if oldEip.(string) != "" {
-			err = resourceClusterEipAction(cceClient, eipClient, d.Id(), oldEip.(string), "unbind")
+			err = resourceClusterEipAction(cceClient, eipClient, clusterId, oldEip.(string), "unbind")
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 		if newEip.(string) != "" {
-			err = resourceClusterEipAction(cceClient, eipClient, d.Id(), newEip.(string), "bind")
+			err = resourceClusterEipAction(cceClient, eipClient, clusterId, newEip.(string), "bind")
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -1008,27 +1010,39 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		oldTagsRaw := oldTags.(map[string]interface{})
 		if len(oldTagsRaw) > 0 {
 			taglist := utils.ExpandResourceTags(oldTagsRaw)
-			if tagErr := clusters.RemoveTags(cceClient, d.Id(), taglist).ExtractErr(); tagErr != nil {
-				return diag.Errorf("error deleting tags of CCE cluster %s: %s", d.Id(), tagErr)
+			if tagErr := clusters.RemoveTags(cceClient, clusterId, taglist).ExtractErr(); tagErr != nil {
+				return diag.Errorf("error deleting tags of CCE cluster %s: %s", clusterId, tagErr)
 			}
 		}
 
 		newTagsRaw := newTags.(map[string]interface{})
 		if len(newTagsRaw) > 0 {
 			taglist := utils.ExpandResourceTags(newTagsRaw)
-			if tagErr := clusters.AddTags(cceClient, d.Id(), taglist).ExtractErr(); tagErr != nil {
-				return diag.Errorf("error setting tags of CCE cluster %s: %s", d.Id(), tagErr)
+			if tagErr := clusters.AddTags(cceClient, clusterId, taglist).ExtractErr(); tagErr != nil {
+				return diag.Errorf("error setting tags of CCE cluster %s: %s", clusterId, tagErr)
 			}
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the CCE cluster (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the CCE cluster (%s): %s", clusterId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   clusterId,
+			ResourceType: "cce-cluster",
+			RegionId:     region,
+			ProjectId:    cceClient.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
