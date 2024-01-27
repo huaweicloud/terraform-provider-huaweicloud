@@ -41,8 +41,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the route table.  
   The description contain a maximum of 255 characters, and the angle brackets (< and >) are not allowed.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the route table.  
-  Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the route table.  
 
 ## Attribute Reference
 
