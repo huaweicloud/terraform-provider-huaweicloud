@@ -281,6 +281,10 @@ func ResourceCdnDomainV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"private_bucket_access": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true},
 			"service_area": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1068,6 +1072,19 @@ func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta
 	id := d.Id()
 	opts := getResourceExtensionOpts(d, cfg)
 	timeout := d.Timeout(schema.TimeoutCreate)
+	status := true
+	if d.Get("private_bucket_access").(bool) {
+		privateBucketAccessOpts := &domains.PrivateBucketAccessOpts{
+			Status: &status,
+		}
+		privateBucketAccess, err := domains.UpdatePrivateBucketAccess(cdnClient, d.Id(), privateBucketAccessOpts).Extract()
+		errorCode := privateBucketAccess.ErrorResp.ErrorCode
+		errorMsg := privateBucketAccess.ErrorResp.ErrorMsg
+		if err == nil && errorCode != "" {
+			return diag.Errorf("error updating CDN private bucket access, error_code: %v, error_msg: %v",
+				errorCode, errorMsg)
+		}
+	}
 
 	if d.HasChanges("sources", "configs", "cache_settings") || d.IsNewResource() {
 		err = updateDomainFullConfigs(hcCdnClient, cfg, d)

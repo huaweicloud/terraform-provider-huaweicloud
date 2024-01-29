@@ -130,6 +130,10 @@ The following arguments are supported:
 * `sources` - (Required, List, ForceNew) An array of one or more objects specifies the domain name of the origin server.
   The sources object structure is documented below.
 
+* `private_bucket_access` - (Optional, Bool) Specifies whether private bucket retrieval is enabled.
+  This field is valid only when `origin_type` of origin sources incloud **obs_bucket**.
+  This field must be set to **true** when using a private bucket domain name. Defaults to **false**.
+
 * `service_area` - (Optional, String, ForceNew) The area covered by the acceleration service. Valid values are
   `mainland_china`, `outside_mainland_china`, and `global`. Changing this parameter will create a new resource.
 
@@ -149,12 +153,18 @@ The `sources` block supports:
 * `origin` - (Required, String) The domain name or IP address of the origin server.
 
 * `origin_type` - (Required, String) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
+  When a CDN domain is configured with multiple origin servers of **obs_bucket**,
+  the OBS buckets should be all private bucket or all public bucket.
+  When configure an origin server with private bucket, the delegation
+  authorization should be enabled on the OBS service side.
 
 * `active` - (Optional, Int) Whether an origin server is active or standby (1: active; 0: standby). The default value is
   1.
 
 * `obs_web_hosting_enabled` - (Optional, Bool) Whether to enable static website hosting for the OBS bucket.
   This parameter is mandatory when the `origin_type` is **obs_bucket**.
+  If the value of the field is **true**, please confirm that static website hosting has been enabled
+  on the OBS side, otherwise business abnormalities will occur.
 
 * `http_port` - (Optional, Int) Specifies the HTTP port. Default value: **80**.
 

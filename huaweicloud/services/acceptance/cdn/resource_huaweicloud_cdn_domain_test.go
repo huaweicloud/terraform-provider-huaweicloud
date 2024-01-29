@@ -352,3 +352,68 @@ resource "huaweicloud_cdn_domain" "test" {
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
+
+func TestAccCdnDomain_obs_bucket(t *testing.T) {
+	var (
+		domain       domains.CdnDomain
+		resourceName = "huaweicloud_cdn_domain.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&domain,
+		getCdnDomainFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCDN(t)
+			// The field origin should be set as environment variable if the type of source is obs_bucket.
+			acceptance.TstAccPrecheckCDNSourceOrigin(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCdnDomainV1_obs_bucket,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "http"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "private_bucket_access", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.origin_type", "obs_bucket"),
+				),
+			},
+		},
+	})
+}
+
+var testAccCdnDomainV1_obs_bucket = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%[1]s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+  private_bucket_access = true
+
+  configs {
+    origin_protocol = "http"
+  }
+
+  sources {
+    active      = 1
+    origin      = "%[2]s"
+    origin_type = "obs_bucket"
+    http_port   = 80
+    https_port  = 443
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_SOURCE_ORIGIN)

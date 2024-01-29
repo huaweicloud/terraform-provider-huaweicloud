@@ -11,6 +11,10 @@ type ExtensionOpts struct {
 	EnterpriseProjectId string `q:"enterprise_project_id"`
 }
 
+type PrivateBucketAccessOpts struct {
+	Status *bool `json:"status,omitempty"`
+}
+
 // ToExtensionQuery formats a ExtensionOpts into a query string.
 func (opts ExtensionOpts) ToExtensionQuery() (string, error) {
 	q, err := golangsdk.BuildQueryString(opts)
@@ -44,10 +48,18 @@ type CreateOptsBuilder interface {
 	ToCdnDomainCreateMap() (map[string]interface{}, error)
 }
 
+type PrivateBucketAccessBuilder interface {
+	ToCdnUpdatePrivateBucketAccessMap() (map[string]interface{}, error)
+}
+
 // ToCdnDomainCreateMap assembles a request body based on the contents of a
 // CreateOpts.
 func (opts CreateOpts) ToCdnDomainCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "domain")
+}
+
+func (opts PrivateBucketAccessOpts) ToCdnUpdatePrivateBucketAccessMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
 }
 
 // OriginOpts specifies the attributes used to modify the orogin server.
@@ -77,6 +89,16 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 	}
 
 	_, r.Err = client.Post(createURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
+
+func UpdatePrivateBucketAccess(client *golangsdk.ServiceClient, domainId string, opts PrivateBucketAccessBuilder) (r PrivateBucketAccessResult) {
+	reqBody, err := opts.ToCdnUpdatePrivateBucketAccessMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(updatePrivateBucketAccessURL(client, domainId), reqBody, &r.Body, nil)
 	return
 }
 

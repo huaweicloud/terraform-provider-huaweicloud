@@ -66,6 +66,7 @@ var (
 	HW_RAM_SHARE_UPDATE_ACCOUNT_ID   = os.Getenv("HW_RAM_SHARE_UPDATE_ACCOUNT_ID")
 	HW_RAM_SHARE_UPDATE_RESOURCE_URN = os.Getenv("HW_RAM_SHARE_UPDATE_RESOURCE_URN")
 
+	HW_CDN_SOURCE_ORIGIN            = os.Getenv("HW_CDN_SOURCE_ORIGIN")
 	HW_CDN_DOMAIN_NAME              = os.Getenv("HW_CDN_DOMAIN_NAME")
 	HW_CDN_CERT_PATH                = os.Getenv("HW_CDN_CERT_PATH")
 	HW_CDN_PRIVATE_KEY_PATH         = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
@@ -1110,6 +1111,13 @@ func TestAccPreCheckLtsEnableFlag(t *testing.T) {
 func TestAccPreCheckCCINamespace(t *testing.T) {
 	if HW_CCI_NAMESPACE == "" {
 		t.Skip("This environment does not support CCI Namespace tests")
+	}
+}
+
+// lintignore:AT003
+func TstAccPrecheckCDNSourceOrigin(t *testing.T) {
+	if HW_CDN_SOURCE_ORIGIN == "" {
+		t.Skip("HW_CDN_SOURCE_ORIGIN must be set for the acceptance test")
 	}
 }
 
