@@ -21,6 +21,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API OMS PUT /v2/{project_id}/taskgroups/{group_id}/retry
+// @API OMS PUT /v2/{project_id}/taskgroups/{group_id}/start
+// @API OMS PUT /v2/{project_id}/taskgroups/{group_id}/stop
+// @API OMS PUT /v2/{project_id}/taskgroups/{group_id}/update
+// @API OMS DELETE /v2/{project_id}/taskgroups/{group_id}
+// @API OMS GET /v2/{project_id}/taskgroups/{group_id}
+// @API OMS POST /v2/{project_id}/taskgroups
 func ResourceMigrationTaskGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMigrationTaskGroupCreate,

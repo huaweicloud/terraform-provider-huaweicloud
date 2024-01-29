@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GES GET /v2/{project_id}/graphs/{graph_id}/backups
+// @API GES POST /v2/{project_id}/graphs/{graph_id}/backups
+// @API GES DELETE /v2/{project_id}/graphs/{graph_id}/backups/{id}
+// @API GES GET /v2/{project_id}/graphs/{graph_id}/jobs/{job_id}/status
 func ResourceGesBackup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGesBackupCreate,

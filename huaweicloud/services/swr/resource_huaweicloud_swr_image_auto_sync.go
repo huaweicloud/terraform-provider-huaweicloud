@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/repos/{repository}/sync_repo
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/sync_repo
+// @API SWR POST /v2/manage/namespaces/{namespace}/repos/{repository}/sync_repo
 func ResourceSwrImageAutoSync() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSwrImageAutoSyncCreate,

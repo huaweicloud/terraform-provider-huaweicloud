@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS DELETE /v2/{project_id}/transfers
+// @API LTS GET /v2/{project_id}/transfers
+// @API LTS POST /v2/{project_id}/transfers
+// @API LTS PUT /v2/{project_id}/transfers
 func ResourceLtsTransfer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLtsTransferCreate,

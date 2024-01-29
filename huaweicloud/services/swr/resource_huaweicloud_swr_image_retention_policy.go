@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SWR POST /v2/manage/namespaces/{namespace}/repos/{repository}/retentions
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}
+// @API SWR PATCH /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}
 func ResourceSwrImageRetentionPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSwrImageRetentionPolicyCreate,

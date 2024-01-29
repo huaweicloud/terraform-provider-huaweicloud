@@ -19,6 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Live PUT /v1/{project_id}/obs/authority
 func ResourceLiveBucketAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLiveBucketAuthorizationCreate,

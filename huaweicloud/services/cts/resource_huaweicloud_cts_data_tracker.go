@@ -21,6 +21,10 @@ import (
 )
 
 // ResourceCTSDataTracker is the impl of huaweicloud_cts_data_tracker
+// @API CTS POST /v3/{project_id}/tracker
+// @API CTS PUT /v3/{project_id}/tracker
+// @API CTS DELETE /v3/{project_id}/trackers
+// @API CTS GET /v3/{project_id}/trackers
 func ResourceCTSDataTracker() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCTSDataTrackerCreate,

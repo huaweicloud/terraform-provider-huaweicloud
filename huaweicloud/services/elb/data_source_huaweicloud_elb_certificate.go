@@ -21,6 +21,7 @@ import (
 
 // DataSourceELBCertificateV3 the data source of "huaweicloud_elb_certificate"
 // Dedicated ELB
+// @API ELB GET /v3/{project_id}/elb/certificates
 func DataSourceELBCertificateV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceELbCertificateV3Read,

@@ -13,6 +13,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API ECS GET /v1/{project_id}/cloudservers/detail
+// @API ECS GET /v1/{project_id}/cloudservers/{serverId}/block_device
+// @API EVS GET /v2/{project_id}/cloudvolumes/{id}
+// @API VPC GET /v2.0/ports/{id}
 func DataSourceComputeInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceComputeInstancesRead,

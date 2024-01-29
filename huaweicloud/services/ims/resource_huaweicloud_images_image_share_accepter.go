@@ -20,6 +20,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IMS PUT /v1/cloudimages/members
 func ResourceImsImageShareAccepter() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImsImageShareAccepterCreate,

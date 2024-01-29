@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDS POST /v3/{project_id}/configurations
+// @API DDS DELETE /v3/{project_id}/configurations/{config_id}
+// @API DDS GET /v3/{project_id}/configurations/{config_id}
+// @API DDS PUT /v3/{project_id}/configurations/{config_id}
 func ResourceDdsParameterTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdsParameterTemplateCreate,

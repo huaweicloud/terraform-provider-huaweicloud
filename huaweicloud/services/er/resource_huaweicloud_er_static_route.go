@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ER DELETE /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes/{routeId}
+// @API ER GET /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes/{routeId}
+// @API ER PUT /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes/{routeId}
+// @API ER POST /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes
 func ResourceStaticRoute() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStaticRouteCreate,

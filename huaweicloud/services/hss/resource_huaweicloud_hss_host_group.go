@@ -30,6 +30,11 @@ const (
 	ProtectStatusOpened ProtectStatus = "opened"
 )
 
+// @API HSS DELETE /v5/{project_id}/host-management/groups
+// @API HSS GET /v5/{project_id}/host-management/groups
+// @API HSS POST /v5/{project_id}/host-management/groups
+// @API HSS PUT /v5/{project_id}/host-management/groups
+// @API HSS GET /v5/{project_id}/host-management/hosts
 func ResourceHostGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHostGroupCreate,

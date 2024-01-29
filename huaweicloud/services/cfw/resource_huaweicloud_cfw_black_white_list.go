@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CFW POST /v1/{project_id}/black-white-list
+// @API CFW DELETE /v1/{project_id}/black-white-list/{id}
+// @API CFW PUT /v1/{project_id}/black-white-list/{id}
+// @API CFW GET /v1/{project_id}/black-white-lists
 func ResourceBlackWhiteList() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBlackWhiteListCreate,

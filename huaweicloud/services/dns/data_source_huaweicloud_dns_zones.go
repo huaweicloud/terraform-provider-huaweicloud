@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DNS GET /v2/zones
 func DataSourceZones() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceZonesRead,

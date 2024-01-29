@@ -19,6 +19,8 @@ import (
 )
 
 // DataSourceIdentityUsers is the impl of data/huaweicloud_identity_users
+// @API IAM GET /v3/users/{userID}/groups
+// @API IAM GET /v3/users
 func DataSourceIdentityUsers() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityUsersRead,

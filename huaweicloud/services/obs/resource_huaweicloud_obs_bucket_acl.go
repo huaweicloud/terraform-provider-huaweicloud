@@ -25,6 +25,8 @@ const (
 	GrantAccount         GrantType = "ACCOUNT"
 )
 
+// @API OBS PUT ?acl
+// @API OBS GET ?acl
 func ResourceOBSBucketAcl() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOBSBucketAclCreate,

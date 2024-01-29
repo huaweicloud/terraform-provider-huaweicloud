@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IEC POST /v1/vpcs
+// @API IEC DELETE /v1/vpcs/{vpcId}
+// @API IEC GET /v1/vpcs/{vpcId}
+// @API IEC PUT /v1/vpcs/{vpcId}
 func ResourceVpc() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcCreate,

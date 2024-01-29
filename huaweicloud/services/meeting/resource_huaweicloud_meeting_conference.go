@@ -190,6 +190,14 @@ func subconferenceSchemaResource() *schema.Resource {
 	}
 }
 
+// @API Meeting GET /v1/mmc/management/conferences/history/confDetail
+// @API Meeting GET /v1/mmc/management/conferences/history
+// @API Meeting DELETE /v1/mmc/management/conferences
+// @API Meeting GET /v1/mmc/management/conferences
+// @API Meeting POST /v1/mmc/management/conferences
+// @API Meeting PUT /v1/mmc/management/conferences
+// @API Meeting PUT /v1/mmc/management/conference/duration
+// @API Meeting GET /v1/mmc/management/conferences/confDetail
 func ResourceConference() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConferenceCreate,

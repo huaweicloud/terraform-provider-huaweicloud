@@ -35,6 +35,10 @@ const (
 	shareTypeHpcCache    = "HPC_CACHE"
 )
 
+// @API SFSTurbo POST /v1/{project_id}/sfs-turbo/shares/{id}/action
+// @API SFSTurbo DELETE /v1/{project_id}/sfs-turbo/shares/{id}
+// @API SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/{id}
+// @API SFSTurbo POST /v1/{project_id}/sfs-turbo/shares
 func ResourceSFSTurbo() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSFSTurboCreate,

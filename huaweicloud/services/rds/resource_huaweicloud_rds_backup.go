@@ -27,6 +27,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS DELETE /v3/{project_id}/backups/{id}
+// @API RDS GET /v3/{project_id}/backups
+// @API RDS POST /v3/{project_id}/backups
 func ResourceBackup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBackupCreate,

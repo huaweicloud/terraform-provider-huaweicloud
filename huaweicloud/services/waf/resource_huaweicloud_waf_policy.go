@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API WAF DELETE /v1/{project_id}/waf/policy/{id}
+// @API WAF GET /v1/{project_id}/waf/policy/{id}
+// @API WAF PATCH /v1/{project_id}/waf/policy/{id}
+// @API WAF POST /v1/{project_id}/waf/policy
 func ResourceWafPolicyV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafPolicyV1Create,

@@ -25,6 +25,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPN POST /v5/{project_id}/vpn-connection
+// @API VPN DELETE /v5/{project_id}/vpn-connection/{id}
+// @API VPN GET /v5/{project_id}/vpn-connection/{id}
+// @API VPN PUT /v5/{project_id}/vpn-connection/{id}
 func ResourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectionCreate,

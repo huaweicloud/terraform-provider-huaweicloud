@@ -17,6 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SMN GET /v2/{project_id}/smn_topic/{id}/tags
+// @API SMN GET /v2/{project_id}/notifications/topics
 func DataSourceTopics() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceTopicsRead,

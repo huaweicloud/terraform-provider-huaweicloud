@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SDRS DELETE /v1/{project_id}/disaster-recovery-drills/{id}
+// @API SDRS GET /v1/{project_id}/disaster-recovery-drills/{id}
+// @API SDRS PUT /v1/{project_id}/disaster-recovery-drills/{id}
+// @API SDRS POST /v1/{project_id}/disaster-recovery-drills
 func ResourceDrill() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDrillCreate,

@@ -42,6 +42,10 @@ const (
 	AddressTypeIpv6 AddressType = "ipv6"
 )
 
+// @API DC DELETE /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}
+// @API DC GET /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}
+// @API DC PUT /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}
+// @API DC POST /v3/{project_id}/dcaas/virtual-interfaces
 func ResourceVirtualInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVirtualInterfaceCreate,

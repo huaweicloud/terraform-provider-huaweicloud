@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI GET /v1.0/{project_id}/streaming/job-templates
+// @API DLI POST /v1.0/{project_id}/streaming/job-templates
+// @API DLI PUT /v1.0/{project_id}/streaming/job-templates/{id}
+// @API DLI DELETE /v1.0/{project_id}/streaming/job-templates/{id}
 func ResourceFlinkTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFlinkTemplateCreate,

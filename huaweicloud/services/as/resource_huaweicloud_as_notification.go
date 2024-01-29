@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AS PUT /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}/{topic_urn}
 func ResourceAsNotification() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAsNotificationPut,

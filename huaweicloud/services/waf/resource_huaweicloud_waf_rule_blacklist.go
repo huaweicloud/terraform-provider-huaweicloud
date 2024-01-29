@@ -25,6 +25,10 @@ const (
 	protectionActionLog = 2
 )
 
+// @API WAF DELETE /v1/{project_id}/waf/policy/{policyID}/whiteblackip/{id}
+// @API WAF GET /v1/{project_id}/waf/policy/{policyID}/whiteblackip/{id}
+// @API WAF PUT /v1/{project_id}/waf/policy/{policyID}/whiteblackip/{id}
+// @API WAF POST /v1/{project_id}/waf/policy/{policyID}/whiteblackip
 func ResourceWafRuleBlackListV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleBlackListCreate,

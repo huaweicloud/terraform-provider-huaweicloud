@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API WAF GET /v1/{project_id}/premium-waf/pool
 func DataSourceWafInstanceGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: DataSourceWafInstanceGroupsRead,

@@ -21,6 +21,9 @@ import (
 
 const EPSTagKey string = "_sys_enterprise_project_id"
 
+// @API LTS DELETE /v2/{project_id}/groups/{groupId}/streams/{id}
+// @API LTS GET /v2/{project_id}/groups/{groupId}/streams
+// @API LTS POST /v2/{project_id}/groups/{groupId}/streams
 func ResourceLTSStream() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStreamCreate,

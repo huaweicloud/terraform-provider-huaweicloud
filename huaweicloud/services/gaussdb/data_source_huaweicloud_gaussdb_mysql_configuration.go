@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API GaussDBforMySQL GET /v3/{project_id}/configurations
 func DataSourceGaussdbMysqlConfigurations() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGaussdbMysqlConfigurationsRead,

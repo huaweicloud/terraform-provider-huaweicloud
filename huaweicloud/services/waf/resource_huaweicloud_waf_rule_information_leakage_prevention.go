@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/antileakage
+// @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}
+// @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}
+// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}
 func ResourceRuleLeakagePrevention() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRuleCreate,

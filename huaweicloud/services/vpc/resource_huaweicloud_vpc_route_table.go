@@ -20,6 +20,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC DELETE /v1/{project_id}/routetables/{id}
+// @API VPC GET /v1/{project_id}/routetables/{id}
+// @API VPC PUT /v1/{project_id}/routetables/{id}
+// @API VPC POST /v1/{project_id}/routetables
+// @API VPC POST /v1/{project_id}/routetables/{id}/action
 func ResourceVPCRouteTable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcRouteTableCreate,

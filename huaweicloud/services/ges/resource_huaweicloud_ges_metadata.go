@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GES DELETE /v2/{project_id}/graphs/metadatas/{id}
+// @API GES GET /v1.0/{project_id}/graphs/metadatas/{id}
+// @API GES GET /v2/{project_id}/graphs/metadatas
+// @API GES POST /v2/{project_id}/graphs/metadatas
 func ResourceGesMetadata() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGesMetadataCreate,

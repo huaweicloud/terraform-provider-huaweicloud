@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI GET /v1.0/{project_id}/sqls
+// @API DLI POST /v1.0/{project_id}/sqls
+// @API DLI POST /v1.0/{project_id}/sqls-deletion
+// @API DLI PUT /v1.0/{project_id}/sqls/{id}
 func ResourceSQLTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLTemplateCreate,

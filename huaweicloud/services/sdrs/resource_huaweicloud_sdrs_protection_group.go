@@ -16,6 +16,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SDRS POST /v1/{project_id}/server-groups/{id}/action
+// @API SDRS DELETE /v1/{project_id}/server-groups/{id}
+// @API SDRS GET /v1/{project_id}/server-groups/{id}
+// @API SDRS PUT /v1/{project_id}/server-groups/{id}
+// @API SDRS POST /v1/{project_id}/server-groups
 func ResourceProtectionGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectionGroupCreate,

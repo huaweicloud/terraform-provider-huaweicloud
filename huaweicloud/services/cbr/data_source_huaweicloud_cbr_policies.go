@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API CBR GET /v3/{project_id}/policies
 func DataSourcePolicies() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourcePoliciesRead,

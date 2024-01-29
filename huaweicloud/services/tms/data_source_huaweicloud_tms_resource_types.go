@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API TMS GET /v1.0/tms/providers
 func DataSourceResourceTypes() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceResourceTypesRead,

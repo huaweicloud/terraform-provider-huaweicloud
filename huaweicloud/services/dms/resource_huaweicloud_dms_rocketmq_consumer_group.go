@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RocketMQ POST /v2/{project_id}/instances/{instance_id}/groups
+// @API RocketMQ DELETE /v2/{project_id}/instances/{instance_id}/groups/{group}
+// @API RocketMQ GET /v2/{project_id}/instances/{instance_id}/groups/{group}
+// @API RocketMQ PUT /v2/{project_id}/instances/{instance_id}/groups/{group}
 func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRocketMQConsumerGroupCreate,

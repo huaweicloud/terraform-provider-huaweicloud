@@ -24,6 +24,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API OMS POST /v2/{project_id}/tasks/{task_id}/start
+// @API OMS POST /v2/{project_id}/tasks/{task_id}/stop
+// @API OMS GET /v2/{project_id}/tasks/{task_id}
+// @API OMS DELETE /v2/{project_id}/tasks/{task_id}
+// @API OMS POST /v2/{project_id}/tasks
+// @API OMS PUT /v2/{project_id}/tasks/{task_id}/bandwidth-policy
 func ResourceMigrationTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMigrationTaskCreate,

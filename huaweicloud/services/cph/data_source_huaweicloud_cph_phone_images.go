@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CPH GET /v1/{project_id}/cloud-phone/phone-images
 func DataSourcePhoneImages() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourcePhoneImagesRead,

@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/backups/offsite-policy
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/backups/offsite-policy
+// @API RDS GET /v3/{project_id}/instances
 func ResourceBackupStrategy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBackupStrategyCreate,

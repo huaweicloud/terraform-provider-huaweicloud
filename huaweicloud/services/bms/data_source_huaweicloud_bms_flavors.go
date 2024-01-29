@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API BMS GET /v1/{project_id}/baremetalservers/flavors
 func DataSourceBmsFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceBmsFlavorsRead,

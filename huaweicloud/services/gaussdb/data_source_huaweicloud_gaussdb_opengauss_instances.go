@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API GaussDB GET /v3/{project_id}/instances
 func DataSourceOpenGaussInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceOpenGaussInstancesRead,

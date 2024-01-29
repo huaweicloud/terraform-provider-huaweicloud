@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CES POST /v2/{project_id}/alarm-templates
+// @API CES GET /v2/{project_id}/alarm-templates/{template_id}
+// @API CES PUT /v2/{project_id}/alarm-templates/{template_id}
+// @API CES POST /v2/{project_id}/alarm-templates/batch-delete
 func ResourceCesAlarmTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCesAlarmTemplateCreate,

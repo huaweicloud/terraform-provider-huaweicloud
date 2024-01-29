@@ -25,6 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CPH GET /v1/{project_id}/cloud-phone/server-models
 func DataSourceServerFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceServerFlavorsRead,

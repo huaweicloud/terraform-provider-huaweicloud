@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPN POST /v5/{project_id}/customer-gateways
+// @API VPN DELETE /v5/{project_id}/customer-gateways/{id}
+// @API VPN GET /v5/{project_id}/customer-gateways/{id}
+// @API VPN PUT /v5/{project_id}/customer-gateways/{id}
 func ResourceCustomerGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomerGatewayCreate,

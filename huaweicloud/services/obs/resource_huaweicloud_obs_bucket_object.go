@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API OBS HEAD /
+// @API OBS HEAD /{ObjectName}
+// @API OBS PUT /{ObjectName}
+// @API OBS DELETE /{ObjectName}
 func ResourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceObsBucketObjectPut,

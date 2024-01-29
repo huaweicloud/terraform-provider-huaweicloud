@@ -26,6 +26,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ER POST /v3/{project_id}/{resource_type}/{resource_id}/tags
+// @API ER DELETE /v3/{project_id}/{resource_type}/{resource_id}/tags/{key}
+// @API ER POST /v3/{project_id}/enterprise-router/instances
+// @API ER DELETE /v3/{project_id}/enterprise-router/instances/{id}
+// @API ER GET /v3/{project_id}/enterprise-router/instances/{id}
+// @API ER PUT /v3/{project_id}/enterprise-router/instances/{id}
+// @API ER POST /v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,

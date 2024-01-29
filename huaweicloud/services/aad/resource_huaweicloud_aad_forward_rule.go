@@ -19,6 +19,10 @@ import (
 )
 
 // ResourceForwardRule is the imple of huaweicloud_aad_forward_rule
+// @API AAD POST /v1/aad/instances/{instanceId}/{ip}/rules/batch-create
+// @API AAD POST /v1/aad/instances/{instanceId}/{ip}/rules/batch-delete
+// @API AAD PUT /v1/aad/instances/{instanceId}/{ip}/rules/{ruleId}
+// @API AAD GET /v1/aad/instances/{instanceId}/{ip}/rules
 func ResourceForwardRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceForwardRuleCreate,

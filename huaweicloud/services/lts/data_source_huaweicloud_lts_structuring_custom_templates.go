@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS GET /v3/{project_id}/lts/struct/customtemplate
 func DataSourceCustomTemplates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceCustomTemplatesRead,

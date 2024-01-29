@@ -25,6 +25,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/db-users/{user_name}/comment
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/db_user
+// @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db_user/{user_name}
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/db_user/detail
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/db_user/resetpwd
 func ResourceMysqlAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMysqlAccountCreate,

@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
+// @API CCE GET /api/v3/projects/{project_id}/clusters
 func DataSourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCCEClusterV3Read,

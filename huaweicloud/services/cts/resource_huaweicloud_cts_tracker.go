@@ -24,6 +24,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CTS POST /v3/{project_id}/tracker
+// @API CTS PUT /v3/{project_id}/tracker
+// @API CTS GET /v3/{project_id}/trackers
 func ResourceCTSTracker() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCTSTrackerCreate,

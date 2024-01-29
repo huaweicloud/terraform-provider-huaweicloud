@@ -19,6 +19,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API EIP POST /v2.0/{project_id}/bandwidths/change-to-period
+// @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP DELETE /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP GET /v1/{project_id}/bandwidths/{id}
+// @API EIP POST /v2.0/{project_id}/bandwidths
 func ResourceVpcBandWidthV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcBandWidthV2Create,

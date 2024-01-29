@@ -29,6 +29,10 @@ const (
 	EnvNotExistsCode = "AOM.30004303"
 )
 
+// @API AOM POST /v1/applications
+// @API AOM DELETE /v1/applications/{id}
+// @API AOM GET /v1/applications/{id}
+// @API AOM PUT /v1/applications/{id}
 func ResourceCmdbApplication() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCmdbApplicationCreate,

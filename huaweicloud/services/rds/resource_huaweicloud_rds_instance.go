@@ -28,6 +28,22 @@ import (
 type ctxType string
 
 // ResourceRdsInstance is the impl for huaweicloud_rds_instance resource
+// @API RDS POST /v3/{project_id}/instances/{instancesId}/{update}
+// @API RDS PUT /v3/{project_id}/instances/{instancesId}/{update}
+// @API RDS DELETE /v3/{project_id}/instances/{serverID}
+// @API RDS GET /v3/{project_id}/jobs
+// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS GET /v3/{project_id}/instances/{instancesId}/configurations
+// @API RDS PUT /v3/{project_id}/instances/{instancesId}/configurations
+// @API RDS POST /v3/{project_id}/instances/{instancesId}/password
+// @API RDS GET /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
+// @API RDS PUT /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
+// @API RDS GET /v3/{project_id}/instances
+// @API RDS POST /v3/{project_id}/instances
+// @API RDS GET /v3/{project_id}/instances/{id}/backups/policy
+// @API RDS PUT /v3/{project_id}/instances/{id}/backups/policy
+// @API RDS PUT /v3/{project_id}/instances/{instanceId}/{path}
+// @API RDS POST /v3/{project_id}/instances/{instancesId}/action
 func ResourceRdsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsInstanceCreate,

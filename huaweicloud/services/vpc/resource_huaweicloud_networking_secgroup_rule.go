@@ -25,6 +25,11 @@ import (
 // Some parameters are only support creation in ver.3 API.
 var advancedParams = []string{"ports", "remote_address_group_id", "action", "priority"}
 
+// @API VPC POST /v3/{project_id}/vpc/security-group-rules
+// @API VPC DELETE /v1/{project_id}/security-group-rules/{ruleId}
+// @API VPC GET /v1/{project_id}/security-group-rules/{ruleId}
+// @API VPC POST /v1/{project_id}/security-group-rules
+// @API VPC GET /v3/{project_id}/vpc/security-group-rules/{ruleId}
 func ResourceNetworkingSecGroupRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkingSecGroupRuleCreate,

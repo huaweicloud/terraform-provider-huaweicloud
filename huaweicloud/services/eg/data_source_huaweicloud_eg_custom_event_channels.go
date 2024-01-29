@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API EG GET /v1/{project_id}/channels
 func DataSourceCustomEventChannels() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCustomEventChannelsRead,

@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ServiceStage GET /v2/{project_id}/cas/metadata/runtimes
 func DataSourceComponentRuntimes() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceComponentRuntimesRead,

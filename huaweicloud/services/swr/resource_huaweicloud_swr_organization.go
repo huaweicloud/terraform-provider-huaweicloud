@@ -15,6 +15,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SWR GET /v2/manage/namespaces/{name}
+// @API SWR DELETE /v2/manage/namespaces/{name}
+// @API SWR POST /v2/manage/namespaces
 func ResourceSWROrganization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSWROrganizationCreate,

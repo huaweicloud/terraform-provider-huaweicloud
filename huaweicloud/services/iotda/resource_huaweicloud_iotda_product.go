@@ -23,6 +23,10 @@ const (
 		" the following special characters are allowed: ?'#().,&%@!"
 )
 
+// @API IoTDA PUT /v5/iot/{project_id}/products/{product_id}
+// @API IoTDA DELETE /v5/iot/{project_id}/products/{product_id}
+// @API IoTDA GET /v5/iot/{project_id}/products/{product_id}
+// @API IoTDA POST /v5/iot/{project_id}/products
 func ResourceProduct() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceProductCreate,

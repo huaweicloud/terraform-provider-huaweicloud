@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IEC GET /v1/cloudservers/flavors
 func DataSourceFlavors() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceFlavorsRead,

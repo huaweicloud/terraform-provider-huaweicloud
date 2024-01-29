@@ -23,6 +23,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RabbitMQ POST /v2/rabbitmq/{project_id}/instances
+// @API RabbitMQ POST /v2/{project_id}/instances/{id}/extend
+// @API RabbitMQ DELETE /v2/{project_id}/instances/{id}
+// @API RabbitMQ GET /v2/{project_id}/instances/{id}
+// @API RabbitMQ PUT /v2/{project_id}/instances/{id}
+// @API RabbitMQ POST /v2/{project_id}/instances
+// @API RabbitMQ GET /v2/{project_id}/{resourceType}/{id}/tags
 func ResourceDmsRabbitmqInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRabbitmqInstanceCreate,

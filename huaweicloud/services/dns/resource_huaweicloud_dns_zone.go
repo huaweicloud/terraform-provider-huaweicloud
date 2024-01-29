@@ -21,6 +21,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DNS POST /v2/zones/{zoneID}/associaterouter
+// @API DNS POST /v2/zones/{zoneID}/disassociaterouter
+// @API DNS DELETE /v2/zones/{zoneID}
+// @API DNS GET /v2/zones/{zoneID}
+// @API DNS PATCH /v2/zones/{zoneID}
+// @API DNS POST /v2/zones
+// @API DNS POST /v2/{project_id}/{resourceType}/{id}/tags/action
+// @API DNS GET /v2/{project_id}/{resourceType}/{id}/tags
 func ResourceDNSZone() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSZoneCreate,

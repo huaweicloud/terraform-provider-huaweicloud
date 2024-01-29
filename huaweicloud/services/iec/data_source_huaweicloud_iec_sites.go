@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IEC GET /v1/sites
 func DataSourceSites() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSitesV1Read,

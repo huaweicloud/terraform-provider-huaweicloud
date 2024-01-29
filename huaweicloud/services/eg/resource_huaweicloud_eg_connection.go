@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API EG POST /v1/{project_id}/connections
+// @API EG DELETE /v1/{project_id}/connections/{id}
+// @API EG GET /v1/{project_id}/connections/{id}
+// @API EG PUT /v1/{project_id}/connections/{id}
 func ResourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectionCreate,

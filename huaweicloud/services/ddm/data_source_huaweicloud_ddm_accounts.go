@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDM GET /v1/{project_id}/instances/{instance_id}/users
 func DataSourceDdmAccounts() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDdmAccountsRead,

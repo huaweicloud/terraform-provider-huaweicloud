@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/detail
 func DataSourceTurbos() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceTurbosRead,

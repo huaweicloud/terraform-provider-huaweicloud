@@ -23,6 +23,10 @@ var (
 	plannedTaskRecurrencePeriods = []string{"DAILY", "WEEKLY", "MONTHLY"}
 )
 
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks/{taskID}
+// @API AS PUT /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks/{taskID}
 func ResourcePlannedTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePlannedTaskCreate,

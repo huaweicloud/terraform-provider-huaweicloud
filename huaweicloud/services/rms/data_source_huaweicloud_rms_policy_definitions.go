@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Config GET /v1/resource-manager/policy-definitions
 func DataSourcePolicyDefinitions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourcePolicyDefinitionsRead,

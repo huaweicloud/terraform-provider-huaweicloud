@@ -26,6 +26,10 @@ var (
 	ValidChargingModes = []string{"traffic", "bandwidth"}
 )
 
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_configuration/{id}
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_configuration/{id}
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_configuration
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group
 func ResourceASConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASConfigurationCreate,

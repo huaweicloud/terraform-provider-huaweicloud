@@ -18,6 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API Meeting POST /v1/usg/dcs/corp/admin/delete
+// @API Meeting GET /v1/usg/dcs/corp/admin/{account}
+// @API Meeting POST /v1/usg/dcs/corp/admin
 func ResourceAdminAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAdminAssignmentCreate,

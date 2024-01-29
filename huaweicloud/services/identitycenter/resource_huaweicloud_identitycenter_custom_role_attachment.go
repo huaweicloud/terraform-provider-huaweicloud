@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityCenter GET /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role
+// @API IdentityCenter PUT /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role
+// @API IdentityCenter DELETE /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role
 func ResourceCustomRoleAttachment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomRoleAttachmentCreateOrUpdate,

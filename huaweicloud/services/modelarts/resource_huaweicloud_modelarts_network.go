@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts GET /v1/{project_id}/networks/{id}
+// @API ModelArts PATCH /v1/{project_id}/networks/{id}
+// @API ModelArts DELETE /v1/{project_id}/networks/{id}
+// @API ModelArts POST /v1/{project_id}/networks
 func ResourceModelartsNetwork() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceModelartsNetworkCreate,

@@ -138,6 +138,12 @@ func assistAuthSchemaResource() *schema.Resource {
 	}
 }
 
+// @API Workspace GET /v2/{project_id}/assist-auth-config/method-config
+// @API Workspace PUT /v2/{project_id}/assist-auth-config/method-config
+// @API Workspace DELETE /v2/{project_id}/workspaces
+// @API Workspace GET /v2/{project_id}/workspaces
+// @API Workspace POST /v2/{project_id}/workspaces
+// @API Workspace PUT /v2/{project_id}/workspaces
 func ResourceService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServiceCreate,

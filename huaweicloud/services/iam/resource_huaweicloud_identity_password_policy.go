@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IAM PUT /v3.0/OS-SECURITYPOLICY/domains/{domainID}/password-policy
+// @API IAM GET /v3.0/OS-SECURITYPOLICY/domains/{domainID}/password-policy
 func ResourceIdentityPasswordPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePasswordPolicyUpdate,

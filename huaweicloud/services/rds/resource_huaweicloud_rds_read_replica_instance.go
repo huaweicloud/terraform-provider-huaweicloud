@@ -19,6 +19,9 @@ import (
 )
 
 // ResourceRdsReadReplicaInstance is the impl for huaweicloud_rds_read_replica_instance resource
+// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS GET /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
+// @API RDS POST /v3/{project_id}/instances
 func ResourceRdsReadReplicaInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsReadReplicaInstanceCreate,

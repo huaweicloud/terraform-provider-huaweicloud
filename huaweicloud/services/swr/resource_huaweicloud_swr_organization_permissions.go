@@ -19,6 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SWR GET /v2/manage/namespaces/{namespace}/access
+// @API SWR POST /v2/manage/namespaces/{namespace}/access
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/access
+// @API IAM GET /v3.0/OS-USER/users/{userID}
 func ResourceSWROrganizationPermissions() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSWROrganizationPermissionsCreate,

@@ -13,6 +13,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API ECS DELETE /v2.1/{project_id}/os-keypairs/{name}
+// @API ECS GET /v2.1/{project_id}/os-keypairs/{name}
+// @API ECS POST /v2.1/{project_id}/os-keypairs
 func ResourceComputeKeypairV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeKeypairV2Create,

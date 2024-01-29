@@ -44,6 +44,12 @@ const (
 	actionScaleIn  = "scale_in"
 )
 
+// @API DLI PUT /v1.0/{project_id}/queues/{queueName}/action
+// @API DLI DELETE /v1.0/{project_id}/queues/{queueName}
+// @API DLI GET /v1.0/{project_id}/queues/{queueName}
+// @API DLI PUT /v1.0/{project_id}/queues/{queueName}
+// @API DLI GET /v1.0/{project_id}/queues
+// @API DLI POST /v1.0/{project_id}/queues
 func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliQueueCreate,

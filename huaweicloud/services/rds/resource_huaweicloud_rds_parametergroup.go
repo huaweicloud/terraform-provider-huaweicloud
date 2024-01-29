@@ -15,6 +15,10 @@ import (
 )
 
 // ResourceRdsConfiguration is the impl for huaweicloud_rds_parametergroup resource
+// @API RDS DELETE /v3/{project_id}/configurations/{id}
+// @API RDS GET /v3/{project_id}/configurations/{id}
+// @API RDS PUT /v3/{project_id}/configurations/{id}
+// @API RDS POST /v3/{project_id}/configurations
 func ResourceRdsConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsConfigurationCreate,

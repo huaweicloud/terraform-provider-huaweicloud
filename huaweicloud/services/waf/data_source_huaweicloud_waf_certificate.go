@@ -27,6 +27,7 @@ const (
 	DefaultPageSize = 5
 )
 
+// @API WAF GET /v1/{project_id}/waf/certificate
 func DataSourceWafCertificateV1() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceWafCertificateV1Read,

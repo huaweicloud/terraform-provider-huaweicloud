@@ -21,6 +21,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API UCS POST /v1/clusters
+// @API UCS DELETE /v1/clusters/{id}
+// @API UCS GET /v1/clusters/{id}
+// @API UCS PUT /v1/clusters/{id}
+// @API UCS PUT /v1/clusters/{id}/associatedrules
 func ResourceCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceClusterCreate,

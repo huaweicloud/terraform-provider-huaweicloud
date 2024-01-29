@@ -28,6 +28,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DCS GET /v2/{project_id}/instances
 func DataSourceDcsInstance() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDcsInstanceRead,

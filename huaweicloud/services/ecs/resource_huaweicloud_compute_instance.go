@@ -41,6 +41,24 @@ var (
 	SystemDiskType = "GPSSD"
 )
 
+// @API ECS POST /v1/{project_id}/cloudservers/action
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
+// @API ECS POST /v1.1/{project_id}/cloudservers
+// @API ECS POST /v2.1/{project_id}/servers/{id}/action
+// @API ECS POST /v1/{project_id}/cloudservers/delete
+// @API ECS DELETE /v1/{project_id}/cloudservers/{serverID}/metadata/{key}
+// @API ECS POST /v1/{project_id}/cloudservers/{serverID}/metadata
+// @API ECS POST /v1.1/{project_id}/cloudservers/{serverID}/resize
+// @API ECS PUT /v1/{project_id}/cloudservers/{id}/os-reset-password
+// @API ECS POST /v1/{project_id}/cloudservers/{id}/tags/action
+// @API ECS GET /v1/{project_id}/cloudservers/{serverID}
+// @API ECS PUT /v1/{project_id}/cloudservers/{serverID}
+// @API IMS GET /v2/cloudimages
+// @API EVS GET /v2/{project_id}/cloudvolumes/{id}
+// @API VPC PUT /v1/{project_id}/ports/{portId}
+// @API EVS POST /v2.1/{project_id}/cloudvolumes/{id}/action
+// @API VPC GET /v1/{project_id}/security-groups
+// @API VPC GET /v1/{project_id}/subnets/{id}
 func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeInstanceCreate,

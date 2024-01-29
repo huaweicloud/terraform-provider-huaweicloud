@@ -46,6 +46,9 @@ const (
 	resourceSizeMeasureIdDB  = 30
 )
 
+// @API DSC POST /v1/{project_id}/period/order
+// @API DSC GET /v1/{project_id}/period/product/specification
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceDscInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDscInstanceCreate,

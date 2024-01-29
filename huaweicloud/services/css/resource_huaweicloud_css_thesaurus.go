@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API CSS DELETE /v1.0/{project_id}/clusters/{clusterId}/thesaurus
+// @API CSS GET /v1.0/{project_id}/clusters/{clusterId}/thesaurus
+// @API CSS POST /v1.0/{project_id}/clusters/{clusterId}/thesaurus
 func ResourceCssthesaurus() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceCssthesaurusCreate,

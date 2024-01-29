@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS GET /v3/{project_id}/storage-type/{database_name}
 func DataSourceStoragetype() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceStoragetypeRead,

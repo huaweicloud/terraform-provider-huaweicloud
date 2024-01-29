@@ -31,6 +31,11 @@ const (
 	operationStop   = "stop"
 )
 
+// @API CPTS PUT /v1/{project_id}/tasks/{task_id}
+// @API CPTS DELETE /v1/{project_id}/tasks/{task_id}
+// @API CPTS GET /v1/{project_id}/tasks/{task_id}
+// @API CPTS POST /v1/{project_id}/tasks
+// @API CPTS POST /v1/{project_id}/test-suites/{test_suite_id}/tasks/{task_id}
 func ResourceTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTaskCreate,

@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityStore POST /v1/identity-stores/{identity_store_id}/groups
+// @API IdentityStore DELETE /v1/identity-stores/{identity_store_id}/groups/{group_id}
+// @API IdentityStore GET /v1/identity-stores/{identity_store_id}/groups/{group_id}
+// @API IdentityStore PUT /v1/identity-stores/{identity_store_id}/groups/{group_id}
 func ResourceIdentityCenterGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityCenterGroupCreate,

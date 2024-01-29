@@ -24,6 +24,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages
+// @API CC DELETE /v3/{domain_id}/ccaas/bandwidth-packages/{id}
+// @API CC GET /v3/{domain_id}/ccaas/bandwidth-packages/{id}
+// @API CC PUT /v3/{domain_id}/ccaas/bandwidth-packages/{id}
+// @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/associate
+// @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/disassociate
+// @API CC POST /v3/{domain_id}/ccaas/bandwidth-package/{id}/tags/action
 func ResourceBandwidthPackage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBandwidthPackageCreate,

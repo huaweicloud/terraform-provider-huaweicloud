@@ -20,6 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI GET /v1.0/{project_id}/databases/{databaseName}/tables
+// @API DLI POST /v1.0/{project_id}/databases/{databaseName}/tables
+// @API DLI DELETE /v1.0/{project_id}/databases/{databaseName}/tables/{tableName}
+// @API DLI GET /v1.0/{project_id}/databases/{databaseName}/tables/{tableName}
 func ResourceDliTable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliTableCreate,

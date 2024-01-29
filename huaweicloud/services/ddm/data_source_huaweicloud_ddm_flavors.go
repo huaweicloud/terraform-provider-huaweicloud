@@ -41,6 +41,7 @@ type queryRes struct {
 	armTotal   int
 }
 
+// @API DDM GET /v2/{project_id}/flavors
 func DataSourceDdmFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDdmFlavorsRead,

@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations GET /v1/organizations/organizational-units
 func DataSourceOrganizationalUnits() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceOrganizationalUnitsRead,

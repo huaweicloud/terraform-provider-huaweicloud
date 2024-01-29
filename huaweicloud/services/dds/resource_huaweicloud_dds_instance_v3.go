@@ -22,6 +22,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDS DELETE /v3/{project_id}/instances/{serverID}
+// @API DDS GET /v3/{project_id}/instances
+// @API DDS POST /v3/{project_id}/instances
+// @API DDS GET /v3/{project_id}/jobs
+// @API DDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API DDS GET /v3/{project_id}/instances/{id}/tags
+// @API DDS POST /v3/{project_id}/instances/{instanceId}/modify-port
 func ResourceDdsInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdsInstanceV3Create,

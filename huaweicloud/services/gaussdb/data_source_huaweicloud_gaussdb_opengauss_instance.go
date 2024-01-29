@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API GaussDB GET /v3/{project_id}/instances
 func DataSourceOpenGaussInstance() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceOpenGaussInstanceRead,

@@ -20,6 +20,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations GET /v1/organizations/accounts/{account_id}
+// @API Organizations POST /v1/organizations/accounts/{account_id}/move
 func ResourceAccountAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccountAssociateCreate,

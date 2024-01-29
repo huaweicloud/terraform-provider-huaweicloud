@@ -24,6 +24,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Config POST /v1/resource-manager/domains/{domain_id}/conformance-packs
+// @API Config DELETE /v1/resource-manager/domains/{domain_id}/conformance-packs/{id}
+// @API Config GET /v1/resource-manager/domains/{domain_id}/conformance-packs/{id}
 func ResourceAssignmentPackage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAssignmentPackageCreate,

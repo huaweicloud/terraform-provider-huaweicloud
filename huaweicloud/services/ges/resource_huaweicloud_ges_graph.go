@@ -25,6 +25,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GES POST /v2/{project_id}/graphs/{id}/resize
+// @API GES POST /v2/{project_id}/graphs
+// @API GES GET /v2/{project_id}/graphs/{id}
+// @API GES DELETE /v2/{project_id}/graphs/{id}
+// @API GES POST /v2/{project_id}/graphs/{id}/expand
 func ResourceGesGraph() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGesGraphCreate,

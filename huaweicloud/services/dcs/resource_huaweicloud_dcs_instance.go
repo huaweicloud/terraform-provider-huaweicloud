@@ -76,6 +76,21 @@ var (
 	}
 )
 
+// @API DCS PUT /v2/{project_id}/instances/{id}/password
+// @API DCS GET /v2/{project_id}/instances/{instancesId}/configs
+// @API DCS PUT /v2/{project_id}/instances/{instancesId}/configs
+// @API DCS GET /v2/available-zones
+// @API DCS PUT /v2/{project_id}/instances/status
+// @API DCS GET /v2/{project_id}/flavors
+// @API DCS GET /v2/{project_id}/instance/{id}/whitelist
+// @API DCS PUT /v2/{project_id}/instance/{id}/whitelist
+// @API DCS POST /v2/{project_id}/instances/{id}/resize
+// @API DCS DELETE /v2/{project_id}/instances/{id}
+// @API DCS GET /v2/{project_id}/instances/{id}
+// @API DCS PUT /v2/{project_id}/instances/{id}
+// @API DCS POST /v2/{project_id}/instances
+// @API DCS GET /v2/{project_id}/instances/{id}/tags
+// @API DCS POST /v2/{project_id}/dcs/{id}/tags/action
 func ResourceDcsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDcsInstancesCreate,

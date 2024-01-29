@@ -14,6 +14,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API VPC PUT /v2.0/fwaas/firewall_policies/{id}/remove_rule
+// @API VPC GET /v2.0/fwaas/firewall_policies
+// @API VPC DELETE /v2.0/fwaas/firewall_rules/{id}
+// @API VPC GET /v2.0/fwaas/firewall_rules/{id}
+// @API VPC PUT /v2.0/fwaas/firewall_rules/{id}
+// @API VPC POST /v2.0/fwaas/firewall_rules
 func ResourceNetworkACLRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkACLRuleCreate,

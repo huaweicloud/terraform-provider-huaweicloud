@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VSS POST /v3/{project_id}/webscan/tasks
+// @API VSS PUT /v3/{project_id}/webscan/tasks
+// @API VSS GET /v3/{project_id}/webscan/tasks
 func ResourceInspectorWebsiteScan() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInspectorWebsiteScanCreate,

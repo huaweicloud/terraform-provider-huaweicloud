@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API CBR GET /v3/{project_id}/backups/{backupId}
 func DataSourceBackup() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceBackupRead,

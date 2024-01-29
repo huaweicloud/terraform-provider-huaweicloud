@@ -16,6 +16,7 @@ import (
 )
 
 // DataSourceServers is the impl of data/huaweicloud_sms_source_servers
+// @API SMS GET /v3/sources
 func DataSourceServers() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceServersRead,

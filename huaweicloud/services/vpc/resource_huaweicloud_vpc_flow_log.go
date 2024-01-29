@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API VPC DELETE /v1/{project_id}/fl/flow_logs/{id}
+// @API VPC GET /v1/{project_id}/fl/flow_logs/{id}
+// @API VPC PUT /v1/{project_id}/fl/flow_logs/{id}
+// @API VPC POST /v1/{project_id}/fl/flow_logs
 func ResourceVpcFlowLog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcFlowLogCreate,

@@ -27,6 +27,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GA POST /v1/accelerators
+// @API GA PUT /v1/accelerators/{id}
+// @API GA DELETE /v1/accelerators/{id}
+// @API GA GET /v1/accelerators/{id}
 func ResourceAccelerator() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAcceleratorCreate,

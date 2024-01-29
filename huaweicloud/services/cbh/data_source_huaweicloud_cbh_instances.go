@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API CBH GET /v1/{project_id}/cbs/instance/list
 func DataSourceCbhInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceCbhInstancesRead,

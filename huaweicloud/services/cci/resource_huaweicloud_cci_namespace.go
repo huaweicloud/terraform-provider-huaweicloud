@@ -27,6 +27,10 @@ type stateRefresh struct {
 	PollInterval time.Duration
 }
 
+// @API CCI DELETE /api/v1/namespaces/{name}
+// @API CCI GET /api/v1/namespaces/{name}
+// @API CCI GET /api/v1/namespaces
+// @API CCI POST /api/v1/namespaces
 func ResourceCciNamespace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCciNamespaceCreate,

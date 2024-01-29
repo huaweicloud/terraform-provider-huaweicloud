@@ -24,6 +24,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/auditlog-policy
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/auditlog-policy
 func ResourceSQLAudit() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLAuditCreate,

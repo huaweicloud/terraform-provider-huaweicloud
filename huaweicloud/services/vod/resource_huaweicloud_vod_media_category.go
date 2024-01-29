@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VOD POST /v1.0/{project_id}/asset/category
+// @API VOD PUT /v1.0/{project_id}/asset/category
+// @API VOD DELETE /v1.0/{project_id}/asset/category
+// @API VOD GET /v1.0/{project_id}/asset/category
 func ResourceMediaCategory() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMediaCategoryCreate,

@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VOD DELETE /v1.0/{project_id}/asset/template_group/transcodings
+// @API VOD GET /v1.0/{project_id}/asset/template_group/transcodings
+// @API VOD POST /v1.0/{project_id}/asset/template_group/transcodings
+// @API VOD PUT /v1.0/{project_id}/asset/template_group/transcodings
 func ResourceTranscodingTemplateGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTranscodingTemplateGroupCreate,

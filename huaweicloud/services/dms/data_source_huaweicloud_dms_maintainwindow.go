@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DMS GET /v2/instances/maintain-windows
 func DataSourceDmsMaintainWindow() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsMaintainWindowRead,

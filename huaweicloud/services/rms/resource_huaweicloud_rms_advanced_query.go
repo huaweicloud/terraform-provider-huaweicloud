@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Config POST /v1/resource-manager/domains/{domain_id}/stored-queries
+// @API Config DELETE /v1/resource-manager/domains/{domain_id}/stored-queries/{query_id}
+// @API Config GET /v1/resource-manager/domains/{domain_id}/stored-queries/{query_id}
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/stored-queries/{query_id}
 func ResourceAdvancedQuery() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAdvancedQueryCreate,

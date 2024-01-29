@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/punishment
+// @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}
+// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}
+// @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}
 func ResourceRuleKnownAttack() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRuleKnownAttackCreate,

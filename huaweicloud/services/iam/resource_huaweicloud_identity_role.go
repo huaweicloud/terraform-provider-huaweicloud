@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IAM DELETE /v3.0/OS-ROLE/roles/{roleID}
+// @API IAM GET /v3.0/OS-ROLE/roles/{roleID}
+// @API IAM PATCH /v3.0/OS-ROLE/roles/{roleID}
+// @API IAM POST /v3.0/OS-ROLE/roles
 func ResourceIdentityRole() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityRoleCreate,

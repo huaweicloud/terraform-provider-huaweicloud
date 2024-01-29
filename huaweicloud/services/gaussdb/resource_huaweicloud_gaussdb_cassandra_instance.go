@@ -31,6 +31,23 @@ type defaultValues struct {
 	logName   string
 }
 
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{id}/tags
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/extend-volume
+// @API GaussDBforNoSQL GET /v3/{project_id}/dedicated-resources
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{id}/tags/action
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/reduce-node
+// @API GaussDBforNoSQL GET /v3/{project_id}/configurations/{configId}
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{instanceId}/configurations
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/resize
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{id}/backups/policy
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/name
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/password
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/security-group
+// @API GaussDBforNoSQL DELETE /v3/{project_id}/instances/{instanceID}
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances
+// @API GaussDBforNoSQL PUT /v3/{project_id}/configurations/{configId}/apply
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/enlarge-node
 func ResourceGeminiDBInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGaussDBCassandraInstanceCreate,

@@ -24,6 +24,10 @@ const (
 	DefaultBandWidthSize       = 5
 )
 
+// @API EIP POST /v1/{project_id}/bandwidths/{ID}/insert
+// @API EIP POST /v1/{project_id}/bandwidths/{ID}/remove
+// @API EIP GET /v1/{project_id}/bandwidths/{id}
+// @API EIP GET /v1/{project_id}/publicips/{id}
 func ResourceBandWidthAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBandWidthAssociateCreate,

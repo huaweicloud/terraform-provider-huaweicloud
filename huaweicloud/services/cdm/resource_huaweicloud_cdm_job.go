@@ -29,6 +29,12 @@ const (
 	toJobConfig   = "toJobConfig"
 )
 
+// @API CDM PUT /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}/start
+// @API CDM PUT /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}/stop
+// @API CDM GET /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}
+// @API CDM PUT /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}
+// @API CDM DELETE /v1.1/{project_id}/clusters/{clusterId}/cdm/job/{jobName}
+// @API CDM POST /v1.1/{project_id}/clusters/{clusterId}/cdm/job
 func ResourceCdmJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCdmJobCreate,

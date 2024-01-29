@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API DDS GET /v3/{project_id}/flavors
 func DataSourceDDSFlavorV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDDSFlavorV3Read,

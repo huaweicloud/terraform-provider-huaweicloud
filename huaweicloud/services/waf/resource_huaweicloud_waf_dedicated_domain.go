@@ -30,6 +30,14 @@ const (
 	redirectBlockPageTemplate = "redirect"
 )
 
+// @API WAF DELETE /v1/{project_id}/waf/policy/{id}
+// @API WAF PUT /v1/{project_id}/waf/policy/{id}
+// @API WAF GET /v1/{project_id}/waf/certificate/{id}
+// @API WAF PUT /v1/{project_id}/premium-waf/host/{hostId}/protect-status
+// @API WAF GET /v1/{project_id}/premium-waf/host/{hostId}
+// @API WAF PUT /v1/{project_id}/premium-waf/host/{hostId}
+// @API WAF DELETE /v1/{project_id}/premium-waf/host/{hostId}
+// @API WAF POST /v1/{project_id}/premium-waf/host
 func ResourceWafDedicatedDomain() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafDedicatedDomainCreate,

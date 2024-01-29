@@ -59,6 +59,16 @@ var (
 	}
 )
 
+// @API CBR POST /v3/{project_id}/vaults/{id}/associatepolicy
+// @API CBR POST /v3/{project_id}/vaults/{id}/dissociatepolicy
+// @API CBR POST /v3/{project_id}/vaults/{id}/removeresources
+// @API CBR DELETE /v3/{project_id}/vaults/{id}
+// @API CBR GET /v3/{project_id}/vaults/{id}
+// @API CBR PUT /v3/{project_id}/vaults/{id}
+// @API CBR POST /v3/{project_id}/vaults
+// @API CBR GET /v3/{project_id}/policies
+// @API CBR POST /v3/{project_id}/vault/{id}/tags/action
+// @API CBR POST /v3/{project_id}/vaults/{id}/addresources
 func ResourceVault() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVaultCreate,

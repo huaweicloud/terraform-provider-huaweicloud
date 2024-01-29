@@ -22,6 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API UCS POST /v1/clustergroups
+// @API UCS DELETE /v1/clustergroups/{id}
+// @API UCS GET /v1/clustergroups/{id}
+// @API UCS PUT /v1/clustergroups/{id}/associatedrules
+// @API UCS PUT /v1/clustergroups/{id}/description
 func ResourceFleet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFleetCreate,

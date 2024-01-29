@@ -26,6 +26,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GA POST /v1/endpoint-groups/{endpoint_group_id}/endpoints
+// @API GA GET /v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}
+// @API GA PUT /v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}
+// @API GA DELETE /v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}
 func ResourceEndpoint() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEndpointCreate,
