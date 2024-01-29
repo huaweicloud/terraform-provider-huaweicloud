@@ -16,7 +16,12 @@ import (
 )
 
 func getDNSZoneResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	dnsClient, err := c.DnsV2Client(acceptance.HW_REGION_NAME)
+	dnsProduct := "dns"
+	if state.Primary.Attributes["zone_type"] != "public" {
+		dnsProduct = "dns_region"
+	}
+
+	dnsClient, err := c.NewServiceClient(dnsProduct, acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DNS client: %s", err)
 	}

@@ -14,7 +14,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/dns/v2/zones"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -121,6 +120,11 @@ complete host name ended with a dot.`,
 				Computed:    true,
 				Description: `The zone name of the record set.`,
 			},
+			"zone_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The zone type. The value can be public or private`,
+			},
 		},
 	}
 }
@@ -133,14 +137,8 @@ type WaitForConfig struct {
 }
 
 func resourceDNSRecordsetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	createDNSRecordsetClient, err := cfg.NewServiceClient("dns_region", region)
-	if err != nil {
-		return diag.Errorf("error creating DNS Client: %s", err)
-	}
-
-	zoneType, err := getDNSZoneType(createDNSRecordsetClient, d.Get("zone_id").(string))
+	zoneID := d.Get("zone_id").(string)
+	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -155,7 +153,7 @@ func resourceDNSRecordsetCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// createDNSRecordset: create DNS recordset.
-	if err := createDNSRecordset(createDNSRecordsetClient, d, zoneType); err != nil {
+	if err := createDNSRecordset(dnsClient, d, zoneType); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -170,7 +168,7 @@ func resourceDNSRecordsetCreate(ctx context.Context, d *schema.ResourceData, met
 		ZoneType:    zoneType,
 		Timeout:     d.Timeout(schema.TimeoutCreate),
 	}
-	if err := waitForDNSRecordsetCreateOrUpdate(ctx, createDNSRecordsetClient, waitForConfig); err != nil {
+	if err := waitForDNSRecordsetCreateOrUpdate(ctx, dnsClient, waitForConfig); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -248,27 +246,20 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var mErr *multierror.Error
-
-	// getDNSRecordset: Query DNS recordset
-	getDNSRecordsetClient, err := cfg.NewServiceClient("dns_region", region)
-	if err != nil {
-		return diag.Errorf("error creating DNS Client: %s", err)
-	}
-
 	zoneID, recordsetID, err := parseDNSRecordsetID(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	zoneType, err := getDNSZoneType(getDNSRecordsetClient, zoneID)
+	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	version := getApiVersionByZoneType(zoneType)
 	getDNSRecordsetHttpUrl := fmt.Sprintf("%s/zones/{zone_id}/recordsets/{recordset_id}", version)
 
-	getDNSRecordsetPath := getDNSRecordsetClient.Endpoint + getDNSRecordsetHttpUrl
+	getDNSRecordsetPath := dnsClient.Endpoint + getDNSRecordsetHttpUrl
 	getDNSRecordsetPath = strings.ReplaceAll(getDNSRecordsetPath, "{zone_id}", zoneID)
 	getDNSRecordsetPath = strings.ReplaceAll(getDNSRecordsetPath, "{recordset_id}", recordsetID)
 
@@ -278,7 +269,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 			200,
 		},
 	}
-	getDNSRecordsetResp, err := getDNSRecordsetClient.Request("GET", getDNSRecordsetPath, &getDNSRecordsetOpt)
+	getDNSRecordsetResp, err := dnsClient.Request("GET", getDNSRecordsetPath, &getDNSRecordsetOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DNS recordset")
 	}
@@ -288,8 +279,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", getDNSRecordsetRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getDNSRecordsetRespBody, nil)),
@@ -301,6 +291,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("status", getDNSRecordsetStatus(getDNSRecordsetRespBody)),
 		d.Set("line_id", utils.PathSearch("line", getDNSRecordsetRespBody, nil)),
 		d.Set("weight", utils.PathSearch("weight", getDNSRecordsetRespBody, nil)),
+		d.Set("zone_type", zoneType),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -308,7 +299,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	// set tags
-	if err := setDNSRecordsetTags(d, getDNSRecordsetClient, recordsetID, zoneType); err != nil {
+	if err := setDNSRecordsetTags(d, dnsClient, recordsetID, zoneType); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
@@ -331,20 +322,12 @@ func getDNSRecordsetStatus(getDNSRecordsetRespBody interface{}) string {
 }
 
 func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	recordsetClient, err := cfg.NewServiceClient("dns_region", region)
-	if err != nil {
-		return diag.Errorf("error creating DNS Client: %s", err)
-	}
-
 	zoneID, recordsetID, err := parseDNSRecordsetID(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	zoneType, err := getDNSZoneType(recordsetClient, zoneID)
+	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -365,7 +348,7 @@ func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 	if d.HasChanges(updateDNSRecordsetChanges...) {
 		// updateDNSRecordset: Update DNS recordset
-		if err := updateDNSRecordset(recordsetClient, d, zoneID, recordsetID, zoneType); err != nil {
+		if err := updateDNSRecordset(dnsClient, d, zoneID, recordsetID, zoneType); err != nil {
 			return diag.FromErr(err)
 		}
 
@@ -375,14 +358,14 @@ func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, met
 			ZoneType:    zoneType,
 			Timeout:     d.Timeout(schema.TimeoutUpdate),
 		}
-		if err := waitForDNSRecordsetCreateOrUpdate(ctx, recordsetClient, waitForConfig); err != nil {
+		if err := waitForDNSRecordsetCreateOrUpdate(ctx, dnsClient, waitForConfig); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("status") {
 		// updateDNSRecordsetStatus: Update DNS recordset status
-		if err := updateDNSRecordsetStatus(recordsetClient, d, recordsetID); err != nil {
+		if err := updateDNSRecordsetStatus(dnsClient, d, recordsetID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -393,7 +376,7 @@ func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, met
 			return diag.FromErr(err)
 		}
 
-		err = utils.UpdateResourceTags(recordsetClient, d, resourceType, recordsetID)
+		err = utils.UpdateResourceTags(dnsClient, d, resourceType, recordsetID)
 		if err != nil {
 			return diag.Errorf("error updating DNS recordset tags: %s", err)
 		}
@@ -467,28 +450,20 @@ func buildUpdateDNSRecordsetStatusBodyParams(d *schema.ResourceData) map[string]
 }
 
 func resourceDNSRecordsetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteDNSRecordset: Delete DNS recordset
-	deleteDNSRecordsetClient, err := cfg.NewServiceClient("dns_region", region)
-	if err != nil {
-		return diag.Errorf("error creating DNS Client: %s", err)
-	}
-
 	zoneID, recordsetID, err := parseDNSRecordsetID(d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	zoneType, err := getDNSZoneType(deleteDNSRecordsetClient, zoneID)
+	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	version := getApiVersionByZoneType(zoneType)
 	deleteDNSRecordsetHttpUrl := fmt.Sprintf("%s/zones/{zone_id}/recordsets/{recordset_id}", version)
 
-	deleteDNSRecordsetPath := deleteDNSRecordsetClient.Endpoint + deleteDNSRecordsetHttpUrl
+	deleteDNSRecordsetPath := dnsClient.Endpoint + deleteDNSRecordsetHttpUrl
 	deleteDNSRecordsetPath = strings.ReplaceAll(deleteDNSRecordsetPath, "{zone_id}", zoneID)
 	deleteDNSRecordsetPath = strings.ReplaceAll(deleteDNSRecordsetPath, "{recordset_id}", recordsetID)
 
@@ -498,7 +473,7 @@ func resourceDNSRecordsetDelete(ctx context.Context, d *schema.ResourceData, met
 			202,
 		},
 	}
-	_, err = deleteDNSRecordsetClient.Request("DELETE", deleteDNSRecordsetPath, &deleteDNSRecordsetOpt)
+	_, err = dnsClient.Request("DELETE", deleteDNSRecordsetPath, &deleteDNSRecordsetOpt)
 	if err != nil {
 		return diag.Errorf("error deleting DNS recordset: %s", err)
 	}
@@ -509,7 +484,7 @@ func resourceDNSRecordsetDelete(ctx context.Context, d *schema.ResourceData, met
 		ZoneType:    zoneType,
 		Timeout:     d.Timeout(schema.TimeoutDelete),
 	}
-	if err := waitForDNSRecordsetDeleted(ctx, deleteDNSRecordsetClient, waitForConfig); err != nil {
+	if err := waitForDNSRecordsetDeleted(ctx, dnsClient, waitForConfig); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
@@ -581,13 +556,6 @@ func getApiVersionByZoneType(zoneType string) string {
 	if zoneType == "private" {
 		return "v2"
 	}
+	// v2.1 can support Multi-line Record Set which applies only to public zones
 	return "v2.1"
-}
-
-func getDNSZoneType(dnsClient *golangsdk.ServiceClient, zoneID string) (string, error) {
-	zoneInfo, err := zones.Get(dnsClient, zoneID).Extract()
-	if err != nil {
-		return "", fmt.Errorf("error getting zone: %s", err)
-	}
-	return zoneInfo.ZoneType, nil
 }
