@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -27,6 +29,10 @@ func ResourceDmsKafkaSmartConnectTask() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDmsKafkaSmartConnectTaskImportState,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(50 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -182,6 +188,21 @@ func resourceDmsKafkaSmartConnectTaskCreate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error retrieving DMS kafka smart connect task id: the task id is nil.")
 	}
 	d.SetId(taskID.(string))
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATING"},
+		Target:       []string{"RUNNING"},
+		Refresh:      smartConnectTaskStateRefreshFunc(createKafkaSmartConnectTaskClient, connectorID, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        1 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the smart connect task (%s) to be done: %s", d.Id(), err)
+	}
+
 	return resourceDmsKafkaSmartConnectTaskRead(ctx, d, meta)
 }
 
@@ -324,4 +345,34 @@ func resourceDmsKafkaSmartConnectTaskImportState(_ context.Context, d *schema.Re
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func smartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, connectorID, taskID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		// getSmartConnectTask: query smart connect task
+		var (
+			getSmartConnectTaskHttpUrl = "v2/{project_id}/connectors/{connector_id}/sink-tasks/{task_id}"
+		)
+
+		getSmartConnectTaskPath := client.Endpoint + getSmartConnectTaskHttpUrl
+		getSmartConnectTaskPath = strings.ReplaceAll(getSmartConnectTaskPath, "{project_id}", client.ProjectID)
+		getSmartConnectTaskPath = strings.ReplaceAll(getSmartConnectTaskPath, "{connector_id}", connectorID)
+		getSmartConnectTaskPath = strings.ReplaceAll(getSmartConnectTaskPath, "{task_id}", taskID)
+
+		getSmartConnectTaskOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		getSmartConnectTaskResp, err := client.Request("GET", getSmartConnectTaskPath, &getSmartConnectTaskOpt)
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+
+		smartConnectTaskRespBody, err := utils.FlattenResponse(getSmartConnectTaskResp)
+		if err != nil {
+			return nil, "PARSE ERROR", err
+		}
+
+		status := utils.PathSearch("status", smartConnectTaskRespBody, "").(string)
+		return smartConnectTaskRespBody, status, nil
+	}
 }
