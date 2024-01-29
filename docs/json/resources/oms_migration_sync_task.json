@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_oms_migration_sync_task": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "app_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "consistency_check": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "dst_ak": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "dst_bucket": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "dst_sk": {
+                "type": "string",
+                "required": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "dst_storage_policy": {
+                "type": "string",
+                "computed": true
+              },
+              "enable_kms": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_metadata_migration": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_restore": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_start_at": {
+                "type": "string",
+                "computed": true
+              },
+              "monthly_acceptance_request": {
+                "type": "number",
+                "computed": true
+              },
+              "monthly_failure_object": {
+                "type": "number",
+                "computed": true
+              },
+              "monthly_size": {
+                "type": "number",
+                "computed": true
+              },
+              "monthly_skip_object": {
+                "type": "number",
+                "computed": true
+              },
+              "monthly_success_object": {
+                "type": "number",
+                "computed": true
+              },
+              "object_overwrite_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "src_ak": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "src_bucket": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "src_cloud_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "src_region": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "src_sk": {
+                "type": "string",
+                "required": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "source_cdn": {
+                "block": {
+                  "attributes": {
+                    "authentication_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "authentication_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "default": "NONE"
+                    },
+                    "domain": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "OMS",
+            "name": "Object Storage Migration Service",
+            "catalog": "Migration",
+            "name_cn": "对象存储迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

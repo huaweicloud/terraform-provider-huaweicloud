@@ -51,6 +51,11 @@
                 "optional": true,
                 "computed": true
               },
+              "gzip_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "http2_enable": {
                 "type": "bool",
                 "optional": true,
@@ -95,7 +100,8 @@
               },
               "protocol_port": {
                 "type": "number",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "region": {
@@ -134,6 +140,26 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              }
+            },
+            "block_types": {
+              "port_ranges": {
+                "block": {
+                  "attributes": {
+                    "end_port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "start_port": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true
               }
             }
           },

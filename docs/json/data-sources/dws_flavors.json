@@ -26,6 +26,7 @@
                         "string"
                       ],
                       "datastore_type": "string",
+                      "datastore_version": "string",
                       "elastic_volume_specs": [
                         "list",
                         [

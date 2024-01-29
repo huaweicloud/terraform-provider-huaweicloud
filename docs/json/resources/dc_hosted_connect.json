@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_hosted_connect": {
+          "block": {
+            "attributes": {
+              "bandwidth": {
+                "type": "number",
+                "description": "The bandwidth size of the hosted connect in Mbit/s.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the hosted connect.",
+                "optional": true
+              },
+              "hosting_id": {
+                "type": "string",
+                "description": "The ID of the operations connection on which the hosted connect is created.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the hosted connect.",
+                "optional": true,
+                "computed": true
+              },
+              "peer_location": {
+                "type": "string",
+                "description": "The location of the on-premises facility at the other end of the connection.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_tenant_id": {
+                "type": "string",
+                "description": "The tenant ID for whom a hosted connect is to be created.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the hosted connect.",
+                "computed": true
+              },
+              "vlan": {
+                "type": "number",
+                "description": "The VLAN allocated to the hosted connect.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

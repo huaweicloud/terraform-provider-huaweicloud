@@ -116,6 +116,7 @@
                     "crl_name": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "obs_bucket_name": {

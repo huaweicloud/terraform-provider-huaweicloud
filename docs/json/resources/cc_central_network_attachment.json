@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_central_network_attachment": {
+          "block": {
+            "attributes": {
+              "central_network_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "central_network_plane_id": {
+                "type": "string",
+                "description": "The central network plane ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the attachment.",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_router_id": {
+                "type": "string",
+                "description": "The enterprise router ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_router_project_id": {
+                "type": "string",
+                "description": "The project ID to which the enterprise router belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_router_region_id": {
+                "type": "string",
+                "description": "The region ID to which the enterprise router belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "global_dc_gateway_id": {
+                "type": "string",
+                "description": "The global DC gateway ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "global_dc_gateway_project_id": {
+                "type": "string",
+                "description": "The project ID to which the global DC gateway belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "global_dc_gateway_region_id": {
+                "type": "string",
+                "description": "The region ID to which the global DC gateway belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the attachment.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Central network attachment status.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

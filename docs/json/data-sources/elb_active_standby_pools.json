@@ -1,0 +1,145 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_active_standby_pools": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "healthmonitor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "optional": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "optional": true
+              },
+              "member_address": {
+                "type": "string",
+                "optional": true
+              },
+              "member_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "pool_id": {
+                "type": "string",
+                "optional": true
+              },
+              "pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "any_port_enable": "bool",
+                      "description": "string",
+                      "healthmonitor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "delay": "number",
+                            "domain_name": "string",
+                            "expected_codes": "string",
+                            "id": "string",
+                            "max_retries": "number",
+                            "max_retries_down": "number",
+                            "monitor_port": "number",
+                            "name": "string",
+                            "timeout": "number",
+                            "type": "string",
+                            "url_path": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "loadbalancers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "members": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "id": "string",
+                            "instance_id": "string",
+                            "ip_version": "string",
+                            "member_type": "string",
+                            "name": "string",
+                            "operating_status": "string",
+                            "protocol_port": "number",
+                            "role": "string",
+                            "subnet_id": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "protocol": "string",
+                      "type": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

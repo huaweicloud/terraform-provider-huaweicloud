@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rabbitmq_instances": {
+          "block": {
+            "attributes": {
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the version of the RabbitMQ engine.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the RabbitMQ instance belongs.",
+                "optional": true
+              },
+              "exact_match_name": {
+                "type": "string",
+                "description": "Specifies whether to search for the instance that precisely matches a specified instance name.",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the flavor ID of the RabbitMQ instance.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RabbitMQ instance.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_user": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "broker_num": "number",
+                      "charging_mode": "string",
+                      "connect_address": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "engine": "string",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "extend_times": "number",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "is_logical_volume": "bool",
+                      "maintain_begin": "string",
+                      "maintain_end": "string",
+                      "management_connect_address": "string",
+                      "name": "string",
+                      "port": "number",
+                      "security_group_id": "string",
+                      "security_group_name": "string",
+                      "specification": "string",
+                      "ssl_enable": "bool",
+                      "status": "string",
+                      "storage_resource_id": "string",
+                      "storage_space": "number",
+                      "storage_spec_code": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "used_storage_space": "number",
+                      "user_name": "string",
+                      "vpc_id": "string",
+                      "vpc_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of RabbitMQ instances.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the RabbitMQ instance.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the RabbitMQ instance.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the RabbitMQ instance type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RabbitMQ",
+            "name": "Distributed Message Service for RabbitMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RabbitMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

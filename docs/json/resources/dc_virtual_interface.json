@@ -141,6 +141,13 @@
                 "description": "The current status of the virtual interface.",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "type": {
                 "type": "string",
                 "description": "The type of the virtual interface.",

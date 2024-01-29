@@ -155,8 +155,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "user_data": {
                 "type": "string",

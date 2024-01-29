@@ -47,7 +47,11 @@
                     "instance_number": {
                       "type": "number",
                       "optional": true,
-                      "default": 1
+                      "computed": true
+                    },
+                    "instance_percentage": {
+                      "type": "number",
+                      "optional": true
                     },
                     "operation": {
                       "type": "string",

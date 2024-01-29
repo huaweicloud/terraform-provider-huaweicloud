@@ -31,8 +31,7 @@
                 "type": "string",
                 "description": "ID of the enterprise project that the bandwidth package belongs to.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",

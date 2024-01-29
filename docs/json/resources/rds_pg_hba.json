@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_pg_hba": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS PostgreSQL instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "host_based_authentications": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "Specifies the client IP address.",
+                      "required": true
+                    },
+                    "database": {
+                      "type": "string",
+                      "description": "Specifies the database name.",
+                      "required": true
+                    },
+                    "mask": {
+                      "type": "string",
+                      "description": "Specifies the subnet mask.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "method": {
+                      "type": "string",
+                      "description": "Specifies the authentication mode.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the connection type.",
+                      "required": true
+                    },
+                    "user": {
+                      "type": "string",
+                      "description": "Specifies the Name of a user.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the list of host based authentications."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

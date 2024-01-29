@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cts_notifications": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of CTS key event notification.",
+                "optional": true
+              },
+              "notification_id": {
+                "type": "string",
+                "description": "The ID of the CTS key event notification.",
+                "optional": true
+              },
+              "notifications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "filter": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "condition": "string",
+                            "rule": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "operation_type": "string",
+                      "operation_users": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "group": "string",
+                            "users": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "operations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "resource": "string",
+                            "service": "string",
+                            "trace_names": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "topic_id": "string"
+                    }
+                  ]
+                ],
+                "description": "All CTS key event notifications that match the filter parameters.",
+                "computed": true
+              },
+              "operation_type": {
+                "type": "string",
+                "description": "The type of operation that will send notifications.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the CTS key event notification.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of CTS key event notification.",
+                "optional": true
+              },
+              "topic_id": {
+                "type": "string",
+                "description": "The URN of the topic which CTS key event notification uses.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of CTS key event notification.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

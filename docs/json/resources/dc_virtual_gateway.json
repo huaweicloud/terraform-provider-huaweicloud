@@ -51,6 +51,13 @@
                 "description": "The current status of the virtual gateway.",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "vpc_id": {
                 "type": "string",
                 "description": "The ID of the VPC connected to the virtual gateway.",

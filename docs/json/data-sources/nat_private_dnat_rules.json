@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_nat_private_dnat_rules": {
+          "block": {
+            "attributes": {
+              "backend_interface_id": {
+                "type": "string",
+                "description": "The network interface ID of the backend instance to which the private DNAT rule belongs.",
+                "optional": true
+              },
+              "backend_private_ip": {
+                "type": "string",
+                "description": "The private IP address of the backend instance to which the private DNAT rule belongs.",
+                "optional": true
+              },
+              "backend_type": {
+                "type": "string",
+                "description": "The type of the backend instance to which the private DNAT rules belong.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the private DNAT rules belong.",
+                "optional": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "The ID of the private NAT gateway to which the private DNAT rules belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internal_service_port": {
+                "type": "string",
+                "description": "The port of the backend instance to which the private DNAT rule belongs.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The protocol type of the private DNAT rules.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the private DNAT rules are located."
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "The ID of the private DNAT rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backend_interface_id": "string",
+                      "backend_private_ip": "string",
+                      "backend_type": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "gateway_id": "string",
+                      "id": "string",
+                      "internal_service_port": "string",
+                      "protocol": "string",
+                      "status": "string",
+                      "transit_ip_id": "string",
+                      "transit_service_port": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the private DNAT rules.",
+                "computed": true
+              },
+              "transit_ip_id": {
+                "type": "string",
+                "description": "The ID of the transit IP associated with the private DNAT rules.",
+                "optional": true
+              },
+              "transit_service_port": {
+                "type": "string",
+                "description": "The port of the transit IP associated with the private DNAT rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "NAT",
+            "name": "NAT Gateway",
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_address_group": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listeners": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "ip_addresses": {
+                "block": {
+                  "attributes": {
+                    "cidr": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "max_items": 20
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

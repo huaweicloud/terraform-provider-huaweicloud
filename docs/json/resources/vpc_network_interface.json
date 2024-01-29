@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpc_network_interface": {
+          "block": {
+            "attributes": {
+              "allowed_addresses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "device_id": {
+                "type": "string",
+                "computed": true
+              },
+              "device_owner": {
+                "type": "string",
+                "computed": true
+              },
+              "dhcp_lease_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "dns_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enable_efi": {
+                "type": "bool",
+                "computed": true
+              },
+              "fixed_ip_v4": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_type": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_bandwidth_id": {
+                "type": "string",
+                "computed": true
+              },
+              "mac_address": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "port_security_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_active_standby_pool": {
+          "block": {
+            "attributes": {
+              "any_port_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "healthmonitor": {
+                "block": {
+                  "attributes": {
+                    "delay": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "domain_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "expected_codes": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "max_retries": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "max_retries_down": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "monitor_port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "url_path": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "members": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "ip_version": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "member_type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "operating_status": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "protocol_port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "role": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "subnet_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

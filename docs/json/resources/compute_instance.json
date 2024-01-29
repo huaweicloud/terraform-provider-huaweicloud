@@ -32,6 +32,10 @@
                 "type": "string",
                 "optional": true
               },
+              "auto_terminate_time": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": "string",
                 "optional": true,
@@ -240,8 +244,7 @@
               },
               "user_data": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "user_id": {
                 "type": "string",

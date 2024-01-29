@@ -92,6 +92,7 @@
               },
               "protect_status": {
                 "type": "number",
+                "optional": true,
                 "computed": true
               },
               "protocol": {

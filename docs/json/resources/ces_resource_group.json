@@ -24,8 +24,7 @@
                 "type": "string",
                 "description": "Specifies the enterprise project ID of the resource group.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",

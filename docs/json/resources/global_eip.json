@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_global_eip": {
+          "block": {
+            "attributes": {
+              "access_site": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "associate_instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "associate_instance_region": {
+                "type": "string",
+                "computed": true
+              },
+              "associate_instance_type": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "frozen": {
+                "type": "bool",
+                "computed": true
+              },
+              "frozen_info": {
+                "type": "string",
+                "computed": true
+              },
+              "geip_pool_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "global_connection_bandwidth_id": {
+                "type": "string",
+                "computed": true
+              },
+              "global_connection_bandwidth_type": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_bandwidth_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "number",
+                "computed": true
+              },
+              "isp": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "polluted": {
+                "type": "bool",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dws_logical_cluster": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the DWS cluster ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "delete_enable": {
+                "type": "bool",
+                "description": "Whether deletion is allowed.",
+                "computed": true
+              },
+              "edit_enable": {
+                "type": "bool",
+                "description": "Whether editing is allowed.",
+                "computed": true
+              },
+              "first_logical_cluster": {
+                "type": "bool",
+                "description": "Whether it is the first logical cluster. The first logical cluster cannot be deleted.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logical_cluster_name": {
+                "type": "string",
+                "description": "Specifies the logical cluster name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restart_enable": {
+                "type": "bool",
+                "description": "Whether to allow restart.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The DWS logical cluster status.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "cluster_rings": {
+                "block": {
+                  "block_types": {
+                    "ring_hosts": {
+                      "block": {
+                        "attributes": {
+                          "back_ip": {
+                            "type": "string",
+                            "description": "Specifies the backend IP address.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "cpu_cores": {
+                            "type": "number",
+                            "description": "Specifies the number of CPU cores.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "disk_size": {
+                            "type": "number",
+                            "description": "Specifies the host disk size.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "host_name": {
+                            "type": "string",
+                            "description": "Specifies the host name.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "memory": {
+                            "type": "number",
+                            "description": "Specifies the host memory.",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        },
+                        "description": "Indicates the cluster host ring information."
+                      },
+                      "nesting_mode": "set",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the DWS cluster ring list information."
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdm_cluster_action": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "ID of CDM cluster.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Action type.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "restart": {
+                "block": {
+                  "attributes": {
+                    "delay_time": {
+                      "type": "number",
+                      "description": "Restart delay, in seconds.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "level": {
+                      "type": "string",
+                      "description": "Restart level.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "mode": {
+                      "type": "string",
+                      "description": "Restart mode.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDM",
+            "name": "Cloud Data Migration",
+            "catalog": "Migration",
+            "name_cn": "云数据迁移",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

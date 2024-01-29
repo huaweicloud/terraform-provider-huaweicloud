@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eip_access_sites": {
+          "block": {
+            "attributes": {
+              "access_sites": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cn_name": "string",
+                      "created_at": "string",
+                      "en_name": "string",
+                      "id": "string",
+                      "iec_az_code": "string",
+                      "name": "string",
+                      "proxy_region": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "iec_az_code": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "proxy_region": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
