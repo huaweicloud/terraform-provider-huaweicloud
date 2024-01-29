@@ -8,23 +8,23 @@ host: huaweicloud.com
 tags:
     - name: CFW
 paths:
-    v1/{project_id}/firewall/east-west:
+    /v1/{project_id}/firewall/east-west:
         GET:
             tag: CFW
         POST:
             tag: CFW
-    v1/{project_id}/firewall/east-west/protect:
+    /v1/{project_id}/firewall/east-west/protect:
         POST:
             tag: CFW
-    v1/{project_id}/firewall/exist:
+    /v1/{project_id}/firewall/exist:
         GET:
             tag: CFW
-    v2/{project_id}/firewall:
+    /v2/{project_id}/firewall:
         POST:
             tag: CFW
-    v2/{project_id}/firewall/{id}:
+    /v2/{project_id}/firewall/{id}:
         DELETE:
             tag: CFW
-    v3/{project_id}/jobs/{id}:
+    /v3/{project_id}/jobs/{id}:
         GET:
             tag: CFW

@@ -13,6 +13,9 @@ paths:
       tag: EIP
       operationId: ChangeToPeriod
   /v2.0/{project_id}/bandwidths/{ID}:
+    put:
+      tag: EIP
+      operationId: Update
     delete:
       tag: EIP
       operationId: Delete
@@ -20,10 +23,6 @@ paths:
     get:
       tag: EIP
       operationId: Get
-  /v2.0/{project_id}/bandwidths/{ID}:
-    put:
-      tag: EIP
-      operationId: Update
   /v2.0/{project_id}/bandwidths:
     post:
       tag: EIP

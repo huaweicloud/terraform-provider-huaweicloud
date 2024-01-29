@@ -56,9 +56,6 @@ paths:
     get:
       tag: GaussDBforNoSQL
       operationId: GetInstanceByID
-    get:
-      tag: GaussDBforNoSQL
-      operationId: GetInstanceByID
     post:
       tag: GaussDBforNoSQL
       operationId: Create

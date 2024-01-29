@@ -8,7 +8,7 @@ host: huaweicloud.com
 tags:
     - name: DataArtsStudio
 paths:
-    v2/{project_id}/design/workspaces:
+    /v2/{project_id}/design/workspaces:
         DELETE:
             tag: DataArtsStudio
         GET:
@@ -17,6 +17,6 @@ paths:
             tag: DataArtsStudio
         PUT:
             tag: DataArtsStudio
-    v2/{project_id}/design/workspaces/{model_id}:
+    /v2/{project_id}/design/workspaces/{model_id}:
         GET:
             tag: DataArtsStudio
