@@ -100,6 +100,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - Indicates the creation time of the smart connect task.
 
+## Timeouts
+
+This resource provides the following timeout configuration options:
+
+* `create` - Default is 50 minutes.
+
 ## Import
 
 The kafka smart connect task can be imported using the kafka instance `connector_id` and `id` separated by a slash, e.g.
