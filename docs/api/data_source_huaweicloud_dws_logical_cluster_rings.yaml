@@ -1,0 +1,19 @@
+info:
+    title: data_source_huaweicloud_dws_logical_cluster_rings
+    description: Use this data source to get the list of DWS logical cluster rings.
+host: myhuaweicloud.com
+tags:
+    - name: DWS
+servers:
+    - url: https://dws.cn-north-4.myhuaweicloud.com
+paths:
+    /v2/{project_id}/clusters/{cluster_id}/logical-clusters:
+        GET:
+            tag: DWS
+            operationId: GetLogicalClusters
+            x-ref-api: GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters
+    /v2/{project_id}/clusters/{cluster_id}/logical-clusters/rings:
+        GET:
+            tag: DWS
+            operationId: GetLogicalClusterRings
+            x-ref-api: GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters/rings

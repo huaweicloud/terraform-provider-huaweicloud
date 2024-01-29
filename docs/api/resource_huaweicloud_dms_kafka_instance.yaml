@@ -12,6 +12,10 @@ paths:
     get:
       tag: Kafka
       operationId: Get
+  /v2/{project_id}/instances/{id}/autotopic:
+    post:
+      tag: Kafka
+      operationId: UpdateAutoTopic
   /v2/{project_id}/instances/{id}/crossvpc/modify:
     post:
       tag: Kafka
@@ -20,6 +24,10 @@ paths:
     post:
       tag: Kafka
       operationId: Resize
+  /v2/{project_id}/instances/{id}/password:
+    post:
+      tag: Kafka
+      operationId: ResetPassword
   /v2/{project_id}/instances/{id}:
     delete:
       tag: Kafka

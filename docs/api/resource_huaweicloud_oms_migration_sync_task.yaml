@@ -1,0 +1,24 @@
+info:
+    version: ""
+    title: resource_huaweicloud_oms_migration_sync_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: OMS
+paths:
+    /v2/{project_id}/sync-tasks:
+        POST:
+            tag: OMS
+    /v2/{project_id}/sync-tasks/{sync_task_id}:
+        DELETE:
+            tag: OMS
+        GET:
+            tag: OMS
+    /v2/{project_id}/sync-tasks/{sync_task_id}/start:
+        POST:
+            tag: OMS
+    /v2/{project_id}/sync-tasks/{sync_task_id}/stop:
+        POST:
+            tag: OMS

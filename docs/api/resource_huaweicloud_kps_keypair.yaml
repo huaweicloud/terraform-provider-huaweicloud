@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_kps_keypair
-  description: 
+    version: ""
+    title: resource_huaweicloud_kps_keypair
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DEW
+    - name: DEW
 paths:
-  /v3/{project_id}/keypairs/{keypair_name}:
-    delete:
-      tag: DEW
-      operationId: DeleteKeypair
-    get:
-      tag: DEW
-      operationId: ListKeypairDetail
-    put:
-      tag: DEW
-      operationId: UpdateKeypairDescription
-  /v3/{project_id}/keypairs:
-    post:
-      tag: DEW
-      operationId: CreateKeypair
+    /v3/{project_id}/keypairs:
+        POST:
+            tag: DEW
+    /v3/{project_id}/keypairs/{keypair_name}:
+        DELETE:
+            tag: DEW
+        GET:
+            tag: DEW
+        PUT:
+            tag: DEW

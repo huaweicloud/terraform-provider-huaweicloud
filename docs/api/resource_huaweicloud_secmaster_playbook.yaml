@@ -12,6 +12,10 @@ paths:
             tag: SecMaster
             operationId: GetPlaybook
             x-ref-api: GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
+        POST:
+            tag: SecMaster
+            operationId: CreatePlaybook
+            x-ref-api: POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
         PUT:
             tag: SecMaster
             operationId: UpdatePlaybook
@@ -21,7 +25,3 @@ paths:
             tag: SecMaster
             operationId: DeletePlaybook
             x-ref-api: DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
-        POST:
-            tag: SecMaster
-            operationId: CreatePlaybook
-            x-ref-api: POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}

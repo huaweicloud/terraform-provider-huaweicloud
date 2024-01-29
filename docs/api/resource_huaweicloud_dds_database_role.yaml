@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_dds_database_role
-  description: 
+    version: ""
+    title: resource_huaweicloud_dds_database_role
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DDS
+    - name: DDS
 paths:
-  /v3/{project_id}/instances/{instanceId}/db-role:
-    delete:
-      tag: DDS
-      operationId: Delete
-    post:
-      tag: DDS
-      operationId: Create
-  /v3/{project_id}/instances/{instanceId}/db-roles:
-    get:
-      tag: DDS
-      operationId: List
-  /v3/{project_id}/instances:
-    get:
-      tag: DDS
-      operationId: List
+    /v3/{project_id}/instances:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/db-role:
+        DELETE:
+            tag: DDS
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/db-roles:
+        GET:
+            tag: DDS

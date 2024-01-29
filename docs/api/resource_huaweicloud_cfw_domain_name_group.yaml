@@ -1,0 +1,28 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_domain_name_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/domain-set:
+        POST:
+            tag: CFW
+    /v1/{project_id}/domain-set/{id}:
+        DELETE:
+            tag: CFW
+        PUT:
+            tag: CFW
+    /v1/{project_id}/domain-set/domains/{id}:
+        DELETE:
+            tag: CFW
+        GET:
+            tag: CFW
+        POST:
+            tag: CFW
+    /v1/{project_id}/domain-sets:
+        GET:
+            tag: CFW

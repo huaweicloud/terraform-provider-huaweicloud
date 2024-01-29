@@ -16,6 +16,10 @@ paths:
     post:
       tag: EVS
       operationId: ExtendSize
+  /v5/{project_id}/cloudvolumes/{id}/qos:
+    put:
+      tag: EVS
+      operationId: ModifyQoS
   /v2/{project_id}/cloudvolumes/{id}/tags/action:
     POST:
       tag: EVS

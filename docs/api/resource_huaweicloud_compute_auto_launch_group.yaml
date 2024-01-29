@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_auto_launch_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v2/{domain_id}/auto-launch-groups:
+        POST:
+            tag: ECS
+    /v2/{domain_id}/auto-launch-groups/{auto_launch_group_id}:
+        DELETE:
+            tag: ECS
+        GET:
+            tag: ECS
+        PUT:
+            tag: ECS

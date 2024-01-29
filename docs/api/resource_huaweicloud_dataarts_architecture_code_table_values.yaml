@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_architecture_code_table_values
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v2/{project_id}/design/code-tables/{id}/values:
+        GET:
+            tag: DataArtsStudio
+        PUT:
+            tag: DataArtsStudio

@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_kps_keypairs
-  description: 
+    version: ""
+    title: data_source_huaweicloud_kps_keypairs
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DEW
+    - name: DEW
 paths:
-  /v3/{project_id}/keypairs:
-    get:
-      tag: DEW
-      operationId: ListKeypairs
+    /v3/{project_id}/keypairs:
+        GET:
+            tag: DEW

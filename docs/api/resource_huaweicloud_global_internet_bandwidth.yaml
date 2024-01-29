@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_global_internet_bandwidth
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v3/{domain_id}/geip/internet-bandwidths:
+        POST:
+            tag: EIP
+    /v3/{domain_id}/geip/internet-bandwidths/{id}:
+        DELETE:
+            tag: EIP
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP
+    /v3/internet-bandwidth/{resource_id}/tags/create:
+        POST:
+            tag: EIP
+    /v3/internet-bandwidth/{resource_id}/tags/delete:
+        POST:
+            tag: EIP

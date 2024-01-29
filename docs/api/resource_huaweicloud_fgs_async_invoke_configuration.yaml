@@ -1,20 +1,17 @@
 info:
-  version: 
-  title: resource_huaweicloud_fgs_async_invoke_configuration
-  description: 
+    version: ""
+    title: resource_huaweicloud_fgs_async_invoke_configuration
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: FunctionGraph
+    - name: FunctionGraph
 paths:
-  /v2/{project_id}/fgs/functions/{functionUrn}/async-invoke-config:
-    delete:
-      tag: FunctionGraph
-      operationId: DeleteAsyncInvokeConfig
-    get:
-      tag: FunctionGraph
-      operationId: GetAsyncInvokeConfig
-    put:
-      tag: FunctionGraph
-      operationId: UpdateAsyncInvokeConfig
+    /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config:
+        DELETE:
+            tag: FunctionGraph
+        GET:
+            tag: FunctionGraph
+        PUT:
+            tag: FunctionGraph

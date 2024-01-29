@@ -1,38 +1,47 @@
 info:
+    version: ""
     title: resource_huaweicloud_dws_cluster
-    description: 'Manages a DWS cluster resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DWS
-servers:
-    - url: https://dws.myhuaweicloud.com
 paths:
+    /v1.0/{project_id}/clusters:
+        POST:
+            tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-create:
+        POST:
+            tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-delete:
+        POST:
+            tag: DWS
     /v1.0/{project_id}/clusters/{id}:
         DELETE:
             tag: DWS
-            operationId: DeleteDwsCluster
-            x-ref-api: DELETE /v1.0/{project_id}/clusters/{id}
         GET:
             tag: DWS
-            operationId: CreateDwsClusterWaiting
-            x-ref-api: GET /v1.0/{project_id}/clusters/{id}
     /v1.0/{project_id}/clusters/{id}/expand-instance-storage:
         POST:
             tag: DWS
-            operationId: expandInstanceStorage
-            x-ref-api: POST /v1.0/{project_id}/clusters/{id}/expand-instance-storage
     /v1.0/{project_id}/clusters/{id}/reset-password:
         POST:
             tag: DWS
-            operationId: resetPasswordOfCluster
-            x-ref-api: POST /v1.0/{project_id}/clusters/{id}/reset-password
     /v1.0/{project_id}/clusters/{id}/resize:
         POST:
             tag: DWS
-            operationId: ScaleOutCluster
-            x-ref-api: POST /v1.0/{project_id}/clusters/{id}/resize
+    /v1.0/{project_id}/job/{job_id}:
+        GET:
+            tag: DWS
     /v2/{project_id}/clusters:
         POST:
             tag: DWS
-            operationId: CreateDwsCluster
-            x-ref-api: POST /v2/{project_id}/clusters
+    /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}:
+        DELETE:
+            tag: DWS
+        POST:
+            tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/logical-clusters/enable:
+        PUT:
+            tag: DWS

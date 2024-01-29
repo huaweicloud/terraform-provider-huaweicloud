@@ -22,3 +22,7 @@ paths:
     post:
       tag: ER
       operationId: Create
+  /v3/{project_id}/vpc-attachment/{id}/tags/action:
+    POST:
+      tag: ER
+      operationId: batchUpdate

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rabbitmq_plugin
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins:
+        GET:
+            tag: RabbitMQ
+        PUT:
+            tag: RabbitMQ
+    /v2/{project_id}/instances/{instance_id}/tasks:
+        GET:
+            tag: RabbitMQ
