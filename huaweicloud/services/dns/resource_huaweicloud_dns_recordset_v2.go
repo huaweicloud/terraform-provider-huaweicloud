@@ -343,6 +343,10 @@ func parseDNSV2RecordSetID(id string) (zoneID string, recordsetID string, err er
 	return
 }
 
+// Use this function to build the client by DNS zone ID
+// For a public zone, the endpoint of client should be https://dns.myhuaweicloud.com
+// For a private zone, the endpoint of client should be https://dns.{region}.myhuaweicloud.com
+// In most regions, the both endpoints can work well, but it's very useful for regions like `la-north-2`
 func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interface{}) (*golangsdk.ServiceClient, string, error) {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
