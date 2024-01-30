@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DC DELETE /v3/{project_id}/dcaas/hosted-connects/{id}
+// @API DC PUT /v3/{project_id}/dcaas/hosted-connects/{id}
+// @API DC GET /v3/{project_id}/dcaas/hosted-connects/{id}
+// @API DC POST /v3/{project_id}/dcaas/hosted-connects
 func ResourceHostedConnect() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHostedConnectCreate,
