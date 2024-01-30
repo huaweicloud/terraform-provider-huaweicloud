@@ -244,7 +244,8 @@ var (
 
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
-	HW_AS_SCALING_GROUP_ID = os.Getenv("HW_AS_SCALING_GROUP_ID")
+	HW_AS_SCALING_GROUP_ID  = os.Getenv("HW_AS_SCALING_GROUP_ID")
+	HW_AS_SCALING_POLICY_ID = os.Getenv("HW_AS_SCALING_POLICY_ID")
 
 	HW_DATAARTS_WORKSPACE_ID            = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
 	HW_DATAARTS_CDM_NAME                = os.Getenv("HW_DATAARTS_CDM_NAME")
@@ -1144,6 +1145,13 @@ func TestAccPreCheckCCAuth(t *testing.T) {
 func TestAccPreCheckASScalingGroupID(t *testing.T) {
 	if HW_AS_SCALING_GROUP_ID == "" {
 		t.Skip("HW_AS_SCALING_GROUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckASScalingPolicyID(t *testing.T) {
+	if HW_AS_SCALING_POLICY_ID == "" {
+		t.Skip("HW_AS_SCALING_POLICY_ID must be set for the acceptance test")
 	}
 }
 
