@@ -42,6 +42,7 @@ const (
 // @API DEW POST /v1.0/{project_id}/kms/enable-key
 // @API DEW POST /v1.0/{project_id}/kms/disable-key-rotation
 // @API DEW POST /v1.0/{project_id}/kms/schedule-key-deletion
+// @API DEW POST /v1.0/{project_id}/kms/{id}/tags/action
 func ResourceKmsKey() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceKmsKeyCreate,
