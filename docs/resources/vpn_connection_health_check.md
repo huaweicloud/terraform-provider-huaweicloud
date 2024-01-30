@@ -44,5 +44,5 @@ In addition to all arguments above, the following attributes are exported:
 The health check can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_vpn_connection_health_check.test 21a8d00c-5b10-405c-9d85-3581b96dbc29
+$ terraform import huaweicloud_vpn_connection_health_check.test <id>
 ```
