@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API ELB GET /v3/{project_id}/elb/flavors
 func DataSourceElbFlavorsV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceElbFlavorsV3Read,

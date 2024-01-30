@@ -25,6 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/sql-filter/rules
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/sql-filter/rules
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/sql-filter/rules
 func ResourceGaussDBSqlControlRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBSqlControlRuleCreate,

@@ -30,6 +30,7 @@ func (t Template) IsEmpty() bool {
 	return reflect.DeepEqual(t, Template{})
 }
 
+// @API CCE GET /api/v3/addontemplates
 func DataSourceAddonTemplate() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAddonTemplateRead,

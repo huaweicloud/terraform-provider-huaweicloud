@@ -19,6 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Live GET /v1/{project_id}/template/transcodings
+// @API Live POST /v1/{project_id}/template/transcodings
+// @API Live PUT /v1/{project_id}/template/transcodings
+// @API Live DELETE /v1/{project_id}/template/transcodings
 func ResourceTranscoding() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTranscodingCreate,

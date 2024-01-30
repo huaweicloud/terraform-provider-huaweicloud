@@ -19,6 +19,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SDRS GET /v1/{project_id}/protected-instances/{id}
+// @API SDRS POST /v1/{project_id}/protected-instances/{instanceID}/attachreplication
+// @API SDRS DELETE /v1/{project_id}/protected-instances/{instanceID}/detachreplication/{replicationID}
 func ResourceReplicationAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceReplicationAttachCreate,

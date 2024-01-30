@@ -22,6 +22,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RAM POST /v1/resource-share-associations/search
+// @API RAM POST /v1/resource-shares
+// @API RAM DELETE /v1/resource-shares/{resource_share_id}
+// @API RAM PUT /v1/resource-shares/{resource_share_id}
+// @API RAM GET /v1/resource-shares/{resource_share_id}/associated-permissions
+// @API RAM POST /v1/resource-shares/search
 func ResourceRAMShare() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRAMShareCreate,

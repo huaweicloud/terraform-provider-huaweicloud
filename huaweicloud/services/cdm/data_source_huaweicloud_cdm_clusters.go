@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CDM GET /v1.1/{project_id}/clusters
 func DataSourceCdmClusters() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceCdmClustersRead,

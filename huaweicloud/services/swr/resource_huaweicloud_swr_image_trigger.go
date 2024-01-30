@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SWR POST /v2/manage/namespaces/{namespace}/repos/{repository}/triggers
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/repos/{repository}/triggers/{trigger}
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/triggers/{trigger}
+// @API SWR PATCH /v2/manage/namespaces/{namespace}/repos/{repository}/triggers/{trigger}
 func ResourceSwrImageTrigger() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSwrImageTriggerCreate,

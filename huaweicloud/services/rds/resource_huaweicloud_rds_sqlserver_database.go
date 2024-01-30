@@ -24,6 +24,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/database
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail?page=1&limit=100
 func ResourceSQLServerDatabase() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLServerDatabaseCreate,

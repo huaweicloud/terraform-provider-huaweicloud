@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/repos/{repository}/access
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/access
+// @API SWR PATCH /v2/manage/namespaces/{namespace}/repos/{repository}/access
+// @API SWR POST /v2/manage/namespaces/{namespace}/repos/{repository}/access
 func ResourceSwrImagePermissions() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSwrImagePermissionsCreate,

@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IAM POST /v3/projects
+// @API IAM DELETE /v3/projects/{projectID}
+// @API IAM GET /v3/projects/{projectID}
+// @API IAM PATCH /v3/projects/{projectID}
 func ResourceIdentityProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityProjectCreate,

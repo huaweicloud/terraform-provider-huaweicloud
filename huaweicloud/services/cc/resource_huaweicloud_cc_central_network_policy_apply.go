@@ -24,6 +24,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CC GET /v3/{domain_id}/gcn/central-network/{central_network_id}/policies
+// @API CC DELETE /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{policy_id}
+// @API CC POST /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{policy_id}/apply
 func ResourceCentralNetworkPolicyApply() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCentralNetworkPolicyApplyCreate,

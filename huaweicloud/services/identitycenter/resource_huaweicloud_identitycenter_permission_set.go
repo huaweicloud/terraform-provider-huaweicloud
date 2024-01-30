@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityCenter POST /v1/instances/{instance_id}/permission-sets
+// @API IdentityCenter DELETE /v1/instances/{instance_id}/permission-sets/{id}
+// @API IdentityCenter GET /v1/instances/{instance_id}/permission-sets/{id}
+// @API IdentityCenter PUT /v1/instances/{instance_id}/permission-sets/{id}
 func ResourcePermissionSet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePermissionSetCreate,

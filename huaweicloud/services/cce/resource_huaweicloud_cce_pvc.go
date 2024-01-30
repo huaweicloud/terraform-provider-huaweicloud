@@ -28,6 +28,9 @@ type StateRefresh struct {
 	PollInterval time.Duration
 }
 
+// @API CCE DELETE /api/v1/namespaces/{ns}/persistentvolumeclaims/{name}
+// @API CCE POST /api/v1/namespaces/{ns}/persistentvolumeclaims
+// @API CCE GET /api/v1/namespaces/{ns}/persistentvolumeclaims
 func ResourceCcePersistentVolumeClaimsV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCcePersistentVolumeClaimV1Create,

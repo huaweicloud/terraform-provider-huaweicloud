@@ -33,6 +33,12 @@ const (
 	policiesType = "organizations:policies"
 )
 
+// @API Organizations GET /v1/organizations/roots
+// @API Organizations DELETE /v1/organizations
+// @API Organizations GET /v1/organizations
+// @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
+// @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/delete
+// @API Organizations PATCH /v1/organizations/organizational-units/{organizational_unit_id}
 func ResourceOrganization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOrganizationCreate,

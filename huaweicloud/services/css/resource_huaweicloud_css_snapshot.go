@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API CSS DELETE /v1.0/{project_id}/clusters/{clusterId}/index_snapshot/{snapId}
+// @API CSS POST /v1.0/{project_id}/clusters/{clusterId}/index_snapshot
+// @API CSS GET /v1.0/{project_id}/clusters/{clusterId}/index_snapshots
+// @API CSS GET /v1.0/{project_id}/clusters/{clusterId}
 func ResourceCssSnapshot() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCssSnapshotCreate,

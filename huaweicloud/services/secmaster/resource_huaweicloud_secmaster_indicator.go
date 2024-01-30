@@ -28,6 +28,10 @@ const (
 	IndicatorNotExistsCode = "SecMaster.20030005"
 )
 
+// @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/indicators
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/indicators
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/indicators/{id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/indicators/{id}
 func ResourceIndicator() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIndicatorCreate,

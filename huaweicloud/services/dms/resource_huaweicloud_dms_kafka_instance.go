@@ -29,6 +29,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Kafka GET /v2/available-zones
+// @API Kafka POST /v2/{project_id}/instances/{id}/crossvpc/modify
+// @API Kafka POST /v2/{project_id}/instances/{id}/extend
+// @API Kafka DELETE /v2/{project_id}/instances/{id}
+// @API Kafka GET /v2/{project_id}/instances/{id}
+// @API Kafka PUT /v2/{project_id}/instances/{id}
+// @API Kafka POST /v2/{project_id}/instances
+// @API Kafka GET /v2/{project_id}/{resourceType}/{id}/tags
 func ResourceDmsKafkaInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaInstanceCreate,

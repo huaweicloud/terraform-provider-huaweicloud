@@ -30,6 +30,10 @@ var (
 	}
 )
 
+// @API SWR GET /v2/manage/namespaces/{namespace}/repositories/{repository}/access-domains/{domain}
+// @API SWR PATCH /v2/manage/namespaces/{namespace}/repositories/{repository}/access-domains/{domain}
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/repositories/{repository}/access-domains/{domain}
+// @API SWR POST /v2/manage/namespaces/{namespace}/repositories/{repository}/access-domains
 func ResourceSWRRepositorySharing() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSWRRepositorySharingCreate,

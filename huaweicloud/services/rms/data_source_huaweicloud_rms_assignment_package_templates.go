@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Config GET /v1/resource-manager/conformance-packs/templates
 func DataSourceTemplates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceTemplatesRead,

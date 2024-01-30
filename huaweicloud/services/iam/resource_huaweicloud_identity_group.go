@@ -14,6 +14,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IAM GET /v3/groups/{groupID}
+// @API IAM PATCH /v3/groups/{groupID}
+// @API IAM DELETE /v3/groups/{groupID}
+// @API IAM POST /v3/groups
 func ResourceIdentityGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityGroupCreate,

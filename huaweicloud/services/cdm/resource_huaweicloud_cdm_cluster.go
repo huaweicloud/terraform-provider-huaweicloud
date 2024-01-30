@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CDM DELETE /v1.1/{project_id}/clusters/{clusterId}
+// @API CDM GET /v1.1/{project_id}/clusters/{clusterId}
+// @API CDM POST /v1.1/{project_id}/clusters
 func ResourceCdmCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCdmClusterCreate,

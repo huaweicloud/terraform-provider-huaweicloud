@@ -13,6 +13,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SFS GET /v2/{project_id}/shares/detail
+// @API SFS POST /v2/{project_id}/shares/{id}/action
+// @API SFS GET /v2/{project_id}/shares/{id}/export_locations
 func DataSourceSFSFileSystemV2() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSFSFileSystemV2Read,

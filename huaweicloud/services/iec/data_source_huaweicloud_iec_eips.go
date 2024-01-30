@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 )
 
+// @API IEC GET /v1/publicips
 func DataSourceEips() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceEipsRead,

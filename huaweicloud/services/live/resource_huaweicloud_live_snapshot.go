@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Live DELETE /v1/{project_id}/stream/snapshot
+// @API Live GET /v1/{project_id}/stream/snapshot
+// @API Live POST /v1/{project_id}/stream/snapshot
+// @API Live PUT /v1/{project_id}/stream/snapshot
 func ResourceLiveSnapshot() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLiveSnapshotCreate,

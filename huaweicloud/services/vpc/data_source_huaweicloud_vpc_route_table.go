@@ -13,6 +13,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API VPC GET /v1/{project_id}/routetables/{id}
+// @API VPC GET /v1/{project_id}/routetables
 func DataSourceVPCRouteTable() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVpcRouteTableRead,

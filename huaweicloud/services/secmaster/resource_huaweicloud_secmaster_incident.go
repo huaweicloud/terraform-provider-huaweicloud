@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/incidents/{id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/incidents/{id}
+// @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/incidents
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/incidents
 func ResourceIncident() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIncidentCreate,

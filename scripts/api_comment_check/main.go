@@ -135,7 +135,7 @@ func apiCommentCheck(commentStr string) int {
 
 func isSkipDirectory(path string) bool {
 	var skipKeys = []string{
-		"acceptance", "utils", "internal", "helper", "deprecated",
+		"acceptance", "utils", "internal", "helper", "obs", "deprecated",
 	}
 
 	for _, sub := range skipKeys {

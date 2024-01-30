@@ -20,6 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API BMS GET /v1/{project_id}/baremetalservers/{serverID}
+// @API BMS PUT /v1/{project_id}/baremetalservers/{serverID}
+// @API BMS POST /v1/{project_id}/baremetalservers
+// @API VPC GET /v2.0/ports/{id}
 func ResourceBmsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBmsInstanceCreate,

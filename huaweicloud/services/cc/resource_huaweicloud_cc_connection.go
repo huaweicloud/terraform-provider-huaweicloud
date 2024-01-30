@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CC POST /v3/{domain_id}/ccaas/cloud-connections
+// @API CC DELETE /v3/{domain_id}/ccaas/cloud-connections/{id}
+// @API CC GET /v3/{domain_id}/ccaas/cloud-connections/{id}
+// @API CC PUT /v3/{domain_id}/ccaas/cloud-connections/{id}
 func ResourceCloudConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCloudConnectionCreate,

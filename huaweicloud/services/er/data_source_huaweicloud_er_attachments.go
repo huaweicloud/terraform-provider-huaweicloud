@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/attachments
 func DataSourceAttachments() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAttachmentsRead,

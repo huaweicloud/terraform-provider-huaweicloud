@@ -25,6 +25,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/db-users
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/db-users
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/db-users
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/db-users/comment
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/db-users/password
 func ResourceGaussDBAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBAccountCreate,

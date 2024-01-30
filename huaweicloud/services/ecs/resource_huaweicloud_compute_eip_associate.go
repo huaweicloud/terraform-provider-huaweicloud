@@ -27,6 +27,12 @@ import (
 
 const publicIPv6Type string = "5_dualStack"
 
+// @API ECS GET /v1/{project_id}/cloudservers/{serverID}
+// @API EIP PUT /v1/{project_id}/publicips/{id}
+// @API EIP GET /v1/{project_id}/publicips
+// @API EIP POST /v2.0/{project_id}/bandwidths/{ID}/insert
+// @API EIP POST /v2.0/{project_id}/bandwidths/{ID}/remove
+// @API EIP GET /v2.0/{project_id}/bandwidths/{id}
 func ResourceComputeEIPAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeEIPAssociateCreate,

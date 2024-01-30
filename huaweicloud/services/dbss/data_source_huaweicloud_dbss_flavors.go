@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DBSS GET /v1/{project_id}/dbss/audit/specification
 func DataSourceDbssFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDbssFlavorsRead,

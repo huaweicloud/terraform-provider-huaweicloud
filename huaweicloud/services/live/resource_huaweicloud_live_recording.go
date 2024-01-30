@@ -22,6 +22,10 @@ const (
 	recordingTypeManual = "COMMAND_RECORD"
 )
 
+// @API Live DELETE /v1/{project_id}/record/rules/{id}
+// @API Live GET /v1/{project_id}/record/rules/{id}
+// @API Live PUT /v1/{project_id}/record/rules/{id}
+// @API Live POST /v1/{project_id}/record/rules
 func ResourceRecording() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRecordingCreate,

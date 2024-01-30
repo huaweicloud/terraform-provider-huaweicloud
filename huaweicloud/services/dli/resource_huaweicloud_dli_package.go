@@ -32,6 +32,12 @@ var uploadPath = map[string]string{
 	userFile:   "files",
 }
 
+// @API DLI GET /v2.0/{project_id}/resources/{subPath}
+// @API DLI POST /v2.0/{project_id}/resources/{subPath}
+// @API DLI PUT /v2.0/{project_id}/resources/{subPath}
+// @API DLI DELETE /v2.0/{project_id}/resources/{subPath}
+// @API DLI GET /v2.0/{project_id}/resources
+// @API DLI POST /v2.0/{project_id}/resources
 func ResourceDliPackageV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDliDependentPackageV2Create,

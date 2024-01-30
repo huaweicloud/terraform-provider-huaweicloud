@@ -14,6 +14,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Workspace DELETE /v2/{project_id}/policy-groups/{groupId}
+// @API Workspace GET /v2/{project_id}/policy-groups/{groupId}
+// @API Workspace PUT /v2/{project_id}/policy-groups/{groupId}
+// @API Workspace POST /v2/{project_id}/policy-groups
 func ResourcePolicyGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyGroupCreate,

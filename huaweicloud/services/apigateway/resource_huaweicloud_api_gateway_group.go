@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API APIG PUT /v1.0/apigw/api-groups/{id}
+// @API APIG DELETE /v1.0/apigw/api-groups/{id}
+// @API APIG GET /v1.0/apigw/api-groups/{id}
+// @API APIG POST /v1.0/apigw/api-groups
 func ResourceGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAPIGatewayGroupCreate,

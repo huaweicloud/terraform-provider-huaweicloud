@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS POST /v2/{project_id}/groups/{id}
+// @API LTS DELETE /v2/{project_id}/groups/{id}
+// @API LTS POST /v2/{project_id}/groups
+// @API LTS GET /v2/{project_id}/groups
 func ResourceLTSGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,

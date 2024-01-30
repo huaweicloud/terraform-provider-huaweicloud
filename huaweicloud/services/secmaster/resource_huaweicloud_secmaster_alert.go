@@ -27,6 +27,10 @@ const (
 	AlertNotExistsCode = "SecMaster.20030005"
 )
 
+// @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/alerts
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/alerts
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/alerts/{id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/alerts/{id}
 func ResourceAlert() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlertCreate,

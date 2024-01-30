@@ -23,6 +23,10 @@ var hookTypeMap = map[string]string{
 	"REMOVE": "INSTANCE_TERMINATING",
 }
 
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}/{hookName}
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}/{hookName}
+// @API AS PUT /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}/{hookName}
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}
 func ResourceASLifecycleHook() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASLifecycleHookCreate,

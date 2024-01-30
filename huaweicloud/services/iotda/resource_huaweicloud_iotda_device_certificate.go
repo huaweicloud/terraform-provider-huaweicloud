@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IoTDA POST /v5/iot/{project_id}/certificates/{certificate_id}/action
+// @API IoTDA DELETE /v5/iot/{project_id}/certificates/{certificate_id}
+// @API IoTDA POST /v5/iot/{project_id}/certificates
+// @API IoTDA GET /v5/iot/{project_id}/certificates
 func ResourceDeviceCertificate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeviceCertificateCreate,

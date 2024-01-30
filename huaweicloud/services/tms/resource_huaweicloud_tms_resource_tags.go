@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API TMS POST /v1.0/{project_id}/resource-tags/batch-create
+// @API TMS POST /v1.0/{project_id}/resource-tags/batch-delete
+// @API TMS GET /v2.0/{project_id}/resources/{resourceId}/tags
 func ResourceResourceTags() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceResourceTagsCreate,

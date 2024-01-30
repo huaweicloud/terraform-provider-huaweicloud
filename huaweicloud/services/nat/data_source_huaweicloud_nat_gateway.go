@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API NAT GET /v2/{project_id}/nat_gateways
 func DataSourcePublicGateway() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourcePublicGatewayRead,

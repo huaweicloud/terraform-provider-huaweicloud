@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ELB GET /v2/{project_id}/elb/listeners
 func DataSourceListeners() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceListenersRead,

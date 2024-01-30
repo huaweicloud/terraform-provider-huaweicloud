@@ -121,6 +121,11 @@ var (
 	}
 )
 
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/apis/{apiId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apis/{apiId}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/apis/{apiId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apis
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/apis
 func ResourceApigAPIV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApiCreate,

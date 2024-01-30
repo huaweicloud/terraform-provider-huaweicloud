@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IEC GET /v1/vpcs
 func DataSourceVpc() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVpcRead,

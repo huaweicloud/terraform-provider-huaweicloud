@@ -22,6 +22,10 @@ import (
 )
 
 // ResourceEIPAssociate is the impl for huaweicloud_vpc_eip_associate resource
+// @API EIP GET /v1/{project_id}/publicips/{id}
+// @API EIP PUT /v1/{project_id}/publicips/{id}
+// @API VPC GET /v1/{project_id}/ports
+// @API VPC GET /v1/{project_id}/ports/{portId}
 func ResourceEIPAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEIPAssociateCreate,

@@ -22,6 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
+// @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/custom
+// @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}
+// @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}
+// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}
 func ResourceRulePreciseProtection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRulePreciseProtectionCreate,

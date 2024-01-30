@@ -45,6 +45,15 @@ var cesAlarmActions = schema.Schema{
 	},
 }
 
+// @API CES POST /v2/{project_id}/alarms/action
+// @API CES POST /v2/{project_id}/alarms/batch-delete
+// @API CES PUT /v2/{project_id}/alarms/{id}/policies
+// @API CES POST /v2/{project_id}/alarms/{id}/resources/{operation}
+// @API CES GET /v2/{project_id}/alarms/{id}/resources
+// @API CES GET /V1.0/{project_id}/alarms/{id}
+// @API CES PUT /V1.0/{project_id}/alarms/{id}
+// @API CES GET /v2/{project_id}/alarms
+// @API CES POST /v2/{project_id}/alarms
 func ResourceAlarmRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlarmRuleCreate,

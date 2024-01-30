@@ -93,6 +93,13 @@ func buildSubnetDNSList(d *schema.ResourceData, cfg *config.Config, region strin
 	return publicDNSList
 }
 
+// @API VPC POST /v2.0/{project_id}/subnets/{id}/tags/action
+// @API VPC GET /v2.0/{project_id}/subnets/{id}/tags
+// @API VPC GET /v1/{project_id}/subnets/{id}
+// @API VPC POST /v1/{project_id}/subnets
+// @API VPC DELETE /v1/{project_id}/vpcs/{vpcid}/subnets/{id}
+// @API VPC PUT /v1/{project_id}/vpcs/{vpcid}/subnets/{id}
+// @API DNS GET /v2/nameservers
 func ResourceVpcSubnetV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcSubnetCreate,

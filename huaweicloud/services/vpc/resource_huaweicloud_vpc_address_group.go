@@ -18,6 +18,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC POST /v3/{project_id}/vpc/address-groups
+// @API VPC DELETE /v3/{project_id}/vpc/address-groups/{address_group_id}/force
+// @API VPC GET /v3/{project_id}/vpc/address-groups/{address_group_id}
+// @API VPC PUT /v3/{project_id}/vpc/address-groups/{address_group_id}
+// @API VPC DELETE /v3/{project_id}/vpc/address-groups/{address_group_id}
 func ResourceVpcAddressGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcAddressGroupCreate,

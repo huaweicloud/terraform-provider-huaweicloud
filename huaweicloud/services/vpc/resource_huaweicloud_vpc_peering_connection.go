@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC DELETE /v2.0/vpc/peerings/{id}
+// @API VPC GET /v2.0/vpc/peerings/{id}
+// @API VPC PUT /v2.0/vpc/peerings/{id}
+// @API VPC POST /v2.0/vpc/peerings
 func ResourceVpcPeeringConnectionV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVPCPeeringCreate,

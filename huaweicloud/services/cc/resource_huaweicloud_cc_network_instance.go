@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CC POST /v3/{domain_id}/ccaas/network-instances
+// @API CC DELETE /v3/{domain_id}/ccaas/network-instances/{id}
+// @API CC GET /v3/{domain_id}/ccaas/network-instances/{id}
+// @API CC PUT /v3/{domain_id}/ccaas/network-instances/{id}
 func ResourceNetworkInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkInstanceCreate,

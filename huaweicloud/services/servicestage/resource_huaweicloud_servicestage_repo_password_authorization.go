@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API ServiceStage POST /v1/{project_id}/git/auths/{rType}/password
 func ResourceRepoPwdAuth() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRepoPwdAuthCreate,

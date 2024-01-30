@@ -20,6 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API ModelArts GET /v1/{project_id}/notebooks/{id}
+// @API ModelArts DELETE /v1/{project_id}/notebooks/{id}/storage/{storageId}
+// @API ModelArts GET /v1/{project_id}/notebooks/{id}/storage/{storageId}
+// @API ModelArts POST /v1/{project_id}/notebooks/{id}/storage
 func ResourceNotebookMountStorage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNotebookMountStorageCreate,

@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI POST /v1.0/{project_id}/variables
+// @API DLI GET /v1.0/{project_id}/variables
+// @API DLI DELETE /v1.0/{project_id}/variables/{id}
+// @API DLI PUT /v1.0/{project_id}/variables/{id}
 func ResourceGlobalVariable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGlobalVariableCreate,

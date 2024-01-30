@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API GaussDBforNoSQL GET /v3/{project_id}/dedicated-resources
 func DataSourceGeminiDBDehResource() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGeminiDBDehResourceRead,

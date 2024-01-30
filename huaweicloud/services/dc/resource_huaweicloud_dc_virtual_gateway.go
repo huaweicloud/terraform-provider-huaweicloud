@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DC DELETE /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
+// @API DC GET /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
+// @API DC PUT /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
+// @API DC POST /v3/{project_id}/dcaas/virtual-gateways
 func ResourceVirtualGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVirtualGatewayCreate,

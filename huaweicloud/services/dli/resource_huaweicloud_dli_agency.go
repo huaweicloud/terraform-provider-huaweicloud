@@ -22,6 +22,8 @@ import (
 
 const DliAgencyID = "dli_admin_agency"
 
+// @API DLI POST /v2/{project_id}/agency
+// @API DLI GET /v2/{project_id}/agency
 func ResourceDliAgency() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliAgencyCreateOrUpdate,

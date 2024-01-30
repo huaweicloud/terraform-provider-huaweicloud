@@ -23,6 +23,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DNS PUT /v2.1/recordsets/{recordset_id}/statuses/set
+// @API DNS POST /v2.1/zones/{zone_id}/recordsets
+// @API DNS DELETE /v2.1/zones/{zone_id}/recordsets/{recordset_id}
+// @API DNS GET /v2.1/zones/{zone_id}/recordsets/{recordset_id}
+// @API DNS PUT /v2.1/zones/{zone_id}/recordsets/{recordset_id}
 func ResourceDNSRecordSetV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSRecordSetV2Create,

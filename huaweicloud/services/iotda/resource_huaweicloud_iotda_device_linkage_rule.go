@@ -19,6 +19,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IoTDA POST /v5/iot/{project_id}/rules
+// @API IoTDA PUT /v5/iot/{project_id}/rules/{rule_id}/status
+// @API IoTDA DELETE /v5/iot/{project_id}/rules/{rule_id}
+// @API IoTDA GET /v5/iot/{project_id}/rules/{rule_id}
+// @API IoTDA PUT /v5/iot/{project_id}/rules/{rule_id}
 func ResourceDeviceLinkageRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDeviceLinkageRuleCreate,

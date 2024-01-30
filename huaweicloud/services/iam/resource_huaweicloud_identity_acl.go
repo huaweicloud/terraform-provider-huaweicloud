@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IAM GET /v3.0/OS-SECURITYPOLICY/domains/{domainID}/api-acl-policy
+// @API IAM PUT /v3.0/OS-SECURITYPOLICY/domains/{domainID}/api-acl-policy
+// @API IAM GET /v3.0/OS-SECURITYPOLICY/domains/{domainID}/console-acl-policy
+// @API IAM PUT /v3.0/OS-SECURITYPOLICY/domains/{domainID}/console-acl-policy
 func ResourceIdentityACL() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityACLCreate,

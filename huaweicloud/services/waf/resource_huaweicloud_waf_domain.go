@@ -25,6 +25,10 @@ const (
 	protocolHTTPS = "HTTPS"
 )
 
+// @API WAF GET /v1/{project_id}/waf/instance/{id}
+// @API WAF PUT /v1/{project_id}/waf/instance/{id}
+// @API WAF DELETE /v1/{project_id}/waf/instance/{id}
+// @API WAF POST /v1/{project_id}/waf/instance
 func ResourceWafDomain() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafDomainCreate,

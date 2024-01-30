@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API MRS GET /v2/{project_id}/metadata/versions
 func DataSourceMrsVersions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceMrsVersionsRead,

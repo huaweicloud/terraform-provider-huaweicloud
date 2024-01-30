@@ -30,6 +30,15 @@ var (
 	TerminatePolices   = []string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
 )
 
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group/{id}
+// @API AS PUT /autoscaling-api/v1/{project_id}/scaling_group/{id}
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_group/{id}
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags/action
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group/{id}/action
 func ResourceASGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASGroupCreate,

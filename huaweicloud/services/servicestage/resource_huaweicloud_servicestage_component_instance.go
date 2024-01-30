@@ -178,6 +178,11 @@ func probeDetailSchemaResource() *schema.Resource {
 }
 
 // ResourceComponentInstance is the imple of huaweicloud_servicestage_component_instance
+// @API ServiceStage GET /v2/{project_id}/cas/jobs/{jobId}
+// @API ServiceStage DELETE /v2/{project_id}/cas/applications/{appId}/components/{componentId}/instances/{instanceId}
+// @API ServiceStage GET /v2/{project_id}/cas/applications/{appId}/components/{componentId}/instances/{instanceId}
+// @API ServiceStage PUT /v2/{project_id}/cas/applications/{appId}/components/{componentId}/instances/{instanceId}
+// @API ServiceStage POST /v2/{project_id}/cas/applications/{appId}/components/{componentId}/instances
 func ResourceComponentInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComponentInstanceCreate,

@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API ELB PUT /v2/{project_id}/elb/whitelists/{id}
+// @API ELB DELETE /v2/{project_id}/elb/whitelists/{id}
+// @API ELB GET /v2/{project_id}/elb/whitelists/{id}
+// @API ELB POST /v2/{project_id}/elb/whitelists
 func ResourceWhitelistV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWhitelistV2Create,

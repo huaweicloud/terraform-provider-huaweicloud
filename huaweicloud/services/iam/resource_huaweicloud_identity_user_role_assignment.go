@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IAM PUT /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles/{roleID}
+// @API IAM DELETE /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles/{roleID}
+// @API IAM GET /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles
 func ResourceIdentityUserRoleAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityUserRoleAssignmentCreate,

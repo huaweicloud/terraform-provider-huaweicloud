@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AOM POST /v2/{project_id}/alert/mute-rules
+// @API AOM PUT /v2/{project_id}/alert/mute-rules
+// @API AOM DELETE /v2/{project_id}/alert/mute-rules
+// @API AOM GET /v2/{project_id}/alert/mute-rules
 func ResourceAlarmSilenceRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlarmSilenceRuleCreate,

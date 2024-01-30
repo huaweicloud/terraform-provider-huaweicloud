@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}
 func ResourceAlertRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlertRuleCreate,

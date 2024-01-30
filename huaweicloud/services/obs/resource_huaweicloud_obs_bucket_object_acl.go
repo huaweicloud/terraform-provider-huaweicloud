@@ -17,6 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API OBS PUT /{ObjectName}?acl
+// @API OBS GET /{ObjectName}?acl
 func ResourceOBSBucketObjectAcl() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOBSBucketObjectAclCreate,

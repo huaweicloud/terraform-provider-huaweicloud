@@ -26,6 +26,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DNS GET /v2.1/customlines
+// @API DNS POST /v2.1/customlines
+// @API DNS DELETE /v2.1/customlines/{line_id}
+// @API DNS PUT /v2.1/customlines/{line_id}
 func ResourceDNSCustomLine() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSCustomLineCreate,

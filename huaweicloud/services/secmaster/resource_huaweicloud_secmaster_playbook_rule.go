@@ -27,6 +27,10 @@ const (
 	PlaybookRuleNotExistsCode = "SecMaster.20048004"
 )
 
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/rules
+// @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/rules/{id}
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/rules/{id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/rules/{id}
 func ResourcePlaybookRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePlaybookRuleCreate,

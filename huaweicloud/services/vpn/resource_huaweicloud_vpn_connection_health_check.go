@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPN POST /v5/{project_id}/connection-monitors
+// @API VPN DELETE /v5/{project_id}/connection-monitors/{id}
+// @API VPN GET /v5/{project_id}/connection-monitors/{id}
 func ResourceConnectionHealthCheck() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectionHealthCheckCreate,

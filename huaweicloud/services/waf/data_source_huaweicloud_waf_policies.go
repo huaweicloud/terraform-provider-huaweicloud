@@ -17,6 +17,7 @@ import (
 )
 
 // DataSourceWafPoliciesV1 the function is used for data source 'huaweicloud_waf_policies'.
+// @API WAF GET /v1/{project_id}/waf/policy
 func DataSourceWafPoliciesV1() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceWafPoliciesV1Read,

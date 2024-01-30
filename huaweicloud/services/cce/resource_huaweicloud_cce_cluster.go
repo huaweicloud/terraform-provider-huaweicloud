@@ -29,6 +29,15 @@ import (
 
 // ResourceCCEClusterV3 defines the CCE cluster resource schema and functions.
 // Deprecated: It's a deprecated function, please refer to the function 'ResourceCluster'.
+// @API CCE DELETE /api/v3/projects/{project_id}/clusters/{id}
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{id}
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{id}/mastereip
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/operation/{action}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/tags/{action}
+// @API AOM POST /svcstg/icmgr/v1/{project_id}/agents
 func ResourceCCEClusterV3() *schema.Resource {
 	return ResourceCluster()
 }

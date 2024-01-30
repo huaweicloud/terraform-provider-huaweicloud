@@ -23,6 +23,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS PUT /v2/{project_id}/lts/alarms/status
+// @API LTS GET /v2/{project_id}/lts/alarms/sql-alarm-rule
+// @API LTS POST /v2/{project_id}/lts/alarms/sql-alarm-rule
+// @API LTS PUT /v2/{project_id}/lts/alarms/sql-alarm-rule
+// @API LTS DELETE /v2/{project_id}/lts/alarms/sql-alarm-rule/{id}
 func ResourceSQLAlarmRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLAlarmRuleCreate,

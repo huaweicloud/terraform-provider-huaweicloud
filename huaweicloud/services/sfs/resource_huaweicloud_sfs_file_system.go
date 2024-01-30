@@ -19,6 +19,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SFS POST /v2/{project_id}/shares/{id}/action
+// @API SFS DELETE /v2/{project_id}/shares/{id}
+// @API SFS GET /v2/{project_id}/shares/{id}
+// @API SFS PUT /v2/{project_id}/shares/{id}
+// @API SFS POST /v2/{project_id}/shares
+// @API SFS POST /v2/{project_id}/sfs/{id}/tags/action
+// @API SFS GET /v2/{project_id}/sfs/{id}/tags
 func ResourceSFSFileSystemV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSFSFileSystemV2Create,

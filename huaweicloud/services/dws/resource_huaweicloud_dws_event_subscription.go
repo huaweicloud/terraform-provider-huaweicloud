@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DWS GET /v2/{project_id}/event-subs
+// @API DWS POST /v2/{project_id}/event-subs
+// @API DWS DELETE /v2/{project_id}/event-subs/{id}
+// @API AWS PUT /v2/{project_id}/event-subs/{id}
 func ResourceDwsEventSubs() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsEventSubsCreate,

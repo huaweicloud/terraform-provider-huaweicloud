@@ -45,6 +45,15 @@ var (
 )
 
 // ResourceApigThrottlingPolicyV2 is a provider resource of the APIG throttling policy.
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttles
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/throttles
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}
 func ResourceApigThrottlingPolicyV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceThrottlingPolicyCreate,

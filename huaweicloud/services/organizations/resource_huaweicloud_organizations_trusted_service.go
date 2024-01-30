@@ -20,6 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations GET /v1/organizations/trusted-services
+// @API Organizations POST /v1/organizations/trusted-services/disable
+// @API Organizations POST /v1/organizations/trusted-services/enable
 func ResourceTrustedService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTrustedServiceCreate,

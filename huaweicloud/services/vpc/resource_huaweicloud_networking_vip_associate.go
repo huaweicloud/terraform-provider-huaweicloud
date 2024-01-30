@@ -17,6 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API VPC GET /v2.0/ports/{id}
+// @API VPC PUT /v2.0/ports/{id}
 func ResourceNetworkingVIPAssociateV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkingVIPAssociateV2Create,

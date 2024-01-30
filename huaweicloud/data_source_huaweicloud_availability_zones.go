@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API ECS GET /v2.1/{project_id}/os-availability-zone
 func DataSourceAvailabilityZones() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceAvailabilityZonesRead,

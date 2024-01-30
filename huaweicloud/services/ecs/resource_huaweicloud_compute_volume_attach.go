@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
+// @API ECS POST /v1/{project_id}/cloudservers/{serverId}/attachvolume
+// @API ECS DELETE /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}
+// @API ECS GET /v1/{project_id}/jobs/{jobId}
 func ResourceComputeVolumeAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeVolumeAttachCreate,

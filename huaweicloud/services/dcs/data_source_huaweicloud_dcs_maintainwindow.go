@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DCS GET /v2/instances/maintain-windows
 func DataSourceDcsMaintainWindow() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDcsMaintainWindowRead,

@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CC POST /v3/{domain_id}/ccaas/inter-region-bandwidths
+// @API CC DELETE /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}
+// @API CC GET /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}
+// @API CC PUT /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}
 func ResourceInterRegionBandwidth() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInterRegionBandwidthCreate,

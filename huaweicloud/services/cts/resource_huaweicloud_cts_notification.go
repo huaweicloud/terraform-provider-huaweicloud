@@ -22,6 +22,10 @@ import (
 )
 
 // ResourceCTSNotification is the impl of huaweicloud_cts_notification
+// @API CTS GET /v3/{project_id}/notifications/{notification_type}
+// @API CTS PUT /v3/{project_id}/notifications
+// @API CTS DELETE /v3/{project_id}/notifications
+// @API CTS POST /v3/{project_id}/notifications
 func ResourceCTSNotification() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCTSNotificationCreate,

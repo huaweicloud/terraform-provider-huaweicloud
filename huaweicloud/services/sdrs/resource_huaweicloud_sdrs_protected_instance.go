@@ -16,6 +16,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SDRS POST /v1/{project_id}/protected-instances/{id}/tags/action
+// @API SDRS GET /v1/{project_id}/protected-instances/{id}
+// @API SDRS PUT /v1/{project_id}/protected-instances/{id}
+// @API SDRS DELETE /v1/{project_id}/protected-instances/{id}
+// @API SDRS POST /v1/{project_id}/protected-instances
 func ResourceProtectedInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectedInstanceCreate,

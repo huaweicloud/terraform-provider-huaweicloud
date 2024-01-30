@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 )
 
+// @API CCI DELETE /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks/{name}
+// @API CCI GET /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks/{name}
+// @API CCI POST /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks
 func ResourceCciNetworkV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCciNetworkCreate,

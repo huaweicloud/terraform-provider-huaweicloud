@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDM GET /v1/{project_id}/instances/{instance_id}/nodes
 func DataSourceDdmInstanceNodes() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDdmInstanceNodesRead,

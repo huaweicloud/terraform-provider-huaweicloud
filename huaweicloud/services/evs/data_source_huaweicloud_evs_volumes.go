@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API EVS GET /v2/{project_id}/cloudvolumes/detail
 func DataSourceEvsVolumesV2() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceEvsVolumesV2Read,

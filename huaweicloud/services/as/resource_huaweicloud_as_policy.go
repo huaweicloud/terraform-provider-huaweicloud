@@ -24,6 +24,10 @@ var (
 	PolicyActions     = []string{"ADD", "REMOVE", "SET"}
 )
 
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_policy/{id}
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_policy/{id}
+// @API AS PUT /autoscaling-api/v1/{project_id}/scaling_policy/{id}
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_policy
 func ResourceASPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASPolicyCreate,

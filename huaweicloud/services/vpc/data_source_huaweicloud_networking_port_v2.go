@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC GET /v2.0/ports
 func DataSourceNetworkingPortV2() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceNetworkingPortV2Read,

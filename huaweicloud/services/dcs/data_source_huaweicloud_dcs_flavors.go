@@ -22,6 +22,7 @@ const (
 )
 
 // DataSourceDcsFlavorsV2 the function is used for data source 'huaweicloud_dcs_flavors'.
+// @API DCS GET /v2/{project_id}/flavors
 func DataSourceDcsFlavorsV2() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDcsFlavorsV2Read,

@@ -22,6 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CNAD POST /v1/cnad/policies
+// @API CNAD GET /v1/cnad/policies
+// @API CNAD DELETE /v1/cnad/policies/{policy_id}
+// @API CNAD GET /v1/cnad/policies/{policy_id}
+// @API CNAD PUT /v1/cnad/policies/{policy_id}
 func ResourceCNADAdvancedPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCNADAdvancedPolicyCreate,

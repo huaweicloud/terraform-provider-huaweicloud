@@ -23,6 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CNAD POST /v1/cnad/packages/{package_id}/protected-ips
+// @API CNAD GET /v1/cnad/protected-ips
 func ResourceProtectedObject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectedObjectCreateOrUpdate,

@@ -25,6 +25,39 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API OBS PUT ?acl
+// @API OBS DELETE ?lifecycle
+// @API OBS PUT ?lifecycle
+// @API OBS GET ?lifecycle
+// @API OBS PUT ?website
+// @API OBS DELETE ?website
+// @API OBS GET ?website
+// @API OBS PUT ?customdomain
+// @API OBS DELETE ?customdomain
+// @API OBS GET ?customdomain
+// @API OBS DELETE /
+// @API OBS PUT /
+// @API OBS HEAD /
+// @API OBS PUT ?versioning
+// @API OBS GET ?versioning
+// @API OBS PUT ?quota
+// @API OBS GET ?quota
+// @API OBS POST ?delete
+// @API OBS PUT ?tagging
+// @API OBS GET ?tagging
+// @API OBS PUT ?storageClass
+// @API OBS GET ?storageClass
+// @API OBS PUT ?encryption
+// @API OBS DELETE ?encryption
+// @API OBS GET ?encryption
+// @API OBS PUT ?policy
+// @API OBS DELETE ?policy
+// @API OBS GET ?policy
+// @API OBS PUT ?logging
+// @API OBS GET ?logging
+// @API OBS DELETE ?cors
+// @API OBS PUT ?cors
+// @API OBS GET ?cors
 func ResourceObsBucket() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceObsBucketCreate,

@@ -22,6 +22,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IoTDA GET /v5/iot/{project_id}/routing-rule/actions
+// @API IoTDA POST /v5/iot/{project_id}/routing-rule/actions
+// @API IoTDA DELETE /v5/iot/{project_id}/routing-rule/rules/{rule_id}
+// @API IoTDA GET /v5/iot/{project_id}/routing-rule/rules/{rule_id}
+// @API IoTDA PUT /v5/iot/{project_id}/routing-rule/rules/{rule_id}
+// @API IoTDA POST /v5/iot/{project_id}/routing-rule/rules
+// @API IoTDA DELETE /v5/iot/{project_id}/routing-rule/actions/{action_id}
+// @API IoTDA PUT /v5/iot/{project_id}/routing-rule/actions/{action_id}
 func ResourceDataForwardingRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDataForwardingRuleCreate,

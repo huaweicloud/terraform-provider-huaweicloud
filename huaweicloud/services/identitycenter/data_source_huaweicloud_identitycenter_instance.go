@@ -19,6 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityCenter GET /v1/instances
 func DataSourceIdentityCenter() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceIdentityCenterRead,

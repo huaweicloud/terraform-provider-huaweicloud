@@ -22,6 +22,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API MRS POST /v1.1/{project_id}/autoscaling-policy/{cluster_id}
+// @API MRS GET /v2/{project_id}/autoscaling-policy/{cluster_id}
 func ResourceScalingPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScalingPolicyCreateOrUpdate,

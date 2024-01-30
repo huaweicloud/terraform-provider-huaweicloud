@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations DELETE /v1/organizations/organizational-units/{organizational_unit_id}
+// @API Organizations GET /v1/organizations/organizational-units/{organizational_unit_id}
+// @API Organizations PATCH /v1/organizations/organizational-units/{organizational_unit_id}
 func ResourceOrganizationalUnit() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOrganizationalUnitCreate,

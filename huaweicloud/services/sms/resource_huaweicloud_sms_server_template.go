@@ -25,6 +25,13 @@ import (
 var AutoCreate string = "autoCreate"
 
 // ResourceServerTemplate is the impl of huaweicloud_sms_server_template
+// @API SMS POST /v3/vm/templates
+// @API SMS DELETE /v3/vm/templates/{id}
+// @API SMS GET /v3/vm/templates/{id}
+// @API SMS PUT /v3/vm/templates/{id}
+// @API VPC GET /v1/{project_id}/security-groups/{securityGroupId}
+// @API VPC GET /v1/{project_id}/subnets/{id}
+// @API VPC GET /v1/{project_id}/vpcs/{id}
 func ResourceServerTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServerTemplateCreate,

@@ -29,6 +29,29 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API GaussDBforMySQL GET /v3/{project_id}/instance/{instanceId}/audit-log/switch-status
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{id}/tags/action
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/nodes/enlarge
+// @API GaussDBforMySQL GET /v3/{project_id}/configurations
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{id}/backups/policy/update
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/action
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instanceID}/name
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/password
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}
+// @API GaussDBforMySQL GET /v3/{project_id}/instances
+// @API GaussDBforMySQL POST /v3/{project_id}/instances
+// @API GaussDBforMySQL GET /v3/{project_id}/dedicated-resources
+// @API GaussDBforMySQL POST /v3/{project_id}/instance/{instanceId}/audit-log/switch
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/proxy/enlarge
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/volume/extend
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{id}/tags
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}/nodes/{nodeID}
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}/proxy
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}/proxy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/proxy
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceId}/sql-filter/switch
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceId}/sql-filter/switch
 func ResourceGaussDBInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGaussDBInstanceCreate,

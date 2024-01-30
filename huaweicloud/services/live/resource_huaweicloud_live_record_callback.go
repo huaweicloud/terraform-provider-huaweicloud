@@ -28,6 +28,11 @@ const (
 	allAppName = "*"
 )
 
+// @API Live DELETE /v1/{project_id}/record/callbacks/{id}
+// @API Live GET /v1/{project_id}/record/callbacks/{id}
+// @API Live PUT /v1/{project_id}/record/callbacks/{id}
+// @API Live GET /v1/{project_id}/record/callbacks
+// @API Live POST /v1/{project_id}/record/callbacks
 func ResourceRecordCallback() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRecordCallbackCreate,

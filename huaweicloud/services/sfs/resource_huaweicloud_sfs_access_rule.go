@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SFS POST /v2/{project_id}/shares/{id}/action
 func ResourceSFSAccessRuleV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSFSAccessRuleV2Create,

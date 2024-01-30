@@ -25,6 +25,9 @@ type microserviceError struct {
 	ErrorMsg  string `json:"errorMessage"`
 }
 
+// @API CSE DELETE /v2/{project_id}/registry/microservices/{serviceId}
+// @API CSE GET /v2/{project_id}/registry/microservices/{serviceId}
+// @API CSE POST /v2/{project_id}/registry/microservices
 func ResourceMicroservice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceCreate,

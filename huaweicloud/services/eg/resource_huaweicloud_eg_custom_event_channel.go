@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API EG DELETE /v1/{project_id}/channels/{channelId}
+// @API EG GET /v1/{project_id}/channels/{channelId}
+// @API EG PUT /v1/{project_id}/channels/{channelId}
+// @API EG POST /v1/{project_id}/channels
 func ResourceCustomEventChannel() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomEventChannelCreate,

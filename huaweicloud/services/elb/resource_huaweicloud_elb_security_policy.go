@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ELB POST /v3/{project_id}/elb/security-policies
+// @API ELB DELETE /v3/{project_id}/elb/security-policies/{security_policy_id}
+// @API ELB GET /v3/{project_id}/elb/security-policies/{security_policy_id}
+// @API ELB PUT /v3/{project_id}/elb/security-policies/{security_policy_id}
 func ResourceSecurityPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSecurityPoliciesV3Create,

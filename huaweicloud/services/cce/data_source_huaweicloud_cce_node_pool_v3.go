@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools
 func DataSourceCCENodePoolV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCceNodePoolsV3Read,

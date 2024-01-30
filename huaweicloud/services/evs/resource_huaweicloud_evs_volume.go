@@ -28,6 +28,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API EVS GET /v1/{project_id}/jobs/{jobID}
+// @API EVS POST /v2.1/{project_id}/cloudvolumes/{id}/action
+// @API EVS POST /v2/{project_id}/cloudvolumes/{id}/tags/action
+// @API EVS GET /v2/{project_id}/cloudvolumes/{id}
+// @API EVS PUT /v2/{project_id}/cloudvolumes/{id}
+// @API EVS DELETE /v2/{project_id}/cloudvolumes/{id}
+// @API EVS POST /v2.1/{project_id}/cloudvolumes
+// @API ECS DELETE /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}
+// @API ECS GET /v1/{project_id}/jobs/{jobId}
 func ResourceEvsVolume() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEvsVolumeCreate,

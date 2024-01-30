@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations POST /v1/organizations/policies/{policy_id}/detach
+// @API Organizations POST /v1/organizations/policies/{policy_id}/attach
+// @API Organizations GET /v1/organizations/policies/{policy_id}/attached-entities
 func ResourcePolicyAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyAttachCreate,

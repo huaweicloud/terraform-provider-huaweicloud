@@ -14,6 +14,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC GET /v2.0/{project_id}/vpcs/{id}/tags
+// @API VPC GET /v1/{project_id}/vpcs
 func DataSourceVpcV1() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVpcV1Read,

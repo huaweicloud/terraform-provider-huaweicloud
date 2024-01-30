@@ -25,6 +25,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IMS POST /v2/cloudimages/action
+// @API IMS DELETE /v2/images/{imageID}
+// @API IMS GET /v2/images/{imageID}
+// @API IMS PATCH /v2/images/{imageID}
+// @API IMS POST /v2/{project_id}/{project_id}/images/{id}/tags/action
+// @API IMS POST /v1/cloudimages/wholeimages/action
+// @API IMS PATCH /v2/cloudimages/{imageID}
+// @API IMS GET /v2/cloudimages
+// @API IMS GET /v2/images
+// @API IMS GET /v2/{project_id}/{project_id}/images/{id}/tags
+// @API CBR GET /v3/{project_id}/backups/{backupId}
 func ResourceImsImage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImsImageCreate,

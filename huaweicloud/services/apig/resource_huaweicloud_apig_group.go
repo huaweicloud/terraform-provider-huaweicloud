@@ -20,6 +20,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/{path}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/{path}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/api-groups
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/{path}/{id}
 func ResourceApigGroupV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,

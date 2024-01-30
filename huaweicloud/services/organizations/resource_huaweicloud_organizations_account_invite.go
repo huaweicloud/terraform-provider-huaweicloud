@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations POST /v1/organizations/accounts/{account_id}/remove
+// @API Organizations POST /v1/organizations/accounts/invite
+// @API Organizations GET /v1/organizations/handshakes/{handshake_id}
+// @API Organizations POST /v1/organizations/handshakes/{handshake_id}/cancel
 func ResourceAccountInvite() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccountInviteCreate,

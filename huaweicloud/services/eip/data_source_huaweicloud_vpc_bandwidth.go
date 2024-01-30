@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API EIP GET /v1/{project_id}/bandwidths
 func DataSourceBandWidth() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceBandWidthRead,

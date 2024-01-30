@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_configuration
 func DataSourceASConfigurations() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceASConfigurationRead,

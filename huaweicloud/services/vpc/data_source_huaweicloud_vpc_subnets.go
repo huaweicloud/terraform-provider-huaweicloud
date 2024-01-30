@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC GET /v2.0/{project_id}/subnets/{id}/tags
+// @API VPC GET /v1/{project_id}/subnets
 func DataSourceVpcSubnets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVpcSubnetsRead,

@@ -26,6 +26,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GA POST /v1/health-checks
+// @API GA GET /v1/health-checks/{id}
+// @API GA PUT /v1/health-checks/{id}
+// @API GA DELETE /v1/health-checks/{id}
 func ResourceHealthCheck() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHealthCheckCreate,

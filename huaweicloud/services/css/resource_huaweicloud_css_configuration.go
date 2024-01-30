@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/ymls/update
+// @API CSS GET /v1.0/{project_id}/clusters/{id}/ymls/joblists
+// @API CSS GET /v1.0/{project_id}/clusters/{id}/ymls/template
+// @API CSS POST /v1.0/{project_id}/clusters/{id}/ymls/update
 func ResourceCssConfiguration() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCssConfigurationUpdate,

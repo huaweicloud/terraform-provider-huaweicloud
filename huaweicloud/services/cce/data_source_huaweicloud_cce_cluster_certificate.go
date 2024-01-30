@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
 func DataSourceCCEClusterCertificate() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCCEClusterCertificateRead,

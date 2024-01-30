@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{playbook_id}/versions
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{playbook_id}/versions
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}
+// @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}
 func ResourcePlaybookVersion() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePlaybookVersionCreate,

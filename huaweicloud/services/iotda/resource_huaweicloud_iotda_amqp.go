@@ -18,6 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IoTDA DELETE /v5/iot/{project_id}/amqp-queues/{queue_id}
+// @API IoTDA GET /v5/iot/{project_id}/amqp-queues/{queue_id}
+// @API IoTDA POST /v5/iot/{project_id}/amqp-queues
 func ResourceAmqp() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAmqpCreate,

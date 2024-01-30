@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityCenter GET /v1/instances/{instance_id}/account-assignments
+// @API IdentityCenter POST /v1/instances/{instance_id}/account-assignments/create
+// @API IdentityCenter GET /v1/instances/{instance_id}/account-assignments/creation-status/{request_id}
+// @API IdentityCenter POST /v1/instances/{instance_id}/account-assignments/delete
 func ResourceIdentityCenterAccountAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccountAssignmentCreate,

@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API IEC GET /v1/subnets
 func DataSourceVpcSubnets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVpcSubnetsRead,

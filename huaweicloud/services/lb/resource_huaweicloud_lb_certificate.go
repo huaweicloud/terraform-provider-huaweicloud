@@ -19,6 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API ELB PUT /v2/{project_id}/elb/certificates/{id}
+// @API ELB DELETE /v2/{project_id}/elb/certificates/{id}
+// @API ELB GET /v2/{project_id}/elb/certificates/{id}
+// @API ELB POST /v2/{project_id}/elb/certificates
 func ResourceCertificateV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCertificateV2Create,

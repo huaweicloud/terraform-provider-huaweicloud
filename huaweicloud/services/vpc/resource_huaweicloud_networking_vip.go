@@ -20,6 +20,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC DELETE /v1/{project_id}/ports/{portId}
+// @API VPC GET /v1/{project_id}/ports/{portId}
+// @API VPC PUT /v1/{project_id}/ports/{portId}
+// @API VPC POST /v1/{project_id}/ports
+// @API VPC GET /v1/{project_id}/subnets/{id}
 func ResourceNetworkingVip() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkingVipCreate,

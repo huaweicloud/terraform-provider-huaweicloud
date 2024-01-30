@@ -18,6 +18,10 @@ import (
 )
 
 // ResourceSignature is a provider resource of the APIG signature.
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/signs/{signatureId}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/signs/{signatureId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/signs
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/signs
 func ResourceSignature() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSignatureCreate,

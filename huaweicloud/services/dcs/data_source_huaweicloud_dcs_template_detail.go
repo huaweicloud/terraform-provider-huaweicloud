@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DCS GET /v2/{project_id}/config-templates/{template_id}
 func DataSourceTemplateDetail() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceTemplateDetailRead,

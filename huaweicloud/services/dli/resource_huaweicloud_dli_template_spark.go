@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI POST /v1.0/{project_id}/sqls-deletion
+// @API DLI POST /v3/{project_id}/templates
+// @API DLI PUT /v3/{project_id}/templates/{id}
+// @API DLI GET /v3/{project_id}/templates/{id}
 func ResourceSparkTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSparkTemplateCreate,

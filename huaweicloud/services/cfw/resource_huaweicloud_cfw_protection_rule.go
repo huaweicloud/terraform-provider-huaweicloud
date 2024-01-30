@@ -25,6 +25,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CFW POST /v1/{project_id}/acl-rule
+// @API CFW DELETE /v1/{project_id}/acl-rule/{id}
+// @API CFW PUT /v1/{project_id}/acl-rule/{id}
+// @API CFW GET /v1/{project_id}/acl-rules
 func ResourceProtectionRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectionRuleCreate,

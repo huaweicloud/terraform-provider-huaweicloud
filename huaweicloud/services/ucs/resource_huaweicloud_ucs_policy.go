@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API UCS GET /v1/permissions/rules
+// @API UCS POST /v1/permissions/rules
+// @API UCS DELETE /v1/permissions/rules/{id}
+// @API UCS PUT /v1/permissions/rules/{id}
 func ResourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,

@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS GET /v3/{project_id}/collations
 func DataSourceSQLServerCollations() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceSQLServerCollationsRead,

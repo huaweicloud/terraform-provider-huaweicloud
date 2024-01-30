@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IEC GET /v1/os-keypairs/{KeyPairName}
 func DataSourceKeypair() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceKeypairRead,

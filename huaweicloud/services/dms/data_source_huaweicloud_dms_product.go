@@ -23,6 +23,7 @@ const (
 	instanceTypeCluster = "cluster"
 )
 
+// @API DMS GET /v2/products
 func DataSourceDmsProduct() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsProductRead,

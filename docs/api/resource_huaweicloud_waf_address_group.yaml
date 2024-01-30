@@ -7,7 +7,7 @@ tags:
 servers:
     - url: https://waf.cn-north-4.myhuaweicloud.com
 paths:
-    v1/{project_id}/waf/ip-group/{id}:
+    /v1/{project_id}/waf/ip-group/{id}:
         DELETE:
             tag: WAF
             operationId: DeleteWAFAddressGroup
@@ -20,7 +20,7 @@ paths:
             tag: WAF
             operationId: UpdateWAFAddressGroup
             x-ref-api: PUT v1/{project_id}/waf/ip-group/{id}
-    v1/{project_id}/waf/ip-groups:
+    /v1/{project_id}/waf/ip-groups:
         POST:
             tag: WAF
             operationId: CreateWAFAddressGroup

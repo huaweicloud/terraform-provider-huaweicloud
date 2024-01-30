@@ -23,6 +23,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CBH POST /v1/{project_id}/cbs/{server_id}/network/change
+// @API CBH POST /v1/{project_id}/cbs/instance/{server_id}/eip/bind
+// @API CBH POST /v1/{project_id}/cbs/instance/{server_id}/eip/unbind
+// @API CBH POST /v1/{project_id}/cbs/instance/create
+// @API CBH GET /v1/{project_id}/cbs/instance/list
+// @API CBH PUT /v1/{project_id}/cbs/instance/password
+// @API CBH POST /v1/{project_id}/cbs/period/order
+// @API BSS POST /v3/orders/customer-orders/pay
 func ResourceCBHInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCBHInstanceCreate,

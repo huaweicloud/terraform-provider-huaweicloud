@@ -26,6 +26,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GA POST /v1/listeners
+// @API GA DELETE /v1/listeners/{id}
+// @API GA GET /v1/listeners/{id}
+// @API GA PUT /v1/listeners/{id}
 func ResourceListener() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceListenerCreate,

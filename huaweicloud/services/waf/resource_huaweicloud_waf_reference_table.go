@@ -18,6 +18,10 @@ import (
 )
 
 // ResourceWafReferenceTableV1 the resource of managing a reference table within HuaweiCloud.
+// @API WAF DELETE /v1/{project_id}/waf/valuelist/{id}
+// @API WAF GET /v1/{project_id}/waf/valuelist/{id}
+// @API WAF PUT /v1/{project_id}/waf/valuelist/{id}
+// @API WAF POST /v1/{project_id}/waf/valuelist
 func ResourceWafReferenceTableV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceWafReferenceTableCreate,

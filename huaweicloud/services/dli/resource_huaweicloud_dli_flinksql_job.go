@@ -23,6 +23,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DLI POST /v1.0/{project_id}/streaming/jobs/run
+// @API DLI POST /v1.0/{project_id}/streaming/jobs/stop
+// @API DLI DELETE /v1.0/{project_id}/streaming/jobs/{strconv.Itoa(jobId)}
+// @API DLI GET /v1.0/{project_id}/streaming/jobs/{strconv.Itoa(jobId)}
+// @API DLI PUT /v1.0/{project_id}/streaming/sql-jobs/{strconv.Itoa(jobId)}
+// @API DLI POST /v1.0/{project_id}/streaming/sql-jobs
+// @API DLI POST /v1.0/{project_id}/dli/obs-authorize
 func ResourceFlinkSqlJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFlinkSqlJobCreate,

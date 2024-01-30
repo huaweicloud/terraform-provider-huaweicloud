@@ -21,6 +21,8 @@ type v1Group = v1groups.SecurityGroup
 
 type v3Group = v3groups.SecurityGroup
 
+// @API VPC GET /v3/{project_id}/vpc/security-groups
+// @API VPC GET /v1/{project_id}/security-groups
 func DataSourceNetworkingSecGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceNetworkingSecGroupsRead,

@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API WAF POST /v1/{project_id}/waf/policy/{policyID}/antitamper
+// @API WAF GET /v1/{project_id}/waf/policy/{policyID}/antitamper/{id}
+// @API WAF DELETE /v1/{project_id}/waf/policy/{policyID}/antitamper/{id}
 func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleWebTamperProtectionCreate,

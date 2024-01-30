@@ -29,6 +29,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDS GET /v3/{project_id}/instances
 func DataSourceDdsInstance() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDdsInstanceRead,

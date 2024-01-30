@@ -19,6 +19,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IoTDA POST /v5/iot/{project_id}/device-group/{group_id}/action
+// @API IoTDA GET /v5/iot/{project_id}/device-group/{group_id}/devices
+// @API IoTDA DELETE /v5/iot/{project_id}/device-group/{group_id}
+// @API IoTDA GET /v5/iot/{project_id}/device-group/{group_id}
+// @API IoTDA PUT /v5/iot/{project_id}/device-group/{group_id}
+// @API IoTDA POST /v5/iot/{project_id}/device-group
 func ResourceDeviceGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeviceGroupCreate,

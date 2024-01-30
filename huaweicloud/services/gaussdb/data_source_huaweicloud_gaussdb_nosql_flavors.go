@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API GaussDBforNoSQL GET /v3.1/{project_id}/flavors
 func DataSourceGaussDBNoSQLFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGaussDBFlavorsRead,

@@ -18,6 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SMN DELETE /v2/{project_id}/notifications/subscriptions/{subscriptionUrn}
+// @API SMN GET /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions
+// @API SMN POST /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions
 func ResourceSubscription() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSubscriptionCreate,

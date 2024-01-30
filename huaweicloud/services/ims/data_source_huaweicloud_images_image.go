@@ -19,6 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IMS GET /v2/cloudimages
 func DataSourceImagesImageV2() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceImagesImageV2Read,

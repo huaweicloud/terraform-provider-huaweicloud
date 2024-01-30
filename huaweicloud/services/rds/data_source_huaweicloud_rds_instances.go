@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API RDS GET /v3/{project_id}/instances
 func DataSourceRdsInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRdsInstancesRead,

@@ -22,6 +22,8 @@ type featureConfig struct {
 	UserRoutes []interface{} `json:"user_routes"`
 }
 
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/features
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/features
 func ResourceInstanceRoutes() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceRoutesCreate,

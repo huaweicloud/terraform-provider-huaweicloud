@@ -13,6 +13,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/proxy/enlarge
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}/proxy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/proxy
 func ResourceGaussDBProxy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBProxyCreate,
