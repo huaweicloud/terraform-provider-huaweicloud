@@ -217,7 +217,7 @@ func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	err = waitForApplicationStatusCompleted(ctx, client, d)
 	if err != nil {
-		diag.Errorf("error waiting for the application (%s) status to become success: %s", resourceId, err)
+		return diag.Errorf("error waiting for the application (%s) status to become success: %s", resourceId, err)
 	}
 
 	return resourceApplicationRead(ctx, d, meta)
@@ -264,7 +264,7 @@ func applicationStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.Res
 			return respBody, "ERROR", err
 		}
 
-		status := utils.PathSearch("name", respBody, "").(string)
+		status := utils.PathSearch("status", respBody, "").(string)
 		unexpectedStatuses := []string{
 			"CreateFail", "InitingFailed", "RegisterFailed", "InstallFailed",
 			"UpdateFailed", "RollbackFailed", "UnRegisterFailed", "DeleteFailed",
