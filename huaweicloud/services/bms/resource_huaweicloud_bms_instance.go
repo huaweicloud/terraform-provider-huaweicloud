@@ -105,26 +105,22 @@ func ResourceBmsInstance() *schema.Resource {
 			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				// just stash the hash for state & diff comparisons
-				StateFunc: utils.HashAndHexEncode,
+				StateFunc:        utils.HashAndHexEncode,
+				DiffSuppressFunc: utils.SuppressUserData,
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				ForceNew:  true,
 				Sensitive: true,
-				ExactlyOneOf: []string{
-					"admin_pass", "key_pair",
-				},
 			},
 			"key_pair": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				ExactlyOneOf: []string{
-					"admin_pass", "key_pair",
-				},
 			},
 			"security_groups": {
 				Type:     schema.TypeSet,
