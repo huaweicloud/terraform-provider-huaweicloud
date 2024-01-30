@@ -26,8 +26,14 @@ func TestAccFunctionGraphDependencies_basic(t *testing.T) {
 	})
 }
 
-func TestAccFunctionGraphDependencies_name(t *testing.T) {
-	dataSourceName := "data.huaweicloud_fgs_dependencies.test"
+func TestAccFunctionGraphDependencies_filterByName(t *testing.T) {
+	var (
+		byName   = "data.huaweicloud_fgs_dependencies.filter_by_name"
+		notFound = "data.huaweicloud_fgs_dependencies.not_found"
+
+		dcByName   = acceptance.InitDataSourceCheck(byName)
+		dcNotFound = acceptance.InitDataSourceCheck(notFound)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -36,9 +42,10 @@ func TestAccFunctionGraphDependencies_name(t *testing.T) {
 			{
 				Config: testAccFunctionGraphDependenciesName,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSourceName, "type", "public"),
-					resource.TestCheckResourceAttr(dataSourceName, "name", "obssdk-3.0.2"),
-					resource.TestCheckResourceAttr(dataSourceName, "packages.#", "1"),
+					dcByName.CheckResourceExists(),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					dcNotFound.CheckResourceExists(),
+					resource.TestCheckOutput("not_found_validation_pass", "true"),
 				),
 			},
 		},
@@ -67,10 +74,28 @@ func TestAccFunctionGraphDependencies_runtime(t *testing.T) {
 const testAccFunctionGraphDependenciesBasic = `data "huaweicloud_fgs_dependencies" "test" {}`
 
 const testAccFunctionGraphDependenciesName = `
-data "huaweicloud_fgs_dependencies" "test" {
+data "huaweicloud_fgs_dependencies" "filter_by_name" {
   type = "public"
   name = "obssdk-3.0.2"
-}`
+}
+
+locals {
+  filter_result = [for v in data.huaweicloud_fgs_dependencies.filter_by_name.packages[*].name : v == "obssdk-3.0.2"]
+}
+
+output "is_name_filter_useful" {
+  value = length(local.filter_result) > 0
+}
+
+data "huaweicloud_fgs_dependencies" "not_found" {
+  type = "public"
+  name = "not_found"
+}
+
+output "not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_dependencies.not_found.packages) == 0
+}
+`
 
 const testAccFunctionGraphDependenciesRuntime = `data "huaweicloud_fgs_dependencies" "test" {
   type    = "public"
