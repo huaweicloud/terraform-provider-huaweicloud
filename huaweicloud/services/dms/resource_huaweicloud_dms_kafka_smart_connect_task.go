@@ -193,7 +193,7 @@ func resourceDmsKafkaSmartConnectTaskCreate(ctx context.Context, d *schema.Resou
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      smartConnectTaskStateRefreshFunc(createKafkaSmartConnectTaskClient, connectorID, d.Id()),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
