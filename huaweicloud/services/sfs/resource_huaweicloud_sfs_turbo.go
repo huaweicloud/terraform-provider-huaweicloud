@@ -39,6 +39,9 @@ const (
 // @API SFSTurbo DELETE /v1/{project_id}/sfs-turbo/shares/{id}
 // @API SFSTurbo GET /v1/{project_id}/sfs-turbo/shares/{id}
 // @API SFSTurbo POST /v1/{project_id}/sfs-turbo/shares
+// @API SFSTurbo DELETE /v1/{project_id}/sfs-turbo/{id}/tags/{key}
+// @API SFSTurbo GET /v1/{project_id}/sfs-turbo/{id}/tags
+// @API SFSTurbo POST /v1/{project_id}/sfs-turbo/{id}/tags/action
 func ResourceSFSTurbo() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSFSTurboCreate,
