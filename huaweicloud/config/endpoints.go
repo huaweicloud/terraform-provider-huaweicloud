@@ -32,7 +32,7 @@ var multiCatalogKeys = map[string][]string{
 	"kms":          {"kmsv1", "kmsv3"},
 	"mrs":          {"mrsv2"},
 	"nat":          {"natv3"},
-	"rds":          {"rdsv1"},
+	"rds":          {"rdsv1", "rdsv31"},
 	"waf":          {"waf-dedicated"},
 	"geminidb":     {"geminidbv31"},
 	"dataarts":     {"dataarts-dlf"},
@@ -425,6 +425,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"rds": {
 		Name:    "rds",
 		Version: "v3",
+		Product: "RDS",
+	},
+	"rdsv31": {
+		Name:    "rds",
+		Version: "v3.1",
 		Product: "RDS",
 	},
 	"ram": {
