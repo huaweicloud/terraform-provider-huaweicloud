@@ -219,6 +219,6 @@ This resource provides the following timeouts configuration options:
 
 The connection can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_vpn_connection.test 0ce123456a00f2591fabc00385ff1234
+```bash
+$ terraform import huaweicloud_vpn_connection.test <id>
 ```

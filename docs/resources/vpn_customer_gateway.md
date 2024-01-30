@@ -85,6 +85,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The customer gateway can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_vpn_customer_gateway.test 0ce123456a00f2591fabc00385ff1234
+```bash
+$ terraform import huaweicloud_vpn_customer_gateway.test <id>
 ```

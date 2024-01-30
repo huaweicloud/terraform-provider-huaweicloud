@@ -435,7 +435,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 	)
 	createGatewayClient, err := cfg.NewServiceClient(createGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Gateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	createGatewayPath := createGatewayClient.Endpoint + createGatewayHttpUrl
@@ -450,7 +450,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 	createGatewayOpt.JSONBody = utils.RemoveNil(buildCreateGatewayBodyParams(d, cfg))
 	createGatewayResp, err := createGatewayClient.Request("POST", createGatewayPath, &createGatewayOpt)
 	if err != nil {
-		return diag.Errorf("error creating Gateway: %s", err)
+		return diag.Errorf("error creating gateway: %s", err)
 	}
 
 	createGatewayRespBody, err := utils.FlattenResponse(createGatewayResp)
@@ -460,13 +460,13 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	id, err := jmespath.Search("vpn_gateway.id", createGatewayRespBody)
 	if err != nil {
-		return diag.Errorf("error creating Gateway: ID is not found in API response")
+		return diag.Errorf("error creating VPN gateway: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 
 	err = createGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of Gateway (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for creating VPN gateway (%s) to complete: %s", d.Id(), err)
 	}
 
 	certificateContent := d.Get("certificate").([]interface{})
@@ -480,7 +480,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 		createGatewayCertificateOpt.JSONBody = utils.RemoveNil(buildCreateGatewayCertificateBodyParams(certificateContent[0]))
 		createGatewayCertificateResp, err := createGatewayClient.Request("POST", createGatewayCertificatePath, &createGatewayCertificateOpt)
 		if err != nil {
-			return diag.Errorf("error creating Gateway certificate: %s", err)
+			return diag.Errorf("error creating VPN gateway certificate: %s", err)
 		}
 		createGatewayCertificateRespBody, err := utils.FlattenResponse(createGatewayCertificateResp)
 		if err != nil {
@@ -495,7 +495,7 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 		err = waitingForGatewayCertificateStateCompleted(ctx, d, createGatewayClient, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("error waiting for the create of Gateway (%s) certificate to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for creating VPN gateway (%s) certificate to complete: %s", d.Id(), err)
 		}
 	}
 	return resourceGatewayRead(ctx, d, meta)
@@ -645,7 +645,7 @@ func createGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			)
 			createGatewayWaitingClient, err := cfg.NewServiceClient(createGatewayWaitingProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Gateway Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating VPN client: %s", err)
 			}
 
 			createGatewayWaitingPath := createGatewayWaitingClient.Endpoint + createGatewayWaitingHttpUrl
@@ -689,7 +689,6 @@ func createGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			}
 
 			return createGatewayWaitingRespBody, status, nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -713,7 +712,7 @@ func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interfa
 	)
 	getGatewayClient, err := cfg.NewServiceClient(getGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Gateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	getGatewayPath := getGatewayClient.Endpoint + getGatewayHttpUrl
@@ -862,7 +861,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	)
 	updateGatewayClient, err := cfg.NewServiceClient(updateGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Gateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	updateGatewayHasChanges := []string{
@@ -884,11 +883,11 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		updateGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateGatewayBodyParams(d))
 		_, err = updateGatewayClient.Request("PUT", updateGatewayPath, &updateGatewayOpt)
 		if err != nil {
-			return diag.Errorf("error updating Gateway: %s", err)
+			return diag.Errorf("error updating VPN gateway: %s", err)
 		}
 		err = updateGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Gateway (%s) to complete: %s", gatewayId, err)
+			return diag.Errorf("error waiting for updating VPN gateway (%s) to complete: %s", gatewayId, err)
 		}
 	}
 
@@ -917,7 +916,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		updateGatewayCertificateOpt.JSONBody = utils.RemoveNil(buildUpdateGatewayCertificateBodyParams(certificateMap))
 		updateGatewayCertificateResp, err := updateGatewayClient.Request("PUT", updateGatewayCertificatePath, &updateGatewayCertificateOpt)
 		if err != nil {
-			return diag.Errorf("error updating Gateway certificate: %s", err)
+			return diag.Errorf("error updating VPN gateway certificate: %s", err)
 		}
 
 		updateGatewayCertificateBody, err := utils.FlattenResponse(updateGatewayCertificateResp)
@@ -934,7 +933,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 		err = waitingForGatewayCertificateStateCompleted(ctx, d, updateGatewayClient, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the update of Gateway (%s) certificate to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for updating VPN gateway (%s) certificate to complete: %s", d.Id(), err)
 		}
 	}
 	return resourceGatewayRead(ctx, d, meta)
@@ -983,7 +982,7 @@ func updateGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			)
 			updateGatewayWaitingClient, err := cfg.NewServiceClient(updateGatewayWaitingProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Gateway Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating VPN client: %s", err)
 			}
 
 			updateGatewayWaitingPath := updateGatewayWaitingClient.Endpoint + updateGatewayWaitingHttpUrl
@@ -1047,7 +1046,7 @@ func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, meta int
 	)
 	deleteGatewayClient, err := cfg.NewServiceClient(deleteGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating Gateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	deleteGatewayPath := deleteGatewayClient.Endpoint + deleteGatewayHttpUrl
@@ -1062,12 +1061,12 @@ func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 	_, err = deleteGatewayClient.Request("DELETE", deleteGatewayPath, &deleteGatewayOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Gateway: %s", err)
+		return diag.Errorf("error deleting VPN gateway: %s", err)
 	}
 
 	err = deleteGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Delete of Gateway (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for deleting VPN gateway (%s) to complete: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -1086,7 +1085,7 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			)
 			deleteGatewayWaitingClient, err := cfg.NewServiceClient(deleteGatewayWaitingProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Gateway Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating VPN client: %s", err)
 			}
 
 			deleteGatewayWaitingPath := deleteGatewayWaitingClient.Endpoint + deleteGatewayWaitingHttpUrl
@@ -1133,7 +1132,6 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			}
 
 			return deleteGatewayWaitingRespBody, status, nil
-
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
