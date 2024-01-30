@@ -103,15 +103,14 @@ func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.Resour
 	if err != nil {
 		return diag.Errorf("error retrieving dependent packages: %s", err)
 	}
-	resp, _ := dependencies.ExtractDependencies(allPages)
-	if len(resp.Dependencies) < 1 {
-		return diag.Errorf("no dependent package found, please check your parameters")
-	}
+
 	randUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 	d.SetId(randUUID)
+
+	resp, _ := dependencies.ExtractDependencies(allPages)
 	packages := flatFunctionGraphDependencies(resp.Dependencies)
 	mErr := multierror.Append(
 		d.Set("packages", packages),
