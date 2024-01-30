@@ -354,13 +354,15 @@ func TestAccRdsInstance_prePaid(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 				),
 			},
 			{
-				Config: testAccRdsInstance_prePaid(name, password, true),
+				Config: testAccRdsInstance_prePaid_update(name, password, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
 				),
 			},
 		},
@@ -1116,6 +1118,51 @@ resource "huaweicloud_rds_instance" "test" {
   volume {
     type = "CLOUDSSD"
     size = 50
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[4]v"
+}
+`, testAccRdsInstance_base(), name, pwd, isAutoRenew)
+}
+
+func testAccRdsInstance_prePaid_update(name, pwd string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "SQLServer"
+  db_version    = "2019_SE"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 4
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  name      = "%[2]s"
+  flavor    = data.huaweicloud_rds_flavors.test.flavors[0].name
+  collation = "Chinese_PRC_CI_AS"
+
+  db {
+    password = "%[3]s"
+    type     = "SQLServer"
+    version  = "2019_SE"
+    port     = 8638
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 60
   }
 
   charging_mode = "prePaid"
