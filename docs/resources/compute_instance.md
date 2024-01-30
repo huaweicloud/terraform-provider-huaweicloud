@@ -360,8 +360,8 @@ The following arguments are supported:
 
 * `agent_list` - (Optional, String) Specifies the agent list in comma-separated string.
   Available agents are:
-  + `ces`: enable cloud eye monitoring(free).
-  + `hss`: enable host security basic(free).
+  + `ces`: enable cloud eye monitoring.
+  + `hss`: enable host security basic.
   + `hss,hss-ent`: enable host security enterprise edition.
 
 * `power_action` - (Optional, String) Specifies the power action to be done for the instance.
