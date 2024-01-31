@@ -93,6 +93,17 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"bucket_name"},
 			},
+			"compress_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"bucket_name"},
+			},
+			"is_sort_by_service": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				RequiredWith: []string{"bucket_name"},
+				Default:      true,
+			},
 			"lts_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -203,8 +214,16 @@ func buildDataBucketOpts(d *schema.ResourceData) *cts.DataBucket {
 
 func buildTransferBucketOpts(d *schema.ResourceData) *cts.TrackerObsInfo {
 	transferCfg := cts.TrackerObsInfo{
-		BucketName:     utils.String(d.Get("bucket_name").(string)),
-		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
+		BucketName:      utils.String(d.Get("bucket_name").(string)),
+		FilePrefixName:  utils.String(d.Get("file_prefix").(string)),
+		IsSortByService: utils.Bool(d.Get("is_sort_by_service").(bool)),
+	}
+	if v, ok := d.GetOk("compress_type"); ok {
+		compressType := cts.GetTrackerObsInfoCompressTypeEnum().GZIP
+		if v.(string) != "gzip" {
+			compressType = cts.GetTrackerObsInfoCompressTypeEnum().JSON
+		}
+		transferCfg.CompressType = &compressType
 	}
 	if v, ok := d.GetOk("obs_retention_period"); ok {
 		lifecycle := int32(v.(int))
@@ -310,7 +329,7 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 			DataBucket:        buildDataBucketOpts(d),
 		}
 
-		if d.HasChanges("bucket_name", "file_prefix", "obs_retention_period") {
+		if d.HasChanges("bucket_name", "file_prefix", "obs_retention_period", "compress_type", "is_sort_by_service") {
 			updateReq.ObsInfo = buildTransferBucketOpts(d)
 		}
 
@@ -401,7 +420,12 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 			mErr,
 			d.Set("bucket_name", bucketName),
 			d.Set("file_prefix", ctsTracker.ObsInfo.FilePrefixName),
+			d.Set("is_sort_by_service", ctsTracker.ObsInfo.IsSortByService),
 		)
+
+		if ctsTracker.ObsInfo.CompressType != nil {
+			mErr = multierror.Append(mErr, d.Set("compress_type", formatValue(ctsTracker.ObsInfo.CompressType)))
+		}
 
 		if *bucketName != "" {
 			mErr = multierror.Append(

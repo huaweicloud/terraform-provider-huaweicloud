@@ -46,6 +46,12 @@ The following arguments are supported:
 * `obs_retention_period` - (Optional, Int) Specifies the retention period that traces are stored in `bucket_name`,
   the value can be **0**(permanent), **30**, **60**, **90**, **180** or **1095**.
 
+* `compress_type` - (Optional, String) Specifies the compression type of trace files. The value can be **gzip**
+  or **json**. The default value is **gzip**.
+
+* `is_sort_by_service` - (Optional, Bool) Specifies whether to divide the path of the trace file by cloud service.
+  The default value is **true**.
+
 * `lts_enabled` - (Optional, Bool) Specifies whether trace analysis is enabled.
 
 * `validate_file` - (Optional, Bool) Specifies whether trace file verification is enabled during trace transfer.
