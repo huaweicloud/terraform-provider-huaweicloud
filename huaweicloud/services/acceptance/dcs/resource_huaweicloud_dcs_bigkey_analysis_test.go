@@ -29,8 +29,7 @@ func getDcsBigKeyResourceFunc(cfg *config.Config, state *terraform.ResourceState
 
 	instanceId := state.Primary.Attributes["instance_id"]
 	getBigKeyAnalysisPath := getBigKeyAnalysisClient.Endpoint + getBigKeyAnalysisHttpUrl
-	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{project_id}",
-		getBigKeyAnalysisClient.ProjectID)
+	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{project_id}", getBigKeyAnalysisClient.ProjectID)
 	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{instance_id}", instanceId)
 	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{bigkey_id}", state.Primary.ID)
 
@@ -109,7 +108,7 @@ func testBigKeyAnalysisResourceImportState(name string) resource.ImportStateIdFu
 		if !ok {
 			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
-		instance_id := rs.Primary.Attributes["instance_id"]
-		return fmt.Sprintf("%s/%s", instance_id, rs.Primary.ID), nil
+		instanceID := rs.Primary.Attributes["instance_id"]
+		return fmt.Sprintf("%s/%s", instanceID, rs.Primary.ID), nil
 	}
 }

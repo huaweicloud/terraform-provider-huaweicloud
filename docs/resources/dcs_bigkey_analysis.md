@@ -32,7 +32,7 @@ In addition to all arguments above, the following attribute is exported:
 
 * `id` - The resource ID.
 
-* `scan_type` - Indicates the analysis mode of the big key analysis. The value can be:
+* `scan_type` - Indicates the mode of the big key analysis. The value can be:
   + **manual**: indicates manual analysis.
   + **auto**: indicates automatic analysis.
 
@@ -40,10 +40,10 @@ In addition to all arguments above, the following attribute is exported:
   The value is in UTC format.
 
 * `started_at` - Indicates the time when the big key analysis started. The format is **yyyy-mm-dd hh:mm:ss**.
-  The value is in UTC format. (The value is null and is not returned when the analysis is being created.)
+  The value is in UTC format.
 
 * `finished_at` - Indicates the time when the big key analysis ended. The format is **yyyy-mm-dd hh:mm:ss**.
-  The value is in UTC format. (The value is null and is not returned when the analysis is being created.)
+  The value is in UTC format.
 
 * `num` - Indicates the number of the big key.
 
@@ -53,15 +53,15 @@ In addition to all arguments above, the following attribute is exported:
   + **success**: The big key analysis succeeded.
   + **failed**: The big key analysis failed.
 
-* `keys` - Indicates the record of big key. (The value is null and is not returned when the analysis is being created.)
+* `keys` - Indicates the record of big key.
   The [keys](#dcs_big_keys) structure is documented below.
 
 <a name="dcs_big_keys"></a>
 The `keys` block supports:
 
-* `name` - Indicates the name of big key.
+* `name` - Indicates the name of the big key.
 
-* `type` - Indicates the type of big key. The value can be **string**, **list**, **set**, **zset**, **hash**.
+* `type` - Indicates the type of the big key. The value can be **string**, **list**, **set**, **zset**, **hash**.
 
 * `shard` - Indicates the shard where the big key is located.
   This parameter is supported only when the instance type is cluster. The format is **ip:port**.
@@ -70,7 +70,7 @@ The `keys` block supports:
 
 * `size` - Indicates the size of the key value.
 
-* `unit` - Indicates the unit of big key. The value can be:
+* `unit` - Indicates the unit of the big key. The value can be:
   + **count**: The number of keys.
   + **byte**: The size of key.
 
@@ -79,7 +79,6 @@ The `keys` block supports:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minutes.
-* `delete` - Default is 10 minutes.
 
 ## Import
 
