@@ -2,6 +2,7 @@ package bms
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -66,19 +67,16 @@ func ResourceBmsInstance() *schema.Resource {
 			"nics": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 2,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"ip_address": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Computed: true,
 						},
 						"mac_address": {
@@ -457,7 +455,149 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	// Security group parammeters are missing in the network card, this is a legacy feature.
+	// The first network card can not be deleted, api error message:{"error": {"message": "primary port can not be deleted.", "code":"BMS.0222"}}
+	if d.HasChange("nics") {
+		addNics, deleteNics := getDiffNics(d)
+		if len(deleteNics) > 0 {
+			deleteNicsOps := baremetalservers.DeleteNicsOpts{
+				Nics: buildDeleteNicsParam(deleteNics),
+			}
+
+			job, err := baremetalservers.DeleteNics(bmsClient, d.Id(), deleteNicsOps).ExtractJobStatus()
+			if err != nil {
+				return diag.Errorf("error deleting BMS nics: %s", err)
+			}
+			jobId := job.JobID
+			if err = waitBMSJobSuccess(ctx, bmsClient, jobId, d); err != nil {
+				return diag.Errorf("the job (%s) is not SUCCESS while deleting BMS (%s) nics: %s", jobId,
+					d.Id(), err)
+			}
+		}
+
+		if len(addNics) > 0 {
+			addNicsOps := baremetalservers.AddNicsOpts{
+				Nics: buildAddNicsParam(addNics),
+			}
+
+			job, err := baremetalservers.AddNics(bmsClient, d.Id(), addNicsOps).ExtractJobStatus()
+			if err != nil {
+				return diag.Errorf("error adding BMS nics: %s", err)
+			}
+
+			jobId := job.JobID
+			if err = waitBMSJobSuccess(ctx, bmsClient, jobId, d); err != nil {
+				return diag.Errorf("the job (%s) is not SUCCESS while adding BMS (%s) nics: %s", jobId,
+					d.Id(), err)
+			}
+		}
+	}
+
 	return resourceBmsInstanceRead(ctx, d, meta)
+}
+
+// Get the list of new and to-be-deleted network cards.
+func getDiffNics(d *schema.ResourceData) (addList []interface{}, removeList []interface{}) {
+	oldNics, newNics := d.GetChange("nics")
+	oldList := oldNics.([]interface{})
+	newList := newNics.([]interface{})
+	for _, ov := range oldList {
+		om := ov.(map[string]interface{})
+		oSubnetId := om["subnet_id"].(string)
+		oIpAddress := om["ip_address"].(string)
+		needRemove := true
+		for _, nv := range newList {
+			nm := nv.(map[string]interface{})
+			nSubnetId := nm["subnet_id"].(string)
+			nIpAddress := nm["ip_address"].(string)
+
+			if oSubnetId == nSubnetId && oIpAddress == nIpAddress {
+				needRemove = false
+				break
+			}
+		}
+		if needRemove {
+			removeList = append(removeList, ov)
+		}
+	}
+
+	for _, nv := range newList {
+		nm := nv.(map[string]interface{})
+		nSubnetId := nm["subnet_id"].(string)
+		nIpAddress := nm["ip_address"].(string)
+		needAdd := true
+		for _, ov := range oldList {
+			om := ov.(map[string]interface{})
+			oSubnetId := om["subnet_id"].(string)
+			oIpAddress := om["ip_address"].(string)
+			if nSubnetId == oSubnetId && nIpAddress == oIpAddress {
+				needAdd = false
+				break
+			}
+		}
+		if needAdd {
+			addList = append(addList, nv)
+		}
+	}
+	return
+}
+
+func waitBMSJobSuccess(ctx context.Context, client *golangsdk.ServiceClient, jobId string, d *schema.ResourceData) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"RUNNING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      JobRefreshFunc(client, jobId),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return nil
+	}
+
+	return err
+}
+
+func JobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		job, err := baremetalservers.GetJobDetail(c, jobId).ExtractJobStatus()
+		if err != nil {
+			return job, "ERROR", err
+		}
+		status := job.Status
+		if status == "SUCCESS" {
+			return job, status, nil
+		}
+		if status == "FAIL" {
+			return job, status, fmt.Errorf("the BMS job (%s) status is FAIL, the fail reason is: %s",
+				jobId, job.FailReason)
+		}
+		return job, "RUNNING", nil
+	}
+}
+
+func buildDeleteNicsParam(nics []interface{}) []baremetalservers.DeleteNic {
+	rst := make([]baremetalservers.DeleteNic, len(nics))
+	for i, nic := range nics {
+		variable := nic.(map[string]interface{})
+		rst[i] = baremetalservers.DeleteNic{
+			ID: variable["port_id"].(string),
+		}
+	}
+	return rst
+}
+
+func buildAddNicsParam(nics []interface{}) []baremetalservers.Nic {
+	rst := make([]baremetalservers.Nic, len(nics))
+	for i, nic := range nics {
+		variable := nic.(map[string]interface{})
+		rst[i] = baremetalservers.Nic{
+			SubnetId:  variable["subnet_id"].(string),
+			IpAddress: variable["ip_address"].(string),
+		}
+	}
+	return rst
 }
 
 func resourceBmsInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -99,8 +99,8 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies id of vpc in which to create the instance. Changing this creates a
   new instance.
 
-* `nics` - (Required, List, ForceNew) Specifies an array of one or more networks to attach to the instance. The network
-  object structure is documented below. Changing this creates a new instance.
+* `nics` - (Required, List) Specifies an array of one or more networks to attach to the instance. The network
+  object structure is documented below.
 
 * `admin_pass` - (Optional, String, ForceNew) Specifies the login password of the administrator for logging in to the
   BMS using password authentication. Changing this creates a new instance. The password must meet the following
@@ -194,11 +194,9 @@ The following arguments are supported:
 
 The `nics` block supports:
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the ID of subnet to attach to the instance. Changing this creates
-  a new instance.
+* `subnet_id` - (Required, String) Specifies the ID of subnet to attach to the instance.
 
-* `ip_address` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network. Changing this
-  creates a new instance.
+* `ip_address` - (Optional, String) Specifies a fixed IPv4 address to be used on this network.
 
 The `data_disks` block supports:
 
