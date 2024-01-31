@@ -25,10 +25,10 @@ import (
 )
 
 // @API BCS POST /v2/{project_id}/blockchains
-// @API BCS DELETE /v2/{project_id}/blockchains/{instanceID}
-// @API BCS GET /v2/{project_id}/blockchains/{instanceID}
-// @API CCE GET /api/v3/projects/{project_id}/clusters/{id}
-// @API DMS DELETE /v2/{project_id}/instances/{id}
+// @API BCS DELETE /v2/{project_id}/blockchains/{blockchain_id}
+// @API BCS GET /v2/{project_id}/blockchains/{blockchain_id}
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}
+// @API DMS DELETE /v2/{project_id}/instances/{instance_id}
 // @API DMS GET /v2/{project_id}/instances
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
