@@ -15,3 +15,7 @@ func resourceURL(client *golangsdk.ServiceClient, id string) string {
 func listURL(client *golangsdk.ServiceClient) string {
 	return client.ServiceURL(client.ProjectID, resourcePath)
 }
+
+func changeToPeriodURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL(c.ProjectID, resourcePath, "change-to-period")
+}

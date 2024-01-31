@@ -73,6 +73,10 @@ The `bandwidths` block supports:
 
 * `status` - Indicates the status of the bandwidth.
 
+* `created_at` - Indicates the create time of the bandwidth.
+
+* `updated_at` - Indicates the update time of the bandwidth.
+
 <a name="attrblock--bandwidths--publicips"></a>
 The `publicips` block supports:
 

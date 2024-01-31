@@ -67,6 +67,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the bandwidth status.
 
+* `created_at` - Indicates the bandwidth create time.
+
+* `updated_at` - Indicates the bandwidth update time.
+
 * `publicips` - An array of EIPs that use the bandwidth. The object includes the following:
   + `id` - The ID of the EIP or IPv6 port that uses the bandwidth.
   + `type` - The EIP type. Possible values are *5_bgp* (dynamic BGP) and *5_sbgp* (static BGP).

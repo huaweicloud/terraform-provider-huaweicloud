@@ -116,7 +116,7 @@ The `bandwidth` block supports:
 * `id` - (Optional, String, ForceNew) The shared bandwidth ID.  
   This parameter is mandatory when `share_type` is set to **WHOLE**. Changing this will create a new resource.
 
-* `charge_mode` - (Optional, String, ForceNew) Specifies whether the bandwidth is billed by traffic or by bandwidth
+* `charge_mode` - (Optional, String) Specifies whether the bandwidth is billed by traffic or by bandwidth
   size. The value can be **traffic** or **bandwidth**. Changing this will create a new resource.
 
 ## Attribute Reference
@@ -129,6 +129,7 @@ In addition to all arguments above, the following attributes are exported:
 * `private_ip` - The private IP address bound to the EIP.
 * `port_id` - The port ID which the EIP associated with.
 * `status` - The status of EIP.
+* `created_at` - The create time of EIP.
 
 ## Timeouts
 

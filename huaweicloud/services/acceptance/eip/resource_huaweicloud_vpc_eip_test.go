@@ -69,6 +69,7 @@ func TestAccVpcEip_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.size", "8"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.charge_mode", "bandwidth"),
 				),
 			},
 			{
@@ -312,7 +313,7 @@ resource "huaweicloud_vpc_eip" "test" {
     share_type  = "PER"
     name        = "%[1]s"
     size        = 8
-    charge_mode = "traffic"
+    charge_mode = "bandwidth"
   }
 
   tags = {
