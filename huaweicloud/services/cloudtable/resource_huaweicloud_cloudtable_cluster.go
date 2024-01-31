@@ -38,8 +38,8 @@ var stateCodes = map[string]string{
 	"800": "Frezon",
 }
 
-// @API CloudTable DELETE /v2/{project_id}/clusters/{clusterId}
-// @API CloudTable GET /v2/{project_id}/clusters/{clusterId}
+// @API CloudTable DELETE /v2/{project_id}/clusters/{cluster_id}
+// @API CloudTable GET /v2/{project_id}/clusters/{cluster_id}
 // @API CloudTable POST /v2/{project_id}/clusters
 func ResourceCloudTableCluster() *schema.Resource {
 	return &schema.Resource{
