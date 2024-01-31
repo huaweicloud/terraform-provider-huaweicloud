@@ -121,6 +121,12 @@ func ResourceObsBucket() *schema.Resource {
 							Optional: true,
 							Default:  "logs/",
 						},
+						"agency": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Required",
+						},
 					},
 				},
 			},
@@ -467,7 +473,7 @@ func resourceObsBucketUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("logging") {
-		if err := resourceObsBucketLoggingUpdate(obsClient, d); err != nil {
+		if err := resourceObsBucketLoggingUpdate(obsClientWithSignature, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -578,7 +584,7 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	// Read the logging configuration
-	if err := setObsBucketLogging(obsClient, d); err != nil {
+	if err := setObsBucketLogging(obsClientWithSignature, d); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -824,6 +830,10 @@ func resourceObsBucketLoggingUpdate(obsClient *obs.ObsClient, d *schema.Resource
 
 		if val := c["target_prefix"].(string); val != "" {
 			loggingStatus.TargetPrefix = val
+		}
+
+		if val := c["agency"].(string); val != "" {
+			loggingStatus.Agency = val
 		}
 	}
 	log.Printf("[DEBUG] set logging of OBS bucket %s: %#v", bucket, loggingStatus)
@@ -1367,6 +1377,9 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 		logging["target_bucket"] = output.TargetBucket
 		if output.TargetPrefix != "" {
 			logging["target_prefix"] = output.TargetPrefix
+		}
+		if output.Agency != "" {
+			logging["agency"] = output.Agency
 		}
 		lcList = append(lcList, logging)
 	}

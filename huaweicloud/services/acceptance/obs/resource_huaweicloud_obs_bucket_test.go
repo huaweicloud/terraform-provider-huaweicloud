@@ -287,7 +287,7 @@ func TestAccObsBucket_logging(t *testing.T) {
 				Config: testAccObsBucketConfigWithLogging(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
-					testAccCheckObsBucketLogging(resourceName, targetBucket, "log/"),
+					testAccCheckObsBucketLogging(resourceName, targetBucket, "log/", "live_to_obs"),
 				),
 			},
 		},
@@ -512,7 +512,7 @@ func testAccCheckObsBucketExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestCheckFunc {
+func testAccCheckObsBucketLogging(name, target, prefix, agency string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -520,9 +520,9 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 		}
 
 		conf := acceptance.TestAccProvider.Meta().(*config.Config)
-		obsClient, err := conf.ObjectStorageClient(acceptance.HW_REGION_NAME)
+		obsClient, err := conf.ObjectStorageClientWithSignature(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OBS client: %s", err)
+			return fmt.Errorf("error creating OBS client with signature: %s", err)
 		}
 
 		output, err := obsClient.GetBucketLoggingConfiguration(rs.Primary.ID)
@@ -537,6 +537,11 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 		if output.TargetPrefix != prefix {
 			return fmt.Errorf("%s.logging: Attribute 'target_prefix' expected %s, got %s",
 				name, output.TargetPrefix, prefix)
+		}
+
+		if output.Agency != agency {
+			return fmt.Errorf("%s.logging: Attribute 'agency' expected %s, got %s",
+				name, output.Agency, agency)
 		}
 
 		return nil
@@ -731,6 +736,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
   logging {
     target_bucket = huaweicloud_obs_bucket.log_bucket.id
     target_prefix = "log/"
+    agency        = "live_to_obs"
   }
 }
 `, randInt, randInt)
