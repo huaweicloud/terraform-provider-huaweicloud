@@ -68,7 +68,6 @@ func ResourceBmsInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 2,
-				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
