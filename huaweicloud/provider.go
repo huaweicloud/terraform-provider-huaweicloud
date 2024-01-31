@@ -912,6 +912,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance":        dcs.ResourceDcsInstance(),
 			"huaweicloud_dcs_backup":          dcs.ResourceDcsBackup(),
 			"huaweicloud_dcs_custom_template": dcs.ResourceCustomTemplate(),
+			"huaweicloud_dcs_hotkey_analysis": dcs.ResourceHotKeyAnalysis(),
 			"huaweicloud_dcs_bigkey_analysis": dcs.ResourceBigKeyAnalysis(),
 
 			"huaweicloud_dds_database_role":      dds.ResourceDatabaseRole(),
