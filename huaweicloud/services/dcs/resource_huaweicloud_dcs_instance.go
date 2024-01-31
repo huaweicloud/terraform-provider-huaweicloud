@@ -53,6 +53,8 @@ var (
 	operateErrorCode = map[string]bool{
 		// current state not support
 		"DCS.4026": true,
+		// instance status is not running
+		"DCS.4049": true,
 		// backup
 		"DCS.4096": true,
 		// restore
