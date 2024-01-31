@@ -521,6 +521,11 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("Error creating OBS client: %s", err)
 	}
 
+	obsClientWithSignature, err := conf.ObjectStorageClientWithSignature(region)
+	if err != nil {
+		return diag.Errorf("Error creating OBS client with signature: %s", err)
+	}
+
 	bucket := d.Id()
 	log.Printf("[DEBUG] Read OBS bucket: %s", bucket)
 	_, err = obsClient.HeadBucket(bucket)
@@ -601,10 +606,7 @@ func resourceObsBucketRead(_ context.Context, d *schema.ResourceData, meta inter
 	policyClient := obsClient
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
-		policyClient, err = conf.ObjectStorageClientWithSignature(region)
-		if err != nil {
-			return diag.Errorf("Error creating OBS policy client: %s", err)
-		}
+		policyClient = obsClientWithSignature
 	}
 	if err := setObsBucketPolicy(policyClient, d); err != nil {
 		return diag.FromErr(err)
