@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityCenter POST /v1/instances/{instance_id}/permission-sets/{permission_set_id}/attach-managed-role
+// @API IdentityCenter POST /v1/instances/{instance_id}/permission-sets/{permission_set_id}/detach-managed-role
+// @API IdentityCenter GET /v1/instances/{instance_id}/permission-sets/{permission_set_id}/managed-roles
 func ResourceSystemPolicyAttachment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSystemPolicyAttachmentCreate,

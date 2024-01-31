@@ -1,55 +1,44 @@
 info:
-  version: 
-  title: resource_huaweicloud_fgs_function
-  description: 
+    version: ""
+    title: resource_huaweicloud_fgs_function
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: FunctionGraph
+    - name: FunctionGraph
 paths:
-  /v2/{project_id}/fgs/functions/{functionUrn}/aliases/{aliasName}:
-    delete:
-      tag: FunctionGraph
-      operationId: Delete
-  /v2/{project_id}/fgs/functions/{functionUrn}/aliases:
-    get:
-      tag: FunctionGraph
-      operationId: List
-    post:
-      tag: FunctionGraph
-      operationId: Create
-  /v2/{project_id}/fgs/functions/{functionUrn}/code:
-    put:
-      tag: FunctionGraph
-      operationId: UpdateCode
-  /v2/{project_id}/fgs/functions/{functionUrn}/config-max-instance:
-    put:
-      tag: FunctionGraph
-      operationId: UpdateMaxInstanceNumber
-  /v2/{project_id}/fgs/functions/{functionUrn}/config:
-    get:
-      tag: FunctionGraph
-      operationId: GetMetadata
-    put:
-      tag: FunctionGraph
-      operationId: UpdateMetadata
-  /v2/{project_id}/fgs/functions/{functionUrn}/versions:
-    get:
-      tag: FunctionGraph
-      operationId: List
-  /v2/{project_id}/fgs/functions/{functionUrn}:
-    delete:
-      tag: FunctionGraph
-      operationId: Delete
-  /v2/{project_id}/fgs/functions:
-    post:
-      tag: FunctionGraph
-      operationId: Create
-  /v2/{project_id}/functions/{functionUrn}/tags/{action}:
-    delete:
-      tag: FunctionGraph
-      operationId: DeleteResourceTags
-    post:
-      tag: FunctionGraph
-      operationId: CreateResourceTags
+    /v2/{project_id}/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions:
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}:
+        DELETE:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/aliases:
+        GET:
+            tag: FunctionGraph
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/aliases/{alias_name}:
+        DELETE:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/code:
+        PUT:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/config:
+        GET:
+            tag: FunctionGraph
+        PUT:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance:
+        PUT:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/versions:
+        GET:
+            tag: FunctionGraph

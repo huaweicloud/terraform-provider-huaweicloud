@@ -422,13 +422,27 @@ type UpdateOptsBuilder interface {
 // server.
 type UpdateOpts struct {
 	Name        string  `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
 	Hostname    string  `json:"hostname,omitempty"`
+	UserData    []byte  `json:"-"`
+	Description *string `json:"description,omitempty"`
 }
 
 // ToServerUpdateMap formats an UpdateOpts structure into a request body.
 func (opts UpdateOpts) ToServerUpdateMap() (map[string]interface{}, error) {
-	return golangsdk.BuildRequestBody(opts, "server")
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var userData string
+	if _, err := base64.StdEncoding.DecodeString(string(opts.UserData)); err != nil {
+		userData = base64.StdEncoding.EncodeToString(opts.UserData)
+	} else {
+		userData = string(opts.UserData)
+	}
+	b["user_data"] = &userData
+
+	return map[string]interface{}{"server": b}, nil
 }
 
 // Update requests that various attributes of the indicated server be changed.

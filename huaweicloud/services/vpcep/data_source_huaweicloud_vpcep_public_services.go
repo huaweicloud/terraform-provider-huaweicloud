@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/public
 func DataSourceVPCEPPublicServices() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVpcepPublicRead,

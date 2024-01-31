@@ -15,6 +15,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API Workspace GET /v2/{project_id}/access-policy/{policyId}/objects
+// @API Workspace PUT /v2/{project_id}/access-policy/{policyId}/objects
+// @API Workspace DELETE /v2/{project_id}/access-policy
+// @API Workspace GET /v2/{project_id}/access-policy
+// @API Workspace POST /v2/{project_id}/access-policy
 func ResourceAccessPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccessPolicyCreate,

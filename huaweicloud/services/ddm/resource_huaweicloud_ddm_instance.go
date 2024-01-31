@@ -26,6 +26,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDM POST /v2/{project_id}/instances/{instance_id}/action/enlarge
+// @API DDM POST /v2/{project_id}/instances/{instance_id}/action/reduce
+// @API DDM PUT /v3/{project_id}/instances/{instance_id}/admin-user
+// @API DDM PUT /v3/{project_id}/instances/{instance_id}/flavor
+// @API DDM POST /v1/{project_id}/instances
+// @API DDM GET /v1/{project_id}/instances/{instance_id}
+// @API DDM DELETE /v1/{project_id}/instances/{instance_id}
+// @API DDM PUT /v1/{project_id}/instances/{instance_id}/modify-name
+// @API DDM PUT /v1/{project_id}/instances/{instance_id}/modify-security-group
 func ResourceDdmInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdmInstanceCreate,

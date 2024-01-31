@@ -32,6 +32,11 @@
                 "description": "The description of the DNAT rule.",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the private DNAT rule belongs.",
+                "computed": true
+              },
               "gateway_id": {
                 "type": "string",
                 "description": "The private NAT gateway ID to which the DNAT rule belongs.",

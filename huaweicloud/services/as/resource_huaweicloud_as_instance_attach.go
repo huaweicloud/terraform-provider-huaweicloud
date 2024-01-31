@@ -21,6 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list
 func ResourceASInstanceAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceAttachCreate,

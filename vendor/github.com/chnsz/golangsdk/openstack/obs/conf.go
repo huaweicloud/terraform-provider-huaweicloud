@@ -38,34 +38,34 @@ type urlHolder struct {
 }
 
 type config struct {
-	securityProviders []securityProvider
-	urlHolder         *urlHolder
-	pathStyle         bool
-	cname             bool
-	sslVerify         bool
-	endpoint          string
-	signature         SignatureType
-	region            string
-	connectTimeout    int
-	socketTimeout     int
-	headerTimeout     int
-	idleConnTimeout   int
-	finalTimeout      int
-	maxRetryCount     int
-	proxyURL          string
-	noProxyURL        string
-	proxyFromEnv      bool
-	maxConnsPerHost   int
-	pemCerts          []byte
-	transport         *http.Transport
-	roundTripper      http.RoundTripper
-	httpClient        *http.Client
-	ctx               context.Context
-	maxRedirectCount  int
-	userAgent         string
-	enableCompression bool
-	progressListener  ProgressListener
-
+	securityProviders    []securityProvider
+	urlHolder            *urlHolder
+	pathStyle            bool
+	cname                bool
+	sslVerify            bool
+	disableKeepAlive     bool
+	endpoint             string
+	signature            SignatureType
+	region               string
+	connectTimeout       int
+	socketTimeout        int
+	headerTimeout        int
+	idleConnTimeout      int
+	finalTimeout         int
+	maxRetryCount        int
+	proxyURL             string
+	noProxyURL           string
+	proxyFromEnv         bool
+	maxConnsPerHost      int
+	pemCerts             []byte
+	transport            *http.Transport
+	roundTripper         http.RoundTripper
+	httpClient           *http.Client
+	ctx                  context.Context
+	maxRedirectCount     int
+	userAgent            string
+	enableCompression    bool
+	progressListener     ProgressListener
 	customProxyOnce      sync.Once
 	customProxyFuncValue func(*url.URL) (*url.URL, error)
 }
@@ -232,6 +232,13 @@ func WithCustomDomainName(cname bool) configurer {
 	}
 }
 
+// WithDisableKeepAlive is a configurer for ObsClient to disable the keep-alive for http.
+func WithDisableKeepAlive(disableKeepAlive bool) configurer {
+	return func(conf *config) {
+		conf.disableKeepAlive = disableKeepAlive
+	}
+}
+
 // WithMaxRedirectCount is a configurer for ObsClient to set the maximum number of times that the request is redirected.
 func WithMaxRedirectCount(maxRedirectCount int) configurer {
 	return func(conf *config) {
@@ -365,6 +372,7 @@ func (conf *config) getTransport() error {
 			MaxIdleConnsPerHost:   conf.maxConnsPerHost,
 			ResponseHeaderTimeout: time.Second * time.Duration(conf.headerTimeout),
 			IdleConnTimeout:       time.Second * time.Duration(conf.idleConnTimeout),
+			DisableKeepAlives:     conf.disableKeepAlive,
 		}
 		if conf.proxyURL != "" {
 			conf.transport.Proxy = conf.customProxyFromEnvironment
@@ -543,19 +551,11 @@ func getQueryURL(key, value string) string {
 	return queryURL
 }
 
-var once sync.Once
-
-func (obsClient ObsClient) GetClientConfigure(extensions []extensionOptions) *config {
-	once.Do(func() {
-		for _, extension := range extensions {
-			if configure, ok := extension.(configurer); ok {
-				configure(obsClient.conf)
-			}
-		}
-	})
-	return obsClient.conf
-}
-
 func (obsClient ObsClient) getProgressListener(extensions []extensionOptions) ProgressListener {
-	return obsClient.GetClientConfigure(extensions).progressListener
+	for _, extension := range extensions {
+		if configure, ok := extension.(extensionProgressListener); ok {
+			return configure()
+		}
+	}
+	return nil
 }

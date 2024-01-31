@@ -47,6 +47,15 @@
                 "computed": true,
                 "forcenew": true
               },
+              "power_action": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "power_action_type": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -59,6 +68,10 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
               },
               "tags": {
                 "type": [

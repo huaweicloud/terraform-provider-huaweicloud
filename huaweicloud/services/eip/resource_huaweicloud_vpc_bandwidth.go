@@ -19,6 +19,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API EIP POST /v2.0/{project_id}/bandwidths/change-to-period
+// @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP DELETE /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP GET /v1/{project_id}/bandwidths/{id}
+// @API EIP POST /v2.0/{project_id}/bandwidths
 func ResourceVpcBandWidthV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcBandWidthV2Create,
@@ -66,12 +71,19 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
-
-			"share_type": {
+			"bandwidth_type": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
-			"bandwidth_type": {
+			"public_border_group": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+			"share_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -127,9 +139,11 @@ func resourceVpcBandWidthV2Create(ctx context.Context, d *schema.ResourceData, m
 
 	size := d.Get("size").(int)
 	createOpts := bandwidths.CreateOpts{
-		Name:       d.Get("name").(string),
-		ChargeMode: d.Get("charge_mode").(string),
-		Size:       &size,
+		Name:              d.Get("name").(string),
+		ChargeMode:        d.Get("charge_mode").(string),
+		Size:              &size,
+		PublicBorderGroup: d.Get("public_border_group").(string),
+		BandwidthType:     d.Get("bandwidth_type").(string),
 	}
 
 	epsID := cfg.GetEnterpriseProjectID(d)
@@ -264,6 +278,7 @@ func resourceVpcBandWidthV2Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("enterprise_project_id", b.EnterpriseProjectID),
 		d.Set("share_type", b.ShareType),
 		d.Set("bandwidth_type", b.BandwidthType),
+		d.Set("public_border_group", b.PublicBorderGroup),
 		d.Set("status", b.Status),
 		d.Set("charging_mode", normalizeChargingMode(b.BillingInfo)),
 		d.Set("publicips", flattenPublicIPs(b)),

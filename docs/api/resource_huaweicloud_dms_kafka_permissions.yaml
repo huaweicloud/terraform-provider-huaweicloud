@@ -8,11 +8,7 @@ host: huaweicloud.com
 tags:
   - name: Kafka
 paths:
-  /v1/{project_id}/instances/{instance_id}/topics/accesspolicy:
-    post:
-      tag: Kafka
-      operationId: UpdateTopicAccessPolicy
-  /v1/{project_id}/instances/{instance_id}/topics/{topic_name}/accesspolicy:
+  /v2/{project_id}/instances/{id}:
     get:
       tag: Kafka
-      operationId: ShowTopicAccessPolicy
+      operationId: Get

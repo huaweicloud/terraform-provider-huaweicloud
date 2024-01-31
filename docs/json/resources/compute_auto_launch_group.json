@@ -1,0 +1,160 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_compute_auto_launch_group": {
+          "block": {
+            "attributes": {
+              "allocation_strategy": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "current_capacity": {
+                "type": "number",
+                "computed": true
+              },
+              "current_stable_capacity": {
+                "type": "number",
+                "computed": true
+              },
+              "delete_instances": {
+                "type": "string",
+                "optional": true
+              },
+              "excess_fulfilled_capacity_behavior": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances_behavior_with_expiration": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "launch_template_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "launch_template_version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "spot_price": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "stable_capacity": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "supply_option": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "target_capacity": {
+                "type": "number",
+                "required": true
+              },
+              "task_state": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "valid_since": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "valid_until": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "overrides": {
+                "block": {
+                  "attributes": {
+                    "availability_zone": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "flavor_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "priority": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "spot_price": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "weighted_capacity": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CPTS PUT /v1/{project_id}/test-suites/{test_suite_id}
+// @API CPTS DELETE /v1/{project_id}/test-suites/{test_suite_id}
+// @API CPTS GET /v1/{project_id}/test-suites/{test_suite_id}
+// @API CPTS POST /v1/{project_id}/test-suites
 func ResourceProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProjectCreate,

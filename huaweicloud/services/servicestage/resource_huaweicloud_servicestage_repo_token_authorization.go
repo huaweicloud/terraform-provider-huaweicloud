@@ -18,6 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API ServiceStage DELETE /v1/{project_id}/git/auths/{name}
+// @API ServiceStage POST /v1/{project_id}/git/auths/{rType}/personal
+// @API ServiceStage GET /v1/{project_id}/git/auths
 func ResourceRepoTokenAuth() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRepoTokenAuthCreate,

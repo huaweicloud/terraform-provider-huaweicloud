@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: AS GET /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_group_id}/list
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_group_id}/list
 func DataSourceASPolicies() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceASPoliciesRead,

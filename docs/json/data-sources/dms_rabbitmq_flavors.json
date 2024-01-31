@@ -107,7 +107,8 @@
                 "computed": true
               },
               "region": {
-                "type": "string"
+                "type": "string",
+                "computed": true
               },
               "storage_spec_code": {
                 "type": "string",

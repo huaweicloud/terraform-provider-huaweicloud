@@ -44,7 +44,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `backups` - Backup list. For details, see Data structure of the Backup field.
   The [backups](#Backup_Backup) structure is documented below.

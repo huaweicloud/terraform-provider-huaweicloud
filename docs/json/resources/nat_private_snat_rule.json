@@ -22,6 +22,11 @@
                 "description": "The description of the SNAT rule.",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the private SNAT rule belongs.",
+                "computed": true
+              },
               "gateway_id": {
                 "type": "string",
                 "description": "The private NAT gateway ID to which the SNAT rule belongs.",
@@ -43,6 +48,11 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "transit_ip_address": {
+                "type": "string",
+                "description": "The address of the transit IP",
+                "computed": true
               },
               "transit_ip_id": {
                 "type": "string",

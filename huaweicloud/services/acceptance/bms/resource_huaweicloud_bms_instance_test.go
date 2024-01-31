@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -18,7 +17,7 @@ import (
 func TestAccBmsInstance_basic(t *testing.T) {
 	var instance baremetalservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_bms_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -31,7 +30,7 @@ func TestAccBmsInstance_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckBmsInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBmsInstance_basic(rName, false),
+				Config: testAccBmsInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBmsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -39,14 +38,79 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "user_data"),
 				),
 			},
 			{
-				Config: testAccBmsInstance_basic(rName, true),
+				Config: testAccBmsInstance_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.tag1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.tag2", "value2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBmsInstance_password_basic(t *testing.T) {
+	var instance baremetalservers.CloudServer
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_bms_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckBmsInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBmsInstance_password_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "admin_pass", "Test@123"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBmsInstance_userdata(t *testing.T) {
+	var instance baremetalservers.CloudServer
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_bms_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckBmsInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBmsInstance_userdata(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "user_data", "IyEvYmluL2Jhc2ggCmVjaG8gJ3Jvb3Q6VGVzdEAxMjMnIHwgY2hwYXNzd2Q="),
 				),
 			},
 		},
@@ -118,12 +182,133 @@ data "huaweicloud_bms_flavors" "test" {
   availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), "")
 }
 
+data "huaweicloud_images_image" "test" {
+  name        = "CentOS 7.6 x86 sdi2 for BareMetal"
+  most_recent = true
+}
+
 resource "huaweicloud_kps_keypair" "test" {
   name = "%s"
 }`, common.TestBaseNetwork(rName), rName)
 }
 
-func testAccBmsInstance_basic(rName string, isAutoRenew bool) string {
+// Both `key_pair` and `user_data` are specified, `user_data` only injects user data with plain text.
+func testAccBmsInstance_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  key_pair          = huaweicloud_kps_keypair.test.name
+  image_id          = data.huaweicloud_images_image.test.id
+
+  user_data = <<EOF
+#!/bin/bash 
+sudo mkdir /example
+EOF
+
+  name                  = "%[2]s"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccBmsInstance_password_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  admin_pass        = "Test@123"
+  image_id          = data.huaweicloud_images_image.test.id
+
+  name                  = "%[2]s"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+// The `user_data` field is specified for a Linux BMS that is created using an image with Cloud-Init installed,
+// the `admin_pass` field becomes invalid and `user_data` will be injected into the BMS as a password.
+// The `user_data` field is the result of base64 encoding of the following command:
+// #!/bin/bash
+// echo 'root:Test@123' | chpasswd
+func testAccBmsInstance_userdata(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
+  user_data         = "IyEvYmluL2Jhc2ggCmVjaG8gJ3Jvb3Q6VGVzdEAxMjMnIHwgY2hwYXNzd2Q="
+  image_id          = data.huaweicloud_images_image.test.id
+
+  name                  = "%[2]s"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccBmsInstance_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -131,6 +316,7 @@ resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
   }
+
   bandwidth {
     name        = "%[2]s"
     size        = 8
@@ -147,7 +333,7 @@ resource "huaweicloud_bms_instance" "test" {
   key_pair          = huaweicloud_kps_keypair.test.name
   image_id          = "519ea918-1fea-4ebc-911a-593739b1a3bc" # CentOS 7.4 64bit for BareMetal
 
-  name                  = "%[2]s"
+  name                  = "%[2]s_update"
   user_id               = "%[3]s"
   enterprise_project_id = "%[4]s"
 
@@ -156,14 +342,14 @@ resource "huaweicloud_bms_instance" "test" {
   }
 
   tags = {
-    foo = "bar"
-    key = "value"
+    tag1 = "value1"
+    tag2 = "value2"
   }
 
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = "1"
-  auto_renew    = "%[5]v"
+  auto_renew    = "true"
 }
-`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, isAutoRenew)
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

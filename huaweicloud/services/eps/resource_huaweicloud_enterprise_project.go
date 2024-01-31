@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API EPS POST /v1.0/enterprise-projects/{id}/action
+// @API EPS GET /v1.0/enterprise-projects/{id}
+// @API EPS PUT /v1.0/enterprise-projects/{id}
+// @API EPS POST /v1.0/enterprise-projects
 func ResourceEnterpriseProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEnterpriseProjectCreate,

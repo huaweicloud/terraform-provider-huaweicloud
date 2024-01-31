@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SMN POST /v2/{project_id}/notifications/message_template
+// @API SMN DELETE /v2/{project_id}/notifications/message_template/{message_template_id}
+// @API SMN GET /v2/{project_id}/notifications/message_template/{message_template_id}
+// @API SMN PUT /v2/{project_id}/notifications/message_template/{message_template_id}
 func ResourceSmnMessageTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSmnMessageTemplateCreate,

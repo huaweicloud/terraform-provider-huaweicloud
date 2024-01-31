@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dli_datasource_auth
-    description: 'Manages a DLI datasource authentication resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DLI
-servers:
-    - url: https://dli.myhuaweicloud.com
 paths:
-    /v2.0/{project_id}/datasource/auth-infos:
+    /v3/{project_id}/datasource/auth-infos:
         GET:
             tag: DLI
-            operationId: GetDatasourceAuth
-            x-ref-api: GET /v2.0/{project_id}/datasource/auth-infos
         POST:
             tag: DLI
-            operationId: CreateDatasourceAuth
-            x-ref-api: POST /v2.0/{project_id}/datasource/auth-infos
         PUT:
             tag: DLI
-            operationId: UpdateDatasourceAuthHosts
-            x-ref-api: PUT /v2.0/{project_id}/datasource/auth-infos
-    /v2.0/{project_id}/datasource/auth-infos/{id}:
+    /v3/{project_id}/datasource/auth-infos/{auth_info_name}:
         DELETE:
             tag: DLI
-            operationId: DeleteDatasourceAuth
-            x-ref-api: DELETE /v2.0/{project_id}/datasource/auth-infos/{id}

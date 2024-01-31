@@ -19,3 +19,11 @@ paths:
     get:
       tag: CTS
       operationId: ListTrackers
+  /v3/{project_id}/{resource_type}/{resource_id}/tags/create:
+    post:
+      tag: CTS
+      operationId: BatchCreateResourceTags
+  /v3/{project_id}/{resource_type}/{resource_id}/tags/delete:
+    delete:
+      tag: CTS
+      operationId: BatchDeleteResourceTags

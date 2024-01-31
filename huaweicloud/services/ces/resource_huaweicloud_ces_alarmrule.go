@@ -15,6 +15,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/v1/alarmrule"
 	alarmrulev2 "github.com/chnsz/golangsdk/openstack/cloudeyeservice/v2/alarmrule"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -44,6 +45,15 @@ var cesAlarmActions = schema.Schema{
 	},
 }
 
+// @API CES POST /v2/{project_id}/alarms/action
+// @API CES POST /v2/{project_id}/alarms/batch-delete
+// @API CES PUT /v2/{project_id}/alarms/{id}/policies
+// @API CES POST /v2/{project_id}/alarms/{id}/resources/{operation}
+// @API CES GET /v2/{project_id}/alarms/{id}/resources
+// @API CES GET /V1.0/{project_id}/alarms/{id}
+// @API CES PUT /V1.0/{project_id}/alarms/{id}
+// @API CES GET /v2/{project_id}/alarms
+// @API CES POST /v2/{project_id}/alarms
 func ResourceAlarmRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlarmRuleCreate,
@@ -269,7 +279,6 @@ func ResourceAlarmRule() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
@@ -753,11 +762,12 @@ func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, me
 
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	clientV1, err := conf.CesV1Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	clientV1, err := conf.CesV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v1 client: %s", err)
 	}
-	clientV2, err := conf.CesV2Client(conf.GetRegion(d))
+	clientV2, err := conf.CesV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
@@ -892,6 +902,18 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		err := alarmrulev2.Action(clientV2, arId, actionOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating %s %s: %s", nameCESAR, arId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   arId,
+			ResourceType: "CES-alarm",
+			RegionId:     region,
+			ProjectId:    clientV1.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

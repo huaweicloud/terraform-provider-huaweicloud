@@ -25,6 +25,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS DELETE /v3/{project_id}/lts/access-config
+// @API LTS POST /v3/{project_id}/lts/access-config
+// @API LTS PUT /v3/{project_id}/lts/access-config
+// @API LTS POST /v3/{project_id}/lts/access-config-list
 func ResourceHostAccessConfig() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHostAccessConfigCreate,

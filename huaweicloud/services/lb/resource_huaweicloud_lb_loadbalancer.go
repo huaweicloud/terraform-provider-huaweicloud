@@ -20,6 +20,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ELB DELETE /v2/{project_id}/elb/loadbalancers/{id}
+// @API ELB GET /v2/{project_id}/elb/loadbalancers/{id}
+// @API ELB PUT /v2/{project_id}/elb/loadbalancers/{id}
+// @API ELB POST /v2/{project_id}/elb/loadbalancers
+// @API ELB POST /v2.0/{project_id}/loadbalancers/{id}/tags/action
+// @API ELB GET /v2.0/{project_id}/loadbalancers/{id}/tags
+// @API VPC GET /v1/ports/{id}
+// @API VPC PUT /v1/ports/{id}
 func ResourceLoadBalancer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLoadBalancerV2Create,

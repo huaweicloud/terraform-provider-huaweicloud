@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API OBS GET /
+// @API OBS HEAD /
 func DataSourceObsBuckets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceObsBucketsRead,

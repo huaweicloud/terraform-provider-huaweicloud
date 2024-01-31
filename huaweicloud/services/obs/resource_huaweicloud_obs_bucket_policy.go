@@ -18,6 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API OBS PUT ?policy
+// @API OBS GET ?policy
+// @API OBS DELETE ?policy
 func ResourceObsBucketPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceObsBucketPolicyPut,

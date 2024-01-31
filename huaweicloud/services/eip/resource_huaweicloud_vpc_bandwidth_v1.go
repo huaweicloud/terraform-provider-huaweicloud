@@ -16,6 +16,11 @@ import (
 
 // ResourceVpcBandWidthV1
 // Add resource bandwidth with update function calls v1 API to support provider which only published v1 API to update the bandwidth.
+// @API EIP POST /v2.0/{project_id}/bandwidths/change-to-period
+// @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP DELETE /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP GET /v1/{project_id}/bandwidths/{id}
+// @API EIP POST /v2.0/{project_id}/bandwidths
 func ResourceVpcBandWidthV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcBandWidthV2Create,

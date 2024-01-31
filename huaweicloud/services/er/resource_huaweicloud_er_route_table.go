@@ -24,6 +24,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations
+// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disable-propagations
+// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disassociate
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations
+// @API ER DELETE /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}
+// @API ER PUT /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}
+// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables
 func ResourceRouteTable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRouteTableCreate,
@@ -75,7 +83,7 @@ func ResourceRouteTable() *schema.Resource {
 						"The angle brackets (< and >) are not allowed."),
 				),
 			},
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 			// Attributes
 			"is_default_association": {
 				Type:        schema.TypeBool,
@@ -240,6 +248,13 @@ func resourceRouteTableUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChanges("name", "description") {
 		if err = updateRouteTableBasicInfo(ctx, client, d); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		err = utils.UpdateResourceTags(client, d, "route-table", d.Id())
+		if err != nil {
+			return diag.Errorf("error updating route table tags: %s", err)
 		}
 	}
 

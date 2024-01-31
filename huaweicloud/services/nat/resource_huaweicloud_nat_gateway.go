@@ -33,6 +33,12 @@ const (
 	PublicSpecTypeExtraLarge PublicSpecType = "4"
 )
 
+// @API NAT DELETE /v2/{project_id}/nat_gateways/{gatewayId}
+// @API NAT GET /v2/{project_id}/nat_gateways/{gatewayId}
+// @API NAT PUT /v2/{project_id}/nat_gateways/{gatewayId}
+// @API NAT POST /v2/{project_id}/nat_gateways
+// @API VPC POST /v2.0/{project_id}/nat_gateways/{id}/tags/action
+// @API VPC GET /v2.0/{project_id}/nat_gateways/{id}/tags
 func ResourcePublicGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePublicGatewayCreate,

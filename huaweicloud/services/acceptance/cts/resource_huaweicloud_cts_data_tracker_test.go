@@ -19,7 +19,7 @@ func getCTSDataTrackerResourceObj(conf *config.Config, state *terraform.Resource
 		return nil, fmt.Errorf("error creating CTS client: %s", err)
 	}
 
-	name := state.Primary.ID
+	name := state.Primary.Attributes["name"]
 	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().DATA
 	listOpts := &cts.ListTrackersRequest{
 		TrackerName: &name,
@@ -67,6 +67,7 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "data"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "data_operation.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(resourceName, "data_bucket",
 						"huaweicloud_obs_bucket.data_bucket", "bucket"),
 				),
@@ -82,12 +83,16 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "validate_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "lts_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testCTSDataTrackerImportState(resourceName),
+				ImportStateVerifyIgnore: []string{"tags"},
 			},
 		},
 	})
@@ -104,6 +109,10 @@ resource "huaweicloud_cts_data_tracker" "tracker" {
   name        = "%[1]s"
   data_bucket = huaweicloud_obs_bucket.data_bucket.bucket
   lts_enabled = true
+  
+  tags = {
+    foo = "bar"
+  }
 }
 `, rName)
 }
@@ -133,6 +142,22 @@ resource "huaweicloud_cts_data_tracker" "tracker" {
   file_prefix          = "cts"
   validate_file        = false
   lts_enabled          = false
+
+  tags = {
+    foo    = "bar1"
+    newkey = "value"
+  }
 }
 `, rName)
+}
+
+func testCTSDataTrackerImportState(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", resourceName, rs)
+		}
+
+		return rs.Primary.Attributes["name"], nil
+	}
 }

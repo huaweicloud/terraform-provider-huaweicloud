@@ -28,6 +28,12 @@ const (
 	domainStatusOff = "off"
 )
 
+// @API Live PUT /v1/{project_id}/domain
+// @API Live DELETE /v1/{project_id}/domain
+// @API Live GET /v1/{project_id}/domain
+// @API Live POST /v1/{project_id}/domain
+// @API Live DELETE /v1/{project_id}/domains_mapping
+// @API Live PUT /v1/{project_id}/domains_mapping
 func ResourceDomain() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDomainCreate,

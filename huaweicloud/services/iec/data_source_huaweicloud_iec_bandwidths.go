@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API IEC GET /v1/bandwidths
 func DataSourceBandWidths() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceBandWidthsRead,

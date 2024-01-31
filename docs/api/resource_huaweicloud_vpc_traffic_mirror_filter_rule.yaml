@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_traffic_mirror_filter_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v3/{project_id}/vpc/traffic-mirror-filter-rules:
+        POST:
+            tag: VPC
+    /v3/{project_id}/vpc/traffic-mirror-filter-rules/{traffic_mirror_filter_rule_id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC

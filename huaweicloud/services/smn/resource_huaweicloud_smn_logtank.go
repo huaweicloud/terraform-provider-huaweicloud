@@ -22,6 +22,10 @@ import (
 // TopicURNNotExistsCode is smn error code means `topic information is not found`
 const TopicURNNotExistsCode = "SMN.00010008"
 
+// @API SMN DELETE /v2/{project_id}/notifications/topics/{topicUrn}/logtanks/{logTankID}
+// @API SMN PUT /v2/{project_id}/notifications/topics/{topicUrn}/logtanks/{logTankID}
+// @API SMN GET /v2/{project_id}/notifications/topics/{topicUrn}/logtanks
+// @API SMN POST /v2/{project_id}/notifications/topics/{topicUrn}/logtanks
 func ResourceSmnLogtank() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSmnLogtankCreate,

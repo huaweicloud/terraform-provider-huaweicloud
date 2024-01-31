@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts GET /v2/{project_id}/datasets/{datasetId}/versions
 func DataSourceDatasetVerions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDatasetVersionsRead,

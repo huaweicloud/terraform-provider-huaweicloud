@@ -32,6 +32,9 @@ type ddmError struct {
 	ErrorMsg  string `json:"externalMessage"`
 }
 
+// @API DDM POST /v1/{project_id}/instances/{instance_id}/databases
+// @API DDM DELETE /v1/{project_id}/instances/{instance_id}/databases/{ddm_dbname}
+// @API DDM GET /v1/{project_id}/instances/{instance_id}/databases/{ddm_dbname}
 func ResourceDdmSchema() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdmSchemaCreate,

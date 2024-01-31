@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/add
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/reset
 func ResourceNodeAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeAttachCreate,

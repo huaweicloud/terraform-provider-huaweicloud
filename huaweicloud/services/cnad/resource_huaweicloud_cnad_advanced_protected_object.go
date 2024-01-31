@@ -23,6 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CNAD POST /v1/cnad/packages/{package_id}/protected-ips
+// @API CNAD GET /v1/cnad/protected-ips
 func ResourceProtectedObject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectedObjectCreateOrUpdate,
@@ -123,11 +125,12 @@ func resourceProtectedObjectCreateOrUpdate(ctx context.Context, d *schema.Resour
 	meta interface{}) diag.Diagnostics {
 	var (
 		cfg                    = meta.(*config.Config)
+		region                 = cfg.GetRegion(d)
 		protectedObjectHttpUrl = "v1/cnad/packages/{package_id}/protected-ips"
 		protectedObjectProduct = "aad"
 		instanceID             = d.Get("instance_id").(string)
 	)
-	protectedObjectClient, err := cfg.NewServiceClient(protectedObjectProduct, "")
+	protectedObjectClient, err := cfg.NewServiceClient(protectedObjectProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -174,11 +177,12 @@ func buildProtectedObjectBodyParams(d *schema.ResourceData) map[string]interface
 func resourceProtectedObjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                       = meta.(*config.Config)
+		region                    = cfg.GetRegion(d)
 		mErr                      *multierror.Error
 		getProtectedObjectHttpUrl = "v1/cnad/protected-ips"
 		getProtectedObjectProduct = "aad"
 	)
-	getProtectedObjectClient, err := cfg.NewServiceClient(getProtectedObjectProduct, "")
+	getProtectedObjectClient, err := cfg.NewServiceClient(getProtectedObjectProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -252,10 +256,11 @@ func buildGetProtectedObjectQueryParams(d *schema.ResourceData) string {
 func resourceProtectedObjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                    = meta.(*config.Config)
+		region                 = cfg.GetRegion(d)
 		protectedObjectHttpUrl = "v1/cnad/packages/{package_id}/protected-ips"
 		protectedObjectProduct = "aad"
 	)
-	protectedObjectClient, err := cfg.NewServiceClient(protectedObjectProduct, "")
+	protectedObjectClient, err := cfg.NewServiceClient(protectedObjectProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

@@ -15,12 +15,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// API: Workspace POST /v2/{project_id}/groups
-// API: Workspace POST /v2/{project_id}/groups/{group_id}/actions
-// API: Workspace DELETE /v2/{project_id}/groups/{group_id}
-// API: Workspace GET /v2/{project_id}/groups
-// API: Workspace GET /v2/{project_id}/groups/{group_id}/users
-// API: Workspace PUT /v2/{project_id}/groups/{group_id}
+// @API Workspace POST /v2/{project_id}/groups
+// @API Workspace POST /v2/{project_id}/groups/{group_id}/actions
+// @API Workspace DELETE /v2/{project_id}/groups/{group_id}
+// @API Workspace GET /v2/{project_id}/groups
+// @API Workspace GET /v2/{project_id}/groups/{group_id}/users
+// @API Workspace PUT /v2/{project_id}/groups/{group_id}
 func ResourceUserGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceUserGroupCreate,

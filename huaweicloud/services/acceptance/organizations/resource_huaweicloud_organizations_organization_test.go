@@ -17,10 +17,11 @@ import (
 func resourceOrganizationRead(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	// getOrganization: Query Organizations organization
 	var (
+		region                 = acceptance.HW_REGION_NAME
 		getOrganizationHttpUrl = "v1/organizations"
 		getOrganizationProduct = "organizations"
 	)
-	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, "")
+	getOrganizationClient, err := cfg.NewServiceClient(getOrganizationProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Organizations Client: %s", err)
 	}

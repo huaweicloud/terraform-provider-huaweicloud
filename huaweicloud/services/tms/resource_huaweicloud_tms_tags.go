@@ -18,6 +18,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API TMS POST /v1.0/predefine_tags/action
+// @API TMS GET /v1.0/predefine_tags
 func ResourceTmsTag() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTmsTagCreate,

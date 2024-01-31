@@ -24,6 +24,10 @@ const (
 	targetServiceElb = "ELB"
 )
 
+// @API WAF DELETE /v1/{project_id}/waf/certificate/{id}
+// @API WAF GET /v1/{project_id}/waf/certificate/{id}
+// @API ELB DELETE /v3/{project_id}/elb/certificates/{id}
+// @API ELB GET /v3/{project_id}/elb/certificates/{id}
 func ResourceCcmCertificatePush() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCcmCertificateBatchPush,

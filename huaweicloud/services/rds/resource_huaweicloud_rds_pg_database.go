@@ -25,6 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/database
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/database/update
 func ResourcePgDatabase() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePgDatabaseCreate,

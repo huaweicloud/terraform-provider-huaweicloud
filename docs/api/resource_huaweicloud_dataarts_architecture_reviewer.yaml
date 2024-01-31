@@ -8,7 +8,7 @@ host: huaweicloud.com
 tags:
     - name: DataArtsStudio
 paths:
-    v2/{project_id}/design/approvals/users:
+    /v2/{project_id}/design/approvals/users:
         DELETE:
             tag: DataArtsStudio
         GET:

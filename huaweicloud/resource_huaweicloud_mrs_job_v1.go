@@ -15,6 +15,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API MRS DELETE /v1.1/{project_id}/job-executions/{id}
+// @API MRS GET /v1.1/{project_id}/job-exes/{id}
+// @API MRS POST /v1.1/{project_id}/jobs/submit-job
 func ResourceMRSJobV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMRSJobV1Create,

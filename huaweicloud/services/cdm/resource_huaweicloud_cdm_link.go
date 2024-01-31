@@ -21,6 +21,10 @@ const (
 	configPref = "linkConfig."
 )
 
+// @API CDM DELETE /v1.1/{project_id}/clusters/{clusterId}/cdm/link/{linkName}
+// @API CDM GET /v1.1/{project_id}/clusters/{clusterId}/cdm/link/{linkName}
+// @API CDM PUT /v1.1/{project_id}/clusters/{clusterId}/cdm/link/{linkName}
+// @API CDM POST /v1.1/{project_id}/clusters/{clusterId}/cdm/link
 func ResourceCdmLink() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCdmLinkCreate,

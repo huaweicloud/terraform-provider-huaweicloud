@@ -26,7 +26,7 @@
               "collation": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "created": {
                 "type": "string",
@@ -58,8 +58,7 @@
               "ha_replication_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -149,6 +148,11 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "switch_strategy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "tags": {
                 "type": [

@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_desktops": {
+          "block": {
+            "attributes": {
+              "desktop_id": {
+                "type": "string",
+                "optional": true
+              },
+              "desktop_type": {
+                "type": "string",
+                "optional": true
+              },
+              "desktops": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attach_state": "string",
+                      "attach_user_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_group": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "availability_zone": "string",
+                      "created_at": "string",
+                      "data_volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "device": "string",
+                            "id": "string",
+                            "name": "string",
+                            "size": "number",
+                            "type": "string",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "in_maintenance_mode": "bool",
+                      "internet_mode": "string",
+                      "ip_addresses": [
+                        "list",
+                        "string"
+                      ],
+                      "is_support_internet": "bool",
+                      "join_domain": "string",
+                      "name": "string",
+                      "ou_name": "string",
+                      "ou_version": "string",
+                      "product_id": "string",
+                      "root_volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "device": "string",
+                            "id": "string",
+                            "name": "string",
+                            "size": "number",
+                            "type": "string",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ],
+                      "site_name": "string",
+                      "site_type": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "fixed_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "optional": true
+              },
+              "in_maintenance_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "user_attached": {
+                "type": "string",
+                "optional": true
+              },
+              "user_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

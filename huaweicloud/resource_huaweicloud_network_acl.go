@@ -24,6 +24,15 @@ type FirewallGroup struct {
 	routerinsertion.FirewallGroupExt
 }
 
+// @API VPC GET /v2.0/ports
+// @API VPC GET /v1/{project_id}/subnets/{id}
+// @API VPC DELETE /v2.0/fwaas/firewall_groups/{id}
+// @API VPC GET /v2.0/fwaas/firewall_groups/{id}
+// @API VPC PUT /v2.0/fwaas/firewall_groups/{id}
+// @API VPC POST /v2.0/fwaas/firewall_groups
+// @API VPC DELETE /v2.0/fwaas/firewall_policies/{id}
+// @API VPC PUT /v2.0/fwaas/firewall_policies/{id}
+// @API VPC POST /v2.0/fwaas/firewall_policies
 func ResourceNetworkACL() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkACLCreate,

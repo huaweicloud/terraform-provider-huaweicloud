@@ -73,6 +73,11 @@ var volumeAttachedSchema = &schema.Schema{
 	},
 }
 
+// @API IEC POST /v1/cloudservers/delete
+// @API IEC GET /v1/cloudservers/{serverID}
+// @API IEC PUT /v1/cloudservers/{serverID}
+// @API IEC POST /v1/cloudservers
+// @API IEC GET /v1/cloudvolumes/{CloudVolumeID}
 func ResourceServer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServerCreate,

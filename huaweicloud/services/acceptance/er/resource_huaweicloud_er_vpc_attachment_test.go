@@ -38,7 +38,7 @@ func TestAccVpcAttachment_basic(t *testing.T) {
 		getVpcAttachmentResourceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -65,6 +65,7 @@ func TestAccVpcAttachment_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -166,7 +167,7 @@ resource "huaweicloud_er_vpc_attachment" "test" {
   auto_create_vpc_routes = true
 
   tags = {
-    foo = "bar"
+    owner = "terraform"
   }
 }
 `, testVpcAttachment_base(name, bgpAsNum), name)

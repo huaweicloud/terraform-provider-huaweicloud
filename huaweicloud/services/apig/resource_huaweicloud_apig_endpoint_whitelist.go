@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-add
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-delete
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions
 func ResourceEndpointWhiteList() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEndpointWhiteListCreate,

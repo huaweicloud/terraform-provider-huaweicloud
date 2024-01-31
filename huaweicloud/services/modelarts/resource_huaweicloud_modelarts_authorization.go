@@ -26,6 +26,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts POST /v2/{project_id}/agency
+// @API ModelArts DELETE /v2/{project_id}/authorizations
+// @API ModelArts GET /v2/{project_id}/authorizations
+// @API ModelArts POST /v2/{project_id}/authorizations
 func ResourceModelArtsAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceModelArtsAuthorizationCreate,

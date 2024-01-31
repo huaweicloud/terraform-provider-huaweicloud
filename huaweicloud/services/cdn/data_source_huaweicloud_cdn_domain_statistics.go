@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CDN GET /v1.0/cdn/statistics/domain-location-stats
 func DataSourceStatistics() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceStatisticsRead,

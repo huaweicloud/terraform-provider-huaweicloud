@@ -19,6 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API ELB PUT /v3/{project_id}/elb/l7policies/{policyID}/rules/{ruleID}
+// @API ELB DELETE /v3/{project_id}/elb/l7policies/{policyID}/rules/{ruleID}
+// @API ELB GET /v3/{project_id}/elb/l7policies/{policyID}/rules/{ruleID}
+// @API ELB POST /v3/{project_id}/elb/l7policies/{policyID}/rules
 func ResourceL7RuleV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceL7RuleV3Create,

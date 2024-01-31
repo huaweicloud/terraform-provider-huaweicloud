@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API UCS GET /v1/permissions/rules
+// @API UCS POST /v1/permissions/rules
+// @API UCS DELETE /v1/permissions/rules/{id}
+// @API UCS PUT /v1/permissions/rules/{id}
 func ResourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,
@@ -102,13 +106,14 @@ func PolicyContentSchema() *schema.Resource {
 
 func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createPolicy: Create a UCS Policy.
 	var (
 		createPolicyHttpUrl = "v1/permissions/rules"
 		createPolicyProduct = "ucs"
 	)
-	createPolicyClient, err := cfg.NewServiceClient(createPolicyProduct, "")
+	createPolicyClient, err := cfg.NewServiceClient(createPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}
@@ -192,6 +197,7 @@ func buildPolicyRequestBodyContent(rawParams interface{}) []map[string]interface
 
 func resourcePolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -200,7 +206,7 @@ func resourcePolicyRead(_ context.Context, d *schema.ResourceData, meta interfac
 		getPolicyHttpUrl = "v1/permissions/rules"
 		getPolicyProduct = "ucs"
 	)
-	getPolicyClient, err := cfg.NewServiceClient(getPolicyProduct, "")
+	getPolicyClient, err := cfg.NewServiceClient(getPolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}
@@ -265,6 +271,7 @@ func flattenGetPolicyResponseBodyContent(resp interface{}) []interface{} {
 
 func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	updatePolicyChanges := []string{
 		"description",
@@ -279,7 +286,7 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			updatePolicyHttpUrl = "v1/permissions/rules/{id}"
 			updatePolicyProduct = "ucs"
 		)
-		updatePolicyClient, err := cfg.NewServiceClient(updatePolicyProduct, "")
+		updatePolicyClient, err := cfg.NewServiceClient(updatePolicyProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating UCS Client: %s", err)
 		}
@@ -312,13 +319,14 @@ func buildUpdatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} 
 
 func resourcePolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deletePolicy: Delete an existing UCS Policy
 	var (
 		deletePolicyHttpUrl = "v1/permissions/rules/{id}"
 		deletePolicyProduct = "ucs"
 	)
-	deletePolicyClient, err := cfg.NewServiceClient(deletePolicyProduct, "")
+	deletePolicyClient, err := cfg.NewServiceClient(deletePolicyProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}

@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eip_pools": {
+          "block": {
+            "attributes": {
+              "access_site": {
+                "type": "string",
+                "optional": true
+              },
+              "geip_pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "allowed_bandwidth_types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cn_name": "string",
+                            "en_name": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "cn_name": "string",
+                      "created_at": "string",
+                      "en_name": "string",
+                      "id": "string",
+                      "ip_version": "number",
+                      "isp": "string",
+                      "name": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "number",
+                "optional": true
+              },
+              "isp": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,27 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_kms_grant
-    description: |-
-        Users can create authorizations for other IAM users or accounts,
-        granting them permission to use their own master key (CMK),
-        and a maximum of 100 authorizations can be created under one master key.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: KMS
-servers:
-    - url: https://KMS.cn-north-4.myhuaweicloud.com/
+    - name: DEW
 paths:
     /v1.0/{project_id}/kms/create-grant:
         POST:
-            tag: KMS
-            operationId: CreateGrant
-            x-ref-api: POST /v1.0/{project_id}/kms/create-grant
+            tag: DEW
+    /v1.0/{project_id}/kms/list-grants:
+        POST:
+            tag: DEW
     /v1.0/{project_id}/kms/revoke-grant:
         POST:
-            tag: KMS
-            operationId: DeleteGrant
-            x-ref-api: POST /v1.0/{project_id}/kms/revoke-grant
-    /v3/{project_id}/kms/list-grants:
-        POST:
-            tag: KMS
-            operationId: GetGrant
-            x-ref-api: POST /v3/{project_id}/kms/list-grants
+            tag: DEW

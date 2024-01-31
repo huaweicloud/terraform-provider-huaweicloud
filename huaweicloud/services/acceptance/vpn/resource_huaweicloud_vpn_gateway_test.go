@@ -15,14 +15,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getGatewayResourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getGatewayResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getGateway: Query the VPN gateway detail
 	var (
 		getGatewayHttpUrl = "v5/{project_id}/vpn-gateways/{id}"
 		getGatewayProduct = "vpn"
 	)
-	getGatewayClient, err := config.NewServiceClient(getGatewayProduct, region)
+	getGatewayClient, err := conf.NewServiceClient(getGatewayProduct, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Gateway Client: %s", err)
 	}

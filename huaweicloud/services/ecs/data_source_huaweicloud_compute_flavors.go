@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API ECS GET /v1/{project_id}/cloudservers/flavors
 func DataSourceEcsFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceEcsFlavorsRead,

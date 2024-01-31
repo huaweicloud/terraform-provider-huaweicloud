@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API NAT DELETE /v3/{project_id}/private-nat/transit-ips/{transitIpId}
+// @API NAT GET /v3/{project_id}/private-nat/transit-ips/{transitIpId}
+// @API NAT POST /v3/{project_id}/private-nat/transit-ips
+// @API NAT POST /v3/{project_id}/transit-ips/{id}/tags/action
 func ResourcePrivateTransitIp() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePrivateTransitIpCreate,

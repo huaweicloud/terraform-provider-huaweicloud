@@ -224,3 +224,34 @@ func UpdateAssistAuthConfig(c *golangsdk.ServiceClient, opts UpdateAuthConfigOpt
 	})
 	return err
 }
+
+// GetLockStatus is the method used to get whether the Workspace service is locked detail.
+func GetLockStatus(c *golangsdk.ServiceClient) (*LockStatusResp, error) {
+	var r LockStatusResp
+	_, err := c.Get(lockStatusURL(c), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return &r, err
+}
+
+// UnlockOpts is the object to specified the Workspace service unlock action type.
+type UnlockOpts struct {
+	// Unlock action type.
+	// + unlock: Indicates unlock the Workspace service.
+	OperateType string `json:"operate_type" required:"true"`
+}
+
+// UnlockService is the method that used to unlock the Workspace service.
+func UnlockService(c *golangsdk.ServiceClient, opts UnlockOpts) (*UnlockResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r UnlockResp
+	_, err = c.Put(lockStatusURL(c), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}

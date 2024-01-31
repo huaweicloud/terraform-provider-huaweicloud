@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CNAD POST /v1/cnad/policies/{policy_id}/bind
+// @API CNAD POST /v1/cnad/policies/{policy_id}/unbind
+// @API CNAD GET /v1/cnad/protected-ips
 func ResourcePolicyAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyAssociateCreate,
@@ -133,7 +136,8 @@ func associateProtectedObjectSchema() *schema.Resource {
 
 func resourcePolicyAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("aad", "")
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -150,11 +154,12 @@ func resourcePolicyAssociateCreate(ctx context.Context, d *schema.ResourceData, 
 func resourcePolicyAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                       = meta.(*config.Config)
+		region                    = cfg.GetRegion(d)
 		mErr                      *multierror.Error
 		getProtectedObjectHttpUrl = "v1/cnad/protected-ips"
 		getProtectedObjectProduct = "aad"
 	)
-	getProtectedObjectClient, err := cfg.NewServiceClient(getProtectedObjectProduct, "")
+	getProtectedObjectClient, err := cfg.NewServiceClient(getProtectedObjectProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -233,7 +238,8 @@ func buildGetObjectsPolicyQueryParams(d *schema.ResourceData) string {
 
 func resourcePolicyAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("aad", "")
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -257,7 +263,8 @@ func resourcePolicyAssociateUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func resourcePolicyAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("aad", "")
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

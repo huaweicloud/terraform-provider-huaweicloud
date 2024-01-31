@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS POST /v3/{project_id}/lts/host-group-list
+// @API LTS DELETE /v3/{project_id}/lts/host-group
+// @API LTS POST /v3/{project_id}/lts/host-group
+// @API LTS PUT /v3/{project_id}/lts/host-group
 func ResourceHostGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHostGroupCreate,

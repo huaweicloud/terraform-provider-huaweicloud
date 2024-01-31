@@ -27,6 +27,10 @@ const (
 	nginxParseType = "nginx"
 )
 
+// @API LTS GET /v2/{project_id}/lts/struct/template
+// @API LTS POST /v2/{project_id}/lts/struct/template
+// @API LTS PUT /v2/{project_id}/lts/struct/template
+// @API LTS DELETE /v2/{project_id}/lts/struct/template
 func ResourceStructCustomConfig() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStructCustomConfigCreate,

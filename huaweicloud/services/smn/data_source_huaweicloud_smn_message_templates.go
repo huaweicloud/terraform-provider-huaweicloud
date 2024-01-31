@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API SMN GET /v2/{project_id}/notifications/message_template
 func DataSourceSmnMessageTemplates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSmnMessageTemplateRead,

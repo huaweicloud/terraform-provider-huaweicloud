@@ -8,6 +8,10 @@ servers:
     - url: https://cc.myhuaweicloud.com
 paths:
     /v3/{domain_id}/gcn/central-network/{central_network_id}/policies:
+        GET:
+            tag: CC
+            operationId: GetCentralNetworkPolicy
+            x-ref-api: GET /v3/{domain_id}/gcn/central-network/{central_network_id}/policies
         POST:
             tag: CC
             operationId: CreateCentralNetworkPolicy
@@ -17,8 +21,3 @@ paths:
             tag: CC
             operationId: DeleteCentralNetworkPolicy
             x-ref-api: DELETE /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{id}
-    /v3/{domain_id}/gcn/central-network/{central_network_id}/policies?id={id}:
-        GET:
-            tag: CC
-            operationId: GetCentralNetworkPolicy
-            x-ref-api: GET /v3/{domain_id}/gcn/central-network/{central_network_id}/policies?id={id}

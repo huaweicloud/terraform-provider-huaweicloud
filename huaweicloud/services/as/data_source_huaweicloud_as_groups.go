@@ -16,6 +16,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags
+// @API AS GET /autoscaling-api/v1/{project_id}/scaling_group
 func DataSourceASGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceASGroupRead,

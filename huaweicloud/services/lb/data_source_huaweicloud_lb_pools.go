@@ -24,6 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LB GET /v2/{project_id}/elb/pools
 func DataSourcePools() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourcePoolsRead,

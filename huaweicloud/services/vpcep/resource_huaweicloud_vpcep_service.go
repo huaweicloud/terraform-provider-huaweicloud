@@ -25,6 +25,14 @@ const (
 	tagVPCEPService string = "endpoint_service"
 )
 
+// @API VPCEP DELETE /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}
+// @API VPCEP PUT /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}
+// @API VPCEP POST /v1/{project_id}/vpc-endpoint-services
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections
+// @API VPCEP POST /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/permissions/action
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/permissions
+// @API VPCEP POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceVPCEndpointService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVPCEndpointServiceCreate,

@@ -24,6 +24,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CTS POST /v3/{project_id}/tracker
+// @API CTS PUT /v3/{project_id}/tracker
+// @API CTS GET /v3/{project_id}/trackers
 func ResourceCTSTracker() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCTSTrackerCreate,
@@ -85,7 +88,7 @@ func ResourceCTSTracker() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"tags": common.TagsSchema(),
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -130,11 +133,20 @@ func resourceCTSTrackerCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error retrieving CTS tracker: %s", err)
 	}
 
-	if err := createSystemTracker(d, ctsClient); err != nil {
-		return diag.Errorf("error creating system CTS tracker: %s", err)
+	resourceID, err = createSystemTracker(d, ctsClient)
+	if err != nil {
+		return diag.Errorf("error creating CTS tracker: %s", err)
 	}
 
 	d.SetId(resourceID)
+
+	if rawTag := d.Get("tags").(map[string]interface{}); len(rawTag) > 0 {
+		tagList := expandResourceTags(rawTag)
+		_, err = ctsClient.BatchCreateResourceTags(buildCreateTagOpt(tagList, resourceID))
+		if err != nil {
+			return diag.Errorf("error creating CTS tracker tags: %s", err)
+		}
+	}
 
 	// disable status if necessary
 	if enabled := d.Get("enabled").(bool); !enabled {
@@ -196,6 +208,13 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		_, err = ctsClient.UpdateTracker(&updateOpts)
 		if err != nil {
 			return diag.Errorf("error updating CTS tracker: %s", err)
+		}
+
+		if d.HasChange("tags") {
+			err = updateResourceTags(ctsClient, d)
+			if err != nil {
+				return diag.Errorf("error updating CTS tracker tags: %s", err)
+			}
 		}
 	}
 
@@ -297,6 +316,15 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("falied to reset CTS system tracker: %s", err)
 	}
 
+	oldRaw, _ := d.GetChange("tags")
+	if oldTags := oldRaw.(map[string]interface{}); len(oldTags) > 0 {
+		oldTagList := expandResourceTags(oldTags)
+		_, err = ctsClient.BatchDeleteResourceTags(buildDeleteTagOpt(oldTagList, d.Id()))
+		if err != nil {
+			return diag.Errorf("falied to delete CTS system tracker tags: %s", err)
+		}
+	}
+
 	return nil
 }
 
@@ -316,7 +344,7 @@ func formatValue(i interface{}) string {
 	return strings.Trim(string(jsonRaw), `"`)
 }
 
-func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) error {
+func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (string, error) {
 	obsInfo := cts.TrackerObsInfo{
 		BucketName:     utils.String(d.Get("bucket_name").(string)),
 		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
@@ -343,8 +371,15 @@ func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) er
 		Body: &reqBody,
 	}
 
-	_, err := ctsClient.CreateTracker(&createOpts)
-	return err
+	resp, err := ctsClient.CreateTracker(&createOpts)
+	if err != nil {
+		return "", err
+	}
+	if resp.Id == nil {
+		return "", fmt.Errorf("ID is not found in API response")
+	}
+
+	return *resp.Id, nil
 }
 
 func getSystemTracker(ctsClient *client.CtsClient) (*cts.TrackerResponseBody, error) {

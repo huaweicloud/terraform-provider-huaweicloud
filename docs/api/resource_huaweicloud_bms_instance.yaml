@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: BMS
 paths:
+  /v1/{project_id}/baremetalservers/{id}/tags/action:
+    POST:
+      tag: BMS
+      operationId: batchUpdate
   /v1/{project_id}/baremetalservers/{serverID}:
     get:
       tag: BMS

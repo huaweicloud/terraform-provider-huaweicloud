@@ -22,7 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio GET /v2/{project_id}/design/standards/templates
+// @API DataArtsStudio GET /v2/{project_id}/design/standards/templates
 func DataSourceTemplateOptionalFields() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceTemplateOptionalFieldsRead,

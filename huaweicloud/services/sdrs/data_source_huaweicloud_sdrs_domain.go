@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SDRS GET /v1/{project_id}/active-domains
 func DataSourceSDRSDomain() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSDRSDomainRead,

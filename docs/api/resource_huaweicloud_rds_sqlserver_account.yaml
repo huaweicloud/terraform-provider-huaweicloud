@@ -17,11 +17,11 @@ paths:
             tag: RDS
             operationId: DeleteSQLServerAccount
             x-ref-api: DELETE /v3/{project_id}/instances/{instance_id}/db_user/{user_name}
-    /v3/{project_id}/instances/{instance_id}/db_user/detail?page=1&limit=100:
+    /v3/{project_id}/instances/{instance_id}/db_user/detail:
         GET:
             tag: RDS
             operationId: GetSQLServerAccount
-            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/db_user/detail?page=1&limit=100
+            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/db_user/detail
     /v3/{project_id}/instances/{instance_id}/db_user/resetpwd:
         POST:
             tag: RDS

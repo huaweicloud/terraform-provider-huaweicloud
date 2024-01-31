@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS POST /v1.0/{project_id}/groups/{group_id}/topics/{topic_id}/search-criterias
+// @API LTS GET /v1.0/{project_id}/groups/{group_id}/topics/{topic_id}/search-criterias
+// @API LTS DELETE /v1.0/{project_id}/groups/{group_id}/topics/{topic_id}/search-criterias
 func ResourceSearchCriteria() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSearchCriteriaCreate,

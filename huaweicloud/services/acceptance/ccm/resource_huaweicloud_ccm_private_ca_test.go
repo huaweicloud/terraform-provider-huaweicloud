@@ -47,7 +47,7 @@ func getPrivateCAResourceFunc(conf *config.Config, state *terraform.ResourceStat
 
 func TestAccCCMPrivateCA_basic(t *testing.T) {
 	var obj interface{}
-	rName := acceptance.RandomAccResourceName()
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_ccm_private_ca.test_subordinate"
 
 	rc := acceptance.InitResourceCheck(
@@ -81,6 +81,7 @@ func TestAccCCMPrivateCA_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "charging_mode"),
 					resource.TestCheckResourceAttrSet(resourceName, "free_quota"),
 					resource.TestCheckResourceAttrSet(resourceName, "expired_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "crl_configuration.0.crl_dis_point"),
 				),
 			},
 			{
@@ -137,10 +138,16 @@ func tesPrivateCA_basic(commonName string) string {
 	return fmt.Sprintf(`
 %s
 
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[2]s-crl-bucket"
+  acl           = "private"
+  force_destroy = true
+}
+
 resource "huaweicloud_ccm_private_ca" "test_subordinate" {
   type = "SUBORDINATE"
   distinguished_name {
-    common_name         = "%s-subordinate"
+    common_name         = "%[2]s-subordinate"
     country             = "CN"
     state               = "GD"
     locality            = "SZ"
@@ -159,6 +166,10 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
     foo = "bar"
     key = "value"
   }
+  crl_configuration {
+    obs_bucket_name = huaweicloud_obs_bucket.test.bucket
+    valid_days      = "7"
+  }
 }`, tesPrivateCA_base(commonName), commonName)
 }
 
@@ -167,10 +178,16 @@ func testPrivateCA_updateTags(commonName string) string {
 	return fmt.Sprintf(`
 %s
 
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[2]s-crl-bucket"
+  acl           = "private"
+  force_destroy = true
+}
+  
 resource "huaweicloud_ccm_private_ca" "test_subordinate" {
   type = "SUBORDINATE"
   distinguished_name {
-    common_name         = "%s-subordinate"
+    common_name         = "%[2]s-subordinate"
     country             = "CN"
     state               = "GD"
     locality            = "SZ"
@@ -188,6 +205,10 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
   tags = {
     foo1 = "bar1"
     key1 = "value1"
+  }
+  crl_configuration {
+    obs_bucket_name = huaweicloud_obs_bucket.test.bucket
+    valid_days      = "7"
   }
 }`, tesPrivateCA_base(commonName), commonName)
 }

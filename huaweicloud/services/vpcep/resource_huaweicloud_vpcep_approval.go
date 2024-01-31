@@ -28,6 +28,9 @@ var approvalActionStatusMap = map[string]string{
 	actionReject:  "rejected",
 }
 
+// @API VPCEP POST /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections/action
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections
+// @API VPCEP GET /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}
 func ResourceVPCEndpointApproval() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVPCEndpointApprovalCreate,

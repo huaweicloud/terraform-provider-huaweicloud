@@ -57,6 +57,11 @@ func expackProductSchema() *schema.Resource {
 	}
 }
 
+// @API WAF DELETE /v1/{project_id}/waf/postpaid
+// @API WAF POST /v1/{project_id}/waf/postpaid
+// @API WAF POST /v1/{project_id}/waf/subscription/batchalter/prepaid-cloud-waf
+// @API WAF POST /v1/{project_id}/waf/subscription/purchase/prepaid-cloud-waf
+// @API WAF GET /v1/{project_id}/waf/subscription
 func ResourceCloudInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCloudInstanceCreate,

@@ -19,10 +19,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio POST /v1/{project_id}/scripts
-// API: DataArtsStudio DELETE /v1/{project_id}/scripts/{script_name}
-// API: DataArtsStudio GET /v1/{project_id}/scripts/{script_name}
-// API: DataArtsStudio PUT /v1/{project_id}/scripts/{script_name}
+// @API DataArtsStudio POST /v1/{project_id}/scripts
+// @API DataArtsStudio DELETE /v1/{project_id}/scripts/{script_name}
+// @API DataArtsStudio GET /v1/{project_id}/scripts/{script_name}
+// @API DataArtsStudio PUT /v1/{project_id}/scripts/{script_name}
 func ResourceDataArtsFactoryScript() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScriptCreate,

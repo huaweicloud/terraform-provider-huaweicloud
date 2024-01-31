@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_fgs_application
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: FunctionGraph
+paths:
+    /v2/{project_id}/fgs/applications:
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/applications/{id}:
+        DELETE:
+            tag: FunctionGraph
+        GET:
+            tag: FunctionGraph

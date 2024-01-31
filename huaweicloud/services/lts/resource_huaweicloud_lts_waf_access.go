@@ -22,6 +22,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API WAF GET /v1/{project_id}/waf/config/lts
+// @API WAF PUT /v1/{project_id}/waf/config/lts/{ltsconfig_id}
 func ResourceWAFAccess() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWAFAccessCreate,

@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DNS POST /v2/{project_id}/DNS-ptr_record/{id}/tags/action
+// @API DNS GET /v2/reverse/floatingips/{region}:{floatingip_id}
+// @API DNS PATCH /v2/reverse/floatingips/{region}:{floatingip_id}
 func ResourceDNSPtrRecord() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSPtrRecordCreate,

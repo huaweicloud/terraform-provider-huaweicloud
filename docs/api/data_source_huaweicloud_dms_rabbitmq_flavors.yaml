@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_dms_rabbitmq_flavors
-  description: 
+    version: ""
+    title: data_source_huaweicloud_dms_rabbitmq_flavors
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: RabbitMQ
+    - name: RabbitMQ
 paths:
-  /v2/{engine}/products:
-    get:
-      tag: RabbitMQ
-      operationId: List
+    /v2/{engine}/products:
+        GET:
+            tag: RabbitMQ

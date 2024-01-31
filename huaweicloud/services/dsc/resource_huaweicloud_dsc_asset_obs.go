@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DSC PUT /v1/{project_id}/sdg/asset/{id}/name
+// @API DSC DELETE /v1/{project_id}/sdg/asset/obs/bucket/{id}
+// @API DSC GET /v1/{project_id}/sdg/asset/obs/buckets
+// @API DSC POST /v1/{project_id}/sdg/asset/obs/buckets
 func ResourceAssetObs() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAssetObsCreate,

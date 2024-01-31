@@ -81,8 +81,7 @@
               "iops": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "kms_id": {
                 "type": "string",
@@ -138,8 +137,7 @@
               "throughput": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "volume_type": {
                 "type": "string",

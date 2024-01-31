@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_kms_data_key
-  description: 
+    version: ""
+    title: data_source_huaweicloud_kms_data_key
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DEW
+    - name: DEW
 paths:
-  /v1.0/{project_id}/kms/create-datakey:
-    post:
-      tag: DEW
-      operationId: DataEncryptGet
+    /v1.0/{project_id}/kms/create-datakey:
+        POST:
+            tag: DEW

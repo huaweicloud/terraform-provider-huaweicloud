@@ -24,6 +24,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DWS GET /v1.0/{project_id}/job/{job_id}
+// @API DWS GET /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
+// @API DWS DELETE /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{id}
+// @API AWS PUT /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{id}
 func ResourceDwsExtDataSource() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsExtDataSourceCreate,

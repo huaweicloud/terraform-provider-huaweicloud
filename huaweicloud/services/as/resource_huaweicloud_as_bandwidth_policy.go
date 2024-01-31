@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_policy/{id}
+// @API AS POST /autoscaling-api/v2/{project_id}/scaling_policy
+// @API AS GET /autoscaling-api/v2/{project_id}/scaling_policy/{id}
+// @API AS PUT /autoscaling-api/v2/{project_id}/scaling_policy/{id}
 func ResourceASBandWidthPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASBandWidthPolicyCreate,

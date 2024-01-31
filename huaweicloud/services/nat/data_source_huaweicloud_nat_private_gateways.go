@@ -23,7 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: NAT GET /v3/{project_id}/private-nat/gateways
+// @API NAT GET /v3/{project_id}/private-nat/gateways
 func DataSourcePrivateGateways() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourcePrivateGatewaysRead,

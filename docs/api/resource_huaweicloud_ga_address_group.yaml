@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ga_address_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GA
+paths:
+    /v1/ip-groups:
+        POST:
+            tag: GA
+    /v1/ip-groups/{ip_group_id}:
+        DELETE:
+            tag: GA
+        GET:
+            tag: GA
+        PUT:
+            tag: GA

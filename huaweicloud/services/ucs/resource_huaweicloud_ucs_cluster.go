@@ -21,6 +21,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API UCS POST /v1/clusters
+// @API UCS DELETE /v1/clusters/{id}
+// @API UCS GET /v1/clusters/{id}
+// @API UCS PUT /v1/clusters/{id}
+// @API UCS PUT /v1/clusters/{id}/associatedrules
 func ResourceCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceClusterCreate,
@@ -128,13 +133,14 @@ func ResourceCluster() *schema.Resource {
 
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createCluster: Create a UCS Cluster.
 	var (
 		createClusterHttpUrl = "v1/clusters"
 		createClusterProduct = "ucs"
 	)
-	createClusterClient, err := cfg.NewServiceClient(createClusterProduct, "")
+	createClusterClient, err := cfg.NewServiceClient(createClusterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}
@@ -210,6 +216,7 @@ func buildCreateClusterSpecBodyParams(d *schema.ResourceData) map[string]interfa
 
 func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -218,7 +225,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		getClusterHttpUrl = "v1/clusters/{id}"
 		getClusterProduct = "ucs"
 	)
-	getClusterClient, err := cfg.NewServiceClient(getClusterProduct, "")
+	getClusterClient, err := cfg.NewServiceClient(getClusterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}
@@ -266,11 +273,12 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var (
 		updateClusterProduct = "ucs"
 	)
-	updateClusterClient, err := cfg.NewServiceClient(updateClusterProduct, "")
+	updateClusterClient, err := cfg.NewServiceClient(updateClusterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}
@@ -372,13 +380,14 @@ func buildUpdateClusterSpecBodyParams(d *schema.ResourceData) map[string]interfa
 
 func resourceClusterDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// deleteCluster: Delete an existing UCS Cluster
 	var (
 		deleteClusterHttpUrl = "v1/clusters/{id}"
 		deleteClusterProduct = "ucs"
 	)
-	deleteClusterClient, err := cfg.NewServiceClient(deleteClusterProduct, "")
+	deleteClusterClient, err := cfg.NewServiceClient(deleteClusterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating UCS Client: %s", err)
 	}

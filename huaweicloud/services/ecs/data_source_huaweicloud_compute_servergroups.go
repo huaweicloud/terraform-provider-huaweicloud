@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ECS GET /v1/{project_id}/cloudservers/os-server-groups
 func DataSourceComputeServerGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceComputeServerGroupsRead,

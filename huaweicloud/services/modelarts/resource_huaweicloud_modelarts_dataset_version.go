@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts DELETE /v2/{project_id}/datasets/{datasetId}/versions/{versionId}
+// @API ModelArts GET /v2/{project_id}/datasets/{datasetId}/versions/{versionId}
+// @API ModelArts POST /v2/{project_id}/datasets/{datasetId}/versions
 func ResourceDatasetVersion() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDatasetVersionCreate,

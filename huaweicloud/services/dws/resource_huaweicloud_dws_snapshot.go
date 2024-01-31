@@ -25,6 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DWS POST /v1.0/{project_id}/snapshots
+// @API DWS GET /v1.0/{project_id}/snapshots/{id}
+// @API DWS DELETE /v1.0/{project_id}/snapshots/{id}
 func ResourceDwsSnapshot() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsSnapshotCreate,

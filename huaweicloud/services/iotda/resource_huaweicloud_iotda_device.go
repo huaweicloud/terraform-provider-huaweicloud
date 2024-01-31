@@ -22,6 +22,16 @@ const (
 	deviceStatusFrozen = "FROZEN"
 )
 
+// @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/unfreeze
+// @API IoTDA DELETE /v5/iot/{project_id}/devices/{device_id}
+// @API IoTDA GET /v5/iot/{project_id}/devices/{device_id}
+// @API IoTDA PUT /v5/iot/{project_id}/devices/{device_id}
+// @API IoTDA POST /v5/iot/{project_id}/devices
+// @API IoTDA POST /v5/iot/{project_id}/tags/bind-resource
+// @API IoTDA POST /v5/iot/{project_id}/tags/unbind-resource
+// @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/action
+// @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/freeze
+// @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/reset-fingerprint
 func ResourceDevice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDeviceCreate,
@@ -214,7 +224,6 @@ func ResourceDeviceRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("name", response.DeviceName),
 		d.Set("device_id", response.DeviceId),
 		d.Set("node_id", response.NodeId),
-		d.Set("name", response.DeviceName),
 		d.Set("product_id", response.ProductId),
 		d.Set("gateway_id", response.GatewayId),
 		d.Set("description", response.Description),

@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CodeArts POST /v4/project
+// @API CodeArts DELETE /v4/projects/{id}
+// @API CodeArts GET /v4/projects/{id}
+// @API ProjectMan PUT /v4/projects/{id}
 func ResourceProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProjectCreate,

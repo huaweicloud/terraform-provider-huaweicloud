@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DWS DELETE /v1.0/{project_id}/clusters/{cluster_id}/snapshot-policies/{id}
+// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/snapshot-policies
+// @API DWS POST /v2/{project_id}/clusters/{cluster_id}/snapshot-policies
 func ResourceDwsSnapshotPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsSnapshotPolicyCreate,

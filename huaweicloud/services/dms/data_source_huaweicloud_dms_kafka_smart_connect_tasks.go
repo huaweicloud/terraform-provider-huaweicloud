@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: Kafka GET /v2/{project_id}/connectors/{connector_id}/sink-tasks
+// @API Kafka GET /v2/{project_id}/connectors/{connector_id}/sink-tasks
 func DataSourceDmsKafkaSmartConnectTasks() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceDmsKafkaSmartConnectTasksRead,

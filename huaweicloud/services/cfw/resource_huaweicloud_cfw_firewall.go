@@ -30,13 +30,13 @@ const (
 	FirewallNotExistsCode = "CFW.00200005"
 )
 
-// API: CFW POST v2/{project_id}/firewall
-// API: CFW GET v3/{project_id}/jobs/{id}
-// API: CFW POST v1/{project_id}/firewall/east-west
-// API: CFW GET v1/{project_id}/firewall/east-west
-// API: CFW GET v1/{project_id}/firewall/exist
-// API: CFW POST v1/{project_id}/firewall/east-west/protect
-// API: CFW DELETE v2/{project_id}/firewall/{id}
+// @API CFW POST /v2/{project_id}/firewall
+// @API CFW GET /v3/{project_id}/jobs/{id}
+// @API CFW POST /v1/{project_id}/firewall/east-west
+// @API CFW GET /v1/{project_id}/firewall/east-west
+// @API CFW GET /v1/{project_id}/firewall/exist
+// @API CFW POST /v1/{project_id}/firewall/east-west/protect
+// @API CFW DELETE /v2/{project_id}/firewall/{id}
 
 func ResourceFirewall() *schema.Resource {
 	return &schema.Resource{

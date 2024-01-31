@@ -29,6 +29,9 @@ import (
 
 const maxElementsPerRequest = 50
 
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/database/db_user
+// @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db_privilege
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/db_privilege
 func ResourceSQLServerDatabasePrivilege() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLServerDatabasePrivilegeCreate,

@@ -31,6 +31,20 @@ const (
 	scopeSpilt = " "
 )
 
+// @API IAM PUT /v3/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}
+// @API IAM GET /v3/OS-FEDERATION/identity_providers/{idpID}/protocols
+// @API IAM PATCH /v3/OS-FEDERATION/identity_providers/{id}
+// @API IAM PUT /v3/OS-FEDERATION/identity_providers/{id}
+// @API IAM DELETE /v3/OS-FEDERATION/identity_providers/{id}
+// @API IAM GET /v3/OS-FEDERATION/identity_providers/{id}
+// @API IAM PUT /v3/OS-FEDERATION/mappings/{id}
+// @API IAM DELETE /v3/OS-FEDERATION/mappings/{id}
+// @API IAM GET /v3/OS-FEDERATION/mappings/{id}
+// @API IAM GET /v3-ext/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}/metadata
+// @API IAM POST /v3-ext/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}/metadata
+// @API IAM GET /v3.0/OS-FEDERATION/identity-providers/{idpID}/openid-connect-config
+// @API IAM POST /v3.0/OS-FEDERATION/identity-providers/{idpID}/openid-connect-config
+// @API IAM PUT /v3.0/OS-FEDERATION/identity-providers/{idpID}/openid-connect-config
 func ResourceIdentityProvider() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityProviderCreate,

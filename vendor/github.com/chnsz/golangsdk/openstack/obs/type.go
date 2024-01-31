@@ -161,6 +161,9 @@ const (
 	//StorageClassCold storage class: COLD
 	StorageClassCold StorageClassType = "COLD"
 
+	//StorageClassDeepArchive storage class: DEEP_ARCHIVE
+	StorageClassDeepArchive StorageClassType = "DEEP_ARCHIVE"
+
 	storageClassStandardIA StorageClassType = "STANDARD_IA"
 	storageClassGlacier    StorageClassType = "GLACIER"
 )

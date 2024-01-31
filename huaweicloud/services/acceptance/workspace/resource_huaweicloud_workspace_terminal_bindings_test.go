@@ -40,7 +40,7 @@ func TestAccTerminalBindings_basic(t *testing.T) {
 		rc           = acceptance.InitResourceCheck(resourceName, &bindings, getTerminalBindingsFunc)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

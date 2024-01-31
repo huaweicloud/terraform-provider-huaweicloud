@@ -16,6 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IoTDA POST /v5/iot/{project_id}/apps
+// @API IoTDA DELETE /v5/iot/{project_id}/apps/{app_id}
+// @API IoTDA GET /v5/iot/{project_id}/apps/{app_id}
 func ResourceSpace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSpaceCreate,

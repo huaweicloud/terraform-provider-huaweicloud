@@ -124,6 +124,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `zone_name` - The zone name of the record set.
 
+* `zone_type` - The type of zone. The value can be **public** or **private**.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

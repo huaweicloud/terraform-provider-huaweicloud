@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPN POST /v5/{project_id}/customer-gateways
+// @API VPN DELETE /v5/{project_id}/customer-gateways/{id}
+// @API VPN GET /v5/{project_id}/customer-gateways/{id}
+// @API VPN PUT /v5/{project_id}/customer-gateways/{id}
 func ResourceCustomerGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomerGatewayCreate,
@@ -126,7 +130,7 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 	)
 	createCustomerGatewayClient, err := cfg.NewServiceClient(createCustomerGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CustomerGateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	createCustomerGatewayPath := createCustomerGatewayClient.Endpoint + createCustomerGatewayHttpUrl
@@ -141,7 +145,7 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 	createCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildCreateCustomerGatewayBodyParams(d))
 	createCustomerGatewayResp, err := createCustomerGatewayClient.Request("POST", createCustomerGatewayPath, &createCustomerGatewayOpt)
 	if err != nil {
-		return diag.Errorf("error creating CustomerGateway: %s", err)
+		return diag.Errorf("error creating VPN customer gateway: %s", err)
 	}
 
 	createCustomerGatewayRespBody, err := utils.FlattenResponse(createCustomerGatewayResp)
@@ -151,7 +155,7 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 
 	id, err := jmespath.Search("customer_gateway.id", createCustomerGatewayRespBody)
 	if err != nil {
-		return diag.Errorf("error creating CustomerGateway: ID is not found in API response")
+		return diag.Errorf("error creating VPN customer gateway: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 
@@ -193,7 +197,7 @@ func resourceCustomerGatewayRead(_ context.Context, d *schema.ResourceData, meta
 	)
 	getCustomerGatewayClient, err := cfg.NewServiceClient(getCustomerGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CustomerGateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	getCustomerGatewayPath := getCustomerGatewayClient.Endpoint + getCustomerGatewayHttpUrl
@@ -209,7 +213,7 @@ func resourceCustomerGatewayRead(_ context.Context, d *schema.ResourceData, meta
 	getCustomerGatewayResp, err := getCustomerGatewayClient.Request("GET", getCustomerGatewayPath, &getCustomerGatewayOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CustomerGateway")
+		return common.CheckDeletedDiag(d, err, "error retrieving VPN customer gateway")
 	}
 
 	getCustomerGatewayRespBody, err := utils.FlattenResponse(getCustomerGatewayResp)
@@ -260,7 +264,7 @@ func resourceCustomerGatewayUpdate(ctx context.Context, d *schema.ResourceData, 
 		)
 		updateCustomerGatewayClient, err := cfg.NewServiceClient(updateCustomerGatewayProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating CustomerGateway Client: %s", err)
+			return diag.Errorf("error creating VPN client: %s", err)
 		}
 
 		updateCustomerGatewayPath := updateCustomerGatewayClient.Endpoint + updateCustomerGatewayHttpUrl
@@ -276,7 +280,7 @@ func resourceCustomerGatewayUpdate(ctx context.Context, d *schema.ResourceData, 
 		updateCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateCustomerGatewayBodyParams(d))
 		_, err = updateCustomerGatewayClient.Request("PUT", updateCustomerGatewayPath, &updateCustomerGatewayOpt)
 		if err != nil {
-			return diag.Errorf("error updating CustomerGateway: %s", err)
+			return diag.Errorf("error updating VPN customer gateway: %s", err)
 		}
 	}
 	return resourceCustomerGatewayRead(ctx, d, meta)
@@ -312,7 +316,7 @@ func resourceCustomerGatewayDelete(_ context.Context, d *schema.ResourceData, me
 	)
 	deleteCustomerGatewayClient, err := cfg.NewServiceClient(deleteCustomerGatewayProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CustomerGateway Client: %s", err)
+		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
 	deleteCustomerGatewayPath := deleteCustomerGatewayClient.Endpoint + deleteCustomerGatewayHttpUrl
@@ -327,7 +331,7 @@ func resourceCustomerGatewayDelete(_ context.Context, d *schema.ResourceData, me
 	}
 	_, err = deleteCustomerGatewayClient.Request("DELETE", deleteCustomerGatewayPath, &deleteCustomerGatewayOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CustomerGateway: %s", err)
+		return diag.Errorf("error deleting VPN customer gateway: %s", err)
 	}
 
 	return nil

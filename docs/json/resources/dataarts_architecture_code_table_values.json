@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_code_table_values": {
+          "block": {
+            "attributes": {
+              "field_code": {
+                "type": "string",
+                "description": "The code of the code table field.",
+                "required": true,
+                "forcenew": true
+              },
+              "field_id": {
+                "type": "string",
+                "description": "The ID of the code table field.",
+                "required": true,
+                "forcenew": true
+              },
+              "field_name": {
+                "type": "string",
+                "description": "The name of the code table field.",
+                "required": true,
+                "forcenew": true
+              },
+              "field_ordinal": {
+                "type": "number",
+                "description": "The ordinal of the code table field.",
+                "required": true,
+                "forcenew": true
+              },
+              "field_type": {
+                "type": "string",
+                "description": "The type of the code table field.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource.",
+                "computed": true
+              },
+              "table_id": {
+                "type": "string",
+                "description": "The ID of the code table.",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of DataArts Studio workspace.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "values": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of a value.",
+                      "computed": true
+                    },
+                    "ordinal": {
+                      "type": "number",
+                      "description": "The ordinal of a value.",
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of a field.",
+                      "required": true
+                    }
+                  },
+                  "description": "The values list of the code table field."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables
+// @API ER GET /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes
+// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations
 func DataSourceRouteTables() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRouteTablesRead,

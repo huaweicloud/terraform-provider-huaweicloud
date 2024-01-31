@@ -20,10 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DEW POST /v1/{project_id}/csms/events
-// API: DEW GET /v1/{project_id}/csms/events/{event_name}
-// API: DEW PUT /v1/{project_id}/csms/events/{event_name}
-// API: DEW DELETE /v1/{project_id}/csms/events/{event_name}
+// @API DEW POST /v1/{project_id}/csms/events
+// @API DEW GET /v1/{project_id}/csms/events/{event_name}
+// @API DEW PUT /v1/{project_id}/csms/events/{event_name}
+// @API DEW DELETE /v1/{project_id}/csms/events/{event_name}
 func ResourceCsmsEvent() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCsmsEventCreate,

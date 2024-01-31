@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes/{codeId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes/{codeId}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes
 func ResourceAppcode() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppcodeCreate,

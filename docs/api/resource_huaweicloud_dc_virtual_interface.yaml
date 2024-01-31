@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: DC
 paths:
+  /v3/{project_id}/dc-vif/{id}/tags/action:
+    POST:
+      tag: DC
+      operationId: batchUpdate
   /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}:
     delete:
       tag: DC

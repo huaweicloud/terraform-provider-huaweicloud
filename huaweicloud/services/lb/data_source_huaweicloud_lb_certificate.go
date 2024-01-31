@@ -26,6 +26,7 @@ const (
 )
 
 // DataSourceLBCertificateV2 the data source of "huaweicloud_lb_certificate"
+// @API ELB GET /v2/{project_id}/elb/certificates
 func DataSourceLBCertificateV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceLBCertificateV2Read,

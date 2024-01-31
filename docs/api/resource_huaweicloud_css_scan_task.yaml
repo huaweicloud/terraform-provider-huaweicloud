@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_scan_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/ai-ops:
+        GET:
+            tag: CSS
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/ai-ops/{aiops_id}:
+        DELETE:
+            tag: CSS

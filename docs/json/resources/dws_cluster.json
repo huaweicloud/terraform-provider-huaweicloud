@@ -23,6 +23,30 @@
                 "computed": true,
                 "forcenew": true
               },
+              "elb": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "private_endpoint": "string",
+                      "private_ip": "string",
+                      "private_ip_v6": "string",
+                      "public_ip": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The ELB information bound to the cluster.",
+                "computed": true
+              },
+              "elb_id": {
+                "type": "string",
+                "description": "The ID of the ELB load balancer.",
+                "optional": true
+              },
               "endpoints": {
                 "type": [
                   "list",
@@ -59,6 +83,11 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "logical_cluster_enable": {
+                "type": "bool",
+                "description": "Specified whether to enable logical cluster.",
+                "optional": true
               },
               "maintain_window": {
                 "type": [
@@ -163,8 +192,7 @@
                 ],
                 "description": "The key/value pairs to associate with the cluster.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "task_status": {
                 "type": "string",

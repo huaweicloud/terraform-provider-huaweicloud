@@ -21,6 +21,10 @@ import (
 )
 
 // ResourceCTSDataTracker is the impl of huaweicloud_cts_data_tracker
+// @API CTS POST /v3/{project_id}/tracker
+// @API CTS PUT /v3/{project_id}/tracker
+// @API CTS DELETE /v3/{project_id}/trackers
+// @API CTS GET /v3/{project_id}/trackers
 func ResourceCTSDataTracker() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCTSDataTrackerCreate,
@@ -28,7 +32,7 @@ func ResourceCTSDataTracker() *schema.Resource {
 		UpdateContext: resourceCTSDataTrackerUpdate,
 		DeleteContext: resourceCTSDataTrackerDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceCTSDataTrackerImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -98,7 +102,7 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-
+			"tags": common.TagsSchema(),
 			"type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -128,6 +132,45 @@ func buildCreateRequestBody(d *schema.ResourceData) *cts.CreateTrackerRequestBod
 
 	log.Printf("[DEBUG] creating data CTS tracker options: %#v", reqBody)
 	return &reqBody
+}
+
+func expandResourceTags(tagmap map[string]interface{}) *[]cts.Tags {
+	taglist := make([]cts.Tags, 0, len(tagmap))
+
+	for k, v := range tagmap {
+		taglist = append(taglist, cts.Tags{
+			Key:   utils.String(k),
+			Value: utils.String(v.(string)),
+		})
+	}
+
+	return &taglist
+}
+
+func buildCreateTagOpt(taglist *[]cts.Tags, id string) *cts.BatchCreateResourceTagsRequest {
+	reqBody := cts.BatchCreateResourceTagsRequestBody{
+		Tags: taglist,
+	}
+	tagOpt := cts.BatchCreateResourceTagsRequest{
+		ResourceId:   id,
+		ResourceType: cts.GetBatchCreateResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
+		Body:         &reqBody,
+	}
+
+	return &tagOpt
+}
+
+func buildDeleteTagOpt(taglist *[]cts.Tags, id string) *cts.BatchDeleteResourceTagsRequest {
+	reqBody := cts.BatchDeleteResourceTagsRequestBody{
+		Tags: taglist,
+	}
+	tagOpt := cts.BatchDeleteResourceTagsRequest{
+		ResourceId:   id,
+		ResourceType: cts.GetBatchDeleteResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
+		Body:         &reqBody,
+	}
+
+	return &tagOpt
 }
 
 func buildDataBucketOpts(d *schema.ResourceData) *cts.DataBucket {
@@ -171,6 +214,29 @@ func buildTransferBucketOpts(d *schema.ResourceData) *cts.TrackerObsInfo {
 	return &transferCfg
 }
 
+func updateResourceTags(ctsClient *client.CtsClient, d *schema.ResourceData) error {
+	oldRaw, newRaw := d.GetChange("tags")
+	id := d.Id()
+
+	if oldTags := oldRaw.(map[string]interface{}); len(oldTags) > 0 {
+		oldTagList := expandResourceTags(oldTags)
+		_, err := ctsClient.BatchDeleteResourceTags(buildDeleteTagOpt(oldTagList, id))
+		if err != nil {
+			return err
+		}
+	}
+
+	if newTags := newRaw.(map[string]interface{}); len(newTags) > 0 {
+		newTagsList := expandResourceTags(newTags)
+		_, err := ctsClient.BatchCreateResourceTags(buildCreateTagOpt(newTagsList, id))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
@@ -182,13 +248,25 @@ func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, m
 		Body: buildCreateRequestBody(d),
 	}
 
-	if _, err := ctsClient.CreateTracker(&createOpts); err != nil {
-		return diag.Errorf("error creating data CTS tracker: %s", err)
+	resp, err := ctsClient.CreateTracker(&createOpts)
+	if err != nil {
+		return diag.Errorf("error creating CTS data tracker: %s", err)
+	}
+
+	if resp.Id == nil {
+		return diag.Errorf("error creating CTS data tracker: ID is not found in API response")
+	}
+	d.SetId(*resp.Id)
+
+	if rawTag := d.Get("tags").(map[string]interface{}); len(rawTag) > 0 {
+		tagList := expandResourceTags(rawTag)
+		_, err = ctsClient.BatchCreateResourceTags(buildCreateTagOpt(tagList, *resp.Id))
+		if err != nil {
+			return diag.Errorf("error creating CTS tracker tags: %s", err)
+		}
 	}
 
 	trackerName := d.Get("name").(string)
-	d.SetId(trackerName)
-
 	// disable status if necessary
 	if enabled := d.Get("enabled").(bool); !enabled {
 		err = updateDataTrackerStatus(ctsClient, trackerName, "disabled")
@@ -207,7 +285,7 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Id()
+	trackerName := d.Get("name").(string)
 	// update status firstly
 	if d.HasChange("enabled") {
 		status := "enabled"
@@ -245,6 +323,13 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.Errorf("error updating CTS tracker: %s", err)
 		}
+
+		if d.HasChange("tags") {
+			err = updateResourceTags(ctsClient, d)
+			if err != nil {
+				return diag.Errorf("error updating CTS tracker tags: %s", err)
+			}
+		}
 	}
 
 	return resourceCTSDataTrackerRead(ctx, d, meta)
@@ -258,7 +343,7 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Id()
+	trackerName := d.Get("name").(string)
 	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().DATA
 	listOpts := &cts.ListTrackersRequest{
 		TrackerName: &trackerName,
@@ -283,6 +368,12 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 
 	allTrackers := *response.Trackers
 	ctsTracker := allTrackers[0]
+
+	if ctsTracker.Id == nil {
+		return diag.Errorf("error retrieve CTS data tracker: ID is not found in API response")
+	}
+
+	d.SetId(*ctsTracker.Id)
 
 	mErr := multierror.Append(
 		nil,
@@ -345,7 +436,7 @@ func resourceCTSDataTrackerDelete(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Id()
+	trackerName := d.Get("name").(string)
 	trackerType := cts.GetDeleteTrackerRequestTrackerTypeEnum().DATA
 	deleteOpts := cts.DeleteTrackerRequest{
 		TrackerName: &trackerName,
@@ -378,4 +469,11 @@ func updateDataTrackerStatus(c *client.CtsClient, name, status string) error {
 
 	_, err := c.UpdateTracker(&statusReq)
 	return err
+}
+
+func resourceCTSDataTrackerImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	trackerName := d.Id()
+	d.Set("name", trackerName)
+
+	return []*schema.ResourceData{d}, nil
 }

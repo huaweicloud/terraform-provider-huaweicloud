@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IAM GET /v3/auth/domains
 func DataSourceAccount() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAccountRead,

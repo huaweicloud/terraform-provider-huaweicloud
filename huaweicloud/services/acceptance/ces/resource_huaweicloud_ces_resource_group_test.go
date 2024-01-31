@@ -172,6 +172,48 @@ func TestAccResourceGroup_eps(t *testing.T) {
 	})
 }
 
+func TestAccResourceGroup_withEpsId(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_ces_resource_group.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getResourceGroupResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testResourceGroup_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					// resources is not set, so don't need to check it
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+				),
+			},
+			{
+				Config: testResourceGroup_updateWithEpsId(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testResourceGroup_base(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -260,4 +302,23 @@ resource "huaweicloud_ces_resource_group" "test" {
   associated_eps_ids = ["0"]
 }
 `, name)
+}
+
+func testResourceGroup_updateWithEpsId(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_ces_resource_group" "test" {
+  name                  = "%s-update"
+  enterprise_project_id = "%s"
+
+  resources {
+    namespace = "SYS.EVS"
+    dimensions {
+      name  = "disk_name"
+      value = "${huaweicloud_compute_instance.vm_1.id}-sda"
+    }
+  }
+}
+`, testResourceGroup_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

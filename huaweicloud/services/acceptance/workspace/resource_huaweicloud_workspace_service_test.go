@@ -39,7 +39,7 @@ func TestAccService_basic(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
@@ -62,6 +62,7 @@ func TestAccService_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "desktop_security_group.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttr(resourceName, "is_locked", "0"),
 				),
 			},
 			{
@@ -109,7 +110,7 @@ func TestAccService_internetAccessPort(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceInternetAccessPort(t)
@@ -148,7 +149,7 @@ func TestAccService_localAD(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceAD(t)
@@ -227,9 +228,10 @@ func TestAccService_internetAccessPort_localAD(t *testing.T) {
 		getServiceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceAD(t)
 			acceptance.TestAccPreCheckWorkspaceInternetAccessPort(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{clusterid}/nodes
+// @API ECS GET /v1/{project_id}/cloudservers/{id}/tags
 func DataSourceNode() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceNodeRead,

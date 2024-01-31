@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations GET /v1/organizations/handshakes/{handshake_id}
+// @API Organizations POST /v1/organizations/leave
+// @API Organizations POST /v1/received-handshakes/{handshake_id}/accept
 func ResourceAccountInviteAccepter() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccountInviteAccepterCreate,
@@ -91,13 +94,14 @@ cancelled, declined, or expired.`,
 
 func resourceAccountInviteAccepterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// createAccountInviteAccepter: create Organizations account invite accepter
 	var (
 		createAccountInviteAccepterHttpUrl = "v1/received-handshakes/{handshake_id}/accept"
 		createAccountInviteAccepterProduct = "organizations"
 	)
-	createAccountInviteAccepterClient, err := cfg.NewServiceClient(createAccountInviteAccepterProduct, "")
+	createAccountInviteAccepterClient, err := cfg.NewServiceClient(createAccountInviteAccepterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -132,6 +136,7 @@ func resourceAccountInviteAccepterCreate(ctx context.Context, d *schema.Resource
 
 func resourceAccountInviteAccepterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -139,7 +144,7 @@ func resourceAccountInviteAccepterRead(_ context.Context, d *schema.ResourceData
 	var (
 		getAccountInviteAccepterProduct = "organizations"
 	)
-	getAccountInviteAccepterClient, err := cfg.NewServiceClient(getAccountInviteAccepterProduct, "")
+	getAccountInviteAccepterClient, err := cfg.NewServiceClient(getAccountInviteAccepterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}
@@ -176,6 +181,7 @@ func resourceAccountInviteAccepterUpdate(_ context.Context, _ *schema.ResourceDa
 
 func resourceAccountInviteAccepterDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	if !d.Get("leave_organization_on_destroy").(bool) {
 		return nil
@@ -186,7 +192,7 @@ func resourceAccountInviteAccepterDelete(_ context.Context, d *schema.ResourceDa
 		deleteAccountInviteAccepterHttpUrl = "v1/organizations/leave"
 		deleteAccountInviteAccepterProduct = "organizations"
 	)
-	deleteAccountInviteAccepterClient, err := cfg.NewServiceClient(deleteAccountInviteAccepterProduct, "")
+	deleteAccountInviteAccepterClient, err := cfg.NewServiceClient(deleteAccountInviteAccepterProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Organizations Client: %s", err)
 	}

@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_pg_accounts": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "optional": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attributes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "rolbypassrls": "bool",
+                            "rolcanlogin": "bool",
+                            "rolconnlimit": "number",
+                            "rolcreatedb": "bool",
+                            "rolcreaterole": "bool",
+                            "rolinherit": "bool",
+                            "rolreplication": "bool",
+                            "rolsuper": "bool"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "memberof": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

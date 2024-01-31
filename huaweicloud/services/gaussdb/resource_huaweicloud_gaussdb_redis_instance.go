@@ -25,6 +25,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{id}/tags/action
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{id}/tags
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/security-group
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/ssl-option
+// @API GaussDBforNoSQL DELETE /v3/{project_id}/instances/{instanceID}
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/enlarge-node
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/extend-volume
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/name
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/password
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/reduce-node
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/resize
 func ResourceGaussRedisInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussRedisInstanceV3Create,

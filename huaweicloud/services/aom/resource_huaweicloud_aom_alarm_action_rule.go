@@ -20,6 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AOM DELETE /v2/{project_id}/alert/action-rules
+// @API AOM POST /v2/{project_id}/alert/action-rules
+// @API AOM PUT /v2/{project_id}/alert/action-rules
+// @API AOM GET /v2/{project_id}/alert/action-rules/{id}
 func ResourceAlarmActionRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlarmActionRuleCreate,

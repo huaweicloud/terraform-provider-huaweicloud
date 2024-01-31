@@ -15,6 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Kafka PUT /v2/{engine}/{project_id}/instances/{instance_id}/users/{user_name}
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/users
+// @API Kafka POST /v2/{project_id}/instances/{instance_id}/users
+// @API Kafka PUT /v2/{project_id}/instances/{instance_id}/users
 func ResourceDmsKafkaUser() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaUserCreate,

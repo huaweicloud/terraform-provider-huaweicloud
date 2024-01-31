@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: WAF
 paths:
+  /v1/{project_id}/waf/instance/{id}/protect-status:
+    put:
+      tag: WAF
+      operationId: UpdateProtectStatus
   /v1/{project_id}/waf/instance/{id}:
     delete:
       tag: WAF
@@ -15,7 +19,7 @@ paths:
     get:
       tag: WAF
       operationId: GetWithEpsID
-    put:
+    patch:
       tag: WAF
       operationId: Update
   /v1/{project_id}/waf/instance:

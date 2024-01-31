@@ -11,7 +11,9 @@
               },
               "bandwidth_type": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "charge_mode": {
                 "type": "string",
@@ -47,6 +49,12 @@
               "period_unit": {
                 "type": "string",
                 "optional": true,
+                "forcenew": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "publicips": {

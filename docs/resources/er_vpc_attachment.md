@@ -64,8 +64,7 @@ The following arguments are supported:
 
   The default value is false. Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the VPC attachment.  
-  Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the VPC attachment.  
 
 ## Attribute Reference
 

@@ -127,6 +127,9 @@ The following arguments are supported:
 
 * `management_subnet_cidr` - (Optional, String, ForceNew) The subnet segment of the management component.
 
+* `lock_enabled` - (Optional, Bool) Specifies whether to allow the provider to automatically unlock locked service
+  when it is running. The default value is **false**.
+
 * `otp_config_info` - (Optional, List) Specifies the configuration of auxiliary authentication.
   The [object](#config_info) structure is documented below.
 
@@ -201,6 +204,14 @@ In addition to all arguments above, the following attributes are exported:
   is registered. The [object](#service_security_group) structure is documented below.
 
 * `status` - The current status of the Workspace service.
+
+* `is_locked` - Whether the Workspace service is locked. The valid values are as follows:
+  + **0**: Indicates not locked.
+  + **1**: Indicates locked.
+
+* `lock_time` - The time of the Workspace service is locked.
+
+* `lock_reason` - The reason of the Workspace service is locked.
 
 <a name="service_security_group"></a>
 The `infrastructure_security_group` and `desktop_security_group` block supports:

@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AOM POST /v1/environments
+// @API AOM DELETE /v1/environments/{id}
+// @API AOM GET /v1/environments/{id}
+// @API AOM PUT /v1/environments/{id}
 func ResourceCmdbEnvironment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCmdbEnvironmentCreate,

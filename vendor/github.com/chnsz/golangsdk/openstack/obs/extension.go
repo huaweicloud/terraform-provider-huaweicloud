@@ -20,12 +20,14 @@ import (
 
 type extensionOptions interface{}
 type extensionHeaders func(headers map[string][]string, isObs bool) error
+type extensionProgressListener func() ProgressListener
 
-func WithProgress(progressListener ProgressListener) configurer {
-	return func(conf *config) {
-		conf.progressListener = progressListener
+func WithProgress(progressListener ProgressListener) extensionProgressListener {
+	return func() ProgressListener {
+		return progressListener
 	}
 }
+
 func setHeaderPrefix(key string, value string) extensionHeaders {
 	return func(headers map[string][]string, isObs bool) error {
 		if strings.TrimSpace(value) == "" {

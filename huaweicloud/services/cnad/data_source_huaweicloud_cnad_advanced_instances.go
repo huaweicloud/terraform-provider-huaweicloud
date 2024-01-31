@@ -19,6 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CNAD GET /v1/cnad/packages
 func DataSourceInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceInstancesRead,
@@ -114,13 +115,14 @@ func instanceSchema() *schema.Resource {
 
 func resourceInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 	var (
 		getAdvancedInstancesHttpUrl = "v1/cnad/packages"
 		getAdvancedInstancesProduct = "aad"
 	)
-	getAdvancedInstancesClient, err := cfg.NewServiceClient(getAdvancedInstancesProduct, "")
+	getAdvancedInstancesClient, err := cfg.NewServiceClient(getAdvancedInstancesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

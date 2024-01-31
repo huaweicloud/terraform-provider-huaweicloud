@@ -25,6 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DBSS GET /v1/{project_id}/dbss/audit/instances
+// @API DBSS GET /v1/{project_id}/dbss/audit/jobs/{resource_id}
+// @API DBSS POST /v2/{project_id}/dbss/audit/charge/period/order
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,

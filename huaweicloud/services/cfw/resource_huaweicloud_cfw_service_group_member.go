@@ -22,6 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CFW GET /v1/{project_id}/service-items
+// @API CFW POST /v1/{project_id}/service-items
+// @API CFW DELETE /v1/{project_id}/service-items/{id}
 func ResourceServiceGroupMember() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServiceGroupMemberCreate,

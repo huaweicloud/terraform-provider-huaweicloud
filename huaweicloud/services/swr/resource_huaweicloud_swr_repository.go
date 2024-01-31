@@ -18,6 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API SWR POST /v2/manage/namespaces/{namespace}/repos
+// @API SWR DELETE /v2/manage/namespaces/{namespace}/repos/{repository}
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}
+// @API SWR PATCH /v2/manage/namespaces/{namespace}/repos/{repository}
 func ResourceSWRRepository() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSWRRepositoryCreate,

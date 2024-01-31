@@ -368,5 +368,5 @@ This resource provides the following timeouts configuration options:
 The gateway can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_vpn_gateway.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_vpn_gateway.test <id>
 ```

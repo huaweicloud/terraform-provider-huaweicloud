@@ -19,6 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Kafka GET /v2/{project_id}/instances
 func DataSourceDmsKafkaInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsKafkaInstances,

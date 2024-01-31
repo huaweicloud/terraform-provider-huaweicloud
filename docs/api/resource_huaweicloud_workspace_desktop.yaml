@@ -8,6 +8,10 @@ host: huaweicloud.com
 tags:
   - name: Workspace
 paths:
+  /v2/{project_id}/desktops/action:
+    post:
+      tag: Workspace
+      operationId: DoAction
   /v2/{project_id}/desktops/rebuild:
     post:
       tag: Workspace

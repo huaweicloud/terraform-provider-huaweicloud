@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts DELETE /v2/{project_id}/datasets/{datasetId}
+// @API ModelArts GET /v2/{project_id}/datasets/{datasetId}
+// @API ModelArts PUT /v2/{project_id}/datasets/{datasetId}
+// @API ModelArts POST /v2/{project_id}/datasets
 func ResourceDataset() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatasetCreate,
@@ -561,7 +565,7 @@ func setDataSourcesToState(d *schema.ResourceData, ds dataset.DataSource) error 
 		"path":               ds.DataPath,
 		"with_column_header": ds.WithColumnHeader,
 	}
-	// API lost some info: queue_name,database_name,table_name,user_name,password,cluster_id,input
+	// the API lost some info: queue_name,database_name,table_name,user_name,password,cluster_id,input
 	if ds.DataType == 4 {
 		item["path"] = ds.SourceInfo.Input
 	}

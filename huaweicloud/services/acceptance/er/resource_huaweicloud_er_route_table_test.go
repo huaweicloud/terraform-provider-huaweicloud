@@ -39,10 +39,9 @@ func TestAccRouteTable_basic(t *testing.T) {
 		getRouteTableResourceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckER(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -65,6 +64,7 @@ func TestAccRouteTable_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -131,7 +131,7 @@ resource "huaweicloud_er_route_table" "test" {
   name        = "%[2]s"
 
   tags = {
-    foo = "bar"
+    owner = "terraform"
   }
 }
 `, testRouteTable_base(name, bgpAsNum), name)

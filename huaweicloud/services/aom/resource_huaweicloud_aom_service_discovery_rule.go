@@ -47,6 +47,9 @@ var basicNameRule = schema.Schema{
 	},
 }
 
+// @API AOM GET /v1/{project_id}/inv/servicediscoveryrules
+// @API AOM PUT /v1/{project_id}/inv/servicediscoveryrules
+// @API AOM DELETE /v1/{project_id}/inv/servicediscoveryrules
 func ResourceServiceDiscoveryRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServiceDiscoveryRuleCreateOrUpdate,

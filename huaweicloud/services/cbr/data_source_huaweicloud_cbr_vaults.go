@@ -18,6 +18,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CBR GET /v3/{project_id}/policies
+// @API CBR GET /v3/{project_id}/vaults
 func DataSourceVaults() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVaultsRead,

@@ -88,6 +88,15 @@ var securityGroupRuleSchema = &schema.Schema{
 	},
 }
 
+// @API VPC PUT /v2.0/security-groups/{id}
+// @API VPC DELETE /v3/{project_id}/vpc/security-group-rules/{ruleId}
+// @API VPC GET /v3/{project_id}/vpc/security-groups/{secgroupId}
+// @API VPC PUT /v3/{project_id}/vpc/security-groups/{secgroupId}
+// @API VPC POST /v3/{project_id}/vpc/security-groups
+// @API VPC DELETE /v1/{project_id}/security-group-rules/{ruleId}
+// @API VPC DELETE /v1/{project_id}/security-groups/{securityGroupId}
+// @API VPC GET /v1/{project_id}/security-groups/{securityGroupId}
+// @API VPC POST /v1/{project_id}/security-groups
 func ResourceNetworkingSecGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkingSecGroupCreate,

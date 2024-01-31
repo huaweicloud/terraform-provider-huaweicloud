@@ -17,6 +17,10 @@ import (
 )
 
 // ResourceDmsKafkaTopic implements the resource of "huaweicloud_dms_kafka_topic"
+// @API Kafka POST /v2/{project_id}/instances/{instanceID}/topics/delete
+// @API Kafka GET /v2/{project_id}/instances/{instanceID}/topics
+// @API Kafka POST /v2/{project_id}/instances/{instanceID}/topics
+// @API Kafka PUT /v2/{project_id}/instances/{instanceID}/topics
 func ResourceDmsKafkaTopic() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaTopicCreate,

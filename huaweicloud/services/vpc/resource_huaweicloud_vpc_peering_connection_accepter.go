@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API VPC PUT /v2.0/vpc/peerings/{id}/accept
+// @API VPC PUT /v2.0/vpc/peerings/{id}/reject
+// @API VPC GET /v2.0/vpc/peerings/{id}
 func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVPCPeeringAccepterCreate,

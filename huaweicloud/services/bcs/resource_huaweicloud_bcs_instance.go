@@ -24,6 +24,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 )
 
+// @API BCS POST /v2/{project_id}/blockchains
+// @API BCS DELETE /v2/{project_id}/blockchains/{instanceID}
+// @API BCS GET /v2/{project_id}/blockchains/{instanceID}
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{id}
+// @API DMS DELETE /v2/{project_id}/instances/{id}
+// @API DMS GET /v2/{project_id}/instances
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBCSInstanceCreate,

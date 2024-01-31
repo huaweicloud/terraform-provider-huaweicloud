@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/triggers
+// @API SWR GET /v2/manage/namespaces/{namespace}/repos/{repository}/triggers
 func DataSourceImageTriggers() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceImageTriggersRead,

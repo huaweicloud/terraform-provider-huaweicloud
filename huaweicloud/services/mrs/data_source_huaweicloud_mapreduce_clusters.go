@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API MRS GET /v1.1/{project_id}/cluster_infos
 func DataSourceMrsClusters() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceMrsClustersRead,

@@ -58,6 +58,6 @@ This resource provides the following timeouts configuration options:
 
 The RDS for PostgreSQL plugin can be imported using the `instance_id`, `database_name` and `name` separated by slashs, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_rds_pg_plugin.test <instance_id>/<database_name>/<name>
 ```

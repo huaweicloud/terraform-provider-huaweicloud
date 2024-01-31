@@ -20,6 +20,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RAM GET /v1/permissions
 func DataSourceRAMPermissions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceRAMPermissionsRead,

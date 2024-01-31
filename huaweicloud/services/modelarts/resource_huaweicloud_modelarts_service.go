@@ -25,6 +25,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts POST /v1/{project_id}/services
+// @API ModelArts DELETE /v1/{project_id}/services/{id}
+// @API ModelArts GET /v1/{project_id}/services/{id}
+// @API ModelArts PUT /v1/{project_id}/services/{id}
 func ResourceModelartsService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceModelartsServiceCreate,

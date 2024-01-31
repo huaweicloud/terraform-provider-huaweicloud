@@ -22,13 +22,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: CFW POST v1/{project_id}/domain-set
-// API: CFW GET v1/{project_id}/domain-sets
-// API: CFW GET v1/{project_id}/domain-set/domains/{id}
-// API: CFW PUT v1/{project_id}/domain-set/{id}
-// API: CFW DELETE v1/{project_id}/domain-set/domains/{id}
-// API: CFW POST v1/{project_id}/domain-set/domains/{id}
-// API: CFW DELETE v1/{project_id}/domain-set/{id}
+// @API CFW POST /v1/{project_id}/domain-set
+// @API CFW GET /v1/{project_id}/domain-sets
+// @API CFW GET /v1/{project_id}/domain-set/domains/{id}
+// @API CFW PUT /v1/{project_id}/domain-set/{id}
+// @API CFW DELETE /v1/{project_id}/domain-set/domains/{id}
+// @API CFW POST /v1/{project_id}/domain-set/domains/{id}
+// @API CFW DELETE /v1/{project_id}/domain-set/{id}
 
 func ResourceDomainNameGroup() *schema.Resource {
 	return &schema.Resource{

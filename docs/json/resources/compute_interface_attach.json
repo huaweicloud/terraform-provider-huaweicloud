@@ -11,6 +11,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "fixed_ipv6": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -18,6 +22,17 @@
               "instance_id": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "ipv6_bandwidth_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "mac": {

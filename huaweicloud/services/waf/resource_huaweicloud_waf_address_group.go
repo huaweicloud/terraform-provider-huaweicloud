@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API WAF GET /v1/{project_id}/waf/ip-group/{id}
+// @API WAF PUT /v1/{project_id}/waf/ip-group/{id}
+// @API WAF DELETE /v1/{project_id}/waf/ip-group/{id}
+// @API WAF POST /v1/{project_id}/waf/ip-groups
 func ResourceWafAddressGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAddressGroupCreate,

@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API IAM GET /v3/roles
 func DataSourceIdentityPermissions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityPermissionsRead,

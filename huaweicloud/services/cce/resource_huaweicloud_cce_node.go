@@ -23,6 +23,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CCE GET /api/v3/projects/{project_id}/jobs/{jobid}
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{nodeid}
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{nodeid}
+// @API CCE DELETE /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{nodeid}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{clusterid}/nodes
+// @API ECS PUT /v1/{project_id}/cloudservers/{id}/os-reset-password
+// @API ECS POST /v1/{project_id}/cloudservers/{id}/tags/action
+// @API ECS GET /v1/{project_id}/cloudservers/{id}/tags
+// @API ECS GET /v1/{project_id}/cloudservers/{serverID}
 func ResourceNode() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeCreate,

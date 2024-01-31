@@ -64,6 +64,11 @@
                 "type": "string",
                 "description": "The latest update time of the private NAT gateway.",
                 "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the private NAT gateway belongs.",
+                "computed": true
               }
             }
           },

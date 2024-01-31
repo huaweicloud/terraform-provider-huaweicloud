@@ -1,0 +1,28 @@
+info:
+    title: resource_huaweicloud_cc_authorization
+    description: Manages a cross-account authorization resource within HuaweiCloud.
+host: myhuaweicloud.com
+tags:
+    - name: CC
+servers:
+    - url: https://cc.myhuaweicloud.com
+paths:
+    /v3/{domain_id}/ccaas/authorisations:
+        POST:
+            tag: CC
+            operationId: CreateAuthorization
+            x-ref-api: POST /v3/{domain_id}/ccaas/authorisations
+    /v3/{domain_id}/ccaas/authorisations/{id}:
+        DELETE:
+            tag: CC
+            operationId: DeleteAuthorization
+            x-ref-api: DELETE /v3/{domain_id}/ccaas/authorisations/{id}
+        PUT:
+            tag: CC
+            operationId: UpdateAuthorization
+            x-ref-api: PUT /v3/{domain_id}/ccaas/authorisations/{id}
+    /v3/{domain_id}/ccaas/authorisations?id={id}:
+        GET:
+            tag: CC
+            operationId: GetAuthorization
+            x-ref-api: GET /v3/{domain_id}/ccaas/authorisations?id={id}

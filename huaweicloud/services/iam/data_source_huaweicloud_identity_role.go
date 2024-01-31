@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API IAM GET /v3/roles
 func DataSourceIdentityRole() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityRoleRead,

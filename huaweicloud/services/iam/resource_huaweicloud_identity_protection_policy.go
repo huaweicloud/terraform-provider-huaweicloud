@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IAM GET /v3.0/OS-SECURITYPOLICY/domains/{domainID}/protect-policy
+// @API IAM PUT /v3.0/OS-SECURITYPOLICY/domains/{domainID}/protect-policy
 func ResourceIdentityProtectionPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectionPolicyUpdate,

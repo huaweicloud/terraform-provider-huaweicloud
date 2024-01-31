@@ -89,6 +89,7 @@
                           "object",
                           {
                             "cookie_name": "string",
+                            "timeout": "number",
                             "type": "string"
                           }
                         ]

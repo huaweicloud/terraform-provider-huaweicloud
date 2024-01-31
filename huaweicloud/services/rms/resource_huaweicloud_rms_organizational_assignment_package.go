@@ -24,10 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: Config POST /v1/resource-manager/organizations/{organization_id}/conformance-packs
-// API: Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
-// API: Config DELETE /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
-// API: Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/statuses
+// @API Config POST /v1/resource-manager/organizations/{organization_id}/conformance-packs
+// @API Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
+// @API Config DELETE /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
+// @API Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/statuses
 func ResourceOrgAssignmentPackage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOrgAssignmentPackageCreate,

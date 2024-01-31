@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API CCI GET /api/v1/namespaces/{name}
+// @API CCI GET /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks
+// @API CCI GET /api/v1/namespaces
 func DataSourceCciNamespaces() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCciNamespacesRead,

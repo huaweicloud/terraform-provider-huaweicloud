@@ -18,6 +18,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPCEP DELETE /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
+// @API VPCEP GET /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
+// @API VPCEP PUT /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
+// @API VPCEP POST /v1/{project_id}/vpc-endpoints
+// @API VPCEP POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceVPCEndpoint() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVPCEndpointCreate,

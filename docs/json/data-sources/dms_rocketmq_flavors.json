@@ -1,0 +1,149 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_flavors": {
+          "block": {
+            "attributes": {
+              "arch_type": {
+                "type": "string",
+                "description": "Specifies the type of CPU architecture.",
+                "optional": true
+              },
+              "availability_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of availability zone names.",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the billing mode of the flavor.",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the ID of the flavor.",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch_types": [
+                        "list",
+                        "string"
+                      ],
+                      "charging_modes": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "ios": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zones": [
+                              "list",
+                              "string"
+                            ],
+                            "storage_spec_code": "string",
+                            "type": "string",
+                            "unavailability_zones": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "flavor_alias": "string",
+                            "max_bandwidth_per_broker": "number",
+                            "max_broker": "number",
+                            "max_consumer_per_broker": "number",
+                            "max_partition_per_broker": "number",
+                            "max_storage_per_node": "number",
+                            "max_tps_per_broker": "number",
+                            "min_broker": "number",
+                            "min_storage_per_node": "number"
+                          }
+                        ]
+                      ],
+                      "support_features": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "max_node": "number",
+                                  "max_task": "number",
+                                  "min_node": "number",
+                                  "min_task": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "vm_specification": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_spec_code": {
+                "type": "string",
+                "description": "Specifies the disk IO encoding.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the flavor.",
+                "optional": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the list of flavor versions.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

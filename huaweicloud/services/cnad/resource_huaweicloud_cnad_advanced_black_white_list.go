@@ -59,7 +59,8 @@ func ResourceBlackWhiteList() *schema.Resource {
 
 func resourceBlackWhiteListCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("aad", "")
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -81,13 +82,14 @@ func resourceBlackWhiteListCreate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceBlackWhiteListRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	var mErr *multierror.Error
 
 	var (
 		getBlackWhiteListHttpUrl = "v1/cnad/policies/{policy_id}"
 		getBlackWhiteListProduct = "aad"
 	)
-	getBlackWhiteListClient, err := cfg.NewServiceClient(getBlackWhiteListProduct, "")
+	getBlackWhiteListClient, err := cfg.NewServiceClient(getBlackWhiteListProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -126,7 +128,8 @@ func resourceBlackWhiteListRead(_ context.Context, d *schema.ResourceData, meta 
 
 func resourceBlackWhiteListUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("aad", "")
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}
@@ -165,7 +168,8 @@ func resourceBlackWhiteListUpdate(ctx context.Context, d *schema.ResourceData, m
 func resourceBlackWhiteListDelete(_ context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("aad", "")
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aad", region)
 	if err != nil {
 		return diag.Errorf("error creating CNAD Client: %s", err)
 	}

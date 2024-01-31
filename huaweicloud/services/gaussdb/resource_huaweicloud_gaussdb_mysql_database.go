@@ -26,6 +26,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/databases
+// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/databases
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/databases
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/databases/comment
 func ResourceGaussDBDatabase() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBDatabaseCreate,

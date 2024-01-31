@@ -29,6 +29,10 @@
                       "spec": "string",
                       "status": "string",
                       "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
                       "updated_at": "string",
                       "vpc_id": "string"
                     }
@@ -64,6 +68,14 @@
               "subnet_id": {
                 "type": "string",
                 "description": "The ID of the subnet to which the private NAT gateways belong.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate the private NAT gateways.",
                 "optional": true
               },
               "vpc_id": {

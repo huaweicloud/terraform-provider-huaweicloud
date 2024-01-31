@@ -138,6 +138,12 @@ func assistAuthSchemaResource() *schema.Resource {
 	}
 }
 
+// @API Workspace GET /v2/{project_id}/assist-auth-config/method-config
+// @API Workspace PUT /v2/{project_id}/assist-auth-config/method-config
+// @API Workspace DELETE /v2/{project_id}/workspaces
+// @API Workspace GET /v2/{project_id}/workspaces
+// @API Workspace POST /v2/{project_id}/workspaces
+// @API Workspace PUT /v2/{project_id}/workspaces
 func ResourceService() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceServiceCreate,
@@ -224,6 +230,10 @@ func ResourceService() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"lock_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"internet_access_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -247,6 +257,18 @@ func ResourceService() *schema.Resource {
 				Optional: true,
 				MaxItems: 1,
 				Elem:     assistAuthSchemaResource(),
+			},
+			"is_locked": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"lock_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lock_reason": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -451,6 +473,15 @@ func getAssistAuthConfig(client *golangsdk.ServiceClient) ([]map[string]interfac
 	return result, err
 }
 
+func getLockStatus(client *golangsdk.ServiceClient) (*services.LockStatusResp, error) {
+	resp, err := services.GetLockStatus(client)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving the lock status of Workspace service: %s", err)
+	}
+
+	return resp, nil
+}
+
 func resourceServiceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -499,6 +530,17 @@ func resourceServiceRead(_ context.Context, d *schema.ResourceData, meta interfa
 	} else {
 		mErr = multierror.Append(mErr, d.Set("otp_config_info", configInfo))
 	}
+
+	lockResp, err := getLockStatus(client)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(mErr,
+		d.Set("is_locked", lockResp.IsLocked),
+		d.Set("lock_time", lockResp.LockTime),
+		d.Set("lock_reason", lockResp.LockReason),
+	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting service fields: %s", err)
@@ -592,6 +634,24 @@ func updateAssistAuthConfig(client *golangsdk.ServiceClient, d *schema.ResourceD
 	return services.UpdateAssistAuthConfig(client, opts)
 }
 
+func unlockService(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	opts := services.UnlockOpts{
+		OperateType: "unlock",
+	}
+	resp, err := services.UnlockService(client, opts)
+	if err != nil {
+		return fmt.Errorf("error unLocking of the Workspace service: %s", err)
+	}
+
+	_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+	}
+	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+
+	return err
+}
+
 func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
@@ -623,6 +683,18 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if d.HasChanges("otp_config_info") {
 		if err = updateAssistAuthConfig(client, d); err != nil {
 			return diag.Errorf("error updating authentication config parameters of service: %s", err)
+		}
+	}
+
+	if d.HasChanges("lock_enabled") {
+		lockEnabled := d.Get("lock_enabled").(bool)
+		// If the current service is not locked, this action is not required.
+		if !lockEnabled {
+			return nil
+		}
+
+		if err = unlockService(ctx, client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 	return resourceServiceRead(ctx, d, meta)

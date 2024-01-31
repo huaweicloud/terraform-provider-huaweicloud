@@ -191,3 +191,19 @@ type ApplyRuleInfo struct {
 	// + PRIVATE: Indicates dedicated line access. Optional only when rule_type is "ACCESS_MODE".
 	Rule string `json:"rule"`
 }
+
+// LockStatusResp is the structure that represents the API response of GetLockStatus method request.
+type LockStatusResp struct {
+	// Whether the Workspace service is locked.
+	// + 0: Indicates not locked.
+	// + 1: Indicates locked.
+	IsLocked int `json:"is_locked"`
+	// The lock time of the Workspace service.
+	LockTime string `json:"lock_time"`
+	// The reason of the Workspace service is locked.
+	LockReason string `json:"lock_reason"`
+}
+
+type UnlockResp struct {
+	RequestResp
+}

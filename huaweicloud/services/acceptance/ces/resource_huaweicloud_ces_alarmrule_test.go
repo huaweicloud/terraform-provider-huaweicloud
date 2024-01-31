@@ -99,6 +99,24 @@ func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
+				Config: testCESAlarmRule_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.alarm_level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6.5"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.period", "300"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.metric_name", "network_incoming_bytes_rate_inband"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.alarm_level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.value", "6.5"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.period", "300"),
+					resource.TestCheckResourceAttr(resourceName, "condition.1.metric_name", "network_outgoing_bytes_rate_inband"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
 				Config: testCESAlarmRule_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),

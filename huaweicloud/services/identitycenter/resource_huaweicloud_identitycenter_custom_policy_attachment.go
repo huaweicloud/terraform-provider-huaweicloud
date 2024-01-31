@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API IdentityCenter DELETE /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy
+// @API IdentityCenter GET /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy
+// @API IdentityCenter PUT /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy
 func ResourceCustomPolicyAttachment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomPolicyAttachmentCreateOrUpdate,

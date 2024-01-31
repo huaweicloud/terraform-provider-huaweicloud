@@ -35,7 +35,7 @@ func TestAccEipAssociate_basic(t *testing.T) {
 		rc           = acceptance.InitResourceCheck(resourceName, &eips, getEipAssociateFunc)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

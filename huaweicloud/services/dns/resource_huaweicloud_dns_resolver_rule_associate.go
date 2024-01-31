@@ -20,6 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API DNS POST /v2.1/resolverrules/{resolverRuleID}/associaterouter
+// @API DNS POST /v2.1/resolverrules/{resolverRuleID}/disassociaterouter
+// @API DNS GET /v2.1/resolverrules/{resolverRuleID}
 func ResourceDNSResolverRuleAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSResolverRuleAssociateCreate,

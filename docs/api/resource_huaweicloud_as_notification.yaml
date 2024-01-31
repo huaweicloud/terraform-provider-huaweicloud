@@ -7,7 +7,7 @@ tags:
 servers:
     - url: https://AsNotification.myhuaweicloud.com
 paths:
-    autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}:
+    /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}:
         GET:
             tag: AS
             operationId: GetASNotification
@@ -16,7 +16,7 @@ paths:
             tag: AS
             operationId: CreateAsNotification
             x-ref-api: PUT autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}
-    autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}/{topic_urn}:
+    /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}/{topic_urn}:
         DELETE:
             tag: AS
             operationId: DeleteAsNotification

@@ -19,6 +19,9 @@ import (
 )
 
 // ResourceRdsReadReplicaInstance is the impl for huaweicloud_rds_read_replica_instance resource
+// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS GET /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
+// @API RDS POST /v3/{project_id}/instances
 func ResourceRdsReadReplicaInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsReadReplicaInstanceCreate,
@@ -311,7 +314,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != res.Volume.Size {
-		if err = updateRdsInstanceVolumeSize(ctx, d, client, instanceID); err != nil {
+		if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -461,7 +464,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceVolumeSize(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 

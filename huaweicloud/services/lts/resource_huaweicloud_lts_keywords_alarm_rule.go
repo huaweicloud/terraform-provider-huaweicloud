@@ -23,6 +23,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS GET /v2/{project_id}/lts/alarms/keywords-alarm-rule
+// @API LTS POST /v2/{project_id}/lts/alarms/keywords-alarm-rule
+// @API LTS PUT /v2/{project_id}/lts/alarms/keywords-alarm-rule
+// @API LTS DELETE /v2/{project_id}/lts/alarms/keywords-alarm-rule/{id}
+// @API LTS PUT /v2/{project_id}/lts/alarms/status
 func ResourceKeywordsAlarmRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceKeywordsAlarmRuleCreate,

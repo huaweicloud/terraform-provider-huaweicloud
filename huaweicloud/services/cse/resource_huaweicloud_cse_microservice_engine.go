@@ -28,6 +28,10 @@ import (
 
 var DefaultVersion = "CSE2"
 
+// @API CSE DELETE /v2/{project_id}/enginemgr/engines/{engineId}
+// @API CSE GET /v2/{project_id}/enginemgr/engines/{engineId}
+// @API CSE POST /v2/{project_id}/enginemgr/engines
+// @API CSE GET /v2/{project_id}/enginemgr/engines/{engineId}/jobs/{jobId}
 func ResourceMicroserviceEngine() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceEngineCreate,

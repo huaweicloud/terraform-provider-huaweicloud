@@ -122,7 +122,8 @@ var (
 	// The internet access port to which the Workspace service.
 	HW_WORKSPACE_INTERNET_ACCESS_PORT = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
 
-	HW_FGS_TRIGGER_LTS_AGENCY = os.Getenv("HW_FGS_TRIGGER_LTS_AGENCY")
+	HW_FGS_AGENCY_NAME = os.Getenv("HW_FGS_AGENCY_NAME")
+	HW_FGS_TEMPLATE_ID = os.Getenv("HW_FGS_TEMPLATE_ID")
 
 	HW_KMS_ENVIRONMENT    = os.Getenv("HW_KMS_ENVIRONMENT")
 	HW_KMS_HSM_CLUSTER_ID = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
@@ -146,7 +147,9 @@ var (
 	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
 
 	// The direct connection ID (provider does not support direct connection resource).
-	HW_DC_DIRECT_CONNECT_ID = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+	HW_DC_DIRECT_CONNECT_ID  = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+	HW_DC_RESOURCE_TENANT_ID = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
+	HW_DC_HOSTTING_ID        = os.Getenv("HW_DC_HOSTTING_ID")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -241,7 +244,8 @@ var (
 
 	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 
-	HW_AS_SCALING_GROUP_ID = os.Getenv("HW_AS_SCALING_GROUP_ID")
+	HW_AS_SCALING_GROUP_ID  = os.Getenv("HW_AS_SCALING_GROUP_ID")
+	HW_AS_SCALING_POLICY_ID = os.Getenv("HW_AS_SCALING_POLICY_ID")
 
 	HW_DATAARTS_WORKSPACE_ID            = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
 	HW_DATAARTS_CDM_NAME                = os.Getenv("HW_DATAARTS_CDM_NAME")
@@ -443,9 +447,24 @@ func TestAccPreCheckMrsBootstrapScript(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckFgsTrigger(t *testing.T) {
-	if HW_FGS_TRIGGER_LTS_AGENCY == "" {
-		t.Skip("HW_FGS_TRIGGER_LTS_AGENCY must be set for FGS trigger acceptance tests")
+func TestAccPreCheckFgsAgency(t *testing.T) {
+	// The agency should be FunctionGraph and authorize these roles:
+	// For the acceptance tests of the async invoke configuration:
+	// + FunctionGraph FullAccess
+	// + DIS Operator
+	// + OBS Administrator
+	// + SMN Administrator
+	// For the acceptance tests of the function trigger and the application:
+	// + LTS Administrator
+	if HW_FGS_AGENCY_NAME == "" {
+		t.Skip("HW_FGS_AGENCY_NAME must be set for FGS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckFgsTemplateId(t *testing.T) {
+	if HW_FGS_TEMPLATE_ID == "" {
+		t.Skip("HW_FGS_TEMPLATE_ID must be set for FGS acceptance tests")
 	}
 }
 
@@ -474,11 +493,17 @@ func RandomCidrAndGatewayIp() (string, string) {
 	return fmt.Sprintf("172.16.%d.0/24", seed), fmt.Sprintf("172.16.%d.1", seed)
 }
 
-func RandomPassword() string {
+func RandomPassword(customChars ...string) string {
+	var specialChars string
+	if len(customChars) < 1 {
+		specialChars = "~!@#%^*-_=+?"
+	} else {
+		specialChars = customChars[0]
+	}
 	return fmt.Sprintf("%s%s%s%d",
 		acctest.RandStringFromCharSet(2, "ABCDEFGHIJKLMNOPQRSTUVWXZY"),
 		acctest.RandStringFromCharSet(3, acctest.CharSetAlpha),
-		acctest.RandStringFromCharSet(2, "~!@#%^*-_=+?"),
+		acctest.RandStringFromCharSet(2, specialChars),
 		acctest.RandIntRange(1000, 9999))
 }
 
@@ -828,6 +853,13 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDcHostedConnection(t *testing.T) {
+	if HW_DC_RESOURCE_TENANT_ID == "" || HW_DC_HOSTTING_ID == "" {
+		t.Skip("HW_DC_RESOURCE_TENANT_ID, HW_DC_HOSTTING_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
@@ -866,7 +898,8 @@ func TestAccPreCheckCceClusterId(t *testing.T) {
 func TestAccPreCheckCceChartPath(t *testing.T) {
 	// HW_CCE_CHART_PATH is the absolute path of the chart package
 	if HW_CCE_CHART_PATH == "" {
-		t.Skip("HW_CCE_CHART_PATH must be set for CCE chart acceptance tests")
+		t.Skip("HW_CCE_CHART_PATH must be set for CCE chart acceptance tests, " +
+			"the value is the absolute path of the chart package")
 	}
 }
 
@@ -1112,6 +1145,13 @@ func TestAccPreCheckCCAuth(t *testing.T) {
 func TestAccPreCheckASScalingGroupID(t *testing.T) {
 	if HW_AS_SCALING_GROUP_ID == "" {
 		t.Skip("HW_AS_SCALING_GROUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckASScalingPolicyID(t *testing.T) {
+	if HW_AS_SCALING_POLICY_ID == "" {
+		t.Skip("HW_AS_SCALING_POLICY_ID must be set for the acceptance test")
 	}
 }
 

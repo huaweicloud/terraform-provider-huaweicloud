@@ -22,6 +22,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DRS POST /v3/{project_id}/jobs/batch-status
+// @API DRS POST /v3/{project_id}/jobs
+// @API DRS POST /v3/{project_id}/jobs/batch-connection
+// @API DRS DELETE /v3/{project_id}/jobs/batch-jobs
+// @API DRS PUT /v3/{project_id}/jobs/batch-limit-speed
+// @API DRS POST /v3/{project_id}/jobs/batch-precheck-result
+// @API DRS POST /v3/{project_id}/jobs/batch-precheck
+// @API DRS POST /v3/{project_id}/jobs/batch-starting
+// @API DRS POST /v3/{project_id}/jobs/batch-creation
+// @API DRS POST /v3/{project_id}/jobs/batch-detail
+// @API DRS PUT /v3/{project_id}/jobs/batch-modification
 func ResourceDrsJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceJobCreate,
@@ -328,13 +339,12 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	jobId := rst.Results[0].Id
+	d.SetId(jobId)
 
 	err = waitingforJobStatus(ctx, client, jobId, "create", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	d.SetId(jobId)
 
 	valid := testConnections(client, jobId, opts.Jobs[0])
 	if !valid {

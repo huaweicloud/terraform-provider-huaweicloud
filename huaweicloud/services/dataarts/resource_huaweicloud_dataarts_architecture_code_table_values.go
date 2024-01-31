@@ -17,8 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio PUT /v2/{project_id}/design/code-tables/{id}/values
-// API: DataArtsStudio GET /v2/{project_id}/design/code-tables/{id}/values
+// @API DataArtsStudio PUT /v2/{project_id}/design/code-tables/{id}/values
+// @API DataArtsStudio GET /v2/{project_id}/design/code-tables/{id}/values
 func ResourceArchitectureCodeTableValues() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceArchitectureCodeTableValuesCreate,

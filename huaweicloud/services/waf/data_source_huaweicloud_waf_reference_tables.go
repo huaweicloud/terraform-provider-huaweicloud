@@ -17,6 +17,7 @@ import (
 )
 
 // DataSourceWafReferenceTablesV1 the function is used for data source 'huaweicloud_waf_reference_tables'.
+// @API WAF GET /v1/{project_id}/waf/valuelist
 func DataSourceWafReferenceTablesV1() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceWafReferenceTablesRead,

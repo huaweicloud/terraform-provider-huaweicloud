@@ -32,6 +32,10 @@ paths:
     get:
       tag: ECS
       operationId: Get
+  /v1/{project_id}/cloudservers/{serverID}/actions/update-auto-terminate-time:
+    post:
+      tag: ECS
+      operationId: UpdateAutoTerminateTime
   /v1/{project_id}/cloudservers/{serverID}/metadata/{key}:
     delete:
       tag: ECS

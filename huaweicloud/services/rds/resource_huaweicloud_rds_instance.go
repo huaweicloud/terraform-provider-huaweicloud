@@ -28,6 +28,22 @@ import (
 type ctxType string
 
 // ResourceRdsInstance is the impl for huaweicloud_rds_instance resource
+// @API RDS POST /v3/{project_id}/instances/{instancesId}/{update}
+// @API RDS PUT /v3/{project_id}/instances/{instancesId}/{update}
+// @API RDS DELETE /v3/{project_id}/instances/{serverID}
+// @API RDS GET /v3/{project_id}/jobs
+// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS GET /v3/{project_id}/instances/{instancesId}/configurations
+// @API RDS PUT /v3/{project_id}/instances/{instancesId}/configurations
+// @API RDS POST /v3/{project_id}/instances/{instancesId}/password
+// @API RDS GET /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
+// @API RDS PUT /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
+// @API RDS GET /v3/{project_id}/instances
+// @API RDS POST /v3/{project_id}/instances
+// @API RDS GET /v3/{project_id}/instances/{id}/backups/policy
+// @API RDS PUT /v3/{project_id}/instances/{id}/backups/policy
+// @API RDS PUT /v3/{project_id}/instances/{instanceId}/{path}
+// @API RDS POST /v3/{project_id}/instances/{instancesId}/action
 func ResourceRdsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsInstanceCreate,
@@ -241,7 +257,7 @@ func ResourceRdsInstance() *schema.Resource {
 			"collation": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 
 			"switch_strategy": {
@@ -558,6 +574,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	d.Set("security_group_id", instance.SecurityGroupId)
 	d.Set("flavor", instance.FlavorRef)
 	d.Set("time_zone", instance.TimeZone)
+	d.Set("collation", instance.Collation)
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
@@ -716,7 +733,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if err := updateRdsInstanceVolumeSize(ctx, d, client, instanceID); err != nil {
+	if err := updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -731,7 +748,12 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err = updateRdsInstanceReplicationMode(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
+
 	if err = updateRdsInstanceSwitchStrategy(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateRdsInstanceCollation(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1156,7 +1178,7 @@ func updateRdsInstanceFlavor(ctx context.Context, d *schema.ResourceData, cfg *c
 	return nil
 }
 
-func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
 	instanceID string) error {
 	if !d.HasChange("volume.0.size") {
 		return nil
@@ -1166,7 +1188,8 @@ func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, cl
 	volumeItem := volumeRaw[0].(map[string]interface{})
 	enlargeOpts := instances.EnlargeVolumeOpts{
 		EnlargeVolume: &instances.EnlargeVolumeSize{
-			Size: volumeItem["size"].(int),
+			Size:      volumeItem["size"].(int),
+			IsAutoPay: true,
 		},
 	}
 
@@ -1191,8 +1214,33 @@ func updateRdsInstanceVolumeSize(ctx context.Context, d *schema.ResourceData, cl
 	}
 
 	instance := r.(*instances.EnlargeVolumeResp)
-	if err := checkRDSInstanceJobFinish(client, instance.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
-		return fmt.Errorf("error updating instance (%s): %s", instanceID, err)
+	// wait for order success
+	if instance.OrderId != "" {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second),
+			instance.OrderId); err != nil {
+			return fmt.Errorf("error waiting for RDS order %s succuss: %s", instance.OrderId, err)
+		}
+	}
+
+	if instance.JobId != "" {
+		if err := checkRDSInstanceJobFinish(client, instance.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("error updating instance (%s): %s", instanceID, err)
+		}
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for instance (%s) volume size to be updated: %s", instanceID, err)
 	}
 
 	return nil
@@ -1646,6 +1694,42 @@ func updateRdsInstanceSwitchStrategy(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil {
 		return fmt.Errorf("error modify RDS instance (%s) switch strategy: %s", instanceID, err)
+	}
+	return nil
+}
+
+func updateRdsInstanceCollation(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("collation") {
+		return nil
+	}
+
+	modifyCollationOpts := instances.ModifyCollationOpts{
+		Collation: d.Get("collation").(string),
+	}
+
+	log.Printf("[DEBUG] Modify RDS instance collation opts: %+v", modifyCollationOpts)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.ModifyCollation(client, modifyCollationOpts, instanceID).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) collation: %s", instanceID, err)
+	}
+	job := res.(*instances.Collation)
+
+	if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) update collation completed: %s", instanceID, err)
 	}
 	return nil
 }

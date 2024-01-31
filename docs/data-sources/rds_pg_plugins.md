@@ -39,7 +39,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `plugins` - Indicates the plugin list.
   The [plugins](#PgPlugins_Plugin) structure is documented below.

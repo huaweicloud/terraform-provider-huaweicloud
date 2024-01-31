@@ -22,6 +22,9 @@ import (
 
 var internalPropertyKeys = []string{"engineID", "engineName"}
 
+// @API CSE GET /v2/{project_id}/registry/microservices/{serviceId}/instances/{instanceId}
+// @API CSE DELETE /v2/{project_id}/registry/microservices/{serviceId}/instances/{instanceId}
+// @API CSE POST /v2/{project_id}/registry/microservices/{serviceId}/instances
 func ResourceMicroserviceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMicroserviceInstanceCreate,

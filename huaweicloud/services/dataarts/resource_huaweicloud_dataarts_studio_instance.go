@@ -20,6 +20,8 @@ import (
 )
 
 // ResourceStudioInstance is the impl of huaweicloud_dataarts_studio_instance
+// @API DataArtsStudio POST /v1/{project_id}/instances/onekey-purchase
+// @API DataArtsStudio GET /v1/{project_id}/instances
 func ResourceStudioInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStudioInstanceCreate,

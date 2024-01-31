@@ -94,7 +94,6 @@
               "password": {
                 "type": "string",
                 "required": true,
-                "forcenew": true,
                 "sensitive": true
               },
               "period": {

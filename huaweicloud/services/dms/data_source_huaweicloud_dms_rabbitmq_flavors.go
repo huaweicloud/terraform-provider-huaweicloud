@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+// @API RabbitMQ GET /v2/{engine}/products
 func DataSourceRabbitMQFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRabbitMQFlavorsRead,
@@ -16,6 +17,7 @@ func DataSourceRabbitMQFlavors() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			// We call the product as flavor.
 			"flavor_id": {

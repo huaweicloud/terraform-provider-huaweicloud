@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_global_eip
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v3/{domain_id}/global-eips:
+        POST:
+            tag: EIP
+    /v3/{domain_id}/global-eips/{id}:
+        DELETE:
+            tag: EIP
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP
+    /v3/global-eip/{resource_id}/tags/create:
+        POST:
+            tag: EIP
+    /v3/global-eip/{resource_id}/tags/delete:
+        POST:
+            tag: EIP

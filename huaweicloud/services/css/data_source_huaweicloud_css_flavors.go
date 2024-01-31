@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API CSS GET /v1.0/{project_id}/es-flavors
 func DataSourceCssFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCssFlavorsRead,

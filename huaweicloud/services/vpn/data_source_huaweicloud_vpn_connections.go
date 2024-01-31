@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPN GET /v5/{project_id}/vpn-connection
 func DataSourceVpnConnections() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: datasourceConnectionRead,

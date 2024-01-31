@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CCE DELETE /api/v3/addons/{id}
+// @API CCE GET /api/v3/addons/{id}
+// @API CCE PUT /api/v3/addons/{id}
+// @API CCE POST /api/v3/addons
 func ResourceAddon() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAddonCreate,

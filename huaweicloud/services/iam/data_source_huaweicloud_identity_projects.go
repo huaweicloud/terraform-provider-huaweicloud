@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API IAM GET /v3/projects
 func DataSourceIdentityProjects() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIdentityProjectsRead,

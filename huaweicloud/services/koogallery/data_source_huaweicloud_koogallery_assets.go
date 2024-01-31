@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
+// @API KooGallery GET /api/mkp-openapi-public/v1/asset/deployed-object
 func DataSourceKooGalleryAssets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceKooGalleryAssetsRead,

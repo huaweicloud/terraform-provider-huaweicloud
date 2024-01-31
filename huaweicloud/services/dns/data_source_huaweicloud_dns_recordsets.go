@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API dns_region GET /v2.1/zones/{zone_id}/recordsets
 func DataSourceRecordsets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceRecordsetsRead,
@@ -152,20 +153,17 @@ func recordsetSchema() *schema.Resource {
 
 func resourceRecordsetsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		mErr       *multierror.Error
-		dnsProduct = "dns_region"
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+		mErr   *multierror.Error
 	)
-	client, err := cfg.NewServiceClient(dnsProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating DNS client: %s", err)
-	}
 
-	zoneType, err := getDNSZoneType(client, d.Get("zone_id").(string))
+	zoneID := d.Get("zone_id").(string)
+	client, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	// The private zone can only use v2 version API. The public zone use v2.1 version API
 	version := getApiVersionByZoneType(zoneType)
 	listHttpUrl := fmt.Sprintf("%s/zones/{zone_id}/recordsets", version)

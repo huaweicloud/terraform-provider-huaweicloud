@@ -21,6 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/aggregators
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/aggregators/{id}
+// @API Config DELETE /v1/resource-manager/domains/{domain_id}/aggregators/{id}
+// @API Config GET /v1/resource-manager/domains/{domain_id}/aggregators/{id}
 func ResourceAggregator() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAggregatorCreate,

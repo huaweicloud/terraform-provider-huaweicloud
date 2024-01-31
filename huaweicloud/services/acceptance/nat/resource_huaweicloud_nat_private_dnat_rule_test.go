@@ -149,7 +149,7 @@ resource "huaweicloud_nat_private_gateway" "test" {
   name                  = "%[2]s"
   enterprise_project_id = "0"
 }
-`, common.TestBaseComputeResources(name), name, acceptance.RandomPassword())
+`, common.TestBaseComputeResources(name), name, acceptance.RandomPassword("!@%-_=+[]:./?"))
 }
 
 func testAccPrivateDnatRule_basic_step_1(name string) string {

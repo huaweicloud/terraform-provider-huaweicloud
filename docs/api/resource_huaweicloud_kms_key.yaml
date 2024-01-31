@@ -1,58 +1,49 @@
 info:
-  version: 
-  title: resource_huaweicloud_kms_key
-  description: 
+    version: ""
+    title: resource_huaweicloud_kms_key
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DEW
+    - name: DEW
 paths:
-  /v1.0/{project_id}/kms/{id}/tags/action:
-    post:
-      tag: DEW
-      operationId: Create
-  /v1.0/{project_id}/kms/create-key:
-    post:
-      tag: DEW
-      operationId: Create
-  /v1.0/{project_id}/kms/describe-key:
-    post:
-      tag: DEW
-      operationId: Get
-  /v1.0/{project_id}/kms/disable-key-rotation:
-    post:
-      tag: DEW
-      operationId: Disable
-  /v1.0/{project_id}/kms/disable-key:
-    post:
-      tag: DEW
-      operationId: DisableKey
-  /v1.0/{project_id}/kms/enable-key-rotation:
-    post:
-      tag: DEW
-      operationId: Enable
-  /v1.0/{project_id}/kms/enable-key:
-    post:
-      tag: DEW
-      operationId: EnableKey
-  /v1.0/{project_id}/kms/get-key-rotation-status:
-    post:
-      tag: DEW
-      operationId: Get
-  /v1.0/{project_id}/kms/schedule-key-deletion:
-    post:
-      tag: DEW
-      operationId: Delete
-  /v1.0/{project_id}/kms/update-key-alias:
-    post:
-      tag: DEW
-      operationId: UpdateAlias
-  /v1.0/{project_id}/kms/update-key-description:
-    post:
-      tag: DEW
-      operationId: UpdateDes
-  /v1.0/{project_id}/kms/update-key-rotation-interval:
-    post:
-      tag: DEW
-      operationId: Update
+    /v1.0/{project_id}/{resourceType}/{id}/tags:
+        GET:
+            tag: DEW
+    /v1.0/{project_id}/{resourceType}/{id}/tags/action:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/create-key:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/describe-key:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/disable-key:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/disable-key-rotation:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/enable-key:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/enable-key-rotation:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/get-key-rotation-status:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/schedule-key-deletion:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/update-key-alias:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/update-key-description:
+        POST:
+            tag: DEW
+    /v1.0/{project_id}/kms/update-key-rotation-interval:
+        POST:
+            tag: DEW

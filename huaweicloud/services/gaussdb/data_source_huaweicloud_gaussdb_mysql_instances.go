@@ -13,6 +13,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}
+// @API GaussDBforMySQL GET /v3/{project_id}/instances
 func DataSourceGaussDBMysqlInstances() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGaussDBMysqlInstancesRead,

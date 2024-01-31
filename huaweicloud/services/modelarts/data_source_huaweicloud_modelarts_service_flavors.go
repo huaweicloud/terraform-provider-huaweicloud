@@ -23,6 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ModelArts GET /v1/{project_id}/services/specifications
 func DataSourceServiceFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceServiceFlavorsRead,

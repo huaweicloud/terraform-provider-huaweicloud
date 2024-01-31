@@ -69,12 +69,14 @@ func ParseStringToEventType(value string) (ret EventType) {
 // ParseStringToStorageClassType converts string value to StorageClassType value and returns it
 func ParseStringToStorageClassType(value string) (ret StorageClassType) {
 	switch value {
-	case "STANDARD":
+	case string(StorageClassStandard):
 		ret = StorageClassStandard
-	case "STANDARD_IA", "WARM":
+	case string(storageClassStandardIA), string(StorageClassWarm):
 		ret = StorageClassWarm
-	case "GLACIER", "COLD":
+	case string(storageClassGlacier), string(StorageClassCold):
 		ret = StorageClassCold
+	case string(StorageClassDeepArchive):
+		ret = StorageClassDeepArchive
 	default:
 		ret = ""
 	}
@@ -348,7 +350,7 @@ func convertTransitionsToXML(transitions []Transition, isObs bool) string {
 	return ""
 }
 
-func converLifeCycleFilterToXML(filter LifecycleFilter) string {
+func convertLifeCycleFilterToXML(filter LifecycleFilter) string {
 	if filter.Prefix == "" && len(filter.Tags) == 0 {
 		return ""
 	}
@@ -369,6 +371,7 @@ func convertExpirationToXML(expiration Expiration) string {
 	}
 	return ""
 }
+
 func convertNoncurrentVersionTransitionsToXML(noncurrentVersionTransitions []NoncurrentVersionTransition, isObs bool) string {
 	if length := len(noncurrentVersionTransitions); length > 0 {
 		xml := make([]string, 0, length)
@@ -405,37 +408,38 @@ func convertAbortIncompleteMultipartUploadToXML(abortIncompleteMultipartUpload A
 	return ""
 }
 
-// ConvertLifecyleConfigurationToXml converts BucketLifecyleConfiguration value to XML data and returns it
-func ConvertLifecyleConfigurationToXml(input BucketLifecyleConfiguration, returnMd5 bool, isObs bool) (data string, md5 string) {
+// ConvertLifecycleConfigurationToXml converts BucketLifecycleConfiguration value to XML data and returns it
+func ConvertLifecycleConfigurationToXml(input BucketLifecycleConfiguration, returnMd5 bool, isObs bool) (data string, md5 string) {
 	xml := make([]string, 0, 2+len(input.LifecycleRules)*9)
 	xml = append(xml, "<LifecycleConfiguration>")
-	for _, lifecyleRule := range input.LifecycleRules {
+	for _, lifecycleRule := range input.LifecycleRules {
 		xml = append(xml, "<Rule>")
-		if lifecyleRule.ID != "" {
-			lifecyleRuleID := XmlTranscoding(lifecyleRule.ID)
-			xml = append(xml, fmt.Sprintf("<ID>%s</ID>", lifecyleRuleID))
+		if lifecycleRule.ID != "" {
+			lifecycleRuleID := XmlTranscoding(lifecycleRule.ID)
+			xml = append(xml, fmt.Sprintf("<ID>%s</ID>", lifecycleRuleID))
 		}
-		lifecyleRulePrefix := XmlTranscoding(lifecyleRule.Prefix)
-		if lifecyleRulePrefix != "" {
-			xml = append(xml, fmt.Sprintf("<Prefix>%s</Prefix>", lifecyleRulePrefix))
+		lifecycleRulePrefix := XmlTranscoding(lifecycleRule.Prefix)
+		lifecycleRuleFilter := convertLifeCycleFilterToXML(lifecycleRule.Filter)
+		if lifecycleRulePrefix != "" || (lifecycleRulePrefix == "" && lifecycleRuleFilter == "") {
+			xml = append(xml, fmt.Sprintf("<Prefix>%s</Prefix>", lifecycleRulePrefix))
 		}
-		xml = append(xml, fmt.Sprintf("<Status>%s</Status>", lifecyleRule.Status))
-		if ret := converLifeCycleFilterToXML(lifecyleRule.Filter); ret != "" {
+		if lifecycleRuleFilter != "" {
+			xml = append(xml, lifecycleRuleFilter)
+		}
+		xml = append(xml, fmt.Sprintf("<Status>%s</Status>", lifecycleRule.Status))
+		if ret := convertTransitionsToXML(lifecycleRule.Transitions, isObs); ret != "" {
 			xml = append(xml, ret)
 		}
-		if ret := convertTransitionsToXML(lifecyleRule.Transitions, isObs); ret != "" {
+		if ret := convertExpirationToXML(lifecycleRule.Expiration); ret != "" {
 			xml = append(xml, ret)
 		}
-		if ret := convertExpirationToXML(lifecyleRule.Expiration); ret != "" {
+		if ret := convertNoncurrentVersionTransitionsToXML(lifecycleRule.NoncurrentVersionTransitions, isObs); ret != "" {
 			xml = append(xml, ret)
 		}
-		if ret := convertNoncurrentVersionTransitionsToXML(lifecyleRule.NoncurrentVersionTransitions, isObs); ret != "" {
+		if ret := convertNoncurrentVersionExpirationToXML(lifecycleRule.NoncurrentVersionExpiration); ret != "" {
 			xml = append(xml, ret)
 		}
-		if ret := convertNoncurrentVersionExpirationToXML(lifecyleRule.NoncurrentVersionExpiration); ret != "" {
-			xml = append(xml, ret)
-		}
-		if ret := convertAbortIncompleteMultipartUploadToXML(lifecyleRule.AbortIncompleteMultipartUpload); ret != "" {
+		if ret := convertAbortIncompleteMultipartUploadToXML(lifecycleRule.AbortIncompleteMultipartUpload); ret != "" {
 			xml = append(xml, ret)
 		}
 		xml = append(xml, "</Rule>")

@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API CCE DELETE /api/v1/namespaces/{name}
+// @API CCE GET /api/v1/namespaces/{name}
+// @API CCE POST /api/v1/namespaces
 func ResourceCCENamespaceV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCCENamespaceV1Create,

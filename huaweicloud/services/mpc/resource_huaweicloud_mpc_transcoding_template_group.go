@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API MPC DELETE /v1/{project_id}/template_group/transcodings
+// @API MPC GET /v1/{project_id}/template_group/transcodings
+// @API MPC POST /v1/{project_id}/template_group/transcodings
+// @API MPC PUT /v1/{project_id}/template_group/transcodings
 func ResourceTranscodingTemplateGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTranscodingTemplateGroupCreate,

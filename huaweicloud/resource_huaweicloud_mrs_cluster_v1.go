@@ -20,6 +20,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API MRS GET /v1.1/{project_id}/cluster_infos/{id}
+// @API MRS POST /v1.1/{project_id}/clusters/{id}/tags/action
+// @API MRS GET /v1.1/{project_id}/clusters/{id}/tags
+// @API MRS DELETE /v1.1/{project_id}/clusters/{id}
+// @API MRS POST /v1.1/{project_id}/run-job-flow
+// @API VPC GET /v1/{project_id}/subnets/{id}
+// @API VPC GET /v1/{project_id}/vpcs/{id}
 func ResourceMRSClusterV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceClusterV1Create,

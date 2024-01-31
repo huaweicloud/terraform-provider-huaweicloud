@@ -4,15 +4,18 @@ import (
 	"github.com/chnsz/golangsdk"
 )
 
-//BandWidth is a struct that represents a bandwidth
+// BandWidth is a struct that represents a bandwidth
 type BandWidth struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	Size          int    `json:"size"`
-	ShareType     string `json:"share_type"`
-	TenantID      string `json:"tenant_id"`
-	BandwidthType string `json:"bandwidth_type"`
-	ChargeMode    string `json:"charge_mode"`
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	Size              int    `json:"size"`
+	ShareType         string `json:"share_type"`
+	TenantID          string `json:"tenant_id"`
+	BandwidthType     string `json:"bandwidth_type"`
+	PublicBorderGroup string `json:"public_border_group"`
+	ChargeMode        string `json:"charge_mode"`
+	CreatedAt         string `json:"created_at"`
+	UpdatedAt         string `json:"updated_at"`
 
 	PublicipInfo []PublicIpinfo `json:"publicip_info"`
 
@@ -44,7 +47,7 @@ type PublicIpinfo struct {
 	PublicipType string `json:"publicip_type"`
 }
 
-//GetResult is a return struct of get method
+// GetResult is a return struct of get method
 type GetResult struct {
 	golangsdk.Result
 }
@@ -57,7 +60,7 @@ func (r GetResult) Extract() (BandWidth, error) {
 	return BW.BW, err
 }
 
-//UpdateResult is a struct which contains the result of update method
+// UpdateResult is a struct which contains the result of update method
 type UpdateResult struct {
 	golangsdk.Result
 }
@@ -68,7 +71,7 @@ func (r UpdateResult) Extract() (BandWidth, error) {
 	return bw, err
 }
 
-//ListResult is a struct which contains the result of list method
+// ListResult is a struct which contains the result of list method
 type ListResult struct {
 	golangsdk.Result
 }

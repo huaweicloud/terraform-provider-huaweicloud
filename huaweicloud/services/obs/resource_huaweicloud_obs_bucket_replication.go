@@ -15,6 +15,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API OBS PUT ?replication
+// @API OBS DELETE ?replication
+// @API OBS GET ?replication
 func ResourceObsBucketReplication() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceObsBucketReplicationCreate,

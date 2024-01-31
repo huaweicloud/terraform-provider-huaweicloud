@@ -15,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API ELB GET /v2/{project_id}/elb/loadbalancers
+// @API ELB GET /v2.0/{project_id}/loadbalancers/{id}/tags
 func DataSourceELBV2Loadbalancer() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceELBV2LoadbalancerRead,

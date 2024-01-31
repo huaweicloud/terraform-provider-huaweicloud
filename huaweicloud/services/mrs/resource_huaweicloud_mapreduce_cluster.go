@@ -52,6 +52,13 @@ type stateRefresh struct {
 	PollInterval time.Duration
 }
 
+// @API MRS GET /v1.1/{project_id}/clusters/{clusterId}/hosts
+// @API MRS DELETE /v1.1/{project_id}/clusters/{id}
+// @API MRS POST /v2/{project_id}/clusters
+// @API MRS POST /v1.1/{project_id}/{resourceType}/{id}/tags/action
+// @API MRS GET /v1.1/{project_id}/cluster_infos/{id}
+// @API MRS PUT /v1.1/{project_id}/cluster_infos/{id}
+// @API EIP GET /v1/{project_id}/publicips
 func ResourceMRSClusterV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMRSClusterV2Create,

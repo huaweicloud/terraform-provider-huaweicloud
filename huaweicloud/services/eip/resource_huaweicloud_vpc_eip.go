@@ -54,6 +54,14 @@ const (
 )
 
 // In order to be compatible with other providers, keep the exposed function name (ResourceVpcEIPV1) unchanged.
+// @API EIP GET /v1/{project_id}/publicips/{id}
+// @API EIP PUT /v1/{project_id}/publicips/{id}
+// @API EIP DELETE /v1/{project_id}/publicips/{id}
+// @API EIP POST /v2.0/{project_id}/publicips
+// @API EIP POST /v2.0/{project_id}/publicips/{id}/tags/action
+// @API EIP GET /v2.0/{project_id}/publicips/{id}/tags
+// @API EIP GET /v1/{project_id}/bandwidths/{id}
+// @API EIP PUT /v1/{project_id}/bandwidths/{id}
 func ResourceVpcEIPV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcEipCreate,
@@ -593,7 +601,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
 
-	// API limitation: port_id and ip_version cannot be updated at the same time
+	// the API limitation: port_id and ip_version cannot be updated at the same time
 	if d.HasChanges("name", "publicip.0.ip_version") {
 		err = updateEipConfig(vpcV1Client, d)
 		if err != nil {

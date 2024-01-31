@@ -81,11 +81,6 @@ func (t *teeReader) Read(p []byte) (n int, err error) {
 		}
 	}
 
-	if err == io.EOF {
-		event := newProgressEvent(TransferCompletedEvent, t.consumedBytes, t.totalBytes)
-		publishProgress(t.listener, event)
-	}
-
 	return
 }
 

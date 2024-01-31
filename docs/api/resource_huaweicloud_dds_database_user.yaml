@@ -1,25 +1,24 @@
 info:
-  version: 
-  title: resource_huaweicloud_dds_database_user
-  description: 
+    version: ""
+    title: resource_huaweicloud_dds_database_user
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DDS
+    - name: DDS
 paths:
-  /v3/{project_id}/instances/{instanceId}/db-user/detail:
-    get:
-      tag: DDS
-      operationId: List
-  /v3/{project_id}/instances/{instanceId}/db-user:
-    delete:
-      tag: DDS
-      operationId: Delete
-    post:
-      tag: DDS
-      operationId: Create
-  /v3/{project_id}/instances/{instanceId}/reset-password:
-    put:
-      tag: DDS
-      operationId: ResetPassword
+    /v3/{project_id}/instances:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/db-user:
+        DELETE:
+            tag: DDS
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/db-user/detail:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/reset-password:
+        PUT:
+            tag: DDS

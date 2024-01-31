@@ -79,6 +79,11 @@
                 "type": "string",
                 "description": "The zone name of the record set.",
                 "computed": true
+              },
+              "zone_type": {
+                "type": "string",
+                "description": "The zone type. The value can be public or private",
+                "computed": true
               }
             }
           },

@@ -2,7 +2,7 @@
 
 ## Version
 
-3.23.9
+3.23.12
 
 ## How to change local obs sdk
 - Try to submit pull request to the official repository：

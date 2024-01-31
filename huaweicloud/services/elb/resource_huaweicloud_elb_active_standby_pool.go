@@ -20,6 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API ELB POST /v3/{project_id}/elb/master-slave-pools
+// @API ELB GET /v3/{project_id}/elb/master-slave-pools/{pool_id}
+// @API ELB DELETE /v3/{project_id}/elb/master-slave-pools/{pool_id}
 func ResourceActiveStandbyPool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceActiveStandbyPoolCreate,
@@ -46,37 +49,20 @@ func ResourceActiveStandbyPool() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"loadbalancer_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+			"members": {
+				Type:     schema.TypeSet,
+				Required: true,
 				ForceNew: true,
-				Computed: true,
+				Elem:     activeStandbyMemberRefSchema(),
 			},
-			"listener_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+			"healthmonitor": {
+				Type:     schema.TypeList,
+				Required: true,
 				ForceNew: true,
-				Computed: true,
-			},
-			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
-			},
-			"any_port_enable": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				MaxItems: 1,
+				Elem:     activeStandbyHealthMonitorRefSchema(),
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -88,134 +74,160 @@ func ResourceActiveStandbyPool() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"members": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"address": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"role": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"protocol_port": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"subnet_cidr_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"member_type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"instance_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"operating_status": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"ip_version": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+			"loadbalancer_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
 			},
-			"healthmonitor": {
-				Type:     schema.TypeList,
-				Required: true,
+			"listener_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 				ForceNew: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"delay": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
-						},
-						"max_retries": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
-						},
-						"timeout": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"domain_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"expected_codes": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"max_retries_down": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"monitor_port": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"url_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
-						},
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Computed: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"any_port_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"ip_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func activeStandbyMemberRefSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"address": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"role": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"protocol_port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"member_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func activeStandbyHealthMonitorRefSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"delay": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
+			"max_retries": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
+			"timeout": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"domain_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"expected_codes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"max_retries_down": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"monitor_port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"url_path": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -236,8 +248,7 @@ func resourceActiveStandbyPoolCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 	createActiveStandbyPoolPath := elbClient.Endpoint + createActiveStandbyPoolUrl
-	createActiveStandbyPoolPath = strings.ReplaceAll(createActiveStandbyPoolPath, "{project_id}",
-		elbClient.ProjectID)
+	createActiveStandbyPoolPath = strings.ReplaceAll(createActiveStandbyPoolPath, "{project_id}", elbClient.ProjectID)
 
 	createActiveStandbyPoolOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -307,6 +318,8 @@ func resourceActiveStandbyPoolRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("protocol", utils.PathSearch("pool.protocol", getActiveStandbyPoolBody, nil)),
 		d.Set("description", utils.PathSearch("pool.description", getActiveStandbyPoolBody, nil)),
 		d.Set("name", utils.PathSearch("pool.name", getActiveStandbyPoolBody, nil)),
+		d.Set("loadbalancer_id", utils.PathSearch("pool.loadbalancers|[0].id", getActiveStandbyPoolBody, nil)),
+		d.Set("listener_id", utils.PathSearch("pool.listeners|[0].id", getActiveStandbyPoolBody, nil)),
 		d.Set("type", utils.PathSearch("pool.type", getActiveStandbyPoolBody, nil)),
 		d.Set("any_port_enable", utils.PathSearch("pool.any_port_enable", getActiveStandbyPoolBody, nil)),
 		d.Set("vpc_id", utils.PathSearch("pool.vpc_id", getActiveStandbyPoolBody, nil)),
@@ -367,7 +380,7 @@ func flattenActiveStandbyPoolMembers(resp interface{}) []interface{} {
 			"role":             utils.PathSearch("role", v, nil),
 			"id":               utils.PathSearch("id", v, nil),
 			"name":             utils.PathSearch("name", v, nil),
-			"subnet_cidr_id":   utils.PathSearch("subnet_cidr_id", v, nil),
+			"subnet_id":        utils.PathSearch("subnet_cidr_id", v, nil),
 			"member_type":      utils.PathSearch("member_type", v, nil),
 			"instance_id":      utils.PathSearch("instance_id", v, nil),
 			"operating_status": utils.PathSearch("operating_status", v, nil),
@@ -445,7 +458,6 @@ func resourceElbPoolRefreshFunc(elbClient *golangsdk.ServiceClient, poolID strin
 		}
 
 		getActiveStandbyPoolResp, err := elbClient.Request("GET", getActiveStandbyPoolPath, &getActiveStandbyPoolOpt)
-
 		if err != nil {
 			return nil, "", err
 		}
@@ -462,43 +474,41 @@ func resourceElbPoolRefreshFunc(elbClient *golangsdk.ServiceClient, poolID strin
 
 func buildCreateActiveStandbyPoolBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":            utils.ValueIngoreEmpty(d.Get("name")),
-		"description":     utils.ValueIngoreEmpty(d.Get("description")),
+		"lb_algorithm":    "ROUND_ROBIN",
 		"protocol":        d.Get("protocol"),
+		"name":            utils.ValueIngoreEmpty(d.Get("name")),
 		"loadbalancer_id": utils.ValueIngoreEmpty(d.Get("loadbalancer_id")),
 		"listener_id":     utils.ValueIngoreEmpty(d.Get("listener_id")),
-		"lb_algorithm":    "ROUND_ROBIN",
-		"type":            d.Get("type"),
+		"type":            utils.ValueIngoreEmpty(d.Get("type")),
 		"any_port_enable": utils.ValueIngoreEmpty(d.Get("any_port_enable")),
 		"vpc_id":          utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"members":         buildActiveStandbyPoolMembers(d.Get("members")),
-		"healthmonitor":   buildActiveStandbyPoolHealthmonitor(d.Get("healthmonitor")),
+		"description":     utils.ValueIngoreEmpty(d.Get("description")),
+		"members":         buildActiveStandbyPoolMembers(d.Get("members").(*schema.Set).List()),
+		"healthmonitor":   buildActiveStandbyPoolHealthMonitor(d.Get("healthmonitor")),
 	}
 	return map[string]interface{}{"pool": bodyParams}
 }
 
-func buildActiveStandbyPoolMembers(m interface{}) []map[string]interface{} {
-	if membersArray, ok := m.([]interface{}); ok {
-		if len(membersArray) == 0 {
-			return nil
-		}
-		members := make([]map[string]interface{}, 0, len(membersArray))
-		for _, mem := range membersArray {
-			item := mem.(map[string]interface{})
+func buildActiveStandbyPoolMembers(rawMembers []interface{}) []map[string]interface{} {
+	if len(rawMembers) == 0 {
+		return nil
+	}
+	members := make([]map[string]interface{}, 0, len(rawMembers))
+	for _, member := range rawMembers {
+		if v, ok := member.(map[string]interface{}); ok {
 			members = append(members, map[string]interface{}{
-				"address":        item["address"],
-				"protocol_port":  utils.ValueIngoreEmpty(item["protocol_port"]),
-				"role":           item["role"],
-				"name":           utils.ValueIngoreEmpty(item["name"]),
-				"subnet_cidr_id": utils.ValueIngoreEmpty(item["subnet_cidr_id"]),
+				"address":        v["address"],
+				"role":           v["role"],
+				"protocol_port":  utils.ValueIngoreEmpty(v["protocol_port"]),
+				"name":           utils.ValueIngoreEmpty(v["name"]),
+				"subnet_cidr_id": utils.ValueIngoreEmpty(v["subnet_id"]),
 			})
 		}
-		return members
 	}
-	return nil
+	return members
 }
 
-func buildActiveStandbyPoolHealthmonitor(h interface{}) map[string]interface{} {
+func buildActiveStandbyPoolHealthMonitor(h interface{}) map[string]interface{} {
 	if rawArray, ok := h.([]interface{}); ok {
 		if len(rawArray) == 0 {
 			return nil
@@ -511,8 +521,8 @@ func buildActiveStandbyPoolHealthmonitor(h interface{}) map[string]interface{} {
 			"delay":            raw["delay"],
 			"max_retries":      raw["max_retries"],
 			"timeout":          raw["timeout"],
-			"domain_name":      utils.ValueIngoreEmpty(raw["domain_name"]),
 			"type":             raw["type"],
+			"domain_name":      utils.ValueIngoreEmpty(raw["domain_name"]),
 			"expected_codes":   utils.ValueIngoreEmpty(raw["expected_codes"]),
 			"max_retries_down": utils.ValueIngoreEmpty(raw["max_retries_down"]),
 			"monitor_port":     utils.ValueIngoreEmpty(raw["monitor_port"]),

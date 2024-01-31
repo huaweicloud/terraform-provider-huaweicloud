@@ -32,16 +32,17 @@ func getArchitectureSubjectResourceFunc(conf *config.Config, state *terraform.Re
 		MoreHeaders:      map[string]string{"workspace": workspaceID},
 	}
 
-	currentTotal := 0
-	getSubjectPath += fmt.Sprintf("?limit=10&offset=%v", currentTotal)
+	getSubjectPath += "?limit=10"
 
 	// using name to reduce the search results
 	if val, ok := state.Primary.Attributes["name"]; ok && val != "" {
 		getSubjectPath += fmt.Sprintf("&name=%s", val)
 	}
 
+	currentTotal := 0
 	for {
-		getSubjectResp, err := getSubjectClient.Request("GET", getSubjectPath, &getSubjectOpt)
+		path := fmt.Sprintf("%s&offset=%v", getSubjectPath, currentTotal)
+		getSubjectResp, err := getSubjectClient.Request("GET", path, &getSubjectOpt)
 		if err != nil {
 			return nil, err
 		}
@@ -70,8 +71,6 @@ func getArchitectureSubjectResourceFunc(conf *config.Config, state *terraform.Re
 		if float64(currentTotal) == total {
 			break
 		}
-		index := strings.Index(getSubjectPath, "offset")
-		getSubjectPath = fmt.Sprintf("%soffset=%v", getSubjectPath[:index], currentTotal)
 	}
 
 	return nil, golangsdk.ErrDefault404{}

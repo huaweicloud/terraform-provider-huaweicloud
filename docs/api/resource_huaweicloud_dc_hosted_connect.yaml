@@ -1,0 +1,29 @@
+info:
+    title: resource_huaweicloud_dc_hosted_connect
+    description: |-
+        Manages a hosted connection resource within HuaweiCloud.
+        The creator must have the partner qualification and have an operations connection.
+host: myhuaweicloud.com
+tags:
+    - name: dc
+servers:
+    - url: https://dcaas.myhuaweicloud.com
+paths:
+    /v3/{project_id}/dcaas/hosted-connects:
+        POST:
+            tag: DC
+            operationId: CreateHostedConnect
+            x-ref-api: POST /v3/{project_id}/dcaas/hosted-connects
+    /v3/{project_id}/dcaas/hosted-connects/{id}:
+        DELETE:
+            tag: CC
+            operationId: DeleteHostedConnect
+            x-ref-api: DELETE /v3/{project_id}/dcaas/hosted-connects/{id}
+        GET:
+            tag: DC
+            operationId: CreateHostedConnectWaiting
+            x-ref-api: GET /v3/{project_id}/dcaas/hosted-connects/{id}
+        PUT:
+            tag: DC
+            operationId: UpdateHostedConnect
+            x-ref-api: PUT /v3/{project_id}/dcaas/hosted-connects/{id}

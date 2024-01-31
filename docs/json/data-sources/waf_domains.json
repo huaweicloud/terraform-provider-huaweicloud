@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_domains": {
+          "block": {
+            "attributes": {
+              "domain": {
+                "type": "string",
+                "optional": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_status": "number",
+                      "charging_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "ipv6_enable": "bool",
+                      "pci_3ds": "bool",
+                      "pci_dss": "bool",
+                      "policy_id": "string",
+                      "protect_status": "number",
+                      "proxy": "bool",
+                      "proxy_layer": "number",
+                      "website_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

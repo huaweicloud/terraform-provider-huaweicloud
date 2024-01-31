@@ -17,9 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// API: DataArtsStudio POST v2/{project_id}/design/approvals/users
-// API: DataArtsStudio GET v2/{project_id}/design/approvals/users
-// API: DataArtsStudio DELETE v2/{project_id}/design/approvals/users
+// @API DataArtsStudio POST /v2/{project_id}/design/approvals/users
+// @API DataArtsStudio GET /v2/{project_id}/design/approvals/users
+// @API DataArtsStudio DELETE /v2/{project_id}/design/approvals/users
 func ResourceDataArtsArchitectureReviewer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceArchitectureReviewerCreate,

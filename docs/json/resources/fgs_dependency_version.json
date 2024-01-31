@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_dependency_version": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the custom dependency version.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "etag": {
+                "type": "string",
+                "description": "The unique ID of the dependency.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "link": {
+                "type": "string",
+                "description": "The OBS bucket path where the dependency package is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the custom dependency package to which the version belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The dependency owner, public indicates a public dependency.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the custom dependency version is located.",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "description": "The runtime of the custom dependency package version.",
+                "required": true,
+                "forcenew": true
+              },
+              "size": {
+                "type": "number",
+                "description": "The dependency size, in bytes.",
+                "computed": true
+              },
+              "version": {
+                "type": "number",
+                "description": "The dependency package version.",
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "The ID of the dependency package version.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

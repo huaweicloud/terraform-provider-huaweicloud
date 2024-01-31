@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_authorization": {
+          "block": {
+            "attributes": {
+              "cloud_connection_domain_id": {
+                "type": "string",
+                "description": "The peer account ID that you want to authorize.",
+                "required": true,
+                "forcenew": true
+              },
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Peer cloud connection ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the cross-account authorization.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "instance_type": {
+                "type": "string",
+                "description": "The instance type.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the cross-account authorization.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

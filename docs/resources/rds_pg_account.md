@@ -81,3 +81,4 @@ resource "huaweicloud_rds_pg_account" "account_1" {
     ]
   }
 }
+```

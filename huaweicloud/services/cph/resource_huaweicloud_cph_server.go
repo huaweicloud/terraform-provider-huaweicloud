@@ -28,6 +28,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CPH PUT /v1/{project_id}/cloud-phone/servers/{id}
+// @API CPH GET /v1/{project_id}/cloud-phone/servers/{id}
+// @API CPH POST /v2/{project_id}/cloud-phone/servers
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceCphServer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCphServerCreate,

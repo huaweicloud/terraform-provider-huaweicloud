@@ -25,6 +25,11 @@ const (
 	AuthTypeBackend  AuthType = "BACKEND"
 )
 
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/authorizers/{id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/authorizers/{id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/authorizers/{id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/authorizers
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/authorizers
 func ResourceApigCustomAuthorizerV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomAuthorizerCreate,

@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
@@ -346,25 +347,32 @@ func getProxyFromEnv() string {
 }
 
 func logRequestHandler(request http.Request) {
-	log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
-	log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
+	requestAt := fmt.Sprintf("%d-0", time.Now().UnixMilli())
+	log.Printf("[DEBUG] [%s] API Request URL: %s %s\nAPI Request Headers:\n%s",
+		requestAt, request.Method, request.URL, FormatHeaders(request.Header, "\n"))
+
 	if request.Body != nil {
-		if err := logRequest(request.Body, request.Header.Get("Content-Type")); err != nil {
-			log.Printf("[WARN] failed to get request body: %s", err)
+		if err := logRequest(request.Body, request.Header.Get("Content-Type"), requestAt); err != nil {
+			log.Printf("[WARN] [%s] failed to log API Request Body: %s", requestAt, err)
 		}
 	}
 }
 
 func logResponseHandler(response http.Response) {
-	log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
-	log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
+	responseAt := fmt.Sprintf("%d-0", time.Now().UnixMilli())
+	log.Printf("[DEBUG] [%s] API Response Code: %d\nAPI Response Headers:\n%s",
+		responseAt, response.StatusCode, FormatHeaders(response.Header, "\n"))
 
-	if err := logResponse(response.Body, response.Header.Get("Content-Type")); err != nil {
-		log.Printf("[WARN] failed to get response body: %s", err)
+	if response.Body != nil {
+		if err := logResponse(response.Body, response.Header.Get("Content-Type"), responseAt); err != nil {
+			log.Printf("[WARN] [%s] failed to log API Response Body: %s", responseAt, err)
+		}
 	}
 }
 
-func logRequest(original io.ReadCloser, contentType string) error {
+// logRequest will log the HTTP Request details, then close the original.
+// If the body is JSON, it will attempt to be pretty-formatted.
+func logRequest(original io.ReadCloser, contentType, requestAt string) error {
 	defer original.Close()
 
 	var bs bytes.Buffer
@@ -381,18 +389,18 @@ func logRequest(original io.ReadCloser, contentType string) error {
 
 	// Handle request contentType
 	if strings.HasPrefix(contentType, "application/json") {
-		debugInfo := formatJSON(body[index:], true)
-		log.Printf("[DEBUG] API Request Body: %s", debugInfo)
+		debugInfo := formatJSON(body[index:], requestAt, true)
+		log.Printf("[DEBUG] [%s] API Request Body: %s", requestAt, debugInfo)
 	} else {
-		log.Printf("[DEBUG] Not logging because the request body isn't JSON")
+		log.Printf("[DEBUG] [%s] Not logging because the request body isn't JSON", requestAt)
 	}
 
 	return nil
 }
 
-// logResponse will log the HTTP Response details.
+// logResponse will log the HTTP Response details, then close the original.
 // If the body is JSON, it will attempt to be pretty-formatted.
-func logResponse(original io.ReadCloser, contentType string) error {
+func logResponse(original io.ReadCloser, contentType, responseAt string) error {
 	defer original.Close()
 
 	var bs bytes.Buffer
@@ -408,10 +416,10 @@ func logResponse(original io.ReadCloser, contentType string) error {
 	}
 
 	if strings.HasPrefix(contentType, "application/json") {
-		debugInfo := formatJSON(body[index:], true)
-		log.Printf("[DEBUG] API Response Body: %s", debugInfo)
+		debugInfo := formatJSON(body[index:], responseAt, true)
+		log.Printf("[DEBUG] [%s] API Response Body: %s", responseAt, debugInfo)
 	} else {
-		log.Printf("[DEBUG] Not logging because the response body isn't JSON")
+		log.Printf("[DEBUG] [%s] Not logging because the response body isn't JSON", responseAt)
 	}
 
 	return nil

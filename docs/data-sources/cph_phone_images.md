@@ -33,7 +33,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The data source ID.
 
 * `images` - The list of images detail.
   The [Images](#phoneImages_Images) structure is documented below.

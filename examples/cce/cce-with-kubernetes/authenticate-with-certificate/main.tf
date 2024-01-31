@@ -68,7 +68,7 @@ resource "huaweicloud_cce_node" "cce-node2" {
 }
 
 provider "kubernetes" {
-  host                   = "https:/${huaweicloud_vpc_eip.cce.address}:5443"
+  host                   = "https://${huaweicloud_vpc_eip.cce.address}:5443"
   cluster_ca_certificate = base64decode(huaweicloud_cce_cluster.cluster.certificate_clusters[0].certificate_authority_data)
   client_certificate     = base64decode(huaweicloud_cce_cluster.cluster.certificate_users[0].client_certificate_data)
   client_key             = base64decode(huaweicloud_cce_cluster.cluster.certificate_users[0].client_key_data)

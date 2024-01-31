@@ -81,7 +81,7 @@ type CreateOps struct {
 	// Indicates the username for logging in to the Kafka Manager.
 	// The username consists of 4 to 64 characters and can contain
 	//letters, digits, hyphens (-), and underscores (_).
-	KafkaManagerUser string `json:"kafka_manager_user" required:"true"`
+	KafkaManagerUser string `json:"kafka_manager_user,omitempty"`
 
 	// Indicates the password for logging in to the Kafka Manager.
 	// The password must meet the following complexity requirements:
@@ -91,7 +91,7 @@ type CreateOps struct {
 	// Uppercase letters
 	// Digits
 	// Special characters `~!@#$%^&*()-_=+\|[{}];:',<.>/?
-	KafkaManagerPassword string `json:"kafka_manager_password" required:"true"`
+	KafkaManagerPassword string `json:"kafka_manager_password,omitempty"`
 
 	// Indicates the time at which a maintenance time window starts.
 	// Format: HH:mm:ss

@@ -19,6 +19,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API DNS DELETE /v2.1/endpoints/{endpointID}/ipaddresses/{ipaddress}
+// @API DNS GET /v2.1/endpoints/{endpointID}/ipaddresses
+// @API DNS POST /v2.1/endpoints/{endpointID}/ipaddresses
+// @API DNS DELETE /v2.1/endpoints/{endpointID}
+// @API DNS GET /v2.1/endpoints/{endpointID}
+// @API DNS PUT /v2.1/endpoints/{endpointID}
+// @API DNS POST /v2.1/endpoints
+// @API VPC GET /v1/{project_id}/subnets
 func ResourceDNSEndpoint() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSEndpointCreate,
