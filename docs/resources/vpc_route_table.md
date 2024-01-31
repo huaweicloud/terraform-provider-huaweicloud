@@ -89,7 +89,7 @@ The `route` block supports:
   with any subnet in the VPC.
 
 * `type` - (Required, String) Specifies the route type. Currently, the value can be:
-  **ecs**, **eni**, **vip**, **nat**, **peering**, **vpn**, **dc** and **cc**.
+  **ecs**, **eni**, **vip**, **nat**, **peering**, **vpn**, **dc**, **cc**, **egw** and **er**.
 
 * `nexthop` - (Required, String) Specifies the next hop.
   + If the route type is **ecs**, the value is an ECS instance ID in the VPC.
@@ -100,6 +100,8 @@ The `route` block supports:
   + If the route type is **vpn**, the value is a VPN gateway ID.
   + If the route type is **dc**, the value is a Direct Connect gateway ID.
   + If the route type is **cc**, the value is a Cloud Connection ID.
+  + If the route type is **egw**, the value is a VPCEP endpoint ID.
+  + If the route type is **er**, the value is a ER instance ID.
 
 * `description` - (Optional, String) Specifies the supplementary information about the route.
   The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
