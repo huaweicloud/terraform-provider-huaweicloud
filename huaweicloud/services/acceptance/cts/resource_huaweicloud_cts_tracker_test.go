@@ -32,6 +32,8 @@ func TestAccCTSTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", "system"),
 					resource.TestCheckResourceAttr(resourceName, "type", "system"),
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "compress_type", "gzip"),
+					resource.TestCheckResourceAttr(resourceName, "is_sort_by_service", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
@@ -42,6 +44,9 @@ func TestAccCTSTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "file_prefix", "cts-updated"),
 					resource.TestCheckResourceAttr(resourceName, "lts_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "disabled"),
+					resource.TestCheckResourceAttr(resourceName, "compress_type", "json"),
+					resource.TestCheckResourceAttr(resourceName, "is_sort_by_service", "true"),
+					resource.TestCheckResourceAttr(resourceName, "exclude_service.0", "KMS"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.newkey", "value"),
 				),
@@ -152,9 +157,11 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 resource "huaweicloud_cts_tracker" "tracker" {
-  bucket_name = huaweicloud_obs_bucket.bucket.bucket
-  file_prefix = "cts"
-  lts_enabled = true
+  bucket_name        = huaweicloud_obs_bucket.bucket.bucket
+  file_prefix        = "cts"
+  lts_enabled        = true
+  compress_type      = "gzip"
+  is_sort_by_service = false
 
   tags = {
     foo = "bar"
@@ -172,10 +179,13 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 resource "huaweicloud_cts_tracker" "tracker" {
-  bucket_name = huaweicloud_obs_bucket.bucket.bucket
-  file_prefix = "cts-updated"
-  lts_enabled = false
-  enabled     = false
+  bucket_name        = huaweicloud_obs_bucket.bucket.bucket
+  file_prefix        = "cts-updated"
+  lts_enabled        = false
+  enabled            = false
+  compress_type      = "json"
+  is_sort_by_service = true
+  exclude_service    = ["KMS"]
 
   tags = {
     foo    = "bar1"

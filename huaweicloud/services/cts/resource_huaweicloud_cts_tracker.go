@@ -74,6 +74,24 @@ func ResourceCTSTracker() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"bucket_name"},
 			},
+			"compress_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"bucket_name"},
+			},
+			"is_sort_by_service": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				RequiredWith: []string{"bucket_name"},
+				Default:      true,
+			},
+			"exclude_service": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"lts_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -179,8 +197,16 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	// update other configurations
 	if d.IsNewResource() || d.HasChangeExcept("enabled") {
 		obsInfo := cts.TrackerObsInfo{
-			BucketName:     utils.String(d.Get("bucket_name").(string)),
-			FilePrefixName: utils.String(d.Get("file_prefix").(string)),
+			BucketName:      utils.String(d.Get("bucket_name").(string)),
+			FilePrefixName:  utils.String(d.Get("file_prefix").(string)),
+			IsSortByService: utils.Bool(d.Get("is_sort_by_service").(bool)),
+		}
+		if v, ok := d.GetOk("compress_type"); ok {
+			compressType := cts.GetTrackerObsInfoCompressTypeEnum().GZIP
+			if v.(string) != "gzip" {
+				compressType = cts.GetTrackerObsInfoCompressTypeEnum().JSON
+			}
+			obsInfo.CompressType = &compressType
 		}
 
 		trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
@@ -191,6 +217,10 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			IsOrganizationTracker: utils.Bool(d.Get("organization_enabled").(bool)),
 			IsSupportValidate:     utils.Bool(d.Get("validate_file").(bool)),
 			ObsInfo:               &obsInfo,
+		}
+
+		if v, ok := d.GetOk("exclude_service"); ok {
+			updateBody.ManagementEventSelector = buildManagementEventSelector(v.(*schema.Set).List())
 		}
 
 		var encryption bool
@@ -256,7 +286,12 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 			mErr,
 			d.Set("bucket_name", bucketName),
 			d.Set("file_prefix", ctsTracker.ObsInfo.FilePrefixName),
+			d.Set("is_sort_by_service", ctsTracker.ObsInfo.IsSortByService),
 		)
+
+		if ctsTracker.ObsInfo.CompressType != nil {
+			mErr = multierror.Append(mErr, d.Set("compress_type", formatValue(ctsTracker.ObsInfo.CompressType)))
+		}
 
 		if *bucketName != "" {
 			mErr = multierror.Append(mErr, d.Set("transfer_enabled", true))
@@ -265,6 +300,9 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	if ctsTracker.ManagementEventSelector != nil {
+		mErr = multierror.Append(mErr, d.Set("exclude_service", ctsTracker.ManagementEventSelector.ExcludeService))
+	}
 	if ctsTracker.TrackerType != nil {
 		mErr = multierror.Append(mErr, d.Set("type", formatValue(ctsTracker.TrackerType)))
 	}
@@ -291,9 +329,12 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("failed to disable CTS system tracker: %s", err)
 	}
 
+	compressType := cts.GetTrackerObsInfoCompressTypeEnum().JSON
 	obsInfo := cts.TrackerObsInfo{
-		BucketName:     utils.String(""),
-		FilePrefixName: utils.String(""),
+		BucketName:      utils.String(""),
+		FilePrefixName:  utils.String(""),
+		IsSortByService: utils.Bool(false),
+		CompressType:    &compressType,
 	}
 
 	updateBody := cts.UpdateTrackerRequestBody{
@@ -346,8 +387,17 @@ func formatValue(i interface{}) string {
 
 func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (string, error) {
 	obsInfo := cts.TrackerObsInfo{
-		BucketName:     utils.String(d.Get("bucket_name").(string)),
-		FilePrefixName: utils.String(d.Get("file_prefix").(string)),
+		BucketName:      utils.String(d.Get("bucket_name").(string)),
+		FilePrefixName:  utils.String(d.Get("file_prefix").(string)),
+		IsSortByService: utils.Bool(d.Get("is_sort_by_service").(bool)),
+	}
+
+	if v, ok := d.GetOk("compress_type"); ok {
+		compressType := cts.GetTrackerObsInfoCompressTypeEnum().GZIP
+		if v.(string) != "gzip" {
+			compressType = cts.GetTrackerObsInfoCompressTypeEnum().JSON
+		}
+		obsInfo.CompressType = &compressType
 	}
 
 	trackerType := cts.GetCreateTrackerRequestBodyTrackerTypeEnum().SYSTEM
@@ -358,6 +408,10 @@ func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (s
 		IsOrganizationTracker: utils.Bool(d.Get("organization_enabled").(bool)),
 		IsSupportValidate:     utils.Bool(d.Get("validate_file").(bool)),
 		ObsInfo:               &obsInfo,
+	}
+
+	if v, ok := d.GetOk("exclude_service"); ok {
+		reqBody.ManagementEventSelector = buildManagementEventSelector(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("kms_id"); ok {
@@ -380,6 +434,19 @@ func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (s
 	}
 
 	return *resp.Id, nil
+}
+
+func buildManagementEventSelector(rawServices []interface{}) *cts.ManagementEventSelector {
+	if len(rawServices) == 0 {
+		return nil
+	}
+
+	services := utils.ExpandToStringList(rawServices)
+	selector := cts.ManagementEventSelector{
+		ExcludeService: &services,
+	}
+
+	return &selector
 }
 
 func getSystemTracker(ctsClient *client.CtsClient) (*cts.TrackerResponseBody, error) {
