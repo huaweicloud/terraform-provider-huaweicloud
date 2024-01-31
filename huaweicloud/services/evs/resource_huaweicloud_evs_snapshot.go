@@ -19,9 +19,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API EVS DELETE /v2/{project_id}/cloudsnapshots/{id}
-// @API EVS GET /v2/{project_id}/cloudsnapshots/{id}
-// @API EVS PUT /v2/{project_id}/cloudsnapshots/{id}
+// @API EVS DELETE /v2/{project_id}/cloudsnapshots/{snapshot_id}
+// @API EVS GET /v2/{project_id}/cloudsnapshots/{snapshot_id}
+// @API EVS PUT /v2/{project_id}/cloudsnapshots/{snapshot_id}
 // @API EVS POST /v2/{project_id}/cloudsnapshots
 func ResourceEvsSnapshotV2() *schema.Resource {
 	return &schema.Resource{
