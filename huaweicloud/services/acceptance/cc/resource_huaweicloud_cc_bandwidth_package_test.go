@@ -260,3 +260,70 @@ resource "huaweicloud_cc_bandwidth_package" "test" {
 }
 `, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
+
+func TestAccBandwidthPackage_regionalInterflow(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_cc_bandwidth_package.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getBandwidthPackageResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testBandwidthPackage_regionalInterflow(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "local_area_id", "cn-north-4"),
+					resource.TestCheckResourceAttr(rName, "remote_area_id", "cn-south-1"),
+					resource.TestCheckResourceAttr(rName, "charge_mode", "bandwidth"),
+					resource.TestCheckResourceAttr(rName, "billing_mode", "5"),
+					resource.TestCheckResourceAttr(rName, "bandwidth", "4"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "value"),
+					resource.TestCheckResourceAttr(rName, "interflow_mode", "Region"),
+					resource.TestCheckResourceAttr(rName, "spec_code", "Beijing4toGuangzhou"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "resource_type", "cloud_connection"),
+					resource.TestCheckResourceAttrSet(rName, "project_id"),
+					resource.TestCheckResourceAttrPair(rName, "resource_id", "huaweicloud_cc_connection.test", "id"),
+				),
+			},
+		},
+	})
+}
+
+func testBandwidthPackage_regionalInterflow(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cc_connection" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_cc_bandwidth_package" "test" {
+  name                  = "%[1]s"
+  local_area_id         = "cn-north-4"
+  remote_area_id        = "cn-south-1"
+  charge_mode           = "bandwidth"
+  billing_mode          = 5
+  bandwidth             = 4
+  resource_id           = huaweicloud_cc_connection.test.id
+  resource_type         = "cloud_connection"
+  interflow_mode        = "Region"
+  spec_code             = "Beijing4toGuangzhou"
+
+  tags = {
+    foo   = "bar"
+    owner = "value"
+  }
+}
+`, name)
+}

@@ -89,6 +89,20 @@ func ResourceBandwidthPackage() *schema.Resource {
 				Computed:    true,
 				Description: `Project ID.`,
 			},
+			"interflow_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Interflow mode of the bandwidth package.`,
+			},
+			"spec_code": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specification code of the bandwidth package.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -194,6 +208,8 @@ func buildCreateBandwidthPackageBodyParams(d *schema.ResourceData, cfg *config.C
 			"resource_id":           utils.ValueIngoreEmpty(d.Get("resource_id")),
 			"resource_type":         utils.ValueIngoreEmpty(d.Get("resource_type")),
 			"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+			"interflow_mode":        utils.ValueIngoreEmpty(d.Get("interflow_mode")),
+			"spec_code":             utils.ValueIngoreEmpty(d.Get("spec_code")),
 		},
 	}
 
@@ -254,6 +270,8 @@ func resourceBandwidthPackageRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("resource_id", utils.PathSearch("bandwidth_package.resource_id", getBandwidthPackageRespBody, nil)),
 		d.Set("resource_type", utils.PathSearch("bandwidth_package.resource_type", getBandwidthPackageRespBody, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("bandwidth_package.tags", getBandwidthPackageRespBody, nil))),
+		d.Set("interflow_mode", utils.PathSearch("bandwidth_package.interflow_mode", getBandwidthPackageRespBody, nil)),
+		d.Set("spec_code", utils.PathSearch("bandwidth_package.spec_code", getBandwidthPackageRespBody, nil)),
 		d.Set("status", utils.PathSearch("bandwidth_package.status", getBandwidthPackageRespBody, nil)),
 	)
 
