@@ -283,7 +283,6 @@ func RetryContextWithWaitForState(param *RetryContextWithWaitForStateParam) (int
 		Pending:      []string{"retryable"},
 		Target:       []string{"success"},
 		Timeout:      param.Timeout,
-		Delay:        param.DelayTimeout,
 		PollInterval: param.PollInterval,
 		Refresh: func() (interface{}, string, error) {
 			res, retry, err := param.RetryFunc()
