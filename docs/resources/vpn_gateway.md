@@ -273,6 +273,8 @@ The `eip1` or `eip2` block supports:
 * `certificate` - (Optional, List) The GM certificate of the **GM** flavor gateway.
   The [object](#Gateway_certificate_attr) structure is documented below.
 
+* `tags` - (Optional, Map) Specifies the tags of the VPN gateway.
+
 <a name="Gateway_certificate_attr"></a>
 The `certificate` block supports:
 
