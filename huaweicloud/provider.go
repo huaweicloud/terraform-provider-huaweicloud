@@ -395,11 +395,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_environments": apig.DataSourceEnvironments(),
 			"huaweicloud_apig_groups":       apig.DataSourceGroups(),
 
-			"huaweicloud_as_configurations":  as.DataSourceASConfigurations(),
-			"huaweicloud_as_groups":          as.DataSourceASGroups(),
-			"huaweicloud_as_activity_logs":   as.DataSourceActivityLogs(),
-			"huaweicloud_as_policies":        as.DataSourceASPolicies(),
-			"huaweicloud_as_lifecycle_hooks": as.DataSourceLifeCycleHooks(),
+			"huaweicloud_as_configurations":      as.DataSourceASConfigurations(),
+			"huaweicloud_as_groups":              as.DataSourceASGroups(),
+			"huaweicloud_as_activity_logs":       as.DataSourceActivityLogs(),
+			"huaweicloud_as_policies":            as.DataSourceASPolicies(),
+			"huaweicloud_as_lifecycle_hooks":     as.DataSourceLifeCycleHooks(),
+			"huaweicloud_as_policy_execute_logs": as.DataSourcePolicyExecuteLogs(),
 
 			"huaweicloud_account":            DataSourceAccount(),
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
