@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getWorkloadQueueResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getApplicationFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		region  = acceptance.HW_REGION_NAME
 		httpUrl = "v2/{project_id}/fgs/applications/{id}"
@@ -51,7 +51,7 @@ func TestAccApplication_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getWorkloadQueueResourceFunc,
+		getApplicationFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{

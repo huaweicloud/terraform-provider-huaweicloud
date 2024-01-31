@@ -11,28 +11,34 @@ Manages a Function resource within HuaweiCloud.
 ### With base64 func code
 
 ```hcl
-resource "huaweicloud_fgs_function" "f_1" {
-  name        = "func_1"
+variable "function_name" {}
+variable "function_codes" {}
+variable "agency_name" {}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = var.function_name
   app         = "default"
-  agency      = "test"
+  agency      = var.agency_name
   description = "fuction test"
   handler     = "test.handler"
   memory_size = 128
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  func_code   = base64encode(var.function_codes)
 }
 ```
 
 ### With text code
 
 ```hcl
-resource "huaweicloud_fgs_function" "f_1" {
-  name        = "func_1"
+variable "function_name" {}
+variable "agency_name" {}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = var.function_name
   app         = "default"
-  agency      = "test"
-  description = "fuction test"
+  agency      = var.agency_name
   handler     = "test.handler"
   memory_size = 128
   timeout     = 3
@@ -80,6 +86,7 @@ resource "huaweicloud_fgs_function" "by_swr_image" {
 
 ```hcl
 variable "function_name" {}
+variable "function_codes" {}
 
 resource "huaweicloud_fgs_function" "with_alias" {
   name        = var.function_name
@@ -89,7 +96,7 @@ resource "huaweicloud_fgs_function" "with_alias" {
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+  func_code   = base64encode(var.function_codes)
 
   versions {
     name = "latest"
@@ -106,6 +113,7 @@ resource "huaweicloud_fgs_function" "with_alias" {
 ```hcl
 variable "function_name" {}
 variable "agency_name" {} # Allow VPC and DNS permissions for FunctionGraph service
+variable "function_codes" {}
 variable "vpc_id" {}
 variable "network_id" {}
 
@@ -128,7 +136,7 @@ resource "huaweicloud_fgs_function" "test" {
   memory_size = 128
   runtime     = "Python3.10"
   timeout     = 3
-  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+  func_code   = base64encode(var.function_codes)
 
   # VPC access and DNS configuration
   agency     = var.agency_name
@@ -144,12 +152,13 @@ resource "huaweicloud_fgs_function" "test" {
 
 ```hcl
 variable "function_name" {}
+variable "function_codes" {}
 variable "log_group_id" {}
 variable "log_stream_id" {}
 variable "log_group_name" {}
 variable "log_stream_name" {}
 
-resource "huaweicloud_fgs_function" "f_1" {
+resource "huaweicloud_fgs_function" "test" {
   name        = var.function_name
   app         = "default"
   agency      = "test"
@@ -159,7 +168,7 @@ resource "huaweicloud_fgs_function" "f_1" {
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  func_code   = base64encode(var.function_codes)
 
   log_group_id    = var.log_group_id
   log_stream_id   = var.log_stream_id
@@ -172,15 +181,15 @@ resource "huaweicloud_fgs_function" "f_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the Function resource. If omitted, the
-  provider-level region will be used. Changing this will create a new resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the Function resource.  
+  If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the function.
   Changing this will create a new resource.
 
 * `app` - (Required, String) Specifies the group to which the function belongs.
 
-* `memory_size` - (Required, Int) Specifies the memory size(MB) allocated to the function.
+* `memory_size` - (Required, Int) Specifies the memory size allocated to the function, in MByte (MB).
 
 * `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.
   The valid values are as follows:
@@ -206,7 +215,8 @@ The following arguments are supported:
   If the function is created using an SWR image, set this parameter to `Custom Image`.
   Changing this will create a new resource.
 
-* `timeout` - (Required, Int) Specifies the timeout interval of the function, ranges from 3s to 900s.
+* `timeout` - (Required, Int) Specifies the timeout interval of the function, in seconds.  
+  The value ranges from `3` to `900`.
 
 * `code_type` - (Optional, String) Specifies the function code type, which can be:
   + **inline**: inline code.
@@ -225,13 +235,15 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
-* `func_code` - (Optional, String) Specifies the function code. When code_type is set to inline, zip, or jar, this
-  parameter is mandatory, and the code can be encoded using Base64 or just with the text code.
+* `func_code` - (Optional, String) Specifies the function code.  
+  The code value can be encoded using **Base64** or just with the text code.  
+  Required if the `code_type` is set to **inline**, **zip**, or **jar**.
 
-* `code_url` - (Optional, String) Specifies the code url. This parameter is mandatory when code_type is set to obs.
+* `code_url` - (Optional, String) Specifies the code url.  
+  Required if the `code_type` is set to **obs**.
 
-* `code_filename` - (Optional, String) Specifies the name of a function file, This field is mandatory only when coe_type
-  is set to jar or zip.
+* `code_filename` - (Optional, String) Specifies the name of a function file.  
+  Required if the `code_type` is set to **jar** or **zip**.
 
 * `depend_list` - (Optional, List) Specifies the ID list of the dependencies.
 
@@ -244,7 +256,7 @@ The following arguments are supported:
 * `agency` - (Optional, String) Specifies the agency. This parameter is mandatory if the function needs to access other
   cloud services.
 
-* `app_agency` - (Optional, String) Specifies An execution agency enables you to obtain a token or an AK/SK for
+* `app_agency` - (Optional, String) Specifies the execution agency enables you to obtain a token or an AK/SK for
   accessing other cloud services.
 
 * `description` - (Optional, String) Specifies the description of the function.
@@ -254,7 +266,8 @@ The following arguments are supported:
 * `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized. Value range:
   1s to 300s.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  function belongs.  
   Changing this will create a new resource.
 
 * `vpc_id` - (Optional, String) Specifies the ID of VPC.
@@ -269,10 +282,11 @@ The following arguments are supported:
 
   -> Ensure the agency with DNS management permissions specified before using this parameter.
 
-* `mount_user_id` - (Optional, Int) Specifies the user ID, a non-0 integer from –1 to 65534. Default to -1.
+* `mount_user_id` - (Optional, Int) Specifies the user ID, a non-0 integer from `–1` to `65,534`.
+  Defaults to `-1`.
 
-* `mount_user_group_id` - (Optional, Int) Specifies the user group ID, a non-0 integer from –1 to 65534. Default to
-  -1.
+* `mount_user_group_id` - (Optional, Int) Specifies the user group ID, a non-0 integer from `–1` to `65,534`.
+  Defaults to `-1`.
 
 * `func_mounts` - (Optional, List) Specifies the file system list. The `func_mounts` object structure is documented
   below.
@@ -281,7 +295,7 @@ The following arguments are supported:
   The [object](#functiongraph_custom_image) structure is documented below.
 
 * `max_instance_num` - (Optional, String) Specifies the maximum number of instances of the function.  
-  The valid value ranges from `-1` to `1000`, defaults to `400`.
+  The valid value ranges from `-1` to `1,000`, defaults to `400`.
   + The minimum value is `-1` and means the number of instances is unlimited.
   + `0` means this function is disabled.
   + The empty value means to keep the default (latest updated) value.
@@ -303,7 +317,10 @@ The following arguments are supported:
 
 The `func_mounts` block supports:
 
-* `mount_type` - (Required, String) Specifies the mount type. Options: sfs, sfsTurbo, and ecs.
+* `mount_type` - (Required, String) Specifies the mount type.
+  + **sfs**
+  + **sfsTurbo**
+  + **ecs**
 
 * `mount_resource` - (Required, String) Specifies the ID of the mounted resource (corresponding cloud service).
 
@@ -339,9 +356,12 @@ The `aliases` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID, comsist of `urn` and current `version`, the format is `<urn>:<version>`.
+
 * `func_mounts/status` - The status of file system.
-* `urn` - Uniform Resource Name
+
+* `urn` - Uniform Resource Name.
+
 * `version` - The version of the function
 
 ## Timeouts
@@ -355,8 +375,8 @@ This resource provides the following timeouts configuration options:
 
 Functions can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_fgs_function.my-func 7117d38e-4c8f-4624-a505-bd96b97d024c
+```bash
+$ terraform import huaweicloud_fgs_function.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
