@@ -22,6 +22,7 @@ import (
 )
 
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/hotkey-task
+// @API DCS GET /v2/{project_id}/instances/{id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/hotkey-task/{hotkey_id}
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}/hotkey-task/{hotkey_id}
 func ResourceHotKeyAnalysis() *schema.Resource {
@@ -34,7 +35,6 @@ func ResourceHotKeyAnalysis() *schema.Resource {
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -57,7 +57,7 @@ func ResourceHotKeyAnalysis() *schema.Resource {
 			"scan_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the analysis mode of the hot key analysis.`,
+				Description: `Indicates the mode of the hot key analysis.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -87,12 +87,12 @@ func ResourceHotKeyAnalysis() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the name of hot key.`,
+							Description: `Indicates the name of the hot key.`,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the type of hot key.`,
+							Description: `Indicates the type of the hot key.`,
 						},
 						"shard": {
 							Type:        schema.TypeString,
@@ -112,7 +112,7 @@ func ResourceHotKeyAnalysis() *schema.Resource {
 						"unit": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the unit of hot key.`,
+							Description: `Indicates the unit of the hot key.`,
 						},
 						"freq": {
 							Type:        schema.TypeInt,
@@ -151,9 +151,9 @@ func resourceHotKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		createHotKeyAnalysisResp, createErr := createHotKeyAnalysisClient.Request("POST",
-			createHotKeyAnalysisPath, &createHotKeyAnalysisOpt)
-		retry, err := handleOperationConflictError(createErr)
+		createHotKeyAnalysisResp, createErr := createHotKeyAnalysisClient.Request("POST", createHotKeyAnalysisPath,
+			&createHotKeyAnalysisOpt)
+		retry, err := handleOperationError(createErr)
 		return createHotKeyAnalysisResp, retry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -162,7 +162,7 @@ func resourceHotKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 		WaitFunc:     refreshDcsInstanceState(createHotKeyAnalysisClient, instanceId),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		DelayTimeout: 1 * time.Second,
+		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 
@@ -175,16 +175,16 @@ func resourceHotKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	hotkeyId, err := jmespath.Search("id", hotkeyAnalysisRespBody)
+	id, err := jmespath.Search("id", hotkeyAnalysisRespBody)
 	if err != nil {
 		return diag.Errorf("error creating DCS hot key analysis: ID is not found in API response")
 	}
-	d.SetId(hotkeyId.(string))
+	d.SetId(id.(string))
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"waiting", "running"},
 		Target:       []string{"success"},
-		Refresh:      hotkeyAnalysisStatusRefreshFunc(instanceId, hotkeyId.(string), createHotKeyAnalysisClient),
+		Refresh:      hotKeyAnalysisStatusRefreshFunc(instanceId, id.(string), createHotKeyAnalysisClient),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -192,7 +192,7 @@ func resourceHotKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for the hot key analysis(%s) to become ready: %s", hotkeyId.(string), err)
+		return diag.Errorf("error waiting for the hot key analysis(%s) to complete: %s", id.(string), err)
 	}
 
 	return resourceHotKeyAnalysisRead(ctx, d, meta)
@@ -241,7 +241,7 @@ func resourceHotKeyAnalysisRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceHotKeyAnalysisDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHotKeyAnalysisDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -265,24 +265,8 @@ func resourceHotKeyAnalysisDelete(ctx context.Context, d *schema.ResourceData, m
 	deleteHotKeyAnalysisOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	// delete DCS hotkey analysis is allowd only when the instance status is RUNNING.
-	retryFunc := func() (interface{}, bool, error) {
-		deleteHotKeyAnalysisResp, deleteErr := deleteHotKeyAnalysisClient.Request("DELETE",
-			deleteHotKeyAnalysisPath, &deleteHotKeyAnalysisOpt)
-		retry, err := handleOperationConflictError(deleteErr)
-		return deleteHotKeyAnalysisResp, retry, err
-	}
-	_, retryErr := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     refreshDcsInstanceState(deleteHotKeyAnalysisClient, instanceId),
-		WaitTarget:   []string{"RUNNING"},
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		DelayTimeout: 1 * time.Second,
-		PollInterval: 10 * time.Second,
-	})
-
-	if retryErr != nil {
+	_, err = deleteHotKeyAnalysisClient.Request("DELETE", deleteHotKeyAnalysisPath, &deleteHotKeyAnalysisOpt)
+	if err != nil {
 		return diag.Errorf("error deleting DCS hot key analysis: %v", err)
 	}
 
@@ -293,18 +277,24 @@ func resourceDmsHotKeyAnalysisImportState(_ context.Context, d *schema.ResourceD
 	parts := strings.Split(d.Id(), "/")
 
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
 	}
 
-	d.Set("instance_id", parts[0])
 	d.SetId(parts[1])
+	mErr := multierror.Append(
+		d.Set("instance_id", parts[0]),
+	)
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func hotkeyAnalysisStatusRefreshFunc(instanceId, hotkeyId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func hotKeyAnalysisStatusRefreshFunc(instanceId, hotkeyId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		task, err := getHotKeyAnalysisTask(instanceId, hotkeyId, client)
+		getHotKeyAnalysisResp, err := getHotKeyAnalysis(client, instanceId, hotkeyId)
+		if err != nil {
+			return nil, "", err
+		}
+		task, err := utils.FlattenResponse(getHotKeyAnalysisResp)
 		if err != nil {
 			return nil, "", err
 		}
@@ -333,27 +323,13 @@ func parseHotKeyAnalysisError(err error) error {
 	return err
 }
 
-func getHotKeyAnalysisTask(instanceId, hotkeyId string, client *golangsdk.ServiceClient) (interface{}, error) {
-	getHotKeyAnalysisResp, err := getHotKeyAnalysis(client, instanceId, hotkeyId)
-
-	if err != nil {
-		return "", err
-	}
-	task, err := utils.FlattenResponse(getHotKeyAnalysisResp)
-	if err != nil {
-		return "", err
-	}
-	return task, err
-}
-
 func getHotKeyAnalysis(client *golangsdk.ServiceClient, instanceId string, hotkeyId string) (*http.Response, error) {
 	// getHotKeyAnalysis: query DCS hot key analysis
 	var (
 		getHotKeyAnalysisHttpUrl = "v2/{project_id}/instances/{instance_id}/hotkey-task/{hotkey_id}"
 	)
 	getHotKeyAnalysisPath := client.Endpoint + getHotKeyAnalysisHttpUrl
-	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{project_id}",
-		client.ProjectID)
+	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{project_id}", client.ProjectID)
 	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{instance_id}", instanceId)
 	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{hotkey_id}", hotkeyId)
 

@@ -32,7 +32,7 @@ In addition to all arguments above, the following attribute is exported:
 
 * `id` - The resource ID.
 
-* `scan_type` - Indicates the analysis mode of the hot key analysis. The value can be:
+* `scan_type` - Indicates the mode of the hot key analysis. The value can be:
   + **manual**: indicates manual analysis.
   + **auto**: indicates automatic analysis.
 
@@ -40,10 +40,10 @@ In addition to all arguments above, the following attribute is exported:
   The value is in UTC format.
 
 * `started_at` - Indicates the time when the hot key analysis started. The format is **yyyy-mm-dd hh:mm:ss**.
-  The value is in UTC format. (The value is null and is not returned when the analysis is being created.)
+  The value is in UTC format.
 
 * `finished_at` - Indicates the time when the hot key analysis ended. The format is **yyyy-mm-dd hh:mm:ss**.
-  The value is in UTC format. (The value is null and is not returned when the analysis is being created.)
+  The value is in UTC format.
 
 * `num` - Indicates the number of the hot key.
 
@@ -53,7 +53,7 @@ In addition to all arguments above, the following attribute is exported:
   + **success**: The hot key analysis succeeded.
   + **failed**: The hot key analysis failed.
 
-* `keys` - Indicates the record of hot key. (The value is null and is not returned when the analysis is being created.)
+* `keys` - Indicates the record of hot key.
   The [keys](#dcs_hot_keys) structure is documented below.
 
 <a name="dcs_hot_keys"></a>
@@ -84,7 +84,6 @@ The `keys` block supports:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minutes.
-* `delete` - Default is 10 minutes.
 
 ## Import
 

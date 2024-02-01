@@ -29,8 +29,7 @@ func getDcsHotKeyResourceFunc(cfg *config.Config, state *terraform.ResourceState
 
 	instanceId := state.Primary.Attributes["instance_id"]
 	getHotKeyAnalysisPath := getHotKeyAnalysisClient.Endpoint + getHotKeyAnalysisHttpUrl
-	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{project_id}",
-		getHotKeyAnalysisClient.ProjectID)
+	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{project_id}", getHotKeyAnalysisClient.ProjectID)
 	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{instance_id}", instanceId)
 	getHotKeyAnalysisPath = strings.ReplaceAll(getHotKeyAnalysisPath, "{hotkey_id}", state.Primary.ID)
 
@@ -92,16 +91,6 @@ func TestAccHotKeyAnalysis_basic(t *testing.T) {
 	})
 }
 
-func testHotKeyAnalysis_basic(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dcs_hotkey_analysis" "test" {
-  instance_id = huaweicloud_dcs_instance.instance_1.id
-}
-`, testAccDcsInstance_base(name))
-}
-
 func testAccDcsInstance_base(instanceName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -140,6 +129,16 @@ resource "huaweicloud_dcs_instance" "instance_1" {
 }`, instanceName)
 }
 
+func testHotKeyAnalysis_basic(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dcs_hotkey_analysis" "test" {
+  instance_id = huaweicloud_dcs_instance.instance_1.id
+}
+`, testAccDcsInstance_base(name))
+}
+
 // testHotKeyAnalysisResourceImportState is used to return an import id with format <instance_id>/<id>
 func testHotKeyAnalysisResourceImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
@@ -147,7 +146,7 @@ func testHotKeyAnalysisResourceImportState(name string) resource.ImportStateIdFu
 		if !ok {
 			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
 		}
-		instance_id := rs.Primary.Attributes["instance_id"]
-		return fmt.Sprintf("%s/%s", instance_id, rs.Primary.ID), nil
+		instanceID := rs.Primary.Attributes["instance_id"]
+		return fmt.Sprintf("%s/%s", instanceID, rs.Primary.ID), nil
 	}
 }
