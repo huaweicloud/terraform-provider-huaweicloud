@@ -1,0 +1,36 @@
+name: Prow Action
+on:
+  pull_request_target:
+    types: [ opened, edited, reopened, synchronize ]
+  issue_comment:
+    types: [ created ]
+
+jobs:
+  prow:
+    runs-on: ubuntu-latest
+    env:
+      ROBOT_PAT: ${{ secrets.ROBOT_PAT }}
+    steps:
+      - name: Prow
+        if: ${{ env.ROBOT_PAT }}
+        uses: chnsz/prow-github-actions@v1.0.0
+        with:
+          github-token: "${{ env.ROBOT_PAT }}"
+          jobs: lgtm
+          prow-commands: |
+            /assign
+            /unassign
+            /approve
+            /retitle
+            /area
+            /kind
+            /priority
+            /remove
+            /lgtm
+            /close
+            /reopen
+            /lock
+            /milestone
+            /hold
+            /cc
+            /uncc
