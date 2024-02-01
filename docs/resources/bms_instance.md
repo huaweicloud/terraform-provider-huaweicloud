@@ -189,8 +189,13 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "
   false", defaults to *false*.
 
-* `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide
-  temporary credentials for BMS to access cloud services. Changing this creates a new instance.
+* `agency_name` - (Optional, String) Specifies the IAM agency name which is created on IAM to provide
+  temporary credentials for BMS to access cloud services.
+
+* `metadata` - (Optional, Map) Specifies the user-defined metadata key-value pair.
+  + A metadata key contains of a maximum of 255 Unicode characters which can be letters, digits, hyphens (-),
+    underscores (_), colons (:), and point (.).
+  + A metadata value consists of a maximum of 255 Unicode characters.
 
 The `nics` block supports:
 

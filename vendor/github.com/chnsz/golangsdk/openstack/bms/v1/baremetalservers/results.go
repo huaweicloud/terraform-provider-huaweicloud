@@ -49,6 +49,7 @@ type Metadata struct {
 	OsType           string `json:"os_type"`
 	BmsSupportEvs    string `json:"__bms_support_evs"`
 	OsBit            string `json:"os_bit"`
+	AgencyName       string `json:"agency_name"`
 }
 
 type Address struct {
@@ -138,4 +139,18 @@ func (r cloudServerResult) Extract() (*CloudServer, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Server, err
+}
+
+// UpdateMetadataResult contains the result of an UpdateMetadata operation.
+// Call its Extract method to interpret it as a map[string]interface{}.
+type UpdateMetadataResult struct {
+	golangsdk.Result
+}
+
+func (r UpdateMetadataResult) Extract() (interface{}, interface{}) {
+	var s struct {
+		Metadata map[string]interface{} `json:"metadata"`
+	}
+	err := r.ExtractInto(&s)
+	return s.Metadata, err
 }
