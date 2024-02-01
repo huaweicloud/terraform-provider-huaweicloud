@@ -53,6 +53,8 @@ var (
 	operateErrorCode = map[string]bool{
 		// current state not support
 		"DCS.4026": true,
+		// instance status is not running
+		"DCS.4049": true,
 		// backup
 		"DCS.4096": true,
 		// restore
@@ -1340,24 +1342,8 @@ func handleOperationError(err error) (bool, error) {
 		if errorCodeErr != nil {
 			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
 		}
-		if operateErrorCode[errorCode.(string)] {
-			return true, err
-		}
-	}
-	// unsubscribe fail
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-
 		// CBC.99003651: Another operation is being performed.
-		if errorCode == "CBC.99003651" {
+		if operateErrorCode[errorCode.(string)] || errorCode == "CBC.99003651" {
 			return true, err
 		}
 	}
