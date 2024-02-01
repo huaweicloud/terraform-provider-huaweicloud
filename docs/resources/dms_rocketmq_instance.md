@@ -87,14 +87,11 @@ The following arguments are supported:
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to support IPv6. Defaults to false.
   Changing this parameter will create a new resource.
 
-* `enable_publicip` - (Optional, Bool, ForceNew) Specifies whether to enable public access.
-  By default, public access is disabled.
-  Changing this parameter will create a new resource.
+* `enable_publicip` - (Optional, Bool) Specifies whether to enable public access. By default, public access is disabled.
 
-* `publicip_id` - (Optional, String, ForceNew) Specifies the ID of the EIP bound to the instance.
-  Use commas (,) to separate multiple EIP IDs.
-  This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
-  Changing this parameter will create a new resource.
+* `publicip_id` - (Optional, String) Specifies the ID of the EIP bound to the instance. Use commas (,) to separate
+  multiple EIP IDs. This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
+  This parameter can not be updated if public access is disabled.
 
 * `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers. Defaults to 1.
   Changing this parameter will create a new resource.
