@@ -130,6 +130,11 @@ In addition to all arguments above, the following attributes are exported:
 * `port_id` - The port ID which the EIP associated with.
 * `status` - The status of EIP.
 * `created_at` - The create time of EIP.
+* `updated_at` - The update time of EIP.
+* `associate_type` - The associate type of EIP. Values are **PORT**, **NATGW**, **ELB**, **ELBV1** and **VPN**.
+* `associate_id` - The associate id of EIP.
+* `instance_type` - The instance type to which the port belongs. Return when `associate_type` is **PORT**.
+* `instance_id` - The instance id to which the port belongs. Return when `associate_type` is **PORT**.
 
 ## Timeouts
 
