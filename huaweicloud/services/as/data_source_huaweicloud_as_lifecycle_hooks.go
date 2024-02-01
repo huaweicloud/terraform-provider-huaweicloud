@@ -130,20 +130,21 @@ func dataSourceLifeCycleHooksRead(_ context.Context, d *schema.ResourceData, met
 func flattenLifecycleHooks(d *schema.ResourceData, hooks *[]lifecyclehooks.Hook) ([]map[string]interface{}, error) {
 	rst := make([]map[string]interface{}, 0, len(*hooks))
 	for _, hook := range *hooks {
+		hookType, ok := convertHookTypeMap[hook.Type]
+		if !ok {
+			return nil, fmt.Errorf("lifecycle hook type (%s) is not in the map (%#v)", hook.Type, convertHookTypeMap)
+		}
+
 		if val, ok := d.GetOk("name"); ok && val.(string) != hook.Name {
 			continue
 		}
-		if val, ok := d.GetOk("type"); ok && val.(string) != hook.Type {
+		if val, ok := d.GetOk("type"); ok && val.(string) != hookType {
 			continue
 		}
 		if val, ok := d.GetOk("default_result"); ok && val.(string) != hook.DefaultResult {
 			continue
 		}
 
-		hookType, ok := convertHookTypeMap[hook.Type]
-		if !ok {
-			return nil, fmt.Errorf("lifecycle hook type (%s) is not in the map (%#v)", hook.Type, convertHookTypeMap)
-		}
 		lifecycleHookMap := map[string]interface{}{
 			"name":                    hook.Name,
 			"type":                    hookType,

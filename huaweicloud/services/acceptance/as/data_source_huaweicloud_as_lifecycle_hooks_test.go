@@ -103,7 +103,7 @@ data "huaweicloud_as_lifecycle_hooks" "filter_by_type" {
 }
 
 output "type_filter_is_useful" {
-  value = length(data.huaweicloud_as_lifecycle_hooks.filter_by_type.lifecycle_hooks) >= 0 && alltrue( 
+  value = length(data.huaweicloud_as_lifecycle_hooks.filter_by_type.lifecycle_hooks) > 0 && alltrue( 
     [for v in data.huaweicloud_as_lifecycle_hooks.filter_by_type.lifecycle_hooks[*].type : v == local.type]
   )  
 }
