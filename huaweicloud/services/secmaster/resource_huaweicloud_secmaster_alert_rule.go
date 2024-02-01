@@ -27,6 +27,8 @@ import (
 // @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules
 // @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}
 // @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/enable
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/disable
 func ResourceAlertRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlertRuleCreate,
