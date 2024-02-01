@@ -25,6 +25,7 @@ import (
 )
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_user
+// @API RDS GET /v3/{project_id}/instances
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db_user/{user_name}
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/db_user/detail?page=1&limit=100
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_user/resetpwd

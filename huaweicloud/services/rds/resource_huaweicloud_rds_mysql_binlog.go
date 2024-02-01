@@ -23,6 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
+// @API RDS GET /v3/{project_id}/instances
 func ResourceMysqlBinlog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMysqlBinlogCreateOrUpdate,

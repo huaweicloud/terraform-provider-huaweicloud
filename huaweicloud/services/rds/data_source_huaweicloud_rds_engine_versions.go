@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API RDS GET /v3/{project_id}/datastores/{dbName}
+// @API RDS GET /v3/{project_id}/datastores/{database_name}
 func DataSourceRdsEngineVersionsV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRdsEngineVersionsV3Read,

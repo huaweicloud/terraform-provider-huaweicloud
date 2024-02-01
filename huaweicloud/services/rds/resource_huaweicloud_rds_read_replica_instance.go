@@ -19,9 +19,27 @@ import (
 )
 
 // ResourceRdsReadReplicaInstance is the impl for huaweicloud_rds_read_replica_instance resource
-// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
-// @API RDS GET /v3/{project_id}/instances/{instancesId}/disk-auto-expansion
 // @API RDS POST /v3/{project_id}/instances
+// @API RDS GET /v3/{project_id}/instances
+// @API RDS GET /v3/{project_id}/jobs
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/alias
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/port
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/action
+// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/ssl
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
+// @API RDS DELETE /v3/{project_id}/instances/{instance_id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceRdsReadReplicaInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsReadReplicaInstanceCreate,

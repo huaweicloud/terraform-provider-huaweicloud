@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API RDS GET /v3/{project_id}/flavors/{databasename}
+// @API RDS GET /v3/{project_id}/flavors/{database_name}
 func DataSourceRdsFlavor() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRdsFlavorRead,

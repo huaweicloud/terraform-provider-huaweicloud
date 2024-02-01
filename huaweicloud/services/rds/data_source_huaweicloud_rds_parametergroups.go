@@ -20,6 +20,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS GET /v3/{project_id}/configurations
 func DataSourceParametergroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: DataSourceParametergroupsRead,
