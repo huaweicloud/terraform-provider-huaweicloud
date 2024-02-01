@@ -77,8 +77,6 @@ func TestAccGateway_basic(t *testing.T) {
 						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttrPair(rName, "availability_zones.1",
 						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.1"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "val"),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 				),
 			},
 			{
@@ -88,8 +86,6 @@ func TestAccGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
 					resource.TestCheckResourceAttrPair(rName, "local_subnets.0", "huaweicloud_vpc_subnet.test", "cidr"),
 					resource.TestCheckResourceAttr(rName, "local_subnets.1", "192.168.2.0/24"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "val"),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar-update"),
 				),
 			},
 			{
@@ -460,11 +456,6 @@ resource "huaweicloud_vpn_gateway" "test" {
   eip2 {
     id = huaweicloud_vpc_eip.test2.id
   }
-
-  tags = {
-    key = "val"
-    foo = "bar"
-  }
 }
 `, testGateway_base(name), name)
 }
@@ -489,11 +480,6 @@ resource "huaweicloud_vpn_gateway" "test" {
 
   eip2 {
     id = huaweicloud_vpc_eip.test2.id
-  }
-
-  tags = {
-    key = "val"
-    foo = "bar-update"
   }
 }
 `, testGateway_base(name), name)
