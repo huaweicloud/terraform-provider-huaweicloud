@@ -59,9 +59,7 @@ func getLogicalClusterResourceFunc(cfg *config.Config, state *terraform.Resource
 	return cluster, nil
 }
 
-// Two logical clusters are created to cover the deletion logic.
-// At the current stage, multiple logical clusters cannot be created simultaneously under the same cluster.
-// This is a legacy feature and will be added later.
+// Two logical clusters are created to test concurrent creation and deletion scenarios.
 func TestAccLogicalCluster_basic(t *testing.T) {
 	var obj interface{}
 
@@ -184,10 +182,6 @@ resource "huaweicloud_dws_logical_cluster" "test2" {
       }
     }
   }
-
-  depends_on = [
-    huaweicloud_dws_logical_cluster.test
-  ]
 }
 `, testLogicalCluster_base(name), name, name)
 }

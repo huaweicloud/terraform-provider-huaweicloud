@@ -27,6 +27,7 @@ import (
 const (
 	deleteNotExistMsg            = "logical cluster is not existed"
 	deleteFirstLogicalClusterMsg = "the first logical cluster can't be deleted"
+	createDuplicateNameMsg       = "logical cluster already existed"
 )
 
 // @API DWS POST /v2/{project_id}/clusters/{cluster_id}/logical-clusters
@@ -174,22 +175,20 @@ func resourceLogicalClusterCreate(ctx context.Context, d *schema.ResourceData, m
 		JSONBody:         buildCreateLogicalClusterBodyParams(d),
 	}
 
-	createResp, err := client.Request("POST", createPath, &createOpt)
-	if err != nil {
-		return diag.Errorf("error creating DWS logical cluster: %s", err)
-	}
+	// Multiple logical clusters cannot be created in parallel and need to wait for retry.
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    buildCreateRetryFunc(client, createPath, &createOpt),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 30 * time.Second,
+	})
 
-	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	errCode := utils.PathSearch("error_code", createRespBody, "").(string)
-	if errCode != "DWS.0000" {
-		errMsg := utils.PathSearch("error_msg", createRespBody, "").(string)
-		return diag.Errorf("error creating DWS logical cluster: error code: %s, error message: %s", errCode, errMsg)
-	}
-
+	// Wait for the created logical cluster to be stable and obtain the stable target logical cluster.
 	clusterRespBody, err := waitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for DWS logical cluster (%s) creation to complete: %s", clusterName, err)
@@ -202,6 +201,37 @@ func resourceLogicalClusterCreate(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(id.(string))
 
 	return resourceLogicalClusterRead(ctx, d, meta)
+}
+
+// When an error occurs when calling the API, the creation is considered failed and there is no need to retry.
+// When the `error_code` is equal to `DWS.0000`, it means the creation is successful.
+// When the "error_code" is not equal to "DWS.0000", it means that the creation failed and needs to be retried.
+func buildCreateRetryFunc(client *golangsdk.ServiceClient, createPath string, createOpt *golangsdk.RequestOpts) common.RetryFunc {
+	retryFunc := func() (interface{}, bool, error) {
+		createResp, err := client.Request("POST", createPath, createOpt)
+		if err != nil {
+			return nil, false, fmt.Errorf("error creating DWS logical cluster: %s", err)
+		}
+
+		createRespBody, err := utils.FlattenResponse(createResp)
+		if err != nil {
+			return nil, false, err
+		}
+
+		errCode := utils.PathSearch("error_code", createRespBody, "").(string)
+		if errCode == "DWS.0000" {
+			return nil, false, nil
+		}
+
+		errMsg := utils.PathSearch("error_msg", createRespBody, "").(string)
+		// Stop retrying create operations when names are duplicated
+		if errMsg == createDuplicateNameMsg {
+			return nil, false, fmt.Errorf("error creating DWS logical cluster: %s", errMsg)
+		}
+
+		return nil, true, fmt.Errorf("error creating DWS logical cluster: error code: %s, error message: %s", errCode, errMsg)
+	}
+	return retryFunc
 }
 
 func buildCreateLogicalClusterBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -406,26 +436,70 @@ func resourceLogicalClusterDelete(ctx context.Context, d *schema.ResourceData, m
 		KeepResponseBody: true,
 	}
 
-	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
-	if err != nil {
-		return diag.Errorf("error deleting DWS logical cluster: %s", err)
-	}
+	// When the cluster is operated concurrently, the deletion operation may also fail and needs to be retried.
+	errMsg, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    buildDeleteRetryFunc(client, deletePath, &deleteOpt),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 30 * time.Second,
+	})
 
-	deleteRespBody, err := utils.FlattenResponse(deleteResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	// The successful API call does not mean that the deletion is successful. Also need to judge and parse the response body.
-	if diagResponse := checkLogicalClusterDeleteResponse(d, deleteRespBody); diagResponse != nil {
-		return diagResponse
+	if errMsg == deleteNotExistMsg {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+
+	if errMsg == deleteFirstLogicalClusterMsg {
+		errMessage := "The first logical cluster can't be deleted. The project is only removed from the state," +
+			" but it remains in the cloud."
+		return diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  errMessage,
+			},
+		}
 	}
 
 	err = waitingForStateDeleted(ctx, client, d, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("error waiting for DWS logical cluster (%s) deletion to complete: %s", d.Id(), err)
 	}
+
 	return nil
+}
+
+// When an error occurs when calling the API, the deletion is deemed to have failed and there is no need to retry.
+// When the "error_code" is equal to "DWS.0000", it means the deletion is successful.
+// When the "error_code" is not equal to "DWS.0000", we need to use "error_msg" to determine the next operation.
+func buildDeleteRetryFunc(client *golangsdk.ServiceClient, deletePath string, deleteOpt *golangsdk.RequestOpts) common.RetryFunc {
+	retryFunc := func() (interface{}, bool, error) {
+		deleteResp, err := client.Request("DELETE", deletePath, deleteOpt)
+		if err != nil {
+			return nil, false, fmt.Errorf("error deleting DWS logical cluster: %s", err)
+		}
+
+		deleteRespBody, err := utils.FlattenResponse(deleteResp)
+		if err != nil {
+			return nil, false, err
+		}
+
+		errCode := utils.PathSearch("error_code", deleteRespBody, "").(string)
+		if errCode == "DWS.0000" {
+			return nil, false, nil
+		}
+
+		errMsg := utils.PathSearch("error_msg", deleteRespBody, "").(string)
+		// Stop retrying deletion when the resource does not exist or the current resource is the first logical cluster.
+		if errMsg == deleteNotExistMsg || errMsg == deleteFirstLogicalClusterMsg {
+			return errMsg, false, nil
+		}
+		return nil, true, fmt.Errorf("error deleting DWS logical cluster: error code: %s, error message: %s", errCode, errMsg)
+	}
+	return retryFunc
 }
 
 // waitingForStateDeleted This method is used to wait for delete to complete.
@@ -454,34 +528,6 @@ func waitingForStateDeleted(ctx context.Context, client *golangsdk.ServiceClient
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
-}
-
-// checkLogicalClusterDeleteResponse Check whether the DWS logical cluster delete API response body contains error msg.
-// Not exist response body:     `{"error_code": "DWS.9999","error_msg": "logical cluster is not existed"}`
-// First cluster response body: `{"error_code": "DWS.9999","error_msg": "the first logical cluster can't be deleted"}`
-// Success delete response body:`{"error_code": "DWS.0000","error_msg": null}`
-func checkLogicalClusterDeleteResponse(d *schema.ResourceData, respBody interface{}) diag.Diagnostics {
-	errCode := utils.PathSearch("error_code", respBody, "").(string)
-	if errCode == "DWS.0000" {
-		return nil
-	}
-
-	errMsg := utils.PathSearch("error_msg", respBody, "").(string)
-	if errMsg == deleteNotExistMsg {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
-	}
-
-	if errMsg == deleteFirstLogicalClusterMsg {
-		errMsg = "The first logical cluster can't be deleted. The project is only removed from the state," +
-			" but it remains in the cloud."
-		return diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  errMsg,
-			},
-		}
-	}
-	return diag.Errorf("error deleting DWS logical cluster: error code: %s, error message: %s", errCode, errMsg)
 }
 
 func resourceLogicalClusterImportState(_ context.Context, d *schema.ResourceData,
