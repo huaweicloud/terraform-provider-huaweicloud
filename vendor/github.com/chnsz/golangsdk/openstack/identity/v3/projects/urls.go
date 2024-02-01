@@ -21,3 +21,7 @@ func deleteURL(client *golangsdk.ServiceClient, projectID string) string {
 func updateURL(client *golangsdk.ServiceClient, projectID string) string {
 	return client.ServiceURL("projects", projectID)
 }
+
+func updateStatusURL(c *golangsdk.ServiceClient, projectID string) string {
+	return c.ServiceURL("projects", projectID)
+}

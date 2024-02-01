@@ -26,6 +26,9 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the project. it must start with an existing *region* and be less
   than or equal to 64 characters. Example: cn-north-1_project1.
 
+* `status` - (Optional, String) Specifies the status of the project.
+  Valid values are **normal** and **suspended**, default is **normal**.
+
 * `description` - (Optional, String) Specifies the description of the project.
 
 ## Attribute Reference
