@@ -445,6 +445,9 @@ The `nodes` block supports:
   -> This parameter is only valid and mandatory for `custom_nodes`.
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
+  This field corresponds to `node_size` in the API document for MRS cluster creation interface. Different environments
+  may have different writing styles. You can obtain the writing method of this field in the current environment from
+  the interface document of MRS.
   Changing this will create a new MapReduce cluster resource.
 
 * `node_number` - (Required, Int) Specifies the number of nodes for the node group.
