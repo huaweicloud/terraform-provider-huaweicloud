@@ -199,9 +199,13 @@ var cacheUrlParameterFilter = schema.Schema{
 }
 
 // @API CDN POST /v1.0/cdn/domains
-// @API CDN GET /v1.0/cdn/domains/{domainId}/detail
+// @API CDN GET /v1.0/cdn/domains/{domain_id}/detail
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
 // @API CDN DELETE /v1.0/cdn/domains/{domainId}
+// @API CDN PUT /v1.1/cdn/configuration/domains/{domain_name}/configs
+// @API CDN GET /v1.1/cdn/configuration/domains/{domain_name}/configs
+// @API CDN POST /v1.0/cdn/configuration/tags/batch-delete
+// @API CDN POST /v1.0/cdn/configuration/tags
 func ResourceCdnDomainV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCdnDomainV1Create,
