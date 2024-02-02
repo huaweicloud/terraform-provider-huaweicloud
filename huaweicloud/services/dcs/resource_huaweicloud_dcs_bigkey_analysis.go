@@ -22,6 +22,7 @@ import (
 )
 
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/bigkey-task
+// @API DCS GET /v2/{project_id}/instances/{id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/bigkey-task/{bigkey_id}
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}/bigkey-task/{bigkey_id}
 func ResourceBigKeyAnalysis() *schema.Resource {
@@ -34,7 +35,6 @@ func ResourceBigKeyAnalysis() *schema.Resource {
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -57,7 +57,7 @@ func ResourceBigKeyAnalysis() *schema.Resource {
 			"scan_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the analysis mode of the big key analysis.`,
+				Description: `Indicates the mode of the big key analysis.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -87,12 +87,12 @@ func ResourceBigKeyAnalysis() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the name of big key.`,
+							Description: `Indicates the name of the big key.`,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the type of big key.`,
+							Description: `Indicates the type of the big key.`,
 						},
 						"shard": {
 							Type:        schema.TypeString,
@@ -112,7 +112,7 @@ func ResourceBigKeyAnalysis() *schema.Resource {
 						"unit": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the unit of big key.`,
+							Description: `Indicates the unit of the big key.`,
 						},
 					},
 				},
@@ -146,9 +146,9 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		createBigKeyAnalysisResp, createErr := createBigKeyAnalysisClient.Request("POST",
-			createBigKeyAnalysisPath, &createBigKeyAnalysisOpt)
-		retry, err := handleOperationConflictError(createErr)
+		createBigKeyAnalysisResp, createErr := createBigKeyAnalysisClient.Request("POST", createBigKeyAnalysisPath,
+			&createBigKeyAnalysisOpt)
+		retry, err := handleOperationError(createErr)
 		return createBigKeyAnalysisResp, retry, err
 	}
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
@@ -157,7 +157,7 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 		WaitFunc:     refreshDcsInstanceState(createBigKeyAnalysisClient, instanceId),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		DelayTimeout: 1 * time.Second,
+		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 
@@ -165,21 +165,21 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating DCS big key analysis: %v", err)
 	}
 
-	bigkeyAnalysisRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	bigKeyAnalysisRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	bigkeyId, err := jmespath.Search("id", bigkeyAnalysisRespBody)
+	id, err := jmespath.Search("id", bigKeyAnalysisRespBody)
 	if err != nil {
-		return diag.Errorf("error creating DCS big key analysis: bigkey_id is not found in API response")
+		return diag.Errorf("error creating DCS big key analysis: ID is not found in API response")
 	}
-	d.SetId(bigkeyId.(string))
+	d.SetId(id.(string))
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"waiting", "running"},
 		Target:       []string{"success"},
-		Refresh:      bigkeyAnalysisStatusRefreshFunc(instanceId, bigkeyId.(string), createBigKeyAnalysisClient),
+		Refresh:      bigKeyAnalysisStatusRefreshFunc(instanceId, id.(string), createBigKeyAnalysisClient),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -187,7 +187,7 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for the big key analysis(%s) to become ready: %s", bigkeyId.(string), err)
+		return diag.Errorf("error waiting for the big key analysis(%s) to complete: %s", id.(string), err)
 	}
 
 	return resourceBigKeyAnalysisRead(ctx, d, meta)
@@ -235,7 +235,7 @@ func resourceBigKeyAnalysisRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceBigKeyAnalysisDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBigKeyAnalysisDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -259,24 +259,8 @@ func resourceBigKeyAnalysisDelete(ctx context.Context, d *schema.ResourceData, m
 	deleteBigKeyAnalysisOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	// delete DCS bigkey analysis is allowd only when the instance status is RUNNING.
-	retryFunc := func() (interface{}, bool, error) {
-		deleteBigKeyAnalysisResp, deleteErr := deleteBigKeyAnalysisClient.Request("DELETE",
-			deleteBigKeyAnalysisPath, &deleteBigKeyAnalysisOpt)
-		retry, err := handleOperationConflictError(deleteErr)
-		return deleteBigKeyAnalysisResp, retry, err
-	}
-	_, retryErr := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     refreshDcsInstanceState(deleteBigKeyAnalysisClient, instanceId),
-		WaitTarget:   []string{"RUNNING"},
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		DelayTimeout: 1 * time.Second,
-		PollInterval: 10 * time.Second,
-	})
-
-	if retryErr != nil {
+	_, err = deleteBigKeyAnalysisClient.Request("DELETE", deleteBigKeyAnalysisPath, &deleteBigKeyAnalysisOpt)
+	if err != nil {
 		return diag.Errorf("error deleting DCS big key analysis: %v", err)
 	}
 
@@ -287,42 +271,24 @@ func resourceDmsBigKeyAnalysisImportState(_ context.Context, d *schema.ResourceD
 	parts := strings.Split(d.Id(), "/")
 
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
 	}
 
-	d.Set("instance_id", parts[0])
 	d.SetId(parts[1])
+	mErr := multierror.Append(nil,
+		d.Set("instance_id", parts[0]),
+	)
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func handleOperationConflictError(err error) (bool, error) {
-	if err == nil {
-		// The operation was executed successfully and does not need to be executed again.
-		return false, nil
-	}
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-
-		// DCS.4049 This operation is not allowed due to the instance status.
-		if errorCode.(string) == "DCS.4049" {
-			return true, err
-		}
-	}
-	return false, err
-}
-
-func bigkeyAnalysisStatusRefreshFunc(instanceId, bigkeyId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func bigKeyAnalysisStatusRefreshFunc(instanceId, bigKeyId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		task, err := getBigKeyAnalysisTask(instanceId, bigkeyId, client)
+		getBigKeyAnalysisResp, err := getBigKeyAnalysis(client, instanceId, bigKeyId)
+		if err != nil {
+			return nil, "", err
+		}
+		task, err := utils.FlattenResponse(getBigKeyAnalysisResp)
 		if err != nil {
 			return nil, "", err
 		}
@@ -351,29 +317,15 @@ func parseBigKeyAnalysisError(err error) error {
 	return err
 }
 
-func getBigKeyAnalysisTask(instanceId, bigkeyId string, client *golangsdk.ServiceClient) (interface{}, error) {
-	getBigKeyAnalysisResp, err := getBigKeyAnalysis(client, instanceId, bigkeyId)
-
-	if err != nil {
-		return "", err
-	}
-	task, err := utils.FlattenResponse(getBigKeyAnalysisResp)
-	if err != nil {
-		return "", err
-	}
-	return task, err
-}
-
-func getBigKeyAnalysis(client *golangsdk.ServiceClient, instanceId string, bigkeyId string) (*http.Response, error) {
+func getBigKeyAnalysis(client *golangsdk.ServiceClient, instanceId string, bigKeyId string) (*http.Response, error) {
 	// getBigKeyAnalysis: query DCS big key analysis
 	var (
 		getBigKeyAnalysisHttpUrl = "v2/{project_id}/instances/{instance_id}/bigkey-task/{bigkey_id}"
 	)
 	getBigKeyAnalysisPath := client.Endpoint + getBigKeyAnalysisHttpUrl
-	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{project_id}",
-		client.ProjectID)
+	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{project_id}", client.ProjectID)
 	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{instance_id}", instanceId)
-	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{bigkey_id}", bigkeyId)
+	getBigKeyAnalysisPath = strings.ReplaceAll(getBigKeyAnalysisPath, "{bigkey_id}", bigKeyId)
 
 	getBigKeyAnalysisOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
