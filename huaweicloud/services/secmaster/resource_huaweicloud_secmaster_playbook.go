@@ -25,9 +25,9 @@ import (
 )
 
 // @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
-// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
 // @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
-// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
+// @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
 func ResourcePlaybook() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePlaybookCreate,
