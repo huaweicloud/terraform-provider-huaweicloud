@@ -22,6 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CC POST /v3/{domain_id}/ccaas/authorisations
+// @API CC GET /v3/{domain_id}/ccaas/authorisations
+// @API CC DELETE /v3/{domain_id}/ccaas/authorisations/{id}
+// @API CC PUT /v3/{domain_id}/ccaas/authorisations/{id}
 func ResourceAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAuthorizationCreate,
