@@ -288,6 +288,10 @@ func GetTimezoneCode() int {
 // Parameter "customFormat" allows you to use a custom RFC3339 format, such as: "2006-01-02T15:04:05.000Z", this
 // parameter can be omitted.
 func FormatTimeStampRFC3339(timestamp int64, isUTC bool, customFormat ...string) string {
+	if timestamp == 0 {
+		return ""
+	}
+
 	createTime := time.Unix(timestamp, 0)
 	if isUTC {
 		createTime = createTime.UTC()
