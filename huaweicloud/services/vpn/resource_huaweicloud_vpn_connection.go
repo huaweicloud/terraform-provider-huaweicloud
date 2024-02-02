@@ -29,6 +29,8 @@ import (
 // @API VPN DELETE /v5/{project_id}/vpn-connection/{id}
 // @API VPN GET /v5/{project_id}/vpn-connection/{id}
 // @API VPN PUT /v5/{project_id}/vpn-connection/{id}
+// @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/create
+// @API VPN DELETE /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectionCreate,
@@ -130,6 +132,7 @@ func ResourceConnection() *schema.Resource {
 				Computed:    true,
 				Description: `The policy rules. Only works when vpn_type is set to **policy**`,
 			},
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -418,6 +421,7 @@ func buildCreateConnectionVpnConnectionChildBody(d *schema.ResourceData) map[str
 		"ikepolicy":            buildCreateConnectionIkepolicyChildBody(d),
 		"ipsecpolicy":          buildCreateConnectionIpsecpolicyChildBody(d),
 		"policy_rules":         buildCreateConnectionPolicyRulesChildBody(d),
+		"tags":                 utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 
 	if enableNqa, ok := d.GetOk("enable_nqa"); ok {
@@ -640,6 +644,7 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("status", utils.PathSearch("vpn_connection.status", getConnectionRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("vpn_connection.created_at", getConnectionRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("vpn_connection.updated_at", getConnectionRespBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("vpn_connection.tags", getConnectionRespBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -732,6 +737,10 @@ func flattenGetConnectionResponseBodyPolicyRule(resp interface{}) []interface{} 
 func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
+	updateConnectionClient, err := conf.NewServiceClient("vpn", region)
+	if err != nil {
+		return diag.Errorf("error creating VPN client: %s", err)
+	}
 
 	updateConnectionhasChanges := []string{
 		"customer_gateway_id",
@@ -748,14 +757,7 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	if d.HasChanges(updateConnectionhasChanges...) {
 		// updateConnection: Update the configuration of VPN Connection
-		var (
-			updateConnectionHttpUrl = "v5/{project_id}/vpn-connection/{id}"
-			updateConnectionProduct = "vpn"
-		)
-		updateConnectionClient, err := conf.NewServiceClient(updateConnectionProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating VPN client: %s", err)
-		}
+		updateConnectionHttpUrl := "v5/{project_id}/vpn-connection/{id}"
 
 		updateConnectionPath := updateConnectionClient.Endpoint + updateConnectionHttpUrl
 		updateConnectionPath = strings.ReplaceAll(updateConnectionPath, "{project_id}", updateConnectionClient.ProjectID)
@@ -775,6 +777,14 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		err = updateConnectionWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("error waiting for updating VPN connection (%s) to complete: %s", d.Id(), err)
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := updateTags(updateConnectionClient, d, "vpn-connection", d.Id())
+		if tagErr != nil {
+			return diag.Errorf("error updating tags of VPN connection (%s): %s", d.Id(), tagErr)
 		}
 	}
 	return resourceConnectionRead(ctx, d, meta)

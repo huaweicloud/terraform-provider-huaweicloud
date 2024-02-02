@@ -108,6 +108,8 @@ The [ipsecpolicy](#Connection_CreateRequestIpsecPolicy) structure is documented 
 * `policy_rules` - (Optional, List) The policy rules. Only works when vpn_type is set to **policy**
 The [policy_rules](#Connection_PolicyRule) structure is documented below.
 
+* `tags` - (Optional, Map) Specifies the tags of the VPN connection.
+
 <a name="Connection_CreateRequestIkePolicy"></a>
 The `ikepolicy` block supports:
 
