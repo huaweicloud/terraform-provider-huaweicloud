@@ -793,11 +793,7 @@ func resourceObsBucketEncryptionUpdate(config *config.Config, obsClient *obs.Obs
 		if input.SSEAlgorithm == obs.DEFAULT_SSE_KMS_ENCRYPTION_OBS {
 			if raw, ok := d.GetOk("kms_key_id"); ok {
 				input.KMSMasterKeyID = raw.(string)
-				if v, ok := d.GetOk("kms_key_project_id"); ok {
-					input.ProjectID = v.(string)
-				} else {
-					input.ProjectID = config.GetProjectID(config.GetRegion(d))
-				}
+				input.ProjectID = d.Get("kms_key_project_id").(string)
 			}
 		}
 
