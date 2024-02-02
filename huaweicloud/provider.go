@@ -433,10 +433,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cnad_advanced_available_objects": cnad.DataSourceAvailableProtectedObjects(),
 			"huaweicloud_cnad_advanced_protected_objects": cnad.DataSourceProtectedObjects(),
 
-			"huaweicloud_compute_flavors":      ecs.DataSourceEcsFlavors(),
-			"huaweicloud_compute_instance":     ecs.DataSourceComputeInstance(),
-			"huaweicloud_compute_instances":    ecs.DataSourceComputeInstances(),
-			"huaweicloud_compute_servergroups": ecs.DataSourceComputeServerGroups(),
+			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
+			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
+			"huaweicloud_compute_instances":               ecs.DataSourceComputeInstances(),
+			"huaweicloud_compute_servergroups":            ecs.DataSourceComputeServerGroups(),
+			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),
 
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
 
