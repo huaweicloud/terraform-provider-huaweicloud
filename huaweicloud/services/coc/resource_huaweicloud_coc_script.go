@@ -57,6 +57,7 @@ func ResourceScript() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"content": {
 				Type:             schema.TypeString,
