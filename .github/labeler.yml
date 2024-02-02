@@ -46,9 +46,14 @@ labels:
   - label: "LGTM"
     sync: true
     matcher:
-      comment: "^/lgtm$"
+      commits: "_hold_disable_this_command_"
 
   - label: "NACK"
     sync: true
     matcher:
       comment: "^/nack$"
+
+  - label: "hold"
+    sync: true
+    matcher:
+      commits: "_hold_disable_this_command_"
