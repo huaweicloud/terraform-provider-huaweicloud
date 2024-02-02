@@ -21,10 +21,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API BMS GET /v1/{project_id}/baremetalservers/{serverID}
-// @API BMS PUT /v1/{project_id}/baremetalservers/{serverID}
+// @API BMS GET /v1/{project_id}/baremetalservers/{server_id}
+// @API BMS PUT /v1/{project_id}/baremetalservers/{server_id}
 // @API BMS POST /v1/{project_id}/baremetalservers
-// @API VPC GET /v2.0/ports/{id}
+// @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics
+// @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics/delete
+// @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/tags/action
+// @API BMS GET /v1/{project_id}/baremetalservers/{server_id}/tags
+// @API BMS GET /v1/{project_id}/jobs/{job_id}
+// @API VPC GET /v2.0/ports/{port_id}
+// @API BSS GET /V2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceBmsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBmsInstanceCreate,
