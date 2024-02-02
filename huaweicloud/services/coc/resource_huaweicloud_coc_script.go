@@ -25,6 +25,10 @@ import (
 
 const defaultSensitiveValue = "*****************"
 
+// @API COC POST /v1/job/scripts
+// @API COC GET /v1/job/scripts/{script_uuid}
+// @API COC PUT /v1/job/scripts/{script_uuid}
+// @API COC DELETE /v1/job/scripts/{script_uuid}
 func ResourceScript() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScriptCreate,

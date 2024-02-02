@@ -25,6 +25,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API COC POST /v1/job/scripts/{script_uuid}
+// @API COC GET /v1/job/script/orders/{execute_uuid}
+// @API COC PUT /v1/job/script/orders/{execute_uuid}/operation
+// @API COC POST /v1/external/resources/sync
+// @API COC GET /v1/external/resources
 func ResourceScriptExecute() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScriptExecuteCreate,
