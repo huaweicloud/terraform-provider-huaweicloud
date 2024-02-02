@@ -984,6 +984,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_snapshot_policy":    dws.ResourceDwsSnapshotPolicy(),
 			"huaweicloud_dws_ext_data_source":    dws.ResourceDwsExtDataSource(),
 			"huaweicloud_dws_workload_queue":     dws.ResourceWorkLoadQueue(),
+			"huaweicloud_dws_workload_plan":      dws.ResourceWorkLoadPlan(),
 
 			"huaweicloud_eg_connection":           eg.ResourceConnection(),
 			"huaweicloud_eg_custom_event_channel": eg.ResourceCustomEventChannel(),
