@@ -611,6 +611,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_storage_types":             rds.DataSourceStoragetype(),
 			"huaweicloud_rds_sqlserver_collations":      rds.DataSourceSQLServerCollations(),
 			"huaweicloud_rds_sqlserver_databases":       rds.DataSourceSQLServerDatabases(),
+			"huaweicloud_rds_sqlserver_accounts":        rds.DataSourceRdsSQLServerAccounts(),
 			"huaweicloud_rds_pg_plugins":                rds.DataSourcePgPlugins(),
 			"huaweicloud_rds_pg_accounts":               rds.DataSourcePgAccounts(),
 			"huaweicloud_rds_pg_databases":              rds.DataSourcePgDatabases(),
