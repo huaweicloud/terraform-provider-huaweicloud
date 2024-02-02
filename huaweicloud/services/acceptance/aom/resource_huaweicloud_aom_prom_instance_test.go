@@ -72,7 +72,7 @@ func TestAccPromInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "prom_name", rName),
-					resource.TestCheckResourceAttr(resourceName, "prom_type", "DEFAULT"),
+					resource.TestCheckResourceAttr(resourceName, "prom_type", "VPC"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "remote_write_url"),
@@ -93,7 +93,7 @@ func tesAOMPromInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_prom_instance" "test" {
   prom_name             = "%s"
-  prom_type             = "DEFAULT"
+  prom_type             = "VPC"
   enterprise_project_id = "0"
 }
 `, name)

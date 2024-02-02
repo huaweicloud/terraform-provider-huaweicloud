@@ -31,7 +31,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `prom_type` - (Required, String, ForceNew) Specifies the type of the AOM prometheus instance.
-  The value can be: **DEFAULT**, **ECS**, **VPC**, **CCE**, **REMOTE_WRITE**, **KUBERNETES**,
+  The value can be: **ECS**, **VPC**, **CCE**, **REMOTE_WRITE**, **KUBERNETES**,
   **CLOUD_SERVICE** or **ACROSS_ACCOUNT**.
   Changing this parameter will create a new resource.
 

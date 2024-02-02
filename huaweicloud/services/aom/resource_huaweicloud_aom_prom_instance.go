@@ -108,8 +108,8 @@ func resourcePromInstanceCreate(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	id, err := jmespath.Search("prometheus[0].prom_id", createPrometheusInstanceRespBody)
+	expression := fmt.Sprintf("prometheus[?prom_name== '%s'].prom_id | [0]", d.Get("prom_name"))
+	id, err := jmespath.Search(expression, createPrometheusInstanceRespBody)
 	if err != nil || id == nil {
 		return diag.Errorf("error creating AOM prometheus instance: ID is not found in API response")
 	}
