@@ -44,7 +44,6 @@ func ResourceScriptExecute() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"script_id": {
 				Type:     schema.TypeString,
@@ -330,7 +329,7 @@ func resourceScriptExecuteDelete(_ context.Context, d *schema.ResourceData, meta
 
 	status := d.Get("status").(string)
 	exitList := []string{
-		"FINISHED", "ABNORMAL", "CANCELED",
+		"FINISHED", "ROLLBACKED", "CANCELED", "ERROR", "ABNORMAL",
 	}
 	if utils.StrSliceContains(exitList, status) {
 		return nil

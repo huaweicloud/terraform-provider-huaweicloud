@@ -39,7 +39,6 @@ func ResourceScript() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
