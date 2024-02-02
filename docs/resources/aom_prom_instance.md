@@ -38,6 +38,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the
   AOM prometheus instance. Changing this parameter will create a new resource.
 
+* `prom_version` - (Optional, String, ForceNew) Specifies the version of AOM prometheus instance.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -47,8 +49,6 @@ In addition to all arguments above, the following attributes are exported:
 * `created_at` - The creation time of AOM prometheus instance.
 
 * `prom_http_api_endpoint` - The url for calling the AOM Prometheus instance.
-
-* `prom_version` - The version of AOM prometheus instance.
 
 * `remote_read_url` - The remote read address of AOM Prometheus instance.
 

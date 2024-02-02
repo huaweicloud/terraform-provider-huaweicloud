@@ -74,6 +74,7 @@ func TestAccPromInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "prom_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "prom_type", "VPC"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prom_version", "1.5"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "remote_write_url"),
 					resource.TestCheckResourceAttrSet(resourceName, "remote_read_url"),
@@ -95,6 +96,7 @@ resource "huaweicloud_aom_prom_instance" "test" {
   prom_name             = "%s"
   prom_type             = "VPC"
   enterprise_project_id = "0"
+  prom_version          = "1.5"
 }
 `, name)
 }
