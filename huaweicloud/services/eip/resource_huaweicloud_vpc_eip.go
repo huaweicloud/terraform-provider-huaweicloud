@@ -517,7 +517,7 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 	resp, err := eipsv3.Get(networkingV3Client, resourceId).Extract()
 	if err != nil {
-		log.Printf("[WARN] Error fetching info for EIP (%s) from v3 API: %s", resourceId, err)
+		log.Printf("[WARN] failed to fetch the info for EIP (%s) from v3 API: %s", resourceId, err)
 	} else {
 		mErr = multierror.Append(nil,
 			d.Set("charging_mode", normalizeChargingMode(resp.BillingInfo)),
