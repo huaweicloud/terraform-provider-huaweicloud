@@ -21,7 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CNAD GET /v1/cnad/protected-ips
+// @API AAD GET /v1/cnad/protected-ips
 func DataSourceProtectedObjects() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceProtectedObjectsRead,

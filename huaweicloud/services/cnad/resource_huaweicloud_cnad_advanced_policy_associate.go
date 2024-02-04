@@ -23,9 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CNAD POST /v1/cnad/policies/{policy_id}/bind
-// @API CNAD POST /v1/cnad/policies/{policy_id}/unbind
-// @API CNAD GET /v1/cnad/protected-ips
+// @API AAD POST /v1/cnad/policies/{policy_id}/bind
+// @API AAD POST /v1/cnad/policies/{policy_id}/unbind
+// @API AAD GET /v1/cnad/protected-ips
 func ResourcePolicyAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyAssociateCreate,
