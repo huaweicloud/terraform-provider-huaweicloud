@@ -20,7 +20,7 @@ type ServiceCatalog struct {
 // multiCatalogKeys is a map of primary and derived catalog keys for services with multiple clients.
 // If we add another version of a service client, don't forget to update it.
 var multiCatalogKeys = map[string][]string{
-	"iam":          {"identity", "iam_no_version"},
+	"iam":          {"identity", "identity_ext", "iam_no_version"},
 	"bss":          {"bssv2"},
 	"ecs":          {"ecsv21", "ecsv11"},
 	"evs":          {"evsv21", "evsv1", "evsv5"},
@@ -67,6 +67,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "IAM",
 	},
+	"identity_ext": {
+		Name:             "iam",
+		Version:          "v3-ext",
+		Admin:            true,
+		WithOutProjectID: true,
+		Product:          "IAM",
+	},
 	"iam_no_version": {
 		Name:             "iam",
 		Version:          "",
@@ -74,6 +81,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "IAM",
 	},
+
 	// iam is used for huaweicloud IAM APIs
 	"iam": {
 		Name:             "iam",

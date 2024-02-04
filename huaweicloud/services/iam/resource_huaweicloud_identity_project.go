@@ -17,8 +17,9 @@ import (
 
 // @API IAM POST /v3/projects
 // @API IAM DELETE /v3/projects/{projectID}
-// @API IAM GET /v3/projects/{projectID}
+// @API IAM GET /v3-ext/projects/{projectID}
 // @API IAM PATCH /v3/projects/{projectID}
+// @API IAM PUT /v3-ext/projects/{project_id}
 func ResourceIdentityProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityProjectCreate,
@@ -33,6 +34,11 @@ func ResourceIdentityProject() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -57,6 +63,11 @@ func resourceIdentityProjectCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
+	identityExtClient, err := cfg.IdentityV3ExtClient(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating IAM extension client: %s", err)
+	}
+
 	createOpts := projects.CreateOpts{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -69,17 +80,28 @@ func resourceIdentityProjectCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	d.SetId(project.ID)
+
+	if d.Get("status").(string) == "suspended" {
+		updateProjectStatusOpts := projects.UpdateStatusOpts{
+			Status: d.Get("status").(string),
+		}
+		err = projects.UpdateStatus(identityExtClient, d.Id(), updateProjectStatusOpts).ExtractErr()
+		if err != nil {
+			return diag.Errorf("error updating IAM project status: %s", err)
+		}
+	}
+
 	return resourceIdentityProjectRead(ctx, d, meta)
 }
 
 func resourceIdentityProjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
+	identityExtClient, err := cfg.IdentityV3ExtClient(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating IAM client: %s", err)
+		return diag.Errorf("error creating IAM extension client: %s", err)
 	}
 
-	project, err := projects.Get(identityClient, d.Id()).Extract()
+	project, err := projects.Get(identityExtClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "IAM project")
 	}
@@ -91,6 +113,7 @@ func resourceIdentityProjectRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("description", project.Description),
 		d.Set("parent_id", project.ParentID),
 		d.Set("enabled", project.Enabled),
+		d.Set("status", project.Status),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting IAM project fields: %s", err)
@@ -104,6 +127,10 @@ func resourceIdentityProjectUpdate(ctx context.Context, d *schema.ResourceData, 
 	identityClient, err := cfg.IdentityV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
+	}
+	identityExtClient, err := cfg.IdentityV3ExtClient(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating IAM extension client: %s", err)
 	}
 
 	var hasChange bool
@@ -124,6 +151,16 @@ func resourceIdentityProjectUpdate(ctx context.Context, d *schema.ResourceData, 
 		_, err := projects.Update(identityClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating IAM project: %s", err)
+		}
+	}
+
+	if d.HasChange("status") {
+		updateProjectStatusOpts := projects.UpdateStatusOpts{
+			Status: d.Get("status").(string),
+		}
+		err = projects.UpdateStatus(identityExtClient, d.Id(), updateProjectStatusOpts).ExtractErr()
+		if err != nil {
+			return diag.Errorf("error updating IAM project status: %s", err)
 		}
 	}
 

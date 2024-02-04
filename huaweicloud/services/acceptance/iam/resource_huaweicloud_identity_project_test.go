@@ -14,7 +14,7 @@ import (
 )
 
 func getIdentityProjectResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	client, err := c.IdentityV3ExtClient(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
@@ -46,6 +46,7 @@ func TestAccIdentityProject_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
+					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 					resource.TestCheckResourceAttr(resourceName, "description", "A project"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "parent_id"),
@@ -61,6 +62,7 @@ func TestAccIdentityProject_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
+					resource.TestCheckResourceAttr(resourceName, "status", "suspended"),
 					resource.TestCheckResourceAttr(resourceName, "description", "An updated project"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "parent_id"),
@@ -83,6 +85,7 @@ func testAccIdentityProject_update(projectName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
+  status      = "suspended"
   description = "An updated project"
 }
 `, acceptance.HW_REGION_NAME, projectName)

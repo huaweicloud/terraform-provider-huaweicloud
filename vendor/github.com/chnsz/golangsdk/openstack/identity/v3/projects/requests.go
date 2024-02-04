@@ -127,3 +127,20 @@ func Update(client *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) 
 	})
 	return
 }
+
+type UpdateStatusOpts struct {
+	Status string `json:"status" required:"true"`
+}
+
+func UpdateStatus(c *golangsdk.ServiceClient, id string, opts UpdateStatusOpts) (r UpdateStatusResult) {
+	body, err := golangsdk.BuildRequestBody(opts, "project")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Put(updateStatusURL(c, id), body, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return
+}

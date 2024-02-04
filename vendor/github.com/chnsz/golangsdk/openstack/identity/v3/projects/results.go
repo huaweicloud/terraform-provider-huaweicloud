@@ -55,6 +55,9 @@ type Project struct {
 
 	// ParentID is the parent_id of the project.
 	ParentID string `json:"parent_id"`
+
+	// Status is the status of the project.
+	Status string `json:"status"`
 }
 
 // ProjectPage is a single page of Project results.
@@ -100,4 +103,8 @@ func (r projectResult) Extract() (*Project, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Project, err
+}
+
+type UpdateStatusResult struct {
+	golangsdk.ErrResult
 }
