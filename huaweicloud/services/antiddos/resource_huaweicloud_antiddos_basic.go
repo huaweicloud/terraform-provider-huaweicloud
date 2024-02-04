@@ -55,13 +55,13 @@ var (
 )
 
 // ResourceCloudNativeAntiDdos is the imple of huaweicloud_antiddos_basic
-// @API Anti-DDoS GET /v1/{project_id}/antiddos/{floatingIpId}/status
-// @API Anti-DDoS GET /v1/{project_id}/antiddos/{floatingIpId}
-// @API Anti-DDoS PUT /v1/{project_id}/antiddos/{floatingIpId}
+// @API Anti-DDoS GET /v1/{project_id}/antiddos/{floating_ip_id}/status
+// @API Anti-DDoS GET /v1/{project_id}/antiddos/{floating_ip_id}
+// @API Anti-DDoS PUT /v1/{project_id}/antiddos/{floating_ip_id}
 // @API Anti-DDoS GET /v1/{project_id}/antiddos
 // @API Anti-DDoS GET /v2/{project_id}/warnalert/alertconfig/query
 // @API Anti-DDoS POST /v2/{project_id}/warnalert/alertconfig/update
-// @API EIP GET /v1/{project_id}/publicips/{id}
+// @API EIP GET /v1/{project_id}/publicips/{publicip_id}
 func ResourceCloudNativeAntiDdos() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCloudNativeAntiDdosUpdate,
