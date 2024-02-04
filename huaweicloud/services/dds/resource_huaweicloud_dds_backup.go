@@ -37,6 +37,8 @@ type backupError struct {
 // @API DDS GET /v3/{project_id}/backups
 // @API DDS POST /v3/{project_id}/backups
 // @API DDS DELETE /v3/{project_id}/backups/{backup_id}
+// @API DDS GET /v3/{project_id}/instances
+// @API DDS GET /v3/{project_id}/jobs
 func ResourceDdsBackup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdsBackupCreate,

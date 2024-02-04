@@ -22,13 +22,24 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DDS DELETE /v3/{project_id}/instances/{serverID}
-// @API DDS GET /v3/{project_id}/instances
 // @API DDS POST /v3/{project_id}/instances
-// @API DDS GET /v3/{project_id}/jobs
+// @API DDS GET /v3/{project_id}/instances
 // @API DDS POST /v3/{project_id}/instances/{id}/tags/action
 // @API DDS GET /v3/{project_id}/instances/{id}/tags
-// @API DDS POST /v3/{project_id}/instances/{instanceId}/modify-port
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/modify-name
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/reset-password
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/modify-security-group
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/switch-ssl
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/modify-port
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/enlarge-volume
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/enlarge
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/resize
+// @API DDS GET /v3/{project_id}/jobs
+// @API DDS DELETE /v3/{project_id}/instances/{serverID}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
 func ResourceDdsInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdsInstanceV3Create,
