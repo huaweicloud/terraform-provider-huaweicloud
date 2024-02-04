@@ -348,8 +348,7 @@ The following arguments are supported:
 * `type` - (Optional, String, ForceNew) Specifies the type of the MapReduce cluster. The valid values are **ANALYSIS**,
   **STREAMING** and **MIXED**, defaults to **ANALYSIS**. Changing this will create a new MapReduce cluster resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
-  Changing this will create a new MapReduce cluster resource.
+* `enterprise_project_id` - (Optional, String) Specifies a unique ID in UUID format of enterprise project.
 
 * `public_ip` - (Optional, String, ForceNew) Specifies the EIP address which bound to the MapReduce cluster.
 The EIP must have been created and must be in the same region as the cluster.

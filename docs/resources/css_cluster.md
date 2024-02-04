@@ -165,8 +165,8 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the cluster.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the css cluster, Value 0
-  indicates the default enterprise project. Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the css cluster, Value 0
+  indicates the default enterprise project.
 
 * `public_access` - (Optional, List) Specifies the public network access information.
   The [public_access](#Css_public_access) structure is documented below.

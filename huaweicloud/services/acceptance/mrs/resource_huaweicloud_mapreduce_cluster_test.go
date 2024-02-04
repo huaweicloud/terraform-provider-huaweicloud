@@ -1666,3 +1666,88 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 }
 `, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd)
 }
+
+func TestAccMrsMapReduceCluster_updateWithEpsId(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsMapReduceClusterConfig_withEpsId(rName, password, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccMrsMapReduceClusterConfig_withEpsId(rName, password, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
+func testAccMrsMapReduceClusterConfig_withEpsId(rName, pwd, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  name                   = "%s"
+  type                   = "STREAMING"
+  version                = "MRS 1.9.2"
+  manager_admin_pass     = "%s"
+  node_admin_pass        = "%s"
+  enterprise_project_id  = "%s"
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  component_list         = ["Storm"]
+
+  master_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_core_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_task_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 1
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, epsId)
+}

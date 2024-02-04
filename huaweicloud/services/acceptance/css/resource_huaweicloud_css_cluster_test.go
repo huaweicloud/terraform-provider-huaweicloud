@@ -159,6 +159,45 @@ func TestAccCssCluster_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccCssCluster_updateWithEpsId(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_withEpsId(rName, 1, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccCssCluster_withEpsId(rName, 1, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func testAccCssBase(rName string) string {
 	bucketName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
@@ -304,4 +343,67 @@ resource "huaweicloud_css_cluster" "test" {
   }
 }
 `, testAccCssBase(rName), rName, nodeNum, isAutoRenew)
+}
+
+func testAccCssCluster_withEpsId(rName string, nodeNum int, epsId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  password       = "Test@passw0rd"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = %[3]d
+  enterprise_project_id = "%[4]s"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  master_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  client_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  cold_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  vpcep_endpoint {
+    endpoint_with_dns_name = true
+  }
+}
+`, testAccCssBase(rName), rName, nodeNum, epsId)
 }
