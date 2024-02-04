@@ -23,6 +23,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Organizations POST /v1/organizations/delegated-administrators/register
+// @API Organizations GET /v1/organizations/delegated-administrators
+// @API Organizations POST /v1/organizations/delegated-administrators/deregister
 func ResourceDelegatedAdministrator() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDelegatedAdministratorCreate,
