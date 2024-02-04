@@ -17,6 +17,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Workspace POST /v2/{project_id}/terminals/binding-desktops/batch-delete
+// @API Workspace POST /v2/{project_id}/terminals/binding-desktops
+// @API Workspace GET /v2/{project_id}/terminals/binding-desktops
+// @API Workspace GET /v2/{project_id}/terminals/binding-desktops/config
+// @API Workspace POST /v2/{project_id}/terminals/binding-desktops/config
 func ResourceTerminalBinding() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTerminalBindingsCreate,
