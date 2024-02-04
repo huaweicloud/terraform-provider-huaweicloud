@@ -56,6 +56,8 @@ const (
 // @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/instance-tags
 // @API APIG POST /v2/{project_id}/apigw/instances
 // @API EIP GET /v1/{project_id}/publicips
+// @API APIG POST /v2/{project_id}/apigw/instances{instance_id}/ingress-eip
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip
 func ResourceApigInstanceV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -156,9 +158,12 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description:  `The egress bandwidth size of the dedicated instance.`,
 			},
 			"eip_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ConflictsWith: []string{
+					"ingress_bandwidth_size", "ingress_bandwidth_charging_mode",
+				},
 				Description: `The EIP ID associated with the dedicated instance.`,
 			},
 			"ipv6_enable": {
@@ -194,6 +199,18 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `Name of the VPC endpoint service.`,
 			},
 			"tags": common.TagsSchema(),
+			"ingress_bandwidth_size": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				RequiredWith:  []string{"ingress_bandwidth_charging_mode"},
+				ConflictsWith: []string{"eip_id"},
+			},
+			"ingress_bandwidth_charging_mode": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				RequiredWith:  []string{"ingress_bandwidth_size"},
+				ConflictsWith: []string{"eip_id"},
+			},
 			// Attributes
 			"maintain_end": {
 				Type:        schema.TypeString,
@@ -281,19 +298,21 @@ func buildInstanceAvailabilityZones(d *schema.ResourceData) ([]string, error) {
 
 func buildInstanceCreateOpts(d *schema.ResourceData, cfg *config.Config) (instances.CreateOpts, error) {
 	result := instances.CreateOpts{
-		Name:                 d.Get("name").(string),
-		Edition:              d.Get("edition").(string),
-		VpcId:                d.Get("vpc_id").(string),
-		SubnetId:             d.Get("subnet_id").(string),
-		SecurityGroupId:      d.Get("security_group_id").(string),
-		Description:          d.Get("description").(string),
-		EipId:                d.Get("eip_id").(string),
-		BandwidthSize:        d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
-		Ipv6Enable:           d.Get("ipv6_enable").(bool),
-		LoadbalancerProvider: d.Get("loadbalancer_provider").(string),
-		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-		VpcepServiceName:     d.Get("vpcep_service_name").(string),
+		Name:                        d.Get("name").(string),
+		Edition:                     d.Get("edition").(string),
+		VpcId:                       d.Get("vpc_id").(string),
+		SubnetId:                    d.Get("subnet_id").(string),
+		SecurityGroupId:             d.Get("security_group_id").(string),
+		Description:                 d.Get("description").(string),
+		EipId:                       d.Get("eip_id").(string),
+		BandwidthSize:               d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
+		EnterpriseProjectId:         common.GetEnterpriseProjectID(d, cfg),
+		Ipv6Enable:                  d.Get("ipv6_enable").(bool),
+		LoadbalancerProvider:        d.Get("loadbalancer_provider").(string),
+		Tags:                        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		VpcepServiceName:            d.Get("vpcep_service_name").(string),
+		IngressBandwithSize:         d.Get("ingress_bandwidth_size").(int), // BandWidth must be greater than or equal to 5.
+		IngressBandwithChargingMode: d.Get("ingress_bandwidth_charging_mode").(string),
 	}
 
 	azList, err := buildInstanceAvailabilityZones(d)
@@ -458,6 +477,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("loadbalancer_provider", resp.LoadbalancerProvider),
 		d.Set("availability_zones", parseInstanceAvailabilityZones(resp.AvailableZoneIds)),
 		d.Set("maintain_begin", resp.MaintainBegin),
+		d.Set("ingress_bandwidth_charging_mode", resp.IngressBandwidthChargingMode),
 		// Attributes
 		d.Set("maintain_end", resp.MaintainEnd),
 		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
@@ -482,6 +502,14 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 			d.Set("vpcep_service_address", resp.EndpointServices[0].ServiceName),
 		)
 	}
+
+	ingressBandwidthSize := 0
+	if len(resp.PublicIps) > 0 {
+		ingressBandwidthSize = resp.PublicIps[0].BandwidthSize
+	}
+	mErr = multierror.Append(mErr,
+		d.Set("ingress_bandwidth_size", ingressBandwidthSize),
+	)
 
 	if tagList, err := instances.GetTags(client, instanceId); err != nil {
 		log.Printf("[WARN] error querying instance tags: %s", err)
@@ -604,6 +632,78 @@ func updateInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 	return nil
 }
 
+func waitForUpdateIngressEIPCompleted(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, action string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshInstanceFunc(client, d, action),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+		// When changing the bandwidth billing type, there will be a delay between the EIP unbinding and EIP binding.
+		ContinuousTargetOccurence: 2,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func refreshInstanceFunc(client *golangsdk.ServiceClient, d *schema.ResourceData, action string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := instances.Get(client, d.Id()).Extract()
+		if err != nil {
+			return resp, "", err
+		}
+
+		disabledSucc := action == "disabled" && len(resp.PublicIps) == 0
+		enabledSucc := action == "enabled" && len(resp.PublicIps) > 0
+		if enabledSucc || disabledSucc {
+			return resp, "COMPLETED", nil
+		}
+
+		return resp, "PENDING", nil
+	}
+}
+
+func updateElbInstanceIngressAccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	oldSizeVal, newSizeVal := d.GetChange("ingress_bandwidth_size")
+	oldModeVal, newModeVal := d.GetChange("ingress_bandwidth_charging_mode")
+	instanceId := d.Id()
+	if oldSizeVal.(int) != 0 || oldModeVal.(string) != "" {
+		err := instances.DisableElbIngressAccess(client, instanceId)
+		if err != nil {
+			return fmt.Errorf("error unbinding ingress EIP of the dedicated instance: %s", err)
+		}
+
+		err = waitForUpdateIngressEIPCompleted(ctx, d, client, "disabled")
+		if err != nil {
+			return fmt.Errorf("error waiting for unbinding ingress EIP completed: %s", err)
+		}
+	}
+
+	if newSizeVal.(int) == 0 && newModeVal.(string) == "" {
+		return nil
+	}
+
+	opts := instances.ElbIngressAccessOpts{
+		InstanceId:                  instanceId,
+		IngressBandwithSize:         newSizeVal.(int),
+		IngressBandwithChargingMode: newModeVal.(string),
+	}
+	_, err := instances.EnableElbIngressAccess(client, opts)
+	if err != nil {
+		return fmt.Errorf("error enabled ingress bandwidth of the dedicated instance: %s", err)
+	}
+
+	err = waitForUpdateIngressEIPCompleted(ctx, d, client, "enabled")
+	if err != nil {
+		return fmt.Errorf("error waiting for enabling ingress EIP completed: %s", err)
+	}
+	return nil
+}
+
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -664,6 +764,12 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			ProjectId:    client.ProjectID,
 		}
 		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("ingress_bandwidth_size", "ingress_bandwidth_charging_mode") {
+		if err = updateElbInstanceIngressAccess(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}

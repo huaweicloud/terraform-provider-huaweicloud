@@ -73,7 +73,6 @@ type CreateOpts struct {
 	// to elb.
 	// + bandwidth: billed by bandwidth
 	// + traffic: billed by traffic
-	// Defaults to bandwidth.
 	IngressBandwithChargingMode string `json:"ingress_bandwidth_charging_mode,omitempty"`
 }
 
@@ -368,4 +367,35 @@ func GetTags(c *golangsdk.ServiceClient, instanceId string) ([]tags.ResourceTag,
 	}
 	_, err := c.Get(queryTagsURL(c, instanceId), &r, nil)
 	return r.Tags, err
+}
+
+// ElbIngressAccessOpts is the structure that used to bind ingress EIP to instance when loadbalancer_provider is set to elb.
+type ElbIngressAccessOpts struct {
+	// The APIG dedicated instance ID.
+	InstanceId string `json:"-"`
+	// Public inbound access bandwidth.
+	IngressBandwithSize int `json:"bandwidth_size" required:"true"`
+	// Billing type of the public inbound access bandwidth.
+	// + bandwidth: billed by bandwidth.
+	// + traffic: billed by traffic.
+	IngressBandwithChargingMode string `json:"bandwidth_charging_mode" required:"true"`
+}
+
+// EnableElbIngressAccess is a method to bind the ingress eip associated with an existing APIG dedicated instance.
+// Supported only when loadbalancer_provider is set to elb.
+func EnableElbIngressAccess(client *golangsdk.ServiceClient, opts ElbIngressAccessOpts) (*EnableElbIngressResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	var r EnableElbIngressResp
+	_, err = client.Post(elbIngressURL(client, opts.InstanceId), b, &r, &golangsdk.RequestOpts{})
+	return &r, err
+}
+
+// DisableElbIngressAccess is a method to unbind the ingress eip associated with an existing APIG dedicated instance.
+// Supported only when loadbalancer_provider is set to elb.
+func DisableElbIngressAccess(client *golangsdk.ServiceClient, instanceId string) error {
+	_, err := client.Delete(elbIngressURL(client, instanceId), nil)
+	return err
 }

@@ -20,6 +20,10 @@ func ingressURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(rootPath, id, "eip")
 }
 
+func elbIngressURL(c *golangsdk.ServiceClient, id string) string {
+	return c.ServiceURL(rootPath, id, "ingress-eip")
+}
+
 func featureURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL(rootPath, instanceId, "features")
 }

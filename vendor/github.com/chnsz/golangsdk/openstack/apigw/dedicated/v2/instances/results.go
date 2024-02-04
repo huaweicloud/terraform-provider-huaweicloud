@@ -342,3 +342,12 @@ func ExtractFeatures(r pagination.Page) ([]Feature, error) {
 	err := r.(FeaturePage).Result.ExtractIntoSlicePtr(&s, "features")
 	return s, err
 }
+
+type EnableElbIngressResp struct {
+	// ID of the APIG dedicated instance.
+	Instance_id string `json:"instance_id"`
+	// Task information of binding the ingress EIP.
+	Message string `json:"message"`
+	// Job ID of binding the ingress EIP.
+	JobId string `json:"job_id"`
+}
