@@ -149,12 +149,17 @@ The `sources` block supports:
 * `origin` - (Required, String) The domain name or IP address of the origin server.
 
 * `origin_type` - (Required, String) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
+  When a CDN domain is configured with multiple origin servers of **obs_bucket**,
+  the OBS buckets should be all private bucket or all public bucket.
+  When configure an origin server with private bucket, the delegation
+  authorization should be enabled on the OBS service side.
 
 * `active` - (Optional, Int) Whether an origin server is active or standby (1: active; 0: standby). The default value is
   1.
 
 * `obs_web_hosting_enabled` - (Optional, Bool) Whether to enable static website hosting for the OBS bucket.
   This parameter is mandatory when the `origin_type` is **obs_bucket**.
+  Before enabling this option, enable static website hosting on OBS to avoid affecting your services.
 
 * `http_port` - (Optional, Int) Specifies the HTTP port. Default value: **80**.
 
