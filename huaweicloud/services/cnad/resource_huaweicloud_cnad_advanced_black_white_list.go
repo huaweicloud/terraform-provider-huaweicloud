@@ -21,6 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AAD POST /v1/cnad/policies/{policy_id}/ip-list/add
+// @API AAD POST /v1/cnad/policies/{policy_id}/ip-list/delete
+// @API AAD GET /v1/cnad/policies/{policy_id}
 func ResourceBlackWhiteList() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBlackWhiteListCreate,

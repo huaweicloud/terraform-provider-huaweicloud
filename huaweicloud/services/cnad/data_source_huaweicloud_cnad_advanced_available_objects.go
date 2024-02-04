@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API AAD GET /v1/cnad/packages/{package_id}/unbound-protected-ips
 func DataSourceAvailableProtectedObjects() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceAvailableProtectedObjectsRead,

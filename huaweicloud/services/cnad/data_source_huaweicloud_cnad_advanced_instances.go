@@ -19,7 +19,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CNAD GET /v1/cnad/packages
+// @API AAD GET /v1/cnad/packages
 func DataSourceInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceInstancesRead,
