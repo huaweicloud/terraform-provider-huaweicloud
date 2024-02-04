@@ -94,6 +94,8 @@ The following arguments are supported:
 
 * `eip_id` - (Optional, String) Specifies the EIP ID associated with the dedicated instance.
 
+  -> This parameter is only available if the `loadbalancer_provider` is **lvs**.
+
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether public access with an IPv6 address is supported.  
   Changing this will create a new resource.
 
