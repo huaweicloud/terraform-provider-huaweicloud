@@ -21,6 +21,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 	bandwidthsv2 "github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths"
+	eipsv3 "github.com/chnsz/golangsdk/openstack/networking/v3/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -55,6 +56,7 @@ const (
 
 // In order to be compatible with other providers, keep the exposed function name (ResourceVpcEIPV1) unchanged.
 // @API EIP GET /v1/{project_id}/publicips/{id}
+// @API EIP GET /v3/{project_id}/eip/publicips/{id}
 // @API EIP PUT /v1/{project_id}/publicips/{id}
 // @API EIP DELETE /v1/{project_id}/publicips/{id}
 // @API EIP POST /v2.0/{project_id}/publicips
@@ -221,6 +223,26 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Computed: true,
 			},
 			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"associate_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"associate_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"instance_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"instance_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -487,6 +509,24 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 		}
 	} else {
 		mErr = multierror.Append(mErr, fmt.Errorf("error creating VPC v2.0 client: %s", err))
+	}
+
+	networkingV3Client, err := cfg.NetworkingV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v3 client: %s", err)
+	}
+	resp, err := eipsv3.Get(networkingV3Client, resourceId).Extract()
+	if err != nil {
+		log.Printf("[WARN] failed to fetch the info for EIP (%s) from v3 API: %s", resourceId, err)
+	} else {
+		mErr = multierror.Append(nil,
+			d.Set("charging_mode", normalizeChargingMode(resp.BillingInfo)),
+			d.Set("updated_at", resp.UpdatedAt),
+			d.Set("associate_type", resp.AssociateInstanceType),
+			d.Set("associate_id", resp.AssociateInstanceID),
+			d.Set("instance_type", resp.Vnic.IntsanceType),
+			d.Set("instance_id", resp.Vnic.IntsanceID),
+		)
 	}
 
 	if mErr.ErrorOrNil() != nil {
