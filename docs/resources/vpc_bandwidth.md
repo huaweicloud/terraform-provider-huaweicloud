@@ -25,12 +25,16 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the bandwidth name. The value is a string of 1 to 64 characters that
   can contain letters, digits, underscores (_), hyphens (-), and periods (.).
 
-* `size` - (Required, Int) Specifies the size of the Shared Bandwidth. The value ranges from 5 Mbit/s to 2000 Mbit/s.
+* `size` - (Required, Int) Specifies the size of the Shared Bandwidth.
+  If `charge_mode` is **bandwidth**, the value ranges from 5 Mbit/s to 2000 Mbit/s.
+  If `charge_mode` is **95peak_plus**, the value ranges from 300 Mbit/s to 2000 Mbit/s.
 
-* `charge_mode` - (Optional, String, ForceNew) Specifies whether the billing is based on bandwidth or
+* `charge_mode` - (Optional, String) Specifies whether the billing is based on bandwidth or
   95th percentile bandwidth (enhanced). Possible values can be **bandwidth** and **95peak_plus**.
   The default value is **bandwidth**, and **95peak_plus** is only valid for v4 and v5 Customer.
-  Changing this creates a new bandwidth.
+  
+-> **NOTE:** When `charging_mode` is **prePaid**, only **bandwidth** is valid, please updating `charge_mode`
+  to **bandwidth** before changing to **prePaid** billing mode.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the Shared Bandwidth.
   Changing this creates a new bandwidth.

@@ -22,9 +22,14 @@ import (
 
 // @API EIP POST /v2.0/{project_id}/bandwidths/change-to-period
 // @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API EIP PUT /v1/{project_id}/bandwidths/{ID}
 // @API EIP DELETE /v2.0/{project_id}/bandwidths/{ID}
 // @API EIP GET /v1/{project_id}/bandwidths/{id}
 // @API EIP POST /v2.0/{project_id}/bandwidths
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceVpcBandWidthV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcBandWidthV2Create,
@@ -59,7 +64,6 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 			"charge_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"enterprise_project_id": {
@@ -249,6 +253,11 @@ func changeBandwidthToPeriod(ctx context.Context, d *schema.ResourceData, networ
 func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	networkingV1Client, err := cfg.NetworkingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating networking client: %s", err)
+	}
+
 	networkingClient, err := cfg.NetworkingV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking client: %s", err)
@@ -275,30 +284,39 @@ func resourceVpcBandWidthV2Update(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if d.HasChanges("name", "size") {
-		updateOpts := bandwidths.UpdateOpts{
-			Bandwidth: bandwidths.Bandwidth{
-				Name: d.Get("name").(string),
-				Size: d.Get("size").(int),
-			},
-		}
-
-		// ExtendParam is valid and mandatory when changing size field in pre-paid billing mode
-		if d.HasChange("size") && d.Get("charging_mode").(string) == "prePaid" {
-			updateOpts.ExtendParam = &bandwidths.ExtendParam{
-				IsAutoPay: "true",
+	if d.HasChanges("name", "size", "charge_mode") {
+		if d.Get("charging_mode").(string) == "prePaid" {
+			updateOpts := bandwidths.UpdateOpts{
+				Bandwidth: bandwidths.Bandwidth{
+					Name: d.Get("name").(string),
+					Size: d.Get("size").(int),
+				},
+				ExtendParam: &bandwidths.ExtendParam{
+					IsAutoPay: "true",
+				},
 			}
-		}
 
-		log.Printf("[DEBUG] bandwidth update options: %#v", updateOpts)
-		resp, err := bandwidths.Update(networkingClient, bwID, updateOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating bandwidth (%s): %s", bwID, err)
-		}
+			log.Printf("[DEBUG] bandwidth update options: %#v", updateOpts)
+			resp, err := bandwidths.Update(networkingClient, bwID, updateOpts).Extract()
+			if err != nil {
+				return diag.Errorf("error updating pre-paid bandwidth (%s): %s", bwID, err)
+			}
 
-		if resp.OrderID != "" {
-			if err := common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate)); err != nil {
-				return diag.FromErr(err)
+			if resp.OrderID != "" {
+				if err := common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate)); err != nil {
+					return diag.FromErr(err)
+				}
+			}
+		} else {
+			updateOpts := bandwidthsv1.UpdateOpts{
+				Name:       d.Get("name").(string),
+				Size:       d.Get("size").(int),
+				ChargeMode: d.Get("charge_mode").(string),
+			}
+			log.Printf("[DEBUG] bandwidth update options: %#v", updateOpts)
+			_, err := bandwidthsv1.Update(networkingV1Client, bwID, updateOpts).Extract()
+			if err != nil {
+				return diag.Errorf("error updating post-paid bandwidth (%s): %s", bwID, err)
 			}
 		}
 	}

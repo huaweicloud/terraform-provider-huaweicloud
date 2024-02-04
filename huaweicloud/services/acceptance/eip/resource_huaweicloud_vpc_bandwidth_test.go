@@ -49,17 +49,19 @@ func TestAccVpcBandWidth_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "NORMAL"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "publicips.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "charge_mode", "bandwidth"),
 				),
 			},
 			{
-				Config: testAccVpcBandWidth_basic(randName+"_update", 6),
+				Config: testAccVpcBandWidth_update(randName+"_update", 300),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"_update"),
-					resource.TestCheckResourceAttr(resourceName, "size", "6"),
+					resource.TestCheckResourceAttr(resourceName, "size", "300"),
 					resource.TestCheckResourceAttr(resourceName, "share_type", "WHOLE"),
 					resource.TestCheckResourceAttr(resourceName, "status", "NORMAL"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+					resource.TestCheckResourceAttr(resourceName, "charge_mode", "95peak_plus"),
 				),
 			},
 			{
@@ -258,6 +260,17 @@ resource "huaweicloud_vpc_bandwidth" "test" {
   size = "%d"
 
   charging_mode = "postPaid"
+}
+`, rName, size)
+}
+
+func testAccVpcBandWidth_update(rName string, size int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_bandwidth" "test" {
+  name = "%s"
+  size = "%d"
+
+  charge_mode = "95peak_plus"
 }
 `, rName, size)
 }
