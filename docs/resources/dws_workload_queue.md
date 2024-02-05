@@ -76,6 +76,8 @@ The following arguments are supported:
 * `cluster_id` - (Required, String, ForceNew) Specifies the cluster ID of to which the workload queue belongs.
   Changing this parameter will create a new resource.
 
+-> Currently, only regular cluster is supported, and logical cluster is temporarily not supported.
+
 * `name` - (Required, String, ForceNew) Specifies the name of the workload queue, which must be unique and contains
   `3` to `28` characters, composed only of lowercase letters, numbers, or underscores (_), and must start with a
   lowercase letter. Changing this parameter will create a new resource.
@@ -83,9 +85,6 @@ The following arguments are supported:
 * `configuration` - (Required, List, ForceNew) Specifies the configuration information for workload queue.
   Changing this parameter will create a new resource.  
   The [configuration](#DWS_workloadQueue_configuration) structure is documented below.
-
-* `logical_cluster_name` - (Optional, String, ForceNew) Specifies the logical cluster name, this field is required
-  when the cluster is a logical cluster. Changing this parameter will create a new resource.
 
 <a name="DWS_workloadQueue_configuration"></a>
 The `configuration` block supports:
@@ -127,7 +126,7 @@ $ terraform import huaweicloud_dws_workload_queue.test <cluster_id>/<name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `configuration`, `logical_cluster_name`.
+API response, security or some other reason. The missing attributes include: `configuration`.
 It is generally recommended running `terraform plan` after importing a workload queue.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
@@ -138,7 +137,7 @@ resource "huaweicloud_dws_cluster" "test" {
   
   lifecycle {
     ignore_changes = [
-      configuration, logical_cluster_name,
+      configuration,
     ]
   }
 }
