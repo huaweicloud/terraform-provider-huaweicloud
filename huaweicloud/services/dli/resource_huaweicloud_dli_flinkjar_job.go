@@ -20,12 +20,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DLI PUT /v1.0/{project_id}/streaming/flink-jobs/{strconv.Itoa(jobId)}
+// @API DLI POST /v1.0/{project_id}/dli/obs-authorize
 // @API DLI POST /v1.0/{project_id}/streaming/flink-jobs
 // @API DLI POST /v1.0/{project_id}/streaming/jobs/run
+// @API DLI GET /v1.0/{project_id}/streaming/jobs/{job_id}
+// @API DLI PUT /v1.0/{project_id}/streaming/flink-jobs/{job_id}
 // @API DLI POST /v1.0/{project_id}/streaming/jobs/stop
-// @API DLI DELETE /v1.0/{project_id}/streaming/jobs/{strconv.Itoa(jobId)}
-// @API DLI GET /v1.0/{project_id}/streaming/jobs/{strconv.Itoa(jobId)}
+// @API DLI DELETE /v1.0/{project_id}/streaming/jobs/{job_id}
 func ResourceFlinkJarJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFlinkJarJobCreate,
