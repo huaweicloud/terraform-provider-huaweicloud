@@ -55,7 +55,11 @@ func ResourcePromInstance() *schema.Resource {
 				ForceNew: true,
 				Optional: true,
 			},
-
+			"prom_version": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
+			},
 			// attributes
 			"remote_write_url": {
 				Type:     schema.TypeString,
@@ -66,10 +70,6 @@ func ResourcePromInstance() *schema.Resource {
 				Computed: true,
 			},
 			"prom_http_api_endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"prom_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -108,8 +108,8 @@ func resourcePromInstanceCreate(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	id, err := jmespath.Search("prometheus[0].prom_id", createPrometheusInstanceRespBody)
+	expression := fmt.Sprintf("prometheus[?prom_name== '%s'].prom_id | [0]", d.Get("prom_name"))
+	id, err := jmespath.Search(expression, createPrometheusInstanceRespBody)
 	if err != nil || id == nil {
 		return diag.Errorf("error creating AOM prometheus instance: ID is not found in API response")
 	}
@@ -123,6 +123,7 @@ func buildCreatePrometheusInstanceBodyParams(d *schema.ResourceData, cfg *config
 	bodyParams := map[string]interface{}{
 		"prom_name":             d.Get("prom_name"),
 		"prom_type":             d.Get("prom_type"),
+		"prom_version":          d.Get("prom_version"),
 		"enterprise_project_id": utils.ValueIngoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
