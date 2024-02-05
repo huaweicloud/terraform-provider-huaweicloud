@@ -257,7 +257,7 @@ func flattenListResourceFlavorsFlavors(curArray []interface{}) []interface{} {
 			"tags":          utils.PathSearch("metadata.labels", v, nil),
 			"type":          utils.PathSearch("spec.type", v, nil),
 			"arch":          utils.PathSearch("spec.cpuArch", v, nil),
-			"cpu":           utils.PathSearch("spec.cpuArch", v, nil),
+			"cpu":           utils.PathSearch("spec.cpu", v, nil),
 			"memory":        utils.PathSearch("spec.memory", v, nil),
 			"gpu":           flattenResourceFlavorsGpu(v),
 			"npu":           flattenResourceFlavorsNpu(v),
