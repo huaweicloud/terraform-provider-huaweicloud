@@ -30,9 +30,9 @@ const (
 )
 
 // @API AOM POST /v1/applications
-// @API AOM DELETE /v1/applications/{id}
-// @API AOM GET /v1/applications/{id}
-// @API AOM PUT /v1/applications/{id}
+// @API AOM DELETE /v1/applications/{application_id}
+// @API AOM GET /v1/applications/{application_id}
+// @API AOM PUT /v1/applications/{application_id}
 func ResourceCmdbApplication() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCmdbApplicationCreate,
@@ -131,9 +131,9 @@ func resourceCmdbApplicationRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	getApplicationHttpUrl := "v1/applications/{id}"
+	getApplicationHttpUrl := "v1/applications/{application_id}"
 	getApplicationPath := client.Endpoint + getApplicationHttpUrl
-	getApplicationPath = strings.ReplaceAll(getApplicationPath, "{id}", d.Id())
+	getApplicationPath = strings.ReplaceAll(getApplicationPath, "{application_id}", d.Id())
 
 	getApplicationOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -188,9 +188,9 @@ func resourceCmdbApplicationUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	updateApplicationHttpUrl := "v1/applications/{id}"
+	updateApplicationHttpUrl := "v1/applications/{application_id}"
 	updateApplicationPath := client.Endpoint + updateApplicationHttpUrl
-	updateApplicationPath = strings.ReplaceAll(updateApplicationPath, "{id}", d.Id())
+	updateApplicationPath = strings.ReplaceAll(updateApplicationPath, "{application_id}", d.Id())
 
 	updateApplicationOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -215,9 +215,9 @@ func resourceCmdbApplicationDelete(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	deleteApplicationHttpUrl := "v1/applications/{id}"
+	deleteApplicationHttpUrl := "v1/applications/{application_id}"
 	deleteApplicationPath := client.Endpoint + deleteApplicationHttpUrl
-	deleteApplicationPath = strings.ReplaceAll(deleteApplicationPath, "{id}", d.Id())
+	deleteApplicationPath = strings.ReplaceAll(deleteApplicationPath, "{application_id}", d.Id())
 
 	deleteApplicationOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
