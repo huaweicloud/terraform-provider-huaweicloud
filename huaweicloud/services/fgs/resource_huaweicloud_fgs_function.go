@@ -27,8 +27,8 @@ import (
 // @API FunctionGraph POST /v2/{project_id}/fgs/functions
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/config
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/versions
-// @API FunctionGraph POST /v2/{project_id}/{resource_type}/{resource_id}/tags/create
-// @API FunctionGraph DELETE /v2/{project_id}/{resource_type}/{resource_id}/tags/delete
+// @API FunctionGraph POST /v2/{project_id}/fgs/functions/{function_urn}/tags/create
+// @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/tags/delete
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/code
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance
