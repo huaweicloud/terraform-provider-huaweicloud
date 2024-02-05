@@ -166,3 +166,62 @@ resource "huaweicloud_cdm_cluster" "test" {
 }
 `, common.TestBaseNetwork(name), name)
 }
+
+func TestAccResourceCdmCluster_updateWithEpsId(t *testing.T) {
+	var obj clusters.ClusterCreateOpts
+	resourceName := "huaweicloud_cdm_cluster.test"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCdmClusterResourceFunc,
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCdmCluster_withEpsId(name, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccCdmCluster_withEpsId(name, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
+func testAccCdmCluster_withEpsId(name, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_cdm_flavors" "test" {}
+
+resource "huaweicloud_cdm_cluster" "test" {
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id              = data.huaweicloud_cdm_flavors.test.flavors[0].id
+  name                   = "%s"
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  enterprise_project_id  = "%s"
+}
+`, common.TestBaseNetwork(name), name, epsId)
+}
