@@ -110,6 +110,17 @@ The [policy_rules](#Connection_PolicyRule) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the tags of the VPN connection.
 
+* `ha_role` - (Optional, String, ForceNew) Specifies the mode of the VPN connection.
+  The valid values are **master** and **slave**, defaults to **master**.
+  This parameter is optional when you create a connection for a VPN gateway in **active-active** mode.
+  When you create a connection for a VPN gateway in **active-standby** mode, **master** indicates
+  the active connection, and **slave** indicates the standby connection.
+  In **active-active** mode, this field must be set to **master** for the connection established
+  using the active EIP or active private IP address of the VPN gateway, and must be set to **slave**
+  for the connection established using active EIP 2 or active private IP address 2 of the VPN gateway.
+
+  Changing this parameter will create a new resource.
+
 <a name="Connection_CreateRequestIkePolicy"></a>
 The `ikepolicy` block supports:
 
