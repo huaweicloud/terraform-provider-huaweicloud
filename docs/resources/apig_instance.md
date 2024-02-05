@@ -94,6 +94,8 @@ The following arguments are supported:
 
 * `eip_id` - (Optional, String) Specifies the EIP ID associated with the dedicated instance.
 
+  -> This parameter is only available if the `loadbalancer_provider` is **lvs**.
+
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether public access with an IPv6 address is supported.  
   Changing this will create a new resource.
 
@@ -113,6 +115,17 @@ The following arguments are supported:
 
   -> This parameter is only available if the `loadbalancer_provider` is **elb**.
      Only enable and update operations are supported, and disable operation is not supported.
+
+* `ingress_bandwidth_size` - (Optional, Int) Specifies the ingress bandwidth size of the dedicated instance.  
+  The minimum value is `5`
+
+* `ingress_bandwidth_charging_mode` - (Optional, String) Specifies the ingress bandwidth billing type of the dedicated instance.
+  The valid values are as follows:
+  + **bandwidth**: Billed by bandwidth.
+  + **traffic**: Billed by traffic.
+
+  -> The `ingress_bandwidth_size` and `ingress_bandwidth_size` parameter is only available if the `loadbalancer_provider`
+     is **elb**.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the dedicated instance.
 
