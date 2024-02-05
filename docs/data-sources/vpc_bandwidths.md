@@ -11,7 +11,7 @@ Use this data source to get a list of shared bandwidths.
 ### Example Usage of getting all bandwidths
 
 ```hcl
-data "huaweicloud_vpc_bandwidth" "all" {}
+data "huaweicloud_vpc_bandwidths" "all" {}
 ```
 
 ### Example Usage to filter specific bandwidths
@@ -19,7 +19,7 @@ data "huaweicloud_vpc_bandwidth" "all" {}
 ```hcl
 variable "bandwidth_name" {}
 
-data "huaweicloud_vpc_bandwidth" "filter_by_name" {
+data "huaweicloud_vpc_bandwidths" "filter_by_name" {
   name = var.bandwidth_name
 }
 ```
