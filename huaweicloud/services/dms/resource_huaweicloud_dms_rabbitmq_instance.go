@@ -23,13 +23,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API RabbitMQ POST /v2/rabbitmq/{project_id}/instances
-// @API RabbitMQ POST /v2/{project_id}/instances/{id}/extend
-// @API RabbitMQ DELETE /v2/{project_id}/instances/{id}
-// @API RabbitMQ GET /v2/{project_id}/instances/{id}
-// @API RabbitMQ PUT /v2/{project_id}/instances/{id}
+// @API RabbitMQ POST /v2/{engine}/{project_id}/instances
 // @API RabbitMQ POST /v2/{project_id}/instances
-// @API RabbitMQ GET /v2/{project_id}/{resourceType}/{id}/tags
+// @API RabbitMQ POST /v2/{engine}/{project_id}/instances/{instance_id}/extend
+// @API RabbitMQ DELETE /v2/{project_id}/instances/{instance_id}
+// @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}
+// @API RabbitMQ PUT /v2/{project_id}/instances/{instance_id}
+// @API RabbitMQ GET /v2/{project_id}/rabbitmq/{instance_id}/tags
+// @API RabbitMQ POST /v2/{project_id}/rabbitmq/{instance_id}/tags/action
+// @API RabbitMQ GET /v2/available-zones
+// @API RabbitMQ GET /v2/products
+// @API RabbitMQ POST /v2/{project_id}/instances/{instance_id}/password
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceDmsRabbitmqInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRabbitmqInstanceCreate,

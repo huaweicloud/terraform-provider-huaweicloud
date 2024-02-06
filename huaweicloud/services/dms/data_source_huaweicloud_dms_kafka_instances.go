@@ -20,6 +20,7 @@ import (
 )
 
 // @API Kafka GET /v2/{project_id}/instances
+// @API Kafka GET /v2/available-zones
 func DataSourceDmsKafkaInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsKafkaInstances,
