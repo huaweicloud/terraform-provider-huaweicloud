@@ -333,7 +333,7 @@ func resourceDatasourceAuthDelete(_ context.Context, d *schema.ResourceData, met
 
 	// deleteDatasourceAuth: missing operation notes
 	var (
-		deleteDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos/{id}"
+		deleteDatasourceAuthHttpUrl = "v3/{project_id}/datasource/auth-infos/{auth_info_name}"
 		deleteDatasourceAuthProduct = "dli"
 	)
 	deleteDatasourceAuthClient, err := cfg.NewServiceClient(deleteDatasourceAuthProduct, region)
@@ -343,7 +343,7 @@ func resourceDatasourceAuthDelete(_ context.Context, d *schema.ResourceData, met
 
 	deleteDatasourceAuthPath := deleteDatasourceAuthClient.Endpoint + deleteDatasourceAuthHttpUrl
 	deleteDatasourceAuthPath = strings.ReplaceAll(deleteDatasourceAuthPath, "{project_id}", deleteDatasourceAuthClient.ProjectID)
-	deleteDatasourceAuthPath = strings.ReplaceAll(deleteDatasourceAuthPath, "{id}", d.Id())
+	deleteDatasourceAuthPath = strings.ReplaceAll(deleteDatasourceAuthPath, "{auth_info_name}", d.Id())
 
 	deleteDatasourceAuthOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

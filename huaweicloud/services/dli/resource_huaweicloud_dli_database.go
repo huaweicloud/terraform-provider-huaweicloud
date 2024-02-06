@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API DLI PUT /v1.0/{project_id}/databases/{dbName}/owner
-// @API DLI DELETE /v1.0/{project_id}/databases/{dbName}
-// @API DLI GET /v1.0/{project_id}/databases
 // @API DLI POST /v1.0/{project_id}/databases
+// @API DLI GET /v1.0/{project_id}/databases
+// @API DLI PUT /v1.0/{project_id}/databases/{database_name}/owner
+// @API DLI DELETE /v1.0/{project_id}/databases/{database_name}
 func ResourceDliSqlDatabaseV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliSQLDatabaseCreate,
