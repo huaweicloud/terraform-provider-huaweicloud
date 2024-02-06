@@ -28,6 +28,11 @@ import (
 // @API DBSS GET /v1/{project_id}/dbss/audit/instances
 // @API DBSS GET /v1/{project_id}/dbss/audit/jobs/{resource_id}
 // @API DBSS POST /v2/{project_id}/dbss/audit/charge/period/order
+// @API BSS POST /v2/bills/ratings/period-resources/subscribe-rate
+// @API BSS POST /v3/orders/customer-orders/pay
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
