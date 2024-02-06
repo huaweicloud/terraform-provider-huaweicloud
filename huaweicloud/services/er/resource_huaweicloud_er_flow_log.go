@@ -22,11 +22,10 @@ import (
 
 // @API ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs
 // @API ER GET /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
-// @API ER PUT /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
-// @API ER DELETE /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
 // @API ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/enable
 // @API ER POST /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}/disable
-
+// @API ER PUT /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
+// @API ER DELETE /v3/{project_id}/enterprise-router/{er_id}/flow-logs/{flow_log_id}
 func ResourceFlowLog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFlowLogCreate,

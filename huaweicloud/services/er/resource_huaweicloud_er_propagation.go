@@ -20,9 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations
-// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disable-propagations
-// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/enable-propagations
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/enable-propagations
+// @API ER GET /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disable-propagations
 func ResourcePropagation() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePropagationCreate,
