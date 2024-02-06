@@ -389,7 +389,7 @@ The following arguments are supported:
   + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit.
     Only letters, digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used
     as the prefix of a key. Changing this parameter will create a new resource.
-  + `value` - (Required, String, ForceNew) A value must start with a letter or digit and can contain a maximum of 63
+  + `value` - (Optional, String, ForceNew) A value must start with a letter or digit and can contain a maximum of 63
     characters, including letters, digits, hyphens (-), underscores (_), and periods (.). Changing this parameter will
     create a new resource.
   + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
