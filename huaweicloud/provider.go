@@ -466,6 +466,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_flavors":   dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_instances": dds.DataSourceDdsInstance(),
 
+			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
 
 			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
