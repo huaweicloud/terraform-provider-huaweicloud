@@ -27,17 +27,26 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceCCEClusterV3 defines the CCE cluster resource schema and functions.
-// Deprecated: It's a deprecated function, please refer to the function 'ResourceCluster'.
-// @API CCE DELETE /api/v3/projects/{project_id}/clusters/{id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters
 // @API CCE GET /api/v3/projects/{project_id}/clusters/{id}
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{id}
-// @API CCE POST /api/v3/projects/{project_id}/clusters
+// @API CCE DELETE /api/v3/projects/{project_id}/clusters/{id}
+// @API CCE GET /api/v3/projects/{project_id}/jobs/{job_id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/operation/{action}
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/clustercert
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{id}/mastereip
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/operation/{action}
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{id}/tags/{action}
+// @API BSS GET /V2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter
 // @API AOM POST /svcstg/icmgr/v1/{project_id}/agents
+
+// ResourceCCEClusterV3 defines the CCE cluster resource schema and functions.
+// Deprecated: It's a deprecated function, please refer to the function 'ResourceCluster'.
 func ResourceCCEClusterV3() *schema.Resource {
 	return ResourceCluster()
 }

@@ -16,9 +16,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/add
-// @API CCE PUT /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/reset
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/add
+// @API CCE GET /api/v3/projects/{project_id}/jobs/{job_id}
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/{node_id}
+// @API ECS GET /v1/{project_id}/cloudservers/{id}/tags
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/reset
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{node_id}
+// @API ECS PUT /v1/{project_id}/cloudservers/{server_id}/os-reset-password
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/tags/action
+// @API KMS POST /v3/{project_id}/keypairs/associate
+// @API KMS POST /v3/{project_id}/keypairs/disassociate
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/operation/remove
+
 func ResourceNodeAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeAttachCreate,
