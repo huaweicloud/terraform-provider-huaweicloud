@@ -47,6 +47,16 @@ type PublicIp struct {
 	IpVersion                int      `json:"ip_version"`
 	Alias                    string   `json:"alias"`
 	AllowShareBandwidthTypes []string `json:"allow_share_bandwidth_types"`
+
+	Profile Profile  `json:"profile"`
+	Tags    []string `json:"tags"`
+}
+
+type Profile struct {
+	UserID    string `json:"user_id"`
+	ProductID string `json:"product_id"`
+	RegionID  string `json:"region_id"`
+	OrderID   string `json:"order_id"`
 }
 
 // GetResult is a return struct of get method

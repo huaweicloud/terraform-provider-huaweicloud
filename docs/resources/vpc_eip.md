@@ -70,21 +70,24 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the EIP.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the EIP.  
-  The valid values are **prePaid** and **postPaid**, defaults to **postPaid**. Changing this will create a new resource.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the EIP.  
+  The valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the EIP.  
+-> **NOTE:** Please update the `charge_mode` of `bandwidth` to **bandwidth** before changing to **prePaid** billing mode.
+
+* `period_unit` - (Optional, String) Specifies the charging period unit of the EIP.  
   Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this will create a new resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the EIP.
+* `period` - (Optional, Int) Specifies the charging period of the EIP.
   + If `period_unit` is set to **month**, the value ranges from `1` to `9`.
   + If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
-  This parameter is mandatory if `charging_mode` is set to **prePaid**. Changing this will create a new resource.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.  
   Valid values are **true** and **false**. Defaults to **false**.
+
+-> **NOTE:** `period_unit`, `period` and `auto_renew` can only be updated when changing to **prePaid** billing mode.
 
 <a name="vpc_eip_publicip"></a>
 The `publicip` block supports:
@@ -117,7 +120,7 @@ The `bandwidth` block supports:
   This parameter is mandatory when `share_type` is set to **WHOLE**. Changing this will create a new resource.
 
 * `charge_mode` - (Optional, String) Specifies whether the bandwidth is billed by traffic or by bandwidth
-  size. The value can be **traffic** or **bandwidth**. Changing this will create a new resource.
+  size. The value can be **traffic** or **bandwidth**. If the `charging_mode` is **prePaid**, only **bandwidth** is valid.
 
 ## Attribute Reference
 
