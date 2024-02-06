@@ -18,12 +18,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API WAF DELETE /v1/{project_id}/premium-waf/pool/{poolID}/bindings/{elbID}
-// @API WAF GET /v1/{project_id}/premium-waf/pool/{poolID}/bindings
-// @API WAF DELETE /v1/{project_id}/premium-waf/pool/{poolID}
-// @API WAF GET /v1/{project_id}/premium-waf/pool/{poolID}
-// @API WAF PUT /v1/{project_id}/premium-waf/pool/{poolID}
-// @API WAF POST /v1/{project_id}/premium-waf/pool
 func ResourceWafInstanceGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafInstanceGroupCreate,

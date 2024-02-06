@@ -39,10 +39,11 @@ const (
 )
 
 // ResourceWafDedicatedInstance the resource of managing a dedicated mode instance within HuaweiCloud.
-// @API WAF DELETE /v1/{project_id}/premium-waf/instance/{id}
-// @API WAF GET /v1/{project_id}/premium-waf/instance/{id}
-// @API WAF PUT /v1/{project_id}/premium-waf/instance/{id}
+// @API WAF DELETE /v1/{project_id}/premium-waf/instance/{instance_id}
+// @API WAF GET /v1/{project_id}/premium-waf/instance/{instance_id}
+// @API WAF PUT /v1/{project_id}/premium-waf/instance/{instance_id}
 // @API WAF POST /v1/{project_id}/premium-waf/instance
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 func ResourceWafDedicatedInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDedicatedInstanceCreate,

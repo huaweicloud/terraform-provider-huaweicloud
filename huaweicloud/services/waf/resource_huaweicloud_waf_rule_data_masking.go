@@ -25,10 +25,11 @@ const (
 	fieldPositionForm   = "form"
 )
 
-// @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/privacy/{id}
-// @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/privacy/{id}
-// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/privacy/{id}
+// @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/privacy/{rule_id}
+// @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/privacy/{rule_id}
+// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/privacy/{rule_id}
 // @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/privacy
+// @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
 func ResourceWafRuleDataMaskingV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleDataMaskingCreate,
