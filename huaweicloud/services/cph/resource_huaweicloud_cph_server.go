@@ -28,8 +28,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CPH PUT /v1/{project_id}/cloud-phone/servers/{id}
-// @API CPH GET /v1/{project_id}/cloud-phone/servers/{id}
+// @API CPH PUT /v1/{project_id}/cloud-phone/servers/{server_id}
+// @API CPH GET /v1/{project_id}/cloud-phone/servers/{server_id}
 // @API CPH POST /v2/{project_id}/cloud-phone/servers
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceCphServer() *schema.Resource {
@@ -454,7 +454,7 @@ func createCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			cfg := meta.(*config.Config)
 			region := cfg.GetRegion(d)
 			var (
-				createCphServerHttpUrl = "v1/{project_id}/cloud-phone/servers/{id}"
+				createCphServerHttpUrl = "v1/{project_id}/cloud-phone/servers/{server_id}"
 				createCphServerProduct = "cph"
 			)
 			createCphServerClient, err := cfg.NewServiceClient(createCphServerProduct, region)
@@ -464,7 +464,7 @@ func createCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 
 			createCphServerPath := createCphServerClient.Endpoint + createCphServerHttpUrl
 			createCphServerPath = strings.ReplaceAll(createCphServerPath, "{project_id}", createCphServerClient.ProjectID)
-			createCphServerPath = strings.ReplaceAll(createCphServerPath, "{id}", d.Id())
+			createCphServerPath = strings.ReplaceAll(createCphServerPath, "{server_id}", d.Id())
 
 			createCphServerOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -520,7 +520,7 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	// getCphServer: Query the CPH instance
 	var (
-		getCphServerHttpUrl = "v1/{project_id}/cloud-phone/servers/{id}"
+		getCphServerHttpUrl = "v1/{project_id}/cloud-phone/servers/{server_id}"
 		getCphServerProduct = "cph"
 	)
 	getCphServerClient, err := cfg.NewServiceClient(getCphServerProduct, region)
@@ -530,7 +530,7 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	getCphServerPath := getCphServerClient.Endpoint + getCphServerHttpUrl
 	getCphServerPath = strings.ReplaceAll(getCphServerPath, "{project_id}", getCphServerClient.ProjectID)
-	getCphServerPath = strings.ReplaceAll(getCphServerPath, "{id}", d.Id())
+	getCphServerPath = strings.ReplaceAll(getCphServerPath, "{server_id}", d.Id())
 
 	getCphServerOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -621,7 +621,7 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	if d.HasChanges(updateCphServerNameChanges...) {
 		// updateCphServerName: update CPH server name
 		var (
-			updateCphServerNameHttpUrl = "v1/{project_id}/cloud-phone/servers/{id}"
+			updateCphServerNameHttpUrl = "v1/{project_id}/cloud-phone/servers/{server_id}"
 			updateCphServerNameProduct = "cph"
 		)
 		updateCphServerNameClient, err := cfg.NewServiceClient(updateCphServerNameProduct, region)
@@ -631,7 +631,7 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		updateCphServerNamePath := updateCphServerNameClient.Endpoint + updateCphServerNameHttpUrl
 		updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{project_id}", updateCphServerNameClient.ProjectID)
-		updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{id}", d.Id())
+		updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{server_id}", d.Id())
 
 		updateCphServerNameOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -676,7 +676,7 @@ func deleteCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			cfg := meta.(*config.Config)
 			region := cfg.GetRegion(d)
 			var (
-				getCphServerHttpUrl = "v1/{project_id}/cloud-phone/servers/{id}"
+				getCphServerHttpUrl = "v1/{project_id}/cloud-phone/servers/{server_id}"
 				getCphServerProduct = "cph"
 			)
 			getCphServerClient, err := cfg.NewServiceClient(getCphServerProduct, region)
@@ -686,7 +686,7 @@ func deleteCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 
 			getCphServerPath := getCphServerClient.Endpoint + getCphServerHttpUrl
 			getCphServerPath = strings.ReplaceAll(getCphServerPath, "{project_id}", getCphServerClient.ProjectID)
-			getCphServerPath = strings.ReplaceAll(getCphServerPath, "{id}", d.Id())
+			getCphServerPath = strings.ReplaceAll(getCphServerPath, "{server_id}", d.Id())
 
 			getCphServerOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
