@@ -35,7 +35,7 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 			},
 			"capacity": {
 				Type:     schema.TypeFloat,
-				Required: true,
+				Optional: true,
 			},
 			"engine": {
 				Type:     schema.TypeString,
@@ -126,13 +126,16 @@ func dataSourceDcsFlavorsV2Read(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
-	capacity := strconv.FormatFloat(d.Get("capacity").(float64), 'f', -1, floatBitSize)
+	var rawCapacity string
+	if c, ok := d.GetOk("capacity"); ok {
+		rawCapacity = strconv.FormatFloat(c.(float64), 'f', -1, floatBitSize)
+	}
 	// build a list options
 	opts := flavors.ListOpts{
 		CacheMode:     d.Get("cache_mode").(string),
 		Engine:        d.Get("engine").(string),
 		EngineVersion: d.Get("engine_version").(string),
-		Capacity:      capacity,
+		Capacity:      rawCapacity,
 		SpecCode:      d.Get("name").(string),
 		CPUType:       d.Get("cpu_architecture").(string),
 	}
@@ -142,20 +145,19 @@ func dataSourceDcsFlavorsV2Read(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("error getting dcs flavors list: %s", err)
 	}
-	log.Printf("[DEBUG] Get DCS flavors : %#v", list)
-	if len(list) == 0 {
-		return diag.Errorf("your query returned no results. " +
-			"Please change your search criteria and try again.")
-	}
 
 	ids := make([]string, 0)
 	flavorLists := make([]map[string]interface{}, 0, len(list))
-	if len(list) > 0 {
-		for _, v := range list {
-			if len(v.AvailableZones) == 0 || len(v.AvailableZones[0].AzCodes) == 0 {
+	for _, v := range list {
+		if len(v.AvailableZones) == 0 || len(v.AvailableZones[0].AzCodes) == 0 {
+			continue
+		}
+		// for version 3.0, the result contain all az and capacity, they should be filtered and returned
+		for _, availableZones := range v.AvailableZones {
+			if rawCapacity != "" && rawCapacity != availableZones.Capacity {
 				continue
 			}
-			capacity, _ := strconv.ParseFloat(v.Capacity[0], floatBitSize)
+			capacity, _ := strconv.ParseFloat(availableZones.Capacity, floatBitSize)
 			fla := map[string]interface{}{
 				"name":             v.SpecCode,
 				"cache_mode":       v.CacheMode,
@@ -163,18 +165,13 @@ func dataSourceDcsFlavorsV2Read(_ context.Context, d *schema.ResourceData, meta 
 				"engine_versions":  v.EngineVersion,
 				"cpu_architecture": v.CPUType,
 				"capacity":         capacity,
-				"available_zones":  v.AvailableZones[0].AzCodes,
+				"available_zones":  availableZones.AzCodes,
 				"charging_modes":   v.BillingMode,
 				"ip_count":         v.TenantIPCount,
 			}
 			flavorLists = append(flavorLists, fla)
 			ids = append(ids, v.SpecCode)
 		}
-	}
-
-	if len(flavorLists) == 0 {
-		return diag.Errorf("your query did not return valid data. " +
-			"Please change your search criteria and try again.")
 	}
 
 	sort.Slice(flavorLists, func(i, j int) bool {
