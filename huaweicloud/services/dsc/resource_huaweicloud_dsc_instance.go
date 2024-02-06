@@ -49,6 +49,11 @@ const (
 // @API DSC POST /v1/{project_id}/period/order
 // @API DSC GET /v1/{project_id}/period/product/specification
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v3/orders/customer-orders/pay
+// @API BSS POST /v2/bills/ratings/period-resources/subscribe-rate
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
 func ResourceDscInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDscInstanceCreate,
