@@ -20,7 +20,7 @@ func getDwsSnapshotResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 	region := acceptance.HW_REGION_NAME
 	// getDwsSnapshot: Query the DWS snapshot.
 	var (
-		getDwsSnapshotHttpUrl = "v1.0/{project_id}/snapshots/{id}"
+		getDwsSnapshotHttpUrl = "v1.0/{project_id}/snapshots/{snapshot_id}"
 		getDwsSnapshotProduct = "dws"
 	)
 	getDwsSnapshotClient, err := cfg.NewServiceClient(getDwsSnapshotProduct, region)
@@ -30,7 +30,7 @@ func getDwsSnapshotResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 
 	getDwsSnapshotPath := getDwsSnapshotClient.Endpoint + getDwsSnapshotHttpUrl
 	getDwsSnapshotPath = strings.ReplaceAll(getDwsSnapshotPath, "{project_id}", getDwsSnapshotClient.ProjectID)
-	getDwsSnapshotPath = strings.ReplaceAll(getDwsSnapshotPath, "{id}", state.Primary.ID)
+	getDwsSnapshotPath = strings.ReplaceAll(getDwsSnapshotPath, "{snapshot_id}", state.Primary.ID)
 
 	getDwsSnapshotOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

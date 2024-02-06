@@ -26,8 +26,8 @@ import (
 
 // @API DWS GET /v2/{project_id}/alarm-subs
 // @API DWS POST /v2/{project_id}/alarm-subs
-// @API DWS PUT /v2/{project_id}/alarm-subs/{id}
-// @API DWS DELETE /v2/{project_id}/alarm-subs/{id}
+// @API DWS PUT /v2/{project_id}/alarm-subs/{alarm_sub_id}
+// @API DWS DELETE /v2/{project_id}/alarm-subs/{alarm_sub_id}
 func ResourceDwsAlarmSubs() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsAlarmSubsCreate,
@@ -219,7 +219,7 @@ func resourceDwsAlarmSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 	if d.HasChanges(updateDwsAlarmSubsChanges...) {
 		// updateDwsAlarmSubs: update the DWS alarm subscription.
 		var (
-			updateDwsAlarmSubsHttpUrl = "v2/{project_id}/alarm-subs/{id}"
+			updateDwsAlarmSubsHttpUrl = "v2/{project_id}/alarm-subs/{alarm_sub_id}"
 			updateDwsAlarmSubsProduct = "dws"
 		)
 		updateDwsAlarmSubsClient, err := cfg.NewServiceClient(updateDwsAlarmSubsProduct, region)
@@ -229,7 +229,7 @@ func resourceDwsAlarmSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 
 		updateDwsAlarmSubsPath := updateDwsAlarmSubsClient.Endpoint + updateDwsAlarmSubsHttpUrl
 		updateDwsAlarmSubsPath = strings.ReplaceAll(updateDwsAlarmSubsPath, "{project_id}", updateDwsAlarmSubsClient.ProjectID)
-		updateDwsAlarmSubsPath = strings.ReplaceAll(updateDwsAlarmSubsPath, "{id}", d.Id())
+		updateDwsAlarmSubsPath = strings.ReplaceAll(updateDwsAlarmSubsPath, "{alarm_sub_id}", d.Id())
 
 		updateDwsAlarmSubsOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -264,7 +264,7 @@ func resourceDwsAlarmSubsDelete(_ context.Context, d *schema.ResourceData, meta 
 
 	// deleteDwsAlarmSubs: delete DWS alarm subscription
 	var (
-		deleteDwsAlarmSubsHttpUrl = "v2/{project_id}/alarm-subs/{id}"
+		deleteDwsAlarmSubsHttpUrl = "v2/{project_id}/alarm-subs/{alarm_sub_id}"
 		deleteDwsAlarmSubsProduct = "dws"
 	)
 	deleteDwsAlarmSubsClient, err := cfg.NewServiceClient(deleteDwsAlarmSubsProduct, region)
@@ -274,7 +274,7 @@ func resourceDwsAlarmSubsDelete(_ context.Context, d *schema.ResourceData, meta 
 
 	deleteDwsAlarmSubsPath := deleteDwsAlarmSubsClient.Endpoint + deleteDwsAlarmSubsHttpUrl
 	deleteDwsAlarmSubsPath = strings.ReplaceAll(deleteDwsAlarmSubsPath, "{project_id}", deleteDwsAlarmSubsClient.ProjectID)
-	deleteDwsAlarmSubsPath = strings.ReplaceAll(deleteDwsAlarmSubsPath, "{id}", d.Id())
+	deleteDwsAlarmSubsPath = strings.ReplaceAll(deleteDwsAlarmSubsPath, "{alarm_sub_id}", d.Id())
 
 	deleteDwsAlarmSubsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
