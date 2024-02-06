@@ -141,3 +141,15 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	}
 	return equal, nil
 }
+
+func SuppressStringSepratedByCommaDiffs(_, old, new string, _ *schema.ResourceData) bool {
+	if len(old) != len(new) {
+		return false
+	}
+	oldArray := strings.Split(old, ",")
+	newArray := strings.Split(new, ",")
+	sort.Strings(oldArray)
+	sort.Strings(newArray)
+
+	return reflect.DeepEqual(oldArray, newArray)
+}

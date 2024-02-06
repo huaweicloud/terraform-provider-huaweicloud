@@ -44,9 +44,7 @@ The following arguments are supported:
 * `engine_version` - (Required, String, ForceNew) Specifies the version of the RocketMQ engine. Value: 4.8.0.
   Changing this parameter will create a new resource.
 
-* `storage_space` - (Required, Int, ForceNew) Specifies the message storage capacity, Unit: GB.
-  Value range: 300-3000.
-  Changing this parameter will create a new resource.
+* `storage_space` - (Required, Int) Specifies the message storage capacity, Unit: GB. Value range: 300-3000.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC.
   Changing this parameter will create a new resource.
@@ -61,7 +59,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies a product ID. The options are as follows:
+* `flavor_id` - (Required, String) Specifies a product ID. The options are as follows:
   + **c6.4u8g.cluster**: maximum number of topics on each broker: 4000; maximum number of consumer groups
     on each broker: 4000
   + **c6.8u16g.cluster**: maximum number of topics on each broker: 8000; maximum number of consumer groups
@@ -70,7 +68,6 @@ The following arguments are supported:
     on each broker: 12,000
   + **c6.16u32g.cluster**: maximum number of topics on each broker: 16,000; maximum number of consumer groups
     on each broker: 16,000
-  Changing this parameter will create a new resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification.
   The options are as follows:
@@ -93,8 +90,7 @@ The following arguments are supported:
   multiple EIP IDs. This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
   This parameter can not be updated if public access is disabled.
 
-* `broker_num` - (Optional, Int, ForceNew) Specifies the broker numbers. Defaults to 1.
-  Changing this parameter will create a new resource.
+* `broker_num` - (Optional, Int) Specifies the broker numbers. Defaults to **1**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the instance.
   Changing this parameter will create a new resource.

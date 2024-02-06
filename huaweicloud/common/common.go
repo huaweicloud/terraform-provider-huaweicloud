@@ -318,3 +318,21 @@ func RetryContextWithWaitForState(param *RetryContextWithWaitForStateParam) (int
 
 	return stateConf.WaitForStateContext(param.Ctx)
 }
+
+// GetEipsbyAddresses returns the EIPs of addresses when success.
+func GetEipsbyAddresses(client *golangsdk.ServiceClient, addresses []string, epsID string) ([]eips.PublicIp, error) {
+	listOpts := &eips.ListOpts{
+		PublicIp:            addresses,
+		EnterpriseProjectId: epsID,
+	}
+	pages, err := eips.List(client, listOpts).AllPages()
+	if err != nil {
+		return nil, err
+	}
+
+	allEips, err := eips.ExtractPublicIPs(pages)
+	if err != nil {
+		return nil, fmtp.Errorf("Unable to retrieve eips: %s ", err)
+	}
+	return allEips, nil
+}
