@@ -13,7 +13,7 @@ variable "fw_instance_id" {}
 variable "object_id" {}
 variable "name" {}
 
-resource "huaweicloud_domain_name_group" "test" {
+resource "huaweicloud_cfw_domain_name_group" "test" {
   fw_instance_id = var.fw_instance_id
   object_id      = var.object_id
   name           = var.name
