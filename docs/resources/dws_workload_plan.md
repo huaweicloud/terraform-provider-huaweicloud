@@ -28,12 +28,11 @@ The following arguments are supported:
 * `cluster_id` - (Required, String, ForceNew) Specifies the cluster ID of to which the workload plan belongs.
   Changing this parameter will create a new resource.
 
+-> Currently, only regular cluster is supported, and logical cluster is temporarily not supported.
+
 * `name` - (Required, String, ForceNew) Specifies the name of the workload plan, which must be unique and contains
   `3` to `28` characters, composed only of lowercase letters, numbers, or underscores (_), and must start with a
   lowercase letter. Changing this parameter will create a new resource.
-
-* `logical_cluster_name` - (Optional, String, ForceNew) Specifies the logical cluster name, this field is required
-  when the cluster is a logical cluster. Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
