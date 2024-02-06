@@ -15,7 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API Workspace POST /v2/{project_id}/eips/{bindType}
+// @API Workspace POST /v2/{project_id}/eips/binding
+// @API Workspace POST /v2/{project_id}/eips/unbinding
 // @API Workspace GET /v2/{project_id}/eips
 func ResourceEipAssociate() *schema.Resource {
 	return &schema.Resource{

@@ -23,9 +23,9 @@ const (
 	MilliRFC3339NoT = "2006-01-02T15:04:05.000Z"
 )
 
-// @API Workspace DELETE /v2/{project_id}/users/{userId}
-// @API Workspace GET /v2/{project_id}/users/{userId}
-// @API Workspace PUT /v2/{project_id}/users/{userId}
+// @API Workspace DELETE /v2/{project_id}/users/{user_id}
+// @API Workspace GET /v2/{project_id}/users/{user_id}
+// @API Workspace PUT /v2/{project_id}/users/{user_id}
 // @API Workspace POST /v2/{project_id}/users
 func ResourceUser() *schema.Resource {
 	return &schema.Resource{
