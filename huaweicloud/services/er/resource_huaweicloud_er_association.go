@@ -20,9 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associate
-// @API ER GET /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations
-// @API ER POST /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disassociate
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/associate
+// @API ER GET /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/associations
+// @API ER POST /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disassociate
 func ResourceAssociation() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAssociationCreate,
