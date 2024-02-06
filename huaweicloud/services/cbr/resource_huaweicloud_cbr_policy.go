@@ -20,10 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CBR DELETE /v3/{project_id}/policies/{id}
-// @API CBR GET /v3/{project_id}/policies/{id}
-// @API CBR PUT /v3/{project_id}/policies/{id}
 // @API CBR POST /v3/{project_id}/policies
+// @API CBR GET /v3/{project_id}/policies/{policy_id}
+// @API CBR PUT /v3/{project_id}/policies/{policy_id}
+// @API CBR DELETE /v3/{project_id}/policies/{policy_id}
 func ResourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePolicyCreate,
