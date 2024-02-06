@@ -213,8 +213,7 @@ The following arguments are supported:
     + 0: Table names are stored as fixed and table names are case-sensitive.
     + 1: Table names will be stored in lower case and table names are not case-sensitive.
 
-* `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID. Changing this parameter will create
-  a new resource.
+* `param_group_id` - (Optional, String) Specifies the parameter group ID.
 
 * `collation` - (Optional, String) Specifies the Character Set, only available to Microsoft SQL Server DB instances.
 
