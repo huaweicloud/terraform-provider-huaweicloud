@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_waf_reference_tables
-  description: 
+    version: ""
+    title: data_source_huaweicloud_waf_reference_tables
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: WAF
+    - name: WAF
 paths:
-  /v1/{project_id}/waf/valuelist:
-    get:
-      tag: WAF
-      operationId: List
+    /v1/{project_id}/waf/valuelist:
+        GET:
+            tag: WAF

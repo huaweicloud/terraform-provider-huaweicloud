@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: resource_huaweicloud_tms_tags
-  description: 
+    version: ""
+    title: resource_huaweicloud_tms_tags
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: TMS
+    - name: TMS
 paths:
-  /v1.0/predefine_tags/action:
-    post:
-      tag: TMS
-      operationId: CreatePredefineTags
-  /v1.0/predefine_tags:
-    get:
-      tag: TMS
-      operationId: ListPredefineTags
+    /v1.0/predefine_tags:
+        GET:
+            tag: TMS
+    /v1.0/predefine_tags/action:
+        POST:
+            tag: TMS

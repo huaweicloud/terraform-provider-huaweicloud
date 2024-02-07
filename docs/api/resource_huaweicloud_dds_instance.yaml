@@ -1,37 +1,63 @@
 info:
-  version: 
-  title: resource_huaweicloud_dds_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_dds_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DDS
+    - name: DDS
 paths:
-  /v3/{project_id}/instances/{id}/tags/action:
-    post:
-      tag: DDS
-      operationId: Create
-  /v3/{project_id}/instances/{id}/tags:
-    get:
-      tag: DDS
-      operationId: Get
-  /v3/{project_id}/instances/{instanceId}/modify-port:
-    post:
-      tag: DDS
-      operationId: UpdatePort
-  /v3/{project_id}/instances/{serverID}:
-    delete:
-      tag: DDS
-      operationId: Delete
-  /v3/{project_id}/instances:
-    get:
-      tag: DDS
-      operationId: List
-    post:
-      tag: DDS
-      operationId: Create
-  /v3/{project_id}/jobs:
-    get:
-      tag: DDS
-      operationId: Get
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v3/{project_id}/instances:
+        GET:
+            tag: DDS
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{id}/tags:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{id}/tags/action:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/backups/policy:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/enlarge:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/enlarge-volume:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/modify-name:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/modify-port:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/modify-security-group:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/reset-password:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/resize:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/switch-ssl:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{serverID}:
+        DELETE:
+            tag: DDS
+    /v3/{project_id}/jobs:
+        GET:
+            tag: DDS

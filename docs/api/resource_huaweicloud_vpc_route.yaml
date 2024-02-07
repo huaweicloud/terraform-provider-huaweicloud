@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_route
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_route
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPC
+    - name: VPC
 paths:
-  /v2.0/vpc/routes/{id}:
-    get:
-      tag: VPC
-      operationId: Get
-  /v1/{project_id}/routetables/{id}:
-    get:
-      tag: VPC
-      operationId: Get
-    put:
-      tag: VPC
-      operationId: Update
-  /v1/{project_id}/routetables:
-    get:
-      tag: VPC
-      operationId: List
+    /v1/{project_id}/routetables:
+        GET:
+            tag: VPC
+    /v1/{project_id}/routetables/{id}:
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC
+    /v2.0/vpc/routes/{id}:
+        GET:
+            tag: VPC

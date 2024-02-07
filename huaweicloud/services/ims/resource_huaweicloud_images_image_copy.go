@@ -23,13 +23,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IMS POST /v1/cloudimages/{imageId}/copy
-// @API IMS POST /v1/cloudimages/{imageId}/cross_region_copy
-// @API IMS PATCH /{project_id}/cloudimages/{imageID}
-// @API IMS GET /{project_id}/image/{id}/tags
-// @API IMS POST /{project_id}/images/{id}/tags/action
-// @API IMS DELETE /{project_id}/images/{imageID}
-// @API IMS PATCH /{project_id}/images/{imageID}
+// @API IMS POST /v1/cloudimages/{image_id}/copy
+// @API IMS POST /v1/cloudimages/{image_id}/cross_region_copy
+// @API IMS GET /v1/{project_id}jobs/{job_id}
+// @API IMS GET /v2/cloudimages
+// @API IMS PATCH /v2/cloudimages/{image_id}
+// @API IMS GET /v2/{project_id}/images/{image_id}/tags
+// @API IMS POST /v2/{project_id}/images/{image_id}/tags/action
+// @API IMS DELETE /v2/images/{image_id}
 func ResourceImsImageCopy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImsImageCopyCreate,

@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_datasource_auths": {
+          "block": {
+            "attributes": {
+              "auths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_location": "string",
+                      "created_at": "string",
+                      "keystore_location": "string",
+                      "keytab": "string",
+                      "krb5_conf": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "truststore_location": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "username": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,22 +1,19 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_nat_dnat_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_nat_dnat_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: NAT
+    - name: NAT
 paths:
-  /v2/{project_id}/dnat_rules:
-    post:
-      tag: NAT
-      operationId: CreateNatGatewayDnatRule
-  /v2/{project_id}/dnat_rules/{id}:
-    get:
-      tag: NAT
-      operationId: ShowNatGatewayDnatRule
-  /v2/{project_id}/nat_gateways/{nat_gateway_id}/dnat_rules/{id}:
-    delete:
-      tag: NAT
-      operationId: DeleteNatGatewayDnatRule
+    /v2/{project_id}/dnat_rules:
+        POST:
+            tag: NAT
+    /v2/{project_id}/dnat_rules/{id}:
+        GET:
+            tag: NAT
+    /v2/{project_id}/nat_gateways/{nat_gateway_id}/dnat_rules/{id}:
+        DELETE:
+            tag: NAT

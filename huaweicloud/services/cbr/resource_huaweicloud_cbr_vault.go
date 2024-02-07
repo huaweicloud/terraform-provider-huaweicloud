@@ -59,16 +59,16 @@ var (
 	}
 )
 
-// @API CBR POST /v3/{project_id}/vaults/{id}/associatepolicy
-// @API CBR POST /v3/{project_id}/vaults/{id}/dissociatepolicy
-// @API CBR POST /v3/{project_id}/vaults/{id}/removeresources
-// @API CBR DELETE /v3/{project_id}/vaults/{id}
-// @API CBR GET /v3/{project_id}/vaults/{id}
-// @API CBR PUT /v3/{project_id}/vaults/{id}
 // @API CBR POST /v3/{project_id}/vaults
+// @API CBR POST /v3/{project_id}/vaults/{vault_id}/associatepolicy
+// @API CBR POST /v3/{project_id}/vaults/{vault_id}/dissociatepolicy
+// @API CBR GET /v3/{project_id}/vaults/{vault_id}
 // @API CBR GET /v3/{project_id}/policies
-// @API CBR POST /v3/{project_id}/vault/{id}/tags/action
-// @API CBR POST /v3/{project_id}/vaults/{id}/addresources
+// @API CBR PUT /v3/{project_id}/vaults/{vault_id}
+// @API CBR POST /v3/{project_id}/vaults/{vault_id}/addresources
+// @API CBR POST /v3/{project_id}/vaults/{vault_id}/removeresources
+// @API CBR POST /v3/{project_id}/vault/{vault_id}/tags/action
+// @API CBR DELETE /v3/{project_id}/vaults/{vault_id}
 func ResourceVault() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVaultCreate,

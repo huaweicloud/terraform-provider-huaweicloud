@@ -15,6 +15,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cdm/v1/clusters"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -28,6 +29,7 @@ func ResourceCdmCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCdmClusterCreate,
 		ReadContext:   resourceCdmClusterRead,
+		UpdateContext: resourceCdmClusterUpdate,
 		DeleteContext: resourceCdmClusterDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -88,7 +90,6 @@ func ResourceCdmCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"is_auto_off": {
@@ -359,6 +360,30 @@ func flattenInstancs(items []clusters.Instance) []map[string]interface{} {
 	}
 
 	return result
+}
+
+func resourceCdmClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	clusterId := d.Id()
+	client, err := cfg.CdmV11Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CDM v1 client, err=%s", err)
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   clusterId,
+			ResourceType: "cdm-clusters",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return resourceCdmClusterRead(ctx, d, meta)
 }
 
 func resourceCdmClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -1,20 +1,17 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_lts_search_criteria
-  description:
+    version: ""
+    title: resource_huaweicloud_lts_search_criteria
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: LTS
+    - name: LTS
 paths:
-  /v1.0/{project_id}/groups/{group_id}/topics/{topic_id}/search-criterias:
-    post:
-      tag: LTS
-      operationId: CreateSearchCriterias
-    get:
-      tag: LTS
-      operationId: ListCriterias
-    delete:
-      tag: LTS
-      operationId: DeleteSearchCriterias
+    /v1.0/{project_id}/groups/{group_id}/topics/{topic_id}/search-criterias:
+        DELETE:
+            tag: LTS
+        GET:
+            tag: LTS
+        POST:
+            tag: LTS

@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_vpcep_services
-  description: 
+    version: ""
+    title: data_source_huaweicloud_vpcep_services
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPCEP
+    - name: VPCEP
 paths:
-  /v1/{project_id}/vpc-endpoint-services:
-    get:
-      tag: VPCEP
-      operationId: ListAllServices
+    /v1/{project_id}/vpc-endpoint-services:
+        GET:
+            tag: VPCEP

@@ -36,6 +36,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "public_ipv6": {
+                "type": "string",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true

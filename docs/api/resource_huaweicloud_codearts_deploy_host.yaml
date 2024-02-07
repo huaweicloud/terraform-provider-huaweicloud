@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_codearts_deploy_host
-    description: Manages a CodeArts deploy host resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CodeArtsDeploy
-servers:
-    - url: https://codearts-deploy.cn-north-4.myhuaweicloud.com
 paths:
     /v2/host-groups/{group_id}/hosts:
         POST:
             tag: CodeArtsDeploy
-            operationId: CreateDeployHost
-            x-ref-api: POST /v2/host-groups/{group_id}/hosts
     /v2/host-groups/{group_id}/hosts/{host_id}:
         DELETE:
             tag: CodeArtsDeploy
-            operationId: DeleteDeployHost
-            x-ref-api: DELETE /v2/host-groups/{group_id}/hosts/{host_id}
         GET:
             tag: CodeArtsDeploy
-            operationId: GetDeployHost
-            x-ref-api: GET /v2/host-groups/{group_id}/hosts/{host_id}
         PUT:
             tag: CodeArtsDeploy
-            operationId: UpdateDeployHost
-            x-ref-api: PUT /v2/host-groups/{group_id}/hosts/{host_id}

@@ -1,26 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_aom_alarm_silence_rule
-    description: Manages an AOM alarm silence rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: AOM
-servers:
-    - url: https://aom.cn-east-3.myhuaweicloud.com
 paths:
     /v2/{project_id}/alert/mute-rules:
         DELETE:
             tag: AOM
-            operationId: DeleteAlarmSilenceRule
-            x-ref-api: DELETE /v2/{project_id}/alert/mute-rules
         GET:
             tag: AOM
-            operationId: GetAlarmSilenceRule
-            x-ref-api: GET /v2/{project_id}/alert/mute-rules
         POST:
             tag: AOM
-            operationId: CreateAlarmSilenceRule
-            x-ref-api: POST /v2/{project_id}/alert/mute-rules
         PUT:
             tag: AOM
-            operationId: UpdateAlarmSilenceRule
-            x-ref-api: PUT /v2/{project_id}/alert/mute-rules

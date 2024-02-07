@@ -1,40 +1,32 @@
 info:
-  version: 
-  title: resource_huaweicloud_smn_topic
-  description: 
+    version: ""
+    title: resource_huaweicloud_smn_topic
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SMN
+    - name: SMN
 paths:
-  /v2/{project_id}/smn_topic/{id}/tags/action:
-    post:
-      tag: SMN
-      operationId: Create
-  /v2/{project_id}/smn_topic/{id}/tags:
-    get:
-      tag: SMN
-      operationId: Get
-  /v2/{project_id}/notifications/topics/{id}/attributes/{policyName}:
-    put:
-      tag: SMN
-      operationId: UpdatePolicies
-  /v2/{project_id}/notifications/topics/{id}/attributes:
-    get:
-      tag: SMN
-      operationId: GetPolicies
-  /v2/{project_id}/notifications/topics/{id}:
-    delete:
-      tag: SMN
-      operationId: Delete
-    get:
-      tag: SMN
-      operationId: Get
-    put:
-      tag: SMN
-      operationId: Update
-  /v2/{project_id}/notifications/topics:
-    post:
-      tag: SMN
-      operationId: Create
+    /v2/{project_id}/notifications/topics:
+        POST:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{id}:
+        DELETE:
+            tag: SMN
+        GET:
+            tag: SMN
+        PUT:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{id}/attributes:
+        GET:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{id}/attributes/{policyName}:
+        PUT:
+            tag: SMN
+    /v2/{project_id}/smn_topic/{id}/tags:
+        GET:
+            tag: SMN
+    /v2/{project_id}/smn_topic/{id}/tags/action:
+        POST:
+            tag: SMN

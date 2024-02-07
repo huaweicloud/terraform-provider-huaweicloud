@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_dli_database
-  description: 
+    version: ""
+    title: resource_huaweicloud_dli_database
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DLI
+    - name: DLI
 paths:
-  /v1.0/{project_id}/databases/{dbName}/owner:
-    put:
-      tag: DLI
-      operationId: UpdateDBOwner
-  /v1.0/{project_id}/databases/{dbName}:
-    delete:
-      tag: DLI
-      operationId: Delete
-  /v1.0/{project_id}/databases:
-    get:
-      tag: DLI
-      operationId: List
-    post:
-      tag: DLI
-      operationId: Create
+    /v1.0/{project_id}/databases:
+        GET:
+            tag: DLI
+        POST:
+            tag: DLI
+    /v1.0/{project_id}/databases/{database_name}:
+        DELETE:
+            tag: DLI
+    /v1.0/{project_id}/databases/{database_name}/owner:
+        PUT:
+            tag: DLI

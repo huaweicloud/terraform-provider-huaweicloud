@@ -24,6 +24,11 @@
               "parent_id": {
                 "type": "string",
                 "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               }
             }
           },

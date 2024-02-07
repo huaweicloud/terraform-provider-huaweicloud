@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_as_lifecycle_hook
-  description: 
+    version: ""
+    title: resource_huaweicloud_as_lifecycle_hook
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AS
+    - name: AS
 paths:
-  /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}/{hookName}:
-    delete:
-      tag: AS
-      operationId: Delete
-    get:
-      tag: AS
-      operationId: Get
-    put:
-      tag: AS
-      operationId: Update
-  /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}:
-    post:
-      tag: AS
-      operationId: Create
+    /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}:
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_lifecycle_hook/{groupID}/{hookName}:
+        DELETE:
+            tag: AS
+        GET:
+            tag: AS
+        PUT:
+            tag: AS

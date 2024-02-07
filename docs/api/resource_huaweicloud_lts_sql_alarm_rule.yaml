@@ -1,32 +1,23 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_sql_alarm_rule
-    description: Manages an LTS SQL alarm rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/lts/alarms/sql-alarm-rule:
         GET:
             tag: LTS
-            operationId: GetSqlAlarmRule
-            x-ref-api: GET /v2/{project_id}/lts/alarms/sql-alarm-rule
         POST:
             tag: LTS
-            operationId: CreateSqlAlarmRule
-            x-ref-api: POST /v2/{project_id}/lts/alarms/sql-alarm-rule
         PUT:
             tag: LTS
-            operationId: UpdateSqlAlarmRule
-            x-ref-api: PUT /v2/{project_id}/lts/alarms/sql-alarm-rule
     /v2/{project_id}/lts/alarms/sql-alarm-rule/{id}:
         DELETE:
             tag: LTS
-            operationId: DeleteSqlAlarmRule
-            x-ref-api: DELETE /v2/{project_id}/lts/alarms/sql-alarm-rule/{id}
     /v2/{project_id}/lts/alarms/status:
         PUT:
             tag: LTS
-            operationId: UpdateSqlAlarmRuleStatus
-            x-ref-api: PUT /v2/{project_id}/lts/alarms/status

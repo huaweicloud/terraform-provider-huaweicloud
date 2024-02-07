@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_modelarts_model
-    description: 'Manages a Modelarts model resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: ModelArts
-servers:
-    - url: https://dws.myhuaweicloud.com
 paths:
     /v1/{project_id}/models:
         POST:
             tag: ModelArts
-            operationId: CreateModel
-            x-ref-api: POST /v1/{project_id}/models
     /v1/{project_id}/models/{id}:
         DELETE:
             tag: ModelArts
-            operationId: DeleteModel
-            x-ref-api: DELETE /v1/{project_id}/models/{id}
         GET:
             tag: ModelArts
-            operationId: CreateModelWaiting
-            x-ref-api: GET /v1/{project_id}/models/{id}

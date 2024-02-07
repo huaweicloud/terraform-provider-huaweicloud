@@ -1,29 +1,24 @@
 info:
-  version: 
-  title: resource_huaweicloud_nat_snat_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_nat_snat_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: NAT
+    - name: NAT
 paths:
-  /v2/{project_id}/nat_gateways/{gatewayId}/snat_rules/{ruleId}:
-    delete:
-      tag: NAT
-      operationId: Delete
-  /v2/{project_id}/snat_rules/{ruleId}:
-    get:
-      tag: NAT
-      operationId: Get
-    put:
-      tag: NAT
-      operationId: Update
-  /v2/{project_id}/snat_rules:
-    post:
-      tag: NAT
-      operationId: Create
-  /v1/{project_id}/publicips/{id}:
-    get:
-      tag: EIP
-      operationId: Get
+    /v1/{project_id}/publicips/{id}:
+        GET:
+            tag: EIP
+    /v2/{project_id}/nat_gateways/{gatewayId}/snat_rules/{ruleId}:
+        DELETE:
+            tag: NAT
+    /v2/{project_id}/snat_rules:
+        POST:
+            tag: NAT
+    /v2/{project_id}/snat_rules/{ruleId}:
+        GET:
+            tag: NAT
+        PUT:
+            tag: NAT

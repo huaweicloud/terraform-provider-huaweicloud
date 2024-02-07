@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_iec_vpc
-  description: 
+    version: ""
+    title: data_source_huaweicloud_iec_vpc
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/vpcs:
-    get:
-      tag: IEC
-      operationId: List
+    /v1/vpcs:
+        GET:
+            tag: IEC

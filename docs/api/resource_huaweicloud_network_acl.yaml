@@ -1,43 +1,34 @@
 info:
-  version: 
-  title: resource_huaweicloud_network_acl
-  description: 
+    version: ""
+    title: resource_huaweicloud_network_acl
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPC
+    - name: VPC
 paths:
-  /v2.0/fwaas/firewall_groups/{id}:
-    delete:
-      tag: VPC
-      operationId: Delete
-    get:
-      tag: VPC
-      operationId: Get
-    put:
-      tag: VPC
-      operationId: Update
-  /v2.0/fwaas/firewall_groups:
-    post:
-      tag: VPC
-      operationId: Create
-  /v2.0/fwaas/firewall_policies/{id}:
-    delete:
-      tag: VPC
-      operationId: Delete
-    put:
-      tag: VPC
-      operationId: Update
-  /v2.0/fwaas/firewall_policies:
-    post:
-      tag: VPC
-      operationId: Create
-  /v2.0/ports:
-    get:
-      tag: VPC
-      operationId: List
-  /v1/{project_id}/subnets/{id}:
-    get:
-      tag: VPC
-      operationId: Get
+    /v1/{project_id}/subnets/{id}:
+        GET:
+            tag: VPC
+    /v2.0/fwaas/firewall_groups:
+        POST:
+            tag: VPC
+    /v2.0/fwaas/firewall_groups/{id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC
+    /v2.0/fwaas/firewall_policies:
+        POST:
+            tag: VPC
+    /v2.0/fwaas/firewall_policies/{id}:
+        DELETE:
+            tag: VPC
+        PUT:
+            tag: VPC
+    /v2.0/ports:
+        GET:
+            tag: VPC

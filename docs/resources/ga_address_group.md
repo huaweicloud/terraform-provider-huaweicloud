@@ -10,6 +10,9 @@ Manages a GA IP address group resource within HuaweiCloud.
 
 ```hcl
 variable "name" {}
+variable "listener_id" {}
+variable "access_type" {}
+
 
 resource "huaweicloud_ga_address_group" "test" {
   name        = var.name
@@ -18,6 +21,11 @@ resource "huaweicloud_ga_address_group" "test" {
   ip_addresses {
     cidr        = "192.168.1.0/24"
     description = "The IP addresses included in the address group"
+  }
+
+  listeners {
+    id   = var.listener_id
+    type = var.access_type
   }
 }
 ```
@@ -30,15 +38,28 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the IP address group.
 
-* `ip_addresses` - (Optional, List, ForceNew) Specifies the list of CIDR block configurations of the IP address group.
+* `ip_addresses` - (Optional, List) Specifies the list of CIDR block configurations of the IP address group.
   The [ip_addresses](#address_group_ip_addresses) structure is documented below.
+
+* `listeners` - (Optional, List) Specifies the listener associated with the IP address group.
+  The [listeners](#address_group_associated_listeners) structure is documented below.
 
 <a name="address_group_ip_addresses"></a>
 The `ip_addresses` block supports:
 
-* `cidr` - (Required, String, ForceNew) Specifies the CIDR block associated with the IP address group.
+* `cidr` - (Required, String) Specifies the CIDR block associated with the IP address group.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the associated CIDR block.
+* `description` - (Optional, String) Specifies the description of the associated CIDR block.
+
+<a name="address_group_associated_listeners"></a>
+The `listeners` block supports:
+
+* `id` - (Required, String) Specifies the ID of the listener associated with the IP address group.
+
+* `type` - (Required, String) Specifies the listener type associated with the IP address group.
+  The value can be one of the following:
+  + **BLACK**: The blacklsit.
+  + **WHITE**: The whitelist.
 
 ## Attribute Reference
 
@@ -56,29 +77,18 @@ In addition to all arguments above, the following attributes are exported:
 * `ip_addresses` - The list of CIDR block configurations of the IP address group.
   The [ip_addresses](#address_group_ip_addresses_attr) structure is documented below.
 
-* `listeners` - The listener associated with the IP address group.
-  The [listeners](#address_group_associated_listeners) structure is documented below.
-
 <a name="address_group_ip_addresses_attr"></a>
 The `ip_addresses` block supports:
 
 * `created_at` - The creation time of the CIDR block associated with the IP address group.
 
-<a name="address_group_associated_listeners"></a>
-The `listeners` block supports:
-
-* `id` - The ID of the listener associated with the IP address group.
-
-* `type` - The listener type associated with the IP address group.
-  + **BLACK**: The blacklsit.
-  + **WHITE**: The whitelist.
-
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 3 minutes.
-* `delete` - Default is 3 minutes.
+* `create` - Default is 5 minutes.
+* `update` - Default is 5 minutes.
+* `delete` - Default is 5 minutes.
 
 ## Import
 

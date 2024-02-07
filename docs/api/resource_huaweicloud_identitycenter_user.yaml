@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_identitycenter_user
-    description: Manages an Identity Center user resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: IdentityCenter
-servers:
-    - url: https://identitystore.cn-north-4.myhuaweicloud.com
+    - name: IdentityStore
 paths:
     /v1/identity-stores/{identity_store_id}/users:
         POST:
             tag: IdentityStore
-            operationId: CreateIdentityCenterUser
-            x-ref-api: POST /v1/identity-stores/{identity_store_id}/users
     /v1/identity-stores/{identity_store_id}/users/{user_id}:
         DELETE:
             tag: IdentityStore
-            operationId: DeleteIdentityCenterUser
-            x-ref-api: DELETE /v1/identity-stores/{identity_store_id}/users/{user_id}
         GET:
             tag: IdentityStore
-            operationId: GetIdentityCenterUser
-            x-ref-api: GET /v1/identity-stores/{identity_store_id}/users/{user_id}
         PUT:
             tag: IdentityStore
-            operationId: UpdateIdentityCenterUser
-            x-ref-api: PUT /v1/identity-stores/{identity_store_id}/users/{user_id}

@@ -1,24 +1,34 @@
 info:
+    version: ""
     title: resource_huaweicloud_dbss_instance
-    description: Manages a DBSS instance resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DBSS
-servers:
-    - url: https://dbss.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/dbss/audit/instances:
         GET:
             tag: DBSS
-            operationId: GetInstance
-            x-ref-api: GET /v1/{project_id}/dbss/audit/instances
     /v1/{project_id}/dbss/audit/jobs/{resource_id}:
         GET:
             tag: DBSS
-            operationId: CreateInstaceWaiting
-            x-ref-api: GET /v1/{project_id}/dbss/audit/jobs/{resource_id}
     /v2/{project_id}/dbss/audit/charge/period/order:
         POST:
             tag: DBSS
-            operationId: CreateInstance
-            x-ref-api: POST /v2/{project_id}/dbss/audit/charge/period/order
+    /v2/bills/ratings/period-resources/subscribe-rate:
+        POST:
+            tag: BSS
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v3/orders/customer-orders/pay:
+        POST:
+            tag: BSS

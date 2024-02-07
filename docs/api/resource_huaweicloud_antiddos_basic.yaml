@@ -1,37 +1,30 @@
 info:
-  version: 
-  title: resource_huaweicloud_antiddos_basic
-  description: 
+    version: ""
+    title: resource_huaweicloud_antiddos_basic
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Anti-DDoS
+    - name: Anti-DDoS
 paths:
-  /v1/{project_id}/antiddos/{floatingIpId}/status:
-    get:
-      tag: Anti-DDoS
-      operationId: GetStatus
-  /v1/{project_id}/antiddos/{floatingIpId}:
-    get:
-      tag: Anti-DDoS
-      operationId: Get
-    put:
-      tag: Anti-DDoS
-      operationId: Update
-  /v1/{project_id}/antiddos:
-    get:
-      tag: Anti-DDoS
-      operationId: ListStatus
-  /v2/{project_id}/warnalert/alertconfig/query:
-    get:
-      tag: Anti-DDoS
-      operationId: GetWarnAlert
-  /v2/{project_id}/warnalert/alertconfig/update:
-    post:
-      tag: Anti-DDoS
-      operationId: UpdateWarnAlert
-  /v1/{project_id}/publicips/{id}:
-    get:
-      tag: EIP
-      operationId: Get
+    /v1/{project_id}/antiddos:
+        GET:
+            tag: Anti-DDoS
+    /v1/{project_id}/antiddos/{floating_ip_id}:
+        GET:
+            tag: Anti-DDoS
+        PUT:
+            tag: Anti-DDoS
+    /v1/{project_id}/antiddos/{floating_ip_id}/status:
+        GET:
+            tag: Anti-DDoS
+    /v1/{project_id}/publicips/{publicip_id}:
+        GET:
+            tag: EIP
+    /v2/{project_id}/warnalert/alertconfig/query:
+        GET:
+            tag: Anti-DDoS
+    /v2/{project_id}/warnalert/alertconfig/update:
+        POST:
+            tag: Anti-DDoS

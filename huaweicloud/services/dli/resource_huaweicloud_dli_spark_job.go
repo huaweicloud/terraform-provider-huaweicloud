@@ -20,10 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DLI GET /v2.0/{project_id}/batches/{batchId}/state
-// @API DLI GET /v2.0/{project_id}/batches/{batchId}
-// @API DLI DELETE /v2.0/{project_id}/batches/{batchId}
 // @API DLI POST /v2.0/{project_id}/batches
+// @API DLI GET /v2.0/{project_id}/batches/{batch_id}
+// @API DLI GET /v2.0/{project_id}/batches/{batch_id}/state
+// @API DLI DELETE /v2.0/{project_id}/batches/{batch_id}
 func ResourceDliSparkJobV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliSparkJobCreate,

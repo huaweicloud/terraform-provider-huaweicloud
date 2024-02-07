@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_cnad_advanced_protected_objects
-    description: Use this data source to get the list of CNAD advanced protected objects.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: CNAD
-servers:
-    - url: https://aad.myhuaweicloud.com
+    - name: AAD
 paths:
     /v1/cnad/protected-ips:
         GET:
-            tag: CNAD
-            operationId: GetProtectedObjects
-            x-ref-api: GET /v1/cnad/protected-ips
+            tag: AAD

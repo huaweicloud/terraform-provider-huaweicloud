@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_host_access
-    description: Manages an LTS host group resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/lts/access-config:
         DELETE:
             tag: LTS
-            operationId: DeleteHostAccessConfig
-            x-ref-api: DELETE /v3/{project_id}/lts/access-config
         POST:
             tag: LTS
-            operationId: CreateHostAccessConfig
-            x-ref-api: POST /v3/{project_id}/lts/access-config
         PUT:
             tag: LTS
-            operationId: UpdateHostAccessConfig
-            x-ref-api: PUT /v3/{project_id}/lts/access-config
     /v3/{project_id}/lts/access-config-list:
         POST:
             tag: LTS
-            operationId: ListHostAccessConfig
-            x-ref-api: POST /v3/{project_id}/lts/access-config-list

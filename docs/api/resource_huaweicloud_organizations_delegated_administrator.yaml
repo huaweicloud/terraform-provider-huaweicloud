@@ -1,24 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_organizations_delegated_administrator
-    description: Manages an Organizations delegated administrator resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Organizations
-servers:
-    - url: https://organizations.cn-north-4.myhuaweicloud.com
 paths:
     /v1/organizations/delegated-administrators:
         GET:
             tag: Organizations
-            operationId: GetDelegatedAdministrator
-            x-ref-api: GET /v1/organizations/delegated-administrators
     /v1/organizations/delegated-administrators/deregister:
         POST:
             tag: Organizations
-            operationId: DeleteDelegatedAdministrator
-            x-ref-api: POST /v1/organizations/delegated-administrators/deregister
     /v1/organizations/delegated-administrators/register:
         POST:
             tag: Organizations
-            operationId: CreateDelegatedAdministrator
-            x-ref-api: POST /v1/organizations/delegated-administrators/register

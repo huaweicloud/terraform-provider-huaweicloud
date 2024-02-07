@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_mapreduce_versions
-    description: Use this data source to get available cluster versions of MapReduce.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: MRS
-servers:
-    - url: https://mrs.myhuaweicloud.com
 paths:
     /v2/{project_id}/metadata/versions:
         GET:
             tag: MRS
-            operationId: GetVersions
-            x-ref-api: GET /v2/{project_id}/metadata/versions

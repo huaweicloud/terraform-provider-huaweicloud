@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ram_shared_resources": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "principal": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "resource_owner": {
+                "type": "string",
+                "required": true
+              },
+              "resource_region": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_share_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "resource_type": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_urns": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "shared_resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "resource_share_id": "string",
+                      "resource_type": "string",
+                      "resource_urn": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

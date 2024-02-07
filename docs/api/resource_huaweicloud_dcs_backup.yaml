@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_dcs_backup
-    description: Manages a DCS backup resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DCS
-servers:
-    - url: https://dcs.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/instances/{instance_id}/backups:
         GET:
             tag: DCS
-            operationId: GetBackup
-            x-ref-api: GET /v2/{project_id}/instances/{instance_id}/backups
         POST:
             tag: DCS
-            operationId: CreateBackup
-            x-ref-api: POST /v2/{project_id}/instances/{instance_id}/backups
     /v2/{project_id}/instances/{instance_id}/backups/{backup_id}:
         DELETE:
             tag: DCS
-            operationId: DeleteBackup
-            x-ref-api: DELETE /v2/{project_id}/instances/{instance_id}/backups/{backup_id}

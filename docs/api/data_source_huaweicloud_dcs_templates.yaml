@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_dcs_templates
-    description: Use this data source to get the list of DCS templates.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DCS
-servers:
-    - url: https://dcs.cn-north-4.myhuaweicloud.com/
 paths:
     /v2/{project_id}/config-templates:
         GET:
             tag: DCS
-            operationId: GetDcsTemplates
-            x-ref-api: GET /v2/{project_id}/config-templates

@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_dms_product
-  description: 
+    version: ""
+    title: data_source_huaweicloud_dms_product
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DMS
+    - name: DMS
 paths:
-  /v2/products:
-    get:
-      tag: DMS
-      operationId: Get
+    /v2/products:
+        GET:
+            tag: DMS

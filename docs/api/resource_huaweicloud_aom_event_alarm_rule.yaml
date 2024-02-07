@@ -1,26 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_aom_event_alarm_rule
-    description: Manages an AOM event alarm rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: AOM
-servers:
-    - url: https://aom.cn-east-3.myhuaweicloud.com
 paths:
     /v2/{project_id}/event2alarm-rule:
         DELETE:
             tag: AOM
-            operationId: DeleteEventAlarmRule
-            x-ref-api: DELETE /v2/{project_id}/event2alarm-rule
         GET:
             tag: AOM
-            operationId: GetEventAlarmRule
-            x-ref-api: GET /v2/{project_id}/event2alarm-rule
         POST:
             tag: AOM
-            operationId: CreateEventAlarmRule
-            x-ref-api: POST /v2/{project_id}/event2alarm-rule
         PUT:
             tag: AOM
-            operationId: UpdateEventAlarmRule
-            x-ref-api: PUT /v2/{project_id}/event2alarm-rule

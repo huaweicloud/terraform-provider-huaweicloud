@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_api_publishment
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_api_publishment
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/apis/action:
-    post:
-      tag: APIG
-      operationId: Publish
-  /v2/{project_id}/apigw/instances/{instanceId}/apis/publish/{apiId}:
-    get:
-      tag: APIG
-      operationId: ListPublishHistories
-    put:
-      tag: APIG
-      operationId: SwitchSpecVersion
-  /v2/{project_id}/apigw/instances/{instanceId}/apis/{apiId}:
-    get:
-      tag: APIG
-      operationId: Get
+    /v2/{project_id}/apigw/instances/{instanceId}/apis/{apiId}:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/apis/action:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/apis/publish/{apiId}:
+        GET:
+            tag: APIG
+        PUT:
+            tag: APIG

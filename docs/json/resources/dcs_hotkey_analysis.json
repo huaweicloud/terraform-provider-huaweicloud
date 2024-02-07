@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_hotkey_analysis": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time of the hot key analysis.",
+                "computed": true
+              },
+              "finished_at": {
+                "type": "string",
+                "description": "Indicates the time when the hot key analysis ended.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "keys": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "db": "number",
+                      "freq": "number",
+                      "name": "string",
+                      "shard": "string",
+                      "size": "number",
+                      "type": "string",
+                      "unit": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "num": {
+                "type": "number",
+                "description": "Indicates the number of the hot key.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scan_type": {
+                "type": "string",
+                "description": "Indicates the mode of the hot key analysis.",
+                "computed": true
+              },
+              "started_at": {
+                "type": "string",
+                "description": "Indicates the time when the hot key analysis started.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the hot key analysis.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -58,13 +58,12 @@ func desktopVolumeSchemaResource() *schema.Resource {
 
 // @API Workspace POST /v2/{project_id}/desktops/rebuild
 // @API Workspace POST /v2/{project_id}/desktops/resize
-// @API Workspace GET /v2/{project_id}/desktops/{desktopId}
-// @API Workspace DELETE /v2/{project_id}/desktops/{desktopId}
+// @API Workspace GET /v2/{project_id}/desktops/{desktop_id}
+// @API Workspace DELETE /v2/{project_id}/desktops/{desktop_id}
 // @API Workspace POST /v2/{project_id}/desktops/{id}/tags/action
-// @API Workspace GET /v2/{project_id}/users
 // @API Workspace POST /v2/{project_id}/volumes
-// @API Workspace GET /v2/{project_id}/desktops/{desktopId}/networks
-// @API Workspace PUT /v2/{project_id}/desktops/{desktopId}/networks
+// @API Workspace GET /v2/{project_id}/desktops/{desktop_id}/networks
+// @API Workspace PUT /v2/{project_id}/desktops/{desktop_id}/networks
 // @API Workspace POST /v2/{project_id}/desktops
 // @API Workspace POST /v2/{project_id}/volumes/expand
 // @API Workspace GET /v2/{project_id}/workspace-sub-jobs

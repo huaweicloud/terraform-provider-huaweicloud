@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_lb_pool
-  description: 
+    version: ""
+    title: resource_huaweicloud_lb_pool
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ELB
+    - name: ELB
 paths:
-  /v2/{project_id}/elb/pools/{id}:
-    delete:
-      tag: ELB
-      operationId: Delete
-    get:
-      tag: ELB
-      operationId: Get
-    put:
-      tag: ELB
-      operationId: Update
-  /v2/{project_id}/elb/pools:
-    post:
-      tag: ELB
-      operationId: Create
+    /v2/{project_id}/elb/pools:
+        POST:
+            tag: ELB
+    /v2/{project_id}/elb/pools/{id}:
+        DELETE:
+            tag: ELB
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB

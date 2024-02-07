@@ -1,22 +1,17 @@
 info:
+    version: ""
     title: resource_huaweicloud_gaussdb_mysql_sql_control_rule
-    description: Manages a GaussDB MySQL SQL concurrency control rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GaussDB
-servers:
-    - url: https://gaussdb.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/instances/{instance_id}/sql-filter/rules:
         DELETE:
             tag: GaussDB
-            operationId: DeleteGaussDBSqlControlRule
-            x-ref-api: DELETE /v3/{project_id}/instances/{instance_id}/sql-filter/rules
         GET:
             tag: GaussDB
-            operationId: GetGaussDBSqlControlRule
-            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/sql-filter/rules
         PUT:
             tag: GaussDB
-            operationId: CreateGaussDBSqlControlRule
-            x-ref-api: PUT /v3/{project_id}/instances/{instance_id}/sql-filter/rules

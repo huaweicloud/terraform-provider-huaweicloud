@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_iec_network_acl
-  description: 
+    version: ""
+    title: resource_huaweicloud_iec_network_acl
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/firewalls/{firewallId}:
-    delete:
-      tag: IEC
-      operationId: Delete
-    get:
-      tag: IEC
-      operationId: Get
-    put:
-      tag: IEC
-      operationId: Update
-  /v1/firewalls:
-    post:
-      tag: IEC
-      operationId: Create
+    /v1/firewalls:
+        POST:
+            tag: IEC
+    /v1/firewalls/{firewallId}:
+        DELETE:
+            tag: IEC
+        GET:
+            tag: IEC
+        PUT:
+            tag: IEC

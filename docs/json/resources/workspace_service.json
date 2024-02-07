@@ -67,6 +67,22 @@
                 "optional": true,
                 "computed": true
               },
+              "is_locked": {
+                "type": "number",
+                "computed": true
+              },
+              "lock_enabled": {
+                "type": "bool",
+                "optional": true
+              },
+              "lock_reason": {
+                "type": "string",
+                "computed": true
+              },
+              "lock_time": {
+                "type": "string",
+                "computed": true
+              },
               "management_subnet_cidr": {
                 "type": "string",
                 "optional": true,

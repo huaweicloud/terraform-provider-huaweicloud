@@ -20,10 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CBR GET /v3/{project_id}/checkpoints/{checkpointId}
 // @API CBR POST /v3/{project_id}/checkpoints
-// @API CBR DELETE /v3/{project_id}/backups/{backupId}
+// @API CBR GET /v3/{project_id}/checkpoints/{checkpoint_id}
 // @API CBR GET /v3/{project_id}/backups
+// @API CBR DELETE /v3/{project_id}/backups/{backup_id}
 func ResourceCheckpoint() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCheckpointCreate,

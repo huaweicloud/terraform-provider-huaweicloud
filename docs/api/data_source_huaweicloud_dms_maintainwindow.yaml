@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_dms_maintainwindow
-  description: 
+    version: ""
+    title: data_source_huaweicloud_dms_maintainwindow
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DMS
+    - name: DMS
 paths:
-  /v2/instances/maintain-windows:
-    get:
-      tag: DMS
-      operationId: Get
+    /v2/instances/maintain-windows:
+        GET:
+            tag: DMS

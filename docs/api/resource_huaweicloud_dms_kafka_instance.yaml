@@ -1,48 +1,55 @@
 info:
-  version: 
-  title: resource_huaweicloud_dms_kafka_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_dms_kafka_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Kafka
+    - name: Kafka
 paths:
-  /v2/available-zones:
-    get:
-      tag: Kafka
-      operationId: Get
-  /v2/{project_id}/instances/{id}/autotopic:
-    post:
-      tag: Kafka
-      operationId: UpdateAutoTopic
-  /v2/{project_id}/instances/{id}/crossvpc/modify:
-    post:
-      tag: Kafka
-      operationId: UpdateCrossVpc
-  /v2/{project_id}/instances/{id}/extend:
-    post:
-      tag: Kafka
-      operationId: Resize
-  /v2/{project_id}/instances/{id}/password:
-    post:
-      tag: Kafka
-      operationId: ResetPassword
-  /v2/{project_id}/instances/{id}:
-    delete:
-      tag: Kafka
-      operationId: Delete
-    get:
-      tag: Kafka
-      operationId: Get
-    put:
-      tag: Kafka
-      operationId: Update
-  /v2/{project_id}/instances:
-    post:
-      tag: Kafka
-      operationId: Create
-  /v2/{project_id}/{resourceType}/{id}/tags:
-    get:
-      tag: Kafka
-      operationId: Get
+    /v2/{project_id}/instances:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}:
+        DELETE:
+            tag: Kafka
+        GET:
+            tag: Kafka
+        PUT:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/autotopic:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/crossvpc/modify:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/extend:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/password:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/tasks:
+        GET:
+            tag: Kafka
+    /v2/{project_id}/kafka/{instance_id}/tags:
+        GET:
+            tag: Kafka
+    /v2/{project_id}/kafka/{instance_id}/tags/action:
+        POST:
+            tag: Kafka
+    /v2/available-zones:
+        GET:
+            tag: Kafka
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS

@@ -1,123 +1,90 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_obs_bucket
-  description:
+    version: ""
+    title: resource_huaweicloud_obs_bucket
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: OBS
+    - name: OBS
 paths:
-  /:
-    put:
-      tag: OBS
-      operationId: CreateBucket
-    head:
-      tag: OBS
-      operationId: HeadBucket
-    delete:
-      tag: OBS
-      operationId: DeleteBucket
-  ?tagging:
-    put:
-      tag: OBS
-      operationId: SetBucketTagging
-    get:
-      tag: OBS
-      operationId: GetBucketTagging
-  ?acl:
-    put:
-      tag: OBS
-      operationId: SetBucketAcl
-  ?policy:
-    put:
-      tag: OBS
-      operationId: SetBucketPolicy
-    delete:
-      tag: OBS
-      operationId: DeleteBucketPolicy
-    get:
-      tag: OBS
-      operationId: GetBucketPolicy
-  ?storageClass:
-    put:
-      tag: OBS
-      operationId: SetBucketStoragePolicy
-    get:
-      tag: OBS
-      operationId: GetBucketStoragePolicy
-  ?versioning:
-    put:
-      tag: OBS
-      operationId: SetBucketVersioning
-    get:
-      tag: OBS
-      operationId: GetBucketVersioning
-  ?encryption:
-    put:
-      tag: OBS
-      operationId: SetBucketEncryption
-    delete:
-      tag: OBS
-      operationId: DeleteBucketEncryption
-    get:
-      tag: OBS
-      operationId: GetBucketEncryption
-  ?logging:
-    put:
-      tag: OBS
-      operationId: SetBucketLoggingConfiguration
-    get:
-      tag: OBS
-      operationId: GetBucketLoggingConfiguration
-  ?quota:
-    put:
-      tag: OBS
-      operationId: SetBucketQuota
-    get:
-      tag: OBS
-      operationId: GetBucketQuota
-  ?lifecycle:
-    delete:
-      tag: OBS
-      operationId: DeleteBucketLifecycleConfiguration
-    put:
-      tag: OBS
-      operationId: SetBucketLifecycleConfiguration
-    get:
-      tag: OBS
-      operationId: GetBucketLifecycleConfiguration
-  ?cors:
-    delete:
-      tag: OBS
-      operationId: DeleteBucketCors
-    put:
-      tag: OBS
-      operationId: SetBucketCors
-    get:
-      tag: OBS
-      operationId: GetBucketCors
-  ?website:
-    put:
-      tag: OBS
-      operationId: SetBucketWebsiteConfiguration
-    delete:
-      tag: OBS
-      operationId: DeleteBucketWebsiteConfiguration
-    get:
-      tag: OBS
-      operationId: GetBucketWebsiteConfiguration
-  ?customdomain:
-    put:
-      tag: OBS
-      operationId: SetBucketCustomDomain
-    delete:
-      tag: OBS
-      operationId: DeleteBucketCustomDomain
-    get:
-      tag: OBS
-      operationId: GetBucketCustomDomain
-  ?delete:
-    post:
-      tag: OBS
-      operationId: DeleteObjects
+    /:
+        DELETE:
+            tag: OBS
+        HEAD:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?acl:
+        PUT:
+            tag: OBS
+    ?cors:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?customdomain:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?delete:
+        POST:
+            tag: OBS
+    ?encryption:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?lifecycle:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?logging:
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?policy:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?quota:
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?storageClass:
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?tagging:
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?versioning:
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS
+    ?website:
+        DELETE:
+            tag: OBS
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS

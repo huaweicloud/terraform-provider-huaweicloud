@@ -34,7 +34,8 @@
               },
               "prom_version": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",

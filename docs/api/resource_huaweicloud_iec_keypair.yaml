@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_iec_keypair
-  description: 
+    version: ""
+    title: resource_huaweicloud_iec_keypair
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/os-keypairs/{KeyPairName}:
-    delete:
-      tag: IEC
-      operationId: Delete
-    get:
-      tag: IEC
-      operationId: Get
-  /v1/os-keypairs:
-    post:
-      tag: IEC
-      operationId: Create
+    /v1/os-keypairs:
+        POST:
+            tag: IEC
+    /v1/os-keypairs/{KeyPairName}:
+        DELETE:
+            tag: IEC
+        GET:
+            tag: IEC

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dli_template_flink
-    description: 'Manages a DLI Flink template resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DLI
-servers:
-    - url: https://dli.myhuaweicloud.com
 paths:
     /v1.0/{project_id}/streaming/job-templates:
         GET:
             tag: DLI
-            operationId: GetFlinkTemplate
-            x-ref-api: GET /v1.0/{project_id}/streaming/job-templates
         POST:
             tag: DLI
-            operationId: CreateFlinkTemplate
-            x-ref-api: POST /v1.0/{project_id}/streaming/job-templates
     /v1.0/{project_id}/streaming/job-templates/{id}:
         DELETE:
             tag: DLI
-            operationId: DeleteFlinkTemplate
-            x-ref-api: DELETE /v1.0/{project_id}/streaming/job-templates/{id}
         PUT:
             tag: DLI
-            operationId: UpdateFlinkTemplate
-            x-ref-api: PUT /v1.0/{project_id}/streaming/job-templates/{id}

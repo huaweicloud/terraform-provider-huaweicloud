@@ -18,3 +18,15 @@ paths:
             tag: GA
         PUT:
             tag: GA
+    /v1/ip-groups/{ip_group_id}/add-ips:
+        POST:
+            tag: GA
+    /v1/ip-groups/{ip_group_id}/associate-listener:
+        POST:
+            tag: GA
+    /v1/ip-groups/{ip_group_id}/disassociate-listener:
+        POST:
+            tag: GA
+    /v1/ip-groups/{ip_group_id}/remove-ips:
+        POST:
+            tag: GA

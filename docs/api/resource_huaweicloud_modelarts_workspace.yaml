@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_modelarts_workspace
-    description: 'Manages a Modelarts workspace resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: ModelArts
-servers:
-    - url: https://dws.myhuaweicloud.com
 paths:
     /v1/{project_id}/workspaces:
         POST:
             tag: ModelArts
-            operationId: CreateWorkspace
-            x-ref-api: POST /v1/{project_id}/workspaces
     /v1/{project_id}/workspaces/{id}:
         DELETE:
             tag: ModelArts
-            operationId: DeleteWorkspace
-            x-ref-api: DELETE /v1/{project_id}/workspaces/{id}
         GET:
             tag: ModelArts
-            operationId: CreateWorkspaceWaiting
-            x-ref-api: GET /v1/{project_id}/workspaces/{id}
         PUT:
             tag: ModelArts
-            operationId: UpdateWorkspace
-            x-ref-api: PUT /v1/{project_id}/workspaces/{id}

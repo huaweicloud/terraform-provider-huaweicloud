@@ -1,48 +1,38 @@
 info:
-  version: 
-  title: resource_huaweicloud_cce_node
-  description: 
+    version: ""
+    title: resource_huaweicloud_cce_node
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCE
+    - name: CCE
 paths:
-  /v1/{project_id}/cloudservers/{id}/os-reset-password:
-    put:
-      tag: ECS
-      operationId: ChangeAdminPassword
-  /v1/{project_id}/cloudservers/{id}/tags/action:
-    POST:
-      tag: ECS
-      operationId: batchUpdate
-  /v1/{project_id}/cloudservers/{id}/tags:
-    get:
-      tag: ECS
-      operationId: Get
-  /v1/{project_id}/cloudservers/{serverID}:
-    get:
-      tag: ECS
-      operationId: Get
-  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove:
-    put:
-      tag: CCE
-      operationId: Remove
-  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{nodeid}:
-    delete:
-      tag: CCE
-      operationId: Delete
-    get:
-      tag: CCE
-      operationId: Get
-    put:
-      tag: CCE
-      operationId: Update
-  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes:
-    post:
-      tag: CCE
-      operationId: Create
-  /api/v3/projects/{project_id}/jobs/{jobid}:
-    get:
-      tag: CCE
-      operationId: GetJobDetails
+    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{nodeid}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove:
+        PUT:
+            tag: CCE
+    /api/v3/projects/{project_id}/jobs/{jobid}:
+        GET:
+            tag: CCE
+    /v1/{project_id}/cloudservers/{id}/os-reset-password:
+        PUT:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{id}/tags:
+        GET:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{id}/tags/action:
+        POST:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{serverID}:
+        GET:
+            tag: ECS

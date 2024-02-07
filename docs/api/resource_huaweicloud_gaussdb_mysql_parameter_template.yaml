@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_gaussdb_mysql_parameter_template
-    description: Manages a GaussDB mysql parameter template resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GaussDB
-servers:
-    - url: https://gaussdb.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/configurations:
         POST:
             tag: GaussDB
-            operationId: CreateGaussDBParameterTemplate
-            x-ref-api: POST /v3/{project_id}/configurations
     /v3/{project_id}/configurations/{configuration_id}:
         DELETE:
             tag: GaussDB
-            operationId: DeleteGaussDBParameterTemplate
-            x-ref-api: DELETE /v3/{project_id}/configurations/{configuration_id}
         GET:
             tag: GaussDB
-            operationId: GetGaussDBParameterTemplate
-            x-ref-api: GET /v3/{project_id}/configurations/{configuration_id}
         PUT:
             tag: GaussDB
-            operationId: UpdateGaussDBParameterTemplate
-            x-ref-api: PUT /v3/{project_id}/configurations/{configuration_id}

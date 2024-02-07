@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_mapreduce_clusters
-    description: Use this data source to get clusters of MapReduce.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: MRS
-servers:
-    - url: https://mrs.myhuaweicloud.com
 paths:
     /v1.1/{project_id}/cluster_infos:
         GET:
             tag: MRS
-            operationId: GetClusters
-            x-ref-api: GET /v1.1/{project_id}/cluster_infos

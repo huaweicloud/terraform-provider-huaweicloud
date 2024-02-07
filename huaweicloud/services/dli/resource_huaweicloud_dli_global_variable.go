@@ -26,8 +26,8 @@ import (
 
 // @API DLI POST /v1.0/{project_id}/variables
 // @API DLI GET /v1.0/{project_id}/variables
-// @API DLI DELETE /v1.0/{project_id}/variables/{id}
-// @API DLI PUT /v1.0/{project_id}/variables/{id}
+// @API DLI PUT /v1.0/{project_id}/variables/{var_name}
+// @API DLI DELETE /v1.0/{project_id}/variables/{var_name}
 func ResourceGlobalVariable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGlobalVariableCreate,
@@ -178,7 +178,7 @@ func resourceGlobalVariableUpdate(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChanges(updateGlobalVariableChanges...) {
 		// updateGlobalVariable: update Global variable
 		var (
-			updateGlobalVariableHttpUrl = "v1.0/{project_id}/variables/{id}"
+			updateGlobalVariableHttpUrl = "v1.0/{project_id}/variables/{var_name}"
 			updateGlobalVariableProduct = "dli"
 		)
 		updateGlobalVariableClient, err := cfg.NewServiceClient(updateGlobalVariableProduct, region)
@@ -188,7 +188,7 @@ func resourceGlobalVariableUpdate(ctx context.Context, d *schema.ResourceData, m
 
 		updateGlobalVariablePath := updateGlobalVariableClient.Endpoint + updateGlobalVariableHttpUrl
 		updateGlobalVariablePath = strings.ReplaceAll(updateGlobalVariablePath, "{project_id}", updateGlobalVariableClient.ProjectID)
-		updateGlobalVariablePath = strings.ReplaceAll(updateGlobalVariablePath, "{id}", d.Id())
+		updateGlobalVariablePath = strings.ReplaceAll(updateGlobalVariablePath, "{var_name}", d.Id())
 
 		updateGlobalVariableOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -218,7 +218,7 @@ func resourceGlobalVariableDelete(_ context.Context, d *schema.ResourceData, met
 
 	// deleteGlobalVariable: delete Global variable
 	var (
-		deleteGlobalVariableHttpUrl = "v1.0/{project_id}/variables/{id}"
+		deleteGlobalVariableHttpUrl = "v1.0/{project_id}/variables/{var_name}"
 		deleteGlobalVariableProduct = "dli"
 	)
 	deleteGlobalVariableClient, err := cfg.NewServiceClient(deleteGlobalVariableProduct, region)
@@ -228,7 +228,7 @@ func resourceGlobalVariableDelete(_ context.Context, d *schema.ResourceData, met
 
 	deleteGlobalVariablePath := deleteGlobalVariableClient.Endpoint + deleteGlobalVariableHttpUrl
 	deleteGlobalVariablePath = strings.ReplaceAll(deleteGlobalVariablePath, "{project_id}", deleteGlobalVariableClient.ProjectID)
-	deleteGlobalVariablePath = strings.ReplaceAll(deleteGlobalVariablePath, "{id}", d.Id())
+	deleteGlobalVariablePath = strings.ReplaceAll(deleteGlobalVariablePath, "{var_name}", d.Id())
 
 	deleteGlobalVariableOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

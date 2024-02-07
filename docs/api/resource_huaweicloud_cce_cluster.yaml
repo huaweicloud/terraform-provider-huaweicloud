@@ -1,44 +1,35 @@
 info:
-  version: 
-  title: resource_huaweicloud_cce_cluster
-  description: 
+    version: ""
+    title: resource_huaweicloud_cce_cluster
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCE
+    - name: CCE
 paths:
-  /svcstg/icmgr/v1/{project_id}/agents:
-    post:
-      tag: AOM
-      operationId: Create
-  /api/v3/projects/{project_id}/clusters/{id}/clustercert:
-    post:
-      tag: CCE
-      operationId: GetCert
-  /api/v3/projects/{project_id}/clusters/{id}/mastereip:
-    put:
-      tag: CCE
-      operationId: UpdateMasterIp
-  /api/v3/projects/{project_id}/clusters/{id}/operation/{action}:
-    post:
-      tag: CCE
-      operationId: Operation
-  /api/v3/projects/{project_id}/clusters/{id}/tags/{action}:
-    post:
-      tag: CCE
-      operationId: RemoveTags
-  /api/v3/projects/{project_id}/clusters/{id}:
-    delete:
-      tag: CCE
-      operationId: DeleteWithOpts
-    get:
-      tag: CCE
-      operationId: Get
-    put:
-      tag: CCE
-      operationId: Update
-  /api/v3/projects/{project_id}/clusters:
-    post:
-      tag: CCE
-      operationId: Create
+    /api/v3/projects/{project_id}/clusters:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{id}/clustercert:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{id}/mastereip:
+        PUT:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{id}/operation/{action}:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{id}/tags/{action}:
+        POST:
+            tag: CCE
+    /svcstg/icmgr/v1/{project_id}/agents:
+        POST:
+            tag: AOM

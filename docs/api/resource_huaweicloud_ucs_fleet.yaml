@@ -1,33 +1,24 @@
 info:
+    version: ""
     title: resource_huaweicloud_ucs_fleet
-    description: Manages a UCS fleet resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: UCS
-servers:
-    - url: https://ucs.myhuaweicloud.com
 paths:
     /v1/clustergroups:
         POST:
             tag: UCS
-            operationId: CreateFleet
-            x-ref-api: POST /v1/clustergroups
     /v1/clustergroups/{id}:
         DELETE:
             tag: UCS
-            operationId: DeleteFleet
-            x-ref-api: DELETE /v1/clustergroups/{id}
         GET:
             tag: UCS
-            operationId: GetFleet
-            x-ref-api: GET /v1/clustergroups/{id}
     /v1/clustergroups/{id}/associatedrules:
         PUT:
             tag: UCS
-            operationId: UpdateFleetPolicies
-            x-ref-api: PUT /v1/clustergroups/{id}/associatedrules
     /v1/clustergroups/{id}/description:
         PUT:
             tag: UCS
-            operationId: UpdateFleet
-            x-ref-api: PUT /v1/clustergroups/{id}/description

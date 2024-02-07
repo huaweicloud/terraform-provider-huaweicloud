@@ -1,58 +1,44 @@
 info:
-  version: 
-  title: resource_huaweicloud_identity_provider
-  description: 
+    version: ""
+    title: resource_huaweicloud_identity_provider
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3-ext/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}/metadata:
-    get:
-      tag: IAM
-      operationId: Get
-    post:
-      tag: IAM
-      operationId: Import
-  /v3.0/OS-FEDERATION/identity-providers/{idpID}/openid-connect-config:
-    get:
-      tag: IAM
-      operationId: Get
-    post:
-      tag: IAM
-      operationId: Create
-    put:
-      tag: IAM
-      operationId: Update
-  /v3/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}:
-    put:
-      tag: IAM
-      operationId: Create
-  /v3/OS-FEDERATION/identity_providers/{idpID}/protocols:
-    get:
-      tag: IAM
-      operationId: List
-  /v3/OS-FEDERATION/identity_providers/{id}:
-    delete:
-      tag: IAM
-      operationId: Delete
-    get:
-      tag: IAM
-      operationId: Get
-    patch:
-      tag: IAM
-      operationId: Update
-    put:
-      tag: IAM
-      operationId: Create
-  /v3/OS-FEDERATION/mappings/{id}:
-    delete:
-      tag: IAM
-      operationId: Delete
-    get:
-      tag: IAM
-      operationId: Get
-    put:
-      tag: IAM
-      operationId: Create
+    /v3-ext/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}/metadata:
+        GET:
+            tag: IAM
+        POST:
+            tag: IAM
+    /v3.0/OS-FEDERATION/identity-providers/{idpID}/openid-connect-config:
+        GET:
+            tag: IAM
+        POST:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3/OS-FEDERATION/identity_providers/{id}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
+        PATCH:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3/OS-FEDERATION/identity_providers/{idpID}/protocols:
+        GET:
+            tag: IAM
+    /v3/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}:
+        PUT:
+            tag: IAM
+    /v3/OS-FEDERATION/mappings/{id}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM

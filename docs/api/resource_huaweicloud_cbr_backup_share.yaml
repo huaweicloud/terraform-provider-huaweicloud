@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_cbr_backup_share
-  description: 
+    version: ""
+    title: resource_huaweicloud_cbr_backup_share
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CBR
+    - name: CBR
 paths:
-  /v3/{project_id}/backups/{backupId}/members/{memberId}:
-    delete:
-      tag: CBR
-      operationId: Delete
-  /v3/{project_id}/backups/{backupId}/members:
-    get:
-      tag: CBR
-      operationId: List
-    post:
-      tag: CBR
-      operationId: Create
+    /v3/{project_id}/backups/{backup_id}/members:
+        GET:
+            tag: CBR
+        POST:
+            tag: CBR
+    /v3/{project_id}/backups/{backup_id}/members/{member_id}:
+        DELETE:
+            tag: CBR

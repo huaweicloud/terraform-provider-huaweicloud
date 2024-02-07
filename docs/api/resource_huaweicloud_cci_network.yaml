@@ -1,21 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_cci_network
-  description: 
+    version: ""
+    title: resource_huaweicloud_cci_network
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCI
+    - name: CCI
 paths:
-  /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks/{name}:
-    delete:
-      tag: CCI
-      operationId: Delete
-    get:
-      tag: CCI
-      operationId: Get
-  /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks:
-    post:
-      tag: CCI
-      operationId: Create
+    /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks:
+        POST:
+            tag: CCI
+    /apis/networking.cci.io/v1beta1/namespaces/{ns}/networks/{name}:
+        DELETE:
+            tag: CCI
+        GET:
+            tag: CCI
+    /v1/{project_id}/subnets/{subnet_id}:
+        GET:
+            tag: VPC

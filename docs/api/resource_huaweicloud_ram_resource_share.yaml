@@ -1,38 +1,27 @@
 info:
+    version: ""
     title: resource_huaweicloud_ram_resource_share
-    description: Manages a RAM share resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RAM
-servers:
-    - url: https://ram.myhuaweicloud.com
 paths:
     /v1/resource-share-associations/search:
         POST:
             tag: RAM
-            operationId: GetRAMSharePrincipals
-            x-ref-api: POST /v1/resource-share-associations/search
     /v1/resource-shares:
         POST:
             tag: RAM
-            operationId: CreateRAMShare
-            x-ref-api: POST /v1/resource-shares
     /v1/resource-shares/{resource_share_id}:
         DELETE:
             tag: RAM
-            operationId: DeleteRAMShare
-            x-ref-api: DELETE /v1/resource-shares/{resource_share_id}
         PUT:
             tag: RAM
-            operationId: UpdateRAMShare
-            x-ref-api: PUT /v1/resource-shares/{resource_share_id}
     /v1/resource-shares/{resource_share_id}/associated-permissions:
         GET:
             tag: RAM
-            operationId: GetRAMSharePermissions
-            x-ref-api: GET /v1/resource-shares/{resource_share_id}/associated-permissions
     /v1/resource-shares/search:
         POST:
             tag: RAM
-            operationId: GetRAMShare
-            x-ref-api: POST /v1/resource-shares/search

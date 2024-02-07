@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dli_global_variable
-    description: 'Manages a DLI global variable resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DLI
-servers:
-    - url: https://dli.myhuaweicloud.com
 paths:
     /v1.0/{project_id}/variables:
         GET:
             tag: DLI
-            operationId: GetGlobalVariable
-            x-ref-api: GET /v1.0/{project_id}/variables
         POST:
             tag: DLI
-            operationId: CreateGlobalVariable
-            x-ref-api: POST /v1.0/{project_id}/variables
-    /v1.0/{project_id}/variables/{id}:
+    /v1.0/{project_id}/variables/{var_name}:
         DELETE:
             tag: DLI
-            operationId: DeleteGlobalVariable
-            x-ref-api: DELETE /v1.0/{project_id}/variables/{id}
         PUT:
             tag: DLI
-            operationId: UpdateGlobalVariable
-            x-ref-api: PUT /v1.0/{project_id}/variables/{id}

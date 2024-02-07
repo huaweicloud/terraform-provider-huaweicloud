@@ -1,27 +1,26 @@
 info:
+    version: ""
     title: resource_huaweicloud_vpn_connection
-    description: Manages a VPN connection. resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: VPN
-servers:
-    - url: https://vpn.cn-north-4.myhuaweicloud.com
 paths:
+    /v5/{project_id}/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: VPN
+    /v5/{project_id}/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: VPN
     /v5/{project_id}/vpn-connection:
         POST:
             tag: VPN
-            operationId: CreateConnection
-            x-ref-api: POST /v5/{project_id}/vpn-connection
     /v5/{project_id}/vpn-connection/{id}:
         DELETE:
             tag: VPN
-            operationId: DeleteConnection
-            x-ref-api: DELETE /v5/{project_id}/vpn-connection/{id}
         GET:
             tag: VPN
-            operationId: CreateConnectionWaiting
-            x-ref-api: GET /v5/{project_id}/vpn-connection/{id}
         PUT:
             tag: VPN
-            operationId: UpdateConnection
-            x-ref-api: PUT /v5/{project_id}/vpn-connection/{id}

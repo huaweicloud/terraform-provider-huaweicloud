@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_er_association
-  description: 
+    version: ""
+    title: resource_huaweicloud_er_association
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ER
+    - name: ER
 paths:
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associate:
-    post:
-      tag: ER
-      operationId: Create
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations:
-    get:
-      tag: ER
-      operationId: List
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disassociate:
-    post:
-      tag: ER
-      operationId: Delete
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/associate:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/associations:
+        GET:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disassociate:
+        POST:
+            tag: ER

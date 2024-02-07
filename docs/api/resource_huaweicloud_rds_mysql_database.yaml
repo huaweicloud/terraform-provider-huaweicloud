@@ -1,24 +1,25 @@
 info:
+    version: ""
     title: resource_huaweicloud_rds_mysql_database
-    description: Manages an RDS Mysql database resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RDS
-servers:
-    - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/database:
         POST:
             tag: RDS
-            operationId: CreateMysqlDatabase
-            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/database
+    /v3/{project_id}/instances/{instance_id}/database/{db_name}:
+        DELETE:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/database/detail:
         GET:
             tag: RDS
-            operationId: GetMysqlDatabase
-            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/database/detail
     /v3/{project_id}/instances/{instance_id}/database/update:
         POST:
             tag: RDS
-            operationId: UpdateMysqlDatabase
-            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/database/update

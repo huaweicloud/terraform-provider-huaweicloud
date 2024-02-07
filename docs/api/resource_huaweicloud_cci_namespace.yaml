@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_cci_namespace
-  description: 
+    version: ""
+    title: resource_huaweicloud_cci_namespace
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCI
+    - name: CCI
 paths:
-  /api/v1/namespaces/{name}:
-    delete:
-      tag: CCI
-      operationId: Delete
-    get:
-      tag: CCI
-      operationId: Get
-  /api/v1/namespaces:
-    get:
-      tag: CCI
-      operationId: List
-    post:
-      tag: CCI
-      operationId: Create
+    /api/v1/namespaces:
+        GET:
+            tag: CCI
+        POST:
+            tag: CCI
+    /api/v1/namespaces/{name}:
+        DELETE:
+            tag: CCI
+        GET:
+            tag: CCI

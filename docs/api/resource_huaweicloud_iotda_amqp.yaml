@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_iotda_amqp
-  description: 
+    version: ""
+    title: resource_huaweicloud_iotda_amqp
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IoTDA
+    - name: IoTDA
 paths:
-  /v5/iot/{project_id}/amqp-queues/{queue_id}:
-    delete:
-      tag: IoTDA
-      operationId: DeleteQueue
-    get:
-      tag: IoTDA
-      operationId: ShowQueue
-  /v5/iot/{project_id}/amqp-queues:
-    post:
-      tag: IoTDA
-      operationId: AddQueue
+    /v5/iot/{project_id}/amqp-queues:
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/amqp-queues/{queue_id}:
+        DELETE:
+            tag: IoTDA
+        GET:
+            tag: IoTDA

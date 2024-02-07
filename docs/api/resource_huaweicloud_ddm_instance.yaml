@@ -1,53 +1,36 @@
 info:
+    version: ""
     title: resource_huaweicloud_ddm_instance
-    description: Manages DDM instance resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DDM
-servers:
-    - url: https://ddm.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/instances:
         POST:
             tag: DDM
-            operationId: CreateInstance
-            x-ref-api: POST /v1/{project_id}/instances
     /v1/{project_id}/instances/{instance_id}:
         DELETE:
             tag: DDM
-            operationId: DeleteInstance
-            x-ref-api: DELETE /v1/{project_id}/instances/{instance_id}
         GET:
             tag: DDM
-            operationId: GetInstance
-            x-ref-api: GET /v1/{project_id}/instances/{instance_id}
     /v1/{project_id}/instances/{instance_id}/modify-name:
         PUT:
             tag: DDM
-            operationId: UpdateInstance
-            x-ref-api: PUT /v1/{project_id}/instances/{instance_id}/modify-name
     /v1/{project_id}/instances/{instance_id}/modify-security-group:
         PUT:
             tag: DDM
-            operationId: UpdateInstance
-            x-ref-api: PUT /v1/{project_id}/instances/{instance_id}/modify-security-group
     /v2/{project_id}/instances/{instance_id}/action/enlarge:
         POST:
             tag: DDM
-            operationId: UpdateInstance
-            x-ref-api: POST /v2/{project_id}/instances/{instance_id}/action/enlarge
     /v2/{project_id}/instances/{instance_id}/action/reduce:
         POST:
             tag: DDM
-            operationId: UpdateInstance
-            x-ref-api: POST /v2/{project_id}/instances/{instance_id}/action/reduce
     /v3/{project_id}/instances/{instance_id}/admin-user:
         PUT:
             tag: DDM
-            operationId: UpdateInstance
-            x-ref-api: PUT /v3/{project_id}/instances/{instance_id}/admin-user
     /v3/{project_id}/instances/{instance_id}/flavor:
         PUT:
             tag: DDM
-            operationId: UpdateInstance
-            x-ref-api: PUT /v3/{project_id}/instances/{instance_id}/flavor

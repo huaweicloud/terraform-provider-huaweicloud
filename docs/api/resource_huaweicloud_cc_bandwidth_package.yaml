@@ -1,42 +1,29 @@
 info:
+    version: ""
     title: resource_huaweicloud_cc_bandwidth_package
-    description: 'Manages a bandwidth package resource of Cloud Connect within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CC
-servers:
-    - url: https://cc.myhuaweicloud.com
 paths:
     /v3/{domain_id}/ccaas/bandwidth-package/{id}/tags/action:
         POST:
             tag: CC
-            operationId: updateBandwidthPackageTags
-            x-ref-api: POST /v3/{domain_id}/ccaas/bandwidth-package/{id}/tags/action
     /v3/{domain_id}/ccaas/bandwidth-packages:
         POST:
             tag: CC
-            operationId: CreateBandwidthPackage
-            x-ref-api: POST /v3/{domain_id}/ccaas/bandwidth-packages
     /v3/{domain_id}/ccaas/bandwidth-packages/{id}:
         DELETE:
             tag: CC
-            operationId: DeleteBandwidthPackage
-            x-ref-api: DELETE /v3/{domain_id}/ccaas/bandwidth-packages/{id}
         GET:
             tag: CC
-            operationId: GetBandwidthPackage
-            x-ref-api: GET /v3/{domain_id}/ccaas/bandwidth-packages/{id}
         PUT:
             tag: CC
-            operationId: UpdateBandwidthPackage
-            x-ref-api: PUT /v3/{domain_id}/ccaas/bandwidth-packages/{id}
     /v3/{domain_id}/ccaas/bandwidth-packages/{id}/associate:
         POST:
             tag: CC
-            operationId: AssociateBandwidthPackage
-            x-ref-api: POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/associate
     /v3/{domain_id}/ccaas/bandwidth-packages/{id}/disassociate:
         POST:
             tag: CC
-            operationId: DisassociateBandwidthPackage
-            x-ref-api: POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/disassociate

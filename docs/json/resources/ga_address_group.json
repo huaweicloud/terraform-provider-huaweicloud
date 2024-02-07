@@ -17,19 +17,6 @@
                 "type": "string",
                 "computed": true
               },
-              "listeners": {
-                "type": [
-                  "list",
-                  [
-                    "object",
-                    {
-                      "id": "string",
-                      "type": "string"
-                    }
-                  ]
-                ],
-                "computed": true
-              },
               "name": {
                 "type": "string",
                 "required": true
@@ -49,8 +36,7 @@
                   "attributes": {
                     "cidr": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "created_at": {
                       "type": "string",
@@ -58,15 +44,26 @@
                     },
                     "description": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "optional": true
                     }
                   }
                 },
-                "nesting_mode": "set",
-                "forcenew": true,
-                "max_items": 20
+                "nesting_mode": "set"
+              },
+              "listeners": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

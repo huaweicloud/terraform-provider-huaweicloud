@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_dms_kafka_user
-  description: 
+    version: ""
+    title: resource_huaweicloud_dms_kafka_user
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Kafka
+    - name: Kafka
 paths:
-  /v2/{engine}/{project_id}/instances/{instance_id}/users/{user_name}:
-    put:
-      tag: Kafka
-      operationId: UpdateInstanceUser
-  /v2/{project_id}/instances/{instance_id}/users:
-    get:
-      tag: Kafka
-      operationId: ShowInstanceUsers
-    post:
-      tag: Kafka
-      operationId: CreateInstanceUser
-    put:
-      tag: Kafka
-      operationId: BatchDeleteInstanceUsers
+    /v2/{engine}/{project_id}/instances/{instance_id}/users/{user_name}:
+        PUT:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/users:
+        GET:
+            tag: Kafka
+        POST:
+            tag: Kafka
+        PUT:
+            tag: Kafka

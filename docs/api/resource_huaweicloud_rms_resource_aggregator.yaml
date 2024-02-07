@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_rms_resource_aggregator
-    description: Manages a RMS aggregator resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Config
-servers:
-    - url: https://rms.myhuaweicloud.com
 paths:
     /v1/resource-manager/domains/{domain_id}/aggregators:
         PUT:
             tag: Config
-            operationId: CreateAggregator
-            x-ref-api: PUT /v1/resource-manager/domains/{domain_id}/aggregators
     /v1/resource-manager/domains/{domain_id}/aggregators/{id}:
         DELETE:
             tag: Config
-            operationId: DeleteAggregator
-            x-ref-api: DELETE /v1/resource-manager/domains/{domain_id}/aggregators/{id}
         GET:
             tag: Config
-            operationId: GetAggregator
-            x-ref-api: GET /v1/resource-manager/domains/{domain_id}/aggregators/{id}
         PUT:
             tag: Config
-            operationId: UpdateAggregator
-            x-ref-api: PUT /v1/resource-manager/domains/{domain_id}/aggregators/{id}

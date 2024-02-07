@@ -1,26 +1,22 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_application_authorization
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_application_authorization
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/app-auths/binded-apis:
-    get:
-      tag: APIG
-      operationId: ListAuthorized
-  /v2/{project_id}/apigw/instances/{instanceId}/app-auths/unbinded-apis:
-    get:
-      tag: APIG
-      operationId: ListUnauthorized
-  /v2/{project_id}/apigw/instances/{instanceId}/app-auths/{authId}:
-    delete:
-      tag: APIG
-      operationId: Delete
-  /v2/{project_id}/apigw/instances/{instanceId}/app-auths:
-    post:
-      tag: APIG
-      operationId: Create
+    /v2/{project_id}/apigw/instances/{instanceId}/app-auths:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/app-auths/{authId}:
+        DELETE:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/app-auths/binded-apis:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/app-auths/unbinded-apis:
+        GET:
+            tag: APIG

@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_identity_user
-  description: 
+    version: ""
+    title: resource_huaweicloud_identity_user
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3.0/OS-USER/users/{userID}:
-    get:
-      tag: IAM
-      operationId: Get
-    put:
-      tag: IAM
-      operationId: Update
-  /v3.0/OS-USER/users:
-    post:
-      tag: IAM
-      operationId: Create
-  /v3/users/{userID}:
-    delete:
-      tag: IAM
-      operationId: Delete
+    /v3.0/OS-USER/users:
+        POST:
+            tag: IAM
+    /v3.0/OS-USER/users/{userID}:
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3/users/{userID}:
+        DELETE:
+            tag: IAM

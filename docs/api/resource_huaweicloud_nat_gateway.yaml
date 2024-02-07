@@ -1,32 +1,26 @@
 info:
-  version: 
-  title: resource_huaweicloud_nat_gateway
-  description: 
+    version: ""
+    title: resource_huaweicloud_nat_gateway
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: NAT
+    - name: NAT
 paths:
-  /v2/{project_id}/nat_gateways/{gatewayId}:
-    delete:
-      tag: NAT
-      operationId: Delete
-    get:
-      tag: NAT
-      operationId: Get
-    put:
-      tag: NAT
-      operationId: Update
-  /v2.0/{project_id}/nat_gateways/{id}/tags/action:
-    post:
-      tag: VPC
-      operationId: Create
-  /v2.0/{project_id}/nat_gateways/{id}/tags:
-    get:
-      tag: VPC
-      operationId: Get
-  /v2/{project_id}/nat_gateways:
-    post:
-      tag: NAT
-      operationId: Create
+    /v2.0/{project_id}/nat_gateways/{id}/tags:
+        GET:
+            tag: VPC
+    /v2.0/{project_id}/nat_gateways/{id}/tags/action:
+        POST:
+            tag: VPC
+    /v2/{project_id}/nat_gateways:
+        POST:
+            tag: NAT
+    /v2/{project_id}/nat_gateways/{gatewayId}:
+        DELETE:
+            tag: NAT
+        GET:
+            tag: NAT
+        PUT:
+            tag: NAT

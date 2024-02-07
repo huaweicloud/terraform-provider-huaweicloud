@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: resource_huaweicloud_dataarts_studio_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_dataarts_studio_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DataArtsStudio
+    - name: DataArtsStudio
 paths:
-  /v1/{project_id}/instances/onekey-purchase:
-    post:
-      tag: DataArtsStudio
-      operationId: Create
-  /v1/{project_id}/instances:
-    get:
-      tag: DataArtsStudio
-      operationId: List
+    /v1/{project_id}/instances:
+        GET:
+            tag: DataArtsStudio
+    /v1/{project_id}/instances/onekey-purchase:
+        POST:
+            tag: DataArtsStudio

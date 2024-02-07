@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_eip_associate
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_eip_associate
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: EIP
+    - name: EIP
 paths:
-  /v1/{project_id}/ports/{portId}:
-    get:
-      tag: VPC
-      operationId: Get
-  /v1/{project_id}/ports:
-    get:
-      tag: VPC
-      operationId: List
-  /v1/{project_id}/publicips/{id}:
-    get:
-      tag: EIP
-      operationId: Get
-    put:
-      tag: EIP
-      operationId: Update
+    /v1/{project_id}/ports:
+        GET:
+            tag: VPC
+    /v1/{project_id}/ports/{portId}:
+        GET:
+            tag: VPC
+    /v1/{project_id}/publicips/{id}:
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP

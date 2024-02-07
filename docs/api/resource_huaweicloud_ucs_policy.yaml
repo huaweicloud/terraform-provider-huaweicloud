@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_ucs_policy
-    description: Manages a UCS policy resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: UCS
-servers:
-    - url: https://ucs.myhuaweicloud.com
 paths:
     /v1/permissions/rules:
         GET:
             tag: UCS
-            operationId: GetPolicy
-            x-ref-api: GET /v1/permissions/rules
         POST:
             tag: UCS
-            operationId: CreatePolicy
-            x-ref-api: POST /v1/permissions/rules
     /v1/permissions/rules/{id}:
         DELETE:
             tag: UCS
-            operationId: DeletePolicy
-            x-ref-api: DELETE /v1/permissions/rules/{id}
         PUT:
             tag: UCS
-            operationId: UpdatePolicy
-            x-ref-api: PUT /v1/permissions/rules/{id}

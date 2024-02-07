@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: data_source_huaweicloud_identity_users
-  description: 
+    version: ""
+    title: data_source_huaweicloud_identity_users
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3/users/{userID}/groups:
-    get:
-      tag: IAM
-      operationId: ListGroups
-  /v3/users:
-    get:
-      tag: IAM
-      operationId: List
+    /v3/users:
+        GET:
+            tag: IAM
+    /v3/users/{userID}/groups:
+        GET:
+            tag: IAM

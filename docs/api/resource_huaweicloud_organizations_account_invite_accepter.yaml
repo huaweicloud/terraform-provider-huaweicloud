@@ -1,24 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_organizations_account_invite_accepter
-    description: Manages an Organizations account invite accepter resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Organizations
-servers:
-    - url: https://organizations.cn-north-4.myhuaweicloud.com
 paths:
     /v1/organizations/handshakes/{handshake_id}:
         GET:
             tag: Organizations
-            operationId: GetAccountInviteAccepter
-            x-ref-api: GET /v1/organizations/handshakes/{handshake_id}
     /v1/organizations/leave:
         POST:
             tag: Organizations
-            operationId: DeleteAccountInviteAccepter
-            x-ref-api: POST /v1/organizations/leave
     /v1/received-handshakes/{handshake_id}/accept:
         POST:
             tag: Organizations
-            operationId: CreateAccountInviteAccepter
-            x-ref-api: POST /v1/received-handshakes/{handshake_id}/accept

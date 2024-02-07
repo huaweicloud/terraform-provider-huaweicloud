@@ -61,6 +61,14 @@
                 "description": "The ingress EIP address.",
                 "computed": true
               },
+              "ingress_bandwidth_charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "ingress_bandwidth_size": {
+                "type": "number",
+                "optional": true
+              },
               "ipv6_enable": {
                 "type": "bool",
                 "description": "Whether public access with an IPv6 address is supported.",

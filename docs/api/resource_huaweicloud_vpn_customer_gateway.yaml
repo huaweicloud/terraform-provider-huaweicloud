@@ -1,27 +1,26 @@
 info:
+    version: ""
     title: resource_huaweicloud_vpn_customer_gateway
-    description: Manages a VPN customer gateway resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: VPN
-servers:
-    - url: https://vpn.cn-north-4.myhuaweicloud.com
 paths:
+    /v5/{project_id}/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: VPN
+    /v5/{project_id}/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: VPN
     /v5/{project_id}/customer-gateways:
         POST:
             tag: VPN
-            operationId: CreateCustomerGateway
-            x-ref-api: POST /v5/{project_id}/customer-gateways
     /v5/{project_id}/customer-gateways/{id}:
         DELETE:
             tag: VPN
-            operationId: DeleteCustomerGateway
-            x-ref-api: DELETE /v5/{project_id}/customer-gateways/{id}
         GET:
             tag: VPN
-            operationId: GetCustomerGateway
-            x-ref-api: GET /v5/{project_id}/customer-gateways/{id}
         PUT:
             tag: VPN
-            operationId: UpdateCustomerGateway
-            x-ref-api: PUT /v5/{project_id}/customer-gateways/{id}

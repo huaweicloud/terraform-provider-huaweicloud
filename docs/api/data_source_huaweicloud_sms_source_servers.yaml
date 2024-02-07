@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_sms_source_servers
-  description: 
+    version: ""
+    title: data_source_huaweicloud_sms_source_servers
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SMS
+    - name: SMS
 paths:
-  /v3/sources:
-    get:
-      tag: SMS
-      operationId: List
+    /v3/sources:
+        GET:
+            tag: SMS

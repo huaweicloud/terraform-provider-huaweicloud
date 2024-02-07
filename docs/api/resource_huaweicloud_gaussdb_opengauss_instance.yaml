@@ -1,32 +1,26 @@
 info:
-  version: 
-  title: resource_huaweicloud_gaussdb_opengauss_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: GaussDB
+    - name: GaussDB
 paths:
-  /v3/{project_id}/instances/{id}/backups/policy:
-    put:
-      tag: GaussDB
-      operationId: Update
-  /v3/{project_id}/instances/{instanceID}/{updata}:
-    post:
-      tag: GaussDB
-      operationId: Update
-    put:
-      tag: GaussDB
-      operationId: Rename
-  /v3/{project_id}/instances/{instanceID}:
-    delete:
-      tag: GaussDB
-      operationId: Delete
-  /v3/{project_id}/instances:
-    get:
-      tag: GaussDB
-      operationId: GetInstanceByID
-    post:
-      tag: GaussDB
-      operationId: Create
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDB
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{id}/backups/policy:
+        PUT:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instanceID}:
+        DELETE:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instanceID}/{updata}:
+        POST:
+            tag: GaussDB
+        PUT:
+            tag: GaussDB

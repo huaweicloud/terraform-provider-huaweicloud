@@ -1,36 +1,25 @@
 info:
+    version: ""
     title: resource_huaweicloud_codearts_inspector_website
-    description: Manages a CodeArts inspector website resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: CodeArts
-servers:
-    - url: https://vss.myhuaweicloud.com
+    - name: VSS
 paths:
     /v3/{project_id}/webscan/domains:
         DELETE:
             tag: VSS
-            operationId: DeleteInspectorWebsite
-            x-ref-api: DELETE /v3/{project_id}/webscan/domains
         GET:
             tag: VSS
-            operationId: GetInspectorWebsite
-            x-ref-api: GET /v3/{project_id}/webscan/domains
         POST:
             tag: VSS
-            operationId: CreateInspectorWebsite
-            x-ref-api: POST /v3/{project_id}/webscan/domains
     /v3/{project_id}/webscan/domains/authenticate:
         POST:
             tag: VSS
-            operationId: AuthenticateInspectorWebsite
-            x-ref-api: POST /v3/{project_id}/webscan/domains/authenticate
     /v3/{project_id}/webscan/domains/settings:
         GET:
             tag: VSS
-            operationId: GetInspectorWebsiteSettings
-            x-ref-api: GET /v3/{project_id}/webscan/domains/settings
         POST:
             tag: VSS
-            operationId: UpdateInspectorWebsite
-            x-ref-api: POST /v3/{project_id}/webscan/domains/settings

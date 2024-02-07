@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_ga_endpoint_group
-    description: Manages a GA endpoint group resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GA
-servers:
-    - url: https://ga.myhuaweicloud.com
 paths:
     /v1/endpoint-groups:
         POST:
             tag: GA
-            operationId: CreateEndpointGroup
-            x-ref-api: POST /v1/endpoint-groups
     /v1/endpoint-groups/{id}:
         DELETE:
             tag: GA
-            operationId: DeleteEndpointGroup
-            x-ref-api: DELETE /v1/endpoint-groups/{id}
         GET:
             tag: GA
-            operationId: CreateEndpointGroupWaiting
-            x-ref-api: GET /v1/endpoint-groups/{id}
         PUT:
             tag: GA
-            operationId: UpdateEndpointGroup
-            x-ref-api: PUT /v1/endpoint-groups/{id}

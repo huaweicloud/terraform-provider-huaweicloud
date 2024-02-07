@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_modelarts_notebook_images
-  description: 
+    version: ""
+    title: data_source_huaweicloud_modelarts_notebook_images
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ModelArts
+    - name: ModelArts
 paths:
-  /v1/{project_id}/images:
-    get:
-      tag: ModelArts
-      operationId: ListImages
+    /v1/{project_id}/images:
+        GET:
+            tag: ModelArts

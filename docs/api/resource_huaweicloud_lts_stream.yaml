@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_lts_stream
-  description: 
+    version: ""
+    title: resource_huaweicloud_lts_stream
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: LTS
+    - name: LTS
 paths:
-  /v2/{project_id}/groups/{groupId}/streams/{id}:
-    delete:
-      tag: LTS
-      operationId: Delete
-  /v2/{project_id}/groups/{groupId}/streams:
-    get:
-      tag: LTS
-      operationId: List
-    post:
-      tag: LTS
-      operationId: Create
+    /v2/{project_id}/groups/{groupId}/streams:
+        GET:
+            tag: LTS
+        POST:
+            tag: LTS
+    /v2/{project_id}/groups/{groupId}/streams/{id}:
+        DELETE:
+            tag: LTS

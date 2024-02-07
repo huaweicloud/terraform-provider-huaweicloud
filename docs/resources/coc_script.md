@@ -4,7 +4,7 @@ subcategory: "Cloud Operations Center (COC)"
 
 # huaweicloud_coc_script
 
-Manages COC script resource within HuaweiCloud.
+Manages a COC script resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `version` - (Required, String) Specifies the version of the script. For example, **1.0.0** or **1.1.0**.
 
-* `type` - (Required, String,, ForceNew) Specifies the content type of the script.
+* `type` - (Required, String, ForceNew) Specifies the content type of the script.
   The valid values are **SHELL**, **PYTHON** and **BAT**. Changing this creates a new resource.
 
 * `content` - (Required, String) Specifies the content of the script.

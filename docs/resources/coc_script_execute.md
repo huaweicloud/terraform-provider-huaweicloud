@@ -41,19 +41,22 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ECS instance ID.
   Changing this creates a new resource.
 
-* `timeout` - (Required, Int) Specifies the maximum time to execute the script in seconds.
+* `timeout` - (Required, Int, ForceNew) Specifies the maximum time to execute the script in seconds.
+  Changing this creates a new resource.
 
-* `execute_user` - (Required, String) Specifies the user to execute the script.
+* `execute_user` - (Required, String, ForceNew) Specifies the user to execute the script.
+  Changing this creates a new resource.
 
-* `parameters` - (Optional, List) Specifies the input parameters of the script.
-  Up to 20 script parameters can be added. The [parameters](#block--parameters) structure is documented below.
+* `parameters` - (Optional, List, ForceNew) Specifies the input parameters of the script.
+  Up to 20 script parameters can be added. Changing this creates a new resource.
+  The [parameters](#block--parameters) structure is documented below.
 
 <a name="block--parameters"></a>
 The `parameters` block supports:
 
-* `name` - (Required, String) Specifies the name of the parameter.
+* `name` - (Required, String, ForceNew) Specifies the name of the parameter. Changing this creates a new resource.
 
-* `value` - (Required, String) Specifies the value of the parameter.
+* `value` - (Required, String, ForceNew) Specifies the value of the parameter. Changing this creates a new resource.
 
 ## Attribute Reference
 

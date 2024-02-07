@@ -1,52 +1,36 @@
 info:
-  version: 
-  title: resource_huaweicloud_images_image
-  description: 
+    version: ""
+    title: resource_huaweicloud_images_image
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IMS
+    - name: IMS
 paths:
-  /v3/{project_id}/backups/{backupId}:
-    get:
-      tag: CBR
-      operationId: Get
-  /v2/cloudimages/action:
-    post:
-      tag: IMS
-      operationId: CreateImageByServer
-  /v1/cloudimages/wholeimages/action:
-    post:
-      tag: IMS
-      operationId: CreateWholeImageByServer
-  /v2/cloudimages/{imageID}:
-    patch:
-      tag: IMS
-      operationId: Update
-  /v2/cloudimages:
-    get:
-      tag: IMS
-      operationId: List
-  /v2/images/{imageID}:
-    delete:
-      tag: IMS
-      operationId: Delete
-    get:
-      tag: IMS
-      operationId: Get
-    patch:
-      tag: IMS
-      operationId: Update
-  /v2/images:
-    get:
-      tag: IMS
-      operationId: List
-  /v2/{project_id}/{project_id}/images/{id}/tags/action:
-    post:
-      tag: IMS
-      operationId: BatchAction
-  /v2/{project_id}/{project_id}/images/{id}/tags:
-    get:
-      tag: IMS
-      operationId: Get
+    /v1/cloudimages/wholeimages/action:
+        POST:
+            tag: IMS
+    /v2/{project_id}/images/{image_id}/tags:
+        GET:
+            tag: IMS
+    /v2/{project_id}/images/{image_id}/tags/action:
+        POST:
+            tag: IMS
+    /v2/cloudimages:
+        GET:
+            tag: IMS
+    /v2/cloudimages/{image_id}:
+        PATCH:
+            tag: IMS
+    /v2/cloudimages/action:
+        POST:
+            tag: IMS
+    /v2/images/{image_id}:
+        DELETE:
+            tag: IMS
+        GET:
+            tag: IMS
+    /v3/{project_id}/backups/{backup_id}:
+        GET:
+            tag: CBR

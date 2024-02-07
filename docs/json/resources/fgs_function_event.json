@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_function_event": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "The function event content.",
+                "required": true
+              },
+              "function_urn": {
+                "type": "string",
+                "description": "The URN of the function to which the event blongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The function event name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the function event is located.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update (UTC) time of the function event, in RFC3339 format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

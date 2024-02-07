@@ -1,23 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_vod_media_category
-  description: 
+    version: ""
+    title: resource_huaweicloud_vod_media_category
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VOD
+    - name: VOD
 paths:
-  /v1.0/{project_id}/asset/category:
-    delete:
-      tag: VOD
-      operationId: DeleteAssetCategory
-    get:
-      tag: VOD
-      operationId: ListAssetCategory
-    post:
-      tag: VOD
-      operationId: CreateAssetCategory
-    put:
-      tag: VOD
-      operationId: UpdateAssetCategory
+    /v1.0/{project_id}/asset/category:
+        DELETE:
+            tag: VOD
+        GET:
+            tag: VOD
+        POST:
+            tag: VOD
+        PUT:
+            tag: VOD

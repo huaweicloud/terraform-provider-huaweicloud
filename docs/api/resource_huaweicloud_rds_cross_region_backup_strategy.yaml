@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_rds_cross_region_backup_strategy
-    description: Manages RDS cross region backup strategy resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RDS
-servers:
-    - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
     /v3/{project_id}/instances:
         GET:
             tag: RDS
-            operationId: GetRdsInstance
-            x-ref-api: GET /v3/{project_id}/instances
     /v3/{project_id}/instances/{instance_id}/backups/offsite-policy:
         GET:
             tag: RDS
-            operationId: GetBackupStrategy
-            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/backups/offsite-policy
         PUT:
             tag: RDS
-            operationId: CreateBackupStrategy
-            x-ref-api: PUT /v3/{project_id}/instances/{instance_id}/backups/offsite-policy

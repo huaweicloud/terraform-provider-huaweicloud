@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_er_instances
-  description: 
+    version: ""
+    title: data_source_huaweicloud_er_instances
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ER
+    - name: ER
 paths:
-  /v3/{project_id}/enterprise-router/instances:
-    get:
-      tag: ER
-      operationId: List
+    /v3/{project_id}/enterprise-router/instances:
+        GET:
+            tag: ER

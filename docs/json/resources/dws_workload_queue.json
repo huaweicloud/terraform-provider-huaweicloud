@@ -14,11 +14,6 @@
                 "type": "string",
                 "computed": true
               },
-              "logical_cluster_name": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
               "name": {
                 "type": "string",
                 "required": true,

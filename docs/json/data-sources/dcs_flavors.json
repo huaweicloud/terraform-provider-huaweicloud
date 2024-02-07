@@ -11,7 +11,7 @@
               },
               "capacity": {
                 "type": "number",
-                "required": true
+                "optional": true
               },
               "cpu_architecture": {
                 "type": "string",

@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_cbr_backup
-  description: 
+    version: ""
+    title: data_source_huaweicloud_cbr_backup
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CBR
+    - name: CBR
 paths:
-  /v3/{project_id}/backups/{backupId}:
-    get:
-      tag: CBR
-      operationId: Get
+    /v3/{project_id}/backups/{backup_id}:
+        GET:
+            tag: CBR

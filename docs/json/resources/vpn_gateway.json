@@ -127,6 +127,13 @@
                 "description": "The status of VPN gateway.",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "updated_at": {
                 "type": "string",
                 "description": "The update time.",

@@ -1,6 +1,9 @@
 package eips
 
-import "github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
+import (
+	"github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
+	"github.com/chnsz/golangsdk/pagination"
+)
 
 type PublicIp struct {
 	ID                  string   `json:"id"`
@@ -38,4 +41,46 @@ func (r GetResult) Extract() (PublicIp, error) {
 	}
 	err := r.Result.ExtractInto(&getResp)
 	return getResp.IP, err
+}
+
+// listResp is the structure that represents the public ip list and page detail.
+type listResp struct {
+	// The list of the public ips.
+	PublicIPs []PublicIp `json:"publicips"`
+	// The page information.
+	PageInfo pageInfo `json:"page_info"`
+}
+
+// pageInfo is the structure that represents the page information.
+type pageInfo struct {
+	// The next marker information.
+	NextMarker string `json:"next_marker"`
+}
+
+type PublicIPPage struct {
+	pagination.MarkerPageBase
+}
+
+func ExtractPublicIPs(r pagination.Page) ([]PublicIp, error) {
+	var s listResp
+	err := r.(PublicIPPage).ExtractInto(&s)
+	return s.PublicIPs, err
+}
+
+// IsEmpty checks whether a NetworkPage struct is empty.
+func (r PublicIPPage) IsEmpty() (bool, error) {
+	s, err := ExtractPublicIPs(r)
+	return len(s) == 0, err
+}
+
+// LastMarker method returns the last public ip ID in a public ip page.
+func (p PublicIPPage) LastMarker() (string, error) {
+	tasks, err := ExtractPublicIPs(p)
+	if err != nil {
+		return "", err
+	}
+	if len(tasks) == 0 {
+		return "", nil
+	}
+	return tasks[len(tasks)-1].ID, nil
 }

@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: data_source_huaweicloud_vpcs
-  description: 
+    version: ""
+    title: data_source_huaweicloud_vpcs
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPC
+    - name: VPC
 paths:
-  /v2.0/{project_id}/vpcs/{id}/tags:
-    get:
-      tag: VPC
-      operationId: Get
-  /v1/{project_id}/vpcs:
-    get:
-      tag: VPC
-      operationId: List
+    /v1/{project_id}/vpcs:
+        GET:
+            tag: VPC
+    /v2.0/{project_id}/vpcs/{id}/tags:
+        GET:
+            tag: VPC

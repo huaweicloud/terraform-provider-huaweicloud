@@ -1,41 +1,32 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_throttling_policy
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_throttling_policy
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}:
-    delete:
-      tag: APIG
-      operationId: DeleteSpecThrottle
-    put:
-      tag: APIG
-      operationId: UpdateSpecThrottle
-  /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials:
-    get:
-      tag: APIG
-      operationId: ListSpecThrottles
-    post:
-      tag: APIG
-      operationId: CreateSpecThrottle
-  /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}:
-    delete:
-      tag: APIG
-      operationId: Delete
-    get:
-      tag: APIG
-      operationId: Get
-    put:
-      tag: APIG
-      operationId: Update
-  /v2/{project_id}/apigw/instances/{instanceId}/throttles:
-    get:
-      tag: APIG
-      operationId: List
-    post:
-      tag: APIG
-      operationId: Create
+    /v2/{project_id}/apigw/instances/{instanceId}/throttles:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG
+        PUT:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}:
+        DELETE:
+            tag: APIG
+        PUT:
+            tag: APIG

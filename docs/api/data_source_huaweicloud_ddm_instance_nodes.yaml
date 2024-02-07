@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_ddm_instance_nodes
-    description: Use this data source to get the list of DDM instance nodes.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DDM
-servers:
-    - url: https://ddm.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/instances/{instance_id}/nodes:
         GET:
             tag: DDM
-            operationId: GetDdmInstanceNodes
-            x-ref-api: GET /v1/{project_id}/instances/{instance_id}/nodes

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_waf_rule_cc_protection
-    description: Manages a WAF cc protection rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: WAF
-servers:
-    - url: https://waf.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/waf/policy/{policy_id}/cc:
         POST:
             tag: WAF
-            operationId: CreateRuleCCProtection
-            x-ref-api: POST /v1/{project_id}/waf/policy/{policy_id}/cc
     /v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}:
         DELETE:
             tag: WAF
-            operationId: DeleteRuleCCProtection
-            x-ref-api: DELETE /v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}
         GET:
             tag: WAF
-            operationId: GetRuleCCProtection
-            x-ref-api: GET /v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}
         PUT:
             tag: WAF
-            operationId: UpdateRuleCCProtection
-            x-ref-api: PUT /v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}

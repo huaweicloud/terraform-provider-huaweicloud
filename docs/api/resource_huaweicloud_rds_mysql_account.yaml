@@ -1,34 +1,28 @@
 info:
+    version: ""
     title: resource_huaweicloud_rds_mysql_account
-    description: Manages an RDS Mysql account resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RDS
-servers:
-    - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/db-users/{user_name}/comment:
         PUT:
             tag: RDS
-            operationId: UpdateMysqlAccount
-            x-ref-api: PUT /v3/{project_id}/instances/{instance_id}/db-users/{user_name}/comment
     /v3/{project_id}/instances/{instance_id}/db_user:
         POST:
             tag: RDS
-            operationId: CreateMysqlAccount
-            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/db_user
     /v3/{project_id}/instances/{instance_id}/db_user/{user_name}:
         DELETE:
             tag: RDS
-            operationId: DeleteMysqlAccount
-            x-ref-api: DELETE /v3/{project_id}/instances/{instance_id}/db_user/{user_name}
     /v3/{project_id}/instances/{instance_id}/db_user/detail:
         GET:
             tag: RDS
-            operationId: GetMysqlAccount
-            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/db_user/detail
     /v3/{project_id}/instances/{instance_id}/db_user/resetpwd:
         POST:
             tag: RDS
-            operationId: UpdateMysqlAccount
-            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/db_user/resetpwd

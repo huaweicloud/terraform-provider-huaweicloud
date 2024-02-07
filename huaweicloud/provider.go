@@ -456,6 +456,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dbss_flavors": dbss.DataSourceDbssFlavors(),
 
+			"huaweicloud_dc_virtual_gateways": dc.DataSourceDCVirtualGateways(),
+
 			"huaweicloud_dcs_flavors":         dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dcs_maintainwindow":  dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_instances":       dcs.DataSourceDcsInstance(),
@@ -466,6 +468,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_flavors":   dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_instances": dds.DataSourceDdsInstance(),
 
+			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
 
 			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
@@ -937,6 +940,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dis_stream": dis.ResourceDisStream(),
 
 			"huaweicloud_dli_database":              dli.ResourceDliSqlDatabaseV1(),
+			"huaweicloud_dli_elastic_resource_pool": dli.ResourceElasticResourcePool(),
 			"huaweicloud_dli_package":               dli.ResourceDliPackageV2(),
 			"huaweicloud_dli_queue":                 dli.ResourceDliQueue(),
 			"huaweicloud_dli_spark_job":             dli.ResourceDliSparkJobV2(),
@@ -1333,6 +1337,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_sub_network_interface":       vpc.ResourceSubNetworkInterface(),
 			"huaweicloud_vpc_traffic_mirror_filter":       vpc.ResourceTrafficMirrorFilter(),
 			"huaweicloud_vpc_traffic_mirror_filter_rule":  vpc.ResourceTrafficMirrorFilterRule(),
+			"huaweicloud_vpc_traffic_mirror_session":      vpc.ResourceTrafficMirrorSession(),
 
 			"huaweicloud_vpcep_approval": vpcep.ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),

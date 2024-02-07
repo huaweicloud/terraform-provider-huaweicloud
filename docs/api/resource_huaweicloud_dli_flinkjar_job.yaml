@@ -1,33 +1,30 @@
 info:
-  version: 
-  title: resource_huaweicloud_dli_flinkjar_job
-  description: 
+    version: ""
+    title: resource_huaweicloud_dli_flinkjar_job
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DLI
+    - name: DLI
 paths:
-  /v1.0/{project_id}/streaming/flink-jobs/{strconv.Itoa(jobId)}:
-    put:
-      tag: DLI
-      operationId: UpdateJarJob
-  /v1.0/{project_id}/streaming/flink-jobs:
-    post:
-      tag: DLI
-      operationId: CreateJarJob
-  /v1.0/{project_id}/streaming/jobs/run:
-    post:
-      tag: DLI
-      operationId: Run
-  /v1.0/{project_id}/streaming/jobs/stop:
-    post:
-      tag: DLI
-      operationId: Stop
-  /v1.0/{project_id}/streaming/jobs/{strconv.Itoa(jobId)}:
-    delete:
-      tag: DLI
-      operationId: Delete
-    get:
-      tag: DLI
-      operationId: Get
+    /v1.0/{project_id}/dli/obs-authorize:
+        POST:
+            tag: DLI
+    /v1.0/{project_id}/streaming/flink-jobs:
+        POST:
+            tag: DLI
+    /v1.0/{project_id}/streaming/flink-jobs/{job_id}:
+        PUT:
+            tag: DLI
+    /v1.0/{project_id}/streaming/jobs/{job_id}:
+        DELETE:
+            tag: DLI
+        GET:
+            tag: DLI
+    /v1.0/{project_id}/streaming/jobs/run:
+        POST:
+            tag: DLI
+    /v1.0/{project_id}/streaming/jobs/stop:
+        POST:
+            tag: DLI

@@ -1,19 +1,16 @@
 info:
+    version: ""
     title: resource_huaweicloud_cnad_advanced_protected_object
-    description: Manages a CNAD advanced protected object resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: CNAD
-servers:
-    - url: https://aad.myhuaweicloud.com
+    - name: AAD
 paths:
     /v1/cnad/packages/{package_id}/protected-ips:
         POST:
-            tag: CNAD
-            operationId: CreateAdvancedProtectedObject
-            x-ref-api: POST /v1/cnad/packages/{package_id}/protected-ips
+            tag: AAD
     /v1/cnad/protected-ips:
         GET:
-            tag: CNAD
-            operationId: GetAdvancedProtectedObject
-            x-ref-api: GET /v1/cnad/protected-ips
+            tag: AAD

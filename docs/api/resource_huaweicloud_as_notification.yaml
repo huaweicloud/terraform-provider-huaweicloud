@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_as_notification
-    description: Manages an AS notification resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: AS
-servers:
-    - url: https://AsNotification.myhuaweicloud.com
 paths:
     /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}:
         GET:
             tag: AS
-            operationId: GetASNotification
-            x-ref-api: GET autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}
         PUT:
             tag: AS
-            operationId: CreateAsNotification
-            x-ref-api: PUT autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}
     /autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}/{topic_urn}:
         DELETE:
             tag: AS
-            operationId: DeleteAsNotification
-            x-ref-api: DELETE autoscaling-api/v1/{project_id}/scaling_notification/{scaling_group_id}/{topic_urn}

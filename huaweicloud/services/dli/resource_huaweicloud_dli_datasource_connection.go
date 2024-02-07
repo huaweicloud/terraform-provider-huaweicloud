@@ -24,14 +24,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes
-// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes/{name}
 // @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections
-// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}
+// @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes
 // @API DLI GET /v2.0/{project_id}/datasource/enhanced-connections/{id}
 // @API DLI PUT /v2.0/{project_id}/datasource/enhanced-connections/{id}
 // @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/associate-queue
 // @API DLI POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/disassociate-queue
+// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes/{name}
+// @API DLI DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}
 func ResourceDatasourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatasourceConnectionCreate,

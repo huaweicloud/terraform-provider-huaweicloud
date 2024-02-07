@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_rds_storage_types
-    description: Use this data source to get the list of RDS storage-types.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RDS
-servers:
-    - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
-    /v3/{project_id}/storage-type/{database_name}:
+    /v3/{project_id}/storage-type/{db_type}:
         GET:
             tag: RDS
-            operationId: ListStorageTypes
-            x-ref-api: GET /v3/{project_id}/storage-type/{database_name}

@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_iec_security_group
-  description: 
+    version: ""
+    title: resource_huaweicloud_iec_security_group
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/security-groups/{securityGroupID}:
-    delete:
-      tag: IEC
-      operationId: Delete
-    get:
-      tag: IEC
-      operationId: Get
-  /v1/security-groups:
-    post:
-      tag: IEC
-      operationId: Create
+    /v1/security-groups:
+        POST:
+            tag: IEC
+    /v1/security-groups/{securityGroupID}:
+        DELETE:
+            tag: IEC
+        GET:
+            tag: IEC

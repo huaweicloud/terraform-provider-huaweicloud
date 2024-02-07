@@ -1,33 +1,27 @@
 info:
-  version: 
-  title: resource_huaweicloud_oms_migration_task
-  description: 
+    version: ""
+    title: resource_huaweicloud_oms_migration_task
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: OMS
+    - name: OMS
 paths:
-  /v2/{project_id}/tasks/{task_id}/bandwidth-policy:
-    put:
-      tag: OMS
-      operationId: UpdateBandwidthPolicy
-  /v2/{project_id}/tasks/{task_id}/start:
-    post:
-      tag: OMS
-      operationId: StartTask
-  /v2/{project_id}/tasks/{task_id}/stop:
-    post:
-      tag: OMS
-      operationId: StopTask
-  /v2/{project_id}/tasks/{task_id}:
-    delete:
-      tag: OMS
-      operationId: DeleteTask
-    get:
-      tag: OMS
-      operationId: ShowTask
-  /v2/{project_id}/tasks:
-    post:
-      tag: OMS
-      operationId: CreateTask
+    /v2/{project_id}/tasks:
+        POST:
+            tag: OMS
+    /v2/{project_id}/tasks/{task_id}:
+        DELETE:
+            tag: OMS
+        GET:
+            tag: OMS
+    /v2/{project_id}/tasks/{task_id}/bandwidth-policy:
+        PUT:
+            tag: OMS
+    /v2/{project_id}/tasks/{task_id}/start:
+        POST:
+            tag: OMS
+    /v2/{project_id}/tasks/{task_id}/stop:
+        POST:
+            tag: OMS

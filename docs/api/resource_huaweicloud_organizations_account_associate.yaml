@@ -1,19 +1,22 @@
 info:
+    version: ""
     title: resource_huaweicloud_organizations_account_associate
-    description: Manages an Organizations account associate resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Organizations
-servers:
-    - url: https://organizations.cn-north-4.myhuaweicloud.com
 paths:
     /v1/organizations/accounts/{account_id}:
         GET:
             tag: Organizations
-            operationId: GetAccount
-            x-ref-api: GET /v1/organizations/accounts/{account_id}
     /v1/organizations/accounts/{account_id}/move:
         POST:
             tag: Organizations
-            operationId: CreateAccountAssociate
-            x-ref-api: POST /v1/organizations/accounts/{account_id}/move
+    /v1/organizations/entities:
+        GET:
+            tag: Organizations
+    /v1/organizations/roots:
+        GET:
+            tag: Organizations

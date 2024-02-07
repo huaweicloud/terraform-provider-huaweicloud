@@ -1,32 +1,26 @@
 info:
+    version: ""
     title: resource_huaweicloud_ucs_cluster
-    description: Manages a UCS cluster resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: UCS
-servers:
-    - url: https://ucs.myhuaweicloud.com
 paths:
     /v1/clusters:
         POST:
             tag: UCS
-            operationId: CreateCluster
-            x-ref-api: POST /v1/clusters
     /v1/clusters/{id}:
         DELETE:
             tag: UCS
-            operationId: DeleteCluster
-            x-ref-api: DELETE /v1/clusters/{id}
         GET:
             tag: UCS
-            operationId: GetCluster
-            x-ref-api: GET /v1/clusters/{id}
         PUT:
             tag: UCS
-            operationId: UpdateCluster
-            x-ref-api: PUT /v1/clusters/{id}
-    /v1/clusters/{id}/associatedrules:
-        PUT:
+    /v1/clusters/{id}/join:
+        POST:
             tag: UCS
-            operationId: UpdateClusterPolicy
-            x-ref-api: PUT /v1/clusters/{id}/associatedrules
+    /v1/clusters/{id}/unjoin:
+        POST:
+            tag: UCS

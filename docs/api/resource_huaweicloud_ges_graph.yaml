@@ -1,33 +1,24 @@
 info:
+    version: ""
     title: resource_huaweicloud_ges_graph
-    description: 'Manages a GES graph resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GES
-servers:
-    - url: https://ges.myhuaweicloud.com
 paths:
     /v2/{project_id}/graphs:
         POST:
             tag: GES
-            operationId: CreateGraph
-            x-ref-api: POST /v2/{project_id}/graphs
     /v2/{project_id}/graphs/{id}:
         DELETE:
             tag: GES
-            operationId: DeleteGraph
-            x-ref-api: DELETE /v2/{project_id}/graphs/{id}
         GET:
             tag: GES
-            operationId: CreateGraphWaiting
-            x-ref-api: GET /v2/{project_id}/graphs/{id}
     /v2/{project_id}/graphs/{id}/expand:
         POST:
             tag: GES
-            operationId: expandGraphReplication
-            x-ref-api: POST /v2/{project_id}/graphs/{id}/expand
     /v2/{project_id}/graphs/{id}/resize:
         POST:
             tag: GES
-            operationId: ResizeGraph
-            x-ref-api: POST /v2/{project_id}/graphs/{id}/resize

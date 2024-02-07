@@ -1,54 +1,43 @@
 info:
-  version: 
-  title: resource_huaweicloud_drs_job
-  description: 
+    version: ""
+    title: resource_huaweicloud_drs_job
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DRS
+    - name: DRS
 paths:
-  /v3/{project_id}/jobs/batch-connection:
-    post:
-      tag: DRS
-      operationId: TestConnections
-  /v3/{project_id}/jobs/batch-creation:
-    post:
-      tag: DRS
-      operationId: Create
-  /v3/{project_id}/jobs/batch-detail:
-    post:
-      tag: DRS
-      operationId: Get
-  /v3/{project_id}/jobs/batch-jobs:
-    delete:
-      tag: DRS
-      operationId: Delete
-  /v3/{project_id}/jobs/batch-limit-speed:
-    put:
-      tag: DRS
-      operationId: LimitSpeed
-  /v3/{project_id}/jobs/batch-modification:
-    put:
-      tag: DRS
-      operationId: Update
-  /v3/{project_id}/jobs/batch-precheck-result:
-    post:
-      tag: DRS
-      operationId: CheckResults
-  /v3/{project_id}/jobs/batch-precheck:
-    post:
-      tag: DRS
-      operationId: PreCheckJobs
-  /v3/{project_id}/jobs/batch-starting:
-    post:
-      tag: DRS
-      operationId: Start
-  /v3/{project_id}/jobs/batch-status:
-    post:
-      tag: DRS
-      operationId: Status
-  /v3/{project_id}/jobs:
-    post:
-      tag: DRS
-      operationId: List
+    /v3/{project_id}/jobs:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-connection:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-creation:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-detail:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-jobs:
+        DELETE:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-limit-speed:
+        PUT:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-modification:
+        PUT:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-precheck:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-precheck-result:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-starting:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/batch-status:
+        POST:
+            tag: DRS

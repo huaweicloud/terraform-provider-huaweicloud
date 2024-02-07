@@ -59,7 +59,6 @@ func TestAccScriptExecute_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckInternal(t)
 			acceptance.TestAccPreCheckCocInstanceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

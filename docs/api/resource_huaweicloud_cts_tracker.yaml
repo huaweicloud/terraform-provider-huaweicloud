@@ -1,29 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_cts_tracker
-  description: 
+    version: ""
+    title: resource_huaweicloud_cts_tracker
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CTS
+    - name: CTS
 paths:
-  /v3/{project_id}/tracker:
-    post:
-      tag: CTS
-      operationId: CreateTracker
-    put:
-      tag: CTS
-      operationId: UpdateTracker
-  /v3/{project_id}/trackers:
-    get:
-      tag: CTS
-      operationId: ListTrackers
-  /v3/{project_id}/{resource_type}/{resource_id}/tags/create:
-    post:
-      tag: CTS
-      operationId: BatchCreateResourceTags
-  /v3/{project_id}/{resource_type}/{resource_id}/tags/delete:
-    delete:
-      tag: CTS
-      operationId: BatchDeleteResourceTags
+    /v3/{project_id}/tracker:
+        POST:
+            tag: CTS
+        PUT:
+            tag: CTS
+    /v3/{project_id}/trackers:
+        GET:
+            tag: CTS

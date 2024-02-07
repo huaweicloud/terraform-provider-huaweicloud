@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_identity_acl
-  description: 
+    version: ""
+    title: resource_huaweicloud_identity_acl
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3.0/OS-SECURITYPOLICY/domains/{domainID}/api-acl-policy:
-    get:
-      tag: IAM
-      operationId: APIACLPolicyGet
-    put:
-      tag: IAM
-      operationId: APIACLPolicyUpdate
-  /v3.0/OS-SECURITYPOLICY/domains/{domainID}/console-acl-policy:
-    get:
-      tag: IAM
-      operationId: ConsoleACLPolicyGet
-    put:
-      tag: IAM
-      operationId: ConsoleACLPolicyUpdate
+    /v3.0/OS-SECURITYPOLICY/domains/{domainID}/api-acl-policy:
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3.0/OS-SECURITYPOLICY/domains/{domainID}/console-acl-policy:
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM

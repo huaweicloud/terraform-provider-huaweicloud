@@ -1,65 +1,50 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_identity_agency
-  description:
+    version: ""
+    title: resource_huaweicloud_identity_agency
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3.0/OS-AGENCY/agencies/{id}:
-    delete:
-      tag: IAM
-      operationId: Delete
-    get:
-      tag: IAM
-      operationId: Get
-    put:
-      tag: IAM
-      operationId: Update
-  /v3.0/OS-AGENCY/agencies:
-    post:
-      tag: IAM
-      operationId: Create
-  /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles/{roleID}:
-    delete:
-      tag: IAM
-      operationId: DetachRoleByDomain
-    put:
-      tag: IAM
-      operationId: AttachRoleByDomain
-  /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles/{roleID}:
-    delete:
-      tag: IAM
-      operationId: DetachRoleByProject
-    put:
-      tag: IAM
-      operationId: AttachRoleByProject
-  /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/{roleID}/inherited_to_projects:
-    delete:
-      tag: IAM
-      operationId: DetachRoleWithAllProjects
-    put:
-      tag: IAM
-      operationId: AttachRoleWithAllProjects
-  /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles:
-    get:
-      tag: IAM
-      operationId: ListRolesAttachedOnDomain
-  /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles:
-    get:
-      tag: IAM
-      operationId: ListRolesAttachedOnProject
-  /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/inherited_to_projects:
-    get:
-      tag: IAM
-      operationId: ListRolesAttachedOnAllProjects
-  /v3/projects:
-    get:
-      tag: IAM
-      operationId: List
-  /v3/roles:
-    get:
-      tag: IAM
-      operationId: ListWithPages
+    /v3.0/OS-AGENCY/agencies:
+        POST:
+            tag: IAM
+    /v3.0/OS-AGENCY/agencies/{id}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles:
+        GET:
+            tag: IAM
+    /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles/{roleID}:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles:
+        GET:
+            tag: IAM
+    /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles/{roleID}:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/{roleID}/inherited_to_projects:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/inherited_to_projects:
+        GET:
+            tag: IAM
+    /v3/projects:
+        GET:
+            tag: IAM
+    /v3/roles:
+        GET:
+            tag: IAM

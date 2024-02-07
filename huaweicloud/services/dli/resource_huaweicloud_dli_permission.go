@@ -21,12 +21,12 @@ import (
 
 const updateAction = "update"
 
-// @API DLI GET /v1.0/{project_id}/authorization/privileges
-// @API DLI GET /v1.0/{project_id}/databases/{databaseName}/tables/{tableName}/users
-// @API DLI GET /v1.0/{project_id}/databases/{databaseName}/users
 // @API DLI PUT /v1.0/{project_id}/queues/user-authorization
-// @API DLI GET /v1.0/{project_id}/queues/{queueName}/users
 // @API DLI PUT /v1.0/{project_id}/user-authorization
+// @API DLI GET /v1.0/{project_id}/authorization/privileges
+// @API DLI GET /v1.0/{project_id}/databases/{database_name}/users
+// @API DLI GET /v1.0/{project_id}/databases/{database_name}/tables/{table_name}/users
+// @API DLI GET /v1.0/{project_id}/queues/{queue_name}/users
 func ResourceDliPermission() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliPermissionCreate,

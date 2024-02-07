@@ -1,22 +1,29 @@
 info:
+    version: ""
     title: resource_huaweicloud_organizations_organizational_unit
-    description: Manages an Organizations organizational unit resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Organizations
-servers:
-    - url: https://organizations.cn-north-4.myhuaweicloud.com
 paths:
+    /v1/organizations/{resource_type}/{resource_id}/tags:
+        GET:
+            tag: Organizations
+    /v1/organizations/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: Organizations
+    /v1/organizations/{resource_type}/{resource_id}/tags/delete:
+        POST:
+            tag: Organizations
+    /v1/organizations/organizational-units:
+        POST:
+            tag: Organizations
     /v1/organizations/organizational-units/{organizational_unit_id}:
         DELETE:
             tag: Organizations
-            operationId: DeleteOrganizationalUnit
-            x-ref-api: DELETE /v1/organizations/organizational-units/{organizational_unit_id}
         GET:
             tag: Organizations
-            operationId: GetOrganizationalUnit
-            x-ref-api: GET /v1/organizations/organizational-units/{organizational_unit_id}
         PATCH:
             tag: Organizations
-            operationId: UpdateOrganizationalUnit
-            x-ref-api: PATCH /v1/organizations/organizational-units/{organizational_unit_id}

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dns_custom_line
-    description: Manages a DNS custom line resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DNS
-servers:
-    - url: https://dns.cn-north-4.myhuaweicloud.com
 paths:
     /v2.1/customlines:
         GET:
             tag: DNS
-            operationId: GetDNSCustomLine
-            x-ref-api: GET /v2.1/customlines
         POST:
             tag: DNS
-            operationId: CreateDNSCustomLine
-            x-ref-api: POST /v2.1/customlines
     /v2.1/customlines/{line_id}:
         DELETE:
             tag: DNS
-            operationId: DeleteDNSCustomLine
-            x-ref-api: DELETE /v2.1/customlines/{line_id}
         PUT:
             tag: DNS
-            operationId: UpdateDNSCustomLine
-            x-ref-api: PUT /v2.1/customlines/{line_id}

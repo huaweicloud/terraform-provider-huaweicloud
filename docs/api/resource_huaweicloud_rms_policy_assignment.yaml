@@ -1,32 +1,26 @@
 info:
-  version: 
-  title: resource_huaweicloud_rms_policy_assignment
-  description: 
+    version: ""
+    title: resource_huaweicloud_rms_policy_assignment
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Config
+    - name: Config
 paths:
-  /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/disable:
-    post:
-      tag: Config
-      operationId: Disable
-  /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/enable:
-    post:
-      tag: Config
-      operationId: Enable
-  /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}:
-    delete:
-      tag: Config
-      operationId: Delete
-    get:
-      tag: Config
-      operationId: Get
-    put:
-      tag: Config
-      operationId: Update
-  /v1/resource-manager/domains/{domainId}/policy-assignments:
-    put:
-      tag: Config
-      operationId: Create
+    /v1/resource-manager/domains/{domainId}/policy-assignments:
+        PUT:
+            tag: Config
+    /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}:
+        DELETE:
+            tag: Config
+        GET:
+            tag: Config
+        PUT:
+            tag: Config
+    /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/disable:
+        POST:
+            tag: Config
+    /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/enable:
+        POST:
+            tag: Config

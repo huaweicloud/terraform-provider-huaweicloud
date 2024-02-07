@@ -8,12 +8,6 @@ host: huaweicloud.com
 tags:
     - name: FunctionGraph
 paths:
-    /v2/{project_id}/{resource_type}/{resource_id}/tags/create:
-        POST:
-            tag: FunctionGraph
-    /v2/{project_id}/{resource_type}/{resource_id}/tags/delete:
-        DELETE:
-            tag: FunctionGraph
     /v2/{project_id}/fgs/functions:
         POST:
             tag: FunctionGraph
@@ -38,6 +32,12 @@ paths:
             tag: FunctionGraph
     /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance:
         PUT:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/tags/create:
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/tags/delete:
+        DELETE:
             tag: FunctionGraph
     /v2/{project_id}/fgs/functions/{function_urn}/versions:
         GET:

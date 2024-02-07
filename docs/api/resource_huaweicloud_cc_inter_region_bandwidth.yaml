@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_cc_inter_region_bandwidth
-    description: "Manages an inter-region bandwidth resource of Cloud Connect within HuaweiCloud.  \n-> If network instances are in the same region, they can communicate with each other by default after they are loaded\n   to one cloud connection. If network instances are in different regions, you need to assign inter-region bandwidths\n  to ensure normal network communications between the instances. \n  By default, the system allocates 10 kbit/s of bandwidth for testing network connectivity across regions."
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CC
-servers:
-    - url: https://cc.myhuaweicloud.com
 paths:
     /v3/{domain_id}/ccaas/inter-region-bandwidths:
         POST:
             tag: CC
-            operationId: CreateInterRegionBandwidth
-            x-ref-api: POST /v3/{domain_id}/ccaas/inter-region-bandwidths
     /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}:
         DELETE:
             tag: CC
-            operationId: DeleteInterRegionBandwidth
-            x-ref-api: DELETE /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}
         GET:
             tag: CC
-            operationId: GetInterRegionBandwidth
-            x-ref-api: GET /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}
         PUT:
             tag: CC
-            operationId: UpdateInterRegionBandwidth
-            x-ref-api: PUT /v3/{domain_id}/ccaas/inter-region-bandwidths/{id}

@@ -1,18 +1,15 @@
 info:
+    version: ""
     title: resource_huaweicloud_dli_agency
-    description: "Assign Agency Permissions of DLI service within HuaweiCloud.  \nOnce service authorization has succeeded, an agency named **dli_admin_agency** on IAM will be created."
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DLI
-servers:
-    - url: https://dli.myhuaweicloud.com
 paths:
     /v2/{project_id}/agency:
         GET:
             tag: DLI
-            operationId: GetAgency
-            x-ref-api: GET /v2/{project_id}/agency
         POST:
             tag: DLI
-            operationId: CreateAgency
-            x-ref-api: POST /v2/{project_id}/agency

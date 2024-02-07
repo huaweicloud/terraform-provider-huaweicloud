@@ -21,7 +21,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to obtain the DCS flavors.
   If omitted, the provider-level region will be used.
 
-* `capacity` - (Required, Float) The total memory of the cache, in GB.
+* `capacity` - (Optional, Float) The total memory of the cache, in GB.
   + **Redis4.0, Redis5.0 and Redis6.0**: Stand-alone and active/standby type instance values:
     `0.125`, `0.25`, `0.5`, `1`, `2`, `4`, `8`, `16`, `32` and `64`.
     Cluster instance specifications support `4`,`8`,`16`,`24`, `32`, `48`, `64`, `96`, `128`, `192`,

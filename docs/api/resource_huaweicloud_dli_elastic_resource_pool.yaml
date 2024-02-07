@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dli_elastic_resource_pool
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DLI
+paths:
+    /v3/{project_id}/elastic-resource-pools:
+        GET:
+            tag: DLI
+        POST:
+            tag: DLI
+    /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}:
+        DELETE:
+            tag: DLI
+        PUT:
+            tag: DLI

@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_cfw_service_group_member
-    description: Manages a CFW service group member resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CFW
-servers:
-    - url: https://cfw.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/service-items:
         GET:
             tag: CFW
-            operationId: GetServiceGroupMember
-            x-ref-api: GET /v1/{project_id}/service-items
         POST:
             tag: CFW
-            operationId: CreateServiceGroupMember
-            x-ref-api: POST /v1/{project_id}/service-items
     /v1/{project_id}/service-items/{id}:
         DELETE:
             tag: CFW
-            operationId: DeleteServiceGroupMember
-            x-ref-api: DELETE /v1/{project_id}/service-items/{id}

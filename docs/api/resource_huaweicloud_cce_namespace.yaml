@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_cce_namespace
-  description: 
+    version: ""
+    title: resource_huaweicloud_cce_namespace
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCE
+    - name: CCE
 paths:
-  /api/v1/namespaces/{name}:
-    delete:
-      tag: CCE
-      operationId: Delete
-    get:
-      tag: CCE
-      operationId: Get
-  /api/v1/namespaces:
-    post:
-      tag: CCE
-      operationId: Create
+    /api/v1/namespaces:
+        POST:
+            tag: CCE
+    /api/v1/namespaces/{name}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE

@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpcep_approval
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpcep_approval
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPCEP
+    - name: VPCEP
 paths:
-  /v1/{project_id}/vpc-endpoint-services/{serviceID}/connections/action:
-    post:
-      tag: VPCEP
-      operationId: ConnAction
-  /v1/{project_id}/vpc-endpoint-services/{serviceID}/connections:
-    get:
-      tag: VPCEP
-      operationId: ListConnections
-  /v1/{project_id}/vpc-endpoint-services/{serviceID}:
-    get:
-      tag: VPCEP
-      operationId: Get
+    /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}:
+        GET:
+            tag: VPCEP
+    /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections:
+        GET:
+            tag: VPCEP
+    /v1/{project_id}/vpc-endpoint-services/{vpc_endpoint_service_id}/connections/action:
+        POST:
+            tag: VPCEP

@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_iec_keypair
-  description: 
+    version: ""
+    title: data_source_huaweicloud_iec_keypair
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/os-keypairs/{KeyPairName}:
-    get:
-      tag: IEC
-      operationId: Get
+    /v1/os-keypairs/{KeyPairName}:
+        GET:
+            tag: IEC

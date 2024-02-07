@@ -1,0 +1,32 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_network_acl
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v3/{project_id}/vpc/firewalls:
+        POST:
+            tag: VPC
+    /v3/{project_id}/vpc/firewalls/{firewall_id}/associate-subnets:
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/firewalls/{firewall_id}/disassociate-subnets:
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/firewalls/{firewall_id}/insert-rules:
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/firewalls/{firewall_id}/remove-rules:
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/firewalls/{id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC

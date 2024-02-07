@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_dbss_flavors
-    description: Use this data source to get the list of DBSS flavors.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DBSS
-servers:
-    - url: https://dbss.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/dbss/audit/specification:
         GET:
             tag: DBSS
-            operationId: GetDbssFlavors
-            x-ref-api: GET /v1/{project_id}/dbss/audit/specification

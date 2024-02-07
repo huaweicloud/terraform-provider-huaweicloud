@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_servicestage_component
-  description: 
+    version: ""
+    title: resource_huaweicloud_servicestage_component
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ServiceStage
+    - name: ServiceStage
 paths:
-  /v2/{project_id}/cas/applications/{appId}/components/{componentId}:
-    delete:
-      tag: ServiceStage
-      operationId: Delete
-    get:
-      tag: ServiceStage
-      operationId: Get
-    put:
-      tag: ServiceStage
-      operationId: Update
-  /v2/{project_id}/cas/applications/{appId}/components:
-    post:
-      tag: ServiceStage
-      operationId: Create
+    /v2/{project_id}/cas/applications/{appId}/components:
+        POST:
+            tag: ServiceStage
+    /v2/{project_id}/cas/applications/{appId}/components/{componentId}:
+        DELETE:
+            tag: ServiceStage
+        GET:
+            tag: ServiceStage
+        PUT:
+            tag: ServiceStage

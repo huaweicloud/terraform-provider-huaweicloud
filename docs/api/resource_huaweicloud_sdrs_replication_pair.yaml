@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_sdrs_replication_pair
-  description: 
+    version: ""
+    title: resource_huaweicloud_sdrs_replication_pair
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SDRS
+    - name: SDRS
 paths:
-  /v1/{project_id}/replications/{id}:
-    delete:
-      tag: SDRS
-      operationId: Delete
-    get:
-      tag: SDRS
-      operationId: Get
-    put:
-      tag: SDRS
-      operationId: Update
-  /v1/{project_id}/replications:
-    post:
-      tag: SDRS
-      operationId: Create
+    /v1/{project_id}/replications:
+        POST:
+            tag: SDRS
+    /v1/{project_id}/replications/{id}:
+        DELETE:
+            tag: SDRS
+        GET:
+            tag: SDRS
+        PUT:
+            tag: SDRS

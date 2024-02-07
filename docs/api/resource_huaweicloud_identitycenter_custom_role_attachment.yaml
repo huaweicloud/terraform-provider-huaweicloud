@@ -1,22 +1,17 @@
 info:
+    version: ""
     title: resource_huaweicloud_identitycenter_custom_role_attachment
-    description: Manages an Identity Center custom role attachment resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: IdentityCenter
-servers:
-    - url: https://identitycenter.myhuaweicloud.com
 paths:
     /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role:
         DELETE:
             tag: IdentityCenter
-            operationId: DeleteCustomRoleAttachment
-            x-ref-api: DELETE /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role
         GET:
             tag: IdentityCenter
-            operationId: GetCustomRoleAttachment
-            x-ref-api: GET /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role
         PUT:
             tag: IdentityCenter
-            operationId: AddCustomRoleAttachment
-            x-ref-api: PUT /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-role

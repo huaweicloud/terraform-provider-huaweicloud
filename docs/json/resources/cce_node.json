@@ -452,7 +452,7 @@
                     },
                     "value": {
                       "type": "string",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true
                     }
                   }

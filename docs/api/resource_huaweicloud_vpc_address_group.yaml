@@ -1,28 +1,23 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_address_group
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_address_group
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPC
+    - name: VPC
 paths:
-  /v3/{project_id}/vpc/address-groups/{address_group_id}/force:
-    delete:
-      tag: VPC
-      operationId: DeleteIpAddressGroupForce
-  /v3/{project_id}/vpc/address-groups/{address_group_id}:
-    delete:
-      tag: VPC
-      operationId: DeleteAddressGroup
-    get:
-      tag: VPC
-      operationId: ShowAddressGroup
-    put:
-      tag: VPC
-      operationId: UpdateAddressGroup
-  /v3/{project_id}/vpc/address-groups:
-    post:
-      tag: VPC
-      operationId: CreateAddressGroup
+    /v3/{project_id}/vpc/address-groups:
+        POST:
+            tag: VPC
+    /v3/{project_id}/vpc/address-groups/{address_group_id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/address-groups/{address_group_id}/force:
+        DELETE:
+            tag: VPC

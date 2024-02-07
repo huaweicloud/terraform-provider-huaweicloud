@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: resource_huaweicloud_images_image_share_accepter
-    description: Manages an IMS image share accepter resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: IMS
-servers:
-    - url: https://ims.cn-north-4.myhuaweicloud.com
 paths:
     /v1/cloudimages/members:
         PUT:
             tag: IMS
-            operationId: CreateImageShareAccepter
-            x-ref-api: PUT /v1/cloudimages/members

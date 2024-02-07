@@ -26,13 +26,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ER POST /v3/{project_id}/{resource_type}/{resource_id}/tags
-// @API ER DELETE /v3/{project_id}/{resource_type}/{resource_id}/tags/{key}
 // @API ER POST /v3/{project_id}/enterprise-router/instances
-// @API ER DELETE /v3/{project_id}/enterprise-router/instances/{id}
-// @API ER GET /v3/{project_id}/enterprise-router/instances/{id}
-// @API ER PUT /v3/{project_id}/enterprise-router/instances/{id}
-// @API ER POST /v3/{project_id}/enterprise-router/instances/{id}/change-availability-zone-ids
+// @API ER PUT /v3/{project_id}/enterprise-router/instances/{er_id}
+// @API ER POST /v3/{project_id}/{resource_type}/{resource_id}/tags/action
+// @API ER GET /v3/{project_id}/enterprise-router/instances/{er_id}
+// @API ER POST /v3/{project_id}/enterprise-router/instances/{er_id}/change-availability-zone-ids
+// @API ER DELETE /v3/{project_id}/enterprise-router/instances/{er_id}
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -189,7 +188,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	// updateInstanceDefaultRouteTables: Update default route tables
 	var (
-		updateInstanceDefaultRouteTablesHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
+		updateInstanceDefaultRouteTablesHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 		updateInstanceDefaultRouteTablesProduct = "er"
 	)
 	updateInstanceDefaultRouteTablesClient, err := cfg.NewServiceClient(updateInstanceDefaultRouteTablesProduct, region)
@@ -200,7 +199,7 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	updateInstanceDefaultRouteTablesPath := updateInstanceDefaultRouteTablesClient.Endpoint + updateInstanceDefaultRouteTablesHttpUrl
 	updateInstanceDefaultRouteTablesPath = strings.ReplaceAll(updateInstanceDefaultRouteTablesPath, "{project_id}",
 		updateInstanceDefaultRouteTablesClient.ProjectID)
-	updateInstanceDefaultRouteTablesPath = strings.ReplaceAll(updateInstanceDefaultRouteTablesPath, "{id}", d.Id())
+	updateInstanceDefaultRouteTablesPath = strings.ReplaceAll(updateInstanceDefaultRouteTablesPath, "{er_id}", d.Id())
 
 	updateInstanceDefaultRouteTablesOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -273,7 +272,7 @@ func instanceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceDat
 			region := cfg.GetRegion(d)
 			// createInstanceWaiting: Query the Enterprise router instance status
 			var (
-				createInstanceWaitingHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
+				createInstanceWaitingHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 				createInstanceWaitingProduct = "er"
 			)
 			createInstanceWaitingClient, err := cfg.NewServiceClient(createInstanceWaitingProduct, region)
@@ -283,7 +282,7 @@ func instanceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceDat
 
 			createInstanceWaitingPath := createInstanceWaitingClient.Endpoint + createInstanceWaitingHttpUrl
 			createInstanceWaitingPath = strings.ReplaceAll(createInstanceWaitingPath, "{project_id}", createInstanceWaitingClient.ProjectID)
-			createInstanceWaitingPath = strings.ReplaceAll(createInstanceWaitingPath, "{id}", d.Id())
+			createInstanceWaitingPath = strings.ReplaceAll(createInstanceWaitingPath, "{er_id}", d.Id())
 
 			createInstanceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -331,7 +330,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	// getInstance: Query the Enterprise router instance detail
 	var (
-		getInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
+		getInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 		getInstanceProduct = "er"
 	)
 	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
@@ -341,7 +340,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
 	getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
-	getInstancePath = strings.ReplaceAll(getInstancePath, "{id}", d.Id())
+	getInstancePath = strings.ReplaceAll(getInstancePath, "{er_id}", d.Id())
 
 	getInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -402,10 +401,10 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstancehasChanges...) {
 		// updateInstance: Update the configuration of Enterprise router instance
-		updateInstanceHttpUrl := "enterprise-router/instances/{id}"
+		updateInstanceHttpUrl := "enterprise-router/instances/{er_id}"
 		updateInstancePath := client.ResourceBaseURL() + updateInstanceHttpUrl
 		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{project_id}", client.ProjectID)
-		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{id}", d.Id())
+		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{er_id}", d.Id())
 
 		updateInstanceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -430,10 +429,10 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstanceAvailabilityZoneshasChanges...) {
 		// updateInstanceAvailabilityZones: Update the availability zone list where the Enterprise router instance is located
-		updateInstanceAvailabilityZonesHttpUrl := "enterprise-router/instances/{id}/change-availability-zone-ids"
+		updateInstanceAvailabilityZonesHttpUrl := "enterprise-router/instances/{er_id}/change-availability-zone-ids"
 		updateInstanceAvailabilityZonesPath := client.ResourceBaseURL() + updateInstanceAvailabilityZonesHttpUrl
 		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{project_id}", client.ProjectID)
-		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{id}", d.Id())
+		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{er_id}", d.Id())
 
 		updateInstanceAvailabilityZonesOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -494,7 +493,7 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 	// deleteInstance: Deleter an existing router instance
 	var (
-		deleteInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
+		deleteInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 		deleteInstanceProduct = "er"
 	)
 	deleteInstanceClient, err := cfg.NewServiceClient(deleteInstanceProduct, region)
@@ -504,7 +503,7 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 	deleteInstancePath := deleteInstanceClient.Endpoint + deleteInstanceHttpUrl
 	deleteInstancePath = strings.ReplaceAll(deleteInstancePath, "{project_id}", deleteInstanceClient.ProjectID)
-	deleteInstancePath = strings.ReplaceAll(deleteInstancePath, "{id}", d.Id())
+	deleteInstancePath = strings.ReplaceAll(deleteInstancePath, "{er_id}", d.Id())
 
 	deleteInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -533,7 +532,7 @@ func deleteInstanceWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			region := config.GetRegion(d)
 			// deleteInstanceWaiting: missing operation notes
 			var (
-				deleteInstanceWaitingHttpUrl = "v3/{project_id}/enterprise-router/instances/{id}"
+				deleteInstanceWaitingHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 				deleteInstanceWaitingProduct = "er"
 			)
 			deleteInstanceWaitingClient, err := config.NewServiceClient(deleteInstanceWaitingProduct, region)
@@ -543,7 +542,7 @@ func deleteInstanceWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 
 			deleteInstanceWaitingPath := deleteInstanceWaitingClient.Endpoint + deleteInstanceWaitingHttpUrl
 			deleteInstanceWaitingPath = strings.ReplaceAll(deleteInstanceWaitingPath, "{project_id}", deleteInstanceWaitingClient.ProjectID)
-			deleteInstanceWaitingPath = strings.ReplaceAll(deleteInstanceWaitingPath, "{id}", d.Id())
+			deleteInstanceWaitingPath = strings.ReplaceAll(deleteInstanceWaitingPath, "{er_id}", d.Id())
 
 			deleteInstanceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,

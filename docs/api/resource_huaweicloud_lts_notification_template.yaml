@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_notification_template
-    description: 'Manages a LTS notification template resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.myhuaweicloud.com
 paths:
     /v2/{project_id}/{domain_id}/lts/events/notification/template/{id}:
         GET:
             tag: LTS
-            operationId: GetNotificationTemplate
-            x-ref-api: GET /v2/{project_id}/{domain_id}/lts/events/notification/template/{id}
     /v2/{project_id}/{domain_id}/lts/events/notification/templates:
         DELETE:
             tag: LTS
-            operationId: DeleteNotificationTemplate
-            x-ref-api: DELETE /v2/{project_id}/{domain_id}/lts/events/notification/templates
         POST:
             tag: LTS
-            operationId: CreateNotificationTemplate
-            x-ref-api: POST /v2/{project_id}/{domain_id}/lts/events/notification/templates
         PUT:
             tag: LTS
-            operationId: UpdateNotificationTemplate
-            x-ref-api: PUT /v2/{project_id}/{domain_id}/lts/events/notification/templates

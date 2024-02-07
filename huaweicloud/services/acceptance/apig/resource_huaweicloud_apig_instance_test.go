@@ -226,6 +226,7 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  loadbalancer_provider = "elb"
   edition               = "BASIC"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
@@ -275,8 +276,8 @@ func TestAccInstance_ingress(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttrSet(resourceName, "eip_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "bandwidth"),
 				),
 			},
 			{
@@ -285,8 +286,8 @@ func TestAccInstance_ingress(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttrSet(resourceName, "eip_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "6"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "traffic"),
 				),
 			},
 			{
@@ -351,29 +352,18 @@ func testAccInstance_ingress(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc_eip" "test" {
-  publicip {
-    type = "5_bgp"
-  }
-
-  bandwidth {
-    name        = "%[2]s"
-    size        = 3
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
-
 resource "huaweicloud_apig_instance" "test" {
   vpc_id             = huaweicloud_vpc.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  eip_id                = huaweicloud_vpc_eip.test.id
+  edition                         = "BASIC"
+  name                            = "%[2]s"
+  enterprise_project_id           = "%[3]s"
+  maintain_begin                  = "14:00:00"
+  ingress_bandwidth_size          = 5
+  ingress_bandwidth_charging_mode = "bandwidth"
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -384,29 +374,18 @@ func testAccInstance_ingressUpdate(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_vpc_eip" "update" {
-  publicip {
-    type = "5_bgp"
-  }
-  bandwidth {
-    name        = "%[2]s"
-    size        = 4
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
-
 resource "huaweicloud_apig_instance" "test" {
   vpc_id             = huaweicloud_vpc.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   security_group_id  = huaweicloud_networking_secgroup.test.id
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  maintain_begin        = "14:00:00"
-  eip_id                = huaweicloud_vpc_eip.update.id
+  edition                         = "BASIC"
+  name                            = "%[2]s"
+  enterprise_project_id           = "%[3]s"
+  maintain_begin                  = "14:00:00"
+  ingress_bandwidth_size          = 6
+  ingress_bandwidth_charging_mode = "traffic"
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

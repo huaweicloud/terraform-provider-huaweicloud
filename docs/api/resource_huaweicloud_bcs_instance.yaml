@@ -1,33 +1,27 @@
 info:
-  version: 
-  title: resource_huaweicloud_bcs_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_bcs_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: BCS
+    - name: BCS
 paths:
-  /v2/{project_id}/blockchains/{instanceID}:
-    delete:
-      tag: BCS
-      operationId: Delete
-    get:
-      tag: BCS
-      operationId: Get
-  /v2/{project_id}/blockchains:
-    post:
-      tag: BCS
-      operationId: Create
-  /api/v3/projects/{project_id}/clusters/{id}:
-    get:
-      tag: CCE
-      operationId: Get
-  /v2/{project_id}/instances/{id}:
-    delete:
-      tag: DMS
-      operationId: Delete
-  /v2/{project_id}/instances:
-    get:
-      tag: DMS
-      operationId: List
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE
+    /v2/{project_id}/blockchains:
+        POST:
+            tag: BCS
+    /v2/{project_id}/blockchains/{blockchain_id}:
+        DELETE:
+            tag: BCS
+        GET:
+            tag: BCS
+    /v2/{project_id}/instances:
+        GET:
+            tag: DMS
+    /v2/{project_id}/instances/{instance_id}:
+        DELETE:
+            tag: DMS

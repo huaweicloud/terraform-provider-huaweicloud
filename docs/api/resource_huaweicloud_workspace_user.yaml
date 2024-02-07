@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_workspace_user
-  description: 
+    version: ""
+    title: resource_huaweicloud_workspace_user
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Workspace
+    - name: Workspace
 paths:
-  /v2/{project_id}/users/{userId}:
-    delete:
-      tag: Workspace
-      operationId: Delete
-    get:
-      tag: Workspace
-      operationId: Get
-    put:
-      tag: Workspace
-      operationId: Update
-  /v2/{project_id}/users:
-    post:
-      tag: Workspace
-      operationId: Create
+    /v2/{project_id}/users:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/users/{user_id}:
+        DELETE:
+            tag: Workspace
+        GET:
+            tag: Workspace
+        PUT:
+            tag: Workspace

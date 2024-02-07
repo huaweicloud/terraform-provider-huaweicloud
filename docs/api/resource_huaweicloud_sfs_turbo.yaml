@@ -1,25 +1,30 @@
 info:
-  version: 
-  title: resource_huaweicloud_sfs_turbo
-  description: 
+    version: ""
+    title: resource_huaweicloud_sfs_turbo
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SFSTurbo
+    - name: SFSTurbo
 paths:
-  /v1/{project_id}/sfs-turbo/shares/{id}/action:
-    post:
-      tag: SFSTurbo
-      operationId: Expand
-  /v1/{project_id}/sfs-turbo/shares/{id}:
-    delete:
-      tag: SFSTurbo
-      operationId: Delete
-    get:
-      tag: SFSTurbo
-      operationId: Get
-  /v1/{project_id}/sfs-turbo/shares:
-    post:
-      tag: SFSTurbo
-      operationId: Create
+    /v1/{project_id}/sfs-turbo/{id}/tags:
+        GET:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/{id}/tags/{key}:
+        DELETE:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/{id}/tags/action:
+        POST:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares:
+        POST:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{id}:
+        DELETE:
+            tag: SFSTurbo
+        GET:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{id}/action:
+        POST:
+            tag: SFSTurbo

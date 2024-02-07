@@ -133,6 +133,12 @@ func ResourceConnection() *schema.Resource {
 				Description: `The policy rules. Only works when vpn_type is set to **policy**`,
 			},
 			"tags": common.TagsSchema(),
+			"ha_role": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -422,6 +428,7 @@ func buildCreateConnectionVpnConnectionChildBody(d *schema.ResourceData) map[str
 		"ipsecpolicy":          buildCreateConnectionIpsecpolicyChildBody(d),
 		"policy_rules":         buildCreateConnectionPolicyRulesChildBody(d),
 		"tags":                 utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"ha_role":              utils.ValueIngoreEmpty(d.Get("ha_role")),
 	}
 
 	if enableNqa, ok := d.GetOk("enable_nqa"); ok {
@@ -645,6 +652,7 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("created_at", utils.PathSearch("vpn_connection.created_at", getConnectionRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("vpn_connection.updated_at", getConnectionRespBody, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("vpn_connection.tags", getConnectionRespBody, nil))),
+		d.Set("ha_role", utils.PathSearch("vpn_connection.ha_role", getConnectionRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

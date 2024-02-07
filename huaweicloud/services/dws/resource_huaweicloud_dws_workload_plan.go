@@ -51,9 +51,10 @@ func ResourceWorkLoadPlan() *schema.Resource {
 				ForceNew: true,
 			},
 			"logical_cluster_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"status": {
 				Type:     schema.TypeString,

@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_er_static_route
-  description: 
+    version: ""
+    title: resource_huaweicloud_er_static_route
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ER
+    - name: ER
 paths:
-  /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes/{routeId}:
-    delete:
-      tag: ER
-      operationId: Delete
-    get:
-      tag: ER
-      operationId: Get
-    put:
-      tag: ER
-      operationId: Update
-  /v3/{project_id}/enterprise-router/route-tables/{routeTableId}/static-routes:
-    post:
-      tag: ER
-      operationId: Create
+    /v3/{project_id}/enterprise-router/route-tables/{route_table_id}/static-routes:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/route-tables/{route_table_id}/static-routes/{route_id}:
+        DELETE:
+            tag: ER
+        GET:
+            tag: ER
+        PUT:
+            tag: ER

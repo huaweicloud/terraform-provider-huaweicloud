@@ -6,6 +6,7 @@ import (
 	"log"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,10 +61,16 @@ const (
 // @API EIP PUT /v1/{project_id}/publicips/{id}
 // @API EIP DELETE /v1/{project_id}/publicips/{id}
 // @API EIP POST /v2.0/{project_id}/publicips
+// @API EIP POST /v1/{project_id}/publicips
+// @API EIP POST /v2.0/{project_id}/publicips/change-to-period
 // @API EIP POST /v2.0/{project_id}/publicips/{id}/tags/action
-// @API EIP GET /v2.0/{project_id}/publicips/{id}/tags
 // @API EIP GET /v1/{project_id}/bandwidths/{id}
 // @API EIP PUT /v1/{project_id}/bandwidths/{id}
+// @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceVpcEIPV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcEipCreate,
@@ -194,12 +201,33 @@ func ResourceVpcEIPV1() *schema.Resource {
 			},
 			"tags": common.TagsSchema(),
 
-			// Charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit([]string{"publicip.0.ip_address"}),
-			"period":        common.SchemaPeriod([]string{"publicip.0.ip_address"}),
-			"auto_renew":    common.SchemaAutoRenewUpdatable([]string{"publicip.0.ip_address"}),
-			"auto_pay":      common.SchemaAutoPay([]string{"publicip.0.ip_address"}),
+			// charging_mode,  period_unit and period only support changing post-paid to pre-paid billing mode.
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+				ConflictsWith: []string{"publicip.0.ip_address"},
+			},
+			"period": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				RequiredWith:  []string{"period_unit"},
+				ValidateFunc:  validation.IntBetween(1, 9),
+				ConflictsWith: []string{"publicip.0.ip_address"},
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable([]string{"publicip.0.ip_address"}),
+			"auto_pay":   common.SchemaAutoPay([]string{"publicip.0.ip_address"}),
 
 			// Attributes
 			"address": {
@@ -495,21 +523,9 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("status", NormalizeEipStatus(publicIp.Status)),
 		d.Set("publicip", flattenEipPublicIpDetails(publicIp)),
 		d.Set("bandwidth", flattenEipBandwidthDetails(publicIp, bandWidth)),
+		d.Set("charging_mode", normalizeChargingMode(publicIp.Profile.OrderID)),
+		d.Set("tags", flattenTagsToMap(publicIp.Tags)),
 	)
-
-	// Save tags via EIP API.
-	if vpcV2Client, err := cfg.NetworkingV2Client(region); err == nil {
-		if resourceTags, err := tags.Get(vpcV2Client, "publicips", resourceId).Extract(); err == nil {
-			tagmap := utils.TagsToMap(resourceTags.Tags)
-			if err := d.Set("tags", tagmap); err != nil {
-				mErr = multierror.Append(mErr, fmt.Errorf("error saving tags for EIP (%s): %s", resourceId, err))
-			}
-		} else {
-			log.Printf("[WARN] Error fetching tags for EIP (%s): %s", resourceId, err)
-		}
-	} else {
-		mErr = multierror.Append(mErr, fmt.Errorf("error creating VPC v2.0 client: %s", err))
-	}
 
 	networkingV3Client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
@@ -520,7 +536,6 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 		log.Printf("[WARN] failed to fetch the info for EIP (%s) from v3 API: %s", resourceId, err)
 	} else {
 		mErr = multierror.Append(nil,
-			d.Set("charging_mode", normalizeChargingMode(resp.BillingInfo)),
 			d.Set("updated_at", resp.UpdatedAt),
 			d.Set("associate_type", resp.AssociateInstanceType),
 			d.Set("associate_id", resp.AssociateInstanceID),
@@ -533,6 +548,21 @@ func resourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.FromErr(mErr)
 	}
 	return nil
+}
+
+func flattenTagsToMap(tagsList []string) map[string]string {
+	result := make(map[string]string)
+
+	for _, tagStr := range tagsList {
+		tagRaw := strings.SplitN(tagStr, "=", 2)
+		if len(tagRaw) == 1 {
+			result[tagRaw[0]] = ""
+		} else if len(tagRaw) == 2 {
+			result[tagRaw[0]] = tagRaw[1]
+		}
+	}
+
+	return result
 }
 
 func updateEipConfig(vpcV1Client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -646,6 +676,16 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
 
+	vpcV2Client, err := cfg.NetworkingV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v2 client: %s", err)
+	}
+
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS V2 client: %s", err)
+	}
+
 	// the API limitation: port_id and ip_version cannot be updated at the same time
 	if d.HasChanges("name", "publicip.0.ip_version") {
 		err = updateEipConfig(vpcV1Client, d)
@@ -661,33 +701,48 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	if d.HasChange("bandwidth") {
-		err = updateEipBandwidth(vpcV1Client, cfg, d)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
 	// update tags
 	if d.HasChange("tags") {
-		vpcV2Client, err := cfg.NetworkingV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating VPC v2 client: %s", err)
-		}
-
 		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "publicips", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("error updating tags of VPC (%s): %s", d.Id(), tagErr)
 		}
 	}
 
-	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
+	// update charging mode
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) == "postPaid" {
+			return diag.Errorf("error updating the charging mode of the EIP (%s): %s", d.Id(),
+				"only support changing post-paid EIP to pre-paid")
 		}
+		changeOpts := eips.ChangeToPeriodOpts{
+			PublicIPIDs: []string{d.Id()},
+			ExtendParam: sdkstructs.ChargeInfo{
+				ChargeMode:  "prePaid",
+				PeriodType:  d.Get("period_unit").(string),
+				PeriodNum:   d.Get("period").(int),
+				IsAutoRenew: d.Get("auto_renew").(string),
+				IsAutoPay:   "true",
+			},
+		}
+		orderID, err := eips.ChangeToPeriod(vpcV2Client, changeOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error changing EIP (%s) to pre-paid billing mode: %s", d.Id(), err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
 			return diag.Errorf("error updating the auto-renew of the EIP (%s): %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("bandwidth") {
+		err = updateEipBandwidth(vpcV1Client, cfg, d)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

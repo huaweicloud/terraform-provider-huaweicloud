@@ -1,32 +1,23 @@
 info:
+    version: ""
     title: resource_huaweicloud_waf_rule_global_protection_whitelist
-    description: Manages a WAF global protection whitelist rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: WAF
-servers:
-    - url: https://waf.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status:
         PUT:
             tag: WAF
-            operationId: UpdateWAFRuleStatus
-            x-ref-api: PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
     /v1/{project_id}/waf/policy/{policy_id}/ignore:
         POST:
             tag: WAF
-            operationId: CreateRuleGlobalProtectionWhitelist
-            x-ref-api: POST /v1/{project_id}/waf/policy/{policy_id}/ignore
     /v1/{project_id}/waf/policy/{policy_id}/ignore/{rule_id}:
         DELETE:
             tag: WAF
-            operationId: DeleteRuleGlobalProtectionWhitelist
-            x-ref-api: DELETE /v1/{project_id}/waf/policy/{policy_id}/ignore/{rule_id}
         GET:
             tag: WAF
-            operationId: GetRuleGlobalProtectionWhitelist
-            x-ref-api: GET /v1/{project_id}/waf/policy/{policy_id}/ignore/{rule_id}
         PUT:
             tag: WAF
-            operationId: UpdateRuleGlobalProtectionWhitelist
-            x-ref-api: PUT /v1/{project_id}/waf/policy/{policy_id}/ignore/{rule_id}

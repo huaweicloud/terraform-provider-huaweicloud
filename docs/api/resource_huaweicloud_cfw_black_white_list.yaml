@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_cfw_black_white_list
-    description: Manages a CFW black white list resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CFW
-servers:
-    - url: https://cfw.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/black-white-list:
         POST:
             tag: CFW
-            operationId: CreateBlackWhiteList
-            x-ref-api: POST /v1/{project_id}/black-white-list
     /v1/{project_id}/black-white-list/{id}:
         DELETE:
             tag: CFW
-            operationId: DeleteBlackWhiteList
-            x-ref-api: DELETE /v1/{project_id}/black-white-list/{id}
         PUT:
             tag: CFW
-            operationId: UpdateBlackWhiteList
-            x-ref-api: PUT /v1/{project_id}/black-white-list/{id}
     /v1/{project_id}/black-white-lists:
         GET:
             tag: CFW
-            operationId: GetBlackWhiteList
-            x-ref-api: GET /v1/{project_id}/black-white-lists

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dms_rocketmq_consumer_group
-    description: Manages DMS RocketMQ consumer group resources within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RocketMQ
-servers:
-    - url: https://dms.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/instances/{instance_id}/groups:
         POST:
             tag: RocketMQ
-            operationId: CreateRocketmqConsumerGroup
-            x-ref-api: POST /v2/{project_id}/instances/{instance_id}/groups
     /v2/{project_id}/instances/{instance_id}/groups/{group}:
         DELETE:
             tag: RocketMQ
-            operationId: DeleteRocketmqConsumerGroup
-            x-ref-api: DELETE /v2/{project_id}/instances/{instance_id}/groups/{group}
         GET:
             tag: RocketMQ
-            operationId: GetRocketmqConsumerGroup
-            x-ref-api: GET /v2/{project_id}/instances/{instance_id}/groups/{group}
         PUT:
             tag: RocketMQ
-            operationId: UpdateRocketmqConsumerGroup
-            x-ref-api: PUT /v2/{project_id}/instances/{instance_id}/groups/{group}

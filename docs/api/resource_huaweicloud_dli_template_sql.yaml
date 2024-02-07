@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_dli_template_sql
-    description: 'Manages a DLI SQL template resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DLI
-servers:
-    - url: https://dli.myhuaweicloud.com
 paths:
     /v1.0/{project_id}/sqls:
         GET:
             tag: DLI
-            operationId: GetSqlTemplate
-            x-ref-api: GET /v1.0/{project_id}/sqls
         POST:
             tag: DLI
-            operationId: CreateSqlTemplate
-            x-ref-api: POST /v1.0/{project_id}/sqls
     /v1.0/{project_id}/sqls-deletion:
         POST:
             tag: DLI
-            operationId: DeleteSqlTemplate
-            x-ref-api: POST /v1.0/{project_id}/sqls-deletion
     /v1.0/{project_id}/sqls/{id}:
         PUT:
             tag: DLI
-            operationId: UpdateSqlTemplate
-            x-ref-api: PUT /v1.0/{project_id}/sqls/{id}

@@ -1,27 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_cc_central_network_policy_apply
-    description: |-
-        Apply a central network policy apply resource of Cloud Connect within HuaweiCloud.
-        Only one policy can be applied to a central network. If you need to change the policy, apply a new policy.
-        The previously applied policy will be automatically canceled.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CC
-servers:
-    - url: https://cc.myhuaweicloud.com
 paths:
     /v3/{domain_id}/gcn/central-network/{central_network_id}/policies:
         GET:
             tag: CC
-            operationId: GetCentralNetworkPolicyApply
-            x-ref-api: GET /v3/{domain_id}/gcn/central-network/{central_network_id}/policies
     /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{policy_id}:
         DELETE:
             tag: CC
-            operationId: DeleteCentralNetworkPolicyApply
-            x-ref-api: DELETE /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{policy_id}
     /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{policy_id}/apply:
         POST:
             tag: CC
-            operationId: CreateCentralNetworkPolicyApply
-            x-ref-api: POST /v3/{domain_id}/gcn/central-network/{central_network_id}/policies/{policy_id}/apply
