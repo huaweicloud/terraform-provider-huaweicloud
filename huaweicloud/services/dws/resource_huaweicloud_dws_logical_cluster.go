@@ -30,6 +30,10 @@ const (
 	createDuplicateNameMsg       = "logical cluster already existed"
 )
 
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json;charset=UTF-8"},
+}
+
 // @API DWS POST /v2/{project_id}/clusters/{cluster_id}/logical-clusters
 // @API DWS GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters
 // @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}
@@ -171,6 +175,7 @@ func resourceLogicalClusterCreate(ctx context.Context, d *schema.ResourceData, m
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{cluster_id}", d.Get("cluster_id").(string))
 	createOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody:         buildCreateLogicalClusterBodyParams(d),
 	}
@@ -433,6 +438,7 @@ func resourceLogicalClusterDelete(ctx context.Context, d *schema.ResourceData, m
 	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
 	deletePath = strings.ReplaceAll(deletePath, "{logical_cluster_id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 	}
 

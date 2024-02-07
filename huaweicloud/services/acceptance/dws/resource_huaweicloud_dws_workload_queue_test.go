@@ -32,6 +32,7 @@ func getWorkloadQueueResourceFunc(cfg *config.Config, state *terraform.ResourceS
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{cluster_id}", state.Primary.Attributes["cluster_id"])
 	getOpt := golangsdk.RequestOpts{
+		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
 		KeepResponseBody: true,
 	}
 

@@ -93,6 +93,7 @@ func resourceWorkLoadQueueCreate(ctx context.Context, d *schema.ResourceData, me
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{cluster_id}", d.Get("cluster_id").(string))
 	createOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreateWorkloadQueueBodyParams(d)),
 	}
@@ -153,6 +154,7 @@ func resourceWorkLoadQueueRead(_ context.Context, d *schema.ResourceData, meta i
 	getPath = strings.ReplaceAll(getPath, "{project_id}", getClient.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{cluster_id}", d.Get("cluster_id").(string))
 	getOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 	}
 
@@ -200,6 +202,7 @@ func resourceWorkLoadQueueDelete(_ context.Context, d *schema.ResourceData, meta
 	deletePath = strings.ReplaceAll(deletePath, "{name}", d.Get("name").(string))
 	// Due to API restrictions, the request body must pass in an empty JSON.
 	deleteOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody:         json.RawMessage("{}"),
 	}
