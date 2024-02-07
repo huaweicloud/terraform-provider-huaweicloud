@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API NAT DELETE /v3/{project_id}/private-nat/dnat-rules/{ruleId}
-// @API NAT GET /v3/{project_id}/private-nat/dnat-rules/{ruleId}
-// @API NAT PUT /v3/{project_id}/private-nat/dnat-rules/{ruleId}
 // @API NAT POST /v3/{project_id}/private-nat/dnat-rules
+// @API NAT GET /v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}
+// @API NAT PUT /v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}
+// @API NAT DELETE /v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}
 func ResourcePrivateDnatRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePrivateDnatRuleCreate,

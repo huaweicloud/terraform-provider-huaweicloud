@@ -29,11 +29,11 @@ const (
 	SourceTypeDc  SourceType = 1
 )
 
-// @API NAT DELETE /v2/{project_id}/nat_gateways/{gatewayId}/snat_rules/{ruleId}
-// @API NAT GET /v2/{project_id}/snat_rules/{ruleId}
-// @API NAT PUT /v2/{project_id}/snat_rules/{ruleId}
 // @API NAT POST /v2/{project_id}/snat_rules
-// @API EIP GET /v1/{project_id}/publicips/{id}
+// @API NAT GET /v2/{project_id}/snat_rules/{snat_rule_id}
+// @API NAT PUT /v2/{project_id}/snat_rules/{snat_rule_id}
+// @API NAT DELETE /v2/{project_id}/nat_gateways/{nat_gateway_id}/snat_rules/{snat_rule_id}
+// @API EIP GET /v1/{project_id}/publicips/{publicip_id}
 func ResourcePublicSnatRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePublicSnatRuleCreate,

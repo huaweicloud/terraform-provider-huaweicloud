@@ -24,11 +24,11 @@ const (
 	PrivateSpecTypeExtraLarge string = "Extra-Large"
 )
 
-// @API NAT POST /v3/{project_id}/private-nat-gateways/{id}/tags/action
-// @API NAT DELETE /v3/{project_id}/private-nat/gateways/{ruleId}
-// @API NAT GET /v3/{project_id}/private-nat/gateways/{ruleId}
-// @API NAT PUT /v3/{project_id}/private-nat/gateways/{ruleId}
 // @API NAT POST /v3/{project_id}/private-nat/gateways
+// @API NAT GET /v3/{project_id}/private-nat/gateways/{gateway_id}
+// @API NAT PUT /v3/{project_id}/private-nat/gateways/{gateway_id}
+// @API NAT DELETE /v3/{project_id}/private-nat/gateways/{gateway_id}
+// @API NAT POST /v3/{project_id}/private-nat-gateways/{resource_id}/tags/action
 func ResourcePrivateGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePrivateGatewayCreate,
