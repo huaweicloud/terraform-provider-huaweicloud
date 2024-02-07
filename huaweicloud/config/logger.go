@@ -44,20 +44,20 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	var response *http.Response
 	var bs bytes.Buffer
 
-	logId := atomic.AddInt64(&logAtomicId, 1)
-	requestAt := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), logId)
+	atomicId := atomic.AddInt64(&logAtomicId, 1)
+	logId := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), atomicId)
 
 	defer func() {
 		// logging the API request and response
 		var logErr error
 		if request != nil {
 			log.Printf("[DEBUG] [%s] API Request URL: %s %s\nAPI Request Headers:\n%s",
-				requestAt, request.Method, request.URL, FormatHeaders(request.Header, "\n"))
+				logId, request.Method, request.URL, FormatHeaders(request.Header, "\n"))
 
 			if request.Body != nil {
-				logErr = lrt.logRequest(&bs, request.Header.Get("Content-Type"), requestAt)
+				logErr = lrt.logRequest(&bs, request.Header.Get("Content-Type"), logId)
 				if logErr != nil {
-					log.Printf("[WARN] [%s] failed to log API Request Body: %s", requestAt, logErr)
+					log.Printf("[WARN] [%s] failed to log API Request Body: %s", logId, logErr)
 				}
 
 				request.Body.Close()
@@ -65,14 +65,13 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		}
 
 		if response != nil {
-			responseAt := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), logId)
 			log.Printf("[DEBUG] [%s] API Response Code: %d\nAPI Response Headers:\n%s",
-				responseAt, response.StatusCode, FormatHeaders(response.Header, "\n"))
+				logId, response.StatusCode, FormatHeaders(response.Header, "\n"))
 
 			if response.Body != nil {
-				response.Body, logErr = lrt.logResponse(response.Body, response.Header.Get("Content-Type"), responseAt)
+				response.Body, logErr = lrt.logResponse(response.Body, response.Header.Get("Content-Type"), logId)
 				if logErr != nil {
-					log.Printf("[WARN] [%s] failed to log API Response Body: %s", responseAt, logErr)
+					log.Printf("[WARN] [%s] failed to log API Response Body: %s", logId, logErr)
 				}
 			}
 		}
@@ -97,14 +96,13 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	// Retrying connection
 	retry := 1
 	for response == nil {
-		responseAt := fmt.Sprintf("%d-%d", time.Now().UnixMilli(), logId)
 		if retry > lrt.MaxRetries {
-			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", responseAt)
+			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", logId)
 			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
 			return nil, err
 		}
 
-		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", responseAt, retry, err)
+		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", logId, retry, err)
 
 		//lintignore:R018
 		time.Sleep(retryTimeout(retry))
@@ -129,18 +127,18 @@ func (*LogRoundTripper) dumpRequest(original io.ReadCloser, bs *bytes.Buffer) (i
 
 // logRequest will log the HTTP Request details.
 // If the body is JSON, it will attempt to be pretty-formatted.
-func (*LogRoundTripper) logRequest(bs *bytes.Buffer, contentType, responseAt string) error {
+func (*LogRoundTripper) logRequest(bs *bytes.Buffer, contentType, logId string) error {
 	isJSONFormat := strings.HasPrefix(contentType, "application/json")
 	isXMLFormat := strings.HasPrefix(bs.String(), "<") && !strings.HasPrefix(bs.String(), "<html>")
 	// Handle request contentType
 	switch {
 	case isJSONFormat:
-		debugInfo := formatJSON(bs.Bytes(), responseAt, true)
-		log.Printf("[DEBUG] [%s] API Request Body: %s", responseAt, debugInfo)
+		debugInfo := formatJSON(bs.Bytes(), logId, true)
+		log.Printf("[DEBUG] [%s] API Request Body: %s", logId, debugInfo)
 	case isXMLFormat:
-		log.Printf("[DEBUG] [%s] API Request Body: %s", responseAt, bs.String())
+		log.Printf("[DEBUG] [%s] API Request Body: %s", logId, bs.String())
 	default:
-		log.Printf("[DEBUG] [%s] Not logging because the request body isn't JSON or XML format", responseAt)
+		log.Printf("[DEBUG] [%s] Not logging because the request body isn't JSON or XML format", logId)
 	}
 
 	return nil
@@ -148,7 +146,7 @@ func (*LogRoundTripper) logRequest(bs *bytes.Buffer, contentType, responseAt str
 
 // logResponse will log the HTTP Response details, then close the original and build a new ReadCloser.
 // If the body is JSON, it will attempt to be pretty-formatted.
-func (*LogRoundTripper) logResponse(original io.ReadCloser, contentType, responseAt string) (io.ReadCloser, error) {
+func (*LogRoundTripper) logResponse(original io.ReadCloser, contentType, logId string) (io.ReadCloser, error) {
 	defer original.Close()
 
 	var bs bytes.Buffer
@@ -161,12 +159,12 @@ func (*LogRoundTripper) logResponse(original io.ReadCloser, contentType, respons
 	isXMLFormat := strings.HasPrefix(contentType, "application/xml")
 	switch {
 	case isJSONFormat:
-		debugInfo := formatJSON(bs.Bytes(), responseAt, true)
-		log.Printf("[DEBUG] [%s] API Response Body: %s", responseAt, debugInfo)
+		debugInfo := formatJSON(bs.Bytes(), logId, true)
+		log.Printf("[DEBUG] [%s] API Response Body: %s", logId, debugInfo)
 	case isXMLFormat:
-		log.Printf("[DEBUG] [%s] API Response Body: %s", responseAt, bs.String())
+		log.Printf("[DEBUG] [%s] API Response Body: %s", logId, bs.String())
 	default:
-		log.Printf("[DEBUG] [%s] Not logging because the response body isn't JSON or XML format", responseAt)
+		log.Printf("[DEBUG] [%s] Not logging because the response body isn't JSON or XML format", logId)
 	}
 
 	return io.NopCloser(strings.NewReader(bs.String())), nil
@@ -174,7 +172,7 @@ func (*LogRoundTripper) logResponse(original io.ReadCloser, contentType, respons
 
 // formatJSON will try to pretty-format a JSON body.
 // It will also mask known fields which contain sensitive information.
-func formatJSON(raw []byte, logAt string, maskBody bool) string {
+func formatJSON(raw []byte, logId string, maskBody bool) string {
 	var data map[string]interface{}
 
 	if len(raw) == 0 {
@@ -183,7 +181,7 @@ func formatJSON(raw []byte, logAt string, maskBody bool) string {
 
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Printf("[DEBUG] [%s] Unable to parse JSON: %s", logAt, err)
+		log.Printf("[DEBUG] [%s] Unable to parse JSON: %s", logId, err)
 		return string(raw)
 	}
 
@@ -204,7 +202,7 @@ func formatJSON(raw []byte, logAt string, maskBody bool) string {
 
 	pretty, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Printf("[DEBUG] [%s] Unable to re-marshal JSON: %s", logAt, err)
+		log.Printf("[DEBUG] [%s] Unable to re-marshal JSON: %s", logId, err)
 		return string(raw)
 	}
 
