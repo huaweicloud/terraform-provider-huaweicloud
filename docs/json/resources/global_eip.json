@@ -104,6 +104,13 @@
                 "computed": true
               }
             }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
           }
         }
       }
