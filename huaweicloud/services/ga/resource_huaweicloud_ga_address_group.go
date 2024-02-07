@@ -170,6 +170,7 @@ func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error waiting for the creation of IP address group (%s) to complete: %s", d.Id(), err)
 	}
 
+	//  call addIps to support more than 20 ip addresses
 	if val, ok := d.GetOk("ip_addresses"); ok {
 		err = addIps(ctx, d, meta, createIpAddressGroupClient, val.(*schema.Set).List())
 		if err != nil {
