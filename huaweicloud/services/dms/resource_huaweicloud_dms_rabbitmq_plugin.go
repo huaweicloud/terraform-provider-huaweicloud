@@ -22,6 +22,7 @@ import (
 
 // @API RabbitMQ PUT /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
 // @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
+// @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}
 // @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}/tasks
 func ResourceDmsRabbitmqPlugin() *schema.Resource {
 	return &schema.Resource{

@@ -30,13 +30,21 @@ import (
 )
 
 // @API Kafka GET /v2/available-zones
-// @API Kafka POST /v2/{project_id}/instances/{id}/crossvpc/modify
-// @API Kafka POST /v2/{project_id}/instances/{id}/extend
-// @API Kafka DELETE /v2/{project_id}/instances/{id}
-// @API Kafka GET /v2/{project_id}/instances/{id}
-// @API Kafka PUT /v2/{project_id}/instances/{id}
+// @API Kafka POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
+// @API Kafka POST /v2/{project_id}/instances/{instance_id}/extend
+// @API Kafka DELETE /v2/{project_id}/instances/{instance_id}
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}
+// @API Kafka PUT /v2/{project_id}/instances/{instance_id}
 // @API Kafka POST /v2/{project_id}/instances
-// @API Kafka GET /v2/{project_id}/{resourceType}/{id}/tags
+// @API Kafka GET /v2/{project_id}/kafka/{instance_id}/tags
+// @API Kafka POST /v2/{project_id}/kafka/{instance_id}/tags/action
+// @API Kafka POST /v2/{project_id}/instances/{instance_id}/autotopic
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks
+// @API Kafka POST /v2/{project_id}/instances/{instance_id}/password
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceDmsKafkaInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaInstanceCreate,
