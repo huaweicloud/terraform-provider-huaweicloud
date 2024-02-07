@@ -66,6 +66,13 @@
                 "forcenew": true
               }
             }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
           }
         }
       }
