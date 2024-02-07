@@ -15,6 +15,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
+
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
@@ -321,7 +323,6 @@ func ResourceCssCluster() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
@@ -1032,6 +1033,7 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
+	clusterId := d.Id()
 	cssV1Client, err := config.HcCssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
@@ -1056,9 +1058,9 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	if d.HasChange("tags") {
 		oRaw, nRaw := d.GetChange("tags")
-		err = updateCssTags(cssV1Client, d.Id(), oRaw.(map[string]interface{}), nRaw.(map[string]interface{}))
+		err = updateCssTags(cssV1Client, clusterId, oRaw.(map[string]interface{}), nRaw.(map[string]interface{}))
 		if err != nil {
-			return diag.Errorf("error updating tags of CSS cluster= %s, err:%s", d.Id(), err)
+			return diag.Errorf("error updating tags of CSS cluster= %s, err:%s", clusterId, err)
 		}
 	}
 
@@ -1087,12 +1089,24 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := config.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", clusterId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   clusterId,
+			ResourceType: "css-cluster",
+			RegionId:     region,
+			ProjectId:    config.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

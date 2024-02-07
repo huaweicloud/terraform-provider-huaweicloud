@@ -21,6 +21,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -153,7 +154,6 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The enterprise project ID.`,
 			},
 			"kms_key_id": {
@@ -890,6 +890,7 @@ func flattenGetDwsClusterRespBodyElb(resp interface{}) []interface{} {
 func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	clusterId := d.Id()
 	clusterClient, clientErr := cfg.NewServiceClient("dws", region)
 	if clientErr != nil {
 		return diag.Errorf("error creating DWS client: %s", clientErr)
@@ -897,7 +898,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	err := clusterWaitingForAvailable(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
-		return diag.Errorf("cluster (%s) state is not available to update: %s", d.Id(), err)
+		return diag.Errorf("cluster (%s) state is not available to update: %s", clusterId, err)
 	}
 
 	expandInstanceStorageChanges := []string{
@@ -912,7 +913,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		expandInstanceStoragePath := clusterClient.Endpoint + expandInstanceStorageHttpUrl
 		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{project_id}", clusterClient.ProjectID)
-		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{id}", d.Id())
+		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{id}", clusterId)
 
 		expandInstanceStorageOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -931,7 +932,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 		err = clusterWaitingForAvailable(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", clusterId, err)
 		}
 	}
 	resetPasswordOfClusterChanges := []string{
@@ -946,7 +947,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		resetPasswordOfClusterPath := clusterClient.Endpoint + resetPasswordOfClusterHttpUrl
 		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{project_id}", clusterClient.ProjectID)
-		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{id}", d.Id())
+		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{id}", clusterId)
 
 		resetPasswordOfClusterOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -966,7 +967,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		err = clusterWaitingForAvailable(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", clusterId, err)
 		}
 	}
 	scaleOutClusterChanges := []string{
@@ -981,7 +982,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		scaleOutClusterPath := clusterClient.Endpoint + scaleOutClusterHttpUrl
 		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{project_id}", clusterClient.ProjectID)
-		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{id}", d.Id())
+		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{id}", clusterId)
 
 		scaleOutClusterOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -1001,15 +1002,15 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		err = clusterWaitingForAvailable(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", clusterId, err)
 		}
 	}
 
 	// change tags
 	if d.HasChange("tags") {
-		err = updateClusterTags(clusterClient, d, d.Id())
+		err = updateClusterTags(clusterClient, d, clusterId)
 		if err != nil {
-			return diag.Errorf("error updating tags of DWS cluster:%s, err:%s", d.Id(), err)
+			return diag.Errorf("error updating tags of DWS cluster:%s, err:%s", clusterId, err)
 		}
 	}
 
@@ -1036,6 +1037,18 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		err = bindElb(ctx, d, clusterClient, newElbId)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   clusterId,
+			ResourceType: "dws_clusters",
+			RegionId:     region,
+			ProjectId:    clusterClient.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

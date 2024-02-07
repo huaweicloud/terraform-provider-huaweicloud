@@ -76,8 +76,7 @@ The following arguments are supported:
 * `availability_zone` - (Required, String, ForceNew) The availability zone in which to create the cluster instance.
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID.
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) The enterprise project ID.
 
 * `number_of_cn` - (Required, Int, ForceNew) The number of CN.  
   The value ranges from 2 to **number_of_node**, the maximum value is 20. Defaults to 3.
