@@ -21,6 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API CDM POST /v1.1/{project_id}/clusters/{cluster_id}/action
+// @API CDM GET /v1.1/{project_id}/clusters/{clusterId}
 func ResourceClusterAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceClusterActionCreate,
@@ -227,7 +229,7 @@ func createClusterActionWaitingForStateCompleted(ctx context.Context, d *schema.
 			}
 
 			unexpectedStatus := []string{
-				"300，303",
+				"300", "303",
 			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
 				return createClusterActionWaitingRespBody, status, nil
