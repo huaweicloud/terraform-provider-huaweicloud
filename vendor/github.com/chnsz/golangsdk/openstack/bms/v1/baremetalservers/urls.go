@@ -7,7 +7,6 @@ const resourcePath = "baremetalservers"
 
 func createURL(sc *golangsdk.ServiceClient) string {
 	return sc.ServiceURL(resourcePath)
-	return sc.ServiceURL(resourcePath)
 }
 
 func getURL(sc *golangsdk.ServiceClient, serverID string) string {

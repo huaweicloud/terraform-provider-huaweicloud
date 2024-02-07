@@ -10,6 +10,10 @@ func createURL(sc *golangsdk.ServiceClient) string {
 	return sc.ServiceURL(rootPath)
 }
 
+func updatePrivateBucketAccessURL(sc *golangsdk.ServiceClient, domainId string) string {
+	return sc.ServiceURL(rootPath, domainId, "private-bucket-access")
+}
+
 func deleteURL(sc *golangsdk.ServiceClient, domainId string) string {
 	return sc.ServiceURL(rootPath, domainId)
 }

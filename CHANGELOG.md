@@ -1,5 +1,48 @@
 # CHANGELOG
 
+## 1.61.1 (February 7, 2024)
+
+* **New Resource:**
+  + `huaweicloud_coc_script` [GH-3682]
+  + `huaweicloud_coc_script_execute` [GH-3757]
+  + `huaweicloud_dcs_bigkey_analysis` [GH-4030]
+  + `huaweicloud_dcs_hotkey_analysis` [GH-4070]
+  + `huaweicloud_fgs_function_event` [GH-4080]
+  + `huaweicloud_vpc_network_acl` [GH-4111]
+  + `huaweicloud_dws_workload_plan` [GH-4135]
+  + `huaweicloud_dli_elastic_resource_pool` [GH-4186]
+
+* **New Data Source:**
+  + `huaweicloud_as_policy_execute_logs` [GH-4094]
+  + `huaweicloud_compute_instance_remote_console` [GH-4123]
+  + `huaweicloud_dli_datasource_connections` [GH-4130]
+  + `huaweicloud_dli_datasource_auths` [GH-4146]
+  + `huaweicloud_ram_shared_resources` [GH-4151]
+  + `huaweicloud_dc_virtual_gateways` [GH-4184]
+
+  + `huaweicloud_rds_pg_databases` [GH-4085]
+  + `huaweicloud_rds_mysql_database_privileges` [GH-4092]
+  + `huaweicloud_rds_sqlserver_databases` [GH-4117]
+  + `huaweicloud_rds_sqlserver_database_privileges` [GH-4150]
+  + `huaweicloud_rds_sqlserver_accounts` [GH-4158]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_bms_instance: Support updating `nics` block [GH-4073]
+* resource/huaweicloud_bms_instance: Support `metadata` parameter [GH-4100]
+* resource/huaweicloud_rds_instance: Support updating volume size in prepaid mode [GH-4078]
+* resource/huaweicloud_vpc_bandwidth: Support changing billing mode to prePaid [GH-4113]
+* resource/huaweicloud_vpc_eip: Support changing billing mode to prePaid [GH-4122]
+* resource/huaweicloud_obs_bucket: Support agency configuration in `logging` block [GH-4138]
+* resource/huaweicloud_identity_project: Support `status` parameter [GH-4143]
+* resource/huaweicloud_vpn_gateway: Add tags support [GH-4149]
+* resource/huaweicloud_vpn_customer_gateway: Add tags support [GH-4160]
+* resource/huaweicloud_vpn_connection: Add tags support [GH-4161]
+
+BUG FIXES:
+
+* resource/huaweicloud_css_cluster: Fix the issue when creating cluster in postPaid billing mode [GH-4125]
+
 ## 1.61.0 (January 29, 2024)
 
 * **New Resource:**
