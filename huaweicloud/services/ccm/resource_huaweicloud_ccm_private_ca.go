@@ -21,14 +21,14 @@ import (
 
 // @API CCM POST /v1/private-certificate-authorities
 // @API CCM POST /v1/private-certificate-authorities/order
-// @API CCM POST /v1/private-certificate-authorities/{id}/activate
-// @API CCM POST /v1/private-certificate-authorities/{id}/tags/create
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/activate
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/tags/create
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
-// @API CCM GET /v1/private-certificate-authorities/{id}
-// @API CCM GET /v1/private-certificate-authorities/{id}/tags
-// @API CCM DELETE /v1/private-certificate-authorities/{id}
-// @API CCM POST /v1/private-certificate-authorities/{id}/disable
-// @API CCM DELETE /v1/private-certificate-authorities/{id}/tags/delete
+// @API CCM GET /v1/private-certificate-authorities/{ca_id}
+// @API CCM GET /v1/private-certificate-authorities/{ca_id}/tags
+// @API CCM DELETE /v1/private-certificate-authorities/{ca_id}
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/disable
+// @API CCM DELETE /v1/private-certificate-authorities/{ca_id}/tags/delete
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourcePrivateCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
@@ -286,8 +286,8 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 
 		// activate private CA
-		activePrivateCAPath := createPrivateCAPath + "/{id}/activate"
-		activePrivateCAPath = strings.ReplaceAll(activePrivateCAPath, "{id}", d.Id())
+		activePrivateCAPath := createPrivateCAPath + "/{ca_id}/activate"
+		activePrivateCAPath = strings.ReplaceAll(activePrivateCAPath, "{ca_id}", d.Id())
 		activePrivateCAOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			OkCodes: []int{
@@ -300,7 +300,7 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error activating CCM private CA: %s", err)
 		}
 
-		createTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/create"
+		createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
 		tags := d.Get("tags").(map[string]interface{})
 		if err := createTags(id.(string), createPrivateCAClient, tags, createTagsHttpUrl); err != nil {
 			return diag.FromErr(err)
@@ -326,7 +326,7 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	d.SetId(id.(string))
 
-	createTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/create"
+	createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
 	tags := d.Get("tags").(map[string]interface{})
 	if err := createTags(id.(string), createPrivateCAClient, tags, createTagsHttpUrl); err != nil {
 		return diag.FromErr(err)
@@ -445,7 +445,7 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 	region := cfg.GetRegion(d)
 
 	var (
-		getPrivateCAHttpUrl = "v1/private-certificate-authorities/{id}"
+		getPrivateCAHttpUrl = "v1/private-certificate-authorities/{ca_id}"
 		getPrivateCAProduct = "ccm"
 	)
 	getPrivateCAClient, err := cfg.NewServiceClient(getPrivateCAProduct, region)
@@ -454,7 +454,7 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	getPrivateCAPath := getPrivateCAClient.Endpoint + getPrivateCAHttpUrl
-	getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{id}", d.Id())
+	getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{ca_id}", d.Id())
 
 	getPrivateCAOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -478,7 +478,7 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 		chargingMode = "postPaid"
 	}
 
-	getTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags"
+	getTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags"
 	tags, err := getTags(d.Id(), getPrivateCAClient, getTagsHttpUrl)
 	if err != nil {
 		return diag.FromErr(err)
@@ -546,7 +546,7 @@ func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta i
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	var (
-		privateCAHttpUrl = "v1/private-certificate-authorities/{id}"
+		privateCAHttpUrl = "v1/private-certificate-authorities/{ca_id}"
 		privateCAProduct = "ccm"
 	)
 	privateCAClient, err := cfg.NewServiceClient(privateCAProduct, region)
@@ -554,7 +554,7 @@ func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting CCM Client: %s", err)
 	}
 	privateCAPath := privateCAClient.Endpoint + privateCAHttpUrl
-	privateCAPath = strings.ReplaceAll(privateCAPath, "{id}", d.Id())
+	privateCAPath = strings.ReplaceAll(privateCAPath, "{ca_id}", d.Id())
 	privateCAOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -616,7 +616,7 @@ func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta i
 
 func privateCAStatusRefreshFunc(id, region string, cfg *config.Config) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		getPrivateCAHttpUrl := "v1/private-certificate-authorities/{id}"
+		getPrivateCAHttpUrl := "v1/private-certificate-authorities/{ca_id}"
 		getPrivateCAProduct := "ccm"
 		getPrivateCAClient, err := cfg.NewServiceClient(getPrivateCAProduct, region)
 		if err != nil {
@@ -624,7 +624,7 @@ func privateCAStatusRefreshFunc(id, region string, cfg *config.Config) resource.
 		}
 
 		getPrivateCAPath := getPrivateCAClient.Endpoint + getPrivateCAHttpUrl
-		getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{id}", id)
+		getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{ca_id}", id)
 		getPrivateCAOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
@@ -657,7 +657,7 @@ func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta int
 
 		// remove old tags
 		if len(oMap) > 0 {
-			deleteTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/delete"
+			deleteTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/delete"
 			if err = deleteTags(d.Id(), privateCAClient, oMap, deleteTagsHttpUrl); err != nil {
 				return diag.FromErr(err)
 			}
@@ -665,7 +665,7 @@ func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta int
 
 		// set new tags
 		if len(nMap) > 0 {
-			createTagsHttpUrl := "v1/private-certificate-authorities/{id}/tags/create"
+			createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
 			if err := createTags(d.Id(), privateCAClient, nMap, createTagsHttpUrl); err != nil {
 				return diag.FromErr(err)
 			}
@@ -678,7 +678,7 @@ func createTags(id string, createTagsClient *golangsdk.ServiceClient, tags map[s
 	createTagsHttpUrl string) error {
 	if len(tags) > 0 {
 		createTagsPath := createTagsClient.Endpoint + createTagsHttpUrl
-		createTagsPath = strings.ReplaceAll(createTagsPath, "{id}", id)
+		createTagsPath = strings.ReplaceAll(createTagsPath, "{ca_id}", id)
 		createTagsOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			OkCodes: []int{
@@ -700,7 +700,7 @@ func createTags(id string, createTagsClient *golangsdk.ServiceClient, tags map[s
 func getTags(id string, getTagsClient *golangsdk.ServiceClient, getTagsHttpUrl string) (
 	map[string]interface{}, error) {
 	getTagsPath := getTagsClient.Endpoint + getTagsHttpUrl
-	getTagsPath = strings.ReplaceAll(getTagsPath, "{id}", id)
+	getTagsPath = strings.ReplaceAll(getTagsPath, "{ca_id}", id)
 	getTagsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
@@ -729,7 +729,7 @@ func deleteTags(id string, deleteTagsClient *golangsdk.ServiceClient, tags map[s
 		return nil
 	}
 	deleteTagsPath := deleteTagsClient.Endpoint + deleteTagsHttpUrl
-	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{id}", id)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{ca_id}", id)
 	deleteTagsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
