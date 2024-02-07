@@ -19,7 +19,7 @@ data "huaweicloud_dc_virtual_gateways" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String) Specifies the region in which to query the data source.
-If omitted, the provider-level region will be used.
+  If omitted, the provider-level region will be used.
 
 * `virtual_gateway_id` - (Optional, String) Specifies the ID of the virtual gateway.
 
