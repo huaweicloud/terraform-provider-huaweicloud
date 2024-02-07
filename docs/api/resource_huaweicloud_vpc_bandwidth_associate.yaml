@@ -1,26 +1,22 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_bandwidth_associate
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_bandwidth_associate
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: EIP
+    - name: EIP
 paths:
-  /v1/{project_id}/bandwidths/{ID}/insert:
-    post:
-      tag: EIP
-      operationId: Insert
-  /v1/{project_id}/bandwidths/{ID}/remove:
-    post:
-      tag: EIP
-      operationId: Remove
-  /v1/{project_id}/bandwidths/{id}:
-    get:
-      tag: EIP
-      operationId: Get
-  /v1/{project_id}/publicips/{id}:
-    get:
-      tag: EIP
-      operationId: Get
+    /v1/{project_id}/bandwidths/{ID}/insert:
+        POST:
+            tag: EIP
+    /v1/{project_id}/bandwidths/{ID}/remove:
+        POST:
+            tag: EIP
+    /v1/{project_id}/bandwidths/{id}:
+        GET:
+            tag: EIP
+    /v1/{project_id}/publicips/{id}:
+        GET:
+            tag: EIP

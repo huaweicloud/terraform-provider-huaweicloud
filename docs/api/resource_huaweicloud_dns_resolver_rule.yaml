@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_dns_resolver_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_dns_resolver_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DNS
+    - name: DNS
 paths:
-  /v2.1/resolverrules/{resolverRuleID}:
-    delete:
-      tag: DNS
-      operationId: Delete
-    get:
-      tag: DNS
-      operationId: Get
-    put:
-      tag: DNS
-      operationId: Update
-  /v2.1/resolverrules:
-    post:
-      tag: DNS
-      operationId: Create
+    /v2.1/resolverrules:
+        POST:
+            tag: DNS
+    /v2.1/resolverrules/{resolverRuleID}:
+        DELETE:
+            tag: DNS
+        GET:
+            tag: DNS
+        PUT:
+            tag: DNS

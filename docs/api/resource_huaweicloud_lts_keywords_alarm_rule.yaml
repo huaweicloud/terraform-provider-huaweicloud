@@ -1,32 +1,23 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_keywords_alarm_rule
-    description: Manages an LTS keywords alarm rule resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/lts/alarms/keywords-alarm-rule:
         GET:
             tag: LTS
-            operationId: GetKeywordsAlarmRule
-            x-ref-api: GET /v2/{project_id}/lts/alarms/keywords-alarm-rule
         POST:
             tag: LTS
-            operationId: CreateKeywordsAlarmRule
-            x-ref-api: POST /v2/{project_id}/lts/alarms/keywords-alarm-rule
         PUT:
             tag: LTS
-            operationId: UpdateKeywordsAlarmRule
-            x-ref-api: PUT /v2/{project_id}/lts/alarms/keywords-alarm-rule
     /v2/{project_id}/lts/alarms/keywords-alarm-rule/{id}:
         DELETE:
             tag: LTS
-            operationId: DeleteKeywordsAlarmRule
-            x-ref-api: DELETE /v2/{project_id}/lts/alarms/keywords-alarm-rule/{id}
     /v2/{project_id}/lts/alarms/status:
         PUT:
             tag: LTS
-            operationId: UpdateKeywordsAlarmRuleStatus
-            x-ref-api: PUT /v2/{project_id}/lts/alarms/status

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_aom_access
-    description: Manages a resource to access AOM container logs to LTS within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/lts/aom-mapping:
         DELETE:
             tag: LTS
-            operationId: DeleteAOMAccess
-            x-ref-api: DELETE /v2/{project_id}/lts/aom-mapping
         POST:
             tag: LTS
-            operationId: CreateAOMAccess
-            x-ref-api: POST /v2/{project_id}/lts/aom-mapping
         PUT:
             tag: LTS
-            operationId: UpdateAOMAccess
-            x-ref-api: PUT /v2/{project_id}/lts/aom-mapping
     /v2/{project_id}/lts/aom-mapping/{rule_id}:
         GET:
             tag: LTS
-            operationId: GetAOMAccess
-            x-ref-api: GET /v2/{project_id}/lts/aom-mapping/{rule_id}

@@ -1,17 +1,15 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_instance_routes
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_instance_routes
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/features:
-    get:
-      tag: APIG
-      operationId: ListFeatures
-    post:
-      tag: APIG
-      operationId: UpdateFeature
+    /v2/{project_id}/apigw/instances/{instanceId}/features:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG

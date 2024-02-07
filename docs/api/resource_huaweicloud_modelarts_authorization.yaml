@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_modelarts_authorization
-    description: 'Manages a ModelArts authorization resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: ModelArts
-servers:
-    - url: https://dws.myhuaweicloud.com
 paths:
     /v2/{project_id}/agency:
         POST:
             tag: ModelArts
-            operationId: CreateAgency
-            x-ref-api: POST /v2/{project_id}/agency
     /v2/{project_id}/authorizations:
         DELETE:
             tag: ModelArts
-            operationId: DeleteModelAuth
-            x-ref-api: DELETE /v2/{project_id}/authorizations
         GET:
             tag: ModelArts
-            operationId: GetModelAuth
-            x-ref-api: GET /v2/{project_id}/authorizations
         POST:
             tag: ModelArts
-            operationId: CreateAuth
-            x-ref-api: POST /v2/{project_id}/authorizations

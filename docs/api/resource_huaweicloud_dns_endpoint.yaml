@@ -1,39 +1,31 @@
 info:
-  version: 
-  title: resource_huaweicloud_dns_endpoint
-  description: 
+    version: ""
+    title: resource_huaweicloud_dns_endpoint
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DNS
+    - name: DNS
 paths:
-  /v2.1/endpoints/{endpointID}/ipaddresses/{ipaddress}:
-    delete:
-      tag: DNS
-      operationId: Delete
-  /v2.1/endpoints/{endpointID}/ipaddresses:
-    get:
-      tag: DNS
-      operationId: List
-    post:
-      tag: DNS
-      operationId: Create
-  /v2.1/endpoints/{endpointID}:
-    delete:
-      tag: DNS
-      operationId: Delete
-    get:
-      tag: DNS
-      operationId: Get
-    put:
-      tag: DNS
-      operationId: Update
-  /v2.1/endpoints:
-    post:
-      tag: DNS
-      operationId: Create
-  /v1/{project_id}/subnets:
-    get:
-      tag: VPC
-      operationId: List
+    /v1/{project_id}/subnets:
+        GET:
+            tag: VPC
+    /v2.1/endpoints:
+        POST:
+            tag: DNS
+    /v2.1/endpoints/{endpointID}:
+        DELETE:
+            tag: DNS
+        GET:
+            tag: DNS
+        PUT:
+            tag: DNS
+    /v2.1/endpoints/{endpointID}/ipaddresses:
+        GET:
+            tag: DNS
+        POST:
+            tag: DNS
+    /v2.1/endpoints/{endpointID}/ipaddresses/{ipaddress}:
+        DELETE:
+            tag: DNS

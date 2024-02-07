@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_mapreduce_job
-  description: 
+    version: ""
+    title: resource_huaweicloud_mapreduce_job
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: MRS
+    - name: MRS
 paths:
-  /v2/{project_id}/clusters/{clusterId}/job-executions/batch-delete:
-    post:
-      tag: MRS
-      operationId: Delete
-  /v2/{project_id}/clusters/{clusterId}/job-executions/{jobId}:
-    get:
-      tag: MRS
-      operationId: Get
-  /v2/{project_id}/clusters/{clusterId}/job-executions:
-    post:
-      tag: MRS
-      operationId: Create
+    /v2/{project_id}/clusters/{clusterId}/job-executions:
+        POST:
+            tag: MRS
+    /v2/{project_id}/clusters/{clusterId}/job-executions/{jobId}:
+        GET:
+            tag: MRS
+    /v2/{project_id}/clusters/{clusterId}/job-executions/batch-delete:
+        POST:
+            tag: MRS

@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_ddm_flavors
-    description: Use this data source to get the list of DDM flavors.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DDM
-servers:
-    - url: https://ddm.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/flavors:
         GET:
             tag: DDM
-            operationId: GetDdmFlavors
-            x-ref-api: GET /v2/{project_id}/flavors

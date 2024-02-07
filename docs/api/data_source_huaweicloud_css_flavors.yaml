@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_css_flavors
-  description: 
+    version: ""
+    title: data_source_huaweicloud_css_flavors
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CSS
+    - name: CSS
 paths:
-  /v1.0/{project_id}/es-flavors:
-    get:
-      tag: CSS
-      operationId: ListFlavors
+    /v1.0/{project_id}/es-flavors:
+        GET:
+            tag: CSS

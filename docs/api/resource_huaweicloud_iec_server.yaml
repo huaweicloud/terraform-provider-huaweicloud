@@ -1,29 +1,24 @@
 info:
-  version: 
-  title: resource_huaweicloud_iec_server
-  description: 
+    version: ""
+    title: resource_huaweicloud_iec_server
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/cloudservers/delete:
-    post:
-      tag: IEC
-      operationId: DeleteServers
-  /v1/cloudservers/{serverID}:
-    get:
-      tag: IEC
-      operationId: GetServer
-    put:
-      tag: IEC
-      operationId: UpdateServer
-  /v1/cloudservers:
-    post:
-      tag: IEC
-      operationId: CreateServer
-  /v1/cloudvolumes/{CloudVolumeID}:
-    get:
-      tag: IEC
-      operationId: Get
+    /v1/cloudservers:
+        POST:
+            tag: IEC
+    /v1/cloudservers/{serverID}:
+        GET:
+            tag: IEC
+        PUT:
+            tag: IEC
+    /v1/cloudservers/delete:
+        POST:
+            tag: IEC
+    /v1/cloudvolumes/{CloudVolumeID}:
+        GET:
+            tag: IEC

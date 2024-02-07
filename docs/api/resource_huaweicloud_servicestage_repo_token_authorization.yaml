@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_servicestage_repo_token_authorization
-  description: 
+    version: ""
+    title: resource_huaweicloud_servicestage_repo_token_authorization
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ServiceStage
+    - name: ServiceStage
 paths:
-  /v1/{project_id}/git/auths/{name}:
-    delete:
-      tag: ServiceStage
-      operationId: Delete
-  /v1/{project_id}/git/auths/{rType}/personal:
-    post:
-      tag: ServiceStage
-      operationId: CreatePersonalAuth
-  /v1/{project_id}/git/auths:
-    get:
-      tag: ServiceStage
-      operationId: List
+    /v1/{project_id}/git/auths:
+        GET:
+            tag: ServiceStage
+    /v1/{project_id}/git/auths/{name}:
+        DELETE:
+            tag: ServiceStage
+    /v1/{project_id}/git/auths/{rType}/personal:
+        POST:
+            tag: ServiceStage

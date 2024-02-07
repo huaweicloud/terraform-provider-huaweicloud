@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_vpc_subnet
-  description: 
+    version: ""
+    title: data_source_huaweicloud_vpc_subnet
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPC
+    - name: VPC
 paths:
-  /v1/{project_id}/subnets:
-    get:
-      tag: VPC
-      operationId: List
+    /v1/{project_id}/subnets:
+        GET:
+            tag: VPC

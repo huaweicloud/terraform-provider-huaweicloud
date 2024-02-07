@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_endpoint_whitelist
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_endpoint_whitelist
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-add:
-    post:
-      tag: APIG
-      operationId: AddPermissions
-  /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-delete:
-    post:
-      tag: APIG
-      operationId: DeletePermissions
-  /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions:
-    get:
-      tag: APIG
-      operationId: ListPermissions
+    /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-add:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/vpc-endpoint/permissions/batch-delete:
+        POST:
+            tag: APIG

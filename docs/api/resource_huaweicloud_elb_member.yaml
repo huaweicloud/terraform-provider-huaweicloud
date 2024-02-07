@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_elb_member
-  description: 
+    version: ""
+    title: resource_huaweicloud_elb_member
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ELB
+    - name: ELB
 paths:
-  /v3/{project_id}/elb/pools/{poolID}/members/{memeberID}:
-    delete:
-      tag: ELB
-      operationId: DeleteMember
-    get:
-      tag: ELB
-      operationId: GetMember
-    put:
-      tag: ELB
-      operationId: UpdateMember
-  /v3/{project_id}/elb/pools/{poolId}/members:
-    post:
-      tag: ELB
-      operationId: CreateMember
+    /v3/{project_id}/elb/pools/{poolID}/members/{memeberID}:
+        DELETE:
+            tag: ELB
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB
+    /v3/{project_id}/elb/pools/{poolId}/members:
+        POST:
+            tag: ELB

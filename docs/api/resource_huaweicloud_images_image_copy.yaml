@@ -1,37 +1,34 @@
 info:
-  version: 
-  title: resource_huaweicloud_images_image_copy
-  description: 
+    version: ""
+    title: resource_huaweicloud_images_image_copy
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IMS
+    - name: IMS
 paths:
-  /v1/cloudimages/{imageId}/copy:
-    post:
-      tag: IMS
-      operationId: WithinRegionCopy
-  /v1/cloudimages/{imageId}/cross_region_copy:
-    post:
-      tag: IMS
-      operationId: CrossRegionCopy
-  /{project_id}/cloudimages/{imageID}:
-    patch:
-      tag: IMS
-      operationId: Update
-  /{project_id}/image/{id}/tags:
-    get:
-      tag: IMS
-      operationId: Get
-  /{project_id}/images/{id}/tags/action:
-    post:
-      tag: IMS
-      operationId: Create
-  /{project_id}/images/{imageID}:
-    delete:
-      tag: IMS
-      operationId: Delete
-    patch:
-      tag: IMS
-      operationId: Update
+    /v1/{project_id}jobs/{job_id}:
+        GET:
+            tag: IMS
+    /v1/cloudimages/{image_id}/copy:
+        POST:
+            tag: IMS
+    /v1/cloudimages/{image_id}/cross_region_copy:
+        POST:
+            tag: IMS
+    /v2/{project_id}/images/{image_id}/tags:
+        GET:
+            tag: IMS
+    /v2/{project_id}/images/{image_id}/tags/action:
+        POST:
+            tag: IMS
+    /v2/cloudimages:
+        GET:
+            tag: IMS
+    /v2/cloudimages/{image_id}:
+        PATCH:
+            tag: IMS
+    /v2/images/{image_id}:
+        DELETE:
+            tag: IMS

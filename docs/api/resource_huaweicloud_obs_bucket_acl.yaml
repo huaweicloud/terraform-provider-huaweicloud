@@ -1,17 +1,15 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_obs_bucket_acl
-  description:
+    version: ""
+    title: resource_huaweicloud_obs_bucket_acl
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: OBS
+    - name: OBS
 paths:
-  ?acl:
-    put:
-      tag: OBS
-      operationId: SetBucketAcl
-    get:
-      tag: OBS
-      operationId: GetBucketAcl
+    ?acl:
+        GET:
+            tag: OBS
+        PUT:
+            tag: OBS

@@ -1,47 +1,32 @@
 info:
+    version: ""
     title: resource_huaweicloud_dli_datasource_connection
-    description: 'Manages a DLI datasource connection resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DLI
-servers:
-    - url: https://dli.myhuaweicloud.com
 paths:
     /v2.0/{project_id}/datasource/enhanced-connections:
         POST:
             tag: DLI
-            operationId: CreateDatasourceConnection
-            x-ref-api: POST /v2.0/{project_id}/datasource/enhanced-connections
     /v2.0/{project_id}/datasource/enhanced-connections/{id}:
         DELETE:
             tag: DLI
-            operationId: DeleteDatasourceConnection
-            x-ref-api: DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}
         GET:
             tag: DLI
-            operationId: GetDatasourceConnection
-            x-ref-api: GET /v2.0/{project_id}/datasource/enhanced-connections/{id}
         PUT:
             tag: DLI
-            operationId: UpdateDatasourceConnectionHosts
-            x-ref-api: PUT /v2.0/{project_id}/datasource/enhanced-connections/{id}
     /v2.0/{project_id}/datasource/enhanced-connections/{id}/associate-queue:
         POST:
             tag: DLI
-            operationId: UpdateDatasourceConnectionQueues
-            x-ref-api: POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/associate-queue
     /v2.0/{project_id}/datasource/enhanced-connections/{id}/disassociate-queue:
         POST:
             tag: DLI
-            operationId: RemoveDatasourceConnectionQueues
-            x-ref-api: POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/disassociate-queue
     /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes:
         POST:
             tag: DLI
-            operationId: UpdateDatasourceConnectionRoutes
-            x-ref-api: POST /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes
     /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes/{name}:
         DELETE:
             tag: DLI
-            operationId: RemoveDatasourceConnectionRoutes
-            x-ref-api: DELETE /v2.0/{project_id}/datasource/enhanced-connections/{id}/routes/{name}

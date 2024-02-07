@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cnad_advanced_black_white_list
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/cnad/policies/{policy_id}:
+        GET:
+            tag: AAD
+    /v1/cnad/policies/{policy_id}/ip-list/add:
+        POST:
+            tag: AAD
+    /v1/cnad/policies/{policy_id}/ip-list/delete:
+        POST:
+            tag: AAD

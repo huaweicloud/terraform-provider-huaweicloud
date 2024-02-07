@@ -1,24 +1,20 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_cce_addon
-  description:
+    version: ""
+    title: resource_huaweicloud_cce_addon
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCE
+    - name: CCE
 paths:
-  /api/v3/addons/{id}:
-    delete:
-      tag: CCE
-      operationId: Delete
-    get:
-      tag: CCE
-      operationId: Get
-    put:
-      tag: CCE
-      operationId: Update
-  /api/v3/addons:
-    post:
-      tag: CCE
-      operationId: Create
+    /api/v3/addons:
+        POST:
+            tag: CCE
+    /api/v3/addons/{id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE

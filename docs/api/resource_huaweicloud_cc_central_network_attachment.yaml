@@ -1,31 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_cc_central_network_attachment
-    description: |-
-        Manages a central network attachment resource of Cloud Connect within HuaweiCloud.
-        To allow network instances such as enterprise routers and global DC gateways to communicate with each other
-        across regions, you need to add these network instances to the central network.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CC
-servers:
-    - url: https://cc.myhuaweicloud.com
 paths:
-    /v3/{domain_id}/gcn/central-network/{central_network_id}/attachments/{id}:
+    /v3/{domain_id}/gcn/central-network/{central_network_id}/attachments/{attachment_id}:
         DELETE:
             tag: CC
-            operationId: DeleteCentralNetworkAttachment
-            x-ref-api: DELETE /v3/{domain_id}/gcn/central-network/{central_network_id}/attachments/{id}
     /v3/{domain_id}/gcn/central-network/{central_network_id}/gdgw-attachments:
         POST:
             tag: CC
-            operationId: CreateCentralNetworkAttachment
-            x-ref-api: POST /v3/{domain_id}/gcn/central-network/{central_network_id}/gdgw-attachments
-    /v3/{domain_id}/gcn/central-network/{central_network_id}/gdgw-attachments/{id}:
+    /v3/{domain_id}/gcn/central-network/{central_network_id}/gdgw-attachments/{gdgw_attachment_id}:
         GET:
             tag: CC
-            operationId: CentralNetworkAttachmentDeleteWaiting
-            x-ref-api: GET /v3/{domain_id}/gcn/central-network/{central_network_id}/gdgw-attachments/{id}
         PUT:
             tag: CC
-            operationId: UpdateCentralNetworkAttachment
-            x-ref-api: PUT /v3/{domain_id}/gcn/central-network/{central_network_id}/gdgw-attachments/{id}

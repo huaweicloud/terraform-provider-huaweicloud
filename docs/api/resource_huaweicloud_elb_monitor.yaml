@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_elb_monitor
-  description: 
+    version: ""
+    title: resource_huaweicloud_elb_monitor
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ELB
+    - name: ELB
 paths:
-  /v3/{project_id}/elb/healthmonitors/{id}:
-    delete:
-      tag: ELB
-      operationId: Delete
-    get:
-      tag: ELB
-      operationId: Get
-    put:
-      tag: ELB
-      operationId: Update
-  /v3/{project_id}/elb/healthmonitors:
-    post:
-      tag: ELB
-      operationId: Create
+    /v3/{project_id}/elb/healthmonitors:
+        POST:
+            tag: ELB
+    /v3/{project_id}/elb/healthmonitors/{id}:
+        DELETE:
+            tag: ELB
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB

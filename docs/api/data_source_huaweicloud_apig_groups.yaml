@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_apig_groups
-  description: 
+    version: ""
+    title: data_source_huaweicloud_apig_groups
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/api-groups:
-    get:
-      tag: APIG
-      operationId: List
+    /v2/{project_id}/apigw/instances/{instanceId}/api-groups:
+        GET:
+            tag: APIG

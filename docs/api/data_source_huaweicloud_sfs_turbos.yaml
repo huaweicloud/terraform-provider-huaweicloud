@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_sfs_turbos
-  description: 
+    version: ""
+    title: data_source_huaweicloud_sfs_turbos
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SFSTurbo
+    - name: SFSTurbo
 paths:
-  /v1/{project_id}/sfs-turbo/shares/detail:
-    get:
-      tag: SFSTurbo
-      operationId: List
+    /v1/{project_id}/sfs-turbo/shares/detail:
+        GET:
+            tag: SFSTurbo

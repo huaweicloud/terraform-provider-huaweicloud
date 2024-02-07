@@ -1,30 +1,24 @@
 info:
-  version: 
-  title: resource_huaweicloud_live_domain
-  description: 
+    version: ""
+    title: resource_huaweicloud_live_domain
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Live
+    - name: Live
 paths:
-  /v1/{project_id}/domain:
-    delete:
-      tag: Live
-      operationId: DeleteDomain
-    get:
-      tag: Live
-      operationId: ShowDomain
-    post:
-      tag: Live
-      operationId: CreateDomain
-    put:
-      tag: Live
-      operationId: UpdateDomain
-  /v1/{project_id}/domains_mapping:
-    delete:
-      tag: Live
-      operationId: DeleteDomainMapping
-    put:
-      tag: Live
-      operationId: CreateDomainMapping
+    /v1/{project_id}/domain:
+        DELETE:
+            tag: Live
+        GET:
+            tag: Live
+        POST:
+            tag: Live
+        PUT:
+            tag: Live
+    /v1/{project_id}/domains_mapping:
+        DELETE:
+            tag: Live
+        PUT:
+            tag: Live

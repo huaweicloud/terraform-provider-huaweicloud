@@ -1,30 +1,32 @@
 info:
-  version: 
-  title: resource_huaweicloud_dli_package
-  description: 
+    version: ""
+    title: resource_huaweicloud_dli_package
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DLI
+    - name: DLI
 paths:
-  /v2.0/{project_id}/resources/{subPath}:
-    delete:
-      tag: DLI
-      operationId: Delete
-    get:
-      tag: DLI
-      operationId: Get
-    post:
-      tag: DLI
-      operationId: Upload
-    put:
-      tag: DLI
-      operationId: UpdateOwner
-  /v2.0/{project_id}/resources:
-    get:
-      tag: DLI
-      operationId: List
-    post:
-      tag: DLI
-      operationId: CreateGroupAndUpload
+    /v2.0/{project_id}/resources:
+        GET:
+            tag: DLI
+        POST:
+            tag: DLI
+    /v2.0/{project_id}/resources/{resource_name}:
+        DELETE:
+            tag: DLI
+        GET:
+            tag: DLI
+    /v2.0/{project_id}/resources/files:
+        POST:
+            tag: DLI
+    /v2.0/{project_id}/resources/jars:
+        POST:
+            tag: DLI
+    /v2.0/{project_id}/resources/owner:
+        PUT:
+            tag: DLI
+    /v2.0/{project_id}/resources/pyfiles:
+        POST:
+            tag: DLI

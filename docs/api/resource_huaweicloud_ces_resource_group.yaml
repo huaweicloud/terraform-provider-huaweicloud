@@ -1,33 +1,24 @@
 info:
+    version: ""
     title: resource_huaweicloud_ces_resource_group
-    description: Manages a CES resource group resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CES
-servers:
-    - url: https://ces.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/resource-groups:
         POST:
             tag: CES
-            operationId: CreateResourceGroup
-            x-ref-api: POST /v2/{project_id}/resource-groups
     /v2/{project_id}/resource-groups/{id}:
         GET:
             tag: CES
-            operationId: GetResourceGroup
-            x-ref-api: GET /v2/{project_id}/resource-groups/{id}
         PUT:
             tag: CES
-            operationId: UpdateResourceGroup
-            x-ref-api: PUT /v2/{project_id}/resource-groups/{id}
     /v2/{project_id}/resource-groups/{id}/resources/batch-create:
         POST:
             tag: CES
-            operationId: BatchCreateResources
-            x-ref-api: POST /v2/{project_id}/resource-groups/{id}/resources/batch-create
     /v2/{project_id}/resource-groups/batch-delete:
         POST:
             tag: CES
-            operationId: DeleteResourceGroup
-            x-ref-api: POST /v2/{project_id}/resource-groups/batch-delete

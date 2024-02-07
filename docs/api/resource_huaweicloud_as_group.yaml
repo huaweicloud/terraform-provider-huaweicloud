@@ -1,44 +1,35 @@
 info:
-  version: 
-  title: resource_huaweicloud_as_group
-  description: 
+    version: ""
+    title: resource_huaweicloud_as_group
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AS
+    - name: AS
 paths:
-  /autoscaling-api/v1/{project_id}/scaling_group/{id}/action:
-    post:
-      tag: AS
-      operationId: Enable
-  /autoscaling-api/v1/{project_id}/scaling_group/{id}:
-    delete:
-      tag: AS
-      operationId: ForceDelete
-    get:
-      tag: AS
-      operationId: Get
-    put:
-      tag: AS
-      operationId: Update
-  /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action:
-    post:
-      tag: AS
-      operationId: BatchDelete
-  /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list:
-    get:
-      tag: AS
-      operationId: List
-  /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags/action:
-    post:
-      tag: AS
-      operationId: Create
-  /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags:
-    get:
-      tag: AS
-      operationId: Get
-  /autoscaling-api/v1/{project_id}/scaling_group:
-    post:
-      tag: AS
-      operationId: Create
+    /autoscaling-api/v1/{project_id}/scaling_group:
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group/{id}:
+        DELETE:
+            tag: AS
+        GET:
+            tag: AS
+        PUT:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group/{id}/action:
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action:
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list:
+        GET:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags:
+        GET:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags/action:
+        POST:
+            tag: AS

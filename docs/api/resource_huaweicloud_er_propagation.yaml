@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_er_propagation
-  description: 
+    version: ""
+    title: resource_huaweicloud_er_propagation
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ER
+    - name: ER
 paths:
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disable-propagations:
-    post:
-      tag: ER
-      operationId: Delete
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/enable-propagations:
-    post:
-      tag: ER
-      operationId: Create
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations:
-    get:
-      tag: ER
-      operationId: List
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disable-propagations:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/enable-propagations:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations:
+        GET:
+            tag: ER

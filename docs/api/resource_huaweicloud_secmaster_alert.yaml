@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_secmaster_alert
-    description: Manages a SecMaster alert resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: SecMaster
-servers:
-    - url: https://secmaster.cn-east-3.myhuaweicloud.com
 paths:
     /v1/{project_id}/workspaces/{workspace_id}/soc/alerts:
         DELETE:
             tag: SecMaster
-            operationId: DeleteAlert
-            x-ref-api: DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/alerts
         POST:
             tag: SecMaster
-            operationId: CreateAlert
-            x-ref-api: POST /v1/{project_id}/workspaces/{workspace_id}/soc/alerts
     /v1/{project_id}/workspaces/{workspace_id}/soc/alerts/{id}:
         GET:
             tag: SecMaster
-            operationId: GetAlert
-            x-ref-api: GET /v1/{project_id}/workspaces/{workspace_id}/soc/alerts/{id}
         PUT:
             tag: SecMaster
-            operationId: UpdateAlert
-            x-ref-api: PUT /v1/{project_id}/workspaces/{workspace_id}/soc/alerts/{id}

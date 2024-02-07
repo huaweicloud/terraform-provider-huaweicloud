@@ -1,36 +1,29 @@
 info:
-  version: 
-  title: resource_huaweicloud_sms_server_template
-  description: 
+    version: ""
+    title: resource_huaweicloud_sms_server_template
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SMS
+    - name: SMS
 paths:
-  /v3/vm/templates/{id}:
-    delete:
-      tag: SMS
-      operationId: Delete
-    get:
-      tag: SMS
-      operationId: Get
-    put:
-      tag: SMS
-      operationId: Update
-  /v3/vm/templates:
-    post:
-      tag: SMS
-      operationId: Create
-  /v1/{project_id}/security-groups/{securityGroupId}:
-    get:
-      tag: VPC
-      operationId: Get
-  /v1/{project_id}/subnets/{id}:
-    get:
-      tag: VPC
-      operationId: Get
-  /v1/{project_id}/vpcs/{id}:
-    get:
-      tag: VPC
-      operationId: Get
+    /v1/{project_id}/security-groups/{securityGroupId}:
+        GET:
+            tag: VPC
+    /v1/{project_id}/subnets/{id}:
+        GET:
+            tag: VPC
+    /v1/{project_id}/vpcs/{id}:
+        GET:
+            tag: VPC
+    /v3/vm/templates:
+        POST:
+            tag: SMS
+    /v3/vm/templates/{id}:
+        DELETE:
+            tag: SMS
+        GET:
+            tag: SMS
+        PUT:
+            tag: SMS

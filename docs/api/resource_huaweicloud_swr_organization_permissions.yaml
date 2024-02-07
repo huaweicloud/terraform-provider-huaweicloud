@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_swr_organization_permissions
-  description: 
+    version: ""
+    title: resource_huaweicloud_swr_organization_permissions
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SWR
+    - name: SWR
 paths:
-  /v2/manage/namespaces/{namespace}/access:
-    delete:
-      tag: SWR
-      operationId: DeleteAccess
-    get:
-      tag: SWR
-      operationId: GetAccess
-    post:
-      tag: SWR
-      operationId: CreateAccess
-  /v3.0/OS-USER/users/{userID}:
-    get:
-      tag: IAM
-      operationId: Get
+    /v2/manage/namespaces/{namespace}/access:
+        DELETE:
+            tag: SWR
+        GET:
+            tag: SWR
+        POST:
+            tag: SWR
+    /v3.0/OS-USER/users/{userID}:
+        GET:
+            tag: IAM

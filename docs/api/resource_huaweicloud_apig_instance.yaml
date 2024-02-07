@@ -1,53 +1,47 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{id}/eip:
-    delete:
-      tag: APIG
-      operationId: DisableIngressAccess
-    put:
-      tag: APIG
-      operationId: EnableIngressAccess
-  /v2/{project_id}/apigw/instances/{id}/nat-eip:
-    delete:
-      tag: APIG
-      operationId: DisableEgressAccess
-    post:
-      tag: APIG
-      operationId: EnableEgressAccess
-    put:
-      tag: APIG
-      operationId: UpdateEgressBandwidth
-  /v2/{project_id}/apigw/instances/{id}:
-    delete:
-      tag: APIG
-      operationId: Delete
-    get:
-      tag: APIG
-      operationId: Get
-    put:
-      tag: APIG
-      operationId: Update
-  /v2/{project_id}/apigw/instances/{instanceId}/instance-tags/action:
-    post:
-      tag: APIG
-      operationId: UpdateTags
-  /v2/{project_id}/apigw/instances/{instanceId}/instance-tags:
-    get:
-      tag: APIG
-      operationId: GetTags
-  /v2/{project_id}/apigw/instances:
-    post:
-      tag: APIG
-      operationId: Create
-  /v1/{project_id}/publicips:
-    get:
-      tag: EIP
-      operationId: List
+    /v1/{project_id}/publicips:
+        GET:
+            tag: EIP
+    /v2/{project_id}/apigw/instances:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{id}:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG
+        PUT:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{id}/eip:
+        DELETE:
+            tag: APIG
+        PUT:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{id}/nat-eip:
+        DELETE:
+            tag: APIG
+        POST:
+            tag: APIG
+        PUT:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip:
+        DELETE:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/instance-tags:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/instance-tags/action:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances{instance_id}/ingress-eip:
+        POST:
+            tag: APIG

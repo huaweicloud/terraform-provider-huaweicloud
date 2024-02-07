@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_as_bandwidth_policy
-    description: Manages an AS bandwidth scaling policy resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: AS
-servers:
-    - url: https://as.myhuaweicloud.com
 paths:
     /autoscaling-api/v1/{project_id}/scaling_policy/{id}:
         DELETE:
             tag: AS
-            operationId: DeleteBandwidthPolicy
-            x-ref-api: DELETE /autoscaling-api/v1/{project_id}/scaling_policy/{id}
     /autoscaling-api/v2/{project_id}/scaling_policy:
         POST:
             tag: AS
-            operationId: CreateBandwidthPolicy
-            x-ref-api: POST /autoscaling-api/v2/{project_id}/scaling_policy
     /autoscaling-api/v2/{project_id}/scaling_policy/{id}:
         GET:
             tag: AS
-            operationId: GetBandwidthPolicy
-            x-ref-api: GET /autoscaling-api/v2/{project_id}/scaling_policy/{id}
         PUT:
             tag: AS
-            operationId: UpdateBandwidthPolicy
-            x-ref-api: PUT /autoscaling-api/v2/{project_id}/scaling_policy/{id}

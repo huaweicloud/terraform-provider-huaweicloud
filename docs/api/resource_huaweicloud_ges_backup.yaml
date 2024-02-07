@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_ges_backup
-    description: 'Manages a GES backup resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GES
-servers:
-    - url: https://ges.myhuaweicloud.com
 paths:
     /v2/{project_id}/graphs/{graph_id}/backups:
         GET:
             tag: GES
-            operationId: GetBackup
-            x-ref-api: GET /v2/{project_id}/graphs/{graph_id}/backups
         POST:
             tag: GES
-            operationId: CreateBackup
-            x-ref-api: POST /v2/{project_id}/graphs/{graph_id}/backups
     /v2/{project_id}/graphs/{graph_id}/backups/{id}:
         DELETE:
             tag: GES
-            operationId: DeleteBackup
-            x-ref-api: DELETE /v2/{project_id}/graphs/{graph_id}/backups/{id}
     /v2/{project_id}/graphs/{graph_id}/jobs/{job_id}/status:
         GET:
             tag: GES
-            operationId: CreateBackupWaiting
-            x-ref-api: GET /v2/{project_id}/graphs/{graph_id}/jobs/{job_id}/status

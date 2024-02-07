@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_as_configuration
-  description: 
+    version: ""
+    title: resource_huaweicloud_as_configuration
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AS
+    - name: AS
 paths:
-  /autoscaling-api/v1/{project_id}/scaling_configuration/{id}:
-    delete:
-      tag: AS
-      operationId: Delete
-    get:
-      tag: AS
-      operationId: Get
-  /autoscaling-api/v1/{project_id}/scaling_configuration:
-    post:
-      tag: AS
-      operationId: Create
-  /autoscaling-api/v1/{project_id}/scaling_group:
-    get:
-      tag: AS
-      operationId: List
+    /autoscaling-api/v1/{project_id}/scaling_configuration:
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_configuration/{id}:
+        DELETE:
+            tag: AS
+        GET:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group:
+        GET:
+            tag: AS

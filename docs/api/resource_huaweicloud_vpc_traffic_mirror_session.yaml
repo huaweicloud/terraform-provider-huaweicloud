@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_traffic_mirror_session
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v3/{project_id}/vpc/traffic-mirror-sessions:
+        POST:
+            tag: VPC
+    /v3/{project_id}/vpc/traffic-mirror-sessions/{traffic_mirror_session_id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/traffic-mirror-sessions/{traffic_mirror_session_id}/add-sources:
+        PUT:
+            tag: VPC
+    /v3/{project_id}/vpc/traffic-mirror-sessions/{traffic_mirror_session_id}/remove-sources:
+        PUT:
+            tag: VPC

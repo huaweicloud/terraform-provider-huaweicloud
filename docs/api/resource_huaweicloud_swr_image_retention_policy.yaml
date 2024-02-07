@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_swr_image_retention_policy
-    description: Manages a SWR image retention policy within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: SWR
-servers:
-    - url: https://swr.cn-north-4.myhuaweicloud.com
 paths:
     /v2/manage/namespaces/{namespace}/repos/{repository}/retentions:
         POST:
             tag: SWR
-            operationId: CreateSwrImageRetentionPolicy
-            x-ref-api: POST /v2/manage/namespaces/{namespace}/repos/{repository}/retentions
     /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}:
         DELETE:
             tag: SWR
-            operationId: DeleteSwrImageRetentionPolicy
-            x-ref-api: DELETE /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}
         GET:
             tag: SWR
-            operationId: GetSwrImageRetentionPolicy
-            x-ref-api: GET /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}
         PATCH:
             tag: SWR
-            operationId: UpdateSwrImageRetentionPolicy
-            x-ref-api: PATCH /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}

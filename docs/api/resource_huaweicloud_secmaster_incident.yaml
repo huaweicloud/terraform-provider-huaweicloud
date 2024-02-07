@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_secmaster_incident
-    description: Manages a SecMaster incident resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: SecMaster
-servers:
-    - url: https://secmaster.cn-east-3.myhuaweicloud.com
 paths:
     /v1/{project_id}/workspaces/{workspace_id}/soc/incidents:
         DELETE:
             tag: SecMaster
-            operationId: DeleteIncident
-            x-ref-api: DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/incidents
         POST:
             tag: SecMaster
-            operationId: CreateIncident
-            x-ref-api: POST /v1/{project_id}/workspaces/{workspace_id}/soc/incidents
     /v1/{project_id}/workspaces/{workspace_id}/soc/incidents/{id}:
         GET:
             tag: SecMaster
-            operationId: GetIncident
-            x-ref-api: GET /v1/{project_id}/workspaces/{workspace_id}/soc/incidents/{id}
         PUT:
             tag: SecMaster
-            operationId: UpdateIncident
-            x-ref-api: PUT /v1/{project_id}/workspaces/{workspace_id}/soc/incidents/{id}

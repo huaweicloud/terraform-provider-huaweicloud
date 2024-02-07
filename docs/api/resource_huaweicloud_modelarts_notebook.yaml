@@ -1,36 +1,29 @@
 info:
-  version: 
-  title: resource_huaweicloud_modelarts_notebook
-  description: 
+    version: ""
+    title: resource_huaweicloud_modelarts_notebook
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ModelArts
+    - name: ModelArts
 paths:
-  /v1/{project_id}/notebooks/{id}/start:
-    post:
-      tag: ModelArts
-      operationId: Start
-  /v1/{project_id}/notebooks/{id}/stop:
-    post:
-      tag: ModelArts
-      operationId: Stop
-  /v1/{project_id}/notebooks/{id}/storage:
-    get:
-      tag: ModelArts
-      operationId: ListMounts
-  /v1/{project_id}/notebooks/{id}:
-    delete:
-      tag: ModelArts
-      operationId: Delete
-    get:
-      tag: ModelArts
-      operationId: Get
-    put:
-      tag: ModelArts
-      operationId: Update
-  /v1/{project_id}/notebooks:
-    post:
-      tag: ModelArts
-      operationId: Create
+    /v1/{project_id}/notebooks:
+        POST:
+            tag: ModelArts
+    /v1/{project_id}/notebooks/{id}:
+        DELETE:
+            tag: ModelArts
+        GET:
+            tag: ModelArts
+        PUT:
+            tag: ModelArts
+    /v1/{project_id}/notebooks/{id}/start:
+        POST:
+            tag: ModelArts
+    /v1/{project_id}/notebooks/{id}/stop:
+        POST:
+            tag: ModelArts
+    /v1/{project_id}/notebooks/{id}/storage:
+        GET:
+            tag: ModelArts

@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_dsc_asset_obs
-    description: 'Manages a OBS asset resource of DSC within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DSC
-servers:
-    - url: https://cc.myhuaweicloud.com
 paths:
     /v1/{project_id}/sdg/asset/{id}/name:
         PUT:
             tag: DSC
-            operationId: UpdateAssetObs
-            x-ref-api: PUT /v1/{project_id}/sdg/asset/{id}/name
     /v1/{project_id}/sdg/asset/obs/bucket/{id}:
         DELETE:
             tag: DSC
-            operationId: DeleteAssetObs
-            x-ref-api: DELETE /v1/{project_id}/sdg/asset/obs/bucket/{id}
     /v1/{project_id}/sdg/asset/obs/buckets:
         GET:
             tag: DSC
-            operationId: GetAssetObs
-            x-ref-api: GET /v1/{project_id}/sdg/asset/obs/buckets
         POST:
             tag: DSC
-            operationId: CreateAssetObs
-            x-ref-api: POST /v1/{project_id}/sdg/asset/obs/buckets

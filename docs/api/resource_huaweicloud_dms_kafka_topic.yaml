@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_dms_kafka_topic
-  description: 
+    version: ""
+    title: resource_huaweicloud_dms_kafka_topic
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Kafka
+    - name: Kafka
 paths:
-  /v2/{project_id}/instances/{instanceID}/topics/delete:
-    post:
-      tag: Kafka
-      operationId: Delete
-  /v2/{project_id}/instances/{instanceID}/topics:
-    get:
-      tag: Kafka
-      operationId: List
-    post:
-      tag: Kafka
-      operationId: Create
-    put:
-      tag: Kafka
-      operationId: Update
+    /v2/{project_id}/instances/{instance_id}/topics:
+        GET:
+            tag: Kafka
+        POST:
+            tag: Kafka
+        PUT:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/topics/delete:
+        POST:
+            tag: Kafka

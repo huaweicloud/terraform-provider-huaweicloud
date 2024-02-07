@@ -1,39 +1,51 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_eip
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_eip
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: EIP
+    - name: EIP
 paths:
-  /v2.0/{project_id}/publicips/{id}/tags/action:
-    post:
-      tag: EIP
-      operationId: Create
-  /v2.0/{project_id}/publicips/{id}/tags:
-    get:
-      tag: EIP
-      operationId: Get
-  /v1/{project_id}/bandwidths/{id}:
-    get:
-      tag: EIP
-      operationId: Get
-    put:
-      tag: EIP
-      operationId: Update
-  /v1/{project_id}/publicips/{id}:
-    delete:
-      tag: EIP
-      operationId: Delete
-    get:
-      tag: EIP
-      operationId: Get
-    put:
-      tag: EIP
-      operationId: Update
-  /v2.0/{project_id}/publicips:
-    post:
-      tag: EIP
-      operationId: Apply
+    /v1/{project_id}/bandwidths/{id}:
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP
+    /v1/{project_id}/publicips:
+        POST:
+            tag: EIP
+    /v1/{project_id}/publicips/{id}:
+        DELETE:
+            tag: EIP
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{ID}:
+        PUT:
+            tag: EIP
+    /v2.0/{project_id}/publicips:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/publicips/{id}/tags/action:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/publicips/change-to-period:
+        POST:
+            tag: EIP
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v3/{project_id}/eip/publicips/{id}:
+        GET:
+            tag: EIP

@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_cloudtable_cluster
-  description: 
+    version: ""
+    title: resource_huaweicloud_cloudtable_cluster
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CloudTable
+    - name: CloudTable
 paths:
-  /v2/{project_id}/clusters/{clusterId}:
-    delete:
-      tag: CloudTable
-      operationId: Delete
-    get:
-      tag: CloudTable
-      operationId: Get
-  /v2/{project_id}/clusters:
-    post:
-      tag: CloudTable
-      operationId: Create
+    /v2/{project_id}/clusters:
+        POST:
+            tag: CloudTable
+    /v2/{project_id}/clusters/{cluster_id}:
+        DELETE:
+            tag: CloudTable
+        GET:
+            tag: CloudTable

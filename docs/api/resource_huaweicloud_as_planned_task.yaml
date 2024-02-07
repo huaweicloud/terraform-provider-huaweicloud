@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_as_planned_task
-  description: 
+    version: ""
+    title: resource_huaweicloud_as_planned_task
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AS
+    - name: AS
 paths:
-  /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks/{taskID}:
-    delete:
-      tag: AS
-      operationId: Delete
-    put:
-      tag: AS
-      operationId: Update
-  /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks:
-    get:
-      tag: AS
-      operationId: List
-    post:
-      tag: AS
-      operationId: Create
+    /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks:
+        GET:
+            tag: AS
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling-groups/{groupID}/scheduled-tasks/{taskID}:
+        DELETE:
+            tag: AS
+        PUT:
+            tag: AS

@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_waf_rule_web_tamper_protection
-  description: 
+    version: ""
+    title: resource_huaweicloud_waf_rule_web_tamper_protection
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: WAF
+    - name: WAF
 paths:
-  /v1/{project_id}/waf/policy/{policyID}/antitamper/{id}:
-    delete:
-      tag: WAF
-      operationId: DeleteWithEpsID
-    get:
-      tag: WAF
-      operationId: GetWithEpsID
-  /v1/{project_id}/waf/policy/{policyID}/antitamper:
-    post:
-      tag: WAF
-      operationId: Create
+    /v1/{project_id}/waf/policy/{policyID}/antitamper:
+        POST:
+            tag: WAF
+    /v1/{project_id}/waf/policy/{policyID}/antitamper/{id}:
+        DELETE:
+            tag: WAF
+        GET:
+            tag: WAF

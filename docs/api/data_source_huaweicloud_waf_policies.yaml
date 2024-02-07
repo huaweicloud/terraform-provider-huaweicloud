@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_waf_policies
-  description: 
+    version: ""
+    title: data_source_huaweicloud_waf_policies
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: WAF
+    - name: WAF
 paths:
-  /v1/{project_id}/waf/policy:
-    get:
-      tag: WAF
-      operationId: List
+    /v1/{project_id}/waf/policy:
+        GET:
+            tag: WAF

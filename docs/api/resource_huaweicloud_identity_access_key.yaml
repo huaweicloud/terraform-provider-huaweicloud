@@ -1,28 +1,23 @@
 info:
-  version: 
-  title: resource_huaweicloud_identity_access_key
-  description: 
+    version: ""
+    title: resource_huaweicloud_identity_access_key
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3.0/OS-CREDENTIAL/credentials/{credID}:
-    delete:
-      tag: IAM
-      operationId: Delete
-    get:
-      tag: IAM
-      operationId: Get
-    put:
-      tag: IAM
-      operationId: Update
-  /v3.0/OS-CREDENTIAL/credentials:
-    post:
-      tag: IAM
-      operationId: Create
-  /v3.0/OS-USER/users/{userID}:
-    get:
-      tag: IAM
-      operationId: Get
+    /v3.0/OS-CREDENTIAL/credentials:
+        POST:
+            tag: IAM
+    /v3.0/OS-CREDENTIAL/credentials/{credID}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3.0/OS-USER/users/{userID}:
+        GET:
+            tag: IAM

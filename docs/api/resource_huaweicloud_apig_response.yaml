@@ -1,27 +1,22 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_response
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_response
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses/{respId}:
-    delete:
-      tag: APIG
-      operationId: Delete
-    get:
-      tag: APIG
-      operationId: Get
-    put:
-      tag: APIG
-      operationId: Update
-  /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses:
-    get:
-      tag: APIG
-      operationId: List
-    post:
-      tag: APIG
-      operationId: Create
+    /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses/{respId}:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG
+        PUT:
+            tag: APIG

@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_dataarts_factory_job
-    description: "Manages a job resource of DataArts within HuaweiCloud.\n\nA job consists of one or more nodes, such as Hive SQL and CDM Job nodes. \nDLF supports two types of jobs: batch jobs and real-time jobs."
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DataArts
-servers:
-    - url: https://dayu.myhuaweicloud.com
 paths:
     /v1/{project_id}/jobs:
         POST:
             tag: DataArts
-            operationId: CreateJob
-            x-ref-api: POST /v1/{project_id}/jobs
     /v1/{project_id}/jobs/{id}:
         DELETE:
             tag: DataArts
-            operationId: DeleteJob
-            x-ref-api: DELETE /v1/{project_id}/jobs/{id}
         GET:
             tag: DataArts
-            operationId: GetJob
-            x-ref-api: GET /v1/{project_id}/jobs/{id}

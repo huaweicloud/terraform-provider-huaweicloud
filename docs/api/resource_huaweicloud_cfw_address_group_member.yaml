@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_cfw_address_group_member
-    description: Manages a CFW IP address group member resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CFW
-servers:
-    - url: https://cfw.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/address-items:
         GET:
             tag: CFW
-            operationId: GetIPAddressGroupMember
-            x-ref-api: GET /v1/{project_id}/address-items
         POST:
             tag: CFW
-            operationId: CreateIPAddressGroupMember
-            x-ref-api: POST /v1/{project_id}/address-items
     /v1/{project_id}/address-items/{id}:
         DELETE:
             tag: CFW
-            operationId: DeleteIPAddressGroup
-            x-ref-api: DELETE /v1/{project_id}/address-items/{id}

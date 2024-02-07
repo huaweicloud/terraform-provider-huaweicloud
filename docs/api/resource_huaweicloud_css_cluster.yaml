@@ -1,108 +1,83 @@
 info:
-  version: 
-  title: resource_huaweicloud_css_cluster
-  description: 
+    version: ""
+    title: resource_huaweicloud_css_cluster
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CSS
+    - name: CSS
 paths:
-  /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/auto_setting:
-    post:
-      tag: CSS
-      operationId: StartAutoSetting
-  /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/policy:
-    get:
-      tag: CSS
-      operationId: ShowAutoCreatePolicy
-    post:
-      tag: CSS
-      operationId: CreateAutoCreatePolicy
-  /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/setting:
-    post:
-      tag: CSS
-      operationId: UpdateSnapshotSetting
-  /v1.0/{project_id}/clusters/{cluster_id}/public/bandwidth:
-    post:
-      tag: CSS
-      operationId: UpdatePublicBandWidth
-  /v1.0/{project_id}/clusters/{cluster_id}/public/close:
-    put:
-      tag: CSS
-      operationId: UpdateUnbindPublic
-  /v1.0/{project_id}/clusters/{cluster_id}/public/open:
-    post:
-      tag: CSS
-      operationId: CreateBindPublic
-  /v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/close:
-    put:
-      tag: CSS
-      operationId: StopPublicWhitelist
-  /v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/update:
-    post:
-      tag: CSS
-      operationId: StartPublicWhitelist
-  /v1.0/{project_id}/clusters/{cluster_id}/publickibana/bandwidth:
-    post:
-      tag: CSS
-      operationId: UpdateAlterKibana
-  /v1.0/{project_id}/clusters/{cluster_id}/publickibana/close:
-    put:
-      tag: CSS
-      operationId: UpdateCloseKibana
-  /v1.0/{project_id}/clusters/{cluster_id}/publickibana/open:
-    post:
-      tag: CSS
-      operationId: StartKibanaPublic
-  /v1.0/{project_id}/clusters/{cluster_id}/publickibana/whitelist/close:
-    put:
-      tag: CSS
-      operationId: StopPublicKibanaWhitelist
-  /v1.0/{project_id}/clusters/{cluster_id}/publickibana/whitelist/update:
-    post:
-      tag: CSS
-      operationId: UpdatePublicKibanaWhitelist
-  /v1.0/{project_id}/clusters/{cluster_id}/role_extend:
-    post:
-      tag: CSS
-      operationId: UpdateExtendInstanceStorage
-  /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/close:
-    put:
-      tag: CSS
-      operationId: StopVpecp
-  /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/connections:
-    get:
-      tag: CSS
-      operationId: ShowVpcepConnection
-  /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/open:
-    post:
-      tag: CSS
-      operationId: StartVpecp
-  /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/permissions:
-    post:
-      tag: CSS
-      operationId: UpdateVpcepWhitelist
-  /v1.0/{project_id}/clusters/{cluster_id}:
-    delete:
-      tag: CSS
-      operationId: DeleteCluster
-    get:
-      tag: CSS
-      operationId: ShowClusterDetail
-  /v1.0/{project_id}/clusters:
-    post:
-      tag: CSS
-      operationId: CreateCluster
-  /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/{key}:
-    delete:
-      tag: CSS
-      operationId: DeleteClustersTags
-  /v1.0/{project_id}/{resource_type}/{cluster_id}/tags:
-    post:
-      tag: CSS
-      operationId: CreateClustersTags
-  /v2.0/{project_id}/clusters:
-    post:
-      tag: CSS
-      operationId: CreateCluster
+    /v1.0/{project_id}/{resource_type}/{cluster_id}/tags:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/{key}:
+        DELETE:
+            tag: CSS
+    /v1.0/{project_id}/clusters:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        DELETE:
+            tag: CSS
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/auto_setting:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/policy:
+        GET:
+            tag: CSS
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/setting:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/public/bandwidth:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/public/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/public/open:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/update:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/publickibana/bandwidth:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/publickibana/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/publickibana/open:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/publickibana/whitelist/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/publickibana/whitelist/update:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/role_extend:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/connections:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/open:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/permissions:
+        POST:
+            tag: CSS
+    /v2.0/{project_id}/clusters:
+        POST:
+            tag: CSS

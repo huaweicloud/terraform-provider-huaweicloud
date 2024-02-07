@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_eg_endpoint
-    description: Manages a EG endpoint resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: EG
-servers:
-    - url: https://eg.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/endpoints:
         GET:
             tag: EG
-            operationId: GetEndpoint
-            x-ref-api: GET /v1/{project_id}/endpoints
         POST:
             tag: EG
-            operationId: CreateEndpoint
-            x-ref-api: POST /v1/{project_id}/endpoints
     /v1/{project_id}/endpoints/{id}:
         DELETE:
             tag: EG
-            operationId: DeleteEndpoint
-            x-ref-api: DELETE /v1/{project_id}/endpoints/{id}
         PUT:
             tag: EG
-            operationId: UpdateEndpoint
-            x-ref-api: PUT /v1/{project_id}/endpoints/{id}

@@ -1,20 +1,17 @@
 info:
-  version: 
-  title: resource_huaweicloud_aom_service_discovery_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_aom_service_discovery_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AOM
+    - name: AOM
 paths:
-  /v1/{project_id}/inv/servicediscoveryrules:
-    delete:
-      tag: AOM
-      operationId: DeleteserviceDiscoveryRules
-    get:
-      tag: AOM
-      operationId: ListServiceDiscoveryRules
-    put:
-      tag: AOM
-      operationId: AddOrUpdateServiceDiscoveryRules
+    /v1/{project_id}/inv/servicediscoveryrules:
+        DELETE:
+            tag: AOM
+        GET:
+            tag: AOM
+        PUT:
+            tag: AOM

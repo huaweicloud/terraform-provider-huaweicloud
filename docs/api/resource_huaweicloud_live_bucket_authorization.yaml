@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: resource_huaweicloud_live_bucket_authorization
-    description: Manages a Live bucket authorization resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Live
-servers:
-    - url: https://live.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/obs/authority:
         PUT:
             tag: Live
-            operationId: CreateLiveBucketAuthorization
-            x-ref-api: PUT /v1/{project_id}/obs/authority

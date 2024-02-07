@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_cpts_project
-  description: 
+    version: ""
+    title: resource_huaweicloud_cpts_project
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CPTS
+    - name: CPTS
 paths:
-  /v1/{project_id}/test-suites/{test_suite_id}:
-    delete:
-      tag: CPTS
-      operationId: DeleteProject
-    get:
-      tag: CPTS
-      operationId: ShowProject
-    put:
-      tag: CPTS
-      operationId: UpdateProject
-  /v1/{project_id}/test-suites:
-    post:
-      tag: CPTS
-      operationId: CreateProject
+    /v1/{project_id}/test-suites:
+        POST:
+            tag: CPTS
+    /v1/{project_id}/test-suites/{test_suite_id}:
+        DELETE:
+            tag: CPTS
+        GET:
+            tag: CPTS
+        PUT:
+            tag: CPTS

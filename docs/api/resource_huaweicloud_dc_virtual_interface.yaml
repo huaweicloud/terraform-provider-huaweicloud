@@ -1,28 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_dc_virtual_interface
-  description: 
+    version: ""
+    title: resource_huaweicloud_dc_virtual_interface
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DC
+    - name: DC
 paths:
-  /v3/{project_id}/dc-vif/{id}/tags/action:
-    POST:
-      tag: DC
-      operationId: batchUpdate
-  /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}:
-    delete:
-      tag: DC
-      operationId: Delete
-    get:
-      tag: DC
-      operationId: Get
-    put:
-      tag: DC
-      operationId: Update
-  /v3/{project_id}/dcaas/virtual-interfaces:
-    post:
-      tag: DC
-      operationId: Create
+    /v3/{project_id}/dcaas/virtual-interfaces:
+        POST:
+            tag: DC
+    /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}:
+        DELETE:
+            tag: DC
+        GET:
+            tag: DC
+        PUT:
+            tag: DC

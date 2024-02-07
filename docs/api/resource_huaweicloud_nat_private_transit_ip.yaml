@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_nat_private_transit_ip
-  description: 
+    version: ""
+    title: resource_huaweicloud_nat_private_transit_ip
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: NAT
+    - name: NAT
 paths:
-  /v3/{project_id}/private-nat/transit-ips/{transitIpId}:
-    delete:
-      tag: NAT
-      operationId: Delete
-    get:
-      tag: NAT
-      operationId: Get
-  /v3/{project_id}/private-nat/transit-ips:
-    post:
-      tag: NAT
-      operationId: Create
-  /v3/{project_id}/transit-ips/{id}/tags/action:
-    POST:
-      tag: NAT
-      operationId: batchUpdate
+    /v3/{project_id}/private-nat/transit-ips:
+        POST:
+            tag: NAT
+    /v3/{project_id}/private-nat/transit-ips/{transitIpId}:
+        DELETE:
+            tag: NAT
+        GET:
+            tag: NAT
+    /v3/{project_id}/transit-ips/{id}/tags/action:
+        POST:
+            tag: NAT

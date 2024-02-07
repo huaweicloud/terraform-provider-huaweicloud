@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_throttling_policy_associate
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_throttling_policy_associate
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/binded-apis:
-    get:
-      tag: APIG
-      operationId: ListBind
-  /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/{bindId}:
-    delete:
-      tag: APIG
-      operationId: Unbind
-  /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings:
-    post:
-      tag: APIG
-      operationId: Bind
+    /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/{bindId}:
+        DELETE:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/binded-apis:
+        GET:
+            tag: APIG

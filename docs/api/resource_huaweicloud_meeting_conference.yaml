@@ -1,39 +1,31 @@
 info:
-  version: 
-  title: resource_huaweicloud_meeting_conference
-  description: 
+    version: ""
+    title: resource_huaweicloud_meeting_conference
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Meeting
+    - name: Meeting
 paths:
-  /v1/mmc/management/conference/duration:
-    put:
-      tag: Meeting
-      operationId: ExtendTime
-  /v1/mmc/management/conferences/confDetail:
-    get:
-      tag: Meeting
-      operationId: Get
-  /v1/mmc/management/conferences/history/confDetail:
-    get:
-      tag: Meeting
-      operationId: GetHistory
-  /v1/mmc/management/conferences/history:
-    get:
-      tag: Meeting
-      operationId: ListHistory
-  /v1/mmc/management/conferences:
-    delete:
-      tag: Meeting
-      operationId: Delete
-    get:
-      tag: Meeting
-      operationId: GetControlToken
-    post:
-      tag: Meeting
-      operationId: Create
-    put:
-      tag: Meeting
-      operationId: Update
+    /v1/mmc/management/conference/duration:
+        PUT:
+            tag: Meeting
+    /v1/mmc/management/conferences:
+        DELETE:
+            tag: Meeting
+        GET:
+            tag: Meeting
+        POST:
+            tag: Meeting
+        PUT:
+            tag: Meeting
+    /v1/mmc/management/conferences/confDetail:
+        GET:
+            tag: Meeting
+    /v1/mmc/management/conferences/history:
+        GET:
+            tag: Meeting
+    /v1/mmc/management/conferences/history/confDetail:
+        GET:
+            tag: Meeting

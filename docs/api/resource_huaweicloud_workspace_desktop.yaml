@@ -1,60 +1,41 @@
 info:
-  version: 
-  title: resource_huaweicloud_workspace_desktop
-  description: 
+    version: ""
+    title: resource_huaweicloud_workspace_desktop
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Workspace
+    - name: Workspace
 paths:
-  /v2/{project_id}/desktops/action:
-    post:
-      tag: Workspace
-      operationId: DoAction
-  /v2/{project_id}/desktops/rebuild:
-    post:
-      tag: Workspace
-      operationId: Rebuild
-  /v2/{project_id}/desktops/resize:
-    post:
-      tag: Workspace
-      operationId: UpdateProduct
-  /v2/{project_id}/desktops/{desktopId}/networks:
-    get:
-      tag: Workspace
-      operationId: GetNetwork
-    put:
-      tag: Workspace
-      operationId: UpdateNetwork
-  /v2/{project_id}/desktops/{desktopId}:
-    delete:
-      tag: Workspace
-      operationId: Delete
-    get:
-      tag: Workspace
-      operationId: Get
-  /v2/{project_id}/desktops/{id}/tags/action:
-    POST:
-      tag: Workspace
-      operationId: batchUpdate
-  /v2/{project_id}/desktops:
-    post:
-      tag: Workspace
-      operationId: Create
-  /v2/{project_id}/users:
-    get:
-      tag: Workspace
-      operationId: List
-  /v2/{project_id}/volumes/expand:
-    post:
-      tag: Workspace
-      operationId: ExpandVolumes
-  /v2/{project_id}/volumes:
-    post:
-      tag: Workspace
-      operationId: NewVolumes
-  /v2/{project_id}/workspace-sub-jobs:
-    get:
-      tag: Workspace
-      operationId: List
+    /v2/{project_id}/desktops:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/desktops/{desktop_id}:
+        DELETE:
+            tag: Workspace
+        GET:
+            tag: Workspace
+    /v2/{project_id}/desktops/{desktop_id}/networks:
+        GET:
+            tag: Workspace
+        PUT:
+            tag: Workspace
+    /v2/{project_id}/desktops/{id}/tags/action:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/desktops/rebuild:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/desktops/resize:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/volumes:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/volumes/expand:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/workspace-sub-jobs:
+        GET:
+            tag: Workspace

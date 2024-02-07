@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_appcode
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_appcode
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes/{codeId}:
-    delete:
-      tag: APIG
-      operationId: RemoveAppCode
-    get:
-      tag: APIG
-      operationId: GetAppCode
-  /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes:
-    post:
-      tag: APIG
-      operationId: CreateAppCode
-    put:
-      tag: APIG
-      operationId: AutoGenerateAppCode
+    /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes:
+        POST:
+            tag: APIG
+        PUT:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes/{codeId}:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG

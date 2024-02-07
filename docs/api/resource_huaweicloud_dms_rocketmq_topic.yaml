@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dms_rocketmq_topic
-    description: Manages DMS RocketMQ topic resources within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RocketMQ
-servers:
-    - url: https://dms.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/instances/{instance_id}/topics:
         POST:
             tag: RocketMQ
-            operationId: CreateRocketmqTopic
-            x-ref-api: POST /v2/{project_id}/instances/{instance_id}/topics
     /v2/{project_id}/instances/{instance_id}/topics/{topic}:
         DELETE:
             tag: RocketMQ
-            operationId: DeleteRocketmqTopic
-            x-ref-api: DELETE /v2/{project_id}/instances/{instance_id}/topics/{topic}
         GET:
             tag: RocketMQ
-            operationId: GetRocketmqTopic
-            x-ref-api: GET /v2/{project_id}/instances/{instance_id}/topics/{topic}
         PUT:
             tag: RocketMQ
-            operationId: UpdateRocketmqTopic
-            x-ref-api: PUT /v2/{project_id}/instances/{instance_id}/topics/{topic}

@@ -1,20 +1,17 @@
 info:
-  version: 
-  title: resource_huaweicloud_css_thesaurus
-  description: 
+    version: ""
+    title: resource_huaweicloud_css_thesaurus
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CSS
+    - name: CSS
 paths:
-  /v1.0/{project_id}/clusters/{clusterId}/thesaurus:
-    delete:
-      tag: CSS
-      operationId: Delete
-    get:
-      tag: CSS
-      operationId: Get
-    post:
-      tag: CSS
-      operationId: Load
+    /v1.0/{project_id}/clusters/{clusterId}/thesaurus:
+        DELETE:
+            tag: CSS
+        GET:
+            tag: CSS
+        POST:
+            tag: CSS

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_eg_connection
-    description: Manages a EG connection resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: EG
-servers:
-    - url: https://eg.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/connections:
         POST:
             tag: EG
-            operationId: CreateConnection
-            x-ref-api: POST /v1/{project_id}/connections
     /v1/{project_id}/connections/{id}:
         DELETE:
             tag: EG
-            operationId: DeleteConnection
-            x-ref-api: DELETE /v1/{project_id}/connections/{id}
         GET:
             tag: EG
-            operationId: GetConnection
-            x-ref-api: GET /v1/{project_id}/connections/{id}
         PUT:
             tag: EG
-            operationId: UpdateConnection
-            x-ref-api: PUT /v1/{project_id}/connections/{id}

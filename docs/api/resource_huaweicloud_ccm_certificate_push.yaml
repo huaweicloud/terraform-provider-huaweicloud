@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_ccm_certificate_push
-  description: 
+    version: ""
+    title: resource_huaweicloud_ccm_certificate_push
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCM
+    - name: WAF
 paths:
-  /v1/{project_id}/waf/certificate/{id}:
-    delete:
-      tag: WAF
-      operationId: DeleteWithEpsID
-    get:
-      tag: WAF
-      operationId: Get
-  /v3/{project_id}/elb/certificates/{id}:
-    delete:
-      tag: ELB
-      operationId: Delete
-    get:
-      tag: ELB
-      operationId: Get
+    /v1/{project_id}/waf/certificate/{id}:
+        DELETE:
+            tag: WAF
+        GET:
+            tag: WAF
+    /v3/{project_id}/elb/certificates/{id}:
+        DELETE:
+            tag: ELB
+        GET:
+            tag: ELB

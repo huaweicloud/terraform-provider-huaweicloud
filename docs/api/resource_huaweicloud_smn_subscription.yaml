@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_smn_subscription
-  description: 
+    version: ""
+    title: resource_huaweicloud_smn_subscription
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: SMN
+    - name: SMN
 paths:
-  /v2/{project_id}/notifications/subscriptions/{subscriptionUrn}:
-    delete:
-      tag: SMN
-      operationId: Delete
-  /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions:
-    get:
-      tag: SMN
-      operationId: ListFromTopic
-    post:
-      tag: SMN
-      operationId: Create
+    /v2/{project_id}/notifications/subscriptions/{subscriptionUrn}:
+        DELETE:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions:
+        GET:
+            tag: SMN
+        POST:
+            tag: SMN

@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_host_group
-    description: Manages a LTS host group resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/lts/host-group:
         DELETE:
             tag: LTS
-            operationId: DeleteHostGroup
-            x-ref-api: DELETE /v3/{project_id}/lts/host-group
         POST:
             tag: LTS
-            operationId: CreateHostGroup
-            x-ref-api: POST /v3/{project_id}/lts/host-group
         PUT:
             tag: LTS
-            operationId: UpdateHostGroup
-            x-ref-api: PUT /v3/{project_id}/lts/host-group
     /v3/{project_id}/lts/host-group-list:
         POST:
             tag: LTS
-            operationId: GetHostGroup
-            x-ref-api: POST /v3/{project_id}/lts/host-group-list

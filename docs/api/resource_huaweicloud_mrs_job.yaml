@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_mrs_job
-  description: 
+    version: ""
+    title: resource_huaweicloud_mrs_job
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: MRS
+    - name: MRS
 paths:
-  /v1.1/{project_id}/job-executions/{id}:
-    delete:
-      tag: MRS
-      operationId: Delete
-  /v1.1/{project_id}/job-exes/{id}:
-    get:
-      tag: MRS
-      operationId: Get
-  /v1.1/{project_id}/jobs/submit-job:
-    post:
-      tag: MRS
-      operationId: Create
+    /v1.1/{project_id}/job-executions/{id}:
+        DELETE:
+            tag: MRS
+    /v1.1/{project_id}/job-exes/{id}:
+        GET:
+            tag: MRS
+    /v1.1/{project_id}/jobs/submit-job:
+        POST:
+            tag: MRS

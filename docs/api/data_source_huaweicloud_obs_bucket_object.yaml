@@ -1,17 +1,15 @@
 info:
-  version: v1.xx.y
-  title: data_source_huaweicloud_obs_bucket_object
-  description:
+    version: ""
+    title: data_source_huaweicloud_obs_bucket_object
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: OBS
+    - name: OBS
 paths:
-  /{ObjectName}:
-    head:
-      tag: OBS
-      operationId: GetObjectMetadata
-    get:
-      tag: OBS
-      operationId: GetObject
+    /{ObjectName}:
+        GET:
+            tag: OBS
+        HEAD:
+            tag: OBS

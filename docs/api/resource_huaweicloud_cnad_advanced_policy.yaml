@@ -1,31 +1,22 @@
 info:
+    version: ""
     title: resource_huaweicloud_cnad_advanced_policy
-    description: Manages a CNAD advanced policy resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: CNAD
-servers:
-    - url: https://aad.myhuaweicloud.com
+    - name: AAD
 paths:
     /v1/cnad/policies:
         GET:
-            tag: CNAD
-            operationId: GetPolicyList
-            x-ref-api: GET /v1/cnad/policies
+            tag: AAD
         POST:
-            tag: CNAD
-            operationId: CreatePolicy
-            x-ref-api: POST /v1/cnad/policies
+            tag: AAD
     /v1/cnad/policies/{policy_id}:
         DELETE:
-            tag: CNAD
-            operationId: DeletePolicy
-            x-ref-api: DELETE /v1/cnad/policies/{policy_id}
+            tag: AAD
         GET:
-            tag: CNAD
-            operationId: GetPolicyDetail
-            x-ref-api: GET /v1/cnad/policies/{policy_id}
+            tag: AAD
         PUT:
-            tag: CNAD
-            operationId: UpdatePolicy
-            x-ref-api: PUT /v1/cnad/policies/{policy_id}
+            tag: AAD

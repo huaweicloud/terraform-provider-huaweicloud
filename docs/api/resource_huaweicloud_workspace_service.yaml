@@ -1,30 +1,29 @@
 info:
-  version: 
-  title: resource_huaweicloud_workspace_service
-  description: 
+    version: ""
+    title: resource_huaweicloud_workspace_service
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Workspace
+    - name: Workspace
 paths:
-  /v2/{project_id}/assist-auth-config/method-config:
-    get:
-      tag: Workspace
-      operationId: GetAuthConfig
-    put:
-      tag: Workspace
-      operationId: UpdateAssistAuthConfig
-  /v2/{project_id}/workspaces:
-    delete:
-      tag: Workspace
-      operationId: Delete
-    get:
-      tag: Workspace
-      operationId: Get
-    post:
-      tag: Workspace
-      operationId: Create
-    put:
-      tag: Workspace
-      operationId: Update
+    /v2/{project_id}/assist-auth-config/method-config:
+        GET:
+            tag: Workspace
+        PUT:
+            tag: Workspace
+    /v2/{project_id}/workspaces:
+        DELETE:
+            tag: Workspace
+        GET:
+            tag: Workspace
+        POST:
+            tag: Workspace
+        PUT:
+            tag: Workspace
+    /v2/{project_id}/workspaces/lock-status:
+        GET:
+            tag: Workspace
+        PUT:
+            tag: Workspace

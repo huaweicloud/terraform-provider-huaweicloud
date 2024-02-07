@@ -1,44 +1,32 @@
 info:
-  version: 
-  title: resource_huaweicloud_er_route_table
-  description: 
+    version: ""
+    title: resource_huaweicloud_er_route_table
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ER
+    - name: ER
 paths:
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/associations:
-    get:
-      tag: ER
-      operationId: List
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disable-propagations:
-    post:
-      tag: ER
-      operationId: Delete
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/disassociate:
-    post:
-      tag: ER
-      operationId: Delete
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}/propagations:
-    get:
-      tag: ER
-      operationId: List
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables/{routeTableId}:
-    delete:
-      tag: ER
-      operationId: Delete
-    get:
-      tag: ER
-      operationId: Get
-    put:
-      tag: ER
-      operationId: Update
-  /v3/{project_id}/enterprise-router/{instanceId}/route-tables:
-    post:
-      tag: ER
-      operationId: Create
-  /v3/{project_id}/route-table/{id}/tags/action:
-    POST:
-      tag: ER
-      operationId: batchUpdate
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}:
+        DELETE:
+            tag: ER
+        GET:
+            tag: ER
+        PUT:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/associations:
+        GET:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disable-propagations:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/disassociate:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations:
+        GET:
+            tag: ER

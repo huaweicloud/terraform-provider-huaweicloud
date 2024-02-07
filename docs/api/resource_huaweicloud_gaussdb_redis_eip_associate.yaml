@@ -1,19 +1,16 @@
 info:
+    version: ""
     title: resource_huaweicloud_gaussdb_redis_eip_associate
-    description: Manages a GaussDB Redis node EIP associate resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GaussDB
-servers:
-    - url: https://gaussdb.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/instances:
         GET:
             tag: GaussDB
-            operationId: GetGaussRedisEipAssociate
-            x-ref-api: GET /v3/{project_id}/instances
     /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-ip:
         POST:
             tag: GaussDB
-            operationId: CreateGaussRedisEipAssociate
-            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-ip

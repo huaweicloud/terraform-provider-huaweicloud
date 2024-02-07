@@ -1,24 +1,20 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_obs_bucket_object
-  description:
+    version: ""
+    title: resource_huaweicloud_obs_bucket_object
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: OBS
+    - name: OBS
 paths:
-  /:
-    head:
-      tag: OBS
-      operationId: HeadBucket
-  /{ObjectName}:
-    head:
-      tag: OBS
-      operationId: GetObjectMetadata
-    put:
-      tag: OBS
-      operationId: PutObject
-    delete:
-      tag: OBS
-      operationId: DeleteObject
+    /:
+        HEAD:
+            tag: OBS
+    /{ObjectName}:
+        DELETE:
+            tag: OBS
+        HEAD:
+            tag: OBS
+        PUT:
+            tag: OBS

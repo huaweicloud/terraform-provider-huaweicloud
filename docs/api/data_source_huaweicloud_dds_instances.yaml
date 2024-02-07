@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_dds_instances
-    description: Use this data source to get the list of DDS instances.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: DDS
-servers:
-    - url: https://dds.cn-north-4.myhuaweicloud.com/
 paths:
     /v3/{project_id}/instances:
         GET:
             tag: DDS
-            operationId: GetDDSInstances
-            x-ref-api: GET /v3/{project_id}/instances

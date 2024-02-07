@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_ges_metadata
-    description: "Manages a GES metadata resource within HuaweiCloud.  \n\n-> Only 50 metadata resources can be created."
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GES
-servers:
-    - url: https://ges.myhuaweicloud.com
 paths:
     /v1.0/{project_id}/graphs/metadatas/{id}:
         GET:
             tag: GES
-            operationId: GetMetadataDetail
-            x-ref-api: GET /v1.0/{project_id}/graphs/metadatas/{id}
     /v2/{project_id}/graphs/metadatas:
         GET:
             tag: GES
-            operationId: GetMetadataList
-            x-ref-api: GET /v2/{project_id}/graphs/metadatas
         POST:
             tag: GES
-            operationId: CreateMetadata
-            x-ref-api: POST /v2/{project_id}/graphs/metadatas
     /v2/{project_id}/graphs/metadatas/{id}:
         DELETE:
             tag: GES
-            operationId: DeleteMetadata
-            x-ref-api: DELETE /v2/{project_id}/graphs/metadatas/{id}

@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_iec_bandwidths
-  description: 
+    version: ""
+    title: data_source_huaweicloud_iec_bandwidths
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IEC
+    - name: IEC
 paths:
-  /v1/bandwidths:
-    get:
-      tag: IEC
-      operationId: List
+    /v1/bandwidths:
+        GET:
+            tag: IEC

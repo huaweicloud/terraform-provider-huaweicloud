@@ -1,38 +1,30 @@
 info:
-  version: 
-  title: resource_huaweicloud_iotda_dataforwarding_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_iotda_dataforwarding_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IoTDA
+    - name: IoTDA
 paths:
-  /v5/iot/{project_id}/routing-rule/actions/{action_id}:
-    delete:
-      tag: IoTDA
-      operationId: DeleteRuleAction
-    put:
-      tag: IoTDA
-      operationId: UpdateRuleAction
-  /v5/iot/{project_id}/routing-rule/actions:
-    get:
-      tag: IoTDA
-      operationId: ListRuleActions
-    post:
-      tag: IoTDA
-      operationId: CreateRuleAction
-  /v5/iot/{project_id}/routing-rule/rules/{rule_id}:
-    delete:
-      tag: IoTDA
-      operationId: DeleteRoutingRule
-    get:
-      tag: IoTDA
-      operationId: ShowRoutingRule
-    put:
-      tag: IoTDA
-      operationId: UpdateRoutingRule
-  /v5/iot/{project_id}/routing-rule/rules:
-    post:
-      tag: IoTDA
-      operationId: CreateRoutingRule
+    /v5/iot/{project_id}/routing-rule/actions:
+        GET:
+            tag: IoTDA
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/routing-rule/actions/{action_id}:
+        DELETE:
+            tag: IoTDA
+        PUT:
+            tag: IoTDA
+    /v5/iot/{project_id}/routing-rule/rules:
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/routing-rule/rules/{rule_id}:
+        DELETE:
+            tag: IoTDA
+        GET:
+            tag: IoTDA
+        PUT:
+            tag: IoTDA

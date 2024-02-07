@@ -1,36 +1,29 @@
 info:
-  version: 
-  title: resource_huaweicloud_elb_listener
-  description: 
+    version: ""
+    title: resource_huaweicloud_elb_listener
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ELB
+    - name: ELB
 paths:
-  /v3/{project_id}/elb/listeners/{id}/force:
-    delete:
-      tag: ELB
-      operationId: ForceDelete
-  /v3/{project_id}/elb/listeners/{id}:
-    delete:
-      tag: ELB
-      operationId: Delete
-    get:
-      tag: ELB
-      operationId: Get
-    put:
-      tag: ELB
-      operationId: Update
-  /v3/{project_id}/elb/listeners:
-    post:
-      tag: ELB
-      operationId: Create
-  /v2.0/{project_id}/listeners/{id}/tags/action:
-    post:
-      tag: ELB
-      operationId: Create
-  /v2.0/{project_id}/listeners/{id}/tags:
-    get:
-      tag: ELB
-      operationId: Get
+    /v2.0/{project_id}/listeners/{id}/tags:
+        GET:
+            tag: ELB
+    /v2.0/{project_id}/listeners/{id}/tags/action:
+        POST:
+            tag: ELB
+    /v3/{project_id}/elb/listeners:
+        POST:
+            tag: ELB
+    /v3/{project_id}/elb/listeners/{id}:
+        DELETE:
+            tag: ELB
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB
+    /v3/{project_id}/elb/listeners/{id}/force:
+        DELETE:
+            tag: ELB

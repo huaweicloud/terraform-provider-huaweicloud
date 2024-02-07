@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_cce_pvc
-  description: 
+    version: ""
+    title: resource_huaweicloud_cce_pvc
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCE
+    - name: CCE
 paths:
-  /api/v1/namespaces/{ns}/persistentvolumeclaims/{name}:
-    delete:
-      tag: CCE
-      operationId: Delete
-  /api/v1/namespaces/{ns}/persistentvolumeclaims:
-    get:
-      tag: CCE
-      operationId: List
-    post:
-      tag: CCE
-      operationId: Create
+    /api/v1/namespaces/{ns}/persistentvolumeclaims:
+        GET:
+            tag: CCE
+        POST:
+            tag: CCE
+    /api/v1/namespaces/{ns}/persistentvolumeclaims/{name}:
+        DELETE:
+            tag: CCE

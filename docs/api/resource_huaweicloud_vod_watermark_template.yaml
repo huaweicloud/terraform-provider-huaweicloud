@@ -1,27 +1,22 @@
 info:
-  version: 
-  title: resource_huaweicloud_vod_watermark_template
-  description: 
+    version: ""
+    title: resource_huaweicloud_vod_watermark_template
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VOD
+    - name: VOD
 paths:
-  /v1.0/{project_id}/template/watermark:
-    delete:
-      tag: VOD
-      operationId: DeleteWatermarkTemplate
-    get:
-      tag: VOD
-      operationId: ListWatermarkTemplate
-    post:
-      tag: VOD
-      operationId: CreateWatermarkTemplate
-    put:
-      tag: VOD
-      operationId: UpdateWatermarkTemplate
-  /v1.0/{project_id}/watermark/status/uploaded:
-    post:
-      tag: VOD
-      operationId: ConfirmImageUpload
+    /v1.0/{project_id}/template/watermark:
+        DELETE:
+            tag: VOD
+        GET:
+            tag: VOD
+        POST:
+            tag: VOD
+        PUT:
+            tag: VOD
+    /v1.0/{project_id}/watermark/status/uploaded:
+        POST:
+            tag: VOD

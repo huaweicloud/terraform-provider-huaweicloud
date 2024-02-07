@@ -1,27 +1,22 @@
 info:
-  version: 
-  title: resource_huaweicloud_workspace_access_policy
-  description: 
+    version: ""
+    title: resource_huaweicloud_workspace_access_policy
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Workspace
+    - name: Workspace
 paths:
-  /v2/{project_id}/access-policy/{policyId}/objects:
-    get:
-      tag: Workspace
-      operationId: ListObjects
-    put:
-      tag: Workspace
-      operationId: UpdateObjects
-  /v2/{project_id}/access-policy:
-    delete:
-      tag: Workspace
-      operationId: Delete
-    get:
-      tag: Workspace
-      operationId: List
-    post:
-      tag: Workspace
-      operationId: Create
+    /v2/{project_id}/access-policy:
+        DELETE:
+            tag: Workspace
+        GET:
+            tag: Workspace
+        POST:
+            tag: Workspace
+    /v2/{project_id}/access-policy/{access_policy_id}/objects:
+        GET:
+            tag: Workspace
+        PUT:
+            tag: Workspace

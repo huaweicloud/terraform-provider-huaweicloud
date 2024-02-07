@@ -1,26 +1,22 @@
 info:
-  version: 
-  title: resource_huaweicloud_cbr_checkpoint
-  description: 
+    version: ""
+    title: resource_huaweicloud_cbr_checkpoint
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CBR
+    - name: CBR
 paths:
-  /v3/{project_id}/backups/{backupId}:
-    delete:
-      tag: CBR
-      operationId: Delete
-  /v3/{project_id}/backups:
-    get:
-      tag: CBR
-      operationId: List
-  /v3/{project_id}/checkpoints/{checkpointId}:
-    get:
-      tag: CBR
-      operationId: Get
-  /v3/{project_id}/checkpoints:
-    post:
-      tag: CBR
-      operationId: Create
+    /v3/{project_id}/backups:
+        GET:
+            tag: CBR
+    /v3/{project_id}/backups/{backup_id}:
+        DELETE:
+            tag: CBR
+    /v3/{project_id}/checkpoints:
+        POST:
+            tag: CBR
+    /v3/{project_id}/checkpoints/{checkpoint_id}:
+        GET:
+            tag: CBR

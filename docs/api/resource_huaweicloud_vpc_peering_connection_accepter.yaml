@@ -1,22 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_peering_connection_accepter
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_peering_connection_accepter
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPC
+    - name: VPC
 paths:
-  /v2.0/vpc/peerings/{id}/accept:
-    put:
-      tag: VPC
-      operationId: Accept
-  /v2.0/vpc/peerings/{id}/reject:
-    put:
-      tag: VPC
-      operationId: Reject
-  /v2.0/vpc/peerings/{id}:
-    get:
-      tag: VPC
-      operationId: Get
+    /v2.0/vpc/peerings/{id}:
+        GET:
+            tag: VPC
+    /v2.0/vpc/peerings/{id}/accept:
+        PUT:
+            tag: VPC
+    /v2.0/vpc/peerings/{id}/reject:
+        PUT:
+            tag: VPC

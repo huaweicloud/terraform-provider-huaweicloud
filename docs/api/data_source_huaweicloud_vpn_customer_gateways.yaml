@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_vpn_customer_gateways
-  description: 
+    version: ""
+    title: data_source_huaweicloud_vpn_customer_gateways
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VPN
+    - name: VPN
 paths:
-  /v5/{project_id}/customer-gateways:
-    get:
-      tag: VPN
-      operationId: List
+    /v5/{project_id}/customer-gateways:
+        GET:
+            tag: VPN

@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_cse_microservice
-  description: 
+    version: ""
+    title: resource_huaweicloud_cse_microservice
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CSE
+    - name: CSE
 paths:
-  /v2/{project_id}/registry/microservices/{serviceId}:
-    delete:
-      tag: CSE
-      operationId: Delete
-    get:
-      tag: CSE
-      operationId: Get
-  /v2/{project_id}/registry/microservices:
-    post:
-      tag: CSE
-      operationId: Create
+    /v2/{project_id}/registry/microservices:
+        POST:
+            tag: CSE
+    /v2/{project_id}/registry/microservices/{serviceId}:
+        DELETE:
+            tag: CSE
+        GET:
+            tag: CSE

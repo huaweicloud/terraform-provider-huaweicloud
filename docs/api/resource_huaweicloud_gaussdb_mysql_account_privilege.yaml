@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_gaussdb_mysql_account_privilege
-    description: Manages a GaussDB MySQL account privilege resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: GaussDB
-servers:
-    - url: https://gaussdb.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/instances/{instance_id}/db-users:
         GET:
             tag: GaussDB
-            operationId: GetGaussDBAccountPrivilege
-            x-ref-api: GET /v3/{project_id}/instances/{instance_id}/db-users
     /v3/{project_id}/instances/{instance_id}/db-users/privilege:
         DELETE:
             tag: GaussDB
-            operationId: DeleteGaussDBAccountPrivilege
-            x-ref-api: DELETE /v3/{project_id}/instances/{instance_id}/db-users/privilege
         POST:
             tag: GaussDB
-            operationId: CreateGaussDBAccountPrivilege
-            x-ref-api: POST /v3/{project_id}/instances/{instance_id}/db-users/privilege

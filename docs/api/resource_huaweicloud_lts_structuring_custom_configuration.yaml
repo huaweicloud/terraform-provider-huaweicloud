@@ -1,26 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_lts_structuring_custom_configuration
-    description: Manages an LTS structuring custom configuration resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: LTS
-servers:
-    - url: https://lts.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/lts/struct/template:
         DELETE:
             tag: LTS
-            operationId: DeleteStructCustomConfig
-            x-ref-api: DELETE /v2/{project_id}/lts/struct/template
         GET:
             tag: LTS
-            operationId: GetStructCustomConfig
-            x-ref-api: GET /v2/{project_id}/lts/struct/template
         POST:
             tag: LTS
-            operationId: CreateStructCustomConfig
-            x-ref-api: POST /v2/{project_id}/lts/struct/template
         PUT:
             tag: LTS
-            operationId: UpdateStructCustomConfig
-            x-ref-api: PUT /v2/{project_id}/lts/struct/template

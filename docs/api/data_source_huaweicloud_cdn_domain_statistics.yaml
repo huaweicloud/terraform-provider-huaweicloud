@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_cdn_domain_statistics
-    description: Use this data source to get the statistics of CDN domain.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CDN
-servers:
-    - url: https://cdn.cn-north-4.myhuaweicloud.com
 paths:
     /v1.0/cdn/statistics/domain-location-stats:
         GET:
             tag: CDN
-            operationId: DomainStatistics
-            x-ref-api: GET /v1.0/cdn/statistics/domain-location-stats

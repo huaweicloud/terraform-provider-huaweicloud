@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_rds_backup
-    description: 'Manages a RDS manual backup resource within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: RDS
-servers:
-    - url: https://rds.cn-north-4.myhuaweicloud.com/
 paths:
     /v3/{project_id}/backups:
         GET:
             tag: RDS
-            operationId: CreateBackupWaiting
-            x-ref-api: GET /v3/{project_id}/backups
         POST:
             tag: RDS
-            operationId: CreateBackup
-            x-ref-api: POST /v3/{project_id}/backups
     /v3/{project_id}/backups/{id}:
         DELETE:
             tag: RDS
-            operationId: DeleteBackup
-            x-ref-api: DELETE /v3/{project_id}/backups/{id}

@@ -1,42 +1,34 @@
 info:
-  version: 
-  title: resource_huaweicloud_vod_media_asset
-  description: 
+    version: ""
+    title: resource_huaweicloud_vod_media_asset
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: VOD
+    - name: VOD
 paths:
-  /v1.0/{project_id}/asset/authority:
-    put:
-      tag: VOD
-      operationId: UpdateBucketAuthorized
-  /v1.0/{project_id}/asset/details:
-    get:
-      tag: VOD
-      operationId: ShowAssetDetail
-  /v1.0/{project_id}/asset/info:
-    put:
-      tag: VOD
-      operationId: UpdateAssetMeta
-  /v1.0/{project_id}/asset/reproduction:
-    post:
-      tag: VOD
-      operationId: PublishAssetFromObs
-  /v1.0/{project_id}/asset/status/publish:
-    post:
-      tag: VOD
-      operationId: PublishAssets
-  /v1.0/{project_id}/asset/status/unpublish:
-    post:
-      tag: VOD
-      operationId: UnpublishAssets
-  /v1.0/{project_id}/asset/upload_by_url:
-    post:
-      tag: VOD
-      operationId: UploadMetaDataByUrl
-  /v1.0/{project_id}/asset:
-    delete:
-      tag: VOD
-      operationId: DeleteAssets
+    /v1.0/{project_id}/asset:
+        DELETE:
+            tag: VOD
+    /v1.0/{project_id}/asset/authority:
+        PUT:
+            tag: VOD
+    /v1.0/{project_id}/asset/details:
+        GET:
+            tag: VOD
+    /v1.0/{project_id}/asset/info:
+        PUT:
+            tag: VOD
+    /v1.0/{project_id}/asset/reproduction:
+        POST:
+            tag: VOD
+    /v1.0/{project_id}/asset/status/publish:
+        POST:
+            tag: VOD
+    /v1.0/{project_id}/asset/status/unpublish:
+        POST:
+            tag: VOD
+    /v1.0/{project_id}/asset/upload_by_url:
+        POST:
+            tag: VOD

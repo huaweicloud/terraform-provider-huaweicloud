@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: data_source_huaweicloud_cce_nodes
-  description: 
+    version: ""
+    title: data_source_huaweicloud_cce_nodes
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CCE
+    - name: CCE
 paths:
-  /v1/{project_id}/cloudservers/{id}/tags:
-    get:
-      tag: ECS
-      operationId: Get
-  /api/v3/projects/{project_id}/clusters/{clusterid}/nodes:
-    get:
-      tag: CCE
-      operationId: List
+    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes:
+        GET:
+            tag: CCE
+    /v1/{project_id}/cloudservers/{id}/tags:
+        GET:
+            tag: ECS

@@ -1,38 +1,31 @@
 info:
-  version: 
-  title: resource_huaweicloud_mrs_cluster
-  description: 
+    version: ""
+    title: resource_huaweicloud_mrs_cluster
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: MRS
+    - name: MRS
 paths:
-  /v1.1/{project_id}/cluster_infos/{id}:
-    get:
-      tag: MRS
-      operationId: Get
-  /v1.1/{project_id}/clusters/{id}/tags/action:
-    post:
-      tag: MRS
-      operationId: Create
-  /v1.1/{project_id}/clusters/{id}/tags:
-    get:
-      tag: MRS
-      operationId: Get
-  /v1.1/{project_id}/clusters/{id}:
-    delete:
-      tag: MRS
-      operationId: Delete
-  /v1.1/{project_id}/run-job-flow:
-    post:
-      tag: MRS
-      operationId: Create
-  /v1/{project_id}/subnets/{id}:
-    get:
-      tag: VPC
-      operationId: Get
-  /v1/{project_id}/vpcs/{id}:
-    get:
-      tag: VPC
-      operationId: Get
+    /v1.1/{project_id}/cluster_infos/{id}:
+        GET:
+            tag: MRS
+    /v1.1/{project_id}/clusters/{id}:
+        DELETE:
+            tag: MRS
+    /v1.1/{project_id}/clusters/{id}/tags:
+        GET:
+            tag: MRS
+    /v1.1/{project_id}/clusters/{id}/tags/action:
+        POST:
+            tag: MRS
+    /v1.1/{project_id}/run-job-flow:
+        POST:
+            tag: MRS
+    /v1/{project_id}/subnets/{id}:
+        GET:
+            tag: VPC
+    /v1/{project_id}/vpcs/{id}:
+        GET:
+            tag: VPC

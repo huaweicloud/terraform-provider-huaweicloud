@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_modelarts_network
-    description: "Manages a Modelarts network resource within HuaweiCloud.  \nA maximum of 15 networks can be created"
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: ModelArts
-servers:
-    - url: https://modelarts.myhuaweicloud.com
 paths:
     /v1/{project_id}/networks:
         POST:
             tag: ModelArts
-            operationId: CreateNetwork
-            x-ref-api: POST /v1/{project_id}/networks
     /v1/{project_id}/networks/{id}:
         DELETE:
             tag: ModelArts
-            operationId: DeleteNetwork
-            x-ref-api: DELETE /v1/{project_id}/networks/{id}
         GET:
             tag: ModelArts
-            operationId: CreateNetworkWaiting
-            x-ref-api: GET /v1/{project_id}/networks/{id}
         PATCH:
             tag: ModelArts
-            operationId: UpdateNetwork
-            x-ref-api: PATCH /v1/{project_id}/networks/{id}

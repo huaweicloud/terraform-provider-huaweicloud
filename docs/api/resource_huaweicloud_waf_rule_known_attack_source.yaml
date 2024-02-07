@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_waf_rule_known_attack_source
-    description: Manages a WAF rule known attack source resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: WAF
-servers:
-    - url: https://waf.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/waf/policy/{policy_id}/punishment:
         POST:
             tag: WAF
-            operationId: CreateRuleKnownAttack
-            x-ref-api: POST /v1/{project_id}/waf/policy/{policy_id}/punishment
     /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}:
         DELETE:
             tag: WAF
-            operationId: DeleteRuleKnownAttack
-            x-ref-api: DELETE /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}
         GET:
             tag: WAF
-            operationId: GetRuleKnownAttack
-            x-ref-api: GET /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}
         PUT:
             tag: WAF
-            operationId: UpdateRuleKnownAttack
-            x-ref-api: PUT /v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}

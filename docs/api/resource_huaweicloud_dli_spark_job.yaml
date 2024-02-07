@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_dli_spark_job
-  description: 
+    version: ""
+    title: resource_huaweicloud_dli_spark_job
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DLI
+    - name: DLI
 paths:
-  /v2.0/{project_id}/batches/{batchId}/state:
-    get:
-      tag: DLI
-      operationId: GetState
-  /v2.0/{project_id}/batches/{batchId}:
-    delete:
-      tag: DLI
-      operationId: Delete
-    get:
-      tag: DLI
-      operationId: Get
-  /v2.0/{project_id}/batches:
-    post:
-      tag: DLI
-      operationId: Create
+    /v2.0/{project_id}/batches:
+        POST:
+            tag: DLI
+    /v2.0/{project_id}/batches/{batch_id}:
+        DELETE:
+            tag: DLI
+        GET:
+            tag: DLI
+    /v2.0/{project_id}/batches/{batch_id}/state:
+        GET:
+            tag: DLI

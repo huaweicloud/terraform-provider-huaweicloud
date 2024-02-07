@@ -1,44 +1,35 @@
 info:
-  version: 
-  title: resource_huaweicloud_ces_alarmrule
-  description: 
+    version: ""
+    title: resource_huaweicloud_ces_alarmrule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CES
+    - name: CES
 paths:
-  /v2/{project_id}/alarms/action:
-    post:
-      tag: CES
-      operationId: Action
-  /v2/{project_id}/alarms/batch-delete:
-    post:
-      tag: CES
-      operationId: Delete
-  /v2/{project_id}/alarms/{id}/policies:
-    put:
-      tag: CES
-      operationId: PoliciesModify
-  /v2/{project_id}/alarms/{id}/resources/{operation}:
-    post:
-      tag: CES
-      operationId: BatchResources
-  /v2/{project_id}/alarms/{id}/resources:
-    get:
-      tag: CES
-      operationId: GetResources
-  /V1.0/{project_id}/alarms/{id}:
-    get:
-      tag: CES
-      operationId: Get
-    put:
-      tag: CES
-      operationId: Update
-  /v2/{project_id}/alarms:
-    get:
-      tag: CES
-      operationId: Get
-    post:
-      tag: CES
-      operationId: Create
+    /V1.0/{project_id}/alarms/{id}:
+        GET:
+            tag: CES
+        PUT:
+            tag: CES
+    /v2/{project_id}/alarms:
+        GET:
+            tag: CES
+        POST:
+            tag: CES
+    /v2/{project_id}/alarms/{id}/policies:
+        PUT:
+            tag: CES
+    /v2/{project_id}/alarms/{id}/resources:
+        GET:
+            tag: CES
+    /v2/{project_id}/alarms/{id}/resources/{operation}:
+        POST:
+            tag: CES
+    /v2/{project_id}/alarms/action:
+        POST:
+            tag: CES
+    /v2/{project_id}/alarms/batch-delete:
+        POST:
+            tag: CES

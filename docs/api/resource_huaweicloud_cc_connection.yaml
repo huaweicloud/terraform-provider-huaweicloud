@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_cc_connection
-    description: "Manages a Cloud Connection resource within HuaweiCloud.  \nCloud Connect (CC) is a service that enables you to quickly build ultra-fast, high-quality, and stable networks\nbetween VPCs across regions and between VPCs and on-premises data centers."
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CC
-servers:
-    - url: https://cc.myhuaweicloud.com
 paths:
     /v3/{domain_id}/ccaas/cloud-connections:
         POST:
             tag: CC
-            operationId: CreateCloudConnection
-            x-ref-api: POST /v3/{domain_id}/ccaas/cloud-connections
     /v3/{domain_id}/ccaas/cloud-connections/{id}:
         DELETE:
             tag: CC
-            operationId: DeleteCloudConnection
-            x-ref-api: DELETE /v3/{domain_id}/ccaas/cloud-connections/{id}
         GET:
             tag: CC
-            operationId: GetCloudConnection
-            x-ref-api: GET /v3/{domain_id}/ccaas/cloud-connections/{id}
         PUT:
             tag: CC
-            operationId: UpdateCloudConnection
-            x-ref-api: PUT /v3/{domain_id}/ccaas/cloud-connections/{id}

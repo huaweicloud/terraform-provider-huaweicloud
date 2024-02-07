@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_secmaster_playbook
-    description: Manages a SecMaster playbook resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: SecMaster
-servers:
-    - url: https://secmaster.cn-east-3.myhuaweicloud.com
 paths:
     /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks:
         GET:
             tag: SecMaster
-            operationId: GetPlaybook
-            x-ref-api: GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
         POST:
             tag: SecMaster
-            operationId: CreatePlaybook
-            x-ref-api: POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
-        PUT:
-            tag: SecMaster
-            operationId: UpdatePlaybook
-            x-ref-api: PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks
     /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}:
         DELETE:
             tag: SecMaster
-            operationId: DeletePlaybook
-            x-ref-api: DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
+        PUT:
+            tag: SecMaster

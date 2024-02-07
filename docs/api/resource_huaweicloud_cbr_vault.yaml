@@ -1,48 +1,38 @@
 info:
-  version: 
-  title: resource_huaweicloud_cbr_vault
-  description: 
+    version: ""
+    title: resource_huaweicloud_cbr_vault
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: CBR
+    - name: CBR
 paths:
-  /v3/{project_id}/policies:
-    get:
-      tag: CBR
-      operationId: List
-  /v3/{project_id}/vault/{id}/tags/action:
-    POST:
-      tag: CBR
-      operationId: batchUpdate
-  /v3/{project_id}/vaults/{id}/addresources:
-    post:
-      tag: CBR
-      operationId: AssociateResources
-  /v3/{project_id}/vaults/{id}/associatepolicy:
-    post:
-      tag: CBR
-      operationId: BindPolicy
-  /v3/{project_id}/vaults/{id}/dissociatepolicy:
-    post:
-      tag: CBR
-      operationId: UnbindPolicy
-  /v3/{project_id}/vaults/{id}/removeresources:
-    post:
-      tag: CBR
-      operationId: DissociateResources
-  /v3/{project_id}/vaults/{id}:
-    delete:
-      tag: CBR
-      operationId: Delete
-    get:
-      tag: CBR
-      operationId: Get
-    put:
-      tag: CBR
-      operationId: Update
-  /v3/{project_id}/vaults:
-    post:
-      tag: CBR
-      operationId: Create
+    /v3/{project_id}/policies:
+        GET:
+            tag: CBR
+    /v3/{project_id}/vault/{vault_id}/tags/action:
+        POST:
+            tag: CBR
+    /v3/{project_id}/vaults:
+        POST:
+            tag: CBR
+    /v3/{project_id}/vaults/{vault_id}:
+        DELETE:
+            tag: CBR
+        GET:
+            tag: CBR
+        PUT:
+            tag: CBR
+    /v3/{project_id}/vaults/{vault_id}/addresources:
+        POST:
+            tag: CBR
+    /v3/{project_id}/vaults/{vault_id}/associatepolicy:
+        POST:
+            tag: CBR
+    /v3/{project_id}/vaults/{vault_id}/dissociatepolicy:
+        POST:
+            tag: CBR
+    /v3/{project_id}/vaults/{vault_id}/removeresources:
+        POST:
+            tag: CBR

@@ -1,14 +1,13 @@
 info:
+    version: ""
     title: data_source_huaweicloud_scm_certificates
-    description: Use this data source to get the list of SCM certificates.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: SCM
-servers:
-    - url: https://scm.cn-north-4.myhuaweicloud.com
 paths:
     /v3/scm/certificates:
         GET:
             tag: SCM
-            operationId: ListCertificates
-            x-ref-api: GET /v3/scm/certificates

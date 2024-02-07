@@ -1,54 +1,42 @@
 info:
-  version: v1.xx.y
-  title: resource_huaweicloud_identity_group_role_assignment
-  description:
+    version: ""
+    title: resource_huaweicloud_identity_group_role_assignment
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IAM
+    - name: IAM
 paths:
-  /v3/domains/{domainID}/groups/{groupID}/roles/{roleID}:
-    delete:
-      tag: IAM
-      operationId: RemoveDomainPermissionFromGroup
-    put:
-      tag: IAM
-      operationId: AssociateGroupWithDomainPermission
-  /v3/domains/{domainID}/groups/{groupID}/roles:
-    get:
-      tag: IAM
-      operationId: ListDomainPermissionsForGroup
-  /v3/projects/{projectID}/groups/{groupID}/roles/{roleID}:
-    delete:
-      tag: IAM
-      operationId: RemoveProjectPermissionFromGroup
-    put:
-      tag: IAM
-      operationId: AssociateGroupWithProjectPermission
-  /v3/projects/{projectID}/groups/{groupID}/roles:
-    get:
-      tag: IAM
-      operationId: ListProjectPermissionsForGroup
-  /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/{roleID}/inherited_to_projects:
-    delete:
-      tag: IAM
-      operationId: DeleteDomainGroupInheritedRole
-    put:
-      tag: IAM
-      operationId: UpdateDomainGroupInheritRole
-  /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/inherited_to_projects:
-    get:
-      tag: IAM
-      operationId: ListAllProjectPermissionsForGroup
-  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles/{roleID}:
-    delete:
-      tag: IAM
-      operationId: RevokeRoleFromGroupOnEnterpriseProject
-    put:
-      tag: IAM
-      operationId: AssociateRoleToGroupOnEnterpriseProject
-  /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles:
-    get:
-      tag: IAM
-      operationId: ListRolesForGroupOnEnterpriseProject
+    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles:
+        GET:
+            tag: IAM
+    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles/{roleID}:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/{roleID}/inherited_to_projects:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/inherited_to_projects:
+        GET:
+            tag: IAM
+    /v3/domains/{domainID}/groups/{groupID}/roles:
+        GET:
+            tag: IAM
+    /v3/domains/{domainID}/groups/{groupID}/roles/{roleID}:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM
+    /v3/projects/{projectID}/groups/{groupID}/roles:
+        GET:
+            tag: IAM
+    /v3/projects/{projectID}/groups/{groupID}/roles/{roleID}:
+        DELETE:
+            tag: IAM
+        PUT:
+            tag: IAM

@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_signature
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_signature
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/signs/{signatureId}:
-    delete:
-      tag: APIG
-      operationId: Delete
-    put:
-      tag: APIG
-      operationId: Update
-  /v2/{project_id}/apigw/instances/{instanceId}/signs:
-    get:
-      tag: APIG
-      operationId: List
-    post:
-      tag: APIG
-      operationId: Create
+    /v2/{project_id}/apigw/instances/{instanceId}/signs:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/signs/{signatureId}:
+        DELETE:
+            tag: APIG
+        PUT:
+            tag: APIG

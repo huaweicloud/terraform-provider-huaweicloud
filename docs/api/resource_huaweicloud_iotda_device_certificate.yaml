@@ -1,25 +1,21 @@
 info:
-  version: 
-  title: resource_huaweicloud_iotda_device_certificate
-  description: 
+    version: ""
+    title: resource_huaweicloud_iotda_device_certificate
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: IoTDA
+    - name: IoTDA
 paths:
-  /v5/iot/{project_id}/certificates/{certificate_id}/action:
-    post:
-      tag: IoTDA
-      operationId: CheckCertificate
-  /v5/iot/{project_id}/certificates/{certificate_id}:
-    delete:
-      tag: IoTDA
-      operationId: DeleteCertificate
-  /v5/iot/{project_id}/certificates:
-    get:
-      tag: IoTDA
-      operationId: ListCertificates
-    post:
-      tag: IoTDA
-      operationId: AddCertificate
+    /v5/iot/{project_id}/certificates:
+        GET:
+            tag: IoTDA
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/certificates/{certificate_id}:
+        DELETE:
+            tag: IoTDA
+    /v5/iot/{project_id}/certificates/{certificate_id}/action:
+        POST:
+            tag: IoTDA

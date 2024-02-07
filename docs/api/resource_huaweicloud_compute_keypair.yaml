@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_compute_keypair
-  description: 
+    version: ""
+    title: resource_huaweicloud_compute_keypair
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ECS
+    - name: ECS
 paths:
-  /v2.1/{project_id}/os-keypairs/{name}:
-    delete:
-      tag: ECS
-      operationId: Delete
-    get:
-      tag: ECS
-      operationId: Get
-  /v2.1/{project_id}/os-keypairs:
-    post:
-      tag: ECS
-      operationId: Create
+    /v2.1/{project_id}/os-keypairs:
+        POST:
+            tag: ECS
+    /v2.1/{project_id}/os-keypairs/{name}:
+        DELETE:
+            tag: ECS
+        GET:
+            tag: ECS

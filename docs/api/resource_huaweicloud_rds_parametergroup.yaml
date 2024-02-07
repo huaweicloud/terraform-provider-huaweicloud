@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_rds_parametergroup
-  description: 
+    version: ""
+    title: resource_huaweicloud_rds_parametergroup
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: RDS
+    - name: RDS
 paths:
-  /v3/{project_id}/configurations/{id}:
-    delete:
-      tag: RDS
-      operationId: Delete
-    get:
-      tag: RDS
-      operationId: Get
-    put:
-      tag: RDS
-      operationId: Update
-  /v3/{project_id}/configurations:
-    post:
-      tag: RDS
-      operationId: Create
+    /v3/{project_id}/configurations:
+        POST:
+            tag: RDS
+    /v3/{project_id}/configurations/{id}:
+        DELETE:
+            tag: RDS
+        GET:
+            tag: RDS
+        PUT:
+            tag: RDS

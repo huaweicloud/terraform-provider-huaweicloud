@@ -1,66 +1,51 @@
 info:
-  version: 
-  title: resource_huaweicloud_dcs_instance
-  description: 
+    version: ""
+    title: resource_huaweicloud_dcs_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DCS
+    - name: DCS
 paths:
-  /v2/available-zones:
-    get:
-      tag: DCS
-      operationId: List
-  /v2/{project_id}/instances/{id}/tags:
-    get:
-      tag: DCS
-      operationId: Get
-  /v2/{project_id}/dcs/{id}/tags/action:
-    post:
-      tag: DCS
-      operationId: Delete
-  /v2/{project_id}/flavors:
-    get:
-      tag: DCS
-      operationId: List
-  /v2/{project_id}/instance/{id}/whitelist:
-    get:
-      tag: DCS
-      operationId: Get
-    put:
-      tag: DCS
-      operationId: Put
-  /v2/{project_id}/instances/status:
-    put:
-      tag: DCS
-      operationId: RestartOrFlushInstance
-  /v2/{project_id}/instances/{id}/password:
-    put:
-      tag: DCS
-      operationId: UpdatePassword
-  /v2/{project_id}/instances/{id}/resize:
-    post:
-      tag: DCS
-      operationId: ResizeInstance
-  /v2/{project_id}/instances/{id}:
-    delete:
-      tag: DCS
-      operationId: Delete
-    get:
-      tag: DCS
-      operationId: Get
-    put:
-      tag: DCS
-      operationId: Update
-  /v2/{project_id}/instances/{instancesId}/configs:
-    get:
-      tag: DCS
-      operationId: GetConfigurations
-    put:
-      tag: DCS
-      operationId: ModifyConfiguration
-  /v2/{project_id}/instances:
-    post:
-      tag: DCS
-      operationId: Create
+    /v2/{project_id}/dcs/{id}/tags/action:
+        POST:
+            tag: DCS
+    /v2/{project_id}/flavors:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instance/{id}/whitelist:
+        GET:
+            tag: DCS
+        PUT:
+            tag: DCS
+    /v2/{project_id}/instances:
+        POST:
+            tag: DCS
+    /v2/{project_id}/instances/{id}:
+        DELETE:
+            tag: DCS
+        GET:
+            tag: DCS
+        PUT:
+            tag: DCS
+    /v2/{project_id}/instances/{id}/password:
+        PUT:
+            tag: DCS
+    /v2/{project_id}/instances/{id}/resize:
+        POST:
+            tag: DCS
+    /v2/{project_id}/instances/{id}/tags:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instances/{instancesId}/configs:
+        GET:
+            tag: DCS
+        PUT:
+            tag: DCS
+    /v2/{project_id}/instances/status:
+        PUT:
+            tag: DCS
+    /v2/available-zones:
+        GET:
+            tag: DCS

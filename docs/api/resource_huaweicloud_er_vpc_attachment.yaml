@@ -1,28 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_er_vpc_attachment
-  description: 
+    version: ""
+    title: resource_huaweicloud_er_vpc_attachment
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ER
+    - name: ER
 paths:
-  /v3/{project_id}/enterprise-router/{instanceId}/vpc-attachments/{attachmentId}:
-    delete:
-      tag: ER
-      operationId: Delete
-    get:
-      tag: ER
-      operationId: Get
-    put:
-      tag: ER
-      operationId: Update
-  /v3/{project_id}/enterprise-router/{instanceId}/vpc-attachments:
-    post:
-      tag: ER
-      operationId: Create
-  /v3/{project_id}/vpc-attachment/{id}/tags/action:
-    POST:
-      tag: ER
-      operationId: batchUpdate
+    /v3/{project_id}/enterprise-router/{er_id}/vpc-attachments:
+        POST:
+            tag: ER
+    /v3/{project_id}/enterprise-router/{er_id}/vpc-attachments/{vpc_attachment_id}:
+        DELETE:
+            tag: ER
+        GET:
+            tag: ER
+        PUT:
+            tag: ER

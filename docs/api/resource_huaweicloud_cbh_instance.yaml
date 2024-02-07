@@ -1,49 +1,48 @@
 info:
+    version: ""
     title: resource_huaweicloud_cbh_instance
-    description: Manages CBH instance resources within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CBH
-servers:
-    - url: https://cbh.cn-north-4.myhuaweicloud.com
 paths:
     /v1/{project_id}/cbs/{server_id}/network/change:
         POST:
             tag: CBH
-            operationId: UpdateNetwork
-            x-ref-api: POST /v1/{project_id}/cbs/{server_id}/network/change
     /v1/{project_id}/cbs/instance/{server_id}/eip/bind:
         POST:
             tag: CBH
-            operationId: BindEip
-            x-ref-api: POST /v1/{project_id}/cbs/instance/{server_id}/eip/bind
     /v1/{project_id}/cbs/instance/{server_id}/eip/unbind:
         POST:
             tag: CBH
-            operationId: UnbindEip
-            x-ref-api: POST /v1/{project_id}/cbs/instance/{server_id}/eip/unbind
     /v1/{project_id}/cbs/instance/create:
         POST:
             tag: CBH
-            operationId: CreateInstance
-            x-ref-api: POST /v1/{project_id}/cbs/instance/create
     /v1/{project_id}/cbs/instance/list:
         GET:
             tag: CBH
-            operationId: GetInstance
-            x-ref-api: GET /v1/{project_id}/cbs/instance/list
     /v1/{project_id}/cbs/instance/password:
         PUT:
             tag: CBH
-            operationId: UpdatePassword
-            x-ref-api: PUT /v1/{project_id}/cbs/instance/password
     /v1/{project_id}/cbs/period/order:
         POST:
             tag: CBH
-            operationId: CreateOrder
-            x-ref-api: POST /v1/{project_id}/cbs/period/order
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
     /v3/orders/customer-orders/pay:
         POST:
             tag: BSS
-            operationId: DeleteInstance
-            x-ref-api: POST /v3/orders/customer-orders/pay

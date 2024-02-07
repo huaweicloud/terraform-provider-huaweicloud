@@ -1,24 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_organizations_policy_attach
-    description: Manages an Organizations policy attach resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: Organizations
-servers:
-    - url: https://organizations.cn-north-4.myhuaweicloud.com
 paths:
     /v1/organizations/policies/{policy_id}/attach:
         POST:
             tag: Organizations
-            operationId: CreatePolicyAttach
-            x-ref-api: POST /v1/organizations/policies/{policy_id}/attach
     /v1/organizations/policies/{policy_id}/attached-entities:
         GET:
             tag: Organizations
-            operationId: GetPolicyAttach
-            x-ref-api: GET /v1/organizations/policies/{policy_id}/attached-entities
     /v1/organizations/policies/{policy_id}/detach:
         POST:
             tag: Organizations
-            operationId: DeletePolicyAttach
-            x-ref-api: POST /v1/organizations/policies/{policy_id}/detach

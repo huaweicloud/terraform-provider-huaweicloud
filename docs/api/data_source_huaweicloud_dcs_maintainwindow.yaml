@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_dcs_maintainwindow
-  description: 
+    version: ""
+    title: data_source_huaweicloud_dcs_maintainwindow
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: DCS
+    - name: DCS
 paths:
-  /v2/instances/maintain-windows:
-    get:
-      tag: DCS
-      operationId: Get
+    /v2/instances/maintain-windows:
+        GET:
+            tag: DCS

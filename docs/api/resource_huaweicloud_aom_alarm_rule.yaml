@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_aom_alarm_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_aom_alarm_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AOM
+    - name: AOM
 paths:
-  /v2/{project_id}/alarm-rules/{alarm_rule_id}:
-    delete:
-      tag: AOM
-      operationId: DeleteAlarmRule
-    get:
-      tag: AOM
-      operationId: ShowAlarmRule
-  /v2/{project_id}/alarm-rules:
-    post:
-      tag: AOM
-      operationId: AddAlarmRule
-    put:
-      tag: AOM
-      operationId: UpdateAlarmRule
+    /v2/{project_id}/alarm-rules:
+        POST:
+            tag: AOM
+        PUT:
+            tag: AOM
+    /v2/{project_id}/alarm-rules/{alarm_rule_id}:
+        DELETE:
+            tag: AOM
+        GET:
+            tag: AOM

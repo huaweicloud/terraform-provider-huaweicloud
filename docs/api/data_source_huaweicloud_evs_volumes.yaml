@@ -1,14 +1,13 @@
 info:
-  version: 
-  title: data_source_huaweicloud_evs_volumes
-  description: 
+    version: ""
+    title: data_source_huaweicloud_evs_volumes
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: EVS
+    - name: EVS
 paths:
-  /v2/{project_id}/cloudvolumes/detail:
-    get:
-      tag: EVS
-      operationId: List
+    /v2/{project_id}/cloudvolumes/detail:
+        GET:
+            tag: EVS

@@ -1,34 +1,28 @@
 info:
-  version: 
-  title: resource_huaweicloud_compute_eip_associate
-  description: 
+    version: ""
+    title: resource_huaweicloud_compute_eip_associate
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ECS
+    - name: ECS
 paths:
-  /v1/{project_id}/cloudservers/{serverID}:
-    get:
-      tag: ECS
-      operationId: Get
-  /v2.0/{project_id}/bandwidths/{ID}/insert:
-    post:
-      tag: EIP
-      operationId: Insert
-  /v2.0/{project_id}/bandwidths/{ID}/remove:
-    post:
-      tag: EIP
-      operationId: Remove
-  /v2.0/{project_id}/bandwidths/{id}:
-    get:
-      tag: EIP
-      operationId: Get
-  /v1/{project_id}/publicips/{id}:
-    put:
-      tag: EIP
-      operationId: Update
-  /v1/{project_id}/publicips:
-    get:
-      tag: EIP
-      operationId: List
+    /v1/{project_id}/cloudservers/{serverID}:
+        GET:
+            tag: ECS
+    /v1/{project_id}/publicips:
+        GET:
+            tag: EIP
+    /v1/{project_id}/publicips/{id}:
+        PUT:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{ID}/insert:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{ID}/remove:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{id}:
+        GET:
+            tag: EIP

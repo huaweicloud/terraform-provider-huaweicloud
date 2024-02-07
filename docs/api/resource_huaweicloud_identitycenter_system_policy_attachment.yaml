@@ -1,24 +1,19 @@
 info:
+    version: ""
     title: resource_huaweicloud_identitycenter_system_policy_attachment
-    description: Manages an Identity Center system policy attachment resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: IdentityCenter
-servers:
-    - url: https://identitycenter.myhuaweicloud.com
 paths:
     /v1/instances/{instance_id}/permission-sets/{permission_set_id}/attach-managed-role:
         POST:
             tag: IdentityCenter
-            operationId: AttachManagedRoleToPermissionSet
-            x-ref-api: POST /v1/instances/{instance_id}/permission-sets/{permission_set_id}/attach-managed-role
     /v1/instances/{instance_id}/permission-sets/{permission_set_id}/detach-managed-role:
         POST:
             tag: IdentityCenter
-            operationId: DetachManagedRoleFromPermissionSet
-            x-ref-api: POST /v1/instances/{instance_id}/permission-sets/{permission_set_id}/detach-managed-role
     /v1/instances/{instance_id}/permission-sets/{permission_set_id}/managed-roles:
         GET:
             tag: IdentityCenter
-            operationId: ListManagedPoliciesInPermissionSet
-            x-ref-api: GET /v1/instances/{instance_id}/permission-sets/{permission_set_id}/managed-roles

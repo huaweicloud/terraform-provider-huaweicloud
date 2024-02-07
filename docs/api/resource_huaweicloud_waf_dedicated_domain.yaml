@@ -1,39 +1,31 @@
 info:
-  version: 
-  title: resource_huaweicloud_waf_dedicated_domain
-  description: 
+    version: ""
+    title: resource_huaweicloud_waf_dedicated_domain
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: WAF
+    - name: WAF
 paths:
-  /v1/{project_id}/waf/certificate/{id}:
-    get:
-      tag: WAF
-      operationId: GetWithEpsID
-  /v1/{project_id}/premium-waf/host/{hostId}/protect-status:
-    put:
-      tag: WAF
-      operationId: UpdateProtectStatusWithWpsID
-  /v1/{project_id}/premium-waf/host/{hostId}:
-    delete:
-      tag: WAF
-      operationId: DeleteWithEpsID
-    get:
-      tag: WAF
-      operationId: GetWithEpsID
-    put:
-      tag: WAF
-      operationId: Update
-  /v1/{project_id}/premium-waf/host:
-    post:
-      tag: WAF
-      operationId: Create
-  /v1/{project_id}/waf/policy/{id}:
-    delete:
-      tag: WAF
-      operationId: DeleteWithEpsID
-    put:
-      tag: WAF
-      operationId: UpdateHosts
+    /v1/{project_id}/premium-waf/host:
+        POST:
+            tag: WAF
+    /v1/{project_id}/premium-waf/host/{hostId}:
+        DELETE:
+            tag: WAF
+        GET:
+            tag: WAF
+        PUT:
+            tag: WAF
+    /v1/{project_id}/premium-waf/host/{hostId}/protect-status:
+        PUT:
+            tag: WAF
+    /v1/{project_id}/waf/certificate/{id}:
+        GET:
+            tag: WAF
+    /v1/{project_id}/waf/policy/{id}:
+        DELETE:
+            tag: WAF
+        PUT:
+            tag: WAF

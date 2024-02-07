@@ -1,14 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_dms_kafka_permissions
-  description: 
+    version: ""
+    title: resource_huaweicloud_dms_kafka_permissions
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Kafka
+    - name: Kafka
 paths:
-  /v2/{project_id}/instances/{id}:
-    get:
-      tag: Kafka
-      operationId: Get
+    /v1/{project_id}/instances/{instance_id}/topics/{topic_name}/accesspolicy:
+        GET:
+            tag: Kafka
+    /v1/{project_id}/instances/{instance_id}/topics/accesspolicy:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}:
+        GET:
+            tag: Kafka

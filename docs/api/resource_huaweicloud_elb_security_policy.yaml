@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_elb_security_policy
-    description: Manages an ELB security policies resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: ELB
-servers:
-    - url: https://elb.cn-north-4.myhuaweicloud.com
 paths:
     /v3/{project_id}/elb/security-policies:
         POST:
             tag: ELB
-            operationId: CreateSecurityPolicy
-            x-ref-api: POST /v3/{project_id}/elb/security-policies
     /v3/{project_id}/elb/security-policies/{security_policy_id}:
         DELETE:
             tag: ELB
-            operationId: DeleteSecurityPolicy
-            x-ref-api: DELETE /v3/{project_id}/elb/security-policies/{security_policy_id}
         GET:
             tag: ELB
-            operationId: GetSecurityPolicy
-            x-ref-api: GET /v3/{project_id}/elb/security-policies/{security_policy_id}
         PUT:
             tag: ELB
-            operationId: UpdateSecurityPolicy
-            x-ref-api: PUT /v3/{project_id}/elb/security-policies/{security_policy_id}

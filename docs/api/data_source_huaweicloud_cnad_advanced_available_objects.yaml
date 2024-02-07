@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cnad_advanced_available_objects
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/cnad/packages/{package_id}/unbound-protected-ips:
+        GET:
+            tag: AAD

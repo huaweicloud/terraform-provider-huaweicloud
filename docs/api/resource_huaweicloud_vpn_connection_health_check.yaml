@@ -1,23 +1,18 @@
 info:
+    version: ""
     title: resource_huaweicloud_vpn_connection_health_check
-    description: Manages a VPN connection health check resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: VPN
-servers:
-    - url: https://vpn.cn-north-4.myhuaweicloud.com
 paths:
     /v5/{project_id}/connection-monitors:
         POST:
             tag: VPN
-            operationId: CreateHealthCheck
-            x-ref-api: POST /v5/{project_id}/connection-monitors
     /v5/{project_id}/connection-monitors/{id}:
         DELETE:
             tag: VPN
-            operationId: DeleteHealthCheck
-            x-ref-api: DELETE /v5/{project_id}/connection-monitors/{id}
         GET:
             tag: VPN
-            operationId: GetHealthCheck
-            x-ref-api: GET /v5/{project_id}/connection-monitors/{id}

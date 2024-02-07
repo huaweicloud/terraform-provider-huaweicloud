@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: resource_huaweicloud_apig_acl_policy_associate
-  description: 
+    version: ""
+    title: resource_huaweicloud_apig_acl_policy_associate
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: APIG
+    - name: APIG
 paths:
-  /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings/binded-apis:
-    get:
-      tag: APIG
-      operationId: ListBind
-  /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings:
-    post:
-      tag: APIG
-      operationId: Bind
+    /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings/binded-apis:
+        GET:
+            tag: APIG

@@ -1,28 +1,21 @@
 info:
+    version: ""
     title: resource_huaweicloud_ces_alarm_template
-    description: Manages a CES alarm template resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: CES
-servers:
-    - url: https://ces.cn-north-4.myhuaweicloud.com
 paths:
     /v2/{project_id}/alarm-templates:
         POST:
             tag: CES
-            operationId: CreateAlarmTemplate
-            x-ref-api: POST /v2/{project_id}/alarm-templates
     /v2/{project_id}/alarm-templates/{template_id}:
         GET:
             tag: CES
-            operationId: GetAlarmTemplate
-            x-ref-api: GET /v2/{project_id}/alarm-templates/{template_id}
         PUT:
             tag: CES
-            operationId: UpdateAlarmTemplate
-            x-ref-api: PUT /v2/{project_id}/alarm-templates/{template_id}
     /v2/{project_id}/alarm-templates/batch-delete:
         POST:
             tag: CES
-            operationId: DeleteAlarmTemplate
-            x-ref-api: POST /v2/{project_id}/alarm-templates/batch-delete

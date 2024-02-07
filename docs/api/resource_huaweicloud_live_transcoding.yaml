@@ -1,23 +1,19 @@
 info:
-  version: 
-  title: resource_huaweicloud_live_transcoding
-  description: 
+    version: ""
+    title: resource_huaweicloud_live_transcoding
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: Live
+    - name: Live
 paths:
-  /v1/{project_id}/template/transcodings:
-    delete:
-      tag: Live
-      operationId: DeleteTranscodingsTemplate
-    get:
-      tag: Live
-      operationId: ShowTranscodingsTemplate
-    post:
-      tag: Live
-      operationId: CreateTranscodingsTemplate
-    put:
-      tag: Live
-      operationId: UpdateTranscodingsTemplate
+    /v1/{project_id}/template/transcodings:
+        DELETE:
+            tag: Live
+        GET:
+            tag: Live
+        POST:
+            tag: Live
+        PUT:
+            tag: Live

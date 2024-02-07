@@ -1,19 +1,16 @@
 info:
+    version: ""
     title: resource_huaweicloud_mapreduce_scaling_policy
-    description: 'Manages a scaling policy of MapReduce cluster within HuaweiCloud.  '
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
     - name: MRS
-servers:
-    - url: https://mrs.myhuaweicloud.com
 paths:
     /v1.1/{project_id}/autoscaling-policy/{cluster_id}:
         POST:
             tag: MRS
-            operationId: CreateScalingPolicy
-            x-ref-api: POST /v1.1/{project_id}/autoscaling-policy/{cluster_id}
     /v2/{project_id}/autoscaling-policy/{cluster_id}:
         GET:
             tag: MRS
-            operationId: GetScalingPolicy
-            x-ref-api: GET /v2/{project_id}/autoscaling-policy/{cluster_id}

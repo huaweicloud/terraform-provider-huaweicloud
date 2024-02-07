@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: resource_huaweicloud_as_instance_attach
-  description: 
+    version: ""
+    title: resource_huaweicloud_as_instance_attach
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: AS
+    - name: AS
 paths:
-  /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action:
-    post:
-      tag: AS
-      operationId: BatchAction
-  /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list:
-    get:
-      tag: AS
-      operationId: List
+    /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/action:
+        POST:
+            tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_group_instance/{groupID}/list:
+        GET:
+            tag: AS

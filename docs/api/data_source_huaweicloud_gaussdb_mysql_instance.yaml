@@ -1,18 +1,16 @@
 info:
-  version: 
-  title: data_source_huaweicloud_gaussdb_mysql_instance
-  description: 
+    version: ""
+    title: data_source_huaweicloud_gaussdb_mysql_instance
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: GaussDBforMySQL
+    - name: GaussDBforMySQL
 paths:
-  /v3/{project_id}/instances/{instanceID}:
-    get:
-      tag: GaussDBforMySQL
-      operationId: Get
-  /v3/{project_id}/instances:
-    get:
-      tag: GaussDBforMySQL
-      operationId: List
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instanceID}:
+        GET:
+            tag: GaussDBforMySQL

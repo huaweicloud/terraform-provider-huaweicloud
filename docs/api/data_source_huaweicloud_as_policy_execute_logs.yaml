@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_as_policy_execute_logs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AS
+paths:
+    /autoscaling-api/v1/{project_id}/scaling_policy_execute_log/{scaling_policy_id}:
+        GET:
+            tag: AS

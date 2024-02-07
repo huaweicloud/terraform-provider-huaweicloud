@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_script_execute
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/external/resources:
+        GET:
+            tag: COC
+    /v1/external/resources/sync:
+        POST:
+            tag: COC
+    /v1/job/script/orders/{execute_uuid}:
+        GET:
+            tag: COC
+    /v1/job/script/orders/{execute_uuid}/operation:
+        PUT:
+            tag: COC
+    /v1/job/scripts/{script_uuid}:
+        POST:
+            tag: COC

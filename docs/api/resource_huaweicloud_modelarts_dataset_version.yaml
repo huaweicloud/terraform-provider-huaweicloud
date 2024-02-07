@@ -1,21 +1,18 @@
 info:
-  version: 
-  title: resource_huaweicloud_modelarts_dataset_version
-  description: 
+    version: ""
+    title: resource_huaweicloud_modelarts_dataset_version
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: ModelArts
+    - name: ModelArts
 paths:
-  /v2/{project_id}/datasets/{datasetId}/versions/{versionId}:
-    delete:
-      tag: ModelArts
-      operationId: Delete
-    get:
-      tag: ModelArts
-      operationId: Get
-  /v2/{project_id}/datasets/{datasetId}/versions:
-    post:
-      tag: ModelArts
-      operationId: Create
+    /v2/{project_id}/datasets/{datasetId}/versions:
+        POST:
+            tag: ModelArts
+    /v2/{project_id}/datasets/{datasetId}/versions/{versionId}:
+        DELETE:
+            tag: ModelArts
+        GET:
+            tag: ModelArts

@@ -1,29 +1,38 @@
 info:
-  version: 
-  title: resource_huaweicloud_vpc_bandwidth
-  description: 
+    version: ""
+    title: resource_huaweicloud_vpc_bandwidth
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: EIP
+    - name: EIP
 paths:
-  /v2.0/{project_id}/bandwidths/change-to-period:
-    post:
-      tag: EIP
-      operationId: ChangeToPeriod
-  /v2.0/{project_id}/bandwidths/{ID}:
-    put:
-      tag: EIP
-      operationId: Update
-    delete:
-      tag: EIP
-      operationId: Delete
-  /v1/{project_id}/bandwidths/{id}:
-    get:
-      tag: EIP
-      operationId: Get
-  /v2.0/{project_id}/bandwidths:
-    post:
-      tag: EIP
-      operationId: Create
+    /v1/{project_id}/bandwidths/{ID}:
+        PUT:
+            tag: EIP
+    /v1/{project_id}/bandwidths/{id}:
+        GET:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{ID}:
+        DELETE:
+            tag: EIP
+        PUT:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/change-to-period:
+        POST:
+            tag: EIP
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS

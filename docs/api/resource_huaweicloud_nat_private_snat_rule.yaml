@@ -1,24 +1,20 @@
 info:
-  version: 
-  title: resource_huaweicloud_nat_private_snat_rule
-  description: 
+    version: ""
+    title: resource_huaweicloud_nat_private_snat_rule
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: NAT
+    - name: NAT
 paths:
-  /v3/{project_id}/private-nat/snat-rules/{ruleId}:
-    delete:
-      tag: NAT
-      operationId: Delete
-    get:
-      tag: NAT
-      operationId: Get
-    put:
-      tag: NAT
-      operationId: Update
-  /v3/{project_id}/private-nat/snat-rules:
-    post:
-      tag: NAT
-      operationId: Create
+    /v3/{project_id}/private-nat/snat-rules:
+        POST:
+            tag: NAT
+    /v3/{project_id}/private-nat/snat-rules/{ruleId}:
+        DELETE:
+            tag: NAT
+        GET:
+            tag: NAT
+        PUT:
+            tag: NAT
