@@ -18,9 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WAF GET /v1/{project_id}/waf/certificate/{id}
-// @API WAF PUT /v1/{project_id}/waf/certificate/{id}
-// @API WAF DELETE /v1/{project_id}/waf/certificate/{id}
+// @API WAF GET /v1/{project_id}/waf/certificate/{certificate_id}
+// @API WAF PUT /v1/{project_id}/waf/certificate/{certificate_id}
+// @API WAF DELETE /v1/{project_id}/waf/certificate/{certificate_id}
 // @API WAF POST /v1/{project_id}/waf/certificate
 func ResourceWafCertificateV1() *schema.Resource {
 	return &schema.Resource{
