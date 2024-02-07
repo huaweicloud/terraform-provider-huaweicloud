@@ -95,9 +95,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Enterprise project ID. Defaults to **0**.
-
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Enterprise project ID. Defaults to **0**.
 
 * `ip_address` - (Optional, String, ForceNew) Specifies the IP address.
   If the value of this parameter is left blank or is set to an empty string, the IP address is automatically assigned.

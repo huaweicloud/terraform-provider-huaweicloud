@@ -139,3 +139,64 @@ resource "huaweicloud_dbss_instance" "test" {
 }
 `, testInstance_base(), name)
 }
+
+func TestAccInstance_updateWithEpsId(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_dbss_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getInstanceResourceFunc,
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testInstance_withEpsId(name, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testInstance_withEpsId(name, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
+func testInstance_withEpsId(name, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dbss_instance" "test" {
+  name                   = "%s"
+  description            = "terraform test"
+  flavor                 = data.huaweicloud_dbss_flavors.test.flavors[0].id
+  resource_spec_code     = "dbss.bypassaudit.low"
+  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  security_group_id      = data.huaweicloud_networking_secgroup.test.id
+  charging_mode          = "prePaid"
+  period_unit            = "month"
+  period                 = 1
+  enterprise_project_id  = "%s"
+}
+`, testInstance_base(), name, epsId)
+}

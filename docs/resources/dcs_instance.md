@@ -193,8 +193,7 @@ The following arguments are supported:
   Redis 5.0 instances but not by Redis 3.0 instance.
   The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall** and **hgetall**.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the dcs instance.
-  Changing this creates a new instance.
+* `enterprise_project_id` - (Optional, String) The enterprise project id of the dcs instance.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the redis instance.
   The valid values are as follows:
