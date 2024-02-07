@@ -31,6 +31,11 @@ import (
 // @API ELB POST /v2.0/{project_id}/loadbalancers/{id}/tags/action
 // @API ELB GET /v2.0/{project_id}/loadbalancers/{id}/tags
 // @API EIP DELETE /v1/{project_id}/publicips/{id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceLoadBalancerV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLoadBalancerV3Create,
