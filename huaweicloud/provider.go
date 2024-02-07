@@ -583,6 +583,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_private_gateways":    nat.DataSourcePrivateGateways(),
 			"huaweicloud_nat_private_snat_rules":  nat.DataSourcePrivateSnatRules(),
 			"huaweicloud_nat_private_transit_ips": nat.DataSourcePrivateTransitIps(),
+			"huaweicloud_nat_snat_rules":          nat.DataSourceSnatRules(),
 
 			"huaweicloud_networking_port":           vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":       vpc.DataSourceNetworkingSecGroup(),
