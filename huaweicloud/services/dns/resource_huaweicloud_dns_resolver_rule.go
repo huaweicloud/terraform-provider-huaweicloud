@@ -17,9 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API DNS DELETE /v2.1/resolverrules/{resolverRuleID}
-// @API DNS GET /v2.1/resolverrules/{resolverRuleID}
-// @API DNS PUT /v2.1/resolverrules/{resolverRuleID}
+// @API DNS DELETE /v2.1/resolverrules/{resolverrule_id}
+// @API DNS GET /v2.1/resolverrules/{resolverrule_id}
+// @API DNS PUT /v2.1/resolverrules/{resolverrule_id}
 // @API DNS POST /v2.1/resolverrules
 func ResourceDNSResolverRule() *schema.Resource {
 	return &schema.Resource{
