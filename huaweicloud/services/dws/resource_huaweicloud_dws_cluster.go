@@ -35,11 +35,11 @@ const (
 )
 
 // @API DWS POST /v1.0/{project_id}/clusters
-// @API DWS GET /v1.0/{project_id}/clusters/{id}
-// @API DWS POST /v1.0/{project_id}/clusters/{id}/expand-instance-storage
-// @API DWS POST /v1.0/{project_id}/clusters/{id}/reset-password
-// @API DWS POST /v1.0/{project_id}/clusters/{id}/resize
-// @API DWS DELETE /v1.0/{project_id}/clusters/{id}
+// @API DWS GET /v1.0/{project_id}/clusters/{cluster_id}
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/expand-instance-storage
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/reset-password
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/resize
+// @API DWS DELETE /v1.0/{project_id}/clusters/{cluster_id}
 // @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-create
 // @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/tags/batch-delete
 // @API DWS GET /v1.0/{project_id}/job/{job_id}
@@ -653,7 +653,7 @@ func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, met
 			region := cfg.GetRegion(d)
 			// createDwsClusterWaiting: waiting cluster is available
 			var (
-				createDwsClusterWaitingHttpUrl = "v1.0/{project_id}/clusters/{id}"
+				createDwsClusterWaitingHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}"
 				createDwsClusterWaitingProduct = "dws"
 			)
 			clusterWaitingClient, err := cfg.NewServiceClient(createDwsClusterWaitingProduct, region)
@@ -663,7 +663,7 @@ func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, met
 
 			clusterWaitingPath := clusterWaitingClient.Endpoint + createDwsClusterWaitingHttpUrl
 			clusterWaitingPath = strings.ReplaceAll(clusterWaitingPath, "{project_id}", clusterWaitingClient.ProjectID)
-			clusterWaitingPath = strings.ReplaceAll(clusterWaitingPath, "{id}", d.Id())
+			clusterWaitingPath = strings.ReplaceAll(clusterWaitingPath, "{cluster_id}", d.Id())
 
 			clusterWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -732,7 +732,7 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	// getDwsCluster: Query the DWS cluster.
 	var (
-		getDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{id}"
+		getDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}"
 		getDwsClusterProduct = "dws"
 	)
 	getDwsClusterClient, err := cfg.NewServiceClient(getDwsClusterProduct, region)
@@ -742,7 +742,7 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getDwsClusterPath := getDwsClusterClient.Endpoint + getDwsClusterHttpUrl
 	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{project_id}", getDwsClusterClient.ProjectID)
-	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{id}", d.Id())
+	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{cluster_id}", d.Id())
 
 	getDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -908,12 +908,12 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChanges(expandInstanceStorageChanges...) {
 		// expandInstanceStorage: expand instance storage
 		var (
-			expandInstanceStorageHttpUrl = "v1.0/{project_id}/clusters/{id}/expand-instance-storage"
+			expandInstanceStorageHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}/expand-instance-storage"
 		)
 
 		expandInstanceStoragePath := clusterClient.Endpoint + expandInstanceStorageHttpUrl
 		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{project_id}", clusterClient.ProjectID)
-		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{id}", clusterId)
+		expandInstanceStoragePath = strings.ReplaceAll(expandInstanceStoragePath, "{cluster_id}", d.Id())
 
 		expandInstanceStorageOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -942,12 +942,12 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChanges(resetPasswordOfClusterChanges...) {
 		// resetPasswordOfCluster: reset password of DWS cluster
 		var (
-			resetPasswordOfClusterHttpUrl = "v1.0/{project_id}/clusters/{id}/reset-password"
+			resetPasswordOfClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}/reset-password"
 		)
 
 		resetPasswordOfClusterPath := clusterClient.Endpoint + resetPasswordOfClusterHttpUrl
 		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{project_id}", clusterClient.ProjectID)
-		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{id}", clusterId)
+		resetPasswordOfClusterPath = strings.ReplaceAll(resetPasswordOfClusterPath, "{cluster_id}", d.Id())
 
 		resetPasswordOfClusterOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -977,12 +977,12 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChanges(scaleOutClusterChanges...) {
 		// scaleOutCluster: Scale out DWS cluster
 		var (
-			scaleOutClusterHttpUrl = "v1.0/{project_id}/clusters/{id}/resize"
+			scaleOutClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}/resize"
 		)
 
 		scaleOutClusterPath := clusterClient.Endpoint + scaleOutClusterHttpUrl
 		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{project_id}", clusterClient.ProjectID)
-		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{id}", clusterId)
+		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{cluster_id}", d.Id())
 
 		scaleOutClusterOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -1088,7 +1088,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	// deleteDwsCluster: delete DWS cluster
 	var (
-		deleteDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{id}"
+		deleteDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}"
 		deleteDwsClusterProduct = "dws"
 	)
 	deleteDwsClusterClient, err := cfg.NewServiceClient(deleteDwsClusterProduct, region)
@@ -1098,7 +1098,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	deleteDwsClusterPath := deleteDwsClusterClient.Endpoint + deleteDwsClusterHttpUrl
 	deleteDwsClusterPath = strings.ReplaceAll(deleteDwsClusterPath, "{project_id}", deleteDwsClusterClient.ProjectID)
-	deleteDwsClusterPath = strings.ReplaceAll(deleteDwsClusterPath, "{id}", d.Id())
+	deleteDwsClusterPath = strings.ReplaceAll(deleteDwsClusterPath, "{cluster_id}", d.Id())
 
 	deleteDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -1139,7 +1139,7 @@ func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceDat
 			region := cfg.GetRegion(d)
 			// deleteDwsClusterWaiting: missing operation notes
 			var (
-				deleteDwsClusterWaitingHttpUrl = "v1.0/{project_id}/clusters/{id}"
+				deleteDwsClusterWaitingHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}"
 				deleteDwsClusterWaitingProduct = "dws"
 			)
 			deleteDwsClusterWaitingClient, err := cfg.NewServiceClient(deleteDwsClusterWaitingProduct, region)
@@ -1149,7 +1149,7 @@ func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceDat
 
 			deleteDwsClusterWaitingPath := deleteDwsClusterWaitingClient.Endpoint + deleteDwsClusterWaitingHttpUrl
 			deleteDwsClusterWaitingPath = strings.ReplaceAll(deleteDwsClusterWaitingPath, "{project_id}", deleteDwsClusterWaitingClient.ProjectID)
-			deleteDwsClusterWaitingPath = strings.ReplaceAll(deleteDwsClusterWaitingPath, "{id}", d.Id())
+			deleteDwsClusterWaitingPath = strings.ReplaceAll(deleteDwsClusterWaitingPath, "{cluster_id}", d.Id())
 
 			deleteDwsClusterWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,

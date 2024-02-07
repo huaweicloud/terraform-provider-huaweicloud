@@ -21,7 +21,7 @@ func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 	region := acceptance.HW_REGION_NAME
 	// getDwsCluster: Query the DWS cluster.
 	var (
-		getDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{id}"
+		getDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}"
 		getDwsClusterProduct = "dws"
 	)
 	getDwsClusterClient, err := cfg.NewServiceClient(getDwsClusterProduct, region)
@@ -31,7 +31,7 @@ func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 
 	getDwsClusterPath := getDwsClusterClient.Endpoint + getDwsClusterHttpUrl
 	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{project_id}", getDwsClusterClient.ProjectID)
-	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{id}", state.Primary.ID)
+	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{cluster_id}", state.Primary.ID)
 
 	getDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

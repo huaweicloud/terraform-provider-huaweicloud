@@ -23,6 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters
+// @API DWS GET /v2/{project_id}/clusters/{cluster_id}/logical-clusters/rings
 func DataSourceLogicalClusterRings() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceLogicalClusterRingsRead,
