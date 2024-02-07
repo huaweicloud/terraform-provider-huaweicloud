@@ -23,7 +23,7 @@ import (
 // @API AOM DELETE /v2/{project_id}/alert/action-rules
 // @API AOM POST /v2/{project_id}/alert/action-rules
 // @API AOM PUT /v2/{project_id}/alert/action-rules
-// @API AOM GET /v2/{project_id}/alert/action-rules/{id}
+// @API AOM GET /v2/{project_id}/alert/action-rules/{rule_name}
 func ResourceAlarmActionRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAlarmActionRuleCreate,
@@ -180,7 +180,7 @@ func resourceAlarmActionRuleRead(_ context.Context, d *schema.ResourceData, meta
 
 	// getAlarmActionRule: Query the Alarm Action Rule
 	var (
-		getAlarmActionRuleHttpUrl = "v2/{project_id}/alert/action-rules/{id}"
+		getAlarmActionRuleHttpUrl = "v2/{project_id}/alert/action-rules/{rule_name}"
 		getAlarmActionRuleProduct = "aom"
 	)
 	getAlarmActionRuleClient, err := cfg.NewServiceClient(getAlarmActionRuleProduct, region)
@@ -190,7 +190,7 @@ func resourceAlarmActionRuleRead(_ context.Context, d *schema.ResourceData, meta
 
 	getAlarmActionRulePath := getAlarmActionRuleClient.Endpoint + getAlarmActionRuleHttpUrl
 	getAlarmActionRulePath = strings.ReplaceAll(getAlarmActionRulePath, "{project_id}", getAlarmActionRuleClient.ProjectID)
-	getAlarmActionRulePath = strings.ReplaceAll(getAlarmActionRulePath, "{id}", d.Id())
+	getAlarmActionRulePath = strings.ReplaceAll(getAlarmActionRulePath, "{rule_name}", d.Id())
 
 	getAlarmActionRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
