@@ -26,16 +26,14 @@ import (
 )
 
 // @API IMS POST /v2/cloudimages/action
-// @API IMS DELETE /v2/images/{imageID}
-// @API IMS GET /v2/images/{imageID}
-// @API IMS PATCH /v2/images/{imageID}
-// @API IMS POST /v2/{project_id}/{project_id}/images/{id}/tags/action
 // @API IMS POST /v1/cloudimages/wholeimages/action
-// @API IMS PATCH /v2/cloudimages/{imageID}
 // @API IMS GET /v2/cloudimages
-// @API IMS GET /v2/images
-// @API IMS GET /v2/{project_id}/{project_id}/images/{id}/tags
-// @API CBR GET /v3/{project_id}/backups/{backupId}
+// @API IMS PATCH /v2/cloudimages/{image_id}
+// @API CBR GET /v3/{project_id}/backups/{backup_id}
+// @API IMS GET /v2/{project_id}/images/{image_id}/tags
+// @API IMS POST /v2/{project_id}/images/{image_id}/tags/action
+// @API IMS GET /v2/images/{image_id}
+// @API IMS DELETE /v2/images/{image_id}
 func ResourceImsImage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImsImageCreate,
