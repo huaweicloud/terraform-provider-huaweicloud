@@ -20,7 +20,6 @@ import (
 )
 
 // @API DNS POST /v2.1/linegroups
-// @API DNS POST /v2.1/linegroups/{linegroup_id}
 // @API DNS GET /v2.1/linegroups/{linegroup_id}
 // @API DNS PUT /v2.1/linegroups/{linegroup_id}
 // @API DNS DELETE /v2.1/linegroups/{linegroup_id}

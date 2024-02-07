@@ -22,7 +22,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API dns_region GET /v2.1/zones/{zone_id}/recordsets
+// @API DNS GET /v2/zones/{zone_id}/recordsets
+// @API DNS GET /v2.1/zones/{zone_id}/recordsets
 func DataSourceRecordsets() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceRecordsetsRead,
