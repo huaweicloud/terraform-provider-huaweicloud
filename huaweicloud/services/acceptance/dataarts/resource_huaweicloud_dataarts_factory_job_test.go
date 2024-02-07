@@ -18,7 +18,7 @@ import (
 func getFactoryJobResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	var (
-		getJobHttpUrl = "v1/{project_id}/jobs/{id}"
+		getJobHttpUrl = "v1/{project_id}/jobs/{job_name}"
 		getJobProduct = "dataarts-dlf"
 	)
 	getJobClient, err := cfg.NewServiceClient(getJobProduct, region)
@@ -28,7 +28,7 @@ func getFactoryJobResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 
 	getJobPath := getJobClient.Endpoint + getJobHttpUrl
 	getJobPath = strings.ReplaceAll(getJobPath, "{project_id}", getJobClient.ProjectID)
-	getJobPath = strings.ReplaceAll(getJobPath, "{id}", state.Primary.ID)
+	getJobPath = strings.ReplaceAll(getJobPath, "{job_name}", state.Primary.ID)
 
 	getJobOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

@@ -23,6 +23,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DataArtsStudio POST /v1/{project_id}/service/apps
+// @API DataArtsStudio GET /v1/{project_id}/service/apps/{app_id}
+// @API DataArtsStudio PUT /v1/{project_id}/service/apps/{app_id}
+// @API DataArtsStudio DELETE /v1/{project_id}/service/apps/{app_id}
 func ResourceDataServiceApp() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDataServiceAppCreate,
