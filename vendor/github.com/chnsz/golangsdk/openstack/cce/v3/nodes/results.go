@@ -114,7 +114,7 @@ type ExtNic struct {
 // TaintSpec to created nodes to configure anti-affinity
 type TaintSpec struct {
 	Key   string `json:"key" required:"true"`
-	Value string `json:"value" required:"true"`
+	Value string `json:"value,omitempty"`
 	// Available options are NoSchedule, PreferNoSchedule, and NoExecute
 	Effect string `json:"effect" required:"true"`
 }
