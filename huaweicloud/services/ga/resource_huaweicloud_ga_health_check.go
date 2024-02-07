@@ -27,9 +27,9 @@ import (
 )
 
 // @API GA POST /v1/health-checks
-// @API GA GET /v1/health-checks/{id}
-// @API GA PUT /v1/health-checks/{id}
-// @API GA DELETE /v1/health-checks/{id}
+// @API GA GET /v1/health-checks/{health_check_id}
+// @API GA PUT /v1/health-checks/{health_check_id}
+// @API GA DELETE /v1/health-checks/{health_check_id}
 func ResourceHealthCheck() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHealthCheckCreate,
@@ -190,7 +190,7 @@ func createHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			region := config.GetRegion(d)
 			// createHealthCheckWaiting: missing operation notes
 			var (
-				createHealthCheckWaitingHttpUrl = "v1/health-checks/{id}"
+				createHealthCheckWaitingHttpUrl = "v1/health-checks/{health_check_id}"
 				createHealthCheckWaitingProduct = "ga"
 			)
 			createHealthCheckWaitingClient, err := config.NewServiceClient(createHealthCheckWaitingProduct, region)
@@ -199,7 +199,7 @@ func createHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			createHealthCheckWaitingPath := createHealthCheckWaitingClient.Endpoint + createHealthCheckWaitingHttpUrl
-			createHealthCheckWaitingPath = strings.ReplaceAll(createHealthCheckWaitingPath, "{id}", d.Id())
+			createHealthCheckWaitingPath = strings.ReplaceAll(createHealthCheckWaitingPath, "{health_check_id}", d.Id())
 
 			createHealthCheckWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -256,7 +256,7 @@ func resourceHealthCheckRead(_ context.Context, d *schema.ResourceData, meta int
 
 	// getHealthCheck: Query the GA Health Check detail
 	var (
-		getHealthCheckHttpUrl = "v1/health-checks/{id}"
+		getHealthCheckHttpUrl = "v1/health-checks/{health_check_id}"
 		getHealthCheckProduct = "ga"
 	)
 	getHealthCheckClient, err := conf.NewServiceClient(getHealthCheckProduct, region)
@@ -265,7 +265,7 @@ func resourceHealthCheckRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	getHealthCheckPath := getHealthCheckClient.Endpoint + getHealthCheckHttpUrl
-	getHealthCheckPath = strings.ReplaceAll(getHealthCheckPath, "{id}", d.Id())
+	getHealthCheckPath = strings.ReplaceAll(getHealthCheckPath, "{health_check_id}", d.Id())
 
 	getHealthCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -318,7 +318,7 @@ func resourceHealthCheckUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if d.HasChanges(updateHealthCheckhasChanges...) {
 		// updateHealthCheck: Update the configuration of GA Health Check
 		var (
-			updateHealthCheckHttpUrl = "v1/health-checks/{id}"
+			updateHealthCheckHttpUrl = "v1/health-checks/{health_check_id}"
 			updateHealthCheckProduct = "ga"
 		)
 		updateHealthCheckClient, err := conf.NewServiceClient(updateHealthCheckProduct, region)
@@ -327,7 +327,7 @@ func resourceHealthCheckUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 
 		updateHealthCheckPath := updateHealthCheckClient.Endpoint + updateHealthCheckHttpUrl
-		updateHealthCheckPath = strings.ReplaceAll(updateHealthCheckPath, "{id}", d.Id())
+		updateHealthCheckPath = strings.ReplaceAll(updateHealthCheckPath, "{health_check_id}", d.Id())
 
 		updateHealthCheckOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -371,7 +371,7 @@ func updateHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			region := config.GetRegion(d)
 			// updateHealthCheckWaiting: missing operation notes
 			var (
-				updateHealthCheckWaitingHttpUrl = "v1/health-checks/{id}"
+				updateHealthCheckWaitingHttpUrl = "v1/health-checks/{health_check_id}"
 				updateHealthCheckWaitingProduct = "ga"
 			)
 			updateHealthCheckWaitingClient, err := config.NewServiceClient(updateHealthCheckWaitingProduct, region)
@@ -380,7 +380,7 @@ func updateHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			updateHealthCheckWaitingPath := updateHealthCheckWaitingClient.Endpoint + updateHealthCheckWaitingHttpUrl
-			updateHealthCheckWaitingPath = strings.ReplaceAll(updateHealthCheckWaitingPath, "{id}", d.Id())
+			updateHealthCheckWaitingPath = strings.ReplaceAll(updateHealthCheckWaitingPath, "{health_check_id}", d.Id())
 
 			updateHealthCheckWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -435,7 +435,7 @@ func resourceHealthCheckDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	// deleteHealthCheck: Delete an existing GA Health Check
 	var (
-		deleteHealthCheckHttpUrl = "v1/health-checks/{id}"
+		deleteHealthCheckHttpUrl = "v1/health-checks/{health_check_id}"
 		deleteHealthCheckProduct = "ga"
 	)
 	deleteHealthCheckClient, err := conf.NewServiceClient(deleteHealthCheckProduct, region)
@@ -444,7 +444,7 @@ func resourceHealthCheckDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	deleteHealthCheckPath := deleteHealthCheckClient.Endpoint + deleteHealthCheckHttpUrl
-	deleteHealthCheckPath = strings.ReplaceAll(deleteHealthCheckPath, "{id}", d.Id())
+	deleteHealthCheckPath = strings.ReplaceAll(deleteHealthCheckPath, "{health_check_id}", d.Id())
 
 	deleteHealthCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -473,7 +473,7 @@ func deleteHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			region := config.GetRegion(d)
 			// deleteHealthCheckWaiting: missing operation notes
 			var (
-				deleteHealthCheckWaitingHttpUrl = "v1/health-checks/{id}"
+				deleteHealthCheckWaitingHttpUrl = "v1/health-checks/{health_check_id}"
 				deleteHealthCheckWaitingProduct = "ga"
 			)
 			deleteHealthCheckWaitingClient, err := config.NewServiceClient(deleteHealthCheckWaitingProduct, region)
@@ -482,7 +482,7 @@ func deleteHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			deleteHealthCheckWaitingPath := deleteHealthCheckWaitingClient.Endpoint + deleteHealthCheckWaitingHttpUrl
-			deleteHealthCheckWaitingPath = strings.ReplaceAll(deleteHealthCheckWaitingPath, "{id}", d.Id())
+			deleteHealthCheckWaitingPath = strings.ReplaceAll(deleteHealthCheckWaitingPath, "{health_check_id}", d.Id())
 
 			deleteHealthCheckWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,

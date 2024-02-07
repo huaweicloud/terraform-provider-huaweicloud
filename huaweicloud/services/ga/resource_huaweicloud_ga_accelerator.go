@@ -28,9 +28,9 @@ import (
 )
 
 // @API GA POST /v1/accelerators
-// @API GA PUT /v1/accelerators/{id}
-// @API GA DELETE /v1/accelerators/{id}
-// @API GA GET /v1/accelerators/{id}
+// @API GA GET /v1/accelerators/{accelerator_id}
+// @API GA PUT /v1/accelerators/{accelerator_id}
+// @API GA DELETE /v1/accelerators/{accelerator_id}
 func ResourceAccelerator() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAcceleratorCreate,
@@ -290,7 +290,7 @@ func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			region := config.GetRegion(d)
 			// createAcceleratorWaiting: missing operation notes
 			var (
-				createAcceleratorWaitingHttpUrl = "v1/accelerators/{id}"
+				createAcceleratorWaitingHttpUrl = "v1/accelerators/{accelerator_id}"
 				createAcceleratorWaitingProduct = "ga"
 			)
 			createAcceleratorWaitingClient, err := config.NewServiceClient(createAcceleratorWaitingProduct, region)
@@ -299,7 +299,7 @@ func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			createAcceleratorWaitingPath := createAcceleratorWaitingClient.Endpoint + createAcceleratorWaitingHttpUrl
-			createAcceleratorWaitingPath = strings.ReplaceAll(createAcceleratorWaitingPath, "{id}", d.Id())
+			createAcceleratorWaitingPath = strings.ReplaceAll(createAcceleratorWaitingPath, "{accelerator_id}", d.Id())
 
 			createAcceleratorWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -356,7 +356,7 @@ func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta int
 
 	// getAccelerator: Query the GA accelerator detail
 	var (
-		getAcceleratorHttpUrl = "v1/accelerators/{id}"
+		getAcceleratorHttpUrl = "v1/accelerators/{accelerator_id}"
 		getAcceleratorProduct = "ga"
 	)
 	getAcceleratorClient, err := conf.NewServiceClient(getAcceleratorProduct, region)
@@ -365,7 +365,7 @@ func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	getAcceleratorPath := getAcceleratorClient.Endpoint + getAcceleratorHttpUrl
-	getAcceleratorPath = strings.ReplaceAll(getAcceleratorPath, "{id}", d.Id())
+	getAcceleratorPath = strings.ReplaceAll(getAcceleratorPath, "{accelerator_id}", d.Id())
 
 	getAcceleratorOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -458,7 +458,7 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if d.HasChanges(updateAcceleratorhasChanges...) {
 		// updateAccelerator: Update the configuration of GA accelerator
 		var (
-			updateAcceleratorHttpUrl = "v1/accelerators/{id}"
+			updateAcceleratorHttpUrl = "v1/accelerators/{accelerator_id}"
 			updateAcceleratorProduct = "ga"
 		)
 		updateAcceleratorClient, err := conf.NewServiceClient(updateAcceleratorProduct, region)
@@ -467,7 +467,7 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 
 		updateAcceleratorPath := updateAcceleratorClient.Endpoint + updateAcceleratorHttpUrl
-		updateAcceleratorPath = strings.ReplaceAll(updateAcceleratorPath, "{id}", d.Id())
+		updateAcceleratorPath = strings.ReplaceAll(updateAcceleratorPath, "{accelerator_id}", d.Id())
 
 		updateAcceleratorOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -512,7 +512,7 @@ func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			region := config.GetRegion(d)
 			// updateAcceleratorWaiting: missing operation notes
 			var (
-				updateAcceleratorWaitingHttpUrl = "v1/accelerators/{id}"
+				updateAcceleratorWaitingHttpUrl = "v1/accelerators/{accelerator_id}"
 				updateAcceleratorWaitingProduct = "ga"
 			)
 			updateAcceleratorWaitingClient, err := config.NewServiceClient(updateAcceleratorWaitingProduct, region)
@@ -521,7 +521,7 @@ func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			updateAcceleratorWaitingPath := updateAcceleratorWaitingClient.Endpoint + updateAcceleratorWaitingHttpUrl
-			updateAcceleratorWaitingPath = strings.ReplaceAll(updateAcceleratorWaitingPath, "{id}", d.Id())
+			updateAcceleratorWaitingPath = strings.ReplaceAll(updateAcceleratorWaitingPath, "{accelerator_id}", d.Id())
 
 			updateAcceleratorWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -576,7 +576,7 @@ func resourceAcceleratorDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	// deleteAccelerator: Delete an existing GA Accelerator
 	var (
-		deleteAcceleratorHttpUrl = "v1/accelerators/{id}"
+		deleteAcceleratorHttpUrl = "v1/accelerators/{accelerator_id}"
 		deleteAcceleratorProduct = "ga"
 	)
 	deleteAcceleratorClient, err := conf.NewServiceClient(deleteAcceleratorProduct, region)
@@ -585,7 +585,7 @@ func resourceAcceleratorDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	deleteAcceleratorPath := deleteAcceleratorClient.Endpoint + deleteAcceleratorHttpUrl
-	deleteAcceleratorPath = strings.ReplaceAll(deleteAcceleratorPath, "{id}", d.Id())
+	deleteAcceleratorPath = strings.ReplaceAll(deleteAcceleratorPath, "{accelerator_id}", d.Id())
 
 	deleteAcceleratorOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -614,7 +614,7 @@ func deleteAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			region := config.GetRegion(d)
 			// deleteAcceleratorWaiting: missing operation notes
 			var (
-				deleteAcceleratorWaitingHttpUrl = "v1/accelerators/{id}"
+				deleteAcceleratorWaitingHttpUrl = "v1/accelerators/{accelerator_id}"
 				deleteAcceleratorWaitingProduct = "ga"
 			)
 			deleteAcceleratorWaitingClient, err := config.NewServiceClient(deleteAcceleratorWaitingProduct, region)
@@ -623,7 +623,7 @@ func deleteAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			}
 
 			deleteAcceleratorWaitingPath := deleteAcceleratorWaitingClient.Endpoint + deleteAcceleratorWaitingHttpUrl
-			deleteAcceleratorWaitingPath = strings.ReplaceAll(deleteAcceleratorWaitingPath, "{id}", d.Id())
+			deleteAcceleratorWaitingPath = strings.ReplaceAll(deleteAcceleratorWaitingPath, "{accelerator_id}", d.Id())
 
 			deleteAcceleratorWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,

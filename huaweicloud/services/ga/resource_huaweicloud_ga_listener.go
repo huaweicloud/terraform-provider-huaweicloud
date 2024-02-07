@@ -27,9 +27,9 @@ import (
 )
 
 // @API GA POST /v1/listeners
-// @API GA DELETE /v1/listeners/{id}
-// @API GA GET /v1/listeners/{id}
-// @API GA PUT /v1/listeners/{id}
+// @API GA DELETE /v1/listeners/{listener_id}
+// @API GA GET /v1/listeners/{listener_id}
+// @API GA PUT /v1/listeners/{listener_id}
 func ResourceListener() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceListenerCreate,
@@ -245,7 +245,7 @@ func createListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			region := config.GetRegion(d)
 			// createListenerWaiting: missing operation notes
 			var (
-				createListenerWaitingHttpUrl = "v1/listeners/{id}"
+				createListenerWaitingHttpUrl = "v1/listeners/{listener_id}"
 				createListenerWaitingProduct = "ga"
 			)
 			createListenerWaitingClient, err := config.NewServiceClient(createListenerWaitingProduct, region)
@@ -254,7 +254,7 @@ func createListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			createListenerWaitingPath := createListenerWaitingClient.Endpoint + createListenerWaitingHttpUrl
-			createListenerWaitingPath = strings.ReplaceAll(createListenerWaitingPath, "{id}", d.Id())
+			createListenerWaitingPath = strings.ReplaceAll(createListenerWaitingPath, "{listener_id}", d.Id())
 
 			createListenerWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -310,7 +310,7 @@ func resourceListenerRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	// getListener: Query the GA Listener detail
 	var (
-		getListenerHttpUrl = "v1/listeners/{id}"
+		getListenerHttpUrl = "v1/listeners/{listener_id}"
 		getListenerProduct = "ga"
 	)
 	getListenerClient, err := conf.NewServiceClient(getListenerProduct, region)
@@ -319,7 +319,7 @@ func resourceListenerRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	getListenerPath := getListenerClient.Endpoint + getListenerHttpUrl
-	getListenerPath = strings.ReplaceAll(getListenerPath, "{id}", d.Id())
+	getListenerPath = strings.ReplaceAll(getListenerPath, "{listener_id}", d.Id())
 
 	getListenerOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -393,7 +393,7 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if d.HasChanges(updateListenerhasChanges...) {
 		// updateListener: Update the configuration of GA Listener
 		var (
-			updateListenerHttpUrl = "v1/listeners/{id}"
+			updateListenerHttpUrl = "v1/listeners/{listener_id}"
 			updateListenerProduct = "ga"
 		)
 		updateListenerClient, err := conf.NewServiceClient(updateListenerProduct, region)
@@ -402,7 +402,7 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 
 		updateListenerPath := updateListenerClient.Endpoint + updateListenerHttpUrl
-		updateListenerPath = strings.ReplaceAll(updateListenerPath, "{id}", d.Id())
+		updateListenerPath = strings.ReplaceAll(updateListenerPath, "{listener_id}", d.Id())
 
 		updateListenerOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -463,7 +463,7 @@ func updateListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			region := config.GetRegion(d)
 			// updateListenerWaiting: missing operation notes
 			var (
-				updateListenerWaitingHttpUrl = "v1/listeners/{id}"
+				updateListenerWaitingHttpUrl = "v1/listeners/{listener_id}"
 				updateListenerWaitingProduct = "ga"
 			)
 			updateListenerWaitingClient, err := config.NewServiceClient(updateListenerWaitingProduct, region)
@@ -472,7 +472,7 @@ func updateListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			updateListenerWaitingPath := updateListenerWaitingClient.Endpoint + updateListenerWaitingHttpUrl
-			updateListenerWaitingPath = strings.ReplaceAll(updateListenerWaitingPath, "{id}", d.Id())
+			updateListenerWaitingPath = strings.ReplaceAll(updateListenerWaitingPath, "{listener_id}", d.Id())
 
 			updateListenerWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -526,7 +526,7 @@ func resourceListenerDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 	// deleteListener: Delete an existing GA Listener
 	var (
-		deleteListenerHttpUrl = "v1/listeners/{id}"
+		deleteListenerHttpUrl = "v1/listeners/{listener_id}"
 		deleteListenerProduct = "ga"
 	)
 	deleteListenerClient, err := conf.NewServiceClient(deleteListenerProduct, region)
@@ -535,7 +535,7 @@ func resourceListenerDelete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	deleteListenerPath := deleteListenerClient.Endpoint + deleteListenerHttpUrl
-	deleteListenerPath = strings.ReplaceAll(deleteListenerPath, "{id}", d.Id())
+	deleteListenerPath = strings.ReplaceAll(deleteListenerPath, "{listener_id}", d.Id())
 
 	deleteListenerOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -564,7 +564,7 @@ func deleteListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			region := config.GetRegion(d)
 			// deleteListenerWaiting: missing operation notes
 			var (
-				deleteListenerWaitingHttpUrl = "v1/listeners/{id}"
+				deleteListenerWaitingHttpUrl = "v1/listeners/{listener_id}"
 				deleteListenerWaitingProduct = "ga"
 			)
 			deleteListenerWaitingClient, err := config.NewServiceClient(deleteListenerWaitingProduct, region)
@@ -573,7 +573,7 @@ func deleteListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			}
 
 			deleteListenerWaitingPath := deleteListenerWaitingClient.Endpoint + deleteListenerWaitingHttpUrl
-			deleteListenerWaitingPath = strings.ReplaceAll(deleteListenerWaitingPath, "{id}", d.Id())
+			deleteListenerWaitingPath = strings.ReplaceAll(deleteListenerWaitingPath, "{listener_id}", d.Id())
 
 			deleteListenerWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
