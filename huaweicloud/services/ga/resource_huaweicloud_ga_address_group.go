@@ -24,6 +24,10 @@ import (
 // @API GA GET /v1/ip-groups/{ip_group_id}
 // @API GA PUT /v1/ip-groups/{ip_group_id}
 // @API GA DELETE /v1/ip-groups/{ip_group_id}
+// @API GA POST /v1/ip-groups/{ip_group_id}/add-ips
+// @API GA POST /v1/ip-groups/{ip_group_id}/remove-ips
+// @API GA POST /v1/ip-groups/{ip_group_id}/associate-listener
+// @API GA POST /v1/ip-groups/{ip_group_id}/disassociate-listener
 func ResourceIpAddressGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIpAddressGroupCreate,
@@ -36,8 +40,9 @@ func ResourceIpAddressGroup() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(3 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -52,14 +57,12 @@ func ResourceIpAddressGroup() *schema.Resource {
 			"ip_addresses": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
-				ForceNew: true,
 				Elem:     ipAddressGroupSchema(),
-				MaxItems: 20,
 			},
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"listeners": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     associatedListenersSchema(),
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -73,11 +76,6 @@ func ResourceIpAddressGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"listeners": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     associatedListenersSchema(),
-			},
 		},
 	}
 }
@@ -88,13 +86,10 @@ func ipAddressGroupSchema() *schema.Resource {
 			"cidr": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -110,11 +105,11 @@ func associatedListenersSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
 			},
 		},
 	}
@@ -126,27 +121,9 @@ func buildCreateIpAddressGroupBodyParams(d *schema.ResourceData) map[string]inte
 		"ip_group": map[string]interface{}{
 			"name":        d.Get("name"),
 			"description": utils.ValueIngoreEmpty(d.Get("description")),
-			"ip_list":     buildIpAddressOptionBodyParams(d.Get("ip_addresses").(*schema.Set)),
 		},
 	}
 	return bodyParams
-}
-
-func buildIpAddressOptionBodyParams(rawParams *schema.Set) []map[string]interface{} {
-	if rawParams.Len() == 0 {
-		return nil
-	}
-	rst := make([]map[string]interface{}, rawParams.Len())
-	for _, val := range rawParams.List() {
-		raw := val.(map[string]interface{})
-		params := map[string]interface{}{
-			"cidr":        raw["cidr"],
-			"description": utils.ValueIngoreEmpty(raw["description"]),
-		}
-		rst = append(rst, params)
-	}
-
-	return rst
 }
 
 func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -188,9 +165,24 @@ func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, m
 
 	d.SetId(id.(string))
 
-	err = createIpAddressGroupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the creation of IP address group (%s) to complete: %s", d.Id(), err)
+	}
+
+	//  call addIps to support more than 20 ip addresses
+	if val, ok := d.GetOk("ip_addresses"); ok {
+		err = addIps(ctx, d, meta, createIpAddressGroupClient, val.(*schema.Set).List())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if val, ok := d.GetOk("listeners"); ok {
+		err = associateListener(ctx, d, meta, createIpAddressGroupClient, val.(*schema.Set).List())
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceIpAddressGroupRead(ctx, d, meta)
@@ -250,15 +242,14 @@ func flattenGetListenersResponseBody(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
-
-	curJson := utils.PathSearch("ip_group.associated_listeners", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
-		rst = append(rst, map[string]interface{}{
+	rawArray, _ := resp.([]interface{})
+	rst := make([]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		params := map[string]interface{}{
 			"id":   utils.PathSearch("listener_id", v, nil),
 			"type": utils.PathSearch("type", v, nil),
-		})
+		}
+		rst = append(rst, params)
 	}
 
 	return rst
@@ -279,11 +270,13 @@ func resourceIpAddressGroupRead(_ context.Context, d *schema.ResourceData, meta 
 		nil,
 		d.Set("name", utils.PathSearch("ip_group.name", getIpAddressGroupRespBody, nil)),
 		d.Set("description", utils.PathSearch("ip_group.description", getIpAddressGroupRespBody, nil)),
-		d.Set("ip_addresses", flattenGetIpListResponseBody(utils.PathSearch("ip_group.ip_list", getIpAddressGroupRespBody, make([]interface{}, 0)))),
+		d.Set("ip_addresses", flattenGetIpListResponseBody(utils.PathSearch("ip_group.ip_list",
+			getIpAddressGroupRespBody, make([]interface{}, 0)))),
 		d.Set("status", utils.PathSearch("ip_group.status", getIpAddressGroupRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("ip_group.created_at", getIpAddressGroupRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("ip_group.updated_at", getIpAddressGroupRespBody, nil)),
-		d.Set("listeners", flattenGetListenersResponseBody(getIpAddressGroupRespBody)),
+		d.Set("listeners", flattenGetListenersResponseBody(utils.PathSearch("ip_group.associated_listeners",
+			getIpAddressGroupRespBody, make([]interface{}, 0)))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -303,17 +296,17 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
+	var (
+		updateIpAddressGroupHttpUrl = "v1/ip-groups/{ip_group_id}"
+		updateIpAddressGroupProduct = "ga"
+	)
+
+	updateIpAddressGroupClient, err := cfg.NewServiceClient(updateIpAddressGroupProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating IP address group client: %s", err)
+	}
+
 	if d.HasChanges("name", "description") {
-		var (
-			updateIpAddressGroupHttpUrl = "v1/ip-groups/{ip_group_id}"
-			updateIpAddressGroupProduct = "ga"
-		)
-
-		updateIpAddressGroupClient, err := cfg.NewServiceClient(updateIpAddressGroupProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating IP address group client: %s", err)
-		}
-
 		updateIpAddressGroupPath := updateIpAddressGroupClient.Endpoint + updateIpAddressGroupHttpUrl
 		updateIpAddressGroupPath = strings.ReplaceAll(updateIpAddressGroupPath, "{ip_group_id}", d.Id())
 		updateIpAddressGroupOpt := golangsdk.RequestOpts{
@@ -330,7 +323,203 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
+	if d.HasChange("ip_addresses") {
+		oldIpsRaw, newIpsRaw := d.GetChange("ip_addresses")
+		addIpsRaw := newIpsRaw.(*schema.Set).Difference(oldIpsRaw.(*schema.Set))
+		removeIpsRaw := oldIpsRaw.(*schema.Set).Difference(newIpsRaw.(*schema.Set))
+
+		if removeIpsRaw.Len() > 0 {
+			err = removeIps(ctx, d, meta, updateIpAddressGroupClient, removeIpsRaw.List())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if addIpsRaw.Len() > 0 {
+			err = addIps(ctx, d, meta, updateIpAddressGroupClient, addIpsRaw.List())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
+	if d.HasChange("listeners") {
+		oldListenerRaw, newListenerRaw := d.GetChange("listeners")
+		associateListenerRaw := newListenerRaw.(*schema.Set).Difference(oldListenerRaw.(*schema.Set))
+		disassociateListenerRaw := oldListenerRaw.(*schema.Set).Difference(newListenerRaw.(*schema.Set))
+
+		if disassociateListenerRaw.Len() > 0 {
+			err = disassociateListener(ctx, d, meta, updateIpAddressGroupClient, disassociateListenerRaw.List())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if associateListenerRaw.Len() > 0 {
+			err = associateListener(ctx, d, meta, updateIpAddressGroupClient, associateListenerRaw.List())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceIpAddressGroupRead(ctx, d, meta)
+}
+
+func addIps(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
+	rawParams interface{}) error {
+	addIpsHttpUrl := "v1/ip-groups/{ip_group_id}/add-ips"
+	addIpsPath := client.Endpoint + addIpsHttpUrl
+	addIpsPath = strings.ReplaceAll(addIpsPath, "{ip_group_id}", d.Id())
+
+	addIpsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		batchSize := 20
+		rst := make([]interface{}, len(rawArray))
+
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			rst[i] = map[string]interface{}{
+				"cidr":        raw["cidr"],
+				"description": utils.ValueIngoreEmpty(raw["description"]),
+			}
+		}
+
+		for i := 0; i < len(rst); i += batchSize {
+			endIndex := i + batchSize
+			if endIndex > len(rst) {
+				endIndex = len(rst)
+			}
+
+			batch := rst[i:endIndex]
+			addIpsOpt.JSONBody = utils.RemoveNil(map[string]interface{}{
+				"ip_list": batch,
+			})
+
+			_, err := client.Request("POST", addIpsPath, &addIpsOpt)
+			if err != nil {
+				return fmt.Errorf("error adding IP addresses to the IP address group: %s", err)
+			}
+
+			err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("error waiting for the completion of adding IP addresses to the IP address group: %s", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func removeIps(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
+	rawParams interface{}) error {
+	removeIpsHttpUrl := "v1/ip-groups/{ip_group_id}/remove-ips"
+	removeIpsPath := client.Endpoint + removeIpsHttpUrl
+	removeIpsPath = strings.ReplaceAll(removeIpsPath, "{ip_group_id}", d.Id())
+
+	removeIpsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		batchSize := 20
+		rst := make([]string, len(rawArray))
+		for i, v := range rawArray {
+			rst[i] = utils.PathSearch("cidr", v, nil).(string)
+		}
+
+		for i := 0; i < len(rst); i += batchSize {
+			endIndex := i + batchSize
+			if endIndex > len(rst) {
+				endIndex = len(rst)
+			}
+
+			batch := rst[i:endIndex]
+			removeIpsOpt.JSONBody = utils.RemoveNil(map[string]interface{}{
+				"ip_list": batch,
+			})
+
+			_, err := client.Request("POST", removeIpsPath, &removeIpsOpt)
+			if err != nil {
+				return fmt.Errorf("error removing IP addresses from the IP address group: %s", err)
+			}
+
+			err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("error waiting for the completion of removing IP addresses from the IP address group: %s", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func associateListener(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
+	rawParams interface{}) error {
+	associateListenerHttpUrl := "v1/ip-groups/{ip_group_id}/associate-listener"
+	associateListenerPath := client.Endpoint + associateListenerHttpUrl
+	associateListenerPath = strings.ReplaceAll(associateListenerPath, "{ip_group_id}", d.Id())
+
+	associateListenerOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		for _, v := range rawArray {
+			raw := v.(map[string]interface{})
+			listenerId := raw["id"]
+			associateListenerOpt.JSONBody = map[string]interface{}{
+				"listener_id": listenerId,
+				"type":        raw["type"],
+			}
+			_, err := client.Request("POST", associateListenerPath, &associateListenerOpt)
+			if err != nil {
+				return fmt.Errorf("error associate listener (%s) for IP address group: %s", listenerId, err)
+			}
+
+			err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("error waiting for the completion of association listener (%s) to the IP address group: %s", listenerId, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func disassociateListener(ctx context.Context, d *schema.ResourceData, meta interface{}, client *golangsdk.ServiceClient,
+	rawParams interface{}) error {
+	disassociateListenerHttpUrl := "v1/ip-groups/{ip_group_id}/disassociate-listener"
+	disassociateListenerPath := client.Endpoint + disassociateListenerHttpUrl
+	disassociateListenerPath = strings.ReplaceAll(disassociateListenerPath, "{ip_group_id}", d.Id())
+
+	disassociateListenerOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		for _, v := range rawArray {
+			raw := v.(map[string]interface{})
+			listenerId := raw["id"]
+			disassociateListenerOpt.JSONBody = map[string]interface{}{
+				"listener_id": listenerId,
+			}
+			_, err := client.Request("POST", disassociateListenerPath, &disassociateListenerOpt)
+			if err != nil {
+				return fmt.Errorf("error disassociated listener (%s) from IP address group: %s", listenerId, err)
+			}
+
+			err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("error waiting for the completion of disassociation listener (%s) from the IP address group: %s", listenerId, err)
+			}
+		}
+	}
+
+	return nil
 }
 
 func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -345,6 +534,13 @@ func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, m
 	deleteIpAddressGroupClient, err := cfg.NewServiceClient(deleteIpAddressGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating IP address group client: %s", err)
+	}
+
+	if val, ok := d.GetOk("listeners"); ok {
+		err = disassociateListener(ctx, d, meta, deleteIpAddressGroupClient, val.(*schema.Set).List())
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	deleteIpAddressGroupPath := deleteIpAddressGroupClient.Endpoint + deleteIpAddressGroupHttpUrl
@@ -378,7 +574,7 @@ func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func createIpAddressGroupWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func waitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
