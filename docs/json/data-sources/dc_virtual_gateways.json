@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_virtual_gateways": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the virtual gateway.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "virtual_gateway_id": {
+                "type": "string",
+                "description": "Specifies the ID of the virtual gateway.",
+                "optional": true
+              },
+              "virtual_gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asn": "number",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "local_ep_group": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "status": "string",
+                      "type": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the virtual gateway list.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC connected to the virtual gateway.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

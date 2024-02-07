@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_as_policy_execute_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "execute_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "desire_value": "string",
+                      "execute_time": "string",
+                      "execute_type": "string",
+                      "failed_reason": "string",
+                      "id": "string",
+                      "job_records": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "job_name": "string",
+                            "job_status": "string",
+                            "message": "string",
+                            "record_time": "string",
+                            "record_type": "string",
+                            "request": "string",
+                            "response": "string"
+                          }
+                        ]
+                      ],
+                      "limit_value": "string",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "old_value": "string",
+                      "scaling_policy_id": "string",
+                      "scaling_resource_id": "string",
+                      "scaling_resource_type": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "execute_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_policy_id": {
+                "type": "string",
+                "required": true
+              },
+              "scaling_resource_id": {
+                "type": "string",
+                "optional": true
+              },
+              "scaling_resource_type": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

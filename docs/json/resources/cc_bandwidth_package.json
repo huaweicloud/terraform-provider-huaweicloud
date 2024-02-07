@@ -37,6 +37,13 @@
                 "type": "string",
                 "computed": true
               },
+              "interflow_mode": {
+                "type": "string",
+                "description": "Interflow mode of the bandwidth package.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "local_area_id": {
                 "type": "string",
                 "description": "The local area ID.",
@@ -76,6 +83,13 @@
                 "description": "Type of the resource that the bandwidth package is bound to.",
                 "optional": true,
                 "computed": true
+              },
+              "spec_code": {
+                "type": "string",
+                "description": "Specification code of the bandwidth package.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",

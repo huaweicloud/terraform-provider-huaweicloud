@@ -15,6 +15,7 @@
                       "bandwidth_name": "string",
                       "bandwidth_share_type": "string",
                       "bandwidth_size": "number",
+                      "created_at": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
                       "ip_version": "number",
@@ -55,6 +56,13 @@
                 "default": 4
               },
               "port_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "private_ips": {
                 "type": [
                   "list",
                   "string"

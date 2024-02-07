@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_elastic_resource_pool": {
+          "block": {
+            "attributes": {
+              "actual_cu": {
+                "type": "number",
+                "description": "The actual CU number of the elastic resource pool.",
+                "computed": true
+              },
+              "cidr": {
+                "type": "string",
+                "description": "The CIDR block of network to associate with the elastic resource pool.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the elastic resource pool.",
+                "computed": true
+              },
+              "current_cu": {
+                "type": "number",
+                "description": "The current CU number of the elastic resource pool.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the elastic resource pool.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the elastic resource pool belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_cu": {
+                "type": "number",
+                "description": "The maximum number of CUs for elastic resource pool scaling.",
+                "required": true
+              },
+              "min_cu": {
+                "type": "number",
+                "description": "The minimum number of CUs for elastic resource pool scaling.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the elastic resource pool.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the elastic resource pool is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the elastic resource pool.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

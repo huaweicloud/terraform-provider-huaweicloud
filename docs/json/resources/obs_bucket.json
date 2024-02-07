@@ -253,6 +253,10 @@
               "logging": {
                 "block": {
                   "attributes": {
+                    "agency": {
+                      "type": "string",
+                      "required": true
+                    },
                     "target_bucket": {
                       "type": "string",
                       "required": true

@@ -9,12 +9,20 @@
                 "type": "string",
                 "computed": true
               },
+              "bandwidth_name": {
+                "type": "string",
+                "computed": true
+              },
               "bandwidth_share_type": {
                 "type": "string",
                 "computed": true
               },
               "bandwidth_size": {
                 "type": "number",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
                 "computed": true
               },
               "enterprise_project_id": {
@@ -31,6 +39,10 @@
                 "computed": true
               },
               "ipv6_address": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
                 "type": "string",
                 "computed": true
               },

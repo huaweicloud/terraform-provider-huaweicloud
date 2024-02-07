@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_datasource_connections": {
+          "block": {
+            "attributes": {
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "elastic_resource_pools": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_msg": "string",
+                            "id": "string",
+                            "name": "string",
+                            "status": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "hosts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "is_privis": "bool",
+                      "name": "string",
+                      "queues": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_msg": "string",
+                            "id": "string",
+                            "name": "string",
+                            "status": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "routes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cidr": "string",
+                            "created_at": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

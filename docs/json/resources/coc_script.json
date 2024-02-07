@@ -2,16 +2,20 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_ga_address_group": {
+        "huaweicloud_coc_script": {
           "block": {
             "attributes": {
+              "content": {
+                "type": "string",
+                "required": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
               },
               "description": {
                 "type": "string",
-                "optional": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -19,60 +23,56 @@
               },
               "name": {
                 "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "risk_level": {
+                "type": "string",
                 "required": true
               },
               "status": {
                 "type": "string",
                 "computed": true
               },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
               "updated_at": {
                 "type": "string",
                 "computed": true
+              },
+              "version": {
+                "type": "string",
+                "required": true
               }
             },
             "block_types": {
-              "ip_addresses": {
+              "parameters": {
                 "block": {
                   "attributes": {
-                    "cidr": {
-                      "type": "string",
-                      "required": true
-                    },
-                    "created_at": {
-                      "type": "string",
-                      "computed": true
-                    },
                     "description": {
                       "type": "string",
-                      "optional": true
-                    }
-                  }
-                },
-                "nesting_mode": "set"
-              },
-              "listeners": {
-                "block": {
-                  "attributes": {
-                    "id": {
+                      "required": true
+                    },
+                    "name": {
                       "type": "string",
                       "required": true
                     },
-                    "type": {
+                    "sensitive": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "value": {
                       "type": "string",
                       "required": true
                     }
                   }
                 },
-                "nesting_mode": "set"
+                "nesting_mode": "list"
               }
             }
-          },
-          "product": {
-            "short": "GA",
-            "name": "Global Accelerator",
-            "catalog": "Networking",
-            "name_cn": "全球加速",
-            "catalog_cn": "网络"
           }
         }
       }
