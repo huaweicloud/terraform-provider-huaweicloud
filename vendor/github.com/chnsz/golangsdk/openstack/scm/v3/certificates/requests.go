@@ -20,8 +20,8 @@ type ImportOptsBuilder interface {
 type ImportOpts struct {
 	Name             string `json:"name,omitempty" required:"true"`
 	Certificate      string `json:"certificate" required:"true"`
-	CertificateChain string `json:"certificate_chain" required:"true"`
 	PrivateKey       string `json:"private_key" required:"true"`
+	CertificateChain string `json:"certificate_chain,omitempty"`
 }
 
 // ToCertificateImportMap casts a CreateOpts struct to a map.
