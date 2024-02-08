@@ -26,6 +26,8 @@ import (
 // @API VPC PUT /v3/{project_id}/vpc/firewalls/{firewall_id}/associate-subnets
 // @API VPC PUT /v3/{project_id}/vpc/firewalls/{firewall_id}/disassociate-subnets
 // @API VPC DELETE /v3/{project_id}/vpc/firewalls/{id}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter
 func ResourceNetworkAcl() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkAclCreate,
