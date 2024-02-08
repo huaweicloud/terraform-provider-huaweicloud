@@ -29,6 +29,7 @@ import (
 // @API CFW DELETE /v1/{project_id}/acl-rule/{id}
 // @API CFW PUT /v1/{project_id}/acl-rule/{id}
 // @API CFW GET /v1/{project_id}/acl-rules
+// @API CFW PUT /v1/{project_id}/acl-rule/order/{id}
 func ResourceProtectionRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectionRuleCreate,
