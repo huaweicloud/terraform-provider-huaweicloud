@@ -17,11 +17,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses/{respId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses/{respId}
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses/{respId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{groupId}/gateway-responses
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses/{response_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses/{response_id}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses/{response_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses
+// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses
 func ResourceApigResponseV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceResponseCreate,

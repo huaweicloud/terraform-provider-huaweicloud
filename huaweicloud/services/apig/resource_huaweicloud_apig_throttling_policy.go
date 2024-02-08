@@ -45,15 +45,15 @@ var (
 )
 
 // ResourceApigThrottlingPolicyV2 is a provider resource of the APIG throttling policy.
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttles
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/throttles
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/throttles
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/throttles
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials/{strategy_Id}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials/{strategy_Id}
 func ResourceApigThrottlingPolicyV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceThrottlingPolicyCreate,

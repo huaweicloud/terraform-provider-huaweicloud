@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/{path}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/envs
 func DataSourceEnvironments() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceEnvironmentsRead,

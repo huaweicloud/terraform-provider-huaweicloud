@@ -20,10 +20,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/app-auths/{authId}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/app-auths
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/app-auths/binded-apis
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/app-auths/unbinded-apis
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/app-auths/{app_auth_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/app-auths
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-auths/unbinded-apis
 func ResourceAppAuth() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppAuthCreate,

@@ -24,14 +24,14 @@ const (
 	SecretActionReset SecretAction = "RESET"
 )
 
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes/{codeId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}/app-codes
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/apps/{appId}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/apps
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/apps/secret/{appId}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes/{app_code_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-codes
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/apps
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/apps/secret/{app_id}
 func ResourceApigApplicationV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceApplicationCreate,

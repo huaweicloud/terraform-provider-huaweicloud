@@ -18,10 +18,10 @@ import (
 )
 
 // ResourceAclPolicy is a provider resource of the APIG ACL policy.
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/acls/{policyId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/acls/{policyId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/acls/{policyId}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/acls
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/acls/{acl_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/acls/{acl_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/acls/{acl_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/acls
 func ResourceAclPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAclPolicyCreate,
