@@ -62,7 +62,7 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
 
   target {
     project = ["la-south-2"]
-    service = "Enhance_ELB"
+    service = "ELB"
   }
 
   target {
@@ -75,27 +75,37 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the SCM certificate resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the SCM certificate resource.
   If omitted, the provider-level region will be used.
   Changing this setting will push a new certificate.
-* `name` - (Required, String, ForceNew) Human-readable name for the Certificate.
+
+* `name` - (Required, String, ForceNew) Specifies the human-readable name for the certificate.
   Does not have to be unique. The value contains a maximum of 63 characters.
   Changing this parameter will create a new resource.
-* `certificate` - (Required, String, ForceNew) The public encrypted key of the Certificate, PEM format.
+
+* `certificate` - (Required, String, ForceNew) Specifies the content of the Certificate, PEM format.
+  It can include intermediate certificates and root certificates. If the `certificate_chain` is passed into
+  the certificate chain, then this field only takes the certificate itself.
   Changing this parameter will create a new resource.
-* `certificate_chain` - (Required, String, ForceNew) The chain of the certificate.
-  It can be extracted from the *server.crt* file in the Nginx directory,
+
+* `private_key` - (Required, String, ForceNew) Specifies the private encrypted key of the Certificate, PEM format.
+  Changing this parameter will create a new resource.
+
+* `certificate_chain` - (Optional, String, ForceNew) Specifies the chain of the certificate.
+  It can passed by `certificate`. It can be extracted from the *server.crt* file in the Nginx directory,
   usually after the second paragraph is the certificate chain.
   Changing this parameter will create a new resource.
-* `private_key` - (Required, String, ForceNew) The private encrypted key of the Certificate, PEM format.
-  Changing this parameter will create a new resource.
-* `target` - (Optional, List) The service to which the certificate needs to be pushed.
 
+* `target` - (Optional, List) Specifies the service to which the certificate needs to be pushed.
+The [target](#block_target) structure is documented below.
+
+<a name="block_target"></a>
 The `target` block supports:
 
-* `service` - (Required, String) Service to which the certificate is pushed. The options include `CDN`,`WAF`
-  and `Enhance_ELB`.
-* `project` - (Optional, List) The project where the service you want to push a certificate to. The same certificate
+* `service` - (Required, String) Specifies the service to which the certificate is pushed. The options include `CDN`,`WAF`
+  and `ELB`.
+
+* `project` - (Optional, List) Specifies the project where the service you want to push a certificate to. The same certificate
   can be pushed repeatedly to the same WAF or ELB service in the same `project`, but the CDN service can only be pushed
   once.
 
@@ -103,7 +113,7 @@ The `target` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 * `domain` - Domain name bound to a certificate.
 * `domain_count` - Number of domain names can be bound to a certificate.
 * `push_support` - Whether a certificate can be pushed.

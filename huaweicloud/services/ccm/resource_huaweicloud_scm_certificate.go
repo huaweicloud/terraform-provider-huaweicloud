@@ -51,12 +51,6 @@ func ResourceScmCertificate() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"certificate_chain": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: utils.SuppressNewLineDiffs,
-			},
 			"private_key": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -66,6 +60,12 @@ func ResourceScmCertificate() *schema.Resource {
 			"certificate": {
 				Type:             schema.TypeString,
 				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressNewLineDiffs,
+			},
+			"certificate_chain": {
+				Type:             schema.TypeString,
+				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
@@ -220,7 +220,7 @@ func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 	conf := meta.(*config.Config)
 	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating SCM client: %s", err)
 	}
 	oldVal, newVal := d.GetChange("target")
 	newPushCert, err := parsePushCertificateToMap(newVal.([]interface{}))
