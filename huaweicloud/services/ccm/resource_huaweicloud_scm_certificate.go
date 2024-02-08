@@ -138,8 +138,8 @@ func ResourceScmCertificate() *schema.Resource {
 }
 
 func resourceScmCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SCM client: %s", err)
 	}
@@ -217,9 +217,11 @@ func parseTargetsAndPush(c *golangsdk.ServiceClient, d *schema.ResourceData, tar
 }
 
 func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(config.GetRegion(d))
-
+	conf := meta.(*config.Config)
+	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	oldVal, newVal := d.GetChange("target")
 	newPushCert, err := parsePushCertificateToMap(newVal.([]interface{}))
 	if err != nil {
@@ -280,8 +282,9 @@ func pushCertificateToService(id string, pushOpts certificates.PushOpts, scmClie
 }
 
 func resourceScmCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(config.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	scmClient, err := conf.ScmV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating SCM client: %s", err)
 	}
@@ -294,7 +297,7 @@ func resourceScmCertificateRead(_ context.Context, d *schema.ResourceData, meta 
 	// convert the type of 'certDetail.Authentifications' to TypeList
 	auths := buildAuthtificatesAttribute(certDetail.Authentifications)
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("status", certDetail.Status),
 		d.Set("name", certDetail.Name),
 		d.Set("push_support", certDetail.PushSupport),
@@ -326,9 +329,9 @@ func buildAuthtificatesAttribute(authentifications []certificates.Authentificati
 	return auth
 }
 
-func resourceScmCertificateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(config.GetRegion(d))
+func resourceScmCertificateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SCM client: %s", err)
 	}
@@ -356,8 +359,7 @@ func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schem
 		for _, proj := range targetProjectArr {
 			projectName := proj.(string)
 			if projects.Contains(projectName) {
-				return nil, fmt.Errorf("there are duplicate projects for the same service!\n"+
-					"service = %s, project = %s.", targetService, projectName)
+				return nil, fmt.Errorf("there are duplicate projects for the same service, service = %s, project = %s", targetService, projectName)
 			}
 			projects.Add(projectName)
 		}

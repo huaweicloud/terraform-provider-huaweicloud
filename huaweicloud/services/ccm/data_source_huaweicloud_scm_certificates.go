@@ -155,9 +155,9 @@ func certificatesCertificateSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceCertificatesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourceCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -166,7 +166,7 @@ func resourceCertificatesRead(ctx context.Context, d *schema.ResourceData, meta 
 		listCertificatesHttpUrl = "v3/scm/certificates"
 		listCertificatesProduct = "scm"
 	)
-	listCertificatesClient, err := config.NewServiceClient(listCertificatesProduct, region)
+	listCertificatesClient, err := conf.NewServiceClient(listCertificatesProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Certificates Client: %s", err)
 	}
@@ -174,7 +174,7 @@ func resourceCertificatesRead(ctx context.Context, d *schema.ResourceData, meta 
 	listCertificatesPath := listCertificatesClient.Endpoint + listCertificatesHttpUrl
 
 	listCertificatesqueryParams := buildListCertificatesQueryParams(d)
-	listCertificatesPath = listCertificatesPath + listCertificatesqueryParams
+	listCertificatesPath += listCertificatesqueryParams
 
 	listCertificatesResp, err := pagination.ListAllItems(
 		listCertificatesClient,
