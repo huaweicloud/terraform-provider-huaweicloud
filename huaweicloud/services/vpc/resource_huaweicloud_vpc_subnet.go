@@ -21,6 +21,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API VPC POST /v1/{project_id}/subnets
+// @API VPC GET /v1/{project_id}/subnets/{id}
+// @API VPC PUT /v1/{project_id}/vpcs/{vpcid}/subnets/{id}
+// @API VPC DELETE /v1/{project_id}/vpcs/{vpcid}/subnets/{id}
+// @API VPC POST /v2.0/{project_id}/subnets/{id}/tags/action
+// @API VPC GET /v2.0/{project_id}/subnets/{id}/tags
+// @API DNS GET /v2/nameservers
+
 // refer to: https://support.huaweicloud.com/intl/en-us/dns_faq/dns_faq_002.html
 var privateDNSList = map[string][]string{
 	"cn-north-1":     {"100.125.1.250", "100.125.21.250"},  // Beijing-1
@@ -93,13 +101,6 @@ func buildSubnetDNSList(d *schema.ResourceData, cfg *config.Config, region strin
 	return publicDNSList
 }
 
-// @API VPC POST /v2.0/{project_id}/subnets/{id}/tags/action
-// @API VPC GET /v2.0/{project_id}/subnets/{id}/tags
-// @API VPC GET /v1/{project_id}/subnets/{id}
-// @API VPC POST /v1/{project_id}/subnets
-// @API VPC DELETE /v1/{project_id}/vpcs/{vpcid}/subnets/{id}
-// @API VPC PUT /v1/{project_id}/vpcs/{vpcid}/subnets/{id}
-// @API DNS GET /v2/nameservers
 func ResourceVpcSubnetV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcSubnetCreate,

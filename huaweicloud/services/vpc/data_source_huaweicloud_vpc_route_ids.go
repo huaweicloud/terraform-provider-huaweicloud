@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
+// @API VPC GET /v2.0/vpc/routes
 func DataSourceVpcRouteIdsV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceVpcRouteIdsV2Read,

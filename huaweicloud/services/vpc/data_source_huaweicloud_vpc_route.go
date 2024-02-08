@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+// @API VPC GET /v2.0/vpc/routes
 func DataSourceVpcRouteV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceVpcRouteV2Read,

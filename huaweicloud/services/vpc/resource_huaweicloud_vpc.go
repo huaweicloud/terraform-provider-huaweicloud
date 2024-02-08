@@ -23,12 +23,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API VPC DELETE /v1/{project_id}/vpcs/{id}
+// @API VPC POST /v1/{project_id}/vpcs
 // @API VPC GET /v1/{project_id}/vpcs/{id}
 // @API VPC PUT /v1/{project_id}/vpcs/{id}
-// @API VPC POST /v1/{project_id}/vpcs
+// @API VPC DELETE /v1/{project_id}/vpcs/{id}
+// @API VPC PUT /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr
+// @API VPC PUT /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr
 // @API VPC POST /v2.0/{project_id}/vpcs/{id}/tags/action
 // @API VPC GET /v2.0/{project_id}/vpcs/{id}/tags
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVirtualPrivateCloudCreate,
