@@ -22,10 +22,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CCE POST /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools
-// @API CCE DELETE /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools/{nodepoolid}
-// @API CCE GET /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools/{nodepoolid}
-// @API CCE PUT /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools/{nodepoolid}
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
+// @API CCE DELETE /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
+
 func ResourceNodePool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodePoolCreate,
