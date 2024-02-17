@@ -149,6 +149,7 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 	createDwsExtDataSourcePath = strings.ReplaceAll(createDwsExtDataSourcePath, "{cluster_id}", fmt.Sprintf("%v", d.Get("cluster_id")))
 
 	createDwsExtDataSourceOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -250,9 +251,7 @@ func GetExtDataSource(cfg *config.Config, region string, d *schema.ResourceData,
 
 	getDwsExtDataSourceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 		OkCodes: []int{
 			200,
 		},
@@ -301,9 +300,7 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 
 		updateDwsExtDataSourceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json;charset=UTF-8",
-			},
+			MoreHeaders:      requestOpts.MoreHeaders,
 			OkCodes: []int{
 				200,
 			},
@@ -364,9 +361,7 @@ func resourceDwsExtDataSourceDelete(ctx context.Context, d *schema.ResourceData,
 
 	deleteDwsExtDataSourceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 		OkCodes: []int{
 			200,
 		},
@@ -453,9 +448,7 @@ func extDataSourceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 
 			extDataSourceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json;charset=UTF-8",
-				},
+				MoreHeaders:      requestOpts.MoreHeaders,
 				OkCodes: []int{
 					200,
 				},

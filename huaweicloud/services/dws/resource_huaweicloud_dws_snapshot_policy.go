@@ -87,6 +87,7 @@ func resourceDwsSnapshotPolicyCreate(ctx context.Context, d *schema.ResourceData
 	createDwsSnapshotPolicyPath = strings.ReplaceAll(createDwsSnapshotPolicyPath, "{cluster_id}", fmt.Sprintf("%v", d.Get("cluster_id")))
 
 	createDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -119,9 +120,7 @@ func resourceDwsSnapshotPolicyCreate(ctx context.Context, d *schema.ResourceData
 
 	getDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 		OkCodes: []int{
 			200,
 		},
@@ -183,9 +182,7 @@ func resourceDwsSnapshotPolicyRead(_ context.Context, d *schema.ResourceData, me
 
 	getDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 		OkCodes: []int{
 			200,
 		},
@@ -239,9 +236,7 @@ func resourceDwsSnapshotPolicyDelete(_ context.Context, d *schema.ResourceData, 
 
 	deleteDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 		OkCodes: []int{
 			200,
 		},

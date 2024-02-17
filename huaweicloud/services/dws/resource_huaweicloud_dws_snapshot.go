@@ -113,6 +113,7 @@ func resourceDwsSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta
 	createDwsSnapshotPath = strings.ReplaceAll(createDwsSnapshotPath, "{project_id}", createDwsSnapshotClient.ProjectID)
 
 	createDwsSnapshotOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -176,9 +177,7 @@ func createDwsSnapshotWaitingForStateCompleted(ctx context.Context, d *schema.Re
 
 			createDwsSnapshotWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json;charset=UTF-8",
-				},
+				MoreHeaders:      requestOpts.MoreHeaders,
 				OkCodes: []int{
 					200,
 				},
@@ -246,9 +245,7 @@ func resourceDwsSnapshotRead(_ context.Context, d *schema.ResourceData, meta int
 
 	getDwsSnapshotOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 		OkCodes: []int{
 			200,
 		},
@@ -318,6 +315,7 @@ func resourceDwsSnapshotDelete(_ context.Context, d *schema.ResourceData, meta i
 	deleteDwsSnapshotPath = strings.ReplaceAll(deleteDwsSnapshotPath, "{snapshot_id}", d.Id())
 
 	deleteDwsSnapshotOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,

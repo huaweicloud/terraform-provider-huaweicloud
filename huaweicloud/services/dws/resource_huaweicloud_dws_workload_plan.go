@@ -101,6 +101,7 @@ func resourceWorkLoadPlanCreate(ctx context.Context, d *schema.ResourceData, met
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{cluster_id}", d.Get("cluster_id").(string))
 	createOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody:         buildCreateWorkLoadPlanBodyParams(d),
 	}
@@ -132,6 +133,7 @@ func refreshWorkLoadPlanID(client *golangsdk.ServiceClient, d *schema.ResourceDa
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{cluster_id}", d.Get("cluster_id").(string))
 	listOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 	}
 
@@ -199,6 +201,7 @@ func resourceWorkLoadPlanRead(_ context.Context, d *schema.ResourceData, meta in
 	getPath = strings.ReplaceAll(getPath, "{cluster_id}", d.Get("cluster_id").(string))
 	getPath = strings.ReplaceAll(getPath, "{plan_id}", d.Id())
 	getOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 	}
 
@@ -276,6 +279,7 @@ func resourceWorkLoadPlanDelete(_ context.Context, d *schema.ResourceData, meta 
 	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
 	deletePath = strings.ReplaceAll(deletePath, "{plan_id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 	}
 
