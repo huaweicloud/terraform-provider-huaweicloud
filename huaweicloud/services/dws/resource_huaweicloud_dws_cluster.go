@@ -709,6 +709,7 @@ func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, met
 			unexpectedStatus := []string{
 				"FAILED",
 				"CREATE_FAILED",
+				"CREATION FAILED",
 			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
 				return clusterWaitingRespBody, status, nil
