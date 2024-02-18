@@ -934,6 +934,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_backup":             dds.ResourceDdsBackup(),
 			"huaweicloud_dds_parameter_template": dds.ResourceDdsParameterTemplate(),
 			"huaweicloud_dds_audit_log_policy":   dds.ResourceDdsAuditLogPolicy(),
+			"huaweicloud_dds_lts_log":            dds.ResourceDdsLtsLog(),
 
 			"huaweicloud_ddm_instance": ddm.ResourceDdmInstance(),
 			"huaweicloud_ddm_schema":   ddm.ResourceDdmSchema(),
