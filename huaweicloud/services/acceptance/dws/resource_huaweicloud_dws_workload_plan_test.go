@@ -32,6 +32,7 @@ func getWorkLoadPlanResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{cluster_id}", state.Primary.Attributes["cluster_id"])
 	listOpt := golangsdk.RequestOpts{
+		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
 		KeepResponseBody: true,
 	}
 

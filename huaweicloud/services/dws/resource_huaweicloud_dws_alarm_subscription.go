@@ -105,6 +105,7 @@ func resourceDwsAlarmSubsCreate(ctx context.Context, d *schema.ResourceData, met
 	createDwsAlarmSubsPath = strings.ReplaceAll(createDwsAlarmSubsPath, "{project_id}", createDwsAlarmSubsClient.ProjectID)
 
 	createDwsAlarmSubsOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -232,6 +233,7 @@ func resourceDwsAlarmSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 		updateDwsAlarmSubsPath = strings.ReplaceAll(updateDwsAlarmSubsPath, "{alarm_sub_id}", d.Id())
 
 		updateDwsAlarmSubsOpt := golangsdk.RequestOpts{
+			MoreHeaders:      requestOpts.MoreHeaders,
 			KeepResponseBody: true,
 			OkCodes: []int{
 				200,
@@ -277,6 +279,7 @@ func resourceDwsAlarmSubsDelete(_ context.Context, d *schema.ResourceData, meta 
 	deleteDwsAlarmSubsPath = strings.ReplaceAll(deleteDwsAlarmSubsPath, "{alarm_sub_id}", d.Id())
 
 	deleteDwsAlarmSubsOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,

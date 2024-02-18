@@ -123,6 +123,7 @@ func resourceDwsEventSubsCreate(ctx context.Context, d *schema.ResourceData, met
 	createDwsEventSubsPath = strings.ReplaceAll(createDwsEventSubsPath, "{project_id}", createDwsEventSubsClient.ProjectID)
 
 	createDwsEventSubsOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -259,6 +260,7 @@ func resourceDwsEventSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 		updateDwsEventSubsPath = strings.ReplaceAll(updateDwsEventSubsPath, "{event_sub_id}", d.Id())
 
 		updateDwsEventSubsOpt := golangsdk.RequestOpts{
+			MoreHeaders:      requestOpts.MoreHeaders,
 			KeepResponseBody: true,
 			OkCodes: []int{
 				200,
@@ -307,6 +309,7 @@ func resourceDwsEventSubsDelete(_ context.Context, d *schema.ResourceData, meta 
 	deleteDwsEventSubsPath = strings.ReplaceAll(deleteDwsEventSubsPath, "{event_sub_id}", d.Id())
 
 	deleteDwsEventSubsOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,

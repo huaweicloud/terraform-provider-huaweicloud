@@ -421,6 +421,7 @@ func updateDwsLogicalClusterEnable(client *golangsdk.ServiceClient, d *schema.Re
 	switchDwsClusterPath = strings.ReplaceAll(switchDwsClusterPath, "{cluster_id}", d.Id())
 
 	switchDwsClusterOpt := golangsdk.RequestOpts{
+		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
 			"enable": d.Get("logical_cluster_enable"),
@@ -455,9 +456,7 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 		OkCodes: []int{
 			200,
 		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders: requestOpts.MoreHeaders,
 	}
 
 	createDwsClusterOpt.JSONBody = utils.RemoveNil(buildCreateDwsClusterBodyParams(d, cfg))
@@ -522,9 +521,7 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 		OkCodes: []int{
 			200,
 		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders: requestOpts.MoreHeaders,
 	}
 
 	createDwsClusterOpt.JSONBody = utils.RemoveNil(buildCreateDwsClusterBodyParamsV1(d, cfg))
@@ -670,9 +667,7 @@ func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, met
 				OkCodes: []int{
 					200,
 				},
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json;charset=UTF-8",
-				},
+				MoreHeaders: requestOpts.MoreHeaders,
 			}
 
 			clusterWaitingResp, err := clusterWaitingClient.Request("GET", clusterWaitingPath,
@@ -750,9 +745,7 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		OkCodes: []int{
 			200,
 		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders: requestOpts.MoreHeaders,
 	}
 
 	getDwsClusterResp, err := getDwsClusterClient.Request("GET", getDwsClusterPath, &getDwsClusterOpt)
@@ -921,9 +914,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			OkCodes: []int{
 				200,
 			},
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json;charset=UTF-8",
-			},
+			MoreHeaders: requestOpts.MoreHeaders,
 		}
 
 		expandInstanceStorageOpt.JSONBody = utils.RemoveNil(buildExpandInstanceStorageBodyParams(d))
@@ -955,9 +946,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			OkCodes: []int{
 				200,
 			},
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json;charset=UTF-8",
-			},
+			MoreHeaders: requestOpts.MoreHeaders,
 		}
 
 		resetPasswordOfClusterOpt.JSONBody = utils.RemoveNil(buildResetPasswordOfClusterBodyParams(d))
@@ -990,9 +979,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			OkCodes: []int{
 				200,
 			},
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json;charset=UTF-8",
-			},
+			MoreHeaders: requestOpts.MoreHeaders,
 		}
 
 		scaleOutClusterOpt.JSONBody = utils.RemoveNil(buildScaleOutClusterBodyParams(d))
@@ -1106,9 +1093,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 		OkCodes: []int{
 			200, 202,
 		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders: requestOpts.MoreHeaders,
 	}
 
 	deleteDwsClusterOpt.JSONBody = utils.RemoveNil(buildDeleteDwsClusterBodyParams(d))
@@ -1157,9 +1142,7 @@ func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceDat
 				OkCodes: []int{
 					200,
 				},
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json;charset=UTF-8",
-				},
+				MoreHeaders: requestOpts.MoreHeaders,
 			}
 
 			deleteDwsClusterWaitingResp, err := deleteDwsClusterWaitingClient.Request("GET", deleteDwsClusterWaitingPath, &deleteDwsClusterWaitingOpt)
@@ -1249,9 +1232,7 @@ func addClusterTags(client *golangsdk.ServiceClient, clusterId string, rawTags [
 		OkCodes: []int{
 			200,
 		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders: requestOpts.MoreHeaders,
 	}
 	addTagsOpt.JSONBody = map[string]interface{}{
 		"tags": rawTags,
@@ -1278,9 +1259,7 @@ func deleteClusterTags(client *golangsdk.ServiceClient, clusterId string, rawTag
 		OkCodes: []int{
 			200,
 		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders: requestOpts.MoreHeaders,
 	}
 
 	deleteTagsOpt.JSONBody = map[string]interface{}{
@@ -1334,9 +1313,7 @@ func bindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Serv
 
 	bindElbOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	bindElbResp, err := client.Request("POST", bindElbPath, &bindElbOpt)
@@ -1384,9 +1361,7 @@ func unbindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Se
 
 	bindElbOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	unbindElbResp, err := client.Request("DELETE", unbindElbPath, &bindElbOpt)
@@ -1430,9 +1405,7 @@ func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resourc
 
 		getJobStatusOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json;charset=UTF-8",
-			},
+			MoreHeaders:      requestOpts.MoreHeaders,
 		}
 		getJobStatusResp, err := client.Request("GET", getJobStatusPath, &getJobStatusOpt)
 		if err != nil {
