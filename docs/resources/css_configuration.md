@@ -77,5 +77,5 @@ This resource provides the following timeouts configuration options:
 The CSS configuration can be imported using the `id` which equals the `cluster_id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_css_configuration.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_css_configuration.test <id>
 ```
