@@ -187,11 +187,11 @@ func testAccPluginAssociate_base(name string) string {
 %[1]s
 
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type = "cluster"
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
 }
 
 locals {
-  query_results     = data.huaweicloud_dms_kafka_flavors.test
   flavor            = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
   connect_addresses = split(",", huaweicloud_dms_kafka_instance.test.connect_address)
   plugin_ids = [
@@ -212,7 +212,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   flavor_id          = local.flavor.id
   storage_spec_code  = local.flavor.ios[0].storage_spec_code
   availability_zones = local.flavor.ios[0].availability_zones
-  engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version     = "2.7"
   storage_space      = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num         = 3
 
