@@ -903,6 +903,10 @@ func (c *Config) RdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("rds", region)
 }
 
+func (c *Config) RdsV31Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("rdsv31", region)
+}
+
 func (c *Config) DdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dds", region)
 }

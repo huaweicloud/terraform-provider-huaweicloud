@@ -366,8 +366,11 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 
 	// Set Parameters
 	if parametersRaw := d.Get("parameters").(*schema.Set); parametersRaw.Len() > 0 {
-		if err = initializeParameters(ctx, d.Timeout(schema.TimeoutCreate), client, instanceID,
-			parametersRaw); err != nil {
+		clientV31, err := config.RdsV31Client(config.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating RDS V3.1 client: %s", err)
+		}
+		if err = initializeParameters(ctx, d, client, clientV31, instanceID, parametersRaw); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -470,6 +473,10 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.Errorf("error creating rds v3 client: %s ", err)
 	}
+	clientV31, err := config.RdsV31Client(config.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating RDS V3.1 client: %s", err)
+	}
 
 	instanceID := d.Id()
 
@@ -509,7 +516,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if ctx, err = updateRdsParameters(ctx, d, client, instanceID); err != nil {
+	if ctx, err = updateRdsParameters(ctx, d, client, clientV31, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
