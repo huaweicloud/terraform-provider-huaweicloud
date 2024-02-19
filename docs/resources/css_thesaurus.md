@@ -61,8 +61,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-CSS thesaurus can be imported by `id`. For example,
+CSS thesaurus can be imported by `id`, e.g.
 
-```
-terraform import huaweicloud_css_thesaurus.example e9ee3f48-f097-406a-aa74-cfece0af3e31
+```bash
+terraform import huaweicloud_css_thesaurus.test <id>
 ```

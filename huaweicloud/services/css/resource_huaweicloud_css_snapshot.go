@@ -1,9 +1,14 @@
 package css
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -13,8 +18,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API CSS DELETE /v1.0/{project_id}/clusters/{clusterId}/index_snapshot/{snapId}
@@ -23,9 +26,9 @@ import (
 // @API CSS GET /v1.0/{project_id}/clusters/{clusterId}
 func ResourceCssSnapshot() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCssSnapshotCreate,
-		Read:   resourceCssSnapshotRead,
-		Delete: resourceCssSnapshotDelete,
+		CreateContext: resourceCssSnapshotCreate,
+		ReadContext:   resourceCssSnapshotRead,
+		DeleteContext: resourceCssSnapshotDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: resourceCssSnapshotImport,
@@ -74,12 +77,12 @@ func ResourceCssSnapshot() *schema.Resource {
 	}
 }
 
-func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssClient, err := config.CssV1Client(region)
+func resourceCssSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssClient, err := conf.CssV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
+		return diag.Errorf("error creating CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -89,16 +92,16 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 		Indices:     d.Get("index").(string),
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] create options: %#v", createOpts)
 	snap, err := snapshots.Create(cssClient, createOpts, clusterID).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CSS snapshot: %s", err)
+		return diag.Errorf("error creating CSS snapshot: %s", err)
 	}
 
 	// Store the snapshot ID
 	d.SetId(snap.ID)
 
-	logp.Printf("[DEBUG] Waiting for snapshot (%s) to complete", d.Id())
+	log.Printf("[DEBUG] waiting for snapshot (%s) to complete", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILDING"},
 		Target:     []string{"COMPLETED"},
@@ -108,29 +111,27 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
-			"Error waiting for snapshot (%s) to complete: %s",
-			d.Id(), err)
+		return diag.Errorf("error waiting for snapshot (%s) to complete: %s", d.Id(), err)
 	}
 
-	return resourceCssSnapshotRead(d, meta)
+	return resourceCssSnapshotRead(ctx, d, meta)
 }
 
-func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssClient, err := config.CssV1Client(region)
+func resourceCssSnapshotRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssClient, err := conf.CssV1Client(region)
 
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
+		return diag.Errorf("error creating CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
 	snapList, err := snapshots.List(cssClient, clusterID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "snapshot")
+		return common.CheckDeletedDiag(d, err, "snapshot")
 	}
 
 	// find the snapshot by ID
@@ -142,39 +143,39 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if snap.ID == "" {
-		logp.Printf("[INFO] the snapshot %s does not exist", d.Id())
+		log.Printf("[INFO] the snapshot %s does not exist", d.Id())
 		d.SetId("")
 		return nil
 	}
 
-	logp.Printf("[DEBUG] Retrieved the sanpshot %s: %+v", d.Id(), snap)
+	log.Printf("[DEBUG] retrieved the sanpshot %s: %+v", d.Id(), snap)
 
-	d.Set("name", snap.Name)
-	d.Set("description", snap.Description)
-	d.Set("status", snap.Status)
-	d.Set("index", snap.Indices)
-	d.Set("cluster_id", snap.ClusterID)
-	d.Set("cluster_name", snap.ClusterName)
-	// Method is more suitable for backup_type
-	d.Set("backup_type", snap.Method)
-
-	return nil
+	mErr := multierror.Append(nil,
+		d.Set("name", snap.Name),
+		d.Set("description", snap.Description),
+		d.Set("status", snap.Status),
+		d.Set("index", snap.Indices),
+		d.Set("cluster_id", snap.ClusterID),
+		d.Set("cluster_name", snap.ClusterName),
+		// Method is more suitable for backup_type
+		d.Set("backup_type", snap.Method),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceCssSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssClient, err := config.CssV1Client(region)
+func resourceCssSnapshotDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssClient, err := conf.CssV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
+		return diag.Errorf("error creating CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
 	if err := snapshots.Delete(cssClient, clusterID, d.Id()).ExtractErr(); err != nil {
-		return common.CheckDeleted(d, err, "snapshot")
+		return diag.Errorf("error deleting CSS cluster snapshot: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
 
@@ -197,7 +198,7 @@ func cssSnapshotStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id 
 		}
 
 		if snap.ID == "" {
-			return nil, "NOTEXIST", fmtp.Errorf("The specified snapshot %s not exist", id)
+			return nil, "NOTEXIST", fmt.Errorf("the specified snapshot %s not exist", id)
 		}
 
 		return snap, snap.Status, nil
@@ -207,17 +208,17 @@ func cssSnapshotStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id 
 func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmtp.Errorf("Invalid format specified for CSS snapshot. Format must be <cluster id>/<snapshot id>")
+		err := fmt.Errorf("invalid format specified for CSS snapshot. Format must be <cluster id>/<snapshot id>")
 		return nil, err
 	}
 	clusterID := parts[0]
 	snapshotID := parts[1]
 
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssClient, err := config.CssV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssClient, err := conf.CssV1Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating HuaweiCloud CSS client, err=%s", err)
+		return nil, fmt.Errorf("error creating CSS client: %s", err)
 	}
 
 	// check the css cluster whether exists

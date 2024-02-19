@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccCssThesaurus_basic(t *testing.T) {
@@ -82,10 +81,10 @@ resource "huaweicloud_css_thesaurus" "test" {
 }
 
 func testAccCheckCssThesaurusDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.CssV1Client(acceptance.HW_REGION_NAME)
+	conf := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := conf.CssV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("error creating CSS client: %s", err)
+		return fmt.Errorf("error creating CSS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -96,14 +95,13 @@ func testAccCheckCssThesaurusDestroy(s *terraform.State) error {
 		resp, getErr := thesaurus.Get(client, rs.Primary.ID)
 		if getErr != nil {
 			if _, ok := getErr.(golangsdk.ErrDefault404); !ok {
-				return fmtp.Errorf("Get CSS thesaurus failed.error=%s", getErr)
+				return fmt.Errorf("get CSS thesaurus failed.error: %s", getErr)
 			}
 		} else {
 			if resp.Bucket != "" {
-				return fmtp.Errorf("CSS thesaurus still exists, cluster_id:%s", rs.Primary.ID)
+				return fmt.Errorf("CSS thesaurus still exists, cluster_id: %s", rs.Primary.ID)
 			}
 		}
-
 	}
 
 	return nil
@@ -114,21 +112,21 @@ func testAccCheckCssThesaurusExists(resourceName string) resource.TestCheckFunc 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.CssV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("error creating CSS client: %s", err)
+			return fmt.Errorf("error creating CSS client: %s", err)
 		}
 
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmtp.Errorf("Error checking huaweicloud_css_thesaurus exist, err=not found this resource")
+			return fmt.Errorf("error checking huaweicloud_css_thesaurus exist, err: not found this resource")
 		}
 
 		resp, errQueryDetail := thesaurus.Get(client, rs.Primary.ID)
 		if errQueryDetail != nil {
-			return fmtp.Errorf("error checking huaweicloud_css_thesaurus exist,err=send request failed:%s", errQueryDetail)
+			return fmt.Errorf("error checking huaweicloud_css_thesaurus exist, send request failed: %s", errQueryDetail)
 		}
 
 		if resp == nil || resp.Bucket == "" {
-			return fmtp.Errorf("CSS thesaurus don't exists, cluster_id:%s", rs.Primary.ID)
+			return fmt.Errorf("CSS thesaurus don't exists, cluster_id: %s", rs.Primary.ID)
 		}
 
 		return nil

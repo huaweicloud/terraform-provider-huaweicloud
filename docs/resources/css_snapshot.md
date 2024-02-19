@@ -61,6 +61,6 @@ This resource provides the following timeouts configuration options:
 
 This resource can be imported by specifying the CSS cluster ID and snapshot ID separated by a slash, e.g.:
 
-```
-$ terraform import huaweicloud_css_snapshot.snapshot_1 < cluster_id >/< snapshot_id >
+```bash
+$ terraform import huaweicloud_css_snapshot.snapshot_1 <cluster_id>/<snapshot_id>
 ```

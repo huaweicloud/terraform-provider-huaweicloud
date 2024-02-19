@@ -18,7 +18,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	v1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
+	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
 	cssv2model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model"
 
@@ -64,6 +64,10 @@ const (
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/public/bandwidth
 // @API CSS PUT /v1.0/{project_id}/clusters/{cluster_id}/public/close
 // @API CSS PUT /v1.0/{project_id}/clusters/{cluster_id}/publickibana/close
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceCssCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCssClusterCreate,
@@ -559,25 +563,25 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 }
 
 func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssV1Client, err := config.HcCssV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.HcCssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
-	cssV2Client, err := config.HcCssV2Client(region)
+	cssV2Client, err := conf.HcCssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V2 client: %s", err)
 	}
 
-	createClusterOpts, paramErr := buildClusterCreateParameters(d, config)
+	createClusterOpts, paramErr := buildClusterCreateParameters(d, conf)
 	if paramErr != nil {
 		return diag.FromErr(paramErr)
 	}
 
 	r, err := cssV2Client.CreateCluster(createClusterOpts)
 	if err != nil {
-		return diag.Errorf("error creating CSS cluster, err=%s", err)
+		return diag.Errorf("error creating CSS cluster, err: %s", err)
 	}
 
 	if (r.Cluster == nil || r.Cluster.Id == nil) && r.OrderId == nil {
@@ -590,7 +594,7 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 		d.SetId(*r.Cluster.Id)
 	} else {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -617,14 +621,14 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceCssClusterRead(ctx, d, meta)
 }
 
-func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config) (*cssv2model.CreateClusterRequest, error) {
+func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (*cssv2model.CreateClusterRequest, error) {
 	createOpts := cssv2model.CreateClusterBody{
 		Name: d.Get("name").(string),
 		Datastore: &cssv2model.CreateClusterDatastoreBody{
 			Type:    d.Get("engine_type").(string),
 			Version: d.Get("engine_version").(string),
 		},
-		EnterpriseProjectId: utils.StringIgnoreEmpty(config.GetEnterpriseProjectID(d)),
+		EnterpriseProjectId: utils.StringIgnoreEmpty(conf.GetEnterpriseProjectID(d)),
 		Tags:                buildCssTags(d.Get("tags").(map[string]interface{})),
 		BackupStrategy:      resourceCssClusterCreateBackupStrategy(d.Get("backup_strategy").([]interface{})),
 	}
@@ -793,16 +797,16 @@ func resourceCssClusterCreateBackupStrategy(backupRaw []interface{}) *cssv2model
 }
 
 func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssV1Client, err := config.HcCssV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.HcCssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
 	clusterDetail, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: d.Id()})
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DLI cluster")
+		return common.CheckDeletedDiag(d, err, "CSS cluster")
 	}
 
 	mErr := multierror.Append(
@@ -859,10 +863,10 @@ func flattenSecurity(authorityEnable *bool) bool {
 	return *authorityEnable
 }
 
-func setClusterBackupStrategy(d *schema.ResourceData, client *v1.CssClient) error {
+func setClusterBackupStrategy(d *schema.ResourceData, client *cssv1.CssClient) error {
 	policy, err := client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
 	if err != nil {
-		return fmt.Errorf("error extracting Cluster:backup_strategy, err: %s", err)
+		return fmt.Errorf("error extracting cluster: backup_strategy, err: %s", err)
 	}
 
 	var strategy []map[string]interface{}
@@ -921,7 +925,7 @@ func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, publicI
 	return []interface{}{result}
 }
 
-func setVpcEndpointIdToState(d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+func setVpcEndpointIdToState(d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
 	resp, err := cssV1Client.ShowVpcepConnection(&model.ShowVpcepConnectionRequest{ClusterId: d.Id()})
 	if err != nil {
 		if err, ok := err.(*sdkerr.ServiceResponseError); ok {
@@ -1031,10 +1035,10 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 }
 
 func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
 	clusterId := d.Id()
-	cssV1Client, err := config.HcCssV1Client(region)
+	cssV1Client, err := conf.HcCssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
@@ -1060,7 +1064,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		oRaw, nRaw := d.GetChange("tags")
 		err = updateCssTags(cssV1Client, clusterId, oRaw.(map[string]interface{}), nRaw.(map[string]interface{}))
 		if err != nil {
-			return diag.Errorf("error updating tags of CSS cluster= %s, err:%s", clusterId, err)
+			return diag.Errorf("error updating tags of CSS cluster: %s, err: %s", clusterId, err)
 		}
 	}
 
@@ -1089,7 +1093,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(region)
+		bssClient, err := conf.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -1103,9 +1107,9 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			ResourceId:   clusterId,
 			ResourceType: "css-cluster",
 			RegionId:     region,
-			ProjectId:    config.GetProjectID(region),
+			ProjectId:    conf.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1113,14 +1117,14 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceCssClusterRead(ctx, d, meta)
 }
 
-func extendCluster(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+func extendCluster(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
 	opts, err := buildCssClusterV1ExtendClusterParameters(d)
 	if err != nil {
-		return fmt.Errorf("error building the request body of api(extend_cluster), err=%s", err)
+		return fmt.Errorf("error building the request body of api(extend_cluster), err: %s", err)
 	}
 	_, err = cssV1Client.UpdateExtendInstanceStorage(opts)
 	if err != nil {
-		return fmt.Errorf("extend CSS cluster instance storage failed, cluster_id=%s, error=%s", d.Id(), err)
+		return fmt.Errorf("extend CSS cluster instance storage failed, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
 	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
@@ -1130,7 +1134,7 @@ func extendCluster(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.
 	return nil
 }
 
-func updateBackupStrategy(d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+func updateBackupStrategy(d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
 	rawList := d.Get("backup_strategy").([]interface{})
 
 	if len(rawList) == 0 {
@@ -1163,14 +1167,14 @@ func updateBackupStrategy(d *schema.ResourceData, cssV1Client *v1.CssClient) err
 				},
 			})
 			if err != nil {
-				return fmt.Errorf("error Modifying Basic Configurations of a Cluster Snapshot: %s", err)
+				return fmt.Errorf("error modifying basic configurations of a cluster snapshot: %s", err)
 			}
 		}
 
 		// check backup strategy, if the policy was disabled, we should enable it
 		policy, err := cssV1Client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
 		if err != nil {
-			return fmt.Errorf("error extracting Cluster backup_strategy, err: %s", err)
+			return fmt.Errorf("error extracting cluster backup_strategy, err: %s", err)
 		}
 
 		if utils.StringValue(policy.Enable) == "false" && raw["bucket"] == nil {
@@ -1202,7 +1206,7 @@ func updateBackupStrategy(d *schema.ResourceData, cssV1Client *v1.CssClient) err
 	return nil
 }
 
-func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
 	o, n := d.GetChange("vpcep_endpoint")
 	oValue := o.([]interface{})
 	nValue := n.([]interface{})
@@ -1210,7 +1214,7 @@ func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Clien
 	case -1: // delete vpc endpoint
 		_, err := cssV1Client.StopVpecp(&model.StopVpecpRequest{ClusterId: d.Id()})
 		if err != nil {
-			return fmt.Errorf("error deleting the VPC endpoint of CSS cluster= %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error deleting the VPC endpoint of CSS cluster: %s, err: %s", d.Id(), err)
 		}
 		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -1225,7 +1229,7 @@ func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Clien
 			},
 		})
 		if err != nil {
-			return fmt.Errorf("error creating the VPC endpoint of CSS cluster= %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error creating the VPC endpoint of CSS cluster: %s, err: %s", d.Id(), err)
 		}
 		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -1242,14 +1246,14 @@ func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Clien
 				},
 			})
 			if err != nil {
-				return fmt.Errorf("error updating the VPC endpoint whitelist of CSS cluster= %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error updating the VPC endpoint whitelist of CSS cluster: %s, err: %s", d.Id(), err)
 			}
 		}
 	}
 	return nil
 }
 
-func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
 	o, n := d.GetChange("kibana_public_access")
 	oValue := o.([]interface{})
 	nValue := n.([]interface{})
@@ -1258,7 +1262,7 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 	case -1: // delete kibana_public_access
 		_, err := cssV1Client.UpdateCloseKibana(&model.UpdateCloseKibanaRequest{ClusterId: d.Id()})
 		if err != nil {
-			return fmt.Errorf("error diabling the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error diabling the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 		}
 		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -1277,7 +1281,7 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 			},
 		})
 		if err != nil {
-			return fmt.Errorf("error enabling the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error enabling the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 		}
 		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -1297,7 +1301,7 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 				},
 			})
 			if err != nil {
-				return fmt.Errorf("error modifing bandwidth of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error modifing bandwidth of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 			}
 		}
 
@@ -1309,7 +1313,7 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 					ClusterId: d.Id(),
 				})
 				if err != nil {
-					return fmt.Errorf("error disabing the whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error disabing the whitelist of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 				}
 			} else {
 				_, err := cssV1Client.UpdatePublicKibanaWhitelist(&model.UpdatePublicKibanaWhitelistRequest{
@@ -1319,7 +1323,7 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 					},
 				})
 				if err != nil {
-					return fmt.Errorf("error modifing whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error modifing whitelist of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 				}
 			}
 		}
@@ -1328,7 +1332,7 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 	return nil
 }
 
-func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *v1.CssClient) error {
+func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
 	o, n := d.GetChange("public_access")
 	oValue := o.([]interface{})
 	nValue := n.([]interface{})
@@ -1337,7 +1341,7 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 	case -1: // delete public_access
 		_, err := cssV1Client.UpdateUnbindPublic(&model.UpdateUnbindPublicRequest{ClusterId: d.Id()})
 		if err != nil {
-			return fmt.Errorf("error diabling public access of CSS cluster= %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error diabling public access of CSS cluster: %s, err: %s", d.Id(), err)
 		}
 		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -1359,7 +1363,7 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 		})
 
 		if err != nil {
-			return fmt.Errorf("error enabling public access of CSS cluster= %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error enabling public access of CSS cluster: %s, err: %s", d.Id(), err)
 		}
 
 		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
@@ -1373,7 +1377,7 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 			if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
 				_, err := cssV1Client.StopPublicWhitelist(&model.StopPublicWhitelistRequest{ClusterId: d.Id()})
 				if err != nil {
-					return fmt.Errorf("error disabling whitelist of public access of CSS cluster= %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error disabling whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
 				}
 			} else {
 				_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
@@ -1383,7 +1387,7 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 					},
 				})
 				if err != nil {
-					return fmt.Errorf("error modifing whitelist of public access of CSS cluster= %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error modifing whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
 				}
 			}
 		}
@@ -1400,7 +1404,7 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 				},
 			})
 			if err != nil {
-				return fmt.Errorf("error disabling the whitelist of the kibana public access of CSS cluster= %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error disabling the whitelist of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 			}
 		}
 	}
@@ -1506,16 +1510,16 @@ func buildCssClusterV1ExtendClusterParameters(d *schema.ResourceData) (*model.Up
 }
 
 func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	cssV1Client, err := config.HcCssV1Client(region)
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.HcCssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
 	_, err = cssV1Client.DeleteCluster(&model.DeleteClusterRequest{ClusterId: d.Id()})
 	if err != nil {
-		return diag.Errorf("delete CSS Cluster %s failed, error= %s", d.Id(), err)
+		return diag.Errorf("delete CSS cluster %s failed, error: %s", d.Id(), err)
 	}
 
 	err = checkClusterDeleteResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutDelete))
@@ -1526,7 +1530,7 @@ func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func checkClusterCreateResult(ctx context.Context, cssV1Client *v1.CssClient, clusterId string,
+func checkClusterCreateResult(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string,
 	timeout time.Duration) error {
 	createStateConf := &resource.StateChangeConf{
 		Pending: []string{ClusterStatusInProcess},
@@ -1549,7 +1553,7 @@ func checkClusterCreateResult(ctx context.Context, cssV1Client *v1.CssClient, cl
 	return nil
 }
 
-func checkClusterDeleteResult(ctx context.Context, cssV1Client *v1.CssClient, clusterId string,
+func checkClusterDeleteResult(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"Pending"},
@@ -1585,7 +1589,7 @@ func checkClusterDeleteResult(ctx context.Context, cssV1Client *v1.CssClient, cl
 	return nil
 }
 
-func checkClusterOperationCompleted(ctx context.Context, cssV1Client *v1.CssClient, clusterId string,
+func checkClusterOperationCompleted(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"Pending"},
@@ -1633,7 +1637,7 @@ func checkCssClusterIsReady(detail *model.ShowClusterDetailResponse) bool {
 	return true
 }
 
-func updateCssTags(cssV1Client *v1.CssClient, id string, old, new map[string]interface{}) error {
+func updateCssTags(cssV1Client *cssv1.CssClient, id string, old, new map[string]interface{}) error {
 	// remove old tags
 	for k := range old {
 		_, err := cssV1Client.DeleteClustersTags(&model.DeleteClustersTagsRequest{

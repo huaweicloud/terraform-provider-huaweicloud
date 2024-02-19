@@ -363,8 +363,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-CSS cluster can be imported by `id`. For example,
+CSS cluster can be imported by `id`, e.g.
 
-```
-terraform import huaweicloud_css_cluster.example 6d793124-3d5d-47be-bf09-f694fdf2d9ed
+```bash
+terraform import huaweicloud_css_cluster.test <id>
 ```
