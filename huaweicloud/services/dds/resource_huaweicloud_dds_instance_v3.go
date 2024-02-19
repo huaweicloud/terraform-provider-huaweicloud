@@ -118,8 +118,8 @@ func ResourceDdsInstanceV3() *schema.Resource {
 			},
 			"password": {
 				Type:      schema.TypeString,
+				Optional:  true,
 				Sensitive: true,
-				Required:  true,
 			},
 			"disk_encryption_id": {
 				Type:     schema.TypeString,

@@ -131,7 +131,7 @@ The following arguments are supported:
 
 * `security_group_id` - (Required, String) Specifies the security group ID of the DDS instance.
 
-* `password` - (Required, String) Specifies the Administrator password of the database instance.
+* `password` - (Optional, String) Specifies the Administrator password of the database instance.
 
 * `disk_encryption_id` - (Optional, String, ForceNew) Specifies the disk encryption ID of the instance. Changing this
   creates a new instance.

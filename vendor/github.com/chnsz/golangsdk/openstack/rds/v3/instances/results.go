@@ -58,6 +58,10 @@ type EnlargeVolumeResult struct {
 	commonResult
 }
 
+type ApplyConfigurationOptsResult struct {
+	commonResult
+}
+
 type ModifyConfigurationResult struct {
 	commonResult
 }
@@ -155,6 +159,19 @@ type EnlargeVolumeResp struct {
 
 func (r EnlargeVolumeResult) Extract() (*EnlargeVolumeResp, error) {
 	var response EnlargeVolumeResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type ApplyConfigurationResp struct {
+	ConfigurationId   string `json:"configuration_id"`
+	ConfigurationName string `json:"configuration_name"`
+	Success           bool   `json:"success"`
+	JobId             string `json:"job_id"`
+}
+
+func (r ApplyConfigurationOptsResult) Extract() (*ApplyConfigurationResp, error) {
+	var response ApplyConfigurationResp
 	err := r.ExtractInto(&response)
 	return &response, err
 }
