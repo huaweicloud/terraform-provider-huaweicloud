@@ -133,10 +133,21 @@ func TestAccDDSV3Instance_withEpsId(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
+			{
+				Config: testAccDDSInstanceV3Config_baseEpsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
 			{
 				Config: testAccDDSInstanceV3Config_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -640,6 +651,60 @@ resource "huaweicloud_dds_instance" "instance" {
     owner = "terraform"
   }
 }`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccDDSInstanceV3Config_baseEpsId(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dds_instance" "instance" {
+  name                  = "%s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  password              = "Terraform@123"
+  mode                  = "Sharding"
+  enterprise_project_id = "0"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.s6.large.2.mongos"
+  }
+  flavor {
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.s6.large.2.shard"
+  }
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.s6.large.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+  }
+
+  tags = {
+    foo   = "bar"
+    owner = "terraform"
+  }
+}`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_prePaid(rName string) string {

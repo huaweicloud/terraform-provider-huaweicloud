@@ -775,18 +775,27 @@ func TestAccDcsInstances_withEpsId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDcsV1Instance_epsId(instanceName),
+				Config: testAccDcsV1Instance_epsId(instanceName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
 						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_epsId(instanceName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
+						acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -1731,7 +1740,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
 }`, instanceName)
 }
 
-func testAccDcsV1Instance_epsId(instanceName string) string {
+func testAccDcsV1Instance_epsId(instanceName, epsId string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -1767,7 +1776,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
     save_days   = 1
   }
   enterprise_project_id = "%s"
-}`, instanceName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}`, instanceName, epsId)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {

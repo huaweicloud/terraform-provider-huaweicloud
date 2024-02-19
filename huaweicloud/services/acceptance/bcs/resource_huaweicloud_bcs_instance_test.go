@@ -171,6 +171,36 @@ func testAccCheckBCSInstanceExists(name string, instance *blockchains.BCSInstanc
 	}
 }
 
+func TestAccBCSInstance_updateWithEpsId(t *testing.T) {
+	var instance blockchains.BCSInstance
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
+		acctest.RandIntRange(1, 3))
+	resourceName := "huaweicloud_bcs_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckBCSInstanceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testBCSInstance_basic(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBCSInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testBCSInstance_basicTestWithEps(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBCSInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testBCSInstance_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -264,6 +294,40 @@ resource "huaweicloud_bcs_instance" "test" {
   }
 }
 `, testBCSInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, password)
+}
+
+func testBCSInstance_basicTestWithEps(rName, password string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_bcs_instance" "test" {
+  depends_on = [huaweicloud_cce_node.test]
+
+  name                  = "%s"
+  cce_cluster_id        = huaweicloud_cce_cluster.test.id
+  consensus             = "etcdraft"
+  edition               = 4
+  fabric_version        = "2.0"
+  password              = "%s"
+  volume_type           = "nfs"
+  org_disk_size         = 100
+  security_mechanism    = "ECDSA"
+  orderer_node_num      = 3
+  delete_storage        = true
+  enterprise_project_id = "%s"
+
+  peer_orgs {
+    org_name = "organization01"
+    count    = 1
+  }
+  channels {
+    name      = "channeldemo001"
+    org_names = [
+      "organization01",
+    ]
+  }
+}
+`, testBCSInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
 
 func testBCSInstance_kafka(rName, password string) string {

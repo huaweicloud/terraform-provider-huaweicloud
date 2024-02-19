@@ -84,10 +84,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id.
   Value 0 indicates the default enterprise project.
-
-  Changing this parameter will create a new resource.
 
 * `param_group_id` - (Optional, String, ForceNew) Specifies the ID of parameter group.
 

@@ -16,6 +16,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/jobs"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -207,7 +208,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
@@ -585,7 +585,9 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := conf.DdsV3Client(conf.GetRegion(d))
+	instanceId := d.Id()
+	region := conf.GetRegion(d)
+	client, err := conf.DdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
@@ -649,14 +651,14 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 	if len(opts) > 0 {
 		retryFunc := func() (interface{}, bool, error) {
-			resp, err := instances.Update(client, d.Id(), opts).Extract()
+			resp, err := instances.Update(client, instanceId, opts).Extract()
 			retry, err := handleMultiOperationsError(err)
 			return resp, retry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
 			WaitTarget:   []string{"normal"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -668,7 +670,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		}
 		resp := r.(*instances.UpdateResp)
 		if resp.OrderId != "" {
-			bssClient, err := conf.BssV2Client(conf.GetRegion(d))
+			bssClient, err := conf.BssV2Client(region)
 			if err != nil {
 				return diag.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -681,14 +683,14 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 	if d.HasChange("port") {
 		retryFunc := func() (interface{}, bool, error) {
-			resp, err := instances.UpdatePort(client, d.Id(), d.Get("port").(int))
+			resp, err := instances.UpdatePort(client, instanceId, d.Get("port").(int))
 			retry, err := handleMultiOperationsError(err)
 			return resp, retry, err
 		}
 		r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 			Ctx:          ctx,
 			RetryFunc:    retryFunc,
-			WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
 			WaitTarget:   []string{"normal"},
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			DelayTimeout: 1 * time.Second,
@@ -713,9 +715,9 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceId)
 		if tagErr != nil {
-			return diag.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("Error updating tags of DDS instance:%s, err:%s", instanceId, tagErr)
 		}
 	}
 
@@ -748,6 +750,18 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 					return diag.FromErr(err)
 				}
 			}
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "dds",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

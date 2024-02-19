@@ -156,8 +156,8 @@ The following arguments are supported:
   BCS service needs to exclusively occupy the CCE cluster. Please make sure that the CCE cluster is not occupied before
   deploying the BCS service. Changing this will create a new instance.
 
-* `enterprise_project_id` - (Required, String, ForceNew) Specifies the ID of the enterprise project that the BCS
-  instance belong to. Changing this will create a new instance.
+* `enterprise_project_id` - (Required, String) Specifies the ID of the enterprise project that the BCS
+  instance belong to.
 
 * `password` - (Required, String, ForceNew) Specifies the Resource access and blockchain management password. The
   password consists of 8 to 12 characters and must consist at least three of following: uppercase letters, lowercase
