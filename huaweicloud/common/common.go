@@ -218,6 +218,44 @@ func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId str
 	}
 }
 
+// WaitOrderAllResourceComplete is the method to wait for the non-main resource to be generated.
+// Notes: Note that this method needs to be used in conjunction with method "WaitOrderComplete", because the ID of some
+// resources may not be generated when the order is not completed.
+func WaitOrderAllResourceComplete(ctx context.Context, client *golangsdk.ServiceClient, orderId string,
+	timeout time.Duration) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DONE"},
+		Refresh:      refreshOrderAllResourceStatusFunc(client, orderId),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	res, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error while waiting for the order (%s) to complete: %s", orderId, err)
+	}
+
+	r := res.(resources.Resource)
+	return r.ResourceId, nil
+}
+
+func refreshOrderAllResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		listOpts := resources.ListOpts{
+			OrderId: orderId,
+		}
+		resp, err := resources.List(client, listOpts)
+		if err != nil || resp == nil {
+			return nil, "ERROR", fmt.Errorf("error waiting for the order (%s) to complete: %s", orderId, err)
+		}
+		if resp.TotalCount < 1 {
+			return nil, "PENDING", nil
+		}
+		return resp.Resources[0], "DONE", nil
+	}
+}
+
 func CaseInsensitiveFunc() schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return strings.EqualFold(old, new)
