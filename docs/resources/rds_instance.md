@@ -243,8 +243,7 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. Valid values are "true" and "false".
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this
-  parameter creates a new RDS instance.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the RDS instance.
 
 * `ssl_enable` - (Optional, Bool) Specifies whether to enable the SSL for MySQL database.
 

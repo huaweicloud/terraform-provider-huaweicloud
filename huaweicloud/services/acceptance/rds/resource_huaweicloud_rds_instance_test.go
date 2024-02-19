@@ -141,6 +141,8 @@ func TestAccRdsInstance_withEpsId(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -150,6 +152,13 @@ func TestAccRdsInstance_withEpsId(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_basic(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
 			{
 				Config: testAccRdsInstance_epsId(name),
 				Check: resource.ComposeTestCheckFunc(

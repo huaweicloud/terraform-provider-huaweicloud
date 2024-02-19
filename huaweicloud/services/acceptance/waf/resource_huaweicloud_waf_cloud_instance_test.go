@@ -96,7 +96,7 @@ func TestAccCloudInstance_prepaid_withEpsID(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -116,11 +116,11 @@ func TestAccCloudInstance_prepaid_withEpsID(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCloudInstance_update_withEpsID(acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Config: testAccCloudInstance_update_withEpsID(acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+						acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "resource_spec_code", string(waf.SpecCodeStandard)),
 					resource.TestCheckResourceAttr(rName, "bandwidth_expack_product.0.resource_size", "1"),
 					resource.TestCheckResourceAttr(rName, "domain_expack_product.0.resource_size", "1"),

@@ -98,20 +98,29 @@ func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
 		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadReplicaInstance_withEpsId(name, dbPwd),
+				Config: testAccReadReplicaInstance_withEpsId(name, dbPwd, srcEPS),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccReadReplicaInstance_withEpsId(name, dbPwd, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &replica),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
 				),
 			},
 		},
@@ -212,7 +221,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
 `, testAccRdsInstance_mysql_step1(name, dbPwd), updateName)
 }
 
-func testAccReadReplicaInstance_withEpsId(name, dbPwd string) string {
+func testAccReadReplicaInstance_withEpsId(name, dbPwd, epsId string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -239,5 +248,5 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     trigger_threshold = 10
   }
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccRdsInstance_mysql_step1(name, dbPwd), name, epsId)
 }

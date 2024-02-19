@@ -134,3 +134,63 @@ resource "huaweicloud_er_instance" "test" {
 }
 `, name, bgpAsNum)
 }
+
+func TestAccInstance_updateWithEpsId(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_er_instance.test"
+	bgpAsNum := acctest.RandIntRange(64512, 65534)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getInstanceResourceFunc,
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testInstance_withEpsId(name, bgpAsNum, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testInstance_withEpsId(name, bgpAsNum, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
+func testInstance_withEpsId(name string, bgpAsNum int, epsId string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_er_availability_zones" "test" {}
+
+resource "huaweicloud_er_instance" "test" {
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
+
+  name                  = "%[1]s"
+  asn                   = %[2]d
+  enterprise_project_id = "%[3]s"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, name, bgpAsNum, epsId)
+}

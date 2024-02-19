@@ -20,6 +20,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -93,7 +94,6 @@ func ResourceInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The enterprise project ID to which the Enterprise router belongs.`,
 			},
 			"enable_default_propagation": {
@@ -384,6 +384,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	instanceId := d.Id()
 	client, err := cfg.ErV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ER v3 Client: %s", err)
@@ -404,7 +405,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		updateInstanceHttpUrl := "enterprise-router/instances/{er_id}"
 		updateInstancePath := client.ResourceBaseURL() + updateInstanceHttpUrl
 		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{project_id}", client.ProjectID)
-		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{er_id}", d.Id())
+		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{er_id}", instanceId)
 
 		updateInstanceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -419,7 +420,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		err = instanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", instanceId, err)
 		}
 	}
 
@@ -432,7 +433,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		updateInstanceAvailabilityZonesHttpUrl := "enterprise-router/instances/{er_id}/change-availability-zone-ids"
 		updateInstanceAvailabilityZonesPath := client.ResourceBaseURL() + updateInstanceAvailabilityZonesHttpUrl
 		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{project_id}", client.ProjectID)
-		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{er_id}", d.Id())
+		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{er_id}", instanceId)
 
 		updateInstanceAvailabilityZonesOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -447,16 +448,29 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		err = instanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", instanceId, err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err = utils.UpdateResourceTags(client, d, "instance", d.Id())
+		err = utils.UpdateResourceTags(client, d, "instance", instanceId)
 		if err != nil {
 			return diag.Errorf("error updating instance tags: %s", err)
 		}
 	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "instance",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
 }
 
