@@ -192,12 +192,6 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
 
-* `autoscaling_enabled` - (Optional, Bool) Specifies whether autoscaling is enabled. Valid values are **true** and
-  **false**.
-
-* `min_l7_flavor_id` - (Optional, String) Specifies the ID of the minimum Layer-7 flavor for elastic scaling.
-  This parameter cannot be left blank if there are HTTP or HTTPS listeners.
-
 * `force_delete` - (Optional, Bool) Specifies whether to forcibly delete the LoadBalancer, remove the LoadBalancer,
   listeners, unbind associated pools. Defaults to **false**.
 

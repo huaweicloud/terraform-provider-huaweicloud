@@ -256,6 +256,10 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+				Description: utils.SchemaDesc(``,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
 			},
 			"min_l7_flavor_id": {
 				Type:     schema.TypeString,
@@ -264,6 +268,10 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				RequiredWith: []string{
 					"l7_flavor_id",
 				},
+				Description: utils.SchemaDesc(``,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
 			},
 		},
 	}
@@ -690,9 +698,7 @@ func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.Upd
 			updateOpts.AutoScaling.MinL7Flavor = ""
 		}
 	} else if d.HasChange("min_l7_flavor_id") && d.Get("autoscaling_enabled").(bool) {
-		if autoscalingEnabled := d.Get("autoscaling_enabled").(bool); autoscalingEnabled {
-			updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
-		}
+		updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
 	}
 
 	log.Printf("[DEBUG] Updating LoadBalancer %s with options: %#v", d.Id(), updateOpts)
