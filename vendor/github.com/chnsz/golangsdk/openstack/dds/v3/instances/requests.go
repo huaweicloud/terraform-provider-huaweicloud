@@ -15,7 +15,7 @@ type CreateOpts struct {
 	VpcId               string          `json:"vpc_id" required:"true"`
 	SubnetId            string          `json:"subnet_id" required:"true"`
 	SecurityGroupId     string          `json:"security_group_id" required:"true"`
-	Password            string          `json:"password" required:"true"`
+	Password            string          `json:"password,omitempty"`
 	Port                string          `json:"port,omitempty"`
 	DiskEncryptionId    string          `json:"disk_encryption_id,omitempty"`
 	Ssl                 string          `json:"ssl_option,omitempty"`

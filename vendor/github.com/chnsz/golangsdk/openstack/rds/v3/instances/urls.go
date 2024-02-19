@@ -30,6 +30,10 @@ func resetRootPasswordURL(c *golangsdk.ServiceClient, instancesId string) string
 	return c.ServiceURL("instances", instancesId, "password")
 }
 
+func applyConfigurationURL(c *golangsdk.ServiceClient, configId string) string {
+	return c.ServiceURL("configurations", configId, "apply")
+}
+
 func configurationsURL(c *golangsdk.ServiceClient, instancesId string) string {
 	return c.ServiceURL("instances", instancesId, "configurations")
 }

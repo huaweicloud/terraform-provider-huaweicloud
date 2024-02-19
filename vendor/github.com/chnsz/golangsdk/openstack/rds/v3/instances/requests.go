@@ -478,6 +478,23 @@ func RestRootPassword(c *golangsdk.ServiceClient, instanceID string, opts RestRo
 	return &r, err
 }
 
+type ApplyConfigurationOpts struct {
+	InstanceIds []string `json:"instance_ids" required:"true"`
+}
+
+func ApplyConfiguration(c *golangsdk.ServiceClient, configID string, opts ApplyConfigurationOpts) (r ApplyConfigurationOptsResult) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Put(applyConfigurationURL(c, configID), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return
+}
+
 type ModifyConfigurationOpts struct {
 	Values map[string]string `json:"values" required:"true"`
 }
