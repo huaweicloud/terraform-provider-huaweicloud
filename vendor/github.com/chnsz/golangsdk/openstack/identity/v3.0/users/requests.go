@@ -141,3 +141,43 @@ func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)
 	return
 }
+
+// UpdateLoginProtectOpts provides options for updating a user account login protect.
+type UpdateLoginProtectOpts struct {
+	Enabled            *bool  `json:"enabled" required:"true"`
+	VerificationMethod string `json:"verification_method" required:"true"`
+}
+
+// UpdateLoginProtectOptsBuilder allows extensions to add additional parameters to
+// the Update request.
+type UpdateLoginProtectOptsBuilder interface {
+	ToLoginProtectUpdateMap() (map[string]interface{}, error)
+}
+
+// ToLoginProtectUpdateMap formats a UpdateLoginProtectOpts into an update request.
+func (opts UpdateLoginProtectOpts) ToLoginProtectUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "login_protect")
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// UpdateLoginProtect updates login protect for user account.
+func UpdateLoginProtect(client *golangsdk.ServiceClient, userID string,
+	opts UpdateLoginProtectOpts) (r UpdateLoginProtectResult) {
+	b, err := opts.ToLoginProtectUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(loginProtectURL(client, userID), &b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
+
+// Get retrieves details on a single user login protect, by user ID.
+func GetLoginProtect(client *golangsdk.ServiceClient, id string) (r GetLoginProtectResult) {
+	_, r.Err = client.Get(loginProtectURL(client, id), &r.Body, nil)
+	return
+}

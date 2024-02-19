@@ -2,6 +2,7 @@ package iam
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
 	identity_users "github.com/chnsz/golangsdk/openstack/identity/v3/users"
 
@@ -23,6 +25,8 @@ import (
 // @API IAM PUT /v3.0/OS-USER/users/{userID}
 // @API IAM POST /v3.0/OS-USER/users
 // @API IAM DELETE /v3/users/{userID}
+// @API IAM PUT /v3.0/OS-USER/users/{user_id}/login-protect
+// @API IAM GET /v3.0/OS-USER/users/{user_id}/login-protect
 func ResourceIdentityUser() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityUserCreate,
@@ -92,6 +96,10 @@ func ResourceIdentityUser() *schema.Resource {
 					"default", "programmatic", "console",
 				}, false),
 			},
+			"login_protect_verification_method": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"password_strength": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -159,7 +167,35 @@ func resourceIdentityUserCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	d.SetId(user.ID)
+
+	// if login_protect_verification_method is not empty, update login protect
+	if val, ok := d.GetOk("login_protect_verification_method"); ok {
+		err := updateLoginProtect(iamClient, user.ID, val.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceIdentityUserRead(ctx, d, meta)
+}
+
+func updateLoginProtect(client *golangsdk.ServiceClient, userID, method string) error {
+	// if method empty, disable login protect
+	ok := true
+	if method == "" {
+		ok = false
+		// the method is required, and must be one of "sms", "email" and "vmfa"
+		method = "sms"
+	}
+	updateOpts := users.UpdateLoginProtectOpts{
+		Enabled:            &ok,
+		VerificationMethod: method,
+	}
+	_, err := users.UpdateLoginProtect(client, userID, updateOpts).ExtractLoginProtect()
+	if err != nil {
+		return fmt.Errorf("error updating IAM user login protect: %s", err)
+	}
+	return nil
 }
 
 func resourceIdentityUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -172,6 +208,15 @@ func resourceIdentityUserRead(_ context.Context, d *schema.ResourceData, meta in
 	user, err := users.Get(iamClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "user")
+	}
+
+	loginProtect, err := users.GetLoginProtect(iamClient, d.Id()).ExtractLoginProtect()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "user login protect")
+	}
+	method := ""
+	if loginProtect.VerificationMethod != "none" {
+		method = loginProtect.VerificationMethod
 	}
 
 	log.Printf("[DEBUG] Retrieved IAM user: %#v", user)
@@ -189,6 +234,7 @@ func resourceIdentityUserRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("last_login", user.LastLogin),
 		d.Set("external_identity_id", user.XUserID),
 		d.Set("external_identity_type", user.XUserType),
+		d.Set("login_protect_verification_method", method),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -262,6 +308,14 @@ func resourceIdentityUserUpdate(ctx context.Context, d *schema.ResourceData, met
 	_, err = users.Update(iamClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error updating IAM user: %s", err)
+	}
+
+	// update login protect
+	if d.HasChange("login_protect_verification_method") {
+		err = updateLoginProtect(iamClient, d.Id(), d.Get("login_protect_verification_method").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceIdentityUserRead(ctx, d, meta)

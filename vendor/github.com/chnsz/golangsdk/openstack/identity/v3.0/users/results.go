@@ -49,6 +49,24 @@ type UpdateResult struct {
 	userResult
 }
 
+// LoginProtect represents a LoginProtect in the OpenStack Identity LoginProtect Service.
+type LoginProtect struct {
+	Enabled            bool   `json:"enabled"`
+	VerificationMethod string `json:"verification_method"`
+}
+
+// UpdateLoginProtectResult is the response from an UpdateLoginProtect operation. Call its
+// ExtractLoginProtect method to interpret it as a LoginProtect.
+type UpdateLoginProtectResult struct {
+	userResult
+}
+
+// GetLoginProtectResult is the response from a GetLoginProtect operation. Call its
+// ExtractLoginProtect method to interpret it as a LoginProtect.
+type GetLoginProtectResult struct {
+	userResult
+}
+
 // Extract interprets any user results as a User.
 func (r userResult) Extract() (*User, error) {
 	var s struct {
@@ -56,4 +74,13 @@ func (r userResult) Extract() (*User, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.User, err
+}
+
+// ExtractLoginProtect interprets any user login protect results as a LoginProtect.
+func (r userResult) ExtractLoginProtect() (*LoginProtect, error) {
+	var s struct {
+		LoginProtect *LoginProtect `json:"login_protect"`
+	}
+	err := r.ExtractInto(&s)
+	return s.LoginProtect, err
 }
