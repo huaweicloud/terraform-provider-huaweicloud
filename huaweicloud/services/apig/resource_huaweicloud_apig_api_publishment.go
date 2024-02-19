@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apis/{apiId}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/apis/action
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/apis/publish/{apiId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/apis/publish/{apiId}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/apis/action
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apis/publish/{api_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/apis/publish/{api_id}
 func ResourceApigApiPublishment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceApiPublishmentCreate,

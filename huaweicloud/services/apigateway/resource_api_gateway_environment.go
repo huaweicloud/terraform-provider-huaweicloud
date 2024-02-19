@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API APIG POST /v1.0/apigw/envs
+// @API APIG GET /v1.0/apigw/envs
+// @API APIG PUT /v1.0/apigw/envs/{id}
+// @API APIG DELETE /v1.0/apigw/envs/{id}
 func ResourceEnvironment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentCreate,

@@ -21,10 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels
 func ResourceChannel() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceChannelCreate,

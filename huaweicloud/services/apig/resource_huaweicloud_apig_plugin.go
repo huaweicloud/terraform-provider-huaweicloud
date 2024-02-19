@@ -19,9 +19,9 @@ import (
 )
 
 // ResourcePlugin defines the provider resource of the APIG plugin.
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}
+// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}
 // @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/plugins
 func ResourcePlugin() *schema.Resource {
 	return &schema.Resource{

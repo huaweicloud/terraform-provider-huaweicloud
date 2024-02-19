@@ -44,16 +44,16 @@ const (
 	ProviderTypeElb ProviderType = "elb" // Elastic load balance.
 )
 
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{id}/eip
-// @API APIG PUT /v2/{project_id}/apigw/instances/{id}/eip
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{id}/nat-eip
-// @API APIG POST /v2/{project_id}/apigw/instances/{id}/nat-eip
-// @API APIG PUT /v2/{project_id}/apigw/instances/{id}/nat-eip
-// @API APIG GET /v2/{project_id}/apigw/instances/{id}
-// @API APIG PUT /v2/{project_id}/apigw/instances/{id}
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{id}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/instance-tags/action
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/instance-tags
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/eip
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/eip
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/instance-tags/action
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/instance-tags
 // @API APIG POST /v2/{project_id}/apigw/instances
 // @API EIP GET /v1/{project_id}/publicips
 // @API APIG POST /v2/{project_id}/apigw/instances{instance_id}/ingress-eip

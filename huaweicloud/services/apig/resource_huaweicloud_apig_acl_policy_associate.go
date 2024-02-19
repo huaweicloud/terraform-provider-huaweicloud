@@ -17,8 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings/binded-apis
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings/binded-apis
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings
 func ResourceAclPolicyAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAclPolicyAssociateCreate,

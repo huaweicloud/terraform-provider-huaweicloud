@@ -17,9 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/binded-apis
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/{bindId}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings/binded-apis
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings/{throttle_binding_id}
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings
 func ResourceThrottlingPolicyAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceThrottlingPolicyAssociateCreate,

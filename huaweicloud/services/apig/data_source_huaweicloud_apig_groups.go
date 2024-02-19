@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/api-groups
 func DataSourceGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGroupsRead,
