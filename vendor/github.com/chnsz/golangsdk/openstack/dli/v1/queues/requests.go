@@ -58,6 +58,8 @@ type CreateOpts struct {
 	Feature string `json:"feature,omitempty"`
 
 	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// The name of the elastic resource pool.
+	ElasticResourcePoolName string `json:"elastic_resource_pool_name,omitempty"`
 }
 
 type ListOpts struct {
@@ -106,7 +108,6 @@ This API is used to create a queue.
 @cloudAPI-version: v1.0
 
 @since: 2021-07-07 12:12:12
-
 */
 func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	requstbody, err := opts.ToDomainCreateMap()
@@ -127,7 +128,6 @@ This API is used to delete a queue.
 @cloudAPI-version: v1.0
 
 @since: 2021-07-07 12:12:12
-
 */
 func Delete(c *golangsdk.ServiceClient, queueName string) (r DeleteResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
@@ -143,7 +143,6 @@ This API is used to query all Queue  list
 @cloudAPI-version: v1.0
 
 @since: 2021-07-07 12:12:12
-
 */
 func List(c *golangsdk.ServiceClient, listOpts ListOptsBuilder) (r GetResult) {
 	listResult := new(ListResult)
@@ -172,7 +171,6 @@ This API is used to query the Details of a Queue
 @cloudAPI-version: v1.0
 
 @since: 2021-07-07 12:12:12
-
 */
 func Get(c *golangsdk.ServiceClient, queueName string) (r GetResult) {
 	result := new(Queue4Get)

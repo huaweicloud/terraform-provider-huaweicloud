@@ -50,6 +50,11 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   access_user = "user"
   password    = var.access_password
+
+  parameters {
+    name  = "min.insync.replicas"
+    value = "2"
+  }
 }
 ```
 
@@ -194,6 +199,9 @@ The following arguments are supported:
   produced to or consumed from a topic that does not exist.
   The default value is false.
 
+* `parameters` - (Optional, List) Specifies the array of one or more parameters to be set to the Kafka instance after
+  launched. The [parameters](#dms_parameters) structure is documented below.
+
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS Kafka instance.
@@ -218,6 +226,13 @@ The following arguments are supported:
 The `cross_vpc_accesses` block supports:
 
 * `advertised_ip` - (Optional, String) The advertised IP Address or domain name.
+
+<a name="dms_parameters"></a>
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the parameter name. Static parameter needs to restart the instance to take effect.
+
+* `value` - (Required, String) Specifies the parameter value.
 
 ## Attribute Reference
 

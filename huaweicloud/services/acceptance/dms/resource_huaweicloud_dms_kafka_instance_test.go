@@ -232,6 +232,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test.com"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "min.insync.replicas"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "2"),
 				),
 			},
 			{
@@ -251,6 +253,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "test.terraform.com"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.62"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.3.advertised_ip", "192.168.0.63"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "auto.create.groups.enable"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "false"),
 				),
 			},
 		},
@@ -389,8 +393,6 @@ func testAccKafkaInstance_compatible(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_dms_az" "test" {}
-
 data "huaweicloud_dms_product" "test" {
   engine            = "kafka"
   instance_type     = "cluster"
@@ -403,8 +405,10 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   name        = "%s"
   description = "kafka test"
 
-  # use deprecated argument "available_zones"
-  available_zones   = [data.huaweicloud_dms_az.test.id]
+  availability_zones    = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -476,6 +480,11 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   cross_vpc_accesses {
     advertised_ip = "192.168.0.53"
   }
+
+  parameters {
+    name  = "min.insync.replicas"
+    value = "2"
+  }
 }`, common.TestBaseNetwork(rName), rName)
 }
 
@@ -529,6 +538,11 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   }
   cross_vpc_accesses {
     advertised_ip = "192.168.0.63"
+  }
+
+  parameters {
+    name  = "auto.create.groups.enable"
+    value = "false"
   }
 }`, common.TestBaseNetwork(rName), rName)
 }

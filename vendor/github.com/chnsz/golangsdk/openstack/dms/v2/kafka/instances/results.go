@@ -175,3 +175,85 @@ type AutoTopicResult struct {
 type ResetPasswordResult struct {
 	golangsdk.Result
 }
+
+type commonResult struct {
+	golangsdk.Result
+}
+
+type ModifyConfigurationResult struct {
+	commonResult
+}
+
+type GetConfigurationResult struct {
+	commonResult
+}
+
+type RebootResult struct {
+	commonResult
+}
+
+type GetTasksResult struct {
+	commonResult
+}
+
+type ModifyConfigurationResp struct {
+	JobId         string `json:"job_id"`
+	DynamicConfig int    `json:"dynamic_config"`
+	StaticConfig  int    `json:"static_config"`
+}
+
+func (r ModifyConfigurationResult) Extract() (*ModifyConfigurationResp, error) {
+	var response ModifyConfigurationResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type Result struct {
+	Result   string `json:"result"`
+	Instance string `json:"instance"`
+}
+
+type RebootResp struct {
+	Results []Result `json:"results"`
+}
+
+func (r RebootResult) Extract() (*RebootResp, error) {
+	var response RebootResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type KafkaParam struct {
+	Name         string `json:"name"`
+	Value        string `json:"value"`
+	DefaultValue string `json:"default_value"`
+	ConfigType   string `json:"config_type"`
+	ValidValues  string `json:"valid_values"`
+	ValueType    string `json:"value_type"`
+}
+
+type GetConfigurationResp struct {
+	KafkaConfigs []KafkaParam `json:"kafka_configs"`
+}
+
+func (r GetConfigurationResult) Extract() (*GetConfigurationResp, error) {
+	var response GetConfigurationResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type TaskParams struct {
+	Name   string `json:"name"`
+	Params string `json:"params"`
+	Status string `json:"status"`
+}
+
+type GetTaskResp struct {
+	Tasks []TaskParams `json:"tasks"`
+}
+
+func (r GetTasksResult) Extract() (*GetTaskResp, error) {
+	var response GetTaskResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
