@@ -52,6 +52,7 @@ func TestAccIdentityUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "true"),
 					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abc.com"),
 					resource.TestCheckResourceAttr(resourceName, "password_strength", "Strong"),
+					resource.TestCheckResourceAttr(resourceName, "login_protect_verification_method", "email"),
 				),
 			},
 			{
@@ -71,6 +72,7 @@ func TestAccIdentityUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "false"),
 					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abcd.com"),
+					resource.TestCheckResourceAttr(resourceName, "login_protect_verification_method", ""),
 				),
 			},
 			{
@@ -146,6 +148,8 @@ resource "huaweicloud_identity_user" "user_1" {
   enabled     = true
   email       = "user_1@abc.com"
   description = "tested by terraform"
+  
+  login_protect_verification_method = "email"
 }
 `, name, password)
 }

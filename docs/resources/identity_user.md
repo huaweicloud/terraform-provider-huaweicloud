@@ -58,6 +58,14 @@ The following arguments are supported:
 * `external_identity_type` - (Optional, String) Specifies the type of the IAM user in the external system.
   Only **TenantIdp** is supported now. This parameter must be used together with `external_identity_id`.
 
+* `login_protect_verification_method` - (Optional, String) Specifies the verification method of login protect. If it is
+  empty, the login protection will be disabled.
+  
+  Valid values are as follows:
+  + **sms**: Use phone number to verify.
+  + **email**: Use email to verify.
+  + **vmfa**: Use MFA to verify.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
