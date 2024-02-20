@@ -1260,6 +1260,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_advanced_query":                     rms.ResourceAdvancedQuery(),
 			"huaweicloud_rms_assignment_package":                 rms.ResourceAssignmentPackage(),
 			"huaweicloud_rms_organizational_assignment_package":  rms.ResourceOrgAssignmentPackage(),
+			"huaweicloud_rms_organizational_policy_assignment":   rms.ResourceOrganizationalPolicyAssignment(),
 
 			"huaweicloud_sdrs_drill":              sdrs.ResourceDrill(),
 			"huaweicloud_sdrs_replication_pair":   sdrs.ResourceReplicationPair(),
