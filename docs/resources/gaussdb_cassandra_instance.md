@@ -1,14 +1,14 @@
 ---
-subcategory: "GaussDB NoSQL"
+subcategory: "GeminiDB"
 ---
 
 # huaweicloud_gaussdb_cassandra_instance
 
-GaussDB for Cassandra instance management within HuaweiCould.
+GeminiDB Cassandra instance management within HuaweiCould.
 
 ## Example Usage
 
-### create a gaussdb for cassandra instance with tags
+### create a geminidb cassandra instance with tags
 
 ```hcl
 resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
@@ -28,7 +28,7 @@ resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
 }
 ```
 
-### create a gaussdb cassandra instance with backup strategy
+### create a geminidb cassandra instance with backup strategy
 
 ```hcl
 resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {

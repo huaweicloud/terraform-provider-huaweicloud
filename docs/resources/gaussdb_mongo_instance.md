@@ -1,14 +1,14 @@
 ---
-subcategory: "GaussDB NoSQL"
+subcategory: "GeminiDB"
 ---
 
 # huaweicloud_gaussdb_mongo_instance
 
-GaussDB for mongo instance management within HuaweiCould.
+GeminiDB Mongo instance management within HuaweiCould.
 
 ## Example Usage
 
-### create a gaussdb for mongo instance with tags
+### create a geminidb mongo instance with tags
 
 ```hcl
 resource "huaweicloud_gaussdb_mongo_instance" "instance_1" {
@@ -28,7 +28,7 @@ resource "huaweicloud_gaussdb_mongo_instance" "instance_1" {
 }
 ```
 
-### create a gaussdb mongo instance with backup strategy
+### create a geminidb mongo instance with backup strategy
 
 ```hcl
 resource "huaweicloud_gaussdb_mongo_instance" "instance_1" {

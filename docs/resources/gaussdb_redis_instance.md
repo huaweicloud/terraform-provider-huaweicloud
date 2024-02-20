@@ -1,14 +1,14 @@
 ---
-subcategory: "GaussDB NoSQL"
+subcategory: "GeminiDB"
 ---
 
 # huaweicloud_gaussdb_redis_instance
 
-GaussDB for Redis instance management within HuaweiCould.
+GeminiDB Redis instance management within HuaweiCould.
 
 ## Example Usage
 
-### create a gaussdb for redis instance with tags
+### create a geminidb redis instance with tags
 
 ```hcl
 resource "huaweicloud_gaussdb_redis_instance" "test" {
@@ -28,7 +28,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
 }
 ```
 
-### create a gaussdb redis instance with backup strategy
+### create a geminidb redis instance with backup strategy
 
 ```hcl
 resource "huaweicloud_gaussdb_redis_instance" "test" {

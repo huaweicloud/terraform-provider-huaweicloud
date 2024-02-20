@@ -1,14 +1,14 @@
 ---
-subcategory: "GaussDB NoSQL"
+subcategory: "GeminiDB"
 ---
 
 # huaweicloud_gaussdb_influx_instance
 
-GaussDB for influx instance management within HuaweiCould.
+GeminiDB Influx instance management within HuaweiCould.
 
 ## Example Usage
 
-### create a gaussdb for influx instance with tags
+### create a geminidb influx instance with tags
 
 ```hcl
 resource "huaweicloud_gaussdb_influx_instance" "instance_1" {
@@ -28,7 +28,7 @@ resource "huaweicloud_gaussdb_influx_instance" "instance_1" {
 }
 ```
 
-### create a gaussdb influx instance with backup strategy
+### create a geminidb influx instance with backup strategy
 
 ```hcl
 resource "huaweicloud_gaussdb_influx_instance" "instance_1" {

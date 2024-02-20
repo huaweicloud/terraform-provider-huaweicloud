@@ -1,10 +1,10 @@
 ---
-subcategory: "GaussDB NoSQL"
+subcategory: "GeminiDB"
 ---
 
 # huaweicloud_gaussdb_cassandra_instance
 
-Use this data source to get available HuaweiCloud gaussdb cassandra instance.
+Use this data source to get available HuaweiCloud GeminiDB Cassandra instance.
 
 ## Example Usage
 
