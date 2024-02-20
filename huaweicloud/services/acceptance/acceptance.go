@@ -147,9 +147,10 @@ var (
 	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
 
 	// The direct connection ID (provider does not support direct connection resource).
-	HW_DC_DIRECT_CONNECT_ID  = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
-	HW_DC_RESOURCE_TENANT_ID = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
-	HW_DC_HOSTTING_ID        = os.Getenv("HW_DC_HOSTTING_ID")
+	HW_DC_DIRECT_CONNECT_ID    = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+	HW_DC_RESOURCE_TENANT_ID   = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
+	HW_DC_HOSTTING_ID          = os.Getenv("HW_DC_HOSTTING_ID")
+	HW_DC_TARGET_TENANT_VGW_ID = os.Getenv("HW_DC_TARGET_TENANT_VGW_ID")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -856,6 +857,20 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 func TestAccPreCheckDcHostedConnection(t *testing.T) {
 	if HW_DC_RESOURCE_TENANT_ID == "" || HW_DC_HOSTTING_ID == "" {
 		t.Skip("HW_DC_RESOURCE_TENANT_ID, HW_DC_HOSTTING_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcResourceTenant(t *testing.T) {
+	if HW_DC_RESOURCE_TENANT_ID == "" {
+		t.Skip("HW_DC_RESOURCE_TENANT_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckTargetTenantDcVGW(t *testing.T) {
+	if HW_DC_TARGET_TENANT_VGW_ID == "" {
+		t.Skip("HW_DC_TARGET_TENANT_VGW_ID must be set for this acceptance test")
 	}
 }
 

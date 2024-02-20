@@ -107,6 +107,66 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 	})
 }
 
+func TestAccVirtualInterface_acrossTenant(t *testing.T) {
+	var (
+		vif interfaces.VirtualInterface
+
+		rName = "huaweicloud_dc_virtual_interface.test"
+		name  = acceptance.RandomAccResourceName()
+		vlan  = acctest.RandIntRange(1, 3999)
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&vif,
+		getVirtualInterfaceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDcDirectConnection(t)
+			acceptance.TestAccPreCheckTargetTenantDcVGW(t)
+			acceptance.TestAccPreCheckDcResourceTenant(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVirtualInterface_acrossTenant(name, vlan),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "direct_connect_id", acceptance.HW_DC_DIRECT_CONNECT_ID),
+					resource.TestCheckResourceAttr(rName, "vgw_id", acceptance.HW_DC_TARGET_TENANT_VGW_ID),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "type", "private"),
+					resource.TestCheckResourceAttr(rName, "route_mode", "static"),
+					resource.TestCheckResourceAttr(rName, "vlan", fmt.Sprintf("%v", vlan)),
+					resource.TestCheckResourceAttr(rName, "bandwidth", "10"),
+					resource.TestCheckResourceAttr(rName, "enable_bfd", "false"),
+					resource.TestCheckResourceAttr(rName, "enable_nqa", "true"),
+					resource.TestCheckResourceAttr(rName, "resource_tenant_id", acceptance.HW_DC_RESOURCE_TENANT_ID),
+					resource.TestCheckResourceAttr(rName, "remote_ep_group.0", "1.1.1.0/30"),
+					resource.TestCheckResourceAttr(rName, "remote_ep_group.1", "1.1.2.0/30"),
+					resource.TestCheckResourceAttr(rName, "address_family", "ipv4"),
+					resource.TestCheckResourceAttr(rName, "local_gateway_v4_ip", "1.1.1.1/30"),
+					resource.TestCheckResourceAttr(rName, "remote_gateway_v4_ip", "1.1.1.2/30"),
+					resource.TestCheckResourceAttrSet(rName, "device_id"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+				),
+			},
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"resource_tenant_id"},
+			},
+		},
+	})
+}
+
 func testAccVirtualInterface_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
@@ -188,4 +248,32 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   }
 }
 `, testAccVirtualInterface_base(name), acceptance.HW_DC_DIRECT_CONNECT_ID, name, vlan)
+}
+
+func testAccVirtualInterface_acrossTenant(name string, vlan int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dc_virtual_interface" "test" {
+  direct_connect_id = "%[1]s"
+  vgw_id            = "%[2]s"
+  name              = "%[3]s"
+  type              = "private"
+  route_mode        = "static"
+  vlan              = %[4]d
+  bandwidth         = 10
+  enable_bfd        = false
+  enable_nqa        = true
+
+  resource_tenant_id = "%[5]s"
+
+  remote_ep_group = [
+    "1.1.1.0/30",
+    "1.1.2.0/30",
+  ]
+
+  address_family       = "ipv4"
+  local_gateway_v4_ip  = "1.1.1.1/30"
+  remote_gateway_v4_ip = "1.1.1.2/30"
+}
+`, acceptance.HW_DC_DIRECT_CONNECT_ID, acceptance.HW_DC_TARGET_TENANT_VGW_ID, name, vlan,
+		acceptance.HW_DC_RESOURCE_TENANT_ID)
 }
