@@ -74,6 +74,8 @@ type Queue struct {
 	Container: containerized cluster (k8s)
 	**/
 	QueueResourceType string `json:"queue_resource_type"`
+	// The name of the elastic resource pool.
+	ElasticResourcePoolName string `json:"elastic_resource_pool_name"`
 }
 
 type Queue4Get struct {
