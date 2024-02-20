@@ -144,7 +144,7 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 	// createOrgAssignmentPackage: Create RMS organizational assignment package.
 	var (
 		createOrgAssignmentPackageHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs"
-		createOrgAssignmentPackageProduct = "config"
+		createOrgAssignmentPackageProduct = "rms"
 	)
 	createOrgAssignmentPackageClient, err := cfg.NewServiceClient(createOrgAssignmentPackageProduct, region)
 	if err != nil {
@@ -234,7 +234,7 @@ func resourceOrgAssignmentPackageRead(_ context.Context, d *schema.ResourceData,
 	// getOrgAssignmentPackage: Query the RMS organizational assignment package
 	var (
 		getOrgAssignmentPackageHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}"
-		getOrgAssignmentPackageProduct = "config"
+		getOrgAssignmentPackageProduct = "rms"
 	)
 	getOrgAssignmentPackageClient, err := cfg.NewServiceClient(getOrgAssignmentPackageProduct, region)
 	if err != nil {
@@ -301,7 +301,7 @@ func resourceOrgAssignmentPackageDelete(ctx context.Context, d *schema.ResourceD
 	// deleteOrgAssignmentPackage: Delete an existing RMS organizational assignment package
 	var (
 		deleteOrgAssignmentPackageHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}"
-		deleteOrgAssignmentPackageProduct = "config"
+		deleteOrgAssignmentPackageProduct = "rms"
 	)
 	deleteOrgAssignmentPackageClient, err := cfg.NewServiceClient(deleteOrgAssignmentPackageProduct, region)
 	if err != nil {
