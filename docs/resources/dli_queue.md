@@ -111,3 +111,21 @@ DLI queue can be imported by `name`. For example,
 ```bash
 terraform import huaweicloud_dli_queue.example terraform_dli_queue_test
 ```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response. The missing attributes include: `tags`.
+It is generally recommended running `terraform plan` after importing a desktop.
+You can then decide if changes should be applied to the desktop, or the resource definition should be updated to
+align with the desktop. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_workspace_desktop" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+```
