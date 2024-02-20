@@ -1,14 +1,13 @@
 package huaweicloud
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // GetRegion returns the region that was specified in the resource. If a
@@ -41,36 +40,5 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 		return nil
 	}
 
-	return fmtp.Errorf("%s: %s", msg, err)
-}
-
-func checkForRetryableError(err error) *resource.RetryError {
-	switch errCode := err.(type) {
-	case golangsdk.ErrDefault500:
-		return resource.RetryableError(err)
-	case golangsdk.ErrUnexpectedResponseCode:
-		switch errCode.Actual {
-		case 409, 503:
-			return resource.RetryableError(err)
-		default:
-			return resource.NonRetryableError(err)
-		}
-	default:
-		return resource.NonRetryableError(err)
-	}
-}
-
-// UnsubscribePrePaidResource impl the action of unsubscribe resource
-func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, resourceIDs []string) error {
-	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
-	}
-
-	unsubscribeOpts := orders.UnsubscribeOpts{
-		ResourceIds:     resourceIDs,
-		UnsubscribeType: 1,
-	}
-	_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
-	return err
+	return fmt.Errorf("%s: %s", msg, err)
 }
