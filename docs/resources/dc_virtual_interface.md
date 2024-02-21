@@ -126,8 +126,17 @@ The following arguments are supported:
   virtual interface.  
   Changing this will create a new resource.
 
+* `resource_tenant_id` - (Optional, String, ForceNew) Specifies the project ID of another tenant in the same region
+  which is used to create virtual interface across tenant. After the across tenant virtual interface is successfully
+  created, the target tenant needs to accept the virtual interface request for the virtual interface to take effect.
+  Changing this will create a new resource.
+
+  -> 1. When `resource_tenant_id` is specified, `vgw_id` must be the target tenant virtual gateway id.
+  <br/>2. When `resource_tenant_id` is specified, the tags can only be configured after the target tenant accepts the
+  virtual interface request and the virtual interface takes effect.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the virtual
-  interface belongs.  
+  interface belongs. This field is valid only when `resource_tenant_id` is not specified.
   Changing this will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the virtual interface.
@@ -150,4 +159,23 @@ Virtual interfaces can be imported using their `id`, e.g.
 
 ```shell
 $ terraform import huaweicloud_dc_virtual_interface.test 5bb22e82-5b07-4845-bd1b-b064eca92e0a
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include:
+`resource_tenant_id`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also you can ignore changes as below.
+
+```bash
+resource "huaweicloud_dc_virtual_interface" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      resource_tenant_id,
+    ]
+  }
+}
 ```
