@@ -1014,6 +1014,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_workload_plan":           dws.ResourceWorkLoadPlan(),
 			"huaweicloud_dws_workload_plan_execution": dws.ResourceWorkLoadPlanExecution(),
 			"huaweicloud_dws_workload_plan_stage":     dws.ResourceWorkLoadPlanStage(),
+			"huaweicloud_dws_disaster_recovery_task":  dws.ResourceDwsDisasterRecoveryTask(),
 
 			"huaweicloud_eg_connection":           eg.ResourceConnection(),
 			"huaweicloud_eg_custom_event_channel": eg.ResourceCustomEventChannel(),
