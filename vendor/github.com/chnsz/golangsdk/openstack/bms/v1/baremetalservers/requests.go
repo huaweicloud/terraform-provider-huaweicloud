@@ -5,6 +5,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 type CreateOpts struct {
@@ -172,6 +173,50 @@ func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 
 type UpdateOpts struct {
 	Name string `json:"name,omitempty"`
+}
+
+type ListOpts struct {
+	// Specifies the ID of the BMS flavor.
+	FlavorId string `q:"flavor"`
+	// Specifies the BMS name.
+	Name string `q:"name"`
+	// Specifies the BMS status.
+	// The value can be: ACTIVE, BUILD, ERROR, HARD_REBOOT, REBOOT or SHUTOFF.
+	Status string `q:"status"`
+	// Number of records to be queried.
+	// The valid value is range from 25 to 1000, defaults to 25.
+	Limit int `q:"limit"`
+	// Specifies the index position, which starts from the next data record specified by offset.
+	Offset int `q:"offset"`
+	// Specifies the BMS tag.
+	Tags string `q:"tags"`
+	// Specifies the reserved ID, which can be used to query BMSs created in a batch.
+	ReservationId string `q:"reservation_id"`
+	// Specifies the level for details about BMS query results.
+	// A higher level indicates more details about BMS query results.
+	// Available levels include 4, 3, 2, and 1. The default level is 4.
+	Detail string `q:"detail"`
+	// Specifies the enterprise project ID of the BMS instance.
+	EnterpriseProjectId string `q:"enterprise_project_id"`
+}
+
+// List is a method to query the list of BMS instances with **pagination**.
+func List(client *golangsdk.ServiceClient, opts ListOpts) ([]CloudServer, error) {
+	url := listURL(client)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+	url += query.String()
+
+	pages, err := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		p := InstanceDetailPage{pagination.OffsetPageBase{PageResult: r}}
+		return p
+	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	return ExtractServers(pages)
 }
 
 type DeleteNicsOpts struct {
