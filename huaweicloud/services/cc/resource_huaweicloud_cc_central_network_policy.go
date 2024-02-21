@@ -49,7 +49,7 @@ func ResourceCentralNetworkPolicy() *schema.Resource {
 			},
 			"er_instances": {
 				Type:        schema.TypeList,
-				MaxItems:    1,
+				MinItems:    1,
 				Elem:        centralNetworkPolicyAssociateErInstanceDocumentSchema(),
 				Required:    true,
 				ForceNew:    true,
@@ -98,6 +98,13 @@ func centralNetworkPolicyCentralNetworkPolicyPlaneDocumentSchema() *schema.Resou
 				ForceNew:    true,
 				Description: `List of route tables associated with the central network policy.`,
 			},
+			"exclude_er_connections": {
+				Type:        schema.TypeList,
+				Elem:        centralNetworkPolicyCentralNetworkPolicyPlaneDocumentExcludeErConnectionsSchema(),
+				Optional:    true,
+				ForceNew:    true,
+				Description: `List of the enterprise router connections excluded from the central network policy.`,
+			},
 		},
 	}
 	return &sc
@@ -133,6 +140,20 @@ func centralNetworkPolicyCentralNetworkPolicyPlaneDocumentAssociateErTableDocume
 		},
 	}
 	return &sc
+}
+
+func centralNetworkPolicyCentralNetworkPolicyPlaneDocumentExcludeErConnectionsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"exclude_er_instances": {
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Elem:        centralNetworkPolicyAssociateErInstanceDocumentSchema(),
+				Description: `List of enterprise routers that will not establish a connection.`,
+			},
+		},
+	}
 }
 
 func centralNetworkPolicyAssociateErInstanceDocumentSchema() *schema.Resource {
@@ -226,8 +247,9 @@ func buildCreateCentralNetworkPolicyRequestBodyCentralNetworkPolicyPlaneDocument
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":                "default-plane",
-				"associate_er_tables": buildCentralNetworkPolicyPlaneAssociateErTableDocument(raw["associate_er_tables"]),
+				"name":                   "default-plane",
+				"associate_er_tables":    buildCentralNetworkPolicyPlaneAssociateErTableDocument(raw["associate_er_tables"]),
+				"exclude_er_connections": buildCentralNetworkPolicyPlaneExcludeErConnections(raw["exclude_er_connections"]),
 			}
 		}
 		return rst
@@ -253,6 +275,28 @@ func buildCentralNetworkPolicyPlaneAssociateErTableDocument(rawParams interface{
 			}
 		}
 		return rst
+	}
+	return nil
+}
+
+func buildCentralNetworkPolicyPlaneExcludeErConnections(rawParams interface{}) [][]interface{} {
+	if rawConnections, ok := rawParams.([]interface{}); ok {
+		connections := make([][]interface{}, len(rawConnections))
+		for i, rawConnection := range rawConnections {
+			connection := rawConnection.(map[string]interface{})
+			erInstancesRaw := connection["exclude_er_instances"].([]interface{})
+			erInstances := make([]interface{}, len(erInstancesRaw))
+			for j, erInstanceRaw := range erInstancesRaw {
+				v := erInstanceRaw.(map[string]interface{})
+				erInstances[j] = map[string]interface{}{
+					"project_id":           utils.ValueIngoreEmpty(v["project_id"]),
+					"region_id":            utils.ValueIngoreEmpty(v["region_id"]),
+					"enterprise_router_id": utils.ValueIngoreEmpty(v["enterprise_router_id"]),
+				}
+			}
+			connections[i] = erInstances
+		}
+		return connections
 	}
 	return nil
 }
@@ -349,7 +393,8 @@ func flattenGetCentralNetworkPolicyResponseBodyCentralNetworkPolicyPlaneDocument
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"associate_er_tables": flattenCentralNetworkPolicyPlaneDocumentAssociateErTables(v),
+			"associate_er_tables":    flattenCentralNetworkPolicyPlaneDocumentAssociateErTables(v),
+			"exclude_er_connections": flattenCentralNetworkPolicyPlaneDocumentExcludeErConnections(v),
 		})
 	}
 	return rst
@@ -369,6 +414,28 @@ func flattenCentralNetworkPolicyPlaneDocumentAssociateErTables(resp interface{})
 			"enterprise_router_id":       utils.PathSearch("enterprise_router_id", v, nil),
 			"enterprise_router_table_id": utils.PathSearch("enterprise_router_table_id", v, nil),
 		})
+	}
+	return rst
+}
+
+func flattenCentralNetworkPolicyPlaneDocumentExcludeErConnections(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("exclude_er_connections", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, connectionRaw := range curArray {
+		connection := connectionRaw.([]interface{})
+		erInstances := make([]interface{}, 0, len(connection))
+		for _, v := range connection {
+			erInstances = append(erInstances, map[string]interface{}{
+				"project_id":           utils.PathSearch("project_id", v, nil),
+				"region_id":            utils.PathSearch("region_id", v, nil),
+				"enterprise_router_id": utils.PathSearch("enterprise_router_id", v, nil),
+			})
+		}
+		rst = append(rst, map[string]interface{}{"exclude_er_instances": erInstances})
 	}
 	return rst
 }
