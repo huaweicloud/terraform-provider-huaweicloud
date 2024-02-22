@@ -69,7 +69,7 @@ func TestAccResourceInstance_basic(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"tags", "period_unit", "period", "auto_renew, expire_days"},
+				ImportStateVerifyIgnore: []string{"tags", "period_unit", "period", "auto_renew", "expire_days"},
 			},
 		},
 	})
