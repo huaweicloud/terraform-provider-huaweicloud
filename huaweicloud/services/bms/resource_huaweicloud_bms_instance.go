@@ -14,6 +14,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -242,7 +243,6 @@ func ResourceBmsInstance() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"agency_name": {
@@ -451,16 +451,19 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 
 func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	bmsClient, err := cfg.BmsV1Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	bmsClient, err := cfg.BmsV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute client: %s", err)
 	}
+
+	instanceId := d.Id()
 
 	if d.HasChange("name") {
 		var updateOpts baremetalservers.UpdateOpts
 		updateOpts.Name = d.Get("name").(string)
 
-		_, err = baremetalservers.Update(bmsClient, d.Id(), updateOpts).Extract()
+		_, err = baremetalservers.Update(bmsClient, instanceId, updateOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating bms server: %s", err)
 		}
@@ -470,31 +473,31 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		metadataOpts := map[string]interface{}{
 			"agency_name": d.Get("agency_name").(string),
 		}
-		_, err := baremetalservers.UpdateMetadata(bmsClient, d.Id(), metadataOpts).Extract()
+		_, err := baremetalservers.UpdateMetadata(bmsClient, instanceId, metadataOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating the BMS metadata agency_name: %s", err)
 		}
 	}
 
 	if d.HasChanges("metadata") {
-		_, err := baremetalservers.UpdateMetadata(bmsClient, d.Id(), d.Get("metadata").(map[string]interface{})).Extract()
+		_, err := baremetalservers.UpdateMetadata(bmsClient, instanceId, d.Get("metadata").(map[string]interface{})).Extract()
 		if err != nil {
 			return diag.Errorf("error updating the BMS metadata: %s", err)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err = utils.UpdateResourceTags(bmsClient, d, "baremetalservers", d.Id())
+		err = utils.UpdateResourceTags(bmsClient, d, "baremetalservers", instanceId)
 		if err != nil {
 			return diag.Errorf("error updating tags of bms server: %s", err)
 		}
@@ -509,14 +512,14 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 				Nics: buildDeleteNicsParam(deleteNics),
 			}
 
-			job, err := baremetalservers.DeleteNics(bmsClient, d.Id(), deleteNicsOps).ExtractJobStatus()
+			job, err := baremetalservers.DeleteNics(bmsClient, instanceId, deleteNicsOps).ExtractJobStatus()
 			if err != nil {
 				return diag.Errorf("error deleting BMS nics: %s", err)
 			}
 			jobId := job.JobID
 			if err = waitBMSJobSuccess(ctx, bmsClient, jobId, d); err != nil {
 				return diag.Errorf("the job (%s) is not SUCCESS while deleting BMS (%s) nics: %s", jobId,
-					d.Id(), err)
+					instanceId, err)
 			}
 		}
 
@@ -525,7 +528,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 				Nics: buildAddNicsParam(addNics),
 			}
 
-			job, err := baremetalservers.AddNics(bmsClient, d.Id(), addNicsOps).ExtractJobStatus()
+			job, err := baremetalservers.AddNics(bmsClient, instanceId, addNicsOps).ExtractJobStatus()
 			if err != nil {
 				return diag.Errorf("error adding BMS nics: %s", err)
 			}
@@ -533,8 +536,20 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 			jobId := job.JobID
 			if err = waitBMSJobSuccess(ctx, bmsClient, jobId, d); err != nil {
 				return diag.Errorf("the job (%s) is not SUCCESS while adding BMS (%s) nics: %s", jobId,
-					d.Id(), err)
+					instanceId, err)
 			}
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "bms_server",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

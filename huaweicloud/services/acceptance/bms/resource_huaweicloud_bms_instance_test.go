@@ -160,6 +160,41 @@ func testAccCheckBmsInstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
+func TestAccBmsInstance_updateWithEpsId(t *testing.T) {
+	var instance baremetalservers.CloudServer
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_bms_instance.test"
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckBmsInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBmsInstance_withEpsId(rName, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccBmsInstance_withEpsId(rName, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBmsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudServer) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -437,4 +472,40 @@ resource "huaweicloud_bms_instance" "test" {
   auto_renew    = "true"
 }
 `, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccBmsInstance_withEpsId(rName, epsId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_bms_instance" "test" {
+  security_groups   = [huaweicloud_networking_secgroup.test.id]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = huaweicloud_vpc.test.id
+  flavor_id         = "physical.s4.3xlarge"
+  key_pair          = huaweicloud_kps_keypair.test.name
+  image_id          = data.huaweicloud_images_image.test.id
+
+  name                  = "%[2]s"
+  user_id               = "%[3]s"
+  enterprise_project_id = "%[4]s"
+
+  nics {
+    subnet_id = huaweicloud_vpc_subnet.test.id
+  }
+
+  tags = {
+    tag1 = "value1"
+    tag2 = "value2"
+  }
+
+  system_disk_type = "GPSSD"
+  system_disk_size = 150
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "true"
+}
+`, testAccBmsInstance_base(rName), rName, acceptance.HW_USER_ID, epsId)
 }
