@@ -15,6 +15,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/securities"
@@ -243,7 +244,6 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"fixed_ip": {
@@ -729,7 +729,8 @@ func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 
 func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	client, err := config.RdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating RDS Client: %s", err)
 	}
@@ -808,8 +809,20 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceID); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceID, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceID,
+			ResourceType: "rds",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

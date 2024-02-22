@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/waf/v1/clouds"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -149,7 +150,6 @@ func ResourceCloudInstance() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the enterprise project to which the cloud WAF belongs.",
 			},
 			// Attributes
@@ -526,6 +526,18 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
 			return diag.Errorf("error updating the auto-renew of the cloud WAF (%s): %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "waf",
+			RegionId:     region,
+			ProjectId:    wafClient.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

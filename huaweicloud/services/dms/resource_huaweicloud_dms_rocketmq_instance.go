@@ -18,6 +18,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -165,7 +166,6 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the enterprise project id of the instance.`,
 			},
 			"enable_acl": {
@@ -515,6 +515,7 @@ func buildCreateRocketmqInstanceBodyBssParams(d *schema.ResourceData) map[string
 func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	instanceId := d.Id()
 
 	updateRocketmqInstanceHasChanges := []string{
 		"name",
@@ -538,7 +539,7 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 	updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
 	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}", updateRocketmqInstanceClient.ProjectID)
-	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", d.Id()))
+	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", instanceId))
 
 	if d.HasChanges(updateRocketmqInstanceHasChanges...) {
 		updateRocketmqInstanceOpt := golangsdk.RequestOpts{
@@ -586,21 +587,33 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the RocketMQ instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the RocketMQ instance (%s): %s", instanceId, err)
 		}
 	}
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(updateRocketmqInstanceClient, d, "rocketmq", d.Id())
+		tagErr := utils.UpdateResourceTags(updateRocketmqInstanceClient, d, "rocketmq", instanceId)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of RocketMQ:%s, err:%s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of RocketMQ:%s, err:%s", instanceId, tagErr)
 		}
 	}
 
 	if d.HasChanges("flavor_id", "broker_num", "storage_space") {
 		err := resizeRocketmqInstance(ctx, updateRocketmqInstanceClient, d)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "rocketmq",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

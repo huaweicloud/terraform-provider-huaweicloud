@@ -114,10 +114,8 @@ The following arguments are supported:
 
 -> The specification code '**detection**' does not support extended packages.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the cloud
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the cloud
   WAF belongs.
-
-  Changing this will create a new resource.
 
 <a name="extended_packages"></a>
 The `bandwidth_expack_product`, `domain_expack_product` or `rule_expack_product` block supports:

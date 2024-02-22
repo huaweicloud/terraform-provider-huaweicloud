@@ -61,8 +61,7 @@ The following arguments are supported:
 * `db` - (Optional, List, ForceNew) Specifies the database information. The [db](#Rds_db) structure is documented below.
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the read replica instance.
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the read replica instance.
 
 * `flavor` - (Required, String) Specifies the specification code.
 

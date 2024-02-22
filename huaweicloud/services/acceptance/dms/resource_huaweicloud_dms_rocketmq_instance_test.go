@@ -261,6 +261,46 @@ func TestAccDmsRocketMQInstance_publicip(t *testing.T) {
 	})
 }
 
+func TestAccDmsRocketMQInstance_updateWithEpsId(t *testing.T) {
+	var obj interface{}
+
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rocketmq_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDmsRocketMQInstanceResourceFunc,
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDmsRocketMQInstance_withEpsId(rName, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testDmsRocketMQInstance_withEpsId(rName, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func testDmsRocketMQInstance_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -634,4 +674,43 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   publicip_id       = huaweicloud_vpc_eip.test.id
 }
 `, common.TestBaseNetwork(name), name)
+}
+
+func testDmsRocketMQInstance_withEpsId(name, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dms_rocketmq_instance" "test" {
+	name                  = "%s"
+	engine_version        = "4.8.0"
+	storage_space         = 300
+	vpc_id                = huaweicloud_vpc.test.id
+	subnet_id             = huaweicloud_vpc_subnet.test.id
+	security_group_id     = huaweicloud_networking_secgroup.test.id
+	enterprise_project_id = "%s"
+  
+	availability_zones = [
+	  data.huaweicloud_availability_zones.test.names[0],
+	  data.huaweicloud_availability_zones.test.names[1],
+	  data.huaweicloud_availability_zones.test.names[2],
+	]
+  
+	charging_mode = "prePaid"
+	period_unit   = "month"
+	period        = 1
+	auto_renew    = true
+  
+	flavor_id         = "c6.4u8g.cluster"
+	storage_spec_code = "dms.physical.storage.high.v2"
+	broker_num        = 1
+	enable_acl        = true
+  
+	tags = {
+	  key1 = "value1"
+	  key2 = "value2"
+	}
+  }
+`, common.TestBaseNetwork(name), name, epsId)
 }
