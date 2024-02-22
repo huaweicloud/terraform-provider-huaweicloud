@@ -184,8 +184,12 @@ func resourceStudioInstanceCreate(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	d.SetId(resp.ID)
+	d.SetId(resourceId)
 	return resourceStudioInstanceRead(ctx, d, meta)
 }
 
