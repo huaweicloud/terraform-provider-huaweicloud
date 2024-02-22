@@ -30,6 +30,7 @@ import (
 // @API CFW PUT /v1/{project_id}/acl-rule/{id}
 // @API CFW GET /v1/{project_id}/acl-rules
 // @API CFW PUT /v1/{project_id}/acl-rule/order/{id}
+// @API CFW POST /v1/{project_id}/acl-rule/count
 func ResourceProtectionRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectionRuleCreate,
@@ -147,6 +148,11 @@ func ResourceProtectionRule() *schema.Resource {
 				Computed:     true,
 				Description:  `The direction.`,
 				ValidateFunc: validation.IntInSlice([]int{0, 1}),
+			},
+			"rule_hit_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of times the protection rule is hit`,
 			},
 		},
 	}
@@ -435,6 +441,11 @@ func resourceProtectionRuleRead(_ context.Context, d *schema.ResourceData, meta 
 		return common.CheckDeletedDiag(d, err, "error retrieving protection rule")
 	}
 
+	ruleHitCount, err := getRuleHitCount(getProtectionRuleClient, d.Id())
+	if err != nil {
+		return diag.Errorf("error retrieving protection rule hit count: %s", err)
+	}
+
 	// the params 'sequence' and 'type 'not not returned
 	mErr = multierror.Append(
 		mErr,
@@ -452,6 +463,7 @@ func resourceProtectionRuleRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("source", flattenGetProtectionRuleResponseBodyRuleSourceAddressDto(rule)),
 		d.Set("destination", flattenGetProtectionRuleResponseBodyRuleDestinationAddressDto(rule)),
 		d.Set("status", utils.PathSearch("status", rule, nil)),
+		d.Set("rule_hit_count", ruleHitCount),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -468,6 +480,38 @@ func FilterRules(rules []interface{}, id string) (interface{}, error) {
 	}
 
 	return nil, golangsdk.ErrDefault404{}
+}
+
+func getRuleHitCount(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	getProtectionRuleHitCountHttpUrl := "v1/{project_id}/acl-rule/count"
+	getProtectionRuleHitCountPath := client.Endpoint + getProtectionRuleHitCountHttpUrl
+	getProtectionRuleHitCountPath = strings.ReplaceAll(getProtectionRuleHitCountPath, "{project_id}", client.ProjectID)
+
+	getProtectionRuleHitCountOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildRuleHitCountBodyParams(id),
+		OkCodes: []int{
+			200,
+		},
+	}
+
+	getProtectionRuleHitCountResp, err := client.Request("POST", getProtectionRuleHitCountPath, &getProtectionRuleHitCountOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getProtectionRuleHitCountRespBody, err := utils.FlattenResponse(getProtectionRuleHitCountResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return jmespath.Search("data.records[0].rule_hit_count", getProtectionRuleHitCountRespBody)
+}
+
+func buildRuleHitCountBodyParams(id string) map[string]interface{} {
+	return map[string]interface{}{
+		"rule_ids": []string{id},
+	}
 }
 
 func flattenGetProtectionRuleResponseBodyRuleServiceDto(resp interface{}) []interface{} {
