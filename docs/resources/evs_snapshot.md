@@ -42,6 +42,9 @@ The following arguments are supported:
 
 * `name` - (Required, String) The name of the snapshot. The value can contain a maximum of 255 bytes.
 
+* `metadata` - (Optional, Map, ForceNew) Specifies the user-defined metadata key-value pair. Changing the parameter
+  creates a new snapshot.
+
 * `description` - (Optional, String) The description of the snapshot. The value can contain a maximum of 255 bytes.
 
 * `force` - (Optional, Bool) Specifies the flag for forcibly creating a snapshot. Default to false.

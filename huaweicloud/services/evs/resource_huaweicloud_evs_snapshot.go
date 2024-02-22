@@ -17,6 +17,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API EVS DELETE /v2/{project_id}/cloudsnapshots/{snapshot_id}
@@ -54,6 +55,13 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// To avoid triggering changes metadata is not backfilled during read.
+			"metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -87,6 +95,7 @@ func resourceEvsSnapshotV2Create(ctx context.Context, d *schema.ResourceData, me
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Force:       d.Get("force").(bool),
+		Metadata:    utils.ExpandToStringMap(d.Get("metadata").(map[string]interface{})),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
