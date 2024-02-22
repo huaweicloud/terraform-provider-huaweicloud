@@ -172,8 +172,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
-  Changing this creates a new instance.
+* `enterprise_project_id` - (Optional, String) Specifies a unique id in UUID format of enterprise project.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid value is *prePaid*.
   Changing this creates a new instance.
