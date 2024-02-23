@@ -512,6 +512,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_dependencies":          fgs.DataSourceFunctionGraphDependencies(),
 			"huaweicloud_fgs_functions":             fgs.DataSourceFunctionGraphFunctions(),
 
+			"huaweicloud_ga_accelerators": ga.DataSourceAccelerators(),
+
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
 			"huaweicloud_gaussdb_nosql_flavors":                gaussdb.DataSourceGaussDBNoSQLFlavors(),
