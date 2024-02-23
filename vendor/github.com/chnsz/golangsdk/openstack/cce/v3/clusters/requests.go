@@ -329,6 +329,35 @@ func Operation(c *golangsdk.ServiceClient, id, action string) (r OperationResult
 	return
 }
 
+type ResizeOpts struct {
+	FavorResize string             `json:"flavorResize" required:"true"`
+	ExtendParam *ResizeExtendParam `json:"extendParam,omitempty"`
+}
+
+type ResizeExtendParam struct {
+	DecMasterFlavor string `json:"decMasterFlavor,omitempty"`
+	IsAutoPay       string `json:"isAutoPay,omitempty"`
+}
+
+type ResizeResp struct {
+	JobID   string `json:"jobID"`
+	OrderID string `json:"orderID"`
+}
+
+func Resize(c *golangsdk.ServiceClient, id string, opts ResizeOpts) (ResizeResp, error) {
+	var r ResizeResp
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return r, err
+	}
+
+	_, err = c.Post(operationURL(c, id, "resize"), b, &r, &golangsdk.RequestOpts{
+		OkCodes:     []int{201},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return r, err
+}
+
 type UpdateTagsOpts struct {
 	Tags []tags.ResourceTag `json:"tags" required:"true"`
 }

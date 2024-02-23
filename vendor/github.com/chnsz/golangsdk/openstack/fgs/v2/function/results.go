@@ -176,10 +176,6 @@ type FuncVpc struct {
 	Gateway    string `json:"gateway,omitempty"`
 }
 
-type StrategyConfig struct {
-	Concurrency *int `json:"concurrency"`
-}
-
 type commonResult struct {
 	golangsdk.Result
 }
