@@ -74,7 +74,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `availability_zone` - (Required, String, ForceNew) The availability zone in which to create the cluster instance.
-  Changing this parameter will create a new resource.
+  If there are multiple available zones, separate by commas, e.g. **cn-north-4a,cn-north-4b,cn-north-4g**.
+  Currently, multi-AZ clusters only support selecting `3` AZs. Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project ID.
 
