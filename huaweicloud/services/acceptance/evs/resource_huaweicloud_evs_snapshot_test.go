@@ -32,6 +32,8 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Daily backup"),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.key", "value"),
 				),
 			},
 		},
@@ -107,6 +109,10 @@ resource "huaweicloud_evs_snapshot" "test" {
   volume_id   = huaweicloud_evs_volume.test.id
   name        = "%s"
   description = "Daily backup"
+  metadata    = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, rName, rName)
 }
