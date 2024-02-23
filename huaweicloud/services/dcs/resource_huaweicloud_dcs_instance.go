@@ -94,6 +94,7 @@ var (
 // @API DCS POST /v2/{project_id}/instances
 // @API DCS GET /v2/{project_id}/instances/{id}/tags
 // @API DCS POST /v2/{project_id}/dcs/{id}/tags/action
+// @API DCS POST /v2/{project_id}/instances/{instance_id}/restores
 func ResourceDcsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDcsInstancesCreate,
@@ -305,6 +306,18 @@ func ResourceDcsInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"remark": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -351,6 +364,10 @@ func ResourceDcsInstance() *schema.Resource {
 				Computed: true,
 			},
 			"domain_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"restore_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -1149,6 +1166,24 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
+	}
+
+	if _, oK := d.GetOk("backup_id"); oK {
+		// restore instance by backup ID
+		restoreInstanceOpts := instances.RestoreInstanceOpts{
+			BackupId: d.Get("backup_id").(string),
+			Remark:   d.Get("remark").(string),
+		}
+		r, err := instances.RestoreInstance(client, d.Get("instance_id").(string), restoreInstanceOpts)
+		if err != nil {
+			return diag.Errorf("error in restoring DCS instance : %s", err)
+		}
+
+		mErr := multierror.Append(nil,
+			d.Set("restore_id", r.RestoreId),
+		)
+
+		return diag.FromErr(mErr)
 	}
 
 	return resourceDcsInstancesRead(ctx, d, meta)

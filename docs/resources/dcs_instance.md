@@ -232,6 +232,12 @@ The following arguments are supported:
 * `reserved_ips` - (Optional, List) Specifies IP addresses to retain. Mandatory during cluster scale-in. If this
   parameter is not set, the system randomly deletes unnecessary shards.
 
+* `instance_id` - (Optional, String) Specifies ID of the DCS instance.
+
+* `backup_id` - (Optional, String) Specifies the backup ID of the DCS instance.
+
+* `remark` - (Optional, String) Specifies the remark about restoring the DCS instance.
+
 The `whitelists` block supports:
 
 * `group_name` - (Required, String) Specifies the name of IP address group.
@@ -296,6 +302,8 @@ In addition to all arguments above, the following attributes are exported:
 * `security_group_name` - The name of security group which the instance belongs to.
 
 * `order_id` - The ID of the order that created the instance.
+
+* `restore_id` - Indicates the restore ID of the DCS instance.
 
 ## Timeouts
 
