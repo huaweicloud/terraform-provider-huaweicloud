@@ -94,6 +94,7 @@ func TestAccProtectionRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "status", "1"),
 					resource.TestCheckResourceAttr(rName, "source.0.address", "1.1.1.1"),
 					resource.TestCheckResourceAttr(rName, "destination.0.address", "1.1.1.2"),
+					resource.TestCheckResourceAttrSet(rName, "rule_hit_count"),
 				),
 			},
 			{

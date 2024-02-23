@@ -186,6 +186,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `rule_hit_count` - The number of times the protection rule is hit.
+
 ## Import
 
 The protection rule can be imported using `object_id`, `id`, separated by a slash, e.g.
