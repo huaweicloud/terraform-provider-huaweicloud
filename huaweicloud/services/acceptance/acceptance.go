@@ -13,14 +13,21 @@ import (
 )
 
 var (
-	HW_REGION_NAME                        = os.Getenv("HW_REGION_NAME")
-	HW_CUSTOM_REGION_NAME                 = os.Getenv("HW_CUSTOM_REGION_NAME")
-	HW_AVAILABILITY_ZONE                  = os.Getenv("HW_AVAILABILITY_ZONE")
-	HW_ACCESS_KEY                         = os.Getenv("HW_ACCESS_KEY")
-	HW_SECRET_KEY                         = os.Getenv("HW_SECRET_KEY")
-	HW_USER_ID                            = os.Getenv("HW_USER_ID")
-	HW_USER_NAME                          = os.Getenv("HW_USER_NAME")
-	HW_PROJECT_ID                         = os.Getenv("HW_PROJECT_ID")
+	HW_REGION_NAME        = os.Getenv("HW_REGION_NAME")
+	HW_REGION_NAME_1      = os.Getenv("HW_REGION_NAME_1")
+	HW_REGION_NAME_2      = os.Getenv("HW_REGION_NAME_2")
+	HW_REGION_NAME_3      = os.Getenv("HW_REGION_NAME_3")
+	HW_CUSTOM_REGION_NAME = os.Getenv("HW_CUSTOM_REGION_NAME")
+	HW_AVAILABILITY_ZONE  = os.Getenv("HW_AVAILABILITY_ZONE")
+	HW_ACCESS_KEY         = os.Getenv("HW_ACCESS_KEY")
+	HW_SECRET_KEY         = os.Getenv("HW_SECRET_KEY")
+	HW_USER_ID            = os.Getenv("HW_USER_ID")
+	HW_USER_NAME          = os.Getenv("HW_USER_NAME")
+	HW_PROJECT_ID         = os.Getenv("HW_PROJECT_ID")
+	HW_PROJECT_ID_1       = os.Getenv("HW_PROJECT_ID_1")
+	HW_PROJECT_ID_2       = os.Getenv("HW_PROJECT_ID_2")
+	HW_PROJECT_ID_3       = os.Getenv("HW_PROJECT_ID_3")
+
 	HW_DOMAIN_ID                          = os.Getenv("HW_DOMAIN_ID")
 	HW_DOMAIN_NAME                        = os.Getenv("HW_DOMAIN_NAME")
 	HW_ENTERPRISE_PROJECT_ID_TEST         = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
@@ -813,6 +820,20 @@ func TestAccPreCheckKmsHsmClusterId(t *testing.T) {
 func TestAccPreCheckProjectID(t *testing.T) {
 	if HW_PROJECT_ID == "" {
 		t.Skip("HW_PROJECT_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCProjectID(t *testing.T) {
+	if HW_PROJECT_ID_1 == "" || HW_PROJECT_ID_2 == "" || HW_PROJECT_ID_3 == "" {
+		t.Skip("HW_PROJECT_ID_1, HW_PROJECT_ID_2, HW_PROJECT_ID_3 must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCRegionName(t *testing.T) {
+	if HW_REGION_NAME_1 == "" || HW_REGION_NAME_2 == "" || HW_REGION_NAME_3 == "" {
+		t.Skip("HW_REGION_NAME_1, HW_REGION_NAME_2, HW_REGION_NAME_3 must be set for this acceptance test")
 	}
 }
 

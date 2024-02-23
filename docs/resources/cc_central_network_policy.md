@@ -8,6 +8,8 @@ Manages a central network policy resource of Cloud Connect within HuaweiCloud.
 
 ## Example Usage
 
+### Create a basic policy
+
 ```hcl
 variable "central_network_id" {}
 variable "project_id" {}
@@ -31,6 +33,83 @@ resource "huaweicloud_cc_central_network_policy" "test" {
     project_id           = var.project_id
     region_id            = var.region_id
     enterprise_router_id = var.enterprise_router_id
+  }
+}
+```
+
+### Create a policy that needs to exclude some ER connections
+  
+```hcl
+variable "central_network_id" {}
+variable "project_id_1" {}
+variable "project_id_2" {}
+variable "project_id_3" {}
+variable "region_id_1" {}
+variable "region_id_2" {}
+variable "region_id_3" {}
+variable "enterprise_router_id_1" {}
+variable "enterprise_router_id_2" {}
+variable "enterprise_router_id_3" {}
+variable "enterprise_router_table_id_1" {}
+variable "enterprise_router_table_id_2" {}
+variable "enterprise_router_table_id_3" {}
+
+resource "huaweicloud_cc_central_network_policy" "test" {
+  central_network_id = var.central_network_id
+ 
+  planes {
+    associate_er_tables {
+      project_id                 = var.project_id_1
+      region_id                  = var.region_id_1
+      enterprise_router_id       = var.enterprise_router_id_1
+      enterprise_router_table_id = var.enterprise_router_table_id_1
+    }
+
+    associate_er_tables {
+      project_id                 = var.project_id_2
+      region_id                  = var.region_id_2
+      enterprise_router_id       = var.enterprise_router_id_2
+      enterprise_router_table_id = var.enterprise_router_table_id_2
+    }
+
+    associate_er_tables {
+      project_id                 = var.project_id_3
+      region_id                  = var.region_id_3
+      enterprise_router_id       = var.enterprise_router_id_3
+      enterprise_router_table_id = var.enterprise_router_table_id_3
+    }
+
+    exclude_er_connections {
+      exclude_er_instances {
+        project_id           = var.project_id_1
+        region_id            = var.region_id_1
+        enterprise_router_id = var.enterprise_router_id_1
+      }
+
+      exclude_er_instances {
+        project_id           = var.project_id_2
+        region_id            = var.region_id_2
+        enterprise_router_id = var.enterprise_router_id_2
+      }
+    }
+  }
+ 
+  er_instances {
+    project_id           = var.project_id_1
+    region_id            = var.region_id_1
+    enterprise_router_id = var.enterprise_router_id_1
+  }
+
+  er_instances {
+    project_id           = var.project_id_2
+    region_id            = var.region_id_2
+    enterprise_router_id = var.enterprise_router_id_2
+  }
+
+  er_instances {
+    project_id           = var.project_id_3
+    region_id            = var.region_id_3
+    enterprise_router_id = var.enterprise_router_id_3
   }
 }
 ```
@@ -78,6 +157,11 @@ The `planes` block supports:
   The [associate_er_tables](#centralNetworkPolicy_AssociateErTableDocument) structure is documented below.
   Changing this parameter will create a new resource.
 
+* `exclude_er_connections` - (Optional, List, ForceNew) List of the enterprise router connections excluded from the
+  central network policy.
+  The [exclude_er_connections](#centralNetworkPolicy_ExcludeErConnectionDocument) structure is documented below.
+  Changing this parameter will create a new resource.
+
 <a name="centralNetworkPolicy_AssociateErTableDocument"></a>
 The `associate_er_tables` block supports:
 
@@ -91,6 +175,13 @@ The `associate_er_tables` block supports:
   Changing this parameter will create a new resource.
 
 * `enterprise_router_table_id` - (Required, String, ForceNew) Enterprise router table ID.
+  Changing this parameter will create a new resource.
+
+<a name="centralNetworkPolicy_ExcludeErConnectionDocument"></a>
+The `exclude_er_connections` block supports:
+
+* `exclude_er_instances` - (Required, List, ForceNew) List of enterprise routers that will not establish a connection.
+  The [exclude_er_instances](#centralNetworkPolicy_AssociateErInstanceDocument) structure is the same as `er_instances`.
   Changing this parameter will create a new resource.
 
 ## Attribute Reference
