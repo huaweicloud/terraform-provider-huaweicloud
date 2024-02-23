@@ -319,6 +319,89 @@ func TestAccCluster_secGroup(t *testing.T) {
 	})
 }
 
+func TestAccCluster_resize(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCluster_resize(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
+					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
+				),
+			},
+			{
+				Config: testAccCluster_resize_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform update"),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.medium"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCluster_resizePeriod(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCluster_resizePeriod(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
+					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
+				),
+			},
+			{
+				Config: testAccCluster_resize_updatePeriod(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform update"),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.medium"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckClusterDestroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(acceptance.HW_REGION_NAME)
@@ -653,6 +736,98 @@ resource "huaweicloud_cce_cluster" "test" {
   service_network_cidr   = "10.248.0.0/16"
   description            = "created by terraform update"
   security_group_id      = huaweicloud_networking_secgroup.test2.id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_resize(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%[2]s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+  description            = "created by terraform"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_resize_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%[2]s"
+  flavor_id              = "cce.s1.medium"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+  description            = "created by terraform update"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_resizePeriod(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%[2]s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+  description            = "created by terraform"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_resize_updatePeriod(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%[2]s"
+  flavor_id              = "cce.s1.medium"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+  description            = "created by terraform update"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
 
   tags = {
     foo = "bar"

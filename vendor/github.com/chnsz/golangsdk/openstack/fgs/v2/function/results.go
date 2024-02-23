@@ -1,6 +1,8 @@
 package function
 
 import (
+	"strconv"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 )
@@ -174,10 +176,6 @@ type FuncVpc struct {
 	Gateway    string `json:"gateway,omitempty"`
 }
 
-type StrategyConfig struct {
-	Concurrency *int `json:"concurrency"`
-}
-
 type commonResult struct {
 	golangsdk.Result
 }
@@ -271,4 +269,80 @@ type AsyncInvokeConfig struct {
 	UpdatedAt string `json:"last_modified"`
 	// Whether to enable asynchronous invocation status persistence.
 	EnableAsyncStatusLog bool `json:"enable_async_status_log"`
+}
+
+// ReservedInstanceConfigResp is the structure that represents the response of the GetReservedInstanceConfig method.
+type ReservedInstanceConfigResp struct {
+	// The list of reserved instance policy.
+	ReservedInstances []ReservedInstancePolicy `json:"reserved_instances"`
+	// The page information.
+	PageInfo PageInfoObj `json:"page_info"`
+	// Number of function.
+	Count int `json:"count"`
+}
+
+// ReservedInstancePolicy is the structure that represents the reserved instance policy configuration.
+type ReservedInstancePolicy struct {
+	// Function URN.
+	FunctionUrn string `json:"function_urn"`
+	// Limited type, the supported values are version and alias.
+	QualifierType string `json:"qualifier_type"`
+	// The value of the limited type.
+	QualifierName string `json:"qualifier_name"`
+	// The number of instance reserved.
+	MinCount int `json:"min_count"`
+	// Whether to enable the idle mode configuration.
+	IdleMode bool `json:"idle_mode"`
+	// The auto scaling policy configuration.
+	TacticsConfig TacticsConfigObj `json:"tactics_config"`
+}
+
+// PageInfoObj is the structure that represents pagination information of the function reserved instance.
+type PageInfoObj struct {
+	// Next record location.
+	NextMarker int `json:"next_marker"`
+	// Last record location.
+	PreviousMarker int `json:"previous_marker"`
+	// Total number of current page.
+	CurrentCount int `json:"current_count"`
+}
+
+// ReservedInstanceConfigPage represents the response pages of the GetReservedInstanceConfig method.
+type ReservedInstanceConfigPage struct {
+	pagination.MarkerPageBase
+}
+
+// IsEmpty returns true if no reserved instance.
+func (r ReservedInstanceConfigPage) IsEmpty() (bool, error) {
+	resp, err := extractReservedInstanceConfigs(r)
+	return len(resp) == 0, err
+}
+
+// LastMarker returns the last marker index in reserved instance list.
+func (r ReservedInstanceConfigPage) LastMarker() (string, error) {
+	resp, err := extractPageInfo(r)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.CurrentCount == 0 {
+		return "", nil
+	}
+	return strconv.Itoa(resp.NextMarker), nil
+}
+
+// extractPageInfo is a method which to extract the response of the page information.
+func extractPageInfo(r pagination.Page) (*PageInfoObj, error) {
+	var s ReservedInstanceConfigResp
+	err := r.(ReservedInstanceConfigPage).Result.ExtractInto(&s)
+
+	return &s.PageInfo, err
+}
+
+// extractReservedInstanceConfigs is a method which to extract the response to reserved instance configuration list.
+func extractReservedInstanceConfigs(p pagination.Page) ([]ReservedInstancePolicy, error) {
+	var resp ReservedInstanceConfigResp
+	err := p.(ReservedInstanceConfigPage).Result.ExtractInto(&resp)
+
+	return resp.ReservedInstances, err
 }

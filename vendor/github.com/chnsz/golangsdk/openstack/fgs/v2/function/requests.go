@@ -189,6 +189,13 @@ type UpdateMetadataOpts struct {
 	RestoreHookTimeout int `json:"restore_hook_timeout,omitempty"`
 }
 
+type StrategyConfig struct {
+	Concurrency *int `json:"concurrency,omitempty"`
+	// The number of concurrent requests supported by single instance. The valid value range is 1 to 1000.
+	//  This parameter is only supported by the `v2` version of the function.
+	ConcurrencyNum *int `json:"concurrent_num,omitempty"`
+}
+
 type FuncLogConfig struct {
 	// Name of the log group bound to the function.
 	GroupName string `json:"group_name,omitempty"`
@@ -454,4 +461,93 @@ func DeleteResourceTags(c *golangsdk.ServiceClient, functionUrn string, opts Tag
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return err
+}
+
+// UpdateReservedInstanceObj is the structure that used to modify information of reserved instance.
+type UpdateReservedInstanceObj struct {
+	// Function URN.
+	FunctionUrn string `json:"-" required:"true"`
+	// The number of reserved instance.
+	Count *int `json:"count" required:"true"`
+	// Whether to enable the idle mode configuration.
+	IdleMode *bool `json:"idle_mode,omitempty"`
+	// The auto scaling policy configuration.
+	TacticsConfig *TacticsConfigObj `json:"tactics_config,omitempty"`
+}
+
+// TacticsConfigObj is the structure that represents the configuration details of the reserved instance policy.
+type TacticsConfigObj struct {
+	// The list of scheduled configurations.
+	CronConfigs []CronConfigObj `json:"cron_configs,omitempty"`
+	// The list of traffic configurations.
+	MetricConfigs []MetricConfigObj `json:"metric_configs,omitempty"`
+}
+
+// CronConfigsObj is the structure that represents the list of scheduled configurations.
+type CronConfigObj struct {
+	// The policy name of scheduled configuration.
+	Name string `json:"name,omitempty"`
+	// The function cron expression.
+	Cron string `json:"cron,omitempty"`
+	// The number of reserved instance to which the policy belongs.
+	Count int `json:"count,omitempty"`
+	// The start timestamp of policy.
+	StartTime int `json:"start_time,omitempty"`
+	// The expiration timestamp of policy.
+	ExpiredTime int `json:"expired_time,omitempty"`
+}
+
+// CronConfigsObj is the structure that represents the list of traffic configurations.
+type MetricConfigObj struct {
+	// The policy name of traffic configuration.
+	Name string `json:"name,omitempty"`
+	// The type of traffic configuration.
+	// + Concurrency: Reserved instance usage.
+	Type string `json:"type,omitempty"`
+	// The traffic threshold.
+	Threshold int `json:"threshold,omitempty"`
+	// The minimun of traffic.
+	Min int `json:"min,omitempty"`
+}
+
+// UpdateReservedInstanceConfig is the method that used to config reserved instance information.
+func UpdateReservedInstanceConfig(c *golangsdk.ServiceClient, opts UpdateReservedInstanceObj) (*UpdateReservedInstanceObj, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r UpdateReservedInstanceObj
+	_, err = c.Put(reservedInstanceConfigUrl(c, opts.FunctionUrn), b, &r, nil)
+	return &r, err
+}
+
+// ListReservedInstanceConfigOpts is the structure that used to query of list reserved instance configurations.
+type ListReservedInstanceConfigOpts struct {
+	// Function URN.
+	FunctionUrn string `q:"function_urn,omitempty"`
+	// The current query index. Default 0.
+	Marker int `q:"marker,omitempty"`
+	// Maximum number of templates to obtain in a request. Default 100, maximum 500.
+	Limit int `q:"limit,omitempty"`
+}
+
+// ListReservedInstanceConfigs is the method that used to get of list reserved instance configurations.
+func ListReservedInstanceConfigs(c *golangsdk.ServiceClient, opts ListReservedInstanceConfigOpts) ([]ReservedInstancePolicy, error) {
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	url := getReservedInstanceConfigUrl(c) + query.String()
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		p := ReservedInstanceConfigPage{pagination.MarkerPageBase{PageResult: r}}
+		p.MarkerPageBase.Owner = p
+		return p
+	}).AllPages()
+
+	if err != nil {
+		return nil, err
+	}
+	return extractReservedInstanceConfigs(pages)
 }

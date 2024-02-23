@@ -25,7 +25,7 @@ func deleteURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn)
 }
 
-//function code
+// function code
 func getCodeURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn, CODE)
 }
@@ -34,7 +34,7 @@ func updateCodeURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return getCodeURL(c, functionUrn)
 }
 
-//function metadata
+// function metadata
 func getMetadataURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn, CONFIG)
 }
@@ -43,7 +43,7 @@ func updateMetadataURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return getMetadataURL(c, functionUrn)
 }
 
-//function invoke
+// function invoke
 func invokeURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn, INVOKE)
 }
@@ -52,7 +52,7 @@ func asyncInvokeURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn, ASINVOKE)
 }
 
-//function version
+// function version
 func createVersionURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn, VERSION)
 }
@@ -61,7 +61,7 @@ func listVersionURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return createVersionURL(c, functionUrn)
 }
 
-//function alias
+// function alias
 func createAliasURL(c *golangsdk.ServiceClient, functionUrn string) string {
 	return c.ServiceURL(FGS, FUNCTION, functionUrn, ALIAS)
 }
@@ -92,4 +92,12 @@ func maxInstanceNumberURL(c *golangsdk.ServiceClient, functionUrn string) string
 
 func tagsActionURL(c *golangsdk.ServiceClient, functionUrn, action string) string {
 	return c.ServiceURL("functions", functionUrn, "tags", action)
+}
+
+func reservedInstanceConfigUrl(c *golangsdk.ServiceClient, functionUrn string) string {
+	return c.ServiceURL("fgs/functions", functionUrn, "reservedinstances")
+}
+
+func getReservedInstanceConfigUrl(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("fgs/functions/reservedinstanceconfigs")
 }

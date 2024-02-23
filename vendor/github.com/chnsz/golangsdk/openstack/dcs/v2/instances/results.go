@@ -108,3 +108,12 @@ type RedisConfig struct {
 	SupportDataVersion string `json:"support_data_version"`
 	Customized         bool   `json:"customized"`
 }
+
+type GetSslResponse struct {
+	Enable       bool   `json:"enabled"`
+	Ip           string `json:"ip"`
+	SslValidated bool   `json:"ssl_validated"`
+	Port         string `json:"port"`
+	DomainName   string `json:"domain_name"`
+	SslExpiredAt string `json:"ssl_expired_at"`
+}

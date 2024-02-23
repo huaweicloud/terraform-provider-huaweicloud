@@ -160,8 +160,7 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) Specifies the cluster name.
   Changing this parameter will create a new cluster resource.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the cluster specifications.
-  Changing this parameter will create a new cluster resource.
+* `flavor_id` - (Required, String) Specifies the cluster specifications.
   Possible values:
   + **cce.s1.small**: small-scale single cluster (up to 50 nodes).
   + **cce.s1.medium**: medium-scale single cluster (up to 200 nodes).
@@ -169,6 +168,8 @@ The following arguments are supported:
   + **cce.s2.medium**: medium-scale HA cluster (up to 200 nodes).
   + **cce.s2.large**: large-scale HA cluster (up to 1000 nodes).
   + **cce.s2.xlarge**: large-scale HA cluster (up to 2000 nodes).
+
+  -> Changing the number of control nodes or reducing cluster flavor is not supported.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC used to create the node.
   Changing this parameter will create a new cluster resource.
