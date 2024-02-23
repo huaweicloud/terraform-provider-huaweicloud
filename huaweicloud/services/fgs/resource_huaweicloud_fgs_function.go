@@ -36,6 +36,8 @@ import (
 // @API FunctionGraph POST /v2/{project_id}/fgs/functions/{function_urn}/aliases
 // @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/aliases/{alias_name}
 // @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}
+// @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/reservedinstances
+// @API FunctionGraph GET /v2/{project_id}/fgs/functions/reservedinstanceconfigs
 func ResourceFgsFunctionV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFgsFunctionCreate,
@@ -320,6 +322,36 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Description: "The versions management of the function.",
 			},
 			"tags": common.TagsSchema(),
+			"reserved_instances": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"qualifier_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"qualifier_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"count": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"idle_mode": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"tactics_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem:     tracticsConfigsSchema(),
+						},
+					},
+				},
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -327,6 +359,65 @@ func ResourceFgsFunctionV2() *schema.Resource {
 			"urn": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func tracticsConfigsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cron_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"cron": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"count": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"start_time": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"expired_time": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
+			},
+			"metric_configs": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"threshold": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"min": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -456,6 +547,12 @@ func resourceFgsFunctionCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	if err = createFunctionVersions(fgsClient, urn, d.Get("versions").(*schema.Set)); err != nil {
 		return diag.Errorf("error creating function versions: %s", err)
+	}
+
+	if d.HasChanges("reserved_instances") {
+		if err = updateReservedInstanceConfig(fgsClient, d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceFgsFunctionRead(ctx, d, meta)
@@ -606,6 +703,62 @@ func parseFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) 
 	return result, nil
 }
 
+func flattenTracticsConfigs(policyConfig function.TacticsConfigObj) []map[string]interface{} {
+	if len(policyConfig.CronConfigs) == 0 && len(policyConfig.MetricConfigs) == 0 {
+		return nil
+	}
+
+	cronConfigRst := make([]map[string]interface{}, len(policyConfig.CronConfigs))
+	for i, v := range policyConfig.CronConfigs {
+		cronConfigRst[i] = map[string]interface{}{
+			"name":         v.Name,
+			"cron":         v.Cron,
+			"count":        v.Count,
+			"start_time":   v.StartTime,
+			"expired_time": v.ExpiredTime,
+		}
+	}
+
+	metricConfigs := make([]map[string]interface{}, len(policyConfig.MetricConfigs))
+	for i, v := range policyConfig.MetricConfigs {
+		metricConfigs[i] = map[string]interface{}{
+			"name":      v.Name,
+			"type":      v.Type,
+			"threshold": v.Threshold,
+			"min":       v.Min,
+		}
+	}
+
+	return []map[string]interface{}{
+		{
+			"cron_configs":   cronConfigRst,
+			"metric_configs": metricConfigs,
+		},
+	}
+}
+
+func getReservedInstanceConfig(c *golangsdk.ServiceClient, d *schema.ResourceData) ([]map[string]interface{}, error) {
+	opts := function.ListReservedInstanceConfigOpts{
+		FunctionUrn: d.Id(),
+	}
+	reservedInstances, err := function.ListReservedInstanceConfigs(c, opts)
+	if err != nil {
+		return nil, fmt.Errorf("error getting list of the function reserved instance config: %s", err)
+	}
+
+	result := make([]map[string]interface{}, len(reservedInstances))
+	for i, v := range reservedInstances {
+		result[i] = map[string]interface{}{
+			"count":          v.MinCount,
+			"idle_mode":      v.IdleMode,
+			"qualifier_name": v.QualifierName,
+			"qualifier_type": v.QualifierType,
+			"tactics_config": flattenTracticsConfigs(v.TacticsConfig),
+		}
+	}
+	return result, nil
+}
+
 func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
@@ -656,6 +809,16 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		setFuncionMountConfig(d, f.MountConfig),
 		d.Set("versions", versionConfig),
 	)
+
+	reservedInstances, err := getReservedInstanceConfig(fgsClient, d)
+	if err != nil {
+		return diag.Errorf("error retrieving function reserved instance: %s", err)
+	}
+
+	mErr = multierror.Append(mErr,
+		d.Set("reserved_instances", reservedInstances),
+	)
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting function fields: %s", err)
 	}
@@ -731,6 +894,165 @@ func updateFunctionVersions(client *golangsdk.ServiceClient, d *schema.ResourceD
 	return nil
 }
 
+func buildCronConfigs(cronConfigs []interface{}) []function.CronConfigObj {
+	if len(cronConfigs) < 1 {
+		return nil
+	}
+
+	result := make([]function.CronConfigObj, len(cronConfigs))
+	for i, v := range cronConfigs {
+		cronConfig := v.(map[string]interface{})
+		result[i] = function.CronConfigObj{
+			Name:        cronConfig["name"].(string),
+			Cron:        cronConfig["cron"].(string),
+			Count:       cronConfig["count"].(int),
+			StartTime:   cronConfig["start_time"].(int),
+			ExpiredTime: cronConfig["expired_time"].(int),
+		}
+	}
+	return result
+}
+
+func buildMetricConfigs(metricConfigs []interface{}) []function.MetricConfigObj {
+	if len(metricConfigs) < 1 {
+		return nil
+	}
+	result := make([]function.MetricConfigObj, len(metricConfigs))
+	for i, v := range metricConfigs {
+		metricConfig := v.(map[string]interface{})
+		result[i] = function.MetricConfigObj{
+			Name:      metricConfig["name"].(string),
+			Type:      metricConfig["type"].(string),
+			Threshold: metricConfig["threshold"].(int),
+			Min:       metricConfig["min"].(int),
+		}
+	}
+	return result
+}
+
+func buildTracticsConfigs(tacticsConfigs []interface{}) *function.TacticsConfigObj {
+	if len(tacticsConfigs) < 1 {
+		return nil
+	}
+
+	tacticsConfig := tacticsConfigs[0].(map[string]interface{})
+	result := function.TacticsConfigObj{
+		CronConfigs:   buildCronConfigs(tacticsConfig["cron_configs"].([]interface{})),
+		MetricConfigs: buildMetricConfigs(tacticsConfig["metric_configs"].([]interface{})),
+	}
+	return &result
+}
+
+func getVersionUrn(client *golangsdk.ServiceClient, functionUrn string, qualifierName string) (string, error) {
+	queryOpts := versions.ListOpts{
+		FunctionUrn: functionUrn,
+	}
+	versionList, err := versions.List(client, queryOpts)
+	if err != nil {
+		return "", fmt.Errorf("error querying version list for the specified function URN: %s", err)
+	}
+
+	for _, val := range versionList {
+		if val.Version == qualifierName {
+			return val.FuncUrn, nil
+		}
+	}
+
+	return "", nil
+}
+
+func getReservedInstanceUrn(client *golangsdk.ServiceClient, functionUrn string, policy map[string]interface{}) (string, error) {
+	qualifierName := policy["qualifier_name"].(string)
+	if policy["qualifier_type"].(string) == "version" {
+		urn, err := getVersionUrn(client, functionUrn, qualifierName)
+		if err != nil {
+			return "", err
+		}
+		return urn, nil
+	}
+
+	aliasList, err := aliases.List(client, functionUrn)
+	if err != nil {
+		return "", fmt.Errorf("error querying alias list for the specified function URN: %s", err)
+	}
+	for _, val := range aliasList {
+		if val.Name == qualifierName {
+			return val.AliasUrn, nil
+		}
+	}
+
+	return "", nil
+}
+
+func removeReservedInstances(client *golangsdk.ServiceClient, functionUrn string, policies []interface{}) error {
+	for _, v := range policies {
+		policy := v.(map[string]interface{})
+		urn, err := getReservedInstanceUrn(client, functionUrn, policy)
+		if err != nil {
+			return err
+		}
+		// Deleting the alias will also delete the corresponding reserved instance.
+		if urn == "" {
+			return nil
+		}
+		opts := function.UpdateReservedInstanceObj{
+			FunctionUrn: urn,
+			Count:       utils.Int(0),
+			IdleMode:    utils.Bool(false),
+		}
+		_, err = function.UpdateReservedInstanceConfig(client, opts)
+		if err != nil {
+			return fmt.Errorf("error removing function reversed instance: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func addReservedInstances(client *golangsdk.ServiceClient, functionUrn string, addPolicies []interface{}) error {
+	for _, v := range addPolicies {
+		addPolicy := v.(map[string]interface{})
+		urn, err := getReservedInstanceUrn(client, functionUrn, addPolicy)
+
+		if err != nil {
+			return err
+		}
+
+		opts := function.UpdateReservedInstanceObj{
+			FunctionUrn:   urn,
+			Count:         utils.Int(addPolicy["count"].(int)),
+			IdleMode:      utils.Bool(addPolicy["idle_mode"].(bool)),
+			TacticsConfig: buildTracticsConfigs(addPolicy["tactics_config"].([]interface{})),
+		}
+		_, err = function.UpdateReservedInstanceConfig(client, opts)
+		if err != nil {
+			return fmt.Errorf("error updating function reversed instance: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func updateReservedInstanceConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oldRaw, newRaw := d.GetChange("reserved_instances")
+	addRaw := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+	removeRaw := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+	functionUrn := resourceFgsFunctionUrn(d.Id())
+	if removeRaw.Len() > 0 {
+		if err := removeReservedInstances(client, functionUrn, removeRaw.List()); err != nil {
+			return err
+		}
+	}
+
+	if addRaw.Len() > 0 {
+		if err := addReservedInstances(client, functionUrn, addRaw.List()); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceFgsFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
@@ -774,6 +1096,12 @@ func resourceFgsFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	if d.HasChange("versions") {
 		if err = updateFunctionVersions(fgsClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("reserved_instances") {
+		if err = updateReservedInstanceConfig(fgsClient, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}

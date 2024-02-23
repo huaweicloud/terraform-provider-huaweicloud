@@ -315,6 +315,9 @@ The following arguments are supported:
 
 * `log_stream_name` - (Optional, String) Specifies the name of the LTS stream.
 
+* `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.
+  The [reserved_instances](#functiongraph_reserved_instances) structure is documented below.
+
 The `func_mounts` block supports:
 
 * `mount_type` - (Required, String) Specifies the mount type.
@@ -352,6 +355,78 @@ The `aliases` block supports:
 
 * `description` - (Optional, String) Specifies the description of the version alias.
 
+<a name="functiongraph_reserved_instances"></a>
+The `reserved_instances` block supports:
+
+* `qualifier_type` - (Required, String) Specifies qualifier type of reserved instance. The valid values are as follows:
+  + **version**
+  + **alias**
+
+  -> Reserved instances cannot be configured for both a function alias and the corresponding version. For example,
+  if the alias of the `latest` version is `1.0` and reserved instances have been configured for this version,
+  no more instances can be configured for alias `1.0`.
+
+* `qualifier_name` - (Required, String) Specifies the version name or alias name.
+
+* `count` - (Required, Int) Specifies the number of reserved instance.
+  The valid value ranges from `0` to `1,000`.
+  If this parameter is set to `0`, the reserved instance will not run.
+
+* `idle_mode` - (Optional, Bool) Specifies whether to enable the idle mode. The default value is `false`.
+  If this parameter is enabled, reserved instances are initialized and the mode change needs some time to take effect.
+  You will still be billed at the price of reserved instances for non-idle mode in this period.
+
+* `tactics_config` - (Optional, List) Specifies the auto scaling policies for reserved instance.
+  The [tactics_config](#functiongraph_tactics_config) structure is documented below.
+
+<a name="functiongraph_tactics_config"></a>
+The `tactics_config` block supports:
+
+* `cron_configs` - (Optional, List) Specifies the list of scheduled policy configurations.
+  The [cron_configs](#functiongraph_cron_configs) structure is documented below.
+
+* `metric_configs` - (Optional, List) Specifies the list of metric policy configurations.
+  The [metric_configs](#functiongraph_metric_configs) structure is documented below.
+
+  -> If you want to use the `metric_configs` parameter, please open a service ticket to enable this function. Refer to
+  the documentation [how to submit a service ticket](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
+
+<a name="functiongraph_cron_configs"></a>
+The `cron_configs` block supports:
+
+* `name` - (Required, String) Specifies the name of scheduled policy configuration.
+  The valid length is limited from `1` to `60` characters, only letters, digits, hyphens (-), and underscores (_) are allowed.
+  The name must start with a letter and ending with a letter or digit.
+
+* `cron` - (Required, String) Specifies the cron expression.
+  Set this parameter, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-functiongraph/functiongraph_01_0908.html).
+
+* `count` - (Required, Int) Specifies the number of reserved instance to which the policy belongs.
+  The valid value ranges from `0` to `1,000`.
+
+  -> The number of reserved instances must be greater than or equal to the number of reserved instances in the basic configuration.
+
+* `start_time` - (Required, Int) Specifies the effective timestamp of policy. The unit is `s`, e.g. **1740560074**.
+
+* `expired_time` - (Required, Int) Specifies the expiration timestamp of the policy. The unit is `s`, e.g. **1740560074**.
+
+<a name="functiongraph_metric_configs"></a>
+The `metric_configs` block supports:
+
+* `name` - (Required, String) Specifies the name of metric policy.
+  The valid length is limited from `1` to `60` characters, only letters, digits, hyphens (-), and underscores (_) are allowed.
+  The name must start with a letter and ending with a letter or digit.
+
+* `type` - (Required, String) Specifies the type of metric policy.
+  The valid value is as follows:
+  + **Concurrency**: Reserved instance usage.
+
+* `threshold` - (Required, Int) Specifies the metric policy threshold. The valid value ranges from `1` to `99`.
+
+* `min` - (Required, Int) Specifies the minimun of traffic. The valid value ranges from `0` to `1,000`.
+
+  -> The number of reserved instances must be greater than or equal to the number of reserved instances in the basic configuration.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -362,7 +437,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `urn` - Uniform Resource Name.
 
-* `version` - The version of the function
+* `version` - The version of the function.
 
 ## Timeouts
 
@@ -381,7 +456,7 @@ $ terraform import huaweicloud_fgs_function.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
 API response. The missing attributes are:
-`app`, `func_code`, `agency`, `tags"`.
+`app`, `func_code`, `agency`, `tags"`, `package`.
 It is generally recommended running `terraform plan` after importing a function.
 You can then decide if changes should be applied to the function, or the resource definition should be updated to align
 with the function. Also you can ignore changes as below.
@@ -391,7 +466,7 @@ resource "huaweicloud_fgs_function" "test" {
   ...
   lifecycle {
     ignore_changes = [
-      app, func_code, agency, tags,
+      app, func_code, agency, tags, package,
     ]
   }
 }
