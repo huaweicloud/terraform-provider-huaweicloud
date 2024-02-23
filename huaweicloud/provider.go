@@ -426,6 +426,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_private_certificate_export": ccm.DataSourceCcmPrivateCertificateExport(),
 
 			"huaweicloud_cdn_domain_statistics": cdn.DataSourceStatistics(),
+			"huaweicloud_cdn_domains":           cdn.DataSourceCdnDomains(),
 
 			"huaweicloud_cfw_firewalls": cfw.DataSourceFirewalls(),
 
