@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -24,6 +25,7 @@ import (
 
 const (
 	providerUserAgent string = "terraform-provider-iac"
+	InternationalSite string = "International"
 )
 
 // MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
@@ -62,6 +64,9 @@ type Config struct {
 	HwClient     *golangsdk.ProviderClient
 	DomainClient *golangsdk.ProviderClient
 
+	// websiteType is the site type of HuaweiCloud.
+	// The value can be Chinese(default) and International.
+	websiteType string
 	// the custom endpoints used to override the default endpoint URL
 	Endpoints map[string]string
 
@@ -139,6 +144,67 @@ func (c *Config) LoadAndValidate() error {
 	}
 
 	return nil
+}
+
+// SetWebsiteType will update WebsiteType field by a probe API.
+// we will get status code 403 and the following response body in International website with https://bss.myhuaweicloud.com
+//
+//	{
+//	  "error_code": "CBC.0150",
+//	  "error_msg": "Access denied. The customer does not belong to the website you are now at."
+//	}
+//
+// we can call the probe API and parse the response body to decide whether the account belongs to International website or not.
+// we select https://support.huaweicloud.com/intl/zh-cn/api-oce/zh-cn_topic_0000001256679455.html as the probe API.
+func (c *Config) SetWebsiteType() error {
+	bssClient, err := c.NewServiceClient("bss", c.Region)
+	if err != nil {
+		return fmt.Errorf("error creating BSS client: %s", err)
+	}
+
+	probeUrlPath := bssClient.Endpoint + "v2/products/service-types?limit=1"
+	probeRequestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	_, err = bssClient.Request("GET", probeUrlPath, &probeRequestOpt)
+	if err != nil {
+		if respErr, ok := err.(golangsdk.ErrDefault403); ok {
+			resp := struct {
+				ErrorCode string `json:"error_code"`
+				ErrorMsg  string `json:"error_msg"`
+			}{}
+
+			if decodeErr := json.Unmarshal(respErr.Body, &resp); decodeErr != nil {
+				log.Printf("[WARN] failed to unmarshal the response body: %s", decodeErr)
+			}
+
+			if resp.ErrorCode == "CBC.0150" {
+				log.Printf("[DEBUG] the current account belongs to %s website", InternationalSite)
+				c.websiteType = InternationalSite
+				return nil
+			}
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (c *Config) GetWebsiteType() string {
+	return c.websiteType
+}
+
+func (c *Config) SetServiceEndpoint(service, endpoint string) {
+	// only update the customizing service endpoint when it isn't specified
+	if _, ok := c.Endpoints[service]; ok {
+		return
+	}
+
+	c.Endpoints[service] = endpoint
+	multiKeys := GetServiceDerivedCatalogKeys(service)
+	for _, k := range multiKeys {
+		c.Endpoints[k] = endpoint
+	}
 }
 
 func retryBackoffFunc(ctx context.Context, respErr *golangsdk.ErrUnexpectedResponseCode, e error, retries uint) error {

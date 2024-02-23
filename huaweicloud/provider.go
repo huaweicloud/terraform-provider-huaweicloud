@@ -1699,7 +1699,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		identityEndpoint = fmt.Sprintf("https://iam.%s.%s/v3", region, cloud)
 	}
 
-	config := config.Config{
+	conf := config.Config{
 		AccessKey:           d.Get("access_key").(string),
 		SecretKey:           d.Get("secret_key").(string),
 		CACertFile:          d.Get("cacert_file").(string),
@@ -1739,13 +1739,13 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		delegatedAgencyName := os.Getenv("HW_ASSUME_ROLE_AGENCY_NAME")
 		delegatedDomianName := os.Getenv("HW_ASSUME_ROLE_DOMAIN_NAME")
 		if delegatedAgencyName != "" && delegatedDomianName != "" {
-			config.AssumeRoleAgency = delegatedAgencyName
-			config.AssumeRoleDomain = delegatedDomianName
+			conf.AssumeRoleAgency = delegatedAgencyName
+			conf.AssumeRoleDomain = delegatedDomianName
 		}
 	} else {
 		assumeRole := assumeRoleList[0].(map[string]interface{})
-		config.AssumeRoleAgency = assumeRole["agency_name"].(string)
-		config.AssumeRoleDomain = assumeRole["domain_name"].(string)
+		conf.AssumeRoleAgency = assumeRole["agency_name"].(string)
+		conf.AssumeRoleDomain = assumeRole["domain_name"].(string)
 	}
 
 	// get custom endpoints
@@ -1753,13 +1753,28 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
-	config.Endpoints = endpoints
+	conf.Endpoints = endpoints
 
-	if err := config.LoadAndValidate(); err != nil {
+	if err := conf.LoadAndValidate(); err != nil {
 		return nil, diag.FromErr(err)
 	}
 
-	return &config, nil
+	if conf.Cloud == defaultCloud {
+		if err := conf.SetWebsiteType(); err != nil {
+			log.Printf("[WARN] failed to get the website type: %s", err)
+		}
+
+		if conf.GetWebsiteType() == config.InternationalSite {
+			// refer to https://developer.huaweicloud.com/intl/en-us/endpoint
+			bssIntlEndpoint := fmt.Sprintf("https://bss-intl.%s/", conf.Cloud)
+			tmsIntlEndpoint := fmt.Sprintf("https://tms.ap-southeast-1.%s/", conf.Cloud)
+
+			conf.SetServiceEndpoint("bss", bssIntlEndpoint)
+			conf.SetServiceEndpoint("tms", tmsIntlEndpoint)
+		}
+	}
+
+	return &conf, nil
 }
 
 func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error) {
