@@ -2,6 +2,7 @@ package baremetalservers
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 )
 
 type cloudServerResult struct {
@@ -121,6 +122,9 @@ type CloudServer struct {
 	OsSchedulerHints    OsSchedulerHints     `json:"os:scheduler_hints"`
 	EnterpriseProjectID string               `json:"enterprise_project_id"`
 	SysTags             []SysTags            `json:"sys_tags"`
+	Created             string               `json:"created"`
+	Updated             string               `json:"updated"`
+	Launched            string               `json:"OS-SRV-USG:launched_at"`
 }
 
 // GetResult is the response from a Get operation. Call its Extract
@@ -153,4 +157,16 @@ func (r UpdateMetadataResult) Extract() (interface{}, interface{}) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Metadata, err
+}
+
+// InstanceDetailPage is a single page maximum result representing a query by offset page.
+type InstanceDetailPage struct {
+	pagination.OffsetPageBase
+}
+
+// ExtractServers is a method to extract the list of BMS instances detail.
+func ExtractServers(r pagination.Page) ([]CloudServer, error) {
+	var s []CloudServer
+	err := r.(InstanceDetailPage).Result.ExtractIntoSlicePtr(&s, "servers")
+	return s, err
 }
