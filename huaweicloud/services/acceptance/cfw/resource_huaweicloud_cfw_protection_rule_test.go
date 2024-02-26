@@ -109,6 +109,29 @@ func TestAccProtectionRule_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testProtectionRule_region_list(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "direction", "1"),
+					resource.TestCheckResourceAttr(rName, "source.0.address", "2.2.2.1"),
+					resource.TestCheckResourceAttr(rName, "destination.0.type", "3"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.#", "3"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.0.description_en", "Greece"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.0.description_cn", "希腊"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.0.region_id", "GR"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.0.region_type", "0"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.1.description_en", "ZHEJIANG"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.1.description_cn", "浙江"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.1.region_id", "ZJ"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.1.region_type", "1"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.2.description_en", "Africa"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.2.description_cn", "非洲"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.2.region_id", "AF"),
+					resource.TestCheckResourceAttr(rName, "destination.0.region_list.2.region_type", "2"),
+				),
+			},
+			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -181,6 +204,65 @@ resource "huaweicloud_cfw_protection_rule" "test" {
   destination {
     type    = 0
     address = "2.2.2.2"
+  }
+
+  service {
+    type        = 0
+    protocol    = 6
+    source_port = 8001
+    dest_port   = 8002
+  }
+
+  sequence {
+    top = 1
+  }
+}
+`, testAccDatasourceFirewalls_basic(), name)
+}
+
+func testProtectionRule_region_list(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cfw_protection_rule" "test" {
+  name                = "%[2]s"
+  object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  description         = "terraform test update"
+  type                = 0
+  address_type        = 0
+  action_type         = 1
+  long_connect_enable = 0
+  status              = 1
+  direction           = 1
+
+  source {
+    type    = 0
+    address = "2.2.2.1"
+  }
+
+  destination {
+    type = 3
+
+    region_list {
+      description_cn = "希腊"
+      description_en = "Greece"
+      region_id      = "GR"
+      region_type    = 0
+    }
+
+    region_list {
+      description_cn = "浙江"
+      description_en = "ZHEJIANG"
+      region_id      = "ZJ"
+      region_type    = 1
+    }
+
+    region_list {
+      description_cn = "非洲"
+      description_en = "Africa"
+      region_id      = "AF"
+      region_type    = 2
+    }
   }
 
   service {
