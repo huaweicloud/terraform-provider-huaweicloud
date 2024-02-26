@@ -41,24 +41,25 @@ var (
 	SystemDiskType = "GPSSD"
 )
 
-// @API ECS POST /v1/{project_id}/cloudservers/action
-// @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
 // @API ECS POST /v1.1/{project_id}/cloudservers
-// @API ECS POST /v2.1/{project_id}/servers/{id}/action
 // @API ECS POST /v1/{project_id}/cloudservers/delete
-// @API ECS DELETE /v1/{project_id}/cloudservers/{serverID}/metadata/{key}
-// @API ECS POST /v1/{project_id}/cloudservers/{serverID}/metadata
-// @API ECS POST /v1.1/{project_id}/cloudservers/{serverID}/resize
-// @API ECS PUT /v1/{project_id}/cloudservers/{id}/os-reset-password
-// @API ECS POST /v1/{project_id}/cloudservers/{id}/tags/action
-// @API ECS GET /v1/{project_id}/cloudservers/{serverID}
-// @API ECS PUT /v1/{project_id}/cloudservers/{serverID}
+// @API ECS PUT /v1/{project_id}/cloudservers/{server_id}
+// @API ECS POST /v1/{project_id}/cloudservers/action
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/metadata
+// @API ECS DELETE /v1/{project_id}/cloudservers/{server_id}/metadata/{key}
+// @API ECS POST /v1.1/{project_id}/cloudservers/{server_id}/resize
+// @API ECS PUT /v1/{project_id}/cloudservers/{server_id}/os-reset-password
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/tags/action
+// @API ECS POST /v2.1/{project_id}/servers/{server_id}/action
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
+// @API ECS GET /v1/{project_id}/jobs/{job_id}
 // @API IMS GET /v2/cloudimages
-// @API EVS GET /v2/{project_id}/cloudvolumes/{id}
-// @API VPC PUT /v1/{project_id}/ports/{portId}
-// @API EVS POST /v2.1/{project_id}/cloudvolumes/{id}/action
+// @API EVS POST /v2.1/{project_id}/cloudvolumes/{volume_id}/action
+// @API EVS GET /v2/{project_id}/cloudvolumes/{volume_id}
+// @API VPC PUT /v1/{project_id}/ports/{port_id}
 // @API VPC GET /v1/{project_id}/security-groups
-// @API VPC GET /v1/{project_id}/subnets/{id}
+// @API VPC GET /v1/{project_id}/subnets/{subnet_id}
 func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeInstanceCreate,
