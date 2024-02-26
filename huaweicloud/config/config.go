@@ -805,6 +805,10 @@ func (c *Config) DliV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dliv2", region)
 }
 
+func (c *Config) DliV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dliv3", region)
+}
+
 func (c *Config) DisV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dis", region)
 }

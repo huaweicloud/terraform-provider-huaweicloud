@@ -90,6 +90,8 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
 
+* `elastic_resource_pool_name` - (Optional, String) The name of the elastic resource pool.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -110,4 +112,22 @@ DLI queue can be imported by `name`. For example,
 
 ```bash
 terraform import huaweicloud_dli_queue.example terraform_dli_queue_test
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response. The missing attributes include: `tags`.
+It is generally recommended running `terraform plan` after importing a DLI queue.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the resource. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_dli_queue" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
 ```

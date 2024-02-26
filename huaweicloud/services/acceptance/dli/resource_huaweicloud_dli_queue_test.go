@@ -203,3 +203,115 @@ resource "huaweicloud_dli_queue" "test" {
   }
 }`, rName, cidr)
 }
+
+func TestAccDliQueue_withElasticResourcePool(t *testing.T) {
+	elasticResourcePoolName := acceptance.RandomAccResourceName()
+	queueName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dli_queue.test"
+	var obj queues.CreateOpts
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDliQueueResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDliQueue_associateElasticResourcePool_basic(elasticResourcePoolName, queueName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elastic_resource_pool_name", elasticResourcePoolName),
+					waitForDeletionCooldownComplete(),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccQueueImportStateFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"tags",
+				},
+			},
+		},
+	})
+}
+
+func TestAccDliQueue_associateElasticResourcePool(t *testing.T) {
+	// Creating a queue will create an elastic resource pool with the same name.
+	queueName := acceptance.RandomAccResourceName()
+	elasticResourcePoolName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dli_queue.test"
+	var obj queues.CreateOpts
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDliQueueResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDliQueue_base(queueName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elastic_resource_pool_name", ""),
+				),
+			},
+			{
+				Config: testAccDliQueue_associateElasticResourcePool_basic(elasticResourcePoolName, queueName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "elastic_resource_pool_name", elasticResourcePoolName),
+					waitForDeletionCooldownComplete(),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccQueueImportStateFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"tags",
+				},
+			},
+		},
+	})
+}
+
+func testAccDliQueue_base(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_queue" "test" {
+  name          = "%s"
+  cu_count      = 16
+  resource_mode = 1
+}`, rName)
+}
+
+func testAccDliQueue_associateElasticResourcePool_basic(elasticResourcePoolName string, queueName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_elastic_resource_pool" "test" {
+  name                  = "%[1]s"
+  max_cu                = 80
+  min_cu                = 64
+  enterprise_project_id = "0"
+}
+
+resource "huaweicloud_dli_queue" "test" {
+  depends_on = [
+    huaweicloud_dli_elastic_resource_pool.test
+  ] 
+
+  name                       = "%[2]s"
+  cu_count                   = 16
+  resource_mode              = 1
+  elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
+}`, elasticResourcePoolName, queueName)
+}

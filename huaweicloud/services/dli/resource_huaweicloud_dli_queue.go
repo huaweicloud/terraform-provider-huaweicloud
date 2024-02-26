@@ -17,6 +17,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
+	"github.com/chnsz/golangsdk/openstack/dli/v3/elasticresourcepool"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -50,6 +51,7 @@ const (
 // @API DLI PUT /v1.0/{project_id}/queues/{queue_name}/action
 // @API DLI PUT /v1.0/{project_id}/queues/{queue_name}
 // @API DLI DELETE /v1.0/{project_id}/queues/{queue_name}
+// @API DLI POST /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues
 func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliQueueCreate,
@@ -141,7 +143,11 @@ func ResourceDliQueue() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"elastic_resource_pool_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"create_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -180,15 +186,16 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] create dli queues queueName: %s", queueName)
 	createOpts := queues.CreateOpts{
-		QueueName:           queueName,
-		QueueType:           d.Get("queue_type").(string),
-		Description:         d.Get("description").(string),
-		CuCount:             d.Get("cu_count").(int),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		Platform:            d.Get("platform").(string),
-		ResourceMode:        d.Get("resource_mode").(int),
-		Feature:             d.Get("feature").(string),
-		Tags:                assembleTagsFromRecource("tags", d),
+		QueueName:               queueName,
+		QueueType:               d.Get("queue_type").(string),
+		Description:             d.Get("description").(string),
+		CuCount:                 d.Get("cu_count").(int),
+		EnterpriseProjectId:     cfg.GetEnterpriseProjectID(d),
+		Platform:                d.Get("platform").(string),
+		ResourceMode:            d.Get("resource_mode").(int),
+		Feature:                 d.Get("feature").(string),
+		Tags:                    assembleTagsFromRecource("tags", d),
+		ElasticResourcePoolName: d.Get("elastic_resource_pool_name").(string),
 	}
 
 	log.Printf("[DEBUG] create dli queues using parameters: %+v", createOpts)
@@ -265,6 +272,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("feature", queueDetail.Feature),
 		d.Set("create_time", queueDetail.CreateTime),
 		d.Set("vpc_cidr", queueDetail.CidrInVpc),
+		d.Set("elastic_resource_pool_name", queueDetail.ElasticResourcePoolName),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -357,6 +365,22 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if d.HasChange("elastic_resource_pool_name") {
+		oldVal, newVal := d.GetChange("elastic_resource_pool_name")
+		if oldVal != "" {
+			return diag.Errorf("error the queue has been associate with an Elastic resopurce pool")
+		}
+
+		associateQueueToElasticResourcePoolOpts := elasticresourcepool.AssociateQueueOpts{
+			ElasticResourcePoolName: newVal.(string),
+			QueueName:               queueName,
+		}
+		err = associateQueueToElasticResourcePool(cfg, region, associateQueueToElasticResourcePoolOpts)
+		if err != nil {
+			return diag.Errorf("error associate queue to elastic resopurce pool: %s", err)
+		}
+	}
+
 	return resourceDliQueueRead(ctx, d, meta)
 }
 
@@ -378,6 +402,15 @@ func validCuCount(val interface{}, key string) (warns []string, errs []error) {
 
 func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr string) error {
 	_, err := queues.UpdateCidr(client, queueName, queues.UpdateCidrOpts{Cidr: cidr})
+	return err
+}
+
+func associateQueueToElasticResourcePool(cfg *config.Config, region string, opts elasticresourcepool.AssociateQueueOpts) error {
+	client, err := cfg.DliV3Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating DLI V3 client: %s", err)
+	}
+	_, err = elasticresourcepool.AssociateQueue(client, opts)
 	return err
 }
 
