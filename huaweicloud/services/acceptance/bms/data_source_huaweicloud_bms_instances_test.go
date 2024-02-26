@@ -13,7 +13,11 @@ func TestAccBmsInstancesDataSource_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resourceName := "data.huaweicloud_bms_instances.test"
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
