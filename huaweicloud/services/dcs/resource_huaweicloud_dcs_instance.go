@@ -76,6 +76,8 @@ var (
 		"DCS.4118": true,
 		// freeze
 		"DCS.4120": true,
+		// creating/restarting
+		"DCS.4975": true,
 	}
 )
 
