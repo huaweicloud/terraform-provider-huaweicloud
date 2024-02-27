@@ -1,10 +1,14 @@
 package gaussdb
 
 import (
+	"context"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -12,15 +16,13 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforNoSQL GET /v3/{project_id}/instances/{id}/tags
 // @API GaussDBforNoSQL GET /v3/{project_id}/instances
 func DataSourceGeminiDBInstance() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGeminiDBInstanceRead,
+		ReadContext: dataSourceGeminiDBInstanceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -169,12 +171,12 @@ func DataSourceGeminiDBInstance() *schema.Resource {
 	}
 }
 
-func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.GeminiDBV3Client(region)
+func dataSourceGeminiDBInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.GeminiDBV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListGeminiDBInstanceOpts{
@@ -185,39 +187,40 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.Errorf("error getting GaussDB cassandra instance list: %s", err)
 	}
 
 	allInstances, err := instances.ExtractGeminiDBInstances(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve instances: %s", err)
+		return diag.Errorf("unable to retrieve instances: %s", err)
 	}
 
 	if allInstances.TotalCount < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
 	}
 
 	if allInstances.TotalCount > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.Errorf("your query returned more than one result." +
+			" please try a more specific search criteria")
 	}
 
 	instance := allInstances.Instances[0]
 
-	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+	log.Printf("[DEBUG] retrieved instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
-	d.Set("name", instance.Name)
-	d.Set("region", instance.Region)
-	d.Set("status", instance.Status)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
-	d.Set("mode", instance.Mode)
-	d.Set("db_user_name", instance.DbUserName)
-
+	mErr := multierror.Append(
+		d.Set("name", instance.Name),
+		d.Set("region", instance.Region),
+		d.Set("status", instance.Status),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("enterprise_project_id", instance.EnterpriseProjectId),
+		d.Set("mode", instance.Mode),
+		d.Set("db_user_name", instance.DbUserName),
+	)
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
 		d.Set("port", dbPort)
 	}
@@ -262,14 +265,14 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 			d.Set("volume_size", volSize)
 		}
 		if specCode != "" {
-			logp.Printf("[DEBUG] Node SpecCode: %s", specCode)
+			log.Printf("[DEBUG] node specCode: %s", specCode)
 			d.Set("flavor", specCode)
 		}
 	}
 	d.Set("nodes", nodesList)
 	d.Set("private_ips", ipsList)
 
-	//remove duplicate az
+	// remove duplicate az
 	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
@@ -283,15 +286,15 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	backupStrategyList = append(backupStrategyList, backupStrategy)
 	d.Set("backup_strategy", backupStrategyList)
 
-	//save geminidb tags
+	// save geminidb tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
+			return diag.Errorf("error saving tags to state for geminidb (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of geminidb (%s): %s", d.Id(), err)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
