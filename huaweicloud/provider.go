@@ -451,6 +451,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cph_phone_images":   cph.DataSourcePhoneImages(),
 
 			"huaweicloud_csms_secret_version": dew.DataSourceDewCsmsSecret(),
+			"huaweicloud_csms_events":         dew.DataSourceDewCsmsEvents(),
 			"huaweicloud_css_flavors":         css.DataSourceCssFlavors(),
 
 			"huaweicloud_dataarts_studio_workspaces":                  dataarts.DataSourceDataArtsStudioWorkspaces(),
