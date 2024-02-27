@@ -7,7 +7,9 @@ package dws
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -47,6 +49,8 @@ const (
 // @API DWS PUT /v2/{project_id}/clusters/{cluster_id}/logical-clusters/enable
 // @API DWS POST /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
 // @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
+// @API DWS POST /v1/{project_id}/clusters/{cluster_id}/lts-logs/enable
+// @API DWS POST /v1/{project_id}/clusters/{cluster_id}/lts-logs/disable
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,
@@ -201,6 +205,11 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The ID of the ELB load balancer.`,
+			},
+			"lts_enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specified whether to enable LTS.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -493,6 +502,14 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 		err := bindElb(ctx, d, createDwsClusterClient, elbId)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// If lts_enable is true, enable LTS.
+	if d.Get("lts_enable").(bool) {
+		err = enableOrDisableLts(d, createDwsClusterClient)
+		if err != nil {
+			return diag.Errorf("error enable LTS for DWS cluster: %s", err)
 		}
 	}
 
@@ -1042,6 +1059,17 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	if d.HasChange("lts_enable") {
+		err = enableOrDisableLts(d, clusterClient)
+		if err != nil {
+			err = parseLtsError(err)
+			if err != nil {
+				return common.CheckDeletedDiag(d, err,
+					fmt.Sprintf("error modifying LTS for DWS cluster, the expected LTS enable status is: %v", d.Get("lts_enable").(bool)))
+			}
+		}
+	}
+
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -1427,4 +1455,56 @@ func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resourc
 		}
 		return getJobStatusRespBody, status.(string), nil
 	}
+}
+
+func enableOrDisableLts(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	ltsHttpUrl := "v1/{project_id}/clusters/{cluster_id}/lts-logs/{action}"
+
+	ltsPath := client.Endpoint + ltsHttpUrl
+	ltsPath = strings.ReplaceAll(ltsPath, "{project_id}", client.ProjectID)
+	ltsPath = strings.ReplaceAll(ltsPath, "{cluster_id}", d.Id())
+	operate := d.Get("lts_enable").(bool)
+	if operate {
+		ltsPath = strings.ReplaceAll(ltsPath, "{action}", "enable")
+	} else {
+		ltsPath = strings.ReplaceAll(ltsPath, "{action}", "disable")
+	}
+	ltsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      requestOpts.MoreHeaders,
+		JSONBody:         map[string]interface{}{},
+	}
+
+	_, err := client.Request("POST", ltsPath, &ltsOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func parseLtsError(err error) error {
+	var errCode400 golangsdk.ErrDefault400
+	if errors.As(err, &errCode400) {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode400.Body, &apiError); jsonErr != nil {
+			if decodeRes, decodeErr := base64.URLEncoding.DecodeString(string(errCode400.Body)); decodeErr == nil {
+				if jsonErr = json.Unmarshal(decodeRes, &apiError); jsonErr != nil {
+					return err
+				}
+			}
+		}
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return err
+		}
+		// error code DWS.7107 means the cluster LTS is disable; DWS.0015 means the cluster not exists.
+		if errorCode == "DWS.7107" {
+			return nil
+		}
+		if errorCode == "DWS.0015" {
+			return golangsdk.ErrDefault404(errCode400)
+		}
+	}
+	return err
 }

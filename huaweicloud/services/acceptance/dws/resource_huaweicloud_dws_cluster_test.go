@@ -155,7 +155,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDwsCluster_basicV2(name, 3, dws.PublicBindTypeAuto, "cluster123@!", "bar", 100),
+				Config: testAccDwsCluster_basicV2(name, 3, "cluster123@!", "bar", 100, true),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -167,7 +167,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDwsCluster_basicV2(name, 6, dws.PublicBindTypeAuto, "cluster123@!u", "cat", 150),
+				Config: testAccDwsCluster_basicV2(name, 6, "cluster123@!u", "cat", 150, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -182,7 +182,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints"},
+				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "lts_enable"},
 			},
 		},
 	})
@@ -229,7 +229,7 @@ func TestAccResourceCluster_basicV2_mutilAZs(t *testing.T) {
 		},
 	})
 }
-func testAccDwsCluster_basicV2(rName string, numberOfNode int, publicIpBindType, password, tag string, volumeCap int) string {
+func testAccDwsCluster_basicV2(rName string, numberOfNode int, password, tag string, volumeCap int, ltsEnable bool) string {
 	baseNetwork := common.TestBaseNetwork(rName)
 
 	return fmt.Sprintf(`
@@ -255,6 +255,7 @@ resource "huaweicloud_dws_cluster" "test" {
   user_pwd          = "%s"
   version           = data.huaweicloud_dws_flavors.test.flavors[0].datastore_version
   number_of_cn      = 3
+  lts_enable        = %v
 
   public_ip {
     public_bind_type = "%s"
@@ -270,7 +271,7 @@ resource "huaweicloud_dws_cluster" "test" {
     foo = "%s"
   }
 }
-`, baseNetwork, rName, numberOfNode, password, publicIpBindType, volumeCap, tag)
+`, baseNetwork, rName, numberOfNode, password, ltsEnable, dws.PublicBindTypeAuto, volumeCap, tag)
 }
 
 func testAccDwsCluster_basicV2_mutilAZs(rName string, numberOfNode int, publicIpBindType, password, tag string, volumeCap int) string {
