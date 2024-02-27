@@ -1,23 +1,24 @@
 package gaussdb
 
 import (
+	"context"
+	"log"
 	"strconv"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances
 func DataSourceGaussDBMysqlInstances() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGaussDBMysqlInstancesRead,
+		ReadContext: dataSourceGaussDBMysqlInstancesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -185,12 +186,12 @@ func DataSourceGaussDBMysqlInstances() *schema.Resource {
 	}
 }
 
-func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.GaussdbV3Client(region)
+func dataSourceGaussDBMysqlInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListTaurusDBInstanceOpts{
@@ -201,13 +202,13 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allInstances, err := instances.ExtractTaurusDBInstances(pages)
 
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve instances: %s", err)
+		return diag.Errorf("unable to retrieve instances: %s", err)
 	}
 
 	var instancesToSet []map[string]interface{}
@@ -263,9 +264,9 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 
 		instance, err := instances.Get(client, instanceID).Extract()
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
-		logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+		log.Printf("[DEBUG] retrieved instance %s: %+v", instance.Id, instance)
 
 		instanceToSet["configuration_id"] = instance.ConfigurationId
 		instanceToSet["availability_zone_mode"] = instance.AZMode
@@ -276,7 +277,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 		}
 
 		flavor := ""
-		slave_count := 0
+		slaveCount := 0
 		nodesList := make([]map[string]interface{}, 0, 1)
 		for _, raw := range instance.Nodes {
 			node := map[string]interface{}{
@@ -291,7 +292,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 			}
 			nodesList = append(nodesList, node)
 			if raw.Type == "slave" && raw.Status == "ACTIVE" {
-				slave_count += 1
+				slaveCount++
 			}
 			if flavor == "" {
 				flavor = raw.Flavor
@@ -299,9 +300,9 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 		}
 
 		instanceToSet["nodes"] = nodesList
-		instanceToSet["read_replicas"] = slave_count
+		instanceToSet["read_replicas"] = slaveCount
 		if flavor != "" {
-			logp.Printf("[DEBUG] Node Flavor: %s", flavor)
+			log.Printf("[DEBUG] node flavor: %s", flavor)
 			instanceToSet["flavor"] = flavor
 		}
 

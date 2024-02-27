@@ -1,22 +1,24 @@
 package gaussdb
 
 import (
+	"context"
+	"log"
 	"strconv"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances
 func DataSourceGaussDBMysqlInstance() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGaussDBMysqlInstanceRead,
+		ReadContext: dataSourceGaussDBMysqlInstanceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -159,12 +161,12 @@ func DataSourceGaussDBMysqlInstance() *schema.Resource {
 	}
 }
 
-func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.GaussdbV3Client(region)
+func dataSourceGaussDBMysqlInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListTaurusDBInstanceOpts{
@@ -175,46 +177,48 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allInstances, err := instances.ExtractTaurusDBInstances(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve instances: %s", err)
+		return diag.Errorf("unable to retrieve instances: %s", err)
 	}
 
 	if allInstances.TotalCount < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
 	}
 
 	if allInstances.TotalCount > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.Errorf("your query returned more than one result." +
+			" please try a more specific search criteria")
 	}
 
 	instanceID := allInstances.Instances[0].Id
 	instance, err := instances.Get(client, instanceID).Extract()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+	log.Printf("[DEBUG] retrieved instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
-	d.Set("region", region)
-	d.Set("name", instance.Name)
-	d.Set("status", instance.Status)
-	d.Set("mode", instance.Type)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("configuration_id", instance.ConfigurationId)
-	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
-	d.Set("db_user_name", instance.DbUserName)
-	d.Set("time_zone", instance.TimeZone)
-	d.Set("availability_zone_mode", instance.AZMode)
-	d.Set("master_availability_zone", instance.MasterAZ)
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", instance.Name),
+		d.Set("status", instance.Status),
+		d.Set("mode", instance.Type),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("configuration_id", instance.ConfigurationId),
+		d.Set("enterprise_project_id", instance.EnterpriseProjectId),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("availability_zone_mode", instance.AZMode),
+		d.Set("master_availability_zone", instance.MasterAZ),
+	)
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
 		d.Set("port", dbPort)
@@ -239,7 +243,7 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 
 	// set nodes
 	flavor := ""
-	slave_count := 0
+	slaveCount := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
@@ -254,16 +258,16 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 		}
 		nodesList = append(nodesList, node)
 		if raw.Type == "slave" && raw.Status == "ACTIVE" {
-			slave_count += 1
+			slaveCount++
 		}
 		if flavor == "" {
 			flavor = raw.Flavor
 		}
 	}
 	d.Set("nodes", nodesList)
-	d.Set("read_replicas", slave_count)
+	d.Set("read_replicas", slaveCount)
 	if flavor != "" {
-		logp.Printf("[DEBUG] Node Flavor: %s", flavor)
+		log.Printf("[DEBUG] node flavor: %s", flavor)
 		d.Set("flavor", flavor)
 	}
 
@@ -278,5 +282,5 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 	backupStrategyList[0] = backupStrategy
 	d.Set("backup_strategy", backupStrategyList)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

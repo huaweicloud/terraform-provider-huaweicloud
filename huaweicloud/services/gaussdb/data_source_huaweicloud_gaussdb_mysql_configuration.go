@@ -1,19 +1,22 @@
 package gaussdb
 
 import (
+	"context"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations
 func DataSourceGaussdbMysqlConfigurations() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGaussdbMysqlConfigurationsRead,
+		ReadContext: dataSourceGaussdbMysqlConfigurationsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -42,21 +45,21 @@ func DataSourceGaussdbMysqlConfigurations() *schema.Resource {
 	}
 }
 
-func dataSourceGaussdbMysqlConfigurationsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
+func dataSourceGaussdbMysqlConfigurationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
 
-	client, err := config.GaussdbV3Client(config.GetRegion(d))
+	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	configsList, err := configurations.List(client).Extract()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve configurations: %s", err)
+		return diag.Errorf("unable to retrieve configurations: %s", err)
 	}
 	if len(configsList) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
 	}
 
 	if common.HasFilledOpt(d, "name") {
@@ -70,17 +73,19 @@ func dataSourceGaussdbMysqlConfigurationsRead(d *schema.ResourceData, meta inter
 	}
 
 	if len(configsList) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
 	}
-	Configuration := configsList[0]
+	configuration := configsList[0]
 
-	d.SetId(Configuration.ID)
+	d.SetId(configuration.ID)
 
-	d.Set("name", Configuration.Name)
-	d.Set("description", Configuration.Description)
-	d.Set("datastore_version", Configuration.DataStoreVer)
-	d.Set("datastore_name", Configuration.DataStoreName)
+	mErr := multierror.Append(
+		d.Set("name", configuration.Name),
+		d.Set("description", configuration.Description),
+		d.Set("datastore_version", configuration.DataStoreVer),
+		d.Set("datastore_name", configuration.DataStoreName),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

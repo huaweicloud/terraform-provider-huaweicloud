@@ -1,19 +1,22 @@
 package gaussdb
 
 import (
+	"context"
+	"log"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforMySQL GET /v3/{project_id}/dedicated-resources
 func DataSourceGaussDBMysqlDehResource() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGaussDBMysqlDehResourceRead,
+		ReadContext: dataSourceGaussDBMysqlDehResourceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -57,59 +60,61 @@ func DataSourceGaussDBMysqlDehResource() *schema.Resource {
 	}
 }
 
-func dataSourceGaussDBMysqlDehResourceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.GaussdbV3Client(region)
+func dataSourceGaussDBMysqlDehResourceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	pages, err := instances.ListDeh(client).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allResources, err := instances.ExtractDehResources(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve dedicated resources: %s", err)
+		return diag.Errorf("unable to retrieve dedicated resources: %s", err)
 	}
 
-	resource_name := d.Get("resource_name").(string)
+	resourceName := d.Get("resource_name").(string)
 	refinedResources := []instances.DehResource{}
 	for _, refResource := range allResources.Resources {
 		if refResource.EngineName != "taurus" {
 			continue
 		}
-		if resource_name != "" && refResource.ResourceName != resource_name {
+		if resourceName != "" && refResource.ResourceName != resourceName {
 			continue
 		}
 		refinedResources = append(refinedResources, refResource)
 	}
 
 	if len(refinedResources) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
 	}
 
 	if len(refinedResources) > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.Errorf("your query returned more than one result." +
+			" please try a more specific search criteria")
 	}
 
 	resource := refinedResources[0]
 
-	logp.Printf("[DEBUG] Retrieved Resource %s: %+v", resource.Id, resource)
+	log.Printf("[DEBUG] retrieved resource %s: %+v", resource.Id, resource)
 	d.SetId(resource.Id)
 
-	d.Set("resource_name", resource.ResourceName)
-	d.Set("availability_zone", resource.AvailabilityZone)
-	d.Set("architecture", resource.Architecture)
-	d.Set("vcpus", resource.Capacity.Vcpus)
-	d.Set("ram", resource.Capacity.Ram)
-	d.Set("volume", resource.Capacity.Volume)
-	d.Set("status", resource.Status)
-	d.Set("region", region)
+	mErr := multierror.Append(
+		d.Set("resource_name", resource.ResourceName),
+		d.Set("availability_zone", resource.AvailabilityZone),
+		d.Set("architecture", resource.Architecture),
+		d.Set("vcpus", resource.Capacity.Vcpus),
+		d.Set("ram", resource.Capacity.Ram),
+		d.Set("volume", resource.Capacity.Volume),
+		d.Set("status", resource.Status),
+		d.Set("region", region),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
