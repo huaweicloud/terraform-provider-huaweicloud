@@ -26,8 +26,11 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+type ctxType string
 
 // @API Kafka GET /v2/available-zones
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
@@ -41,6 +44,9 @@ import (
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/autotopic
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/password
+// @API Kafka PUT /v2/{project_id}/instances/{instance_id}/configs
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/configs
+// @API Kafka POST /v2/{project_id}/instances/action
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -201,6 +207,24 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			},
 			"enable_auto_topic": {
 				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"parameters": {
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+				Set:      parameterToHash,
 				Optional: true,
 				Computed: true,
 			},
@@ -472,6 +496,12 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
 		if err = updateCrossVpcAccess(ctx, client, d); err != nil {
 			return diag.Errorf("failed to update default advertised IP: %s", err)
+		}
+	}
+
+	if parameters := d.Get("parameters").(*schema.Set); parameters.Len() > 0 {
+		if err = initializeParameters(ctx, d, client); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -851,7 +881,7 @@ func setKafkaFlavorId(d *schema.ResourceData, flavorId string) error {
 	return d.Set("flavor_id", flavorId)
 }
 
-func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -942,6 +972,50 @@ func resourceDmsKafkaInstanceRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("failed to set attributes for DMS kafka instance: %s", mErr)
 	}
 
+	return setKafkaInstanceParameters(ctx, d, client)
+}
+
+func setKafkaInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
+	// set parameters
+	configs, err := instances.GetConfigurations(client, d.Id()).Extract()
+	if err != nil {
+		log.Printf("[WARN] error fetching parameters of the instance (%s): %s", d.Id(), err)
+		return nil
+	}
+
+	var restart []string
+	var params []map[string]interface{}
+	for _, parameter := range d.Get("parameters").(*schema.Set).List() {
+		name := parameter.(map[string]interface{})["name"]
+		for _, kafkaParam := range configs.KafkaConfigs {
+			if kafkaParam.Name == name {
+				p := map[string]interface{}{
+					"name":  kafkaParam.Name,
+					"value": kafkaParam.Value,
+				}
+				params = append(params, p)
+				if kafkaParam.ConfigType == "static" {
+					restart = append(restart, kafkaParam.Name)
+				}
+				break
+			}
+		}
+	}
+
+	if len(params) > 0 {
+		if err = d.Set("parameters", params); err != nil {
+			log.Printf("[WARN] error saving parameters to the Kafka instance (%s): %s", d.Id(), err)
+		}
+		if len(restart) > 0 && ctx.Value(ctxType("parametersChanged")) == "true" {
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  "Parameters Changed",
+					Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", restart),
+				},
+			}
+		}
+	}
 	return nil
 }
 
@@ -1081,6 +1155,10 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 			e := fmt.Errorf("error resetting password: %s", err)
 			mErr = multierror.Append(mErr, e)
 		}
+	}
+
+	if ctx, err = updateKafkaParameters(ctx, d, client); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if mErr.ErrorOrNil() != nil {
@@ -1467,4 +1545,190 @@ func autoTopicTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 		status := utils.PathSearch("status", task, nil)
 		return task, fmt.Sprint(status), nil
 	}
+}
+
+func buildKafkaInstanceParameters(params *schema.Set) instances.KafkaConfigs {
+	paramList := make([]instances.ConfigParam, 0, params.Len())
+	for _, v := range params.List() {
+		paramList = append(paramList, instances.ConfigParam{
+			Name:  v.(map[string]interface{})["name"].(string),
+			Value: v.(map[string]interface{})["value"].(string),
+		})
+	}
+	configOpts := instances.KafkaConfigs{
+		KafkaConfigs: paramList,
+	}
+	return configOpts
+}
+
+func initializeParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	parametersRaw := d.Get("parameters").(*schema.Set)
+	configOpts := buildKafkaInstanceParameters(parametersRaw)
+	err := modifyParameters(ctx, d, client, &configOpts)
+	if err != nil {
+		return err
+	}
+
+	// Check if we need to restart
+	restart, err := checkKafkaInstanceRestart(client, d.Id(), parametersRaw.List())
+	if err != nil {
+		return err
+	}
+
+	if restart {
+		return restartKafkaInstance(ctx, d.Timeout(schema.TimeoutCreate), client, d.Id())
+	}
+	return nil
+}
+
+func modifyParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	configOpts *instances.KafkaConfigs) error {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.ModifyConfiguration(client, d.Id(), *configOpts).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modifying parameters for the Kafka instance (%s): %s", d.Id(), err)
+	}
+
+	return checkParameterUpdateCompleted(ctx, d, client, d.Timeout(schema.TimeoutUpdate))
+}
+
+func checkParameterUpdateCompleted(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      kafkaInstanceParamRefreshFunc(client, d.Id(), "kafkaConfigModify"),
+		Timeout:      timeout,
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for the Kafka instance (%s) parameter to be updated: %s ", d.Id(), err)
+	}
+	return nil
+}
+
+func checkKafkaInstanceRestart(client *golangsdk.ServiceClient, instanceID string, parameters []interface{}) (bool, error) {
+	configs, err := instances.GetConfigurations(client, instanceID).Extract()
+	if err != nil {
+		return false, fmt.Errorf("error fetching the instance parameters (%s): %s", instanceID, err)
+	}
+
+	for _, parameter := range parameters {
+		name := parameter.(map[string]interface{})["name"]
+		for _, v := range configs.KafkaConfigs {
+			// static parameter needs to reboot the instance
+			if v.Name == name && v.ConfigType == "static" {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+func restartKafkaInstance(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	// If static parameter is changed, reboot the instance.
+	restartInstanceOpts := instances.RestartInstanceOpts{
+		Action:    "restart",
+		Instances: []string{instanceID},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.RebootInstance(client, restartInstanceOpts).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     KafkaInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error rebooting the Kafka instance (%s): %s", instanceID, err)
+	}
+
+	// wait for the instance state to be 'RUNNING'.
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"RUNNING"},
+		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for the Kafka instance (%s) become RUNNING status: %s", instanceID, err)
+	}
+	return nil
+}
+
+func updateKafkaParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
+	if !d.HasChange("parameters") {
+		return ctx, nil
+	}
+
+	o, n := d.GetChange("parameters")
+	os, ns := o.(*schema.Set), n.(*schema.Set)
+	change := ns.Difference(os).List()
+	paramList := make([]instances.ConfigParam, 0, len(change))
+	if len(change) > 0 {
+		for _, v := range change {
+			configOpts := instances.ConfigParam{
+				Name:  v.(map[string]interface{})["name"].(string),
+				Value: v.(map[string]interface{})["value"].(string),
+			}
+			paramList = append(paramList, configOpts)
+		}
+
+		configOpts := instances.KafkaConfigs{
+			KafkaConfigs: paramList,
+		}
+
+		err := modifyParameters(ctx, d, client, &configOpts)
+		if err != nil {
+			return ctx, nil
+		}
+	}
+
+	// Sending parametersChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
+
+	return ctx, nil
+}
+
+func kafkaInstanceParamRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		taskResp, err := instances.GetTasks(client, instanceID).Extract()
+		if err != nil {
+			return nil, "QUERY ERROR", err
+		}
+		task := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']|[0]", taskName), taskResp, nil)
+		if task == nil {
+			return nil, "NIL ERROR", fmt.Errorf("failed to find parameters task")
+		}
+
+		status := utils.PathSearch("status", task, nil)
+		return task, fmt.Sprint(status), nil
+	}
+}
+
+func parameterToHash(v interface{}) int {
+	m := v.(map[string]interface{})
+	return hashcode.String(m["name"].(string) + m["value"].(string))
 }
