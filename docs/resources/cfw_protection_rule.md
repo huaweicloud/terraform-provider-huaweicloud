@@ -8,6 +8,8 @@ Manages a CFW protection rule resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create a basic rule
+
 ```hcl
 variable "name" {}
 variable "description" {}
@@ -26,6 +28,59 @@ resource "huaweicloud_cfw_protection_rule" "test" {
   source {
     type    = 0
     address = "192.168.0.1"
+  }
+
+  destination {
+    type    = 0
+    address = "192.168.0.2"
+  }
+
+  service {
+    type        = 0
+    protocol    = 6
+    source_port = 8001
+    dest_port   = 8002
+  }
+
+  sequence {
+    top = 1
+  }
+}
+```
+
+### Create a rule with the source address using the region list
+
+```hcl
+variable "name" {}
+variable "description" {}
+variable "object_id" {}
+
+resource "huaweicloud_cfw_protection_rule" "test" {
+  name                = var.name
+  object_id           = var.object_id
+  description         = var.description
+  type                = 0
+  address_type        = 0
+  action_type         = 0
+  long_connect_enable = 0
+  status              = 1
+
+  source {
+    type = 3
+
+    region_list {
+      region_id      = "GR"
+      description_cn = "希腊"
+      description_en = "Greece"
+      region_type    = 0
+    }
+
+    region_list {
+      region_id      = "ZJ"
+      description_cn = "浙江"
+      description_en = "ZHEJIANG"
+      region_type    = 1
+    }
   }
 
   destination {
@@ -157,6 +212,9 @@ The `source` block supports:
 * `domain_address_name` - (Optional, String) The name of the domain name address.
   This parameter cannot be left empty for the domain name type, and is empty for the manual or automatic type.
 
+* `region_list` - (Optional, List) The region list.
+  The [region_list](#ProtectionRule_RuleRegionList) structure is documented below.
+
 <a name="ProtectionRule_RuleDestinationAddress"></a>
 The `destination` block supports:
 
@@ -179,6 +237,23 @@ The `destination` block supports:
 
 * `domain_address_name` - (Optional, String) The name of the domain name address.
   This parameter cannot be left empty for the domain name type, and is empty for the manual or automatic type.
+
+* `region_list` - (Optional, List) The region list.
+  The [region_list](#ProtectionRule_RuleRegionList) structure is documented below.
+
+<a name="ProtectionRule_RuleRegionList"></a>
+The `region_list` block supports:
+
+* `region_id` - (Required, String) The region ID.
+
+* `region_type` - (Required, Int) The region type. The options are as follows:
+  + **0**: country;
+  + **1**: province;
+  + **2**：continent;
+
+* `description_cn` - (Optional, String) The Chinese description of the region.
+
+* `description_en` - (Optional, String) The English description of the region.
 
 ## Attribute Reference
 
