@@ -187,7 +187,48 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 		},
 	})
 }
+func TestAccResourceCluster_basicV2_mutilAZs(t *testing.T) {
+	var obj interface{}
 
+	resourceName := "huaweicloud_dws_cluster.test"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getClusterResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMutilAZ(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDwsCluster_basicV2_mutilAZs(name, 3, dws.PublicBindTypeAuto, "cluster123@!", "bar", 100),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.capacity", "100"),
+					resource.TestCheckResourceAttr(resourceName, "availability_zone", acceptance.HW_DWS_MUTIL_AZS),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints"},
+			},
+		},
+	})
+}
 func testAccDwsCluster_basicV2(rName string, numberOfNode int, publicIpBindType, password, tag string, volumeCap int) string {
 	baseNetwork := common.TestBaseNetwork(rName)
 
@@ -230,6 +271,48 @@ resource "huaweicloud_dws_cluster" "test" {
   }
 }
 `, baseNetwork, rName, numberOfNode, password, publicIpBindType, volumeCap, tag)
+}
+
+func testAccDwsCluster_basicV2_mutilAZs(rName string, numberOfNode int, publicIpBindType, password, tag string, volumeCap int) string {
+	baseNetwork := common.TestBaseNetwork(rName)
+
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_dws_flavors" "test" {
+  vcpus = 4
+  memory = 16
+  datastore_type = "dws"
+}
+
+resource "huaweicloud_dws_cluster" "test" {
+  name              = "%s"
+  node_type         = "dwsk3.4U16G.4DPU"
+  number_of_node    = %d
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = "%s"
+  user_name         = "test_cluster_admin"
+  user_pwd          = "%s"
+  version           = data.huaweicloud_dws_flavors.test.flavors[0].datastore_version
+  number_of_cn      = 3
+
+  public_ip {
+    public_bind_type = "%s"
+  }
+
+  volume {
+    type     = "SSD"
+    capacity = %d
+  }
+
+  tags = {
+    key = "val"
+    foo = "%s"
+  }
+}
+`, baseNetwork, rName, numberOfNode, acceptance.HW_DWS_MUTIL_AZS, password, publicIpBindType, volumeCap, tag)
 }
 
 func TestAccResourceCluster_BindingElb(t *testing.T) {

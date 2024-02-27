@@ -564,6 +564,7 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 }
 
 func buildCreateDwsClusterBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	availabilityZones := strings.Split(d.Get("availability_zone").(string), ",")
 	bodyParams := map[string]interface{}{
 		"cluster": map[string]interface{}{
 			"name":                  utils.ValueIngoreEmpty(d.Get("name")),
@@ -573,7 +574,7 @@ func buildCreateDwsClusterBodyParams(d *schema.ResourceData, cfg *config.Config)
 			"db_name":               utils.ValueIngoreEmpty(d.Get("user_name")),
 			"db_password":           utils.ValueIngoreEmpty(d.Get("user_pwd")),
 			"db_port":               utils.ValueIngoreEmpty(d.Get("port")),
-			"availability_zones":    []string{d.Get("availability_zone").(string)},
+			"availability_zones":    availabilityZones,
 			"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
 			"subnet_id":             utils.ValueIngoreEmpty(d.Get("network_id")),
 			"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
