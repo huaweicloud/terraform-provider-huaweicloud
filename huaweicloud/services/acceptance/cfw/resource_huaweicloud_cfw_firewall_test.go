@@ -317,3 +317,105 @@ resource "huaweicloud_cfw_firewall" "test" {
 }
 `, testFirewall_eastWestBase(name, bgpAsNum), name)
 }
+
+func TestAccFirewall_ips(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_cfw_firewall.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getFirewallResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testFirewall_ips_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(rName, "ips_switch_status", "1"),
+					resource.TestCheckResourceAttr(rName, "ips_protection_mode", "1"),
+					resource.TestCheckResourceAttrSet(rName, "engine_type"),
+					resource.TestCheckResourceAttrSet(rName, "ha_type"),
+					resource.TestCheckResourceAttrSet(rName, "protect_objects.#"),
+					resource.TestCheckResourceAttrSet(rName, "service_type"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "support_ipv6"),
+				),
+			},
+			{
+				Config: testFirewall_ips_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ips_switch_status", "0"),
+					resource.TestCheckResourceAttr(rName, "ips_protection_mode", "2"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"flavor", "tags", "period_unit", "period", "auto_renew",
+				},
+			},
+		},
+	})
+}
+
+func testFirewall_ips_basic(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cfw_firewall" "test" {
+  name = "%s"
+
+  flavor {
+    version = "Professional"
+  }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
+
+  charging_mode        = "prePaid"
+  period_unit          = "month"
+  period               = 1
+  auto_renew           = false
+  ips_switch_status    = 1
+  ips_protection_mode  = 1
+}
+`, name)
+}
+
+func testFirewall_ips_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cfw_firewall" "test" {
+  name = "%s"
+
+  flavor {
+    version = "Professional"
+  }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
+
+  charging_mode        = "prePaid"
+  period_unit          = "month"
+  period               = 1
+  auto_renew           = false
+  ips_switch_status    = 0
+  ips_protection_mode  = 2
+}
+`, name)
+}
