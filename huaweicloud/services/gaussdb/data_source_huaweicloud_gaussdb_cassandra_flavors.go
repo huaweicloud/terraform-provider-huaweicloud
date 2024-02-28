@@ -2,6 +2,7 @@ package gaussdb
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,8 +12,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforNoSQL GET /v3.1/{project_id}/flavors
@@ -72,11 +71,11 @@ func DataSourceCassandraFlavors() *schema.Resource {
 }
 
 func dataSourceCassandraFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.GeminiDBV31Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.GeminiDBV31Client(region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	listOpts := flavors.ListFlavorOpts{
@@ -85,12 +84,12 @@ func dataSourceCassandraFlavorsRead(_ context.Context, d *schema.ResourceData, m
 
 	pages, err := flavors.List(client, listOpts).AllPages()
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to list flavors: %s", err)
+		return diag.Errorf("unable to list flavors: %s", err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to extract flavors: %s", err)
+		return diag.Errorf("unable to extract flavors: %s", err)
 	}
 
 	filter := map[string]interface{}{
@@ -101,9 +100,9 @@ func dataSourceCassandraFlavorsRead(_ context.Context, d *schema.ResourceData, m
 
 	filterFlavors, err := utils.FilterSliceWithField(allFlavors.Flavors, filter)
 	if err != nil {
-		return fmtp.DiagErrorf("filter Gaussdb cassandra flavors failed: %s", err)
+		return diag.Errorf("filter GaussDB cassandra flavors failed: %s", err)
 	}
-	logp.Printf("filter %d Gaussdb cassandra flavors from %d through options %v", len(filterFlavors), len(allFlavors.Flavors), filter)
+	log.Printf("[DEBUG] filter %d GaussDB cassandra flavors from %d through options %v", len(filterFlavors), len(allFlavors.Flavors), filter)
 
 	var flavorsToSet []map[string]interface{}
 	var flavorsIds []string
