@@ -250,3 +250,19 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	return nil
 }
+
+func checkForRetryableError(err error) *resource.RetryError {
+	switch errCode := err.(type) {
+	case golangsdk.ErrDefault500:
+		return resource.RetryableError(err)
+	case golangsdk.ErrUnexpectedResponseCode:
+		switch errCode.Actual {
+		case 409, 503:
+			return resource.RetryableError(err)
+		default:
+			return resource.NonRetryableError(err)
+		}
+	default:
+		return resource.NonRetryableError(err)
+	}
+}
