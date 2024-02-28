@@ -138,6 +138,8 @@ The following arguments are supported:
 * `security_group_id` - (Optional, String) The ID of the security group which the instance belongs to.
   This parameter is mandatory for Memcached and Redis 3.0 version.
 
+* `ssl_enable` - (Optional, Bool) Specifies whether to enable the SSL. Value options: **true**, **false**.
+
 * `private_ip` - (Optional, String, ForceNew) The IP address of the DCS instance,
   which can only be the currently available IP address the selected subnet.
   You can specify an available IP for the Redis instance (except for the Redis Cluster type).

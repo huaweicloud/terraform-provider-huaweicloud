@@ -272,3 +272,34 @@ func GetConfigurations(c *golangsdk.ServiceClient, instanceID string) (*Configur
 	}
 	return nil, err
 }
+
+type SslOpts struct {
+	Enable *bool `json:"enabled" required:"true"`
+}
+
+func UpdateSsl(client *golangsdk.ServiceClient, id string, opts SslOpts) (*golangsdk.Result, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r golangsdk.Result
+	_, err = client.Put(sslURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+func GetSsl(client *golangsdk.ServiceClient, id string) (*GetSslResponse, error) {
+	var rst golangsdk.Result
+	_, err := client.Get(sslURL(client, id), &rst.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200, 204},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err == nil {
+		var r GetSslResponse
+		rst.ExtractInto(&r)
+		return &r, nil
+	}
+	return nil, err
+}

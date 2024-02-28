@@ -953,6 +953,68 @@ func TestAccDcsInstances_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccDcsInstances_ssl(t *testing.T) {
+	var instance instances.DcsInstance
+	var instanceName = acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dcs_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDcsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_ssl(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "6.0"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "port"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_update_ssl(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "6.0"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "port"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "parameters"},
+			},
+		},
+	})
+}
+
 func testAccDcsV1Instance_basic(instanceName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -1966,4 +2028,66 @@ resource "huaweicloud_dcs_instance" "test" {
   period        = 1
   auto_renew    = "%v"
 }`, instanceName, isAutoRenew)
+}
+
+func testAccDcsV1Instance_ssl(instanceName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_dcs_flavors" "test" {
+  cache_mode     = "ha"
+  capacity       = 0.125
+  engine_version = "6.0"
+}
+
+resource "huaweicloud_dcs_instance" "test" {
+  name               = "%s"
+  engine_version     = "6.0"
+  engine             = "Redis"
+  capacity           = 0.125
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  ssl_enable         = true
+}`, instanceName)
+}
+
+func testAccDcsV1Instance_update_ssl(instanceName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_dcs_flavors" "test" {
+  cache_mode     = "ha"
+  capacity       = 0.125
+  engine_version = "6.0"
+}
+
+resource "huaweicloud_dcs_instance" "test" {
+  name               = "%s"
+  engine_version     = "6.0"
+  engine             = "Redis"
+  capacity           = 0.125
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
+  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  ssl_enable         = false
+}`, instanceName)
 }

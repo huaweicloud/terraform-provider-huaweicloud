@@ -189,6 +189,13 @@ type UpdateMetadataOpts struct {
 	RestoreHookTimeout int `json:"restore_hook_timeout,omitempty"`
 }
 
+type StrategyConfig struct {
+	Concurrency *int `json:"concurrency,omitempty"`
+	// The number of concurrent requests supported by single instance. The valid value range is 1 to 1000.
+	//  This parameter is only supported by the `v2` version of the function.
+	ConcurrencyNum *int `json:"concurrent_num,omitempty"`
+}
+
 type FuncLogConfig struct {
 	// Name of the log group bound to the function.
 	GroupName string `json:"group_name,omitempty"`

@@ -96,6 +96,8 @@ var (
 // @API DCS POST /v2/{project_id}/instances
 // @API DCS GET /v2/{project_id}/instances/{id}/tags
 // @API DCS POST /v2/{project_id}/dcs/{id}/tags/action
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/ssl
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/ssl
 func ResourceDcsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDcsInstancesCreate,
@@ -217,6 +219,11 @@ func ResourceDcsInstance() *schema.Resource {
 						},
 					},
 				},
+			},
+			"ssl_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 			"maintain_begin": {
 				Type:         schema.TypeString,
@@ -546,6 +553,13 @@ func buildWhiteListParams(d *schema.ResourceData) whitelists.WhitelistOpts {
 	return whitelistOpts
 }
 
+func buildSslParam(enable bool) instances.SslOpts {
+	sslOpts := instances.SslOpts{
+		Enable: &enable,
+	}
+	return sslOpts
+}
+
 func waitForWhiteListCompleted(ctx context.Context, c *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	enable := d.Get("whitelist_enable").(bool)
 	stateConf := &resource.StateChangeConf{
@@ -702,6 +716,19 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 			if err = restartDcsInstance(ctx, d.Timeout(schema.TimeoutCreate), client, id); err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if sslEnabled := d.Get("ssl_enable").(bool); sslEnabled {
+		sslOpts := buildSslParam(sslEnabled)
+		_, err := instances.UpdateSsl(client, id, sslOpts)
+		if err != nil {
+			return diag.Errorf("error updating SSL for the instance (%s): %s", id, err)
+		}
+
+		err = waitForSslCompleted(ctx, client, d)
+		if err != nil {
+			return diag.Errorf("error waiting for updating SSL to complete: %s", err)
 		}
 	}
 
@@ -931,6 +958,7 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("user_id", r.UserId),
 		d.Set("user_name", r.UserName),
 		d.Set("access_user", r.AccessUser),
+		d.Set("ssl_enable", r.EnableSsl),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -1150,6 +1178,21 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// update SSL
+	if d.HasChange("ssl_enable") {
+		sslOpts := buildSslParam(d.Get("ssl_enable").(bool))
+		_, err = instances.UpdateSsl(client, instanceId, sslOpts)
+		if err != nil {
+			return diag.Errorf("error updating SSL for the instance (%s): %s", instanceId, err)
+		}
+
+		// wait for SSL updated
+		err = waitForSslCompleted(ctx, client, d)
+		if err != nil {
+			return diag.Errorf("error waiting for updating SSL to complete: %s", err)
 		}
 	}
 
@@ -1455,4 +1498,28 @@ func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface
 	}
 
 	return azCodes, nil
+}
+
+func waitForSslCompleted(ctx context.Context, c *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enable := d.Get("ssl_enable").(bool)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{strconv.FormatBool(!enable)},
+		Target:       []string{strconv.FormatBool(enable)},
+		Refresh:      updateSslStatusRefreshFunc(c, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func updateSslStatusRefreshFunc(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		r, err := instances.GetSsl(c, id)
+		if err != nil {
+			return nil, "Error", err
+		}
+		return r, strconv.FormatBool(r.Enable), nil
+	}
 }

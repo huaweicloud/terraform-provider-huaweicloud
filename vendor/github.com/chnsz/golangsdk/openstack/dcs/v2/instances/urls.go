@@ -29,3 +29,7 @@ func restartOrFlushInstanceURL(c *golangsdk.ServiceClient) string {
 func configurationsURL(c *golangsdk.ServiceClient, instancesId string) string {
 	return c.ServiceURL(c.ProjectID, "instances", instancesId, "configs")
 }
+
+func sslURL(client *golangsdk.ServiceClient, instancesId string) string {
+	return client.ServiceURL(client.ProjectID, "instances", instancesId, "ssl")
+}
