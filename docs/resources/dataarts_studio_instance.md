@@ -68,8 +68,7 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are `true` and `false`, defaults to `false`. Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the instance.
-  Changing this creates a new instance.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the instance.
 
   -> 1. Only **one** DataArts Studio instance can be purchased in an enterprise project.
   <br/> 2. If DataArts Studio needs to communicate with other cloud services, ensure that the enterprise project

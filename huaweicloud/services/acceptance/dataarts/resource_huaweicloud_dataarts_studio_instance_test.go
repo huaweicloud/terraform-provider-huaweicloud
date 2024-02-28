@@ -101,3 +101,70 @@ resource "huaweicloud_dataarts_studio_instance" "test" {
 }
 `, baseNetwork, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
+
+func TestAccResourceInstance_updateWithEpsId(t *testing.T) {
+	var dayuInstance instances.Instance
+	resourceName := "huaweicloud_dataarts_studio_instance.test"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&dayuInstance,
+		getInstanceResourceFunc,
+	)
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstance_withEpsId(name, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccInstance_withEpsId(name, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
+func testAccInstance_withEpsId(rName, epsId string) string {
+	baseNetwork := common.TestBaseNetwork(rName)
+
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dataarts_studio_instance" "test" {
+  name                  = "%s"
+  version               = "dayu.starter"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  enterprise_project_id = "%s"
+  period_unit           = "month"
+  period                = 1
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
+}
+`, baseNetwork, rName, epsId)
+}
