@@ -16,11 +16,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API ECS GET /v1/{project_id}/cloudservers/{serverID}
+// @API ECS POST /v1/{project_id}/cloudservers/os-server-groups
 // @API ECS POST /v1/{project_id}/cloudservers/os-server-groups/{id}/action
 // @API ECS GET /v1/{project_id}/cloudservers/os-server-groups/{id}
 // @API ECS DELETE /v1/{project_id}/cloudservers/os-server-groups/{id}
-// @API ECS POST /v1/{project_id}/cloudservers/os-server-groups
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}
 func ResourceComputeServerGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeServerGroupCreate,

@@ -22,9 +22,9 @@ import (
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/nics
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/nics/delete
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}/os-interface
-// @API VPC GET /v1/{project_id}/ports/{port_id}
-// @API VPC PUT /v1/{project_id}/ports/{port_id}
 // @API ECS GET /v1/{project_id}/jobs/{job_id}
+// @API VPC PUT /v1/{project_id}/ports/{port_id}
+// @API VPC GET /v1/{project_id}/ports/{port_id}
 func ResourceComputeInterfaceAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeInterfaceAttachCreate,
