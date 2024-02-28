@@ -1,23 +1,25 @@
 package gaussdb
 
 import (
+	"context"
+	"log"
 	"sort"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDB GET /v3/{project_id}/instances
 func DataSourceOpenGaussInstance() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceOpenGaussInstanceRead,
+		ReadContext: dataSourceOpenGaussInstanceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -202,12 +204,12 @@ func DataSourceOpenGaussInstance() *schema.Resource {
 	}
 }
 
-func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.OpenGaussV3Client(region)
+func dataSourceOpenGaussInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.OpenGaussV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListGaussDBInstanceOpts{
@@ -218,52 +220,54 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	allInstances, err := instances.ExtractGaussDBInstances(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve instances: %s", err)
+		return diag.Errorf("unable to retrieve instances: %s", err)
 	}
 
 	if allInstances.TotalCount < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+		return diag.Errorf("your query returned no results. " +
+			"please change your search criteria and try again.")
 	}
 
 	if allInstances.TotalCount > 1 {
-		return fmtp.Errorf("Your query returned more than one result." +
-			" Please try a more specific search criteria")
+		return diag.Errorf("your query returned more than one result." +
+			" please try a more specific search criteria")
 	}
 
 	instance := allInstances.Instances[0]
 
-	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+	log.Printf("[DEBUG] retrieved instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
-	d.Set("region", region)
-	d.Set("name", instance.Name)
-	d.Set("status", instance.Status)
-	d.Set("type", instance.Type)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
-	d.Set("db_user_name", instance.DbUserName)
-	d.Set("time_zone", instance.TimeZone)
-	d.Set("flavor", instance.FlavorRef)
-	d.Set("port", instance.Port)
-	d.Set("switch_strategy", instance.SwitchStrategy)
-	d.Set("maintenance_window", instance.MaintenanceWindow)
-	d.Set("public_ips", instance.PublicIps)
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", instance.Name),
+		d.Set("status", instance.Status),
+		d.Set("type", instance.Type),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("enterprise_project_id", instance.EnterpriseProjectId),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("flavor", instance.FlavorRef),
+		d.Set("port", instance.Port),
+		d.Set("switch_strategy", instance.SwitchStrategy),
+		d.Set("maintenance_window", instance.MaintenanceWindow),
+		d.Set("public_ips", instance.PublicIps),
+	)
 
 	if len(instance.PrivateIps) > 0 {
-		private_ips := instance.PrivateIps[0]
-		ip_list := strings.Split(private_ips, "/")
-		for i := 0; i < len(ip_list); i++ {
-			ip_list[i] = strings.Trim(ip_list[i], " ")
+		privateIps := instance.PrivateIps[0]
+		ipList := strings.Split(privateIps, "/")
+		for i := 0; i < len(ipList); i++ {
+			ipList[i] = strings.Trim(ipList[i], " ")
 		}
-		d.Set("private_ips", ip_list)
+		d.Set("private_ips", ipList)
 	}
 
 	// set data store
@@ -310,7 +314,7 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("replica_num", instance.ReplicaNum)
 	}
 
-	//remove duplicate az
+	// remove duplicate az
 	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
@@ -341,5 +345,5 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 	volumeList[0] = volume
 	d.Set("volume", volumeList)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

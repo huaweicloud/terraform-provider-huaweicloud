@@ -1,7 +1,6 @@
 package gaussdb
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -163,13 +162,13 @@ func TestAccGaussDBNoSQLFlavors_az(t *testing.T) {
 }
 
 func testAccGaussDBNoSQLFlavors_default() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {}
 `)
 }
 
 func testAccGaussDBNoSQLFlavors_cassandra() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   engine = "cassandra"
 }
@@ -177,7 +176,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 func testAccGaussDBNoSQLFlavors_mongodb() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   engine = "mongodb"
 }
@@ -185,7 +184,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 func testAccGaussDBNoSQLFlavors_influxdb() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   engine = "influxdb"
 }
@@ -193,7 +192,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 func testAccGaussDBNoSQLFlavors_redis() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   engine = "redis"
 }
@@ -201,7 +200,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 func testAccGaussDBNoSQLFlavors_vcpus() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   vcpus = 4
 }
@@ -209,7 +208,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 func testAccGaussDBNoSQLFlavors_memory() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
   memory = 8
 }
@@ -217,7 +216,7 @@ data "huaweicloud_gaussdb_nosql_flavors" "test" {
 }
 
 func testAccGaussDBNoSQLFlavors_az() string {
-	return fmt.Sprintf(`
+	return (`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_gaussdb_nosql_flavors" "test" {
