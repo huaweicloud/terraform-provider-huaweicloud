@@ -18,18 +18,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API IAM DELETE /v3/projects/{projectID}/groups/{groupID}/roles/{roleID}
-// @API IAM PUT /v3/projects/{projectID}/groups/{groupID}/roles/{roleID}
-// @API IAM GET /v3/projects/{projectID}/groups/{groupID}/roles
-// @API IAM DELETE /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/{roleID}/inherited_to_projects
-// @API IAM PUT /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/{roleID}/inherited_to_projects
-// @API IAM GET /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/inherited_to_projects
-// @API IAM DELETE /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles/{roleID}
-// @API IAM PUT /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles/{roleID}
-// @API IAM GET /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles
-// @API IAM DELETE /v3/domains/{domainID}/groups/{groupID}/roles/{roleID}
-// @API IAM PUT /v3/domains/{domainID}/groups/{groupID}/roles/{roleID}
-// @API IAM GET /v3/domains/{domainID}/groups/{groupID}/roles
+// @API IAM DELETE /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
+// @API IAM PUT /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
+// @API IAM GET /v3/projects/{project_id}/groups/{group_id}/roles
+// @API IAM DELETE /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
+// @API IAM PUT /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
+// @API IAM GET /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
+// @API IAM DELETE /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles/{role_id}
+// @API IAM PUT /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles/{role_id}
+// @API IAM GET /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles
+// @API IAM DELETE /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
+// @API IAM PUT /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
+// @API IAM GET /v3/domains/{domain_id}/groups/{group_id}/roles
 func ResourceIdentityGroupRoleAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityGroupRoleAssignmentCreate,

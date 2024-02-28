@@ -27,21 +27,21 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IAM DELETE /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles/{roleID}
-// @API IAM PUT /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles/{roleID}
-// @API IAM DELETE /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/{roleID}/inherited_to_projects
-// @API IAM PUT /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/{roleID}/inherited_to_projects
-// @API IAM GET /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles
+// @API IAM POST /v3.0/OS-AGENCY/agencies
+// @API IAM GET /v3.0/OS-AGENCY/agencies/{agency_id}
+// @API IAM PUT /v3.0/OS-AGENCY/agencies/{agency_id}
+// @API IAM DELETE /v3.0/OS-AGENCY/agencies/{agency_id}
+// @API IAM GET /v3.0/OS-AGENCY/domains/{domain_id}/agencies/{agency_id}/roles
+// @API IAM PUT /v3.0/OS-AGENCY/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}
+// @API IAM DELETE /v3.0/OS-AGENCY/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}
+// @API IAM GET /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/inherited_to_projects
+// @API IAM PUT /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}/inherited_to_projects
+// @API IAM DELETE /v3.0/OS-INHERIT/domains/{domain_id}/agencies/{agency_id}/roles/{role_id}/inherited_to_projects
+// @API IAM GET /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles
+// @API IAM PUT /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles/{role_id}
+// @API IAM DELETE /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agency_id}/roles/{role_id}
 // @API IAM GET /v3/projects
 // @API IAM GET /v3/roles
-// @API IAM POST /v3.0/OS-AGENCY/agencies
-// @API IAM DELETE /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles/{roleID}
-// @API IAM PUT /v3.0/OS-AGENCY/projects/{projectID}/agencies/{agencyID}/roles/{roleID}
-// @API IAM GET /v3.0/OS-AGENCY/domains/{domainID}/agencies/{agencyID}/roles
-// @API IAM GET /v3.0/OS-INHERIT/domains/{domainID}/agencies/{agencyID}/roles/inherited_to_projects
-// @API IAM DELETE /v3.0/OS-AGENCY/agencies/{id}
-// @API IAM GET /v3.0/OS-AGENCY/agencies/{id}
-// @API IAM PUT /v3.0/OS-AGENCY/agencies/{id}
 func ResourceIAMAgencyV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIAMAgencyV3Create,

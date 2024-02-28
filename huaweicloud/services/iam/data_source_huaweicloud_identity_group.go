@@ -15,7 +15,7 @@ import (
 )
 
 // @API IAM GET /v3/groups
-// @API IAM GET /v3/groups/{groupID}/users
+// @API IAM GET /v3/groups/{group_id}/users
 func DataSourceIdentityGroup() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: DataSourceIdentityGroupRead,
