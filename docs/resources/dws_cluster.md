@@ -124,6 +124,8 @@ The following arguments are supported:
 
 * `elb_id` - (Optional, String) Specifies the ID of the ELB load balancer.
 
+* `lts_enable` - (Optional, Bool) Specified whether to enable LTS. The default value is **false**.
+
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
 
@@ -267,7 +269,7 @@ $ terraform import huaweicloud_dws_cluster.test 47ad727e-9dcc-4833-bde0-bb298607
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `user_pwd`, `number_of_cn`, `kms_key_id`,
-`volume`, `dss_pool_id`, `logical_cluster_enable`.
+`volume`, `dss_pool_id`, `logical_cluster_enable`, `lts_enable`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
@@ -278,7 +280,7 @@ resource "huaweicloud_dws_cluster" "test" {
 
   lifecycle {
     ignore_changes = [
-      user_pwd, number_of_cn, kms_key_id, volume, dss_pool_id, logical_cluster_enable
+      user_pwd, number_of_cn, kms_key_id, volume, dss_pool_id, logical_cluster_enable, lts_enable
     ]
   }
 }
