@@ -17,6 +17,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 )
 
+// @API LTS POST /v2/{project_id}/lts/struct/template
+// @API LTS POST /v3/{project_id}/lts/struct/template
+// @API LTS GET /v2/{project_id}/lts/struct/template
+// @API LTS DELETE /v2/{project_id}/lts/struct/template
+// @API LTS PUT /v3/{project_id}/lts/struct/template
 func ResourceLtsStruct() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLtsStructTemplateCreate,

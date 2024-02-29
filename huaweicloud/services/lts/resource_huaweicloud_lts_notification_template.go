@@ -20,7 +20,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API LTS GET /v2/{project_id}/{domain_id}/lts/events/notification/template/{id}
+// @API LTS GET /v2/{project_id}/{domain_id}/lts/events/notification/template/{template_name}
 // @API LTS DELETE /v2/{project_id}/{domain_id}/lts/events/notification/templates
 // @API LTS POST /v2/{project_id}/{domain_id}/lts/events/notification/templates
 // @API LTS PUT /v2/{project_id}/{domain_id}/lts/events/notification/templates

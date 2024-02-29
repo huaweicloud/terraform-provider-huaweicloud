@@ -14,6 +14,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 )
 
+// @API ELB POST /v3/{project_id}/elb/logtanks
+// @API ELB GET /v3/{project_id}/elb/logtanks/{logtank_id}
+// @API ELB PUT /v3/{project_id}/elb/logtanks/{logtank_id}
+// @API ELB DELETE /v3/{project_id}/elb/logtanks/{logtank_id}
 func ResourceLtsElb() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLtsElbCreate,
