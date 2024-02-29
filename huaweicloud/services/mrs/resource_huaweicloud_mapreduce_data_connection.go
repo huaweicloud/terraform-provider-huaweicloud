@@ -26,8 +26,8 @@ import (
 
 // @API MRS GET /v2/{project_id}/data-connectors
 // @API MRS POST /v2/{project_id}/data-connectors
-// @API MRS DELETE /v2/{project_id}/data-connectors/{id}
-// @API MRS PUT /v2/{project_id}/data-connectors/{id}
+// @API MRS DELETE /v2/{project_id}/data-connectors/{connector_id}
+// @API MRS PUT /v2/{project_id}/data-connectors/{connector_id}
 func ResourceDataConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDataConnectionCreate,

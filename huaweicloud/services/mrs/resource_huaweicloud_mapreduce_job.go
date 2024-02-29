@@ -43,9 +43,9 @@ const (
 )
 
 // ResourceMRSJobV2 is a schema resource to provider the MRS job.
-// @API MRS POST /v2/{project_id}/clusters/{clusterId}/job-executions/batch-delete
-// @API MRS GET /v2/{project_id}/clusters/{clusterId}/job-executions/{jobId}
-// @API MRS POST /v2/{project_id}/clusters/{clusterId}/job-executions
+// @API MRS POST /v2/{project_id}/clusters/{cluster_id}/job-executions/batch-delete
+// @API MRS GET /v2/{project_id}/clusters/{cluster_id}/job-executions/{job_execution_id}
+// @API MRS POST /v2/{project_id}/clusters/{cluster_id}/job-executions
 func ResourceMRSJobV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMRSJobV2Create,
