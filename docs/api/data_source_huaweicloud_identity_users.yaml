@@ -11,6 +11,6 @@ paths:
     /v3/users:
         GET:
             tag: IAM
-    /v3/users/{userID}/groups:
+    /v3/users/{user_id}/groups:
         GET:
             tag: IAM

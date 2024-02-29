@@ -9,15 +9,14 @@ tags:
     - name: IAM
 paths:
     /v3-ext/projects/{project_id}:
-        PUT:
-            tag: IAM
-    /v3-ext/projects/{projectID}:
         GET:
+            tag: IAM
+        PUT:
             tag: IAM
     /v3/projects:
         POST:
             tag: IAM
-    /v3/projects/{projectID}:
+    /v3/projects/{project_id}:
         DELETE:
             tag: IAM
         PATCH:

@@ -11,7 +11,7 @@ paths:
     /v1/security-group-rules:
         POST:
             tag: IEC
-    /v1/security-group-rules/{securityGroupRuleID}:
+    /v1/security-group-rules/{security_group_rule_id}:
         DELETE:
             tag: IEC
         GET:

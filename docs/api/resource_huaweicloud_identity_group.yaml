@@ -11,7 +11,7 @@ paths:
     /v3/groups:
         POST:
             tag: IAM
-    /v3/groups/{groupID}:
+    /v3/groups/{group_id}:
         DELETE:
             tag: IAM
         GET:

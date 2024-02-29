@@ -8,13 +8,14 @@ host: huaweicloud.com
 tags:
     - name: CodeArtsDeploy
 paths:
-    /v2/host-groups:
+    /v1/resources/host-groups:
         POST:
+            tag: CodeArtsDeploy
+    /v1/resources/host-groups/{group_id}:
+        GET:
             tag: CodeArtsDeploy
     /v2/host-groups/{group_id}:
         DELETE:
-            tag: CodeArtsDeploy
-        GET:
             tag: CodeArtsDeploy
         PUT:
             tag: CodeArtsDeploy

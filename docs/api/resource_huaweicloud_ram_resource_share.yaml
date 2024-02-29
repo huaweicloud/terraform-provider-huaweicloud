@@ -19,8 +19,20 @@ paths:
             tag: RAM
         PUT:
             tag: RAM
+    /v1/resource-shares/{resource_share_id}/associate:
+        POST:
+            tag: RAM
     /v1/resource-shares/{resource_share_id}/associated-permissions:
         GET:
+            tag: RAM
+    /v1/resource-shares/{resource_share_id}/disassociate:
+        POST:
+            tag: RAM
+    /v1/resource-shares/{resource_share_id}/tags/create:
+        POST:
+            tag: RAM
+    /v1/resource-shares/{resource_share_id}/tags/delete:
+        POST:
             tag: RAM
     /v1/resource-shares/search:
         POST:

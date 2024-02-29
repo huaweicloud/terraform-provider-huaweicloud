@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: DCS
 paths:
+    /v2/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DCS
     /v2/{project_id}/instances/{instance_id}/accounts:
         GET:
             tag: DCS

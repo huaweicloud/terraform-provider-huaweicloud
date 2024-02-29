@@ -8,23 +8,38 @@ host: huaweicloud.com
 tags:
     - name: MRS
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter:
+        POST:
+            tag: EPS
     /v1.1/{project_id}/{resourceType}/{id}/tags/action:
         POST:
             tag: MRS
-    /v1.1/{project_id}/cluster_infos/{id}:
+    /v1.1/{project_id}/cluster_infos/{cluster_id}:
         GET:
             tag: MRS
         PUT:
             tag: MRS
-    /v1.1/{project_id}/clusters/{clusterId}/hosts:
-        GET:
-            tag: MRS
-    /v1.1/{project_id}/clusters/{id}:
+    /v1.1/{project_id}/clusters/{cluster_id}:
         DELETE:
+            tag: MRS
+    /v1.1/{project_id}/clusters/{cluster_id}/hosts:
+        GET:
             tag: MRS
     /v1/{project_id}/publicips:
         GET:
             tag: EIP
+    /v1/{project_id}/subnets:
+        GET:
+            tag: VPC
+    /v1/{project_id}/vpcs:
+        GET:
+            tag: VPC
     /v2/{project_id}/clusters:
         POST:
+            tag: MRS
+    /v2/{project_id}/clusters/{cluster_id}/cluster-name:
+        PUT:
             tag: MRS

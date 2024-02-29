@@ -11,7 +11,7 @@ paths:
     /v1/os-keypairs:
         POST:
             tag: IEC
-    /v1/os-keypairs/{KeyPairName}:
+    /v1/os-keypairs/{keypair_name}:
         DELETE:
             tag: IEC
         GET:

@@ -11,11 +11,11 @@ paths:
     /v1/repositories:
         POST:
             tag: CodeArts
-    /v1/repositories/{id}/status:
-        GET:
-            tag: CodeArts
     /v1/repositories/{repository_uuid}:
         DELETE:
+            tag: CodeArts
+    /v1/repositories/{repository_uuid}/status:
+        GET:
             tag: CodeArts
     /v2/repositories/{repository_uuid}:
         GET:

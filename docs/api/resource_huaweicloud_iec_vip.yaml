@@ -11,13 +11,13 @@ paths:
     /v1/ports:
         POST:
             tag: IEC
-    /v1/ports/{portId}:
+    /v1/ports/{port_id}:
         DELETE:
             tag: IEC
         GET:
             tag: IEC
         PUT:
             tag: IEC
-    /v1/subnets/{subnetId}:
+    /v1/subnets/{subnet_id}:
         GET:
             tag: IEC

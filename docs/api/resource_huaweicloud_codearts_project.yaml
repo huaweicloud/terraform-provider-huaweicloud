@@ -17,4 +17,4 @@ paths:
         GET:
             tag: CodeArts
         PUT:
-            tag: ProjectMan
+            tag: CodeArts

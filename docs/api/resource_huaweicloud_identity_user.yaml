@@ -11,16 +11,16 @@ paths:
     /v3.0/OS-USER/users:
         POST:
             tag: IAM
+    /v3.0/OS-USER/users/{user_id}:
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM
     /v3.0/OS-USER/users/{user_id}/login-protect:
         GET:
             tag: IAM
         PUT:
             tag: IAM
-    /v3.0/OS-USER/users/{userID}:
-        GET:
-            tag: IAM
-        PUT:
-            tag: IAM
-    /v3/users/{userID}:
+    /v3/users/{user_id}:
         DELETE:
             tag: IAM

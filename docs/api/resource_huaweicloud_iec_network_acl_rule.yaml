@@ -8,9 +8,9 @@ host: huaweicloud.com
 tags:
     - name: IEC
 paths:
-    /v1/firewalls/{firewallId}:
+    /v1/firewalls/{firewall_id}:
         GET:
             tag: IEC
-    /v1/firewalls/{firewallId}/update_firewall_rules:
+    /v1/firewalls/{firewall_id}/update_firewall_rules:
         PUT:
             tag: IEC
