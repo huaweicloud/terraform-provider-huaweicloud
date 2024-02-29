@@ -962,3 +962,195 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, rName)
 }
+
+func TestAccFgsV2Function_reservedInstance_version(t *testing.T) {
+	var (
+		f            function.Function
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_reservedInstance_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.qualifier_name", "latest"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.qualifier_type", "version"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.count", "1"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.idle_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.tactics_config.0.cron_configs.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.tactics_config.0.cron_configs.0.count", "2"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.tactics_config.0.cron_configs.0.cron", "0 */10 * * * ?"),
+					resource.TestCheckResourceAttrSet(resourceName, "reserved_instances.0.tactics_config.0.cron_configs.0.start_time"),
+					resource.TestCheckResourceAttrSet(resourceName, "reserved_instances.0.tactics_config.0.cron_configs.0.expired_time"),
+					resource.TestCheckResourceAttrSet(resourceName, "reserved_instances.0.tactics_config.0.cron_configs.0.name"),
+				),
+			},
+			{
+				Config: testAccFgsV2Function_reservedInstance_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.count", "2"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.idle_mode", "false"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.tactics_config.#", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+					"tags",
+				},
+			},
+		},
+	})
+}
+
+func TestAccFgsV2Function_reservedInstance_alias(t *testing.T) {
+	var (
+		f               function.Function
+		name            = acceptance.RandomAccResourceName()
+		updateAliasName = acceptance.RandomAccResourceName()
+		resourceName    = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_reservedInstance_alias(name, name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.qualifier_name", name),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.qualifier_type", "alias"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.count", "1"),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.idle_mode", "false"),
+				),
+			},
+			{
+				Config: testAccFgsV2Function_reservedInstance_alias(name, updateAliasName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.qualifier_name", updateAliasName),
+					resource.TestCheckResourceAttr(resourceName, "reserved_instances.0.qualifier_type", "alias"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+					"tags",
+				},
+			},
+		},
+	})
+}
+
+func testAccFgsV2Function_reservedInstance_step1(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Node.js16.17"
+  code_type   = "inline"
+
+  reserved_instances {
+    qualifier_type = "version"
+    qualifier_name = "latest"
+    count          = 1
+    idle_mode      = true
+
+    tactics_config {
+      cron_configs {
+        name         = "scheme-waekcy"
+        cron         = "0 */10 * * * ?"
+        start_time   = "1708342889"
+        expired_time = "1739878889"
+        count        = 2
+      }
+    }
+  }
+}
+`, rName)
+}
+
+func testAccFgsV2Function_reservedInstance_step2(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%s"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Node.js16.17"
+  code_type   = "inline"
+	  
+  reserved_instances {
+    qualifier_type = "version"
+    qualifier_name = "latest"
+    count          = 2
+    idle_mode      = false
+  }
+}
+`, rName)
+}
+
+func testAccFgsV2Function_reservedInstance_alias(rName string, aliasName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Node.js16.17"
+  code_type   = "inline"
+
+  versions {
+    name = "latest"
+	
+    aliases {
+      name = "%[2]s"
+    }
+  }
+
+  reserved_instances {
+    qualifier_type = "alias"
+    qualifier_name = "%[2]s"
+    count          = 1
+    idle_mode      = false
+  }
+}
+`, rName, aliasName)
+}
