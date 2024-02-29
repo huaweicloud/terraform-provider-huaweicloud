@@ -664,13 +664,14 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
-			"huaweicloud_vpc_bandwidth":           eip.DataSourceBandWidth(),
-			"huaweicloud_vpc_bandwidths":          eip.DataSourceBandWidths(),
-			"huaweicloud_vpc_eip":                 eip.DataSourceVpcEip(),
-			"huaweicloud_vpc_eips":                eip.DataSourceVpcEips(),
-			"huaweicloud_vpc_internet_gateways":   eip.DataSourceVPCInternetGateways(),
-			"huaweicloud_global_eip_pools":        eip.DataSourceGlobalEIPPools(),
-			"huaweicloud_global_eip_access_sites": eip.DataSourceGlobalEIPAccessSites(),
+			"huaweicloud_vpc_bandwidth":              eip.DataSourceBandWidth(),
+			"huaweicloud_vpc_bandwidths":             eip.DataSourceBandWidths(),
+			"huaweicloud_vpc_eip":                    eip.DataSourceVpcEip(),
+			"huaweicloud_vpc_eips":                   eip.DataSourceVpcEips(),
+			"huaweicloud_vpc_internet_gateways":      eip.DataSourceVPCInternetGateways(),
+			"huaweicloud_global_eip_pools":           eip.DataSourceGlobalEIPPools(),
+			"huaweicloud_global_eip_access_sites":    eip.DataSourceGlobalEIPAccessSites(),
+			"huaweicloud_global_internet_bandwidths": eip.DataSourceGlobalInternetBandwidths(),
 
 			"huaweicloud_vpc":                    vpc.DataSourceVpcV1(),
 			"huaweicloud_vpcs":                   vpc.DataSourceVpcs(),
