@@ -10,7 +10,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccGaussRedisInstanceDataSource_basic(t *testing.T) {
@@ -34,11 +33,11 @@ func testAccCheckGaussRedisInstanceDataSourceID(n string) resource.TestCheckFunc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find GaussDB Redis instance data source: %s ", n)
+			return fmt.Errorf("can't find GaussDB Redis instance data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("GaussDB Redis instance data source ID not set ")
+			return fmt.Errorf("the GaussDB Redis instance data source ID not set ")
 		}
 
 		return nil
