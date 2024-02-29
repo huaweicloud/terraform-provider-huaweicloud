@@ -81,23 +81,28 @@ var (
 	}
 )
 
-// @API DCS PUT /v2/{project_id}/instances/{id}/password
-// @API DCS GET /v2/{project_id}/instances/{instancesId}/configs
-// @API DCS PUT /v2/{project_id}/instances/{instancesId}/configs
 // @API DCS GET /v2/available-zones
-// @API DCS PUT /v2/{project_id}/instances/status
-// @API DCS GET /v2/{project_id}/flavors
-// @API DCS GET /v2/{project_id}/instance/{id}/whitelist
-// @API DCS PUT /v2/{project_id}/instance/{id}/whitelist
-// @API DCS POST /v2/{project_id}/instances/{id}/resize
-// @API DCS DELETE /v2/{project_id}/instances/{id}
-// @API DCS GET /v2/{project_id}/instances/{id}
-// @API DCS PUT /v2/{project_id}/instances/{id}
 // @API DCS POST /v2/{project_id}/instances
-// @API DCS GET /v2/{project_id}/instances/{id}/tags
-// @API DCS POST /v2/{project_id}/dcs/{id}/tags/action
-// @API DCS GET /v2/{project_id}/instances/{instance_id}/ssl
+// @API DCS GET /v2/{project_id}/instances/{instance_id}
+// @API DCS PUT /v2/{project_id}/instance/{instance_id}/whitelist
+// @API DCS GET /v2/{project_id}/instance/{instance_id}/whitelist
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/configs
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/configs
+// @API DCS PUT /v2/{project_id}/instances/status
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/ssl
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/ssl
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/tags
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/password
+// @API DCS POST /v2/{project_id}/instances/{instance_id}/resize
+// @API DCS POST /v3/{project_id}/instances/{instance_id}/tags/action
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
+// @API DCS DELETE /v2/{project_id}/instances/{instance_id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceDcsInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDcsInstancesCreate,

@@ -20,11 +20,12 @@ import (
 )
 
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/accounts
+// @API DCS GET /v2/{project_id}/instances/{instance_id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/accounts
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/accounts/{account_id}/password/reset
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/accounts/{account_id}/role
-// @API DCS DELETE /v2/{project_id}/instances/{instance_id}/accounts/{account_id}
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/accounts/{account_id}
+// @API DCS DELETE /v2/{project_id}/instances/{instance_id}/accounts/{account_id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/tasks
 func ResourceDcsAccount() *schema.Resource {
 	return &schema.Resource{
