@@ -34,9 +34,9 @@ func buildSubnetDNSList(d *schema.ResourceData) []string {
 }
 
 // @API IEC POST /v1/subnets
-// @API IEC GET /v1/subnets/{subnetId}
-// @API IEC PUT /v1/subnets/{subnetId}
-// @API IEC DELETE /v1/subnets/{subnetId}
+// @API IEC GET /v1/subnets/{subnet_id}
+// @API IEC PUT /v1/subnets/{subnet_id}
+// @API IEC DELETE /v1/subnets/{subnet_id}
 func ResourceSubnet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSubnetCreate,

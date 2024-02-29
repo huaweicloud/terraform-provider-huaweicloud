@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
 )
 
+// @API CMDB PUT /v1/resource/{rf_resource_type}/type/{type}/ci-relationships
+// @API CMDB POST /v1/resource/{rf_resource_type}/type/{type}/ci-relationships
+// @API CMDB DELETE /v1/resource/{rf_resource_type}/type/{type}/ci-relationships
 func ResourceCiRelationships() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceResourceCiRelationshipsCreate,

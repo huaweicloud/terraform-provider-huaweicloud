@@ -16,8 +16,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API IEC PUT /v1/firewalls/{firewallId}/update_firewall_rules
-// @API IEC GET /v1/firewalls/{firewallId}
+// @API IEC PUT /v1/firewalls/{firewall_id}/update_firewall_rules
+// @API IEC GET /v1/firewalls/{firewall_id}
 func ResourceNetworkACLRule() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkACLRuleCreate,

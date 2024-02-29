@@ -21,9 +21,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 )
 
-// @API IEC DELETE /v1/publicips/{publicipId}
-// @API IEC GET /v1/publicips/{publicipId}
-// @API IEC PUT /v1/publicips/{publicipId}
+// @API IEC DELETE /v1/publicips/{publicip_id}
+// @API IEC GET /v1/publicips/{publicip_id}
+// @API IEC PUT /v1/publicips/{publicip_id}
 // @API IEC POST /v1/publicips
 func ResourceEip() *schema.Resource {
 	return &schema.Resource{

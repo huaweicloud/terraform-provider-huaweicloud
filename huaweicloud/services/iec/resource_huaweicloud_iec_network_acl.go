@@ -17,9 +17,9 @@ import (
 )
 
 // @API IEC POST /v1/firewalls
-// @API IEC PUT /v1/firewalls/{firewallId}
-// @API IEC DELETE /v1/firewalls/{firewallId}
-// @API IEC GET /v1/firewalls/{firewallId}
+// @API IEC PUT /v1/firewalls/{firewall_id}
+// @API IEC DELETE /v1/firewalls/{firewall_id}
+// @API IEC GET /v1/firewalls/{firewall_id}
 func ResourceNetworkACL() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkACLCreate,
