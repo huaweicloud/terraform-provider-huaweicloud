@@ -186,34 +186,19 @@ func flattenListEventsBody(resp interface{}) []interface{} {
 }
 
 func filterListEventsBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	name := d.Get("name").(string)
-	eventId := d.Get("event_id").(string)
-	status := d.Get("status").(string)
-
-	if name == "" && eventId == "" && status == "" {
-		return all
-	}
-
 	rst := make([]interface{}, 0, len(all))
 
 	for _, v := range all {
-		if name != fmt.Sprint(utils.PathSearch("name", v, nil)) {
+		if param, ok := d.GetOk("name"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("name", v, nil)) {
 			continue
 		}
-
-		rst = append(rst, v)
-	}
-
-	for _, v := range all {
-		if eventId != fmt.Sprint(utils.PathSearch("event_id", v, nil)) {
+		if param, ok := d.GetOk("event_id"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("event_id", v, nil)) {
 			continue
 		}
-
-		rst = append(rst, v)
-	}
-
-	for _, v := range all {
-		if status != fmt.Sprint(utils.PathSearch("status", v, nil)) {
+		if param, ok := d.GetOk("status"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("status", v, nil)) {
 			continue
 		}
 

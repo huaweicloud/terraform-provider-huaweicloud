@@ -63,6 +63,7 @@ The `events` block supports:
 
 <a name="notification"></a>
 The `notification` block supports:
+
 * `target_type` - Indicates the object type of the event notification.
 * `target_id` - Indicates the object ID of the event notification.
 * `target_name` - Indicates the object name of the event notification.
