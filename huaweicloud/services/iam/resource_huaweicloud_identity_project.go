@@ -16,10 +16,10 @@ import (
 )
 
 // @API IAM POST /v3/projects
-// @API IAM DELETE /v3/projects/{projectID}
-// @API IAM GET /v3-ext/projects/{projectID}
-// @API IAM PATCH /v3/projects/{projectID}
+// @API IAM PATCH /v3/projects/{project_id}
 // @API IAM PUT /v3-ext/projects/{project_id}
+// @API IAM GET /v3-ext/projects/{project_id}
+// @API IAM DELETE /v3/projects/{project_id}
 func ResourceIdentityProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityProjectCreate,

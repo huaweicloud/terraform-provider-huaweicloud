@@ -21,10 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IAM GET /v3.0/OS-USER/users/{userID}
-// @API IAM PUT /v3.0/OS-USER/users/{userID}
 // @API IAM POST /v3.0/OS-USER/users
-// @API IAM DELETE /v3/users/{userID}
+// @API IAM GET /v3.0/OS-USER/users/{user_id}
+// @API IAM PUT /v3.0/OS-USER/users/{user_id}
+// @API IAM DELETE /v3/users/{user_id}
 // @API IAM PUT /v3.0/OS-USER/users/{user_id}/login-protect
 // @API IAM GET /v3.0/OS-USER/users/{user_id}/login-protect
 func ResourceIdentityUser() *schema.Resource {
