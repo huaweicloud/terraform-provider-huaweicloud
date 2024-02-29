@@ -22,12 +22,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API VSS DELETE /v3/{project_id}/webscan/domains
-// @API VSS GET /v3/{project_id}/webscan/domains
 // @API VSS POST /v3/{project_id}/webscan/domains
 // @API VSS POST /v3/{project_id}/webscan/domains/authenticate
-// @API VSS GET /v3/{project_id}/webscan/domains/settings
 // @API VSS POST /v3/{project_id}/webscan/domains/settings
+// @API VSS GET /v3/{project_id}/webscan/domains
+// @API VSS GET /v3/{project_id}/webscan/domains/settings
+// @API VSS DELETE /v3/{project_id}/webscan/domains
 func ResourceInspectorWebsite() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInspectorWebsiteCreate,

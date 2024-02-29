@@ -27,10 +27,10 @@ const (
 	hostNotFound = "Deploy.00021108"
 )
 
-// @API CodeArtsDeploy POST /v2/host-groups/{group_id}/hosts
+// @API CodeArtsDeploy POST /v1/resources/host-groups/{group_id}/hosts
 // @API CodeArtsDeploy PUT /v2/host-groups/{group_id}/hosts/{host_id}
+// @API CodeArtsDeploy GET /v1/resources/host-groups/{group_id}/hosts/{host_id}
 // @API CodeArtsDeploy DELETE /v2/host-groups/{group_id}/hosts/{host_id}
-// @API CodeArtsDeploy GET /v2/host-groups/{group_id}/hosts/{host_id}
 func ResourceDeployHost() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeployHostCreate,
