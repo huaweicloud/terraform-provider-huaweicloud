@@ -9,11 +9,6 @@
                 "type": "string",
                 "optional": true
               },
-              "autoscaling_enabled": {
-                "type": "bool",
-                "optional": true,
-                "computed": true
-              },
               "availability_zone": {
                 "type": [
                   "set",
@@ -133,11 +128,6 @@
                 "computed": true
               },
               "l7_flavor_id": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "min_l7_flavor_id": {
                 "type": "string",
                 "optional": true,
                 "computed": true

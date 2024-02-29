@@ -33,8 +33,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -69,7 +68,7 @@
               },
               "password": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "sensitive": true
               },
               "period": {

@@ -48,6 +48,10 @@
                 "type": "string",
                 "computed": true
               },
+              "login_protect_verification_method": {
+                "type": "string",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "required": true

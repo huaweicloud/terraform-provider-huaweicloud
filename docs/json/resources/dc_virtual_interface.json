@@ -123,6 +123,12 @@
                 "optional": true,
                 "forcenew": true
               },
+              "resource_tenant_id": {
+                "type": "string",
+                "description": "The project ID of another tenant which is used to create virtual interface across tenant.",
+                "optional": true,
+                "forcenew": true
+              },
               "route_mode": {
                 "type": "string",
                 "description": "The route mode of the virtual interface.",

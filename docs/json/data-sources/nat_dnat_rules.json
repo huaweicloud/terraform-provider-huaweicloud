@@ -1,0 +1,117 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_nat_dnat_rules": {
+          "block": {
+            "attributes": {
+              "external_service_port": {
+                "type": "string",
+                "description": "The port of the EIP associated with the DNAT rule belongs.",
+                "optional": true
+              },
+              "floating_ip_address": {
+                "type": "string",
+                "description": "The IP address of EIP associated with the DNAT rule.",
+                "optional": true
+              },
+              "floating_ip_id": {
+                "type": "string",
+                "description": "The ID of the EIP associated with the DNAT rule.",
+                "optional": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "The ID of the NAT gateway to which the DNAT rule belongs.",
+                "optional": true
+              },
+              "global_eip_address": {
+                "type": "string",
+                "description": "The IP address of the global EIP associated with the DNAT rule.",
+                "optional": true
+              },
+              "global_eip_id": {
+                "type": "string",
+                "description": "The ID of the global EIP associated with the DNAT rule.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internal_service_port": {
+                "type": "string",
+                "description": "The port of the backend instance to which the DNAT rule belongs.",
+                "optional": true
+              },
+              "port_id": {
+                "type": "string",
+                "description": "The port ID of the backend instance to which the DNAT rule belongs.",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "description": "The private IP address of the backend instance to which the DNAT rule belongs.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The protocol type of the DNAT rule.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the DNAT rules are located."
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "The ID of the DNAT rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "external_service_port": "number",
+                      "external_service_port_range": "string",
+                      "floating_ip_address": "string",
+                      "floating_ip_id": "string",
+                      "gateway_id": "string",
+                      "global_eip_address": "string",
+                      "global_eip_id": "string",
+                      "id": "string",
+                      "internal_service_port": "number",
+                      "internal_service_port_range": "string",
+                      "port_id": "string",
+                      "private_ip": "string",
+                      "protocol": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the DNAT rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the DNAT rule belongs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "NAT",
+            "name": "NAT Gateway",
+            "catalog": "Networking",
+            "name_cn": "NAT网关",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

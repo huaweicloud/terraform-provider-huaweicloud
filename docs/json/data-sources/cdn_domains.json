@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_domains": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "optional": true
+              },
+              "domain_status": {
+                "type": "string",
+                "optional": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_refresh_preheat": "number",
+                      "banned_reason": "string",
+                      "cname": "string",
+                      "created_at": "string",
+                      "disabled": "number",
+                      "domain_origin_host": [
+                        "map",
+                        "string"
+                      ],
+                      "domain_status": "string",
+                      "enterprise_project_id": "string",
+                      "follow_status": "string",
+                      "https_status": "number",
+                      "id": "string",
+                      "locked": "number",
+                      "locked_reason": "string",
+                      "name": "string",
+                      "origin_status": "string",
+                      "range_based_retrieval_enabled": "bool",
+                      "service_area": "string",
+                      "sources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "active": "number",
+                            "obs_web_hosting_enabled": "bool",
+                            "origin": "string",
+                            "origin_type": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "service_area": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

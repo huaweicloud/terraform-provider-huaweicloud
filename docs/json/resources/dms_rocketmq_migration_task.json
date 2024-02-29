@@ -1,0 +1,312 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_migration_task": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RocketMQ instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the migration task.",
+                "required": true,
+                "forcenew": true
+              },
+              "overwrite": {
+                "type": "string",
+                "description": "Specifies whether to overwrite configurations with the same name.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_date": {
+                "type": "string",
+                "description": "Indicates the start time of the migration task.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the migration task.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the migration task type.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "bindings": {
+                "block": {
+                  "attributes": {
+                    "destination": {
+                      "type": "string",
+                      "description": "Specifies the message target.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "destination_type": {
+                      "type": "string",
+                      "description": "Specifies the message target type.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "routing_key": {
+                      "type": "string",
+                      "description": "Specifies the routing key.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "Specifies the message source.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "vhost": {
+                      "type": "string",
+                      "description": "Specifies the virtual host name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the binding metadata."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "exchanges": {
+                "block": {
+                  "attributes": {
+                    "durable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable data persistence.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the switch name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the exchange type.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "vhost": {
+                      "type": "string",
+                      "description": "Specifies the virtual host name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the exchange metadata."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "queues": {
+                "block": {
+                  "attributes": {
+                    "durable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable data persistence.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the queue name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "vhost": {
+                      "type": "string",
+                      "description": "Specifies the virtual host name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the queue metadata."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "subscription_groups": {
+                "block": {
+                  "attributes": {
+                    "consume_broadcast_enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable broadcast.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "consume_enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable consumption.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "consume_from_min_enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable consumption from the earliest offset.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "group_name": {
+                      "type": "string",
+                      "description": "Specifies the name of a consumer group.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "notify_consumerids_changed_enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to notify changes of consumer IDs.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "retry_max_times": {
+                      "type": "number",
+                      "description": "Specifies the maximum number of consumption retries.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "retry_queue_num": {
+                      "type": "number",
+                      "description": "Specifies the number of retry queues.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "which_broker_when_consume_slow": {
+                      "type": "number",
+                      "description": "Specifies the ID of the broker selected for slow consumption.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the consumer group metadata."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "topic_configs": {
+                "block": {
+                  "attributes": {
+                    "order": {
+                      "type": "bool",
+                      "description": "Specifies whether a message is an ordered message.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "perm": {
+                      "type": "number",
+                      "description": "Specifies the number of permission.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "read_queue_num": {
+                      "type": "number",
+                      "description": "Specifies the number of read queues.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "topic_filter_type": {
+                      "type": "string",
+                      "description": "Specifies the filter type of a topic.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "topic_name": {
+                      "type": "string",
+                      "description": "Specifies the topic name.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "topic_sys_flag": {
+                      "type": "number",
+                      "description": "Specifies the system flag of a topic.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "write_queue_num": {
+                      "type": "number",
+                      "description": "Specifies the number of write queues.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the topic metadata."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "vhosts": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the virtual host name.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the virtual hosts metadata."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

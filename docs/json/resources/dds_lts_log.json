@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_lts_log": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DDS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "log_type": {
+                "type": "string",
+                "description": "Specifies the type of the LTS log.",
+                "required": true,
+                "forcenew": true
+              },
+              "lts_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the LTS log group.",
+                "required": true,
+                "forcenew": true
+              },
+              "lts_stream_id": {
+                "type": "string",
+                "description": "Specifies the ID of the LTS log stream.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

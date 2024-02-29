@@ -214,6 +214,89 @@
                 },
                 "nesting_mode": "list"
               },
+              "reserved_instances": {
+                "block": {
+                  "attributes": {
+                    "count": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "idle_mode": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "qualifier_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "qualifier_type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "tactics_config": {
+                      "block": {
+                        "block_types": {
+                          "cron_configs": {
+                            "block": {
+                              "attributes": {
+                                "count": {
+                                  "type": "number",
+                                  "required": true
+                                },
+                                "cron": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "expired_time": {
+                                  "type": "number",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "start_time": {
+                                  "type": "number",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          },
+                          "metric_configs": {
+                            "block": {
+                              "attributes": {
+                                "min": {
+                                  "type": "number",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "threshold": {
+                                  "type": "number",
+                                  "required": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "versions": {
                 "block": {
                   "attributes": {

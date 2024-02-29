@@ -27,8 +27,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "fixed_ip": {
                 "type": "string",

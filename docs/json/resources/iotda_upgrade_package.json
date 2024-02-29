@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_upgrade_package": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "custom_info": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "support_source_versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "file_location": {
+                "block": {
+                  "block_types": {
+                    "obs_location": {
+                      "block": {
+                        "attributes": {
+                          "bucket_name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "object_key": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "region": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

@@ -62,8 +62,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "flavor": {
                 "type": "string",
@@ -145,6 +144,11 @@
               },
               "security_group_name": {
                 "type": "string",
+                "computed": true
+              },
+              "ssl_enable": {
+                "type": "bool",
+                "optional": true,
                 "computed": true
               },
               "status": {

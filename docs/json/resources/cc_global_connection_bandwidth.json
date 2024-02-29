@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_global_connection_bandwidth": {
+          "block": {
+            "attributes": {
+              "binding_service": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "bordercross": {
+                "type": "bool",
+                "required": true,
+                "forcenew": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enable_share": {
+                "type": "bool",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "frozen": {
+                "type": "bool",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "region": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "local_area": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "remote_area": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "size": {
+                "type": "number",
+                "required": true
+              },
+              "sla_level": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "spec_code_id": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

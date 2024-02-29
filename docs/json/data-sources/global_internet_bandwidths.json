@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_internet_bandwidths": {
+          "block": {
+            "attributes": {
+              "access_site": {
+                "type": "string",
+                "optional": true
+              },
+              "bandwidth_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_bandwidths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "frozen_info": "string",
+                      "id": "string",
+                      "ingress_size": "number",
+                      "isp": "string",
+                      "name": "string",
+                      "ratio_95peak": "number",
+                      "size": "number",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "size": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

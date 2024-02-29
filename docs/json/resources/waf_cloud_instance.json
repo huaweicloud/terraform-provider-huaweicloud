@@ -18,8 +18,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "description": "Specifies the ID of the enterprise project to which the cloud WAF belongs.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "id": {
                 "type": "string",

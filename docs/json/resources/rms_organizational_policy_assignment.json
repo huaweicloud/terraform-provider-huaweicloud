@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_organizational_policy_assignment": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the organizational policy assignment.",
+                "optional": true
+              },
+              "excluded_accounts": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The excluded accounts of the organizational policy assignment.",
+                "optional": true,
+                "computed": true
+              },
+              "function_urn": {
+                "type": "string",
+                "description": "The function URN used to create the custom policy.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the organizational policy assignment.",
+                "required": true,
+                "forcenew": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Specifies the ID of the organization.",
+                "required": true,
+                "forcenew": true
+              },
+              "organization_policy_assignment_urn": {
+                "type": "string",
+                "description": "The creation organization policy assignment URN.",
+                "computed": true
+              },
+              "owner_id": {
+                "type": "string",
+                "description": "The creation owner ID.",
+                "computed": true
+              },
+              "parameters": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The rule definition of the organizational policy assignment.",
+                "optional": true,
+                "computed": true
+              },
+              "period": {
+                "type": "string",
+                "description": "The period of the policy rule check.",
+                "optional": true,
+                "computed": true
+              },
+              "policy_definition_id": {
+                "type": "string",
+                "description": "The ID of the policy definition.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "policy_filter": {
+                "block": {
+                  "attributes": {
+                    "region": {
+                      "type": "string",
+                      "description": "The name of the region to which the filtered resources belong.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "description": "The resource ID used to filter a specified resources.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "resource_provider": {
+                      "type": "string",
+                      "description": "The service name to which the filtered resources belong.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "resource_type": {
+                      "type": "string",
+                      "description": "The resource type of the filtered resources.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tag_key": {
+                      "type": "string",
+                      "description": "The tag name used to filter resources.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tag_value": {
+                      "type": "string",
+                      "description": "The tag value used to filter resources.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The configuration used to filter resources."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

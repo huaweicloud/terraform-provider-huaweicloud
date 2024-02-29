@@ -69,8 +69,7 @@
                 "type": "string",
                 "description": "Specifies the enterprise project id.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "flavor_id": {
                 "type": "string",

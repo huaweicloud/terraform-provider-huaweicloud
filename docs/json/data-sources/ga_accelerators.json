@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_accelerators": {
+          "block": {
+            "attributes": {
+              "accelerator_id": {
+                "type": "string",
+                "description": "The ID of the accelerator.",
+                "optional": true
+              },
+              "accelerators": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "ip_sets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "area": "string",
+                            "ip_address": "string",
+                            "ip_type": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the accelerators.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the accelerator belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the accelerator.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the accelerator.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

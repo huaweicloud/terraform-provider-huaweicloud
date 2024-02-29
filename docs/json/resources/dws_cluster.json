@@ -88,6 +88,11 @@
                 "description": "Specified whether to enable logical cluster.",
                 "optional": true
               },
+              "lts_enable": {
+                "type": "bool",
+                "description": "Specified whether to enable LTS.",
+                "optional": true
+              },
               "maintain_window": {
                 "type": [
                   "list",

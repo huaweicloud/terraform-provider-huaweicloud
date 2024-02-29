@@ -27,7 +27,7 @@
               },
               "certificate_chain": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               },
               "domain": {

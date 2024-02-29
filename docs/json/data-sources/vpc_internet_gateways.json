@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_internet_gateways": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "igw_id": {
+                "type": "string",
+                "optional": true
+              },
+              "igw_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_igws": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "enable_ipv6": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "subnet_id": "string",
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

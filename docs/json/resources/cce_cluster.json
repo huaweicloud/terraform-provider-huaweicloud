@@ -149,8 +149,7 @@
               },
               "flavor_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "hibernate": {
                 "type": "bool",

@@ -2,47 +2,48 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_evs_snapshot": {
+        "huaweicloud_vpc_internet_gateway": {
           "block": {
             "attributes": {
-              "description": {
-                "type": "string",
-                "optional": true
-              },
-              "force": {
+              "add_route": {
                 "type": "bool",
                 "optional": true,
-                "default": false
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "enable_ipv6": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "metadata": {
-                "type": [
-                  "map",
-                  "string"
-                ],
-                "optional": true,
-                "forcenew": true
-              },
               "name": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "size": {
-                "type": "number",
-                "computed": true
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
-              "status": {
+              "updated_at": {
                 "type": "string",
                 "computed": true
               },
-              "volume_id": {
+              "vpc_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
@@ -50,11 +51,11 @@
             }
           },
           "product": {
-            "short": "EVS",
-            "name": "Elastic Volume Service",
-            "catalog": "Storage",
-            "name_cn": "云硬盘",
-            "catalog_cn": "存储"
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
           }
         }
       }

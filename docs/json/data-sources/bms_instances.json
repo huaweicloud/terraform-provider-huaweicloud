@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_bms_instances": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency_name": "string",
+                      "availability_zone": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "disk": "string",
+                      "disk_config": "string",
+                      "enterprise_project_id": "string",
+                      "flavor_id": "string",
+                      "flavor_name": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "image_name": "string",
+                      "image_type": "string",
+                      "key_pair": "string",
+                      "launched_at": "string",
+                      "locked": "bool",
+                      "memory": "string",
+                      "name": "string",
+                      "nics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_address": "string",
+                            "mac_address": "string",
+                            "port_id": "string",
+                            "subnet_id": "string"
+                          }
+                        ]
+                      ],
+                      "root_device_name": "string",
+                      "security_groups": [
+                        "set",
+                        "string"
+                      ],
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "user_data": "string",
+                      "user_id": "string",
+                      "vcpus": "string",
+                      "vm_state": "string",
+                      "volumes_attached": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "boot_index": "string",
+                            "delete_on_termination": "string",
+                            "device": "string",
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "BMS",
+            "name": "Bare Metal Server",
+            "catalog": "Compute",
+            "name_cn": "裸金属服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

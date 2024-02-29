@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_domain_certificates": {
+          "block": {
+            "attributes": {
+              "domain_certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_body": "string",
+                      "certificate_name": "string",
+                      "certificate_source": "number",
+                      "domain_id": "string",
+                      "domain_name": "string",
+                      "expire_at": "string",
+                      "force_redirect_https": "number",
+                      "http2_enabled": "number",
+                      "https_status": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

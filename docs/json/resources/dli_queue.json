@@ -19,6 +19,11 @@
                 "computed": true,
                 "forcenew": true
               },
+              "elastic_resource_pool_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,

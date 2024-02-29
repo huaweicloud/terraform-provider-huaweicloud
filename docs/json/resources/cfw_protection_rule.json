@@ -69,6 +69,11 @@
                 "type": "string",
                 "computed": true
               },
+              "rule_hit_count": {
+                "type": "number",
+                "description": "The number of times the protection rule is hit",
+                "computed": true
+              },
               "status": {
                 "type": "number",
                 "description": "The rule status.",
@@ -87,37 +92,62 @@
                     "address": {
                       "type": "string",
                       "description": "The IP address.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "address_set_id": {
                       "type": "string",
                       "description": "The ID of the associated IP address group.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "address_set_name": {
                       "type": "string",
                       "description": "The IP address group name.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "address_type": {
                       "type": "number",
                       "description": "The address type.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "domain_address_name": {
                       "type": "string",
                       "description": "The name of the domain name address.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "type": {
                       "type": "number",
                       "description": "The Source type.",
                       "required": true
+                    }
+                  },
+                  "block_types": {
+                    "region_list": {
+                      "block": {
+                        "attributes": {
+                          "description_cn": {
+                            "type": "string",
+                            "description": "The Chinese description of the region.",
+                            "optional": true
+                          },
+                          "description_en": {
+                            "type": "string",
+                            "description": "The English description of the region.",
+                            "optional": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "description": "The region ID.",
+                            "required": true
+                          },
+                          "region_type": {
+                            "type": "number",
+                            "description": "The region type.",
+                            "required": true
+                          }
+                        },
+                        "description": "The region list."
+                      },
+                      "nesting_mode": "list"
                     }
                   },
                   "description": "The destination configuration."
@@ -199,37 +229,62 @@
                     "address": {
                       "type": "string",
                       "description": "The IP address.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "address_set_id": {
                       "type": "string",
                       "description": "The ID of the associated IP address group.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "address_set_name": {
                       "type": "string",
                       "description": "The IP address group name.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "address_type": {
                       "type": "number",
                       "description": "The address type.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "domain_address_name": {
                       "type": "string",
                       "description": "The name of the domain name address.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "type": {
                       "type": "number",
                       "description": "The Source type.",
                       "required": true
+                    }
+                  },
+                  "block_types": {
+                    "region_list": {
+                      "block": {
+                        "attributes": {
+                          "description_cn": {
+                            "type": "string",
+                            "description": "The Chinese description of the region.",
+                            "optional": true
+                          },
+                          "description_en": {
+                            "type": "string",
+                            "description": "The English description of the region.",
+                            "optional": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "description": "The region ID.",
+                            "required": true
+                          },
+                          "region_type": {
+                            "type": "number",
+                            "description": "The region type.",
+                            "required": true
+                          }
+                        },
+                        "description": "The region list."
+                      },
+                      "nesting_mode": "list"
                     }
                   },
                   "description": "The source configuration."

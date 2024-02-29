@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_account": {
+          "block": {
+            "attributes": {
+              "account_name": {
+                "type": "string",
+                "description": "Specifies the name of the account.",
+                "required": true,
+                "forcenew": true
+              },
+              "account_password": {
+                "type": "string",
+                "description": "Specifies the password of the account.",
+                "required": true,
+                "sensitive": true
+              },
+              "account_role": {
+                "type": "string",
+                "description": "Specifies the role of the account.",
+                "required": true
+              },
+              "account_type": {
+                "type": "string",
+                "description": "Indicates the type of the account.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the account.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the account.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

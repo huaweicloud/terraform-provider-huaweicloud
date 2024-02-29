@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_global_eips": {
+          "block": {
+            "attributes": {
+              "associate_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "associate_instance_type": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "geip_id": {
+                "type": "string",
+                "optional": true
+              },
+              "global_eips": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "associate_instance_id": "string",
+                      "associate_instance_region": "string",
+                      "associate_instance_type": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "frozen": "bool",
+                      "frozen_info": "string",
+                      "geip_pool_name": "string",
+                      "global_connection_bandwidth_id": "string",
+                      "global_connection_bandwidth_type": "string",
+                      "id": "string",
+                      "internet_bandwidth_id": "string",
+                      "ip_address": "string",
+                      "ip_version": "number",
+                      "isp": "string",
+                      "name": "string",
+                      "polluted": "bool",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internet_bandwidth_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ip_address": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

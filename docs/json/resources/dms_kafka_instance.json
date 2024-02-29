@@ -251,6 +251,21 @@
                   }
                 },
                 "nesting_mode": "list"
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

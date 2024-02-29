@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_address_groups": {
+          "block": {
+            "attributes": {
+              "address_group_id": {
+                "type": "string",
+                "description": "The ID of the IP address group.",
+                "optional": true
+              },
+              "address_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associated_listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_addresses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cidr": "string",
+                            "created_at": "string",
+                            "description": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the IP address groups.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "description": "The ID of the listener associated with the IP address group.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the IP address group.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the IP address group.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

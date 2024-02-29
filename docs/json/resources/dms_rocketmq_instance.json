@@ -76,8 +76,7 @@
                 "type": "string",
                 "description": "Specifies the enterprise project id of the instance.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "flavor_id": {
                 "type": "string",

@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_listeners": {
+          "block": {
+            "attributes": {
+              "accelerator_id": {
+                "type": "string",
+                "description": "The ID of the accelerator to which the listener belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "description": "The ID of the listener.",
+                "optional": true
+              },
+              "listeners": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accelerator_id": "string",
+                      "client_affinity": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "port_ranges": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "from_port": "number",
+                            "to_port": "number"
+                          }
+                        ]
+                      ],
+                      "protocol": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the listeners.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the listener.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The network transmission protocol type of the listener.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the listener.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

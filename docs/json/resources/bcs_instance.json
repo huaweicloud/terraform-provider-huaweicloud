@@ -63,8 +63,7 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "fabric_version": {
                 "type": "string",
