@@ -1,5 +1,51 @@
 # CHANGELOG
 
+## 1.62.0 (February 29, 2024)
+
+* **New Resource:**
+  + `huaweicloud_dds_lts_log` [GH-4193]
+  + `huaweicloud_identity_user_token` [GH-4237]
+  + `huaweicloud_vpc_internet_gateway` [GH-4239]
+  + `huaweicloud_dms_rocketmq_migration_task` [GH-4244]
+  + `huaweicloud_rms_organizational_policy_assignment` [GH-4249]
+  + `huaweicloud_cc_global_connection_bandwidth` [GH-4267]
+  + `huaweicloud_css_logstash_cluster` [GH-4268]
+  + `huaweicloud_global_eip_associate` [GH-4278]
+  + `huaweicloud_dcs_account` [GH-4283]
+  + `huaweicloud_dws_workload_plan_execution` [GH-4238]
+  + `huaweicloud_dws_disaster_recovery_task` [GH-4262]
+  + `huaweicloud_iotda_batchtask_file` [GH-4261]
+  + `huaweicloud_iotda_upgrade_package` [GH-4282]
+
+* **New Data Source:**
+  + `huaweicloud_cdn_domain_certificates` [GH-4128]
+  + `huaweicloud_cdn_domains` [GH-4221]
+  + `huaweicloud_nat_snat_rules` [GH-4174]
+  + `huaweicloud_nat_dnat_rules` [GH-4214]
+  + `huaweicloud_dds_storage_types` [GH-4240]
+  + `huaweicloud_fgs_application_templates` [GH-4242]
+  + `huaweicloud_vpc_internet_gateways` [GH-4252]
+  + `huaweicloud_bms_instances` [GH-4260]
+  + `huaweicloud_ga_accelerators` [GH-4265]
+  + `huaweicloud_ga_listeners` [GH-4275]
+  + `huaweicloud_ga_address_groups` [GH-4285]
+  + `huaweicloud_global_internet_bandwidths` [GH-4286]
+  + `huaweicloud_global_eips` [GH-4299]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_identity_user: Support the verification method of user login protect [GH-4247]
+* resource/huaweicloud_dc_virtual_interface: Support `resource_tenant_id` parameter [GH-4253]
+* resource/huaweicloud_dli_queue: Support associate with a elastic resource pool [GH-4254]
+* resource/huaweicloud_dms_kafka_instance: Support `parameters` block [GH-4263]
+* resource/huaweicloud_evs_snapshot: Support `metadata` parameter [GH-4266]
+* resource/huaweicloud_fgs_function: Support manage the reserved instance policies [GH-4272]
+* resource/huaweicloud_dws_cluster: Support multiple availability zones [GH-4273]
+* resource/huaweicloud_cce_cluster: Support resizing cluster with `flavor_id` [GH-4280]
+* resource/huaweicloud_modelarts_resource_pool: Support pre-paid charging mode and lite resource pool [GH-4284]
+* resource/huaweicloud_dws_cluster: Support to enable or disable LTS [GH-4287]
+* resource/huaweicloud_dcs_instance: Support to enable or disable SSL [GH-4291]
+
 ## 1.61.1 (February 7, 2024)
 
 * **New Resource:**
@@ -10,6 +56,7 @@
   + `huaweicloud_fgs_function_event` [GH-4080]
   + `huaweicloud_vpc_network_acl` [GH-4111]
   + `huaweicloud_dws_workload_plan` [GH-4135]
+  + `huaweicloud_dws_workload_plan_stage` [GH-4164]
   + `huaweicloud_dli_elastic_resource_pool` [GH-4186]
 
 * **New Data Source:**
