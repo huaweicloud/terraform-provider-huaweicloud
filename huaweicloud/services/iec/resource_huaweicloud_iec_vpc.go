@@ -16,9 +16,9 @@ import (
 )
 
 // @API IEC POST /v1/vpcs
-// @API IEC DELETE /v1/vpcs/{vpcId}
-// @API IEC GET /v1/vpcs/{vpcId}
-// @API IEC PUT /v1/vpcs/{vpcId}
+// @API IEC DELETE /v1/vpcs/{vpc_id}
+// @API IEC GET /v1/vpcs/{vpc_id}
+// @API IEC PUT /v1/vpcs/{vpc_id}
 func ResourceVpc() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVpcCreate,
