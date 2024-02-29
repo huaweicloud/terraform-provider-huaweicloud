@@ -23,8 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Config GET /v1/resource-manager/domains/{domain_id}/tracker-config
 // @API Config PUT /v1/resource-manager/domains/{domain_id}/tracker-config
+// @API Config GET /v1/resource-manager/domains/{domain_id}/tracker-config
 // @API Config DELETE /v1/resource-manager/domains/{domain_id}/tracker-config
 func ResourceRecorder() *schema.Resource {
 	return &schema.Resource{
