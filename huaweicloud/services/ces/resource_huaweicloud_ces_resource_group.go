@@ -22,11 +22,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CES POST /v2/{project_id}/resource-groups/{id}/resources/batch-create
-// @API CES POST /v2/{project_id}/resource-groups/batch-delete
 // @API CES POST /v2/{project_id}/resource-groups
 // @API CES GET /v2/{project_id}/resource-groups/{id}
 // @API CES PUT /v2/{project_id}/resource-groups/{id}
+// @API CES POST /v2/{project_id}/resource-groups/{id}/resources/batch-create
+// @API CES POST /v2/{project_id}/resource-groups/{id}/resources/batch-delete
+// @API CES POST /v2/{project_id}/resource-groups/batch-delete
 func ResourceResourceGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceResourceGroupCreate,
