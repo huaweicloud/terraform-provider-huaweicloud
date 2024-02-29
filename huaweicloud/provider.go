@@ -514,9 +514,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_dependencies":          fgs.DataSourceFunctionGraphDependencies(),
 			"huaweicloud_fgs_functions":             fgs.DataSourceFunctionGraphFunctions(),
 
-			"huaweicloud_ga_accelerators":   ga.DataSourceAccelerators(),
-			"huaweicloud_ga_address_groups": ga.DataSourceAddressGroups(),
-			"huaweicloud_ga_listeners":      ga.DataSourceListeners(),
+			"huaweicloud_ga_accelerators":    ga.DataSourceAccelerators(),
+			"huaweicloud_ga_address_groups":  ga.DataSourceAddressGroups(),
+			"huaweicloud_ga_endpoint_groups": ga.DataSourceEndpointGroups(),
+			"huaweicloud_ga_listeners":       ga.DataSourceListeners(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
