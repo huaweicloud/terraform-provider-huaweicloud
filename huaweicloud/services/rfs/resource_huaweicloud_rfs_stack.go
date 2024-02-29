@@ -21,11 +21,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API RFS GET /v1/{project_id}/stacks/{stackName}/events
-// @API RFS DELETE /v1/{project_id}/stacks/{stackName}
-// @API RFS GET /v1/{project_id}/stacks
 // @API RFS POST /v1/{project_id}/stacks
-// @API RFS POST /v1/{project_id}/stacks/{stackName}/deployments
+// @API RFS GET /v1/{project_id}/stacks
+// @API RFS POST /v1/{project_id}/stacks/{stack_name}/deployments
+// @API RFS GET /v1/{project_id}/stacks/{stack_name}/events
+// @API RFS DELETE /v1/{project_id}/stacks/{stack_name}
 func ResourceStack() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStackCreate,
