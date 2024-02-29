@@ -156,6 +156,11 @@ The following arguments are supported:
 
 **NOTE:** The instance will be restarted in the background when switching SSL. Please operate with caution.
 
+* `enabled` - (Optional, Bool) Specifies whether to enable monitoring by seconds.
+  The valid values are as follows:
+  + `true`: enables the function.
+  + `postPaid`: disables the function.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
   The valid values are as follows:
   + `prePaid`: indicates the yearly/monthly billing mode.
@@ -245,6 +250,16 @@ The `backup_strategy` block supports:
   + If this parameter is set to 0, the automated backup policy is not set.
   + If this parameter is not transferred, the automated backup policy is enabled by default. Backup files are stored
       for seven days by default.
+
+* `period` - (Optional, String) Specifies the backup cycle configuration. Data will be automatically backed up on the
+  selected days every week.
+  Value range: The value is a list of digits separated by commas (,). Each digit indicates a day of the week. The
+  restrictions on the backup retention period are as follows:
+  + This parameter is not transferred if the retention period is set to 0.
+  + If you set the retention period to 1 to 6 days, data is automatically backed up each day of the week. Set the
+    parameter value to 1,2,3,4,5,6,7.
+  + If you set the retention period to 7 to 732 days, select at least one day of the week for the backup cycle. Example
+    value: 1,2,3,4.
 
 ## Attribute Reference
 
