@@ -22,7 +22,7 @@ import (
 )
 
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/hotkey-task
-// @API DCS GET /v2/{project_id}/instances/{id}
+// @API DCS GET /v2/{project_id}/instances/{instance_id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/hotkey-task/{hotkey_id}
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}/hotkey-task/{hotkey_id}
 func ResourceHotKeyAnalysis() *schema.Resource {

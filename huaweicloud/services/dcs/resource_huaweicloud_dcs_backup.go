@@ -25,8 +25,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DCS GET /v2/{project_id}/instances/{instance_id}/backups
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/backups
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/backups
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}/backups/{backup_id}
 func ResourceDcsBackup() *schema.Resource {
 	return &schema.Resource{

@@ -22,7 +22,7 @@ import (
 )
 
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/bigkey-task
-// @API DCS GET /v2/{project_id}/instances/{id}
+// @API DCS GET /v2/{project_id}/instances/{instance_id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/bigkey-task/{bigkey_id}
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}/bigkey-task/{bigkey_id}
 func ResourceBigKeyAnalysis() *schema.Resource {

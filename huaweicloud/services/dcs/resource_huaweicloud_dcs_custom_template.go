@@ -22,10 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DCS DELETE /v2/{project_id}/config-templates/{template_id}
-// @API DCS GET /v2/{project_id}/config-templates/{template_id}
-// @API DCS PUT /v2/{project_id}/config-templates/{template_id}
 // @API DCS POST /v2/{project_id}/config-templates
+// @API DCS PUT /v2/{project_id}/config-templates/{template_id}
+// @API DCS GET /v2/{project_id}/config-templates/{template_id}
+// @API DCS DELETE /v2/{project_id}/config-templates/{template_id}
 func ResourceCustomTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomTemplateCreate,
