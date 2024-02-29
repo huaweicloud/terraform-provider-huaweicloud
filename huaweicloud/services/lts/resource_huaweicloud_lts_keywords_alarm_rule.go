@@ -26,7 +26,7 @@ import (
 // @API LTS GET /v2/{project_id}/lts/alarms/keywords-alarm-rule
 // @API LTS POST /v2/{project_id}/lts/alarms/keywords-alarm-rule
 // @API LTS PUT /v2/{project_id}/lts/alarms/keywords-alarm-rule
-// @API LTS DELETE /v2/{project_id}/lts/alarms/keywords-alarm-rule/{id}
+// @API LTS DELETE /v2/{project_id}/lts/alarms/keywords-alarm-rule/{keywords_alarm_rule_id}
 // @API LTS PUT /v2/{project_id}/lts/alarms/status
 func ResourceKeywordsAlarmRule() *schema.Resource {
 	return &schema.Resource{

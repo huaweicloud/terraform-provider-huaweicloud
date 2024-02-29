@@ -17,6 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API LTS POST /v2/{project_id}/lts/template-dashboard
+// @API LTS GET /v2/{project_id}/dashboards
+// @API LTS DELETE /v2/{project_id}/dashboard
 func ResourceLtsDashboard() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLtsDashBoardCreate,
