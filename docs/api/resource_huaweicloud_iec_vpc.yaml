@@ -11,7 +11,7 @@ paths:
     /v1/vpcs:
         POST:
             tag: IEC
-    /v1/vpcs/{vpcId}:
+    /v1/vpcs/{vpc_id}:
         DELETE:
             tag: IEC
         GET:

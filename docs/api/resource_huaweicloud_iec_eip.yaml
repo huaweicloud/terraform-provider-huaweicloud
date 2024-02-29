@@ -11,7 +11,7 @@ paths:
     /v1/publicips:
         POST:
             tag: IEC
-    /v1/publicips/{publicipId}:
+    /v1/publicips/{publicip_id}:
         DELETE:
             tag: IEC
         GET:

@@ -8,12 +8,12 @@ host: huaweicloud.com
 tags:
     - name: IAM
 paths:
-    /v3-ext/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}/metadata:
+    /v3-ext/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/metadata:
         GET:
             tag: IAM
         POST:
             tag: IAM
-    /v3.0/OS-FEDERATION/identity-providers/{idpID}/openid-connect-config:
+    /v3.0/OS-FEDERATION/identity-providers/{idp_id}/openid-connect-config:
         GET:
             tag: IAM
         POST:
@@ -29,10 +29,10 @@ paths:
             tag: IAM
         PUT:
             tag: IAM
-    /v3/OS-FEDERATION/identity_providers/{idpID}/protocols:
+    /v3/OS-FEDERATION/identity_providers/{idp_id}/protocols:
         GET:
             tag: IAM
-    /v3/OS-FEDERATION/identity_providers/{idpID}/protocols/{protocolID}:
+    /v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}:
         PUT:
             tag: IAM
     /v3/OS-FEDERATION/mappings/{id}:

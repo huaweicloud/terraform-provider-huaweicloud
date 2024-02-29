@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: Meeting
 paths:
+    /v1/usg/acs/auth/account:
+        POST:
+            tag: Meeting
+    /v1/usg/acs/token/validate:
+        POST:
+            tag: Meeting
     /v1/usg/dcs/corp/admin:
         POST:
             tag: Meeting
@@ -23,5 +29,8 @@ paths:
         PUT:
             tag: Meeting
     /v1/usg/dcs/corp/member/delete:
+        POST:
+            tag: Meeting
+    /v2/usg/acs/auth/appauth:
         POST:
             tag: Meeting

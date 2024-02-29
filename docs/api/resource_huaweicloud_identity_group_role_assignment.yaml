@@ -8,34 +8,34 @@ host: huaweicloud.com
 tags:
     - name: IAM
 paths:
-    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles:
+    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles:
         GET:
             tag: IAM
-    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{groupID}/roles/{roleID}:
+    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/groups/{group_id}/roles/{role_id}:
         DELETE:
             tag: IAM
         PUT:
             tag: IAM
-    /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/{roleID}/inherited_to_projects:
+    /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects:
         DELETE:
             tag: IAM
         PUT:
             tag: IAM
-    /v3/OS-INHERIT/domains/{domainID}/groups/{groupID}/roles/inherited_to_projects:
+    /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects:
         GET:
             tag: IAM
-    /v3/domains/{domainID}/groups/{groupID}/roles:
+    /v3/domains/{domain_id}/groups/{group_id}/roles:
         GET:
             tag: IAM
-    /v3/domains/{domainID}/groups/{groupID}/roles/{roleID}:
+    /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}:
         DELETE:
             tag: IAM
         PUT:
             tag: IAM
-    /v3/projects/{projectID}/groups/{groupID}/roles:
+    /v3/projects/{project_id}/groups/{group_id}/roles:
         GET:
             tag: IAM
-    /v3/projects/{projectID}/groups/{groupID}/roles/{roleID}:
+    /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}:
         DELETE:
             tag: IAM
         PUT:

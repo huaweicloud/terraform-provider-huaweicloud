@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: IEC
 paths:
-    /v1/os-keypairs/{KeyPairName}:
+    /v1/os-keypairs/{keypair_name}:
         GET:
             tag: IEC

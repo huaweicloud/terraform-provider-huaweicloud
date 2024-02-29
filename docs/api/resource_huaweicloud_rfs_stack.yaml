@@ -13,12 +13,12 @@ paths:
             tag: RFS
         POST:
             tag: RFS
-    /v1/{project_id}/stacks/{stackName}:
+    /v1/{project_id}/stacks/{stack_name}:
         DELETE:
             tag: RFS
-    /v1/{project_id}/stacks/{stackName}/deployments:
+    /v1/{project_id}/stacks/{stack_name}/deployments:
         POST:
             tag: RFS
-    /v1/{project_id}/stacks/{stackName}/events:
+    /v1/{project_id}/stacks/{stack_name}/events:
         GET:
             tag: RFS

@@ -19,6 +19,9 @@ paths:
     /v2/{project_id}/resource-groups/{id}/resources/batch-create:
         POST:
             tag: CES
+    /v2/{project_id}/resource-groups/{id}/resources/batch-delete:
+        POST:
+            tag: CES
     /v2/{project_id}/resource-groups/batch-delete:
         POST:
             tag: CES

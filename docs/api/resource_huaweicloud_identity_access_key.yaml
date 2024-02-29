@@ -11,13 +11,13 @@ paths:
     /v3.0/OS-CREDENTIAL/credentials:
         POST:
             tag: IAM
-    /v3.0/OS-CREDENTIAL/credentials/{credID}:
+    /v3.0/OS-CREDENTIAL/credentials/{access_key}:
         DELETE:
             tag: IAM
         GET:
             tag: IAM
         PUT:
             tag: IAM
-    /v3.0/OS-USER/users/{userID}:
+    /v3.0/OS-USER/users/{user_id}:
         GET:
             tag: IAM

@@ -13,6 +13,9 @@ paths:
             tag: CES
         PUT:
             tag: CES
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
     /v2/{project_id}/alarms:
         GET:
             tag: CES
@@ -27,9 +30,12 @@ paths:
     /v2/{project_id}/alarms/{id}/resources/{operation}:
         POST:
             tag: CES
-    /v2/{project_id}/alarms/action:
+    /v2/{project_id}/alarms/{id}/resources/batch-create:
         POST:
             tag: CES
-    /v2/{project_id}/alarms/batch-delete:
+    /v2/{project_id}/alarms/{id}/resources/batch-delete:
+        POST:
+            tag: CES
+    /v2/{project_id}/alarms/action:
         POST:
             tag: CES

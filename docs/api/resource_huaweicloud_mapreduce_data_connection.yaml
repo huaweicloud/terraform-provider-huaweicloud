@@ -13,7 +13,7 @@ paths:
             tag: MRS
         POST:
             tag: MRS
-    /v2/{project_id}/data-connectors/{id}:
+    /v2/{project_id}/data-connectors/{connector_id}:
         DELETE:
             tag: MRS
         PUT:

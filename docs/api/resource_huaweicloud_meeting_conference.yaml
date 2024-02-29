@@ -29,3 +29,19 @@ paths:
     /v1/mmc/management/conferences/history/confDetail:
         GET:
             tag: Meeting
+    /v1/mmc/management/cycleconferences:
+        DELETE:
+            tag: Meeting
+        POST:
+            tag: Meeting
+        PUT:
+            tag: Meeting
+    /v1/usg/acs/auth/account:
+        POST:
+            tag: Meeting
+    /v1/usg/acs/token/validate:
+        POST:
+            tag: Meeting
+    /v2/usg/acs/auth/appauth:
+        POST:
+            tag: Meeting

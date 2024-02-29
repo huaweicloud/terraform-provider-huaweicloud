@@ -8,12 +8,12 @@ host: huaweicloud.com
 tags:
     - name: MRS
 paths:
-    /v2/{project_id}/clusters/{clusterId}/job-executions:
+    /v2/{project_id}/clusters/{cluster_id}/job-executions:
         POST:
             tag: MRS
-    /v2/{project_id}/clusters/{clusterId}/job-executions/{jobId}:
+    /v2/{project_id}/clusters/{cluster_id}/job-executions/{job_execution_id}:
         GET:
             tag: MRS
-    /v2/{project_id}/clusters/{clusterId}/job-executions/batch-delete:
+    /v2/{project_id}/clusters/{cluster_id}/job-executions/batch-delete:
         POST:
             tag: MRS

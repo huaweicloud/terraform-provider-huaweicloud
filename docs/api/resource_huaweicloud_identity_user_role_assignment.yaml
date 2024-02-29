@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: IAM
 paths:
-    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles:
+    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{user_id}/roles:
         GET:
             tag: IAM
-    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{userID}/roles/{roleID}:
+    /v3.0/OS-PERMISSION/enterprise-projects/{enterpriseProjectID}/users/{user_id}/roles/{role_id}:
         DELETE:
             tag: IAM
         PUT:
