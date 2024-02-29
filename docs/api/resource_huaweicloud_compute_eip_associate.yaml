@@ -8,21 +8,21 @@ host: huaweicloud.com
 tags:
     - name: ECS
 paths:
-    /v1/{project_id}/cloudservers/{serverID}:
+    /v1/{project_id}/cloudservers/{server_id}:
         GET:
             tag: ECS
     /v1/{project_id}/publicips:
         GET:
             tag: EIP
-    /v1/{project_id}/publicips/{id}:
+    /v1/{project_id}/publicips/{publicip_id}:
         PUT:
             tag: EIP
-    /v2.0/{project_id}/bandwidths/{ID}/insert:
-        POST:
-            tag: EIP
-    /v2.0/{project_id}/bandwidths/{ID}/remove:
-        POST:
-            tag: EIP
-    /v2.0/{project_id}/bandwidths/{id}:
+    /v2.0/{project_id}/bandwidths/{bandwidth_id}:
         GET:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{bandwidth_id}/insert:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{bandwidth_id}/remove:
+        POST:
             tag: EIP

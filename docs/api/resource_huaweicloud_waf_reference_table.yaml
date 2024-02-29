@@ -11,7 +11,7 @@ paths:
     /v1/{project_id}/waf/valuelist:
         POST:
             tag: WAF
-    /v1/{project_id}/waf/valuelist/{id}:
+    /v1/{project_id}/waf/valuelist/{valuelistid}:
         DELETE:
             tag: WAF
         GET:

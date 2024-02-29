@@ -14,33 +14,33 @@ paths:
     /v2/{project_id}/apigw/instances:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{id}:
+    /v2/{project_id}/apigw/instances/{instance_id}:
         DELETE:
             tag: APIG
         GET:
             tag: APIG
         PUT:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{id}/eip:
+    /v2/{project_id}/apigw/instances/{instance_id}/eip:
         DELETE:
-            tag: APIG
-        PUT:
-            tag: APIG
-    /v2/{project_id}/apigw/instances/{id}/nat-eip:
-        DELETE:
-            tag: APIG
-        POST:
             tag: APIG
         PUT:
             tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip:
         DELETE:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/instance-tags:
+    /v2/{project_id}/apigw/instances/{instance_id}/instance-tags:
         GET:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/instance-tags/action:
+    /v2/{project_id}/apigw/instances/{instance_id}/instance-tags/action:
         POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/nat-eip:
+        DELETE:
+            tag: APIG
+        POST:
+            tag: APIG
+        PUT:
             tag: APIG
     /v2/{project_id}/apigw/instances{instance_id}/ingress-eip:
         POST:

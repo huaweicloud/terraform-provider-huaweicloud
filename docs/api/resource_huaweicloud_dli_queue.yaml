@@ -23,3 +23,6 @@ paths:
     /v1.0/{project_id}/queues/{queue_name}/action:
         PUT:
             tag: DLI
+    /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues:
+        POST:
+            tag: DLI

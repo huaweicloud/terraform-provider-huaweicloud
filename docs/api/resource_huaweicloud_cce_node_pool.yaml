@@ -8,10 +8,13 @@ host: huaweicloud.com
 tags:
     - name: CCE
 paths:
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools:
         POST:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodepools/{nodepoolid}:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}:
         DELETE:
             tag: CCE
         GET:

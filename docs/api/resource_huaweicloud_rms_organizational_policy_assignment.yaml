@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rms_organizational_policy_assignment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Config
+paths:
+    /v1/resource-manager/organizations/{organization_id}/policy-assignments:
+        PUT:
+            tag: Config
+    /v1/resource-manager/organizations/{organization_id}/policy-assignments/{id}:
+        DELETE:
+            tag: Config
+        GET:
+            tag: Config

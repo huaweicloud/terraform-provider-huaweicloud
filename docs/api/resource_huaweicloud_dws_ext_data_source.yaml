@@ -13,7 +13,7 @@ paths:
             tag: DWS
         POST:
             tag: DWS
-    /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{id}:
+    /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}:
         DELETE:
             tag: DWS
         PUT:

@@ -11,7 +11,7 @@ paths:
     /v1/applications:
         POST:
             tag: AOM
-    /v1/applications/{id}:
+    /v1/applications/{application_id}:
         DELETE:
             tag: AOM
         GET:

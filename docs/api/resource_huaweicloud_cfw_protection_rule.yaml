@@ -16,6 +16,12 @@ paths:
             tag: CFW
         PUT:
             tag: CFW
+    /v1/{project_id}/acl-rule/count:
+        POST:
+            tag: CFW
+    /v1/{project_id}/acl-rule/order/{id}:
+        PUT:
+            tag: CFW
     /v1/{project_id}/acl-rules:
         GET:
             tag: CFW

@@ -14,18 +14,18 @@ paths:
     /v2.1/endpoints:
         POST:
             tag: DNS
-    /v2.1/endpoints/{endpointID}:
+    /v2.1/endpoints/{endpoint_id}:
         DELETE:
             tag: DNS
         GET:
             tag: DNS
         PUT:
             tag: DNS
-    /v2.1/endpoints/{endpointID}/ipaddresses:
+    /v2.1/endpoints/{endpoint_id}/ipaddresses:
         GET:
             tag: DNS
         POST:
             tag: DNS
-    /v2.1/endpoints/{endpointID}/ipaddresses/{ipaddress}:
+    /v2.1/endpoints/{endpoint_id}/ipaddresses/{ipaddress_id}:
         DELETE:
             tag: DNS

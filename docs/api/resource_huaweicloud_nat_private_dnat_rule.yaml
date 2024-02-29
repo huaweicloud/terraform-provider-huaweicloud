@@ -11,7 +11,7 @@ paths:
     /v3/{project_id}/private-nat/dnat-rules:
         POST:
             tag: NAT
-    /v3/{project_id}/private-nat/dnat-rules/{ruleId}:
+    /v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}:
         DELETE:
             tag: NAT
         GET:

@@ -1,0 +1,41 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_logstash_cluster
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/action:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        DELETE:
+            tag: CSS
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/changename:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/role_extend:
+        POST:
+            tag: CSS
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
+    /v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink:
+        POST:
+            tag: CSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS

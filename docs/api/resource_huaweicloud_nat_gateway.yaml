@@ -8,16 +8,16 @@ host: huaweicloud.com
 tags:
     - name: NAT
 paths:
-    /v2.0/{project_id}/nat_gateways/{id}/tags:
+    /v2.0/{project_id}/nat_gateways/{nat_gateway_id}/tags:
         GET:
-            tag: VPC
-    /v2.0/{project_id}/nat_gateways/{id}/tags/action:
+            tag: NAT
+    /v2.0/{project_id}/nat_gateways/{nat_gateway_id}/tags/action:
         POST:
-            tag: VPC
+            tag: NAT
     /v2/{project_id}/nat_gateways:
         POST:
             tag: NAT
-    /v2/{project_id}/nat_gateways/{gatewayId}:
+    /v2/{project_id}/nat_gateways/{nat_gateway_id}:
         DELETE:
             tag: NAT
         GET:

@@ -16,7 +16,5 @@ paths:
             tag: DNS
         GET:
             tag: DNS
-        POST:
-            tag: DNS
         PUT:
             tag: DNS

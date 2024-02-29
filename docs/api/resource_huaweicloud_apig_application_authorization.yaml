@@ -8,15 +8,15 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instanceId}/app-auths:
+    /v2/{project_id}/apigw/instances/{instance_id}/app-auths:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/app-auths/{authId}:
+    /v2/{project_id}/apigw/instances/{instance_id}/app-auths/{app_auth_id}:
         DELETE:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/app-auths/binded-apis:
+    /v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis:
         GET:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/app-auths/unbinded-apis:
+    /v2/{project_id}/apigw/instances/{instance_id}/app-auths/unbinded-apis:
         GET:
             tag: APIG

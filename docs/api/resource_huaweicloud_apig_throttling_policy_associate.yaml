@@ -8,12 +8,12 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/{bindId}:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings/{throttle_binding_id}:
         DELETE:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/throttle-bindings/binded-apis:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttle-bindings/binded-apis:
         GET:
             tag: APIG

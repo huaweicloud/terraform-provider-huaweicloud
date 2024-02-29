@@ -11,7 +11,7 @@ paths:
     /v1/components:
         POST:
             tag: AOM
-    /v1/components/{id}:
+    /v1/components/{component_id}:
         DELETE:
             tag: AOM
         GET:

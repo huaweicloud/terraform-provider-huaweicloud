@@ -16,12 +16,12 @@ paths:
             tag: CCM
         GET:
             tag: CCM
-    /v1/private-certificates/{id}/tags:
+    /v1/private-certificates/{certificate_id}/tags:
         GET:
             tag: CCM
-    /v1/private-certificates/{id}/tags/create:
+    /v1/private-certificates/{certificate_id}/tags/create:
         POST:
             tag: CCM
-    /v1/private-certificates/{id}/tags/delete:
+    /v1/private-certificates/{certificate_id}/tags/delete:
         DELETE:
             tag: CCM

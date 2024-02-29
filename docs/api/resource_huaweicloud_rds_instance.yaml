@@ -19,6 +19,9 @@ paths:
     /v2/orders/subscriptions/resources/unsubscribe:
         POST:
             tag: BSS
+    /v3.1/{project_id}/configurations/{config_id}/apply:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances:
         GET:
             tag: RDS

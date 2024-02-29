@@ -13,7 +13,7 @@ paths:
             tag: DWS
         POST:
             tag: DWS
-    /v2/{project_id}/event-subs/{id}:
+    /v2/{project_id}/event-subs/{event_sub_id}:
         DELETE:
             tag: DWS
         PUT:

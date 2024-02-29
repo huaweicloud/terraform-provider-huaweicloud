@@ -11,7 +11,7 @@ paths:
     /v1/{project_id}/waf/policy:
         POST:
             tag: WAF
-    /v1/{project_id}/waf/policy/{id}:
+    /v1/{project_id}/waf/policy/{policy_id}:
         DELETE:
             tag: WAF
         GET:

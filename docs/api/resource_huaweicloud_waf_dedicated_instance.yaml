@@ -8,10 +8,13 @@ host: huaweicloud.com
 tags:
     - name: WAF
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
     /v1/{project_id}/premium-waf/instance:
         POST:
             tag: WAF
-    /v1/{project_id}/premium-waf/instance/{id}:
+    /v1/{project_id}/premium-waf/instance/{instance_id}:
         DELETE:
             tag: WAF
         GET:

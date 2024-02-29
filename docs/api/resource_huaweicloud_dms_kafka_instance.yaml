@@ -21,6 +21,11 @@ paths:
     /v2/{project_id}/instances/{instance_id}/autotopic:
         POST:
             tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/configs:
+        GET:
+            tag: Kafka
+        PUT:
+            tag: Kafka
     /v2/{project_id}/instances/{instance_id}/crossvpc/modify:
         POST:
             tag: Kafka
@@ -32,6 +37,9 @@ paths:
             tag: Kafka
     /v2/{project_id}/instances/{instance_id}/tasks:
         GET:
+            tag: Kafka
+    /v2/{project_id}/instances/action:
+        POST:
             tag: Kafka
     /v2/{project_id}/kafka/{instance_id}/tags:
         GET:

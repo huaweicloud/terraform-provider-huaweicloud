@@ -8,9 +8,11 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings:
+    /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/acl-bindings/binded-apis:
+        PUT:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/acl-bindings/binded-apis:
         GET:
             tag: APIG

@@ -11,7 +11,7 @@ paths:
     /v1/accelerators:
         POST:
             tag: GA
-    /v1/accelerators/{id}:
+    /v1/accelerators/{accelerator_id}:
         DELETE:
             tag: GA
         GET:

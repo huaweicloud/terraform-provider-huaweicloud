@@ -11,7 +11,7 @@ paths:
     /v1/health-checks:
         POST:
             tag: GA
-    /v1/health-checks/{id}:
+    /v1/health-checks/{health_check_id}:
         DELETE:
             tag: GA
         GET:

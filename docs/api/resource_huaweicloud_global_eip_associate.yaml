@@ -1,0 +1,27 @@
+info:
+    version: ""
+    title: resource_huaweicloud_global_eip_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v3/{domain_id}/gcb/gcbandwidths/{id}:
+        GET:
+            tag: CC
+        PUT:
+            tag: CC
+    /v3/{domain_id}/geip/jobs/{job_id}:
+        GET:
+            tag: EIP
+    /v3/{domain_id}/global-eips/{global_eip_id}/associate-instance:
+        POST:
+            tag: EIP
+    /v3/{domain_id}/global-eips/{global_eip_id}/disassociate-instance:
+        POST:
+            tag: EIP
+    /v3/{domain_id}/global-eips/{id}:
+        GET:
+            tag: EIP

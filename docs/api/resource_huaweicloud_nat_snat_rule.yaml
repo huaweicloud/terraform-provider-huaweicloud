@@ -8,16 +8,16 @@ host: huaweicloud.com
 tags:
     - name: NAT
 paths:
-    /v1/{project_id}/publicips/{id}:
+    /v1/{project_id}/publicips/{publicip_id}:
         GET:
             tag: EIP
-    /v2/{project_id}/nat_gateways/{gatewayId}/snat_rules/{ruleId}:
+    /v2/{project_id}/nat_gateways/{nat_gateway_id}/snat_rules/{snat_rule_id}:
         DELETE:
             tag: NAT
     /v2/{project_id}/snat_rules:
         POST:
             tag: NAT
-    /v2/{project_id}/snat_rules/{ruleId}:
+    /v2/{project_id}/snat_rules/{snat_rule_id}:
         GET:
             tag: NAT
         PUT:

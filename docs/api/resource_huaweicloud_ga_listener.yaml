@@ -11,7 +11,7 @@ paths:
     /v1/listeners:
         POST:
             tag: GA
-    /v1/listeners/{id}:
+    /v1/listeners/{listener_id}:
         DELETE:
             tag: GA
         GET:

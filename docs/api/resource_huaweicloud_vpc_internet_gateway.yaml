@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_internet_gateway
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v1/{project_id}/routetables:
+        GET:
+            tag: VPC
+    /v1/{project_id}/routetables/{routetable_id}:
+        GET:
+            tag: VPC
+    /v3/{project_id}/geip/vpc-igws:
+        POST:
+            tag: EIP
+    /v3/{project_id}/geip/vpc-igws/{vpc_igw_id}:
+        DELETE:
+            tag: EIP
+        GET:
+            tag: EIP
+        PUT:
+            tag: EIP

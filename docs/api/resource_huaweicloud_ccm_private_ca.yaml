@@ -11,24 +11,24 @@ paths:
     /v1/private-certificate-authorities:
         POST:
             tag: CCM
-    /v1/private-certificate-authorities/{id}:
+    /v1/private-certificate-authorities/{ca_id}:
         DELETE:
             tag: CCM
         GET:
             tag: CCM
-    /v1/private-certificate-authorities/{id}/activate:
+    /v1/private-certificate-authorities/{ca_id}/activate:
         POST:
             tag: CCM
-    /v1/private-certificate-authorities/{id}/disable:
+    /v1/private-certificate-authorities/{ca_id}/disable:
         POST:
             tag: CCM
-    /v1/private-certificate-authorities/{id}/tags:
+    /v1/private-certificate-authorities/{ca_id}/tags:
         GET:
             tag: CCM
-    /v1/private-certificate-authorities/{id}/tags/create:
+    /v1/private-certificate-authorities/{ca_id}/tags/create:
         POST:
             tag: CCM
-    /v1/private-certificate-authorities/{id}/tags/delete:
+    /v1/private-certificate-authorities/{ca_id}/tags/delete:
         DELETE:
             tag: CCM
     /v1/private-certificate-authorities/order:

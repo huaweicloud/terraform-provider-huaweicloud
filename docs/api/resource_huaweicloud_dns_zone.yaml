@@ -8,25 +8,31 @@ host: huaweicloud.com
 tags:
     - name: DNS
 paths:
-    /v2/{project_id}/{resourceType}/{id}/tags:
+    /v2/{project_id}/DNS-private_zone/{resource_id}/tags:
         GET:
             tag: DNS
-    /v2/{project_id}/{resourceType}/{id}/tags/action:
+    /v2/{project_id}/DNS-private_zone/{resource_id}/tags/action:
+        POST:
+            tag: DNS
+    /v2/{project_id}/DNS-public_zone/{resource_id}/tags:
+        GET:
+            tag: DNS
+    /v2/{project_id}/DNS-public_zone/{resource_id}/tags/action:
         POST:
             tag: DNS
     /v2/zones:
         POST:
             tag: DNS
-    /v2/zones/{zoneID}:
+    /v2/zones/{zone_id}:
         DELETE:
             tag: DNS
         GET:
             tag: DNS
         PATCH:
             tag: DNS
-    /v2/zones/{zoneID}/associaterouter:
+    /v2/zones/{zone_id}/associaterouter:
         POST:
             tag: DNS
-    /v2/zones/{zoneID}/disassociaterouter:
+    /v2/zones/{zone_id}/disassociaterouter:
         POST:
             tag: DNS

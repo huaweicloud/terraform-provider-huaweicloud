@@ -8,12 +8,12 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instanceId}/signs:
+    /v2/{project_id}/apigw/instances/{instance_id}/signs:
         GET:
             tag: APIG
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/signs/{signatureId}:
+    /v2/{project_id}/apigw/instances/{instance_id}/signs/{sign_id}:
         DELETE:
             tag: APIG
         PUT:

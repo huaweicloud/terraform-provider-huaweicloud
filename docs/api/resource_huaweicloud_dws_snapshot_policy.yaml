@@ -14,5 +14,5 @@ paths:
     /v2/{project_id}/clusters/{cluster_id}/snapshot-policies:
         GET:
             tag: DWS
-        POST:
+        PUT:
             tag: DWS

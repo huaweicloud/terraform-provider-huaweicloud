@@ -11,7 +11,7 @@ paths:
     /v2/{project_id}/apigw/certificates:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/certificates/{certificateId}:
+    /v2/{project_id}/apigw/certificates/{certificate_id}:
         DELETE:
             tag: APIG
         GET:

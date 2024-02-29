@@ -11,8 +11,10 @@ paths:
     /v1/{project_id}/jobs:
         POST:
             tag: DataArts
-    /v1/{project_id}/jobs/{id}:
+    /v1/{project_id}/jobs/{job_name}:
         DELETE:
             tag: DataArts
         GET:
+            tag: DataArts
+        PUT:
             tag: DataArts

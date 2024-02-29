@@ -6,16 +6,16 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: SCM
+    - name: CCM
 paths:
-    /v3/scm/certificates/{id}:
+    /v3/scm/certificates/{certificate_id}:
         DELETE:
-            tag: SCM
+            tag: CCM
         GET:
-            tag: SCM
-    /v3/scm/certificates/{id}/push:
+            tag: CCM
+    /v3/scm/certificates/{certificate_id}/push:
         POST:
-            tag: SCM
+            tag: CCM
     /v3/scm/certificates/import:
         POST:
-            tag: SCM
+            tag: CCM

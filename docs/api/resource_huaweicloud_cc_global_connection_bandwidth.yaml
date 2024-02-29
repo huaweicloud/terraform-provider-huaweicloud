@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cc_global_connection_bandwidth
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CC
+paths:
+    /v3/{domain_id}/gcb/gcbandwidths:
+        POST:
+            tag: CC
+    /v3/{domain_id}/gcb/gcbandwidths/{id}:
+        DELETE:
+            tag: CC
+        GET:
+            tag: CC
+        PUT:
+            tag: CC
+    /v3/gcb/{resource_id}/tags/create:
+        POST:
+            tag: CC
+    /v3/gcb/{resource_id}/tags/delete:
+        POST:
+            tag: CC

@@ -6,8 +6,11 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: dns_region
+    - name: DNS
 paths:
     /v2.1/zones/{zone_id}/recordsets:
         GET:
-            tag: dns_region
+            tag: DNS
+    /v2/zones/{zone_id}/recordsets:
+        GET:
+            tag: DNS

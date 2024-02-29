@@ -8,7 +8,7 @@ host: huaweicloud.com
 tags:
     - name: ECS
 paths:
-    /v1/{project_id}/cloudservers/{serverID}:
+    /v1/{project_id}/cloudservers/{server_id}:
         GET:
             tag: ECS
     /v1/{project_id}/cloudservers/os-server-groups:

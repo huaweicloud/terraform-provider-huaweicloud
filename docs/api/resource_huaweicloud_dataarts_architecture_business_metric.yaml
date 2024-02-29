@@ -1,27 +1,20 @@
 info:
+    version: ""
     title: resource_huaweicloud_dataarts_architecture_business_metric
-    description: Manages a DataArts Studio business metric resource within HuaweiCloud.
-host: myhuaweicloud.com
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
 tags:
-    - name: DataArts
-servers:
-    - url: https://dayu.cn-north-4.myhuaweicloud.com
+    - name: DataArtsStudio
 paths:
     /v2/{project_id}/design/biz-metrics:
         DELETE:
-            tag: dataarts
-            operationId: DeleteBusinessMetric
-            x-ref-api: DELETE /v2/{project_id}/design/biz-metrics
+            tag: DataArtsStudio
         POST:
-            tag: dataarts
-            operationId: CreateBusinessMetric
-            x-ref-api: POST /v2/{project_id}/design/biz-metrics
+            tag: DataArtsStudio
         PUT:
-            tag: dataarts
-            operationId: UpdateBusinessMetric
-            x-ref-api: PUT /v2/{project_id}/design/biz-metrics
+            tag: DataArtsStudio
     /v2/{project_id}/design/biz-metrics/{id}:
         GET:
-            tag: dataarts
-            operationId: GetBusinessMetric
-            x-ref-api: GET /v2/{project_id}/design/biz-metrics/{id}
+            tag: DataArtsStudio

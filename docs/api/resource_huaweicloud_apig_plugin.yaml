@@ -11,7 +11,7 @@ paths:
     /v2/{project_id}/apigw/instances/{instanceId}/plugins:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/plugins/{pluginId}:
+    /v2/{project_id}/apigw/instances/{instanceId}/plugins/{plugin_id}:
         DELETE:
             tag: APIG
         GET:

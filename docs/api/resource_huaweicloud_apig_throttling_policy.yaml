@@ -8,24 +8,24 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instanceId}/throttles:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttles:
         GET:
             tag: APIG
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}:
         DELETE:
             tag: APIG
         GET:
             tag: APIG
         PUT:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials:
         GET:
             tag: APIG
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/throttles/{policyId}/throttle-specials/{strategyId}:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials/{strategy_Id}:
         DELETE:
             tag: APIG
         PUT:

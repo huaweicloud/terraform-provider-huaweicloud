@@ -11,11 +11,11 @@ paths:
     /v3/{project_id}/private-nat/transit-ips:
         POST:
             tag: NAT
-    /v3/{project_id}/private-nat/transit-ips/{transitIpId}:
+    /v3/{project_id}/private-nat/transit-ips/{transit_ip_id}:
         DELETE:
             tag: NAT
         GET:
             tag: NAT
-    /v3/{project_id}/transit-ips/{id}/tags/action:
+    /v3/{project_id}/transit-ips/{resource_id}/tags/action:
         POST:
             tag: NAT

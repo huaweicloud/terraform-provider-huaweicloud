@@ -11,7 +11,7 @@ paths:
     /v1.0/{project_id}/snapshots:
         POST:
             tag: DWS
-    /v1.0/{project_id}/snapshots/{id}:
+    /v1.0/{project_id}/snapshots/{snapshot_id}:
         DELETE:
             tag: DWS
         GET:

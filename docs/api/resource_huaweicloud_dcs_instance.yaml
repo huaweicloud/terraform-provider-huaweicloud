@@ -38,6 +38,11 @@ paths:
     /v2/{project_id}/instances/{id}/tags:
         GET:
             tag: DCS
+    /v2/{project_id}/instances/{instance_id}/ssl:
+        GET:
+            tag: DCS
+        PUT:
+            tag: DCS
     /v2/{project_id}/instances/{instancesId}/configs:
         GET:
             tag: DCS

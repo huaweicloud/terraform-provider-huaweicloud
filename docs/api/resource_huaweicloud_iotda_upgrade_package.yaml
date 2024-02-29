@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_iotda_upgrade_package
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IoTDA
+paths:
+    /v5/iot/{project_id}/ota-upgrades/packages:
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/ota-upgrades/packages/{package_id}:
+        DELETE:
+            tag: IoTDA
+        GET:
+            tag: IoTDA

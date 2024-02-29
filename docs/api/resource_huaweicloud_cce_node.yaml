@@ -8,31 +8,54 @@ host: huaweicloud.com
 tags:
     - name: CCE
 paths:
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes:
+    /V2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes:
         POST:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{nodeid}:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/{node_id}:
         DELETE:
             tag: CCE
         GET:
             tag: CCE
         PUT:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/operation/remove:
         PUT:
             tag: CCE
-    /api/v3/projects/{project_id}/jobs/{jobid}:
+    /api/v3/projects/{project_id}/jobs/{job_id}:
         GET:
             tag: CCE
     /v1/{project_id}/cloudservers/{id}/os-reset-password:
         PUT:
             tag: ECS
-    /v1/{project_id}/cloudservers/{id}/tags:
-        GET:
-            tag: ECS
     /v1/{project_id}/cloudservers/{id}/tags/action:
         POST:
             tag: ECS
-    /v1/{project_id}/cloudservers/{serverID}:
+    /v1/{project_id}/cloudservers/{server_id}:
         GET:
             tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/tags:
+        GET:
+            tag: ECS
+    /v2/orders/subscriptions/resources/autorenew/{id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v3/{project_id}/keypairs/associate:
+        POST:
+            tag: KMS
+    /v3/{project_id}/keypairs/disassociate:
+        POST:
+            tag: KMS

@@ -8,12 +8,12 @@ host: huaweicloud.com
 tags:
     - name: DNS
 paths:
-    /v2.1/resolverrules/{resolverRuleID}:
+    /v2.1/resolverrules/{resolverrule_id}:
         GET:
             tag: DNS
-    /v2.1/resolverrules/{resolverRuleID}/associaterouter:
+    /v2.1/resolverrules/{resolverrule_id}/associaterouter:
         POST:
             tag: DNS
-    /v2.1/resolverrules/{resolverRuleID}/disassociaterouter:
+    /v2.1/resolverrules/{resolverrule_id}/disassociaterouter:
         POST:
             tag: DNS

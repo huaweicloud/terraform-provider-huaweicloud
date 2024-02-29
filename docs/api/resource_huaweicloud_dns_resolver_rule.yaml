@@ -11,7 +11,7 @@ paths:
     /v2.1/resolverrules:
         POST:
             tag: DNS
-    /v2.1/resolverrules/{resolverRuleID}:
+    /v2.1/resolverrules/{resolverrule_id}:
         DELETE:
             tag: DNS
         GET:

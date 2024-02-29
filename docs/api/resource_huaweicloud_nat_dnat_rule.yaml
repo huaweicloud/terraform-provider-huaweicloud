@@ -11,9 +11,11 @@ paths:
     /v2/{project_id}/dnat_rules:
         POST:
             tag: NAT
-    /v2/{project_id}/dnat_rules/{id}:
+    /v2/{project_id}/dnat_rules/{dnat_rule_id}:
         GET:
             tag: NAT
-    /v2/{project_id}/nat_gateways/{nat_gateway_id}/dnat_rules/{id}:
+        PUT:
+            tag: NAT
+    /v2/{project_id}/nat_gateways/{nat_gateway_id}/dnat_rules/{dnat_rule_id}:
         DELETE:
             tag: NAT

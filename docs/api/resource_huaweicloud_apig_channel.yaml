@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels:
+    /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels:
         POST:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instanceId}/vpc-channels/{chanId}:
+    /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}:
         DELETE:
             tag: APIG
         GET:

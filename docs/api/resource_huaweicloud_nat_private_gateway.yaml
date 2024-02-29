@@ -8,13 +8,13 @@ host: huaweicloud.com
 tags:
     - name: NAT
 paths:
-    /v3/{project_id}/private-nat-gateways/{id}/tags/action:
+    /v3/{project_id}/private-nat-gateways/{resource_id}/tags/action:
         POST:
             tag: NAT
     /v3/{project_id}/private-nat/gateways:
         POST:
             tag: NAT
-    /v3/{project_id}/private-nat/gateways/{ruleId}:
+    /v3/{project_id}/private-nat/gateways/{gateway_id}:
         DELETE:
             tag: NAT
         GET:

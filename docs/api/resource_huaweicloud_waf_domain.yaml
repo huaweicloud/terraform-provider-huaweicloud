@@ -11,10 +11,18 @@ paths:
     /v1/{project_id}/waf/instance:
         POST:
             tag: WAF
-    /v1/{project_id}/waf/instance/{id}:
+    /v1/{project_id}/waf/instance/{instance_id}:
         DELETE:
             tag: WAF
         GET:
             tag: WAF
         PUT:
+            tag: WAF
+    /v1/{project_id}/waf/instance/{instance_id}/protect-status:
+        PUT:
+            tag: WAF
+    /v1/{project_id}/waf/policy/{policy_id}:
+        DELETE:
+            tag: WAF
+        PATCH:
             tag: WAF

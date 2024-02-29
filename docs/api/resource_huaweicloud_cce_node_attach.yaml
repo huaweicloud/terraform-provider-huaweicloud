@@ -8,12 +8,42 @@ host: huaweicloud.com
 tags:
     - name: CCE
 paths:
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/add:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/{node_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/add:
         POST:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/operation/remove:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/operation/remove:
         PUT:
             tag: CCE
-    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/reset:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/reset:
         POST:
             tag: CCE
+    /api/v3/projects/{project_id}/clusters/{clusterid}/nodes/{node_id}:
+        PUT:
+            tag: CCE
+    /api/v3/projects/{project_id}/jobs/{job_id}:
+        GET:
+            tag: CCE
+    /v1/{project_id}/cloudservers/{id}/tags:
+        GET:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}:
+        GET:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/os-reset-password:
+        PUT:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/tags/action:
+        POST:
+            tag: ECS
+    /v3/{project_id}/keypairs/associate:
+        POST:
+            tag: KMS
+    /v3/{project_id}/keypairs/disassociate:
+        POST:
+            tag: KMS

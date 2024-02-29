@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: VPC
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter:
+        POST:
+            tag: EPS
     /v1/{project_id}/vpcs:
         POST:
             tag: VPC
@@ -23,4 +29,7 @@ paths:
             tag: VPC
     /v2.0/{project_id}/vpcs/{id}/tags/action:
         POST:
+            tag: VPC
+    /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr:
+        PUT:
             tag: VPC

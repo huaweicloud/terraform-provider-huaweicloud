@@ -11,28 +11,28 @@ paths:
     /v1.1/{project_id}/cloudservers:
         POST:
             tag: ECS
-    /v1.1/{project_id}/cloudservers/{serverID}/resize:
+    /v1.1/{project_id}/cloudservers/{server_id}/resize:
         POST:
             tag: ECS
-    /v1/{project_id}/cloudservers/{id}/os-reset-password:
+    /v1/{project_id}/cloudservers/{server_id}:
+        GET:
+            tag: ECS
         PUT:
-            tag: ECS
-    /v1/{project_id}/cloudservers/{id}/tags/action:
-        POST:
             tag: ECS
     /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}:
         GET:
             tag: ECS
-    /v1/{project_id}/cloudservers/{serverID}:
-        GET:
-            tag: ECS
-        PUT:
-            tag: ECS
-    /v1/{project_id}/cloudservers/{serverID}/metadata:
+    /v1/{project_id}/cloudservers/{server_id}/metadata:
         POST:
             tag: ECS
-    /v1/{project_id}/cloudservers/{serverID}/metadata/{key}:
+    /v1/{project_id}/cloudservers/{server_id}/metadata/{key}:
         DELETE:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/os-reset-password:
+        PUT:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/tags/action:
+        POST:
             tag: ECS
     /v1/{project_id}/cloudservers/action:
         POST:
@@ -40,22 +40,25 @@ paths:
     /v1/{project_id}/cloudservers/delete:
         POST:
             tag: ECS
-    /v1/{project_id}/ports/{portId}:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: ECS
+    /v1/{project_id}/ports/{port_id}:
         PUT:
             tag: VPC
     /v1/{project_id}/security-groups:
         GET:
             tag: VPC
-    /v1/{project_id}/subnets/{id}:
+    /v1/{project_id}/subnets/{subnet_id}:
         GET:
             tag: VPC
-    /v2.1/{project_id}/cloudvolumes/{id}/action:
+    /v2.1/{project_id}/cloudvolumes/{volume_id}/action:
         POST:
             tag: EVS
-    /v2.1/{project_id}/servers/{id}/action:
+    /v2.1/{project_id}/servers/{server_id}/action:
         POST:
             tag: ECS
-    /v2/{project_id}/cloudvolumes/{id}:
+    /v2/{project_id}/cloudvolumes/{volume_id}:
         GET:
             tag: EVS
     /v2/cloudimages:
