@@ -37,6 +37,7 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ops-window
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/strategy
 // @API RDS POST /v3/{project_id}/instances/{id}/tags/action
+// @API RDS PUT /v3.1/{project_id}/configurations/{config_id}/apply
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/action
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
@@ -262,7 +263,6 @@ func ResourceRdsInstance() *schema.Resource {
 			"param_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"collation": {
@@ -691,11 +691,16 @@ func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 		return nil
 	}
 
-	var restart []string
+	var configurationRestart bool
+	var paramRestart []string
 	var params []map[string]interface{}
-	for _, parameter := range d.Get("parameters").(*schema.Set).List() {
-		name := parameter.(map[string]interface{})["name"]
-		for _, v := range configs.Parameters {
+	rawParameterList := d.Get("parameters").(*schema.Set).List()
+	for _, v := range configs.Parameters {
+		if v.Restart {
+			configurationRestart = true
+		}
+		for _, parameter := range rawParameterList {
+			name := parameter.(map[string]interface{})["name"]
 			if v.Name == name {
 				p := map[string]interface{}{
 					"name":  v.Name,
@@ -703,26 +708,35 @@ func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 				}
 				params = append(params, p)
 				if v.Restart {
-					restart = append(restart, v.Name)
+					paramRestart = append(paramRestart, v.Name)
 				}
 				break
 			}
 		}
 	}
 
+	var diagnostics diag.Diagnostics
 	if len(params) > 0 {
 		if err = d.Set("parameters", params); err != nil {
 			log.Printf("error saving parameters to RDS instance (%s): %s", instanceID, err)
 		}
-		if len(restart) > 0 && ctx.Value(ctxType("parametersChanged")) == "true" {
-			return diag.Diagnostics{
-				diag.Diagnostic{
-					Severity: diag.Warning,
-					Summary:  "Parameters Changed",
-					Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", restart),
-				},
-			}
+		if len(paramRestart) > 0 && ctx.Value(ctxType("parametersChanged")) == "true" {
+			diagnostics = append(diagnostics, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Parameters Changed",
+				Detail:   fmt.Sprintf("Parameters %s changed which needs reboot.", paramRestart),
+			})
 		}
+	}
+	if configurationRestart && ctx.Value(ctxType("configurationChanged")) == "true" {
+		diagnostics = append(diagnostics, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Configuration Changed",
+			Detail:   "Configuration changed which needs reboot.",
+		})
+	}
+	if len(diagnostics) > 0 {
+		return diagnostics
 	}
 	return nil
 }
@@ -824,6 +838,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
+	}
+
+	if ctx, err = updateConfiguration(ctx, d, client, clientV31, instanceID); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if ctx, err = updateRdsParameters(ctx, d, client, clientV31, instanceID); err != nil {
@@ -1414,6 +1432,61 @@ func updateRdsInstanceSSLConfig(ctx context.Context, d *schema.ResourceData, cli
 		return fmt.Errorf("only MySQL database support SSL enable and disable")
 	}
 	return configRdsInstanceSSL(ctx, d, client, instanceID)
+}
+
+func updateConfiguration(ctx context.Context, d *schema.ResourceData, client, clientV31 *golangsdk.ServiceClient,
+	instanceID string) (context.Context, error) {
+	if !d.HasChange("param_group_id") {
+		return ctx, nil
+	}
+	if _, ok := d.GetOk("param_group_id"); !ok {
+		return ctx, nil
+	}
+
+	opts := instances.ApplyConfigurationOpts{
+		InstanceIds: []string{instanceID},
+	}
+	log.Printf("[DEBUG] Update opts of RDS configuration: %+v", opts)
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.ApplyConfiguration(clientV31, d.Get("param_group_id").(string), opts).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return ctx, fmt.Errorf("error updating instance configuration: %s ", err)
+	}
+	resp := res.(*instances.ApplyConfigurationResp)
+	if !resp.Success {
+		return ctx, fmt.Errorf("updating instance configuration is unsuccessful")
+	}
+
+	// wait 30 seconds for the instance to enter the modified status, or the modification has been completed
+	// lintignore:R018
+	time.Sleep(30 * time.Second)
+
+	// if parameters is set, it should be modified
+	if parameters, ok := d.GetOk("parameters"); ok {
+		parametersOpts := buildRdsInstanceParameters(parameters.(*schema.Set))
+		err = modifyParameters(ctx, d, client, clientV31, instanceID, &parametersOpts)
+		if err != nil {
+			return ctx, err
+		}
+	}
+
+	// Sending configurationChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("configurationChanged"), "true")
+
+	return ctx, nil
 }
 
 func updateRdsParameters(ctx context.Context, d *schema.ResourceData, client, clientV31 *golangsdk.ServiceClient,
