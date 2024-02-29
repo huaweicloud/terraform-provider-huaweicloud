@@ -16,11 +16,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API ServiceStage PATCH /v2/{project_id}/cas/environments/{envId}/resources
-// @API ServiceStage PUT /v2/{project_id}/cas/environments/{envId}
-// @API ServiceStage DELETE /v2/{project_id}/cas/environments/{envId}
-// @API ServiceStage GET /v2/{project_id}/cas/environments/{envId}
 // @API ServiceStage POST /v2/{project_id}/cas/environments
+// @API ServiceStage GET /v2/{project_id}/cas/environments/{environment_id}
+// @API ServiceStage PUT /v2/{project_id}/cas/environments/{environment_id}
+// @API ServiceStage PATCH /v2/{project_id}/cas/environments/{environment_id}/resources
+// @API ServiceStage DELETE /v2/{project_id}/cas/environments/{environment_id}
 func ResourceEnvironment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEnvironmentCreate,
