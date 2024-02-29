@@ -27,8 +27,8 @@ const (
 )
 
 // @API CodeArtsDeploy POST /v1/applications
-// @API CodeArtsDeploy DELETE /v1/applications/{app_id}
 // @API CodeArtsDeploy GET /v1/applications/{app_id}/info
+// @API CodeArtsDeploy DELETE /v1/applications/{app_id}
 func ResourceDeployApplication() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeployApplicationCreate,

@@ -25,10 +25,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CodeArts DELETE /v1/repositories/{repository_uuid}
-// @API CodeArts GET /v2/repositories/{repository_uuid}
 // @API CodeArts POST /v1/repositories
-// @API CodeArts GET /v1/repositories/{id}/status
+// @API CodeArts GET /v1/repositories/{repository_uuid}/status
+// @API CodeArts GET /v2/repositories/{repository_uuid}
+// @API CodeArts DELETE /v1/repositories/{repository_uuid}
 func ResourceRepository() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRepositoryCreate,

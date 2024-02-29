@@ -27,10 +27,10 @@ const (
 	groupNotFound = "Deploy.00021423"
 )
 
-// @API CodeArtsDeploy POST /v2/host-groups
-// @API CodeArtsDeploy DELETE /v2/host-groups/{group_id}
-// @API CodeArtsDeploy GET /v2/host-groups/{group_id}
+// @API CodeArtsDeploy POST /v1/resources/host-groups
 // @API CodeArtsDeploy PUT /v2/host-groups/{group_id}
+// @API CodeArtsDeploy GET /v1/resources/host-groups/{group_id}
+// @API CodeArtsDeploy DELETE /v2/host-groups/{group_id}
 func ResourceDeployGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeployGroupCreate,

@@ -23,9 +23,9 @@ import (
 )
 
 // @API CodeArts POST /v4/project
-// @API CodeArts DELETE /v4/projects/{id}
+// @API CodeArts PUT /v4/projects/{id}
 // @API CodeArts GET /v4/projects/{id}
-// @API ProjectMan PUT /v4/projects/{id}
+// @API CodeArts DELETE /v4/projects/{id}
 func ResourceProject() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProjectCreate,
