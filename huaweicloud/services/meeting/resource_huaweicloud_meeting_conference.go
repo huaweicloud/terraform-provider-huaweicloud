@@ -198,6 +198,12 @@ func subconferenceSchemaResource() *schema.Resource {
 // @API Meeting PUT /v1/mmc/management/conferences
 // @API Meeting PUT /v1/mmc/management/conference/duration
 // @API Meeting GET /v1/mmc/management/conferences/confDetail
+// @API Meeting POST /v1/usg/acs/token/validate
+// @API Meeting POST /v1/usg/acs/auth/account
+// @API Meeting POST /v2/usg/acs/auth/appauth
+// @API Meeting POST /v1/mmc/management/cycleconferences
+// @API Meeting PUT /v1/mmc/management/cycleconferences
+// @API Meeting DELETE /v1/mmc/management/cycleconferences
 func ResourceConference() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConferenceCreate,
