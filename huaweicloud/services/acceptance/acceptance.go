@@ -203,6 +203,7 @@ var (
 	HW_SECMASTER_PIPELINE_ID = os.Getenv("HW_SECMASTER_PIPELINE_ID")
 
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
+	HW_MODELARTS_USER_LOGIN_PASSWORD = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 
 	// The CMDB sub-application ID of AOM service
 	HW_AOM_SUB_APPLICATION_ID = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
@@ -1086,6 +1087,13 @@ func TestAccPreCheckModelArtsHasSubscribeModel(t *testing.T) {
 	if HW_MODELARTS_HAS_SUBSCRIBE_MODEL == "" {
 		t.Skip("Subscribe two free models from market and set HW_MODELARTS_HAS_SUBSCRIBE_MODEL" +
 			" for modelarts service acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelartsUserLoginPassword(t *testing.T) {
+	if HW_MODELARTS_USER_LOGIN_PASSWORD == "" {
+		t.Skip("HW_MODELARTS_USER_LOGIN_PASSWORD must be set for modelarts privilege resource pool acceptance test")
 	}
 }
 
