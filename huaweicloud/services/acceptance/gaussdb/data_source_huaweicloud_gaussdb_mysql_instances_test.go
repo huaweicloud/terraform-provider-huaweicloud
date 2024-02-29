@@ -10,7 +10,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccGaussdbMysqlInstancesDataSource_basic(t *testing.T) {
@@ -35,11 +34,11 @@ func testAccCheckGaussdbMysqlInstancesDataSourceID(n string) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find GaussDB mysql instance data source: %s ", n)
+			return fmt.Errorf("can't find GaussDB mysql instance data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("GaussDB mysql instances data source ID not set ")
+			return fmt.Errorf("the GaussDB mysql instances data source ID not set ")
 		}
 
 		return nil
