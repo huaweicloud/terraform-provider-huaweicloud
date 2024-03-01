@@ -18,10 +18,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API ELB PUT /v2/{project_id}/elb/pools/{id}
-// @API ELB DELETE /v2/{project_id}/elb/pools/{id}
-// @API ELB GET /v2/{project_id}/elb/pools/{id}
 // @API ELB POST /v2/{project_id}/elb/pools
+// @API ELB GET /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}
+// @API ELB GET /v2/{project_id}/elb/listeners/{listener_id}
+// @API ELB GET /v2/{project_id}/elb/pools/{pool_id}
+// @API ELB PUT /v2/{project_id}/elb/pools/{pool_id}
+// @API ELB DELETE /v2/{project_id}/elb/pools/{pool_id}
 func ResourcePoolV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePoolV2Create,

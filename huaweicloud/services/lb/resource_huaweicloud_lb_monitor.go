@@ -17,10 +17,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API ELB DELETE /v2/{project_id}/elb/healthmonitors/{id}
-// @API ELB GET /v2/{project_id}/elb/healthmonitors/{id}
-// @API ELB PUT /v2/{project_id}/elb/healthmonitors/{id}
 // @API ELB POST /v2/{project_id}/elb/healthmonitors
+// @API ELB GET /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}
+// @API ELB GET /v2/{project_id}/elb/listeners/{listener_id}
+// @API ELB GET /v2/{project_id}/elb/pools/{pool_id}
+// @API ELB GET /v2/{project_id}/elb/healthmonitors/{healthmonitor_id}
+// @API ELB PUT /v2/{project_id}/elb/healthmonitors/{healthmonitor_id}
+// @API ELB DELETE /v2/{project_id}/elb/healthmonitors/{healthmonitor_id}
 func ResourceMonitorV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMonitorV2Create,
