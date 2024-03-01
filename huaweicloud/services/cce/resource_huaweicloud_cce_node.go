@@ -580,7 +580,7 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 	// The completion of the creation of the underlying resource (ECS) corresponding to the CCE node does not mean that
 	// the creation of the CCE node is completed.
-	nodeID, err := getResourceIDFromJob(ctx, nodeClient, s.Status.JobID, "CreateNode", "CreateNodeVM",
+	nodeID, err := getResourceIDFromJob(ctx, nodeClient, s.Status.JobID, "CreateNode", "InstallNode",
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
