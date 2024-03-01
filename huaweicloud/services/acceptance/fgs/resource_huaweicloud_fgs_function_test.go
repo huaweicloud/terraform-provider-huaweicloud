@@ -1154,3 +1154,67 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, rName, aliasName)
 }
+
+func TestAccFgsV2Function_concurrencyNum(t *testing.T) {
+	var (
+		f function.Function
+
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_strategy_default(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "concurrency_num", "1"),
+				),
+			},
+			{
+				Config: testAccFunction_concurrencyNum(name, 1000),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "concurrency_num", "1000"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_concurrencyNum(name string, concurrencyNum int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  functiongraph_version = "v2"
+  name                  = "%[1]s"
+  app                   = "default"
+  handler               = "index.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+  concurrency_num       = %[2]d
+}
+`, name, concurrencyNum)
+}

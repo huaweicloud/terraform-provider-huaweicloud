@@ -331,6 +331,11 @@ The `func_mounts` block supports:
 
 * `local_mount_path` - (Required, String) Specifies the function access path.
 
+* `concurrency_num` - (Optional, Int) Specifies the number of concurrent requests of the function.
+  The valid value ranges from `1` to `1,000`, the default value is `1`.
+  
+  -> This parameter is only supported by the `v2` version of the function.
+
 <a name="functiongraph_custom_image"></a>
 The `custom_image` block supports:
 

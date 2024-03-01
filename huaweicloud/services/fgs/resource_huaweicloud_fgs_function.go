@@ -352,6 +352,14 @@ func ResourceFgsFunctionV2() *schema.Resource {
 					},
 				},
 			},
+			// The value in the api document is -1 to 1000, After confirmation, when the parameter set to -1 or 0,
+			// the actual number of concurrent requests is 1, so the value range is set to 1 to 1000, and the document
+			// will be modified later (2024.02.29).
+			"concurrency_num": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -514,7 +522,7 @@ func resourceFgsFunctionCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(f.FuncUrn)
 	urn := resourceFgsFunctionUrn(d.Id())
 	// lintignore:R019
-	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout") {
+	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout", "concurrency_num") {
 		err := resourceFgsFunctionMetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return diag.FromErr(err)
@@ -759,6 +767,10 @@ func getReservedInstanceConfig(c *golangsdk.ServiceClient, d *schema.ResourceDat
 	return result, nil
 }
 
+func getConcurrencyNum(concurrencyNum *int) int {
+	return *concurrencyNum
+}
+
 func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	fgsClient, err := cfg.FgsV2Client(cfg.GetRegion(d))
@@ -807,6 +819,7 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		setFgsFunctionAgency(d, f.Xrole),
 		setFgsFunctionVpcAccess(d, f.FuncVpc),
 		setFuncionMountConfig(d, f.MountConfig),
+		d.Set("concurrency_num", getConcurrencyNum(f.StrategyConfig.ConcurrencyNum)),
 		d.Set("versions", versionConfig),
 	)
 
@@ -1073,7 +1086,7 @@ func resourceFgsFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if d.HasChanges("app", "handler", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
-		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name") {
+		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num") {
 		err := resourceFgsFunctionMetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return diag.FromErr(err)
@@ -1181,6 +1194,13 @@ func resourceFgsFunctionMetadataUpdate(fgsClient *golangsdk.ServiceClient, urn s
 			StreamName: d.Get("log_stream_name").(string),
 		}
 		updateMetadateOpts.LogConfig = &logConfig
+	}
+
+	if v, ok := d.GetOk("concurrency_num"); ok {
+		strategyConfig := function.StrategyConfig{
+			ConcurrencyNum: utils.Int(v.(int)),
+		}
+		updateMetadateOpts.StrategyConfig = &strategyConfig
 	}
 
 	log.Printf("[DEBUG] Metaddata Update Options: %#v", updateMetadateOpts)
