@@ -23,9 +23,9 @@ import (
 )
 
 // @API EG POST /v1/{project_id}/connections
-// @API EG DELETE /v1/{project_id}/connections/{id}
-// @API EG GET /v1/{project_id}/connections/{id}
-// @API EG PUT /v1/{project_id}/connections/{id}
+// @API EG PUT /v1/{project_id}/connections/{connection_id}
+// @API EG GET /v1/{project_id}/connections/{connection_id}
+// @API EG DELETE /v1/{project_id}/connections/{connection_id}
 func ResourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectionCreate,

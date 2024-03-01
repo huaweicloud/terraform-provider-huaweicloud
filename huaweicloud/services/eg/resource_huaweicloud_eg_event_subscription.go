@@ -18,10 +18,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API EG PUT /v1/{project_id}/subscriptions/{subscriptionId}
-// @API EG DELETE /v1/{project_id}/subscriptions/{subscriptionId}
-// @API EG GET /v1/{project_id}/subscriptions/{subscriptionId}
 // @API EG POST /v1/{project_id}/subscriptions
+// @API EG GET /v1/{project_id}/subscriptions/{subscription_id}
+// @API EG PUT /v1/{project_id}/subscriptions/{subscription_id}
+// @API EG DELETE /v1/{project_id}/subscriptions/{subscription_id}
 func ResourceEventSubscription() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceEventSubscriptionCreate,
