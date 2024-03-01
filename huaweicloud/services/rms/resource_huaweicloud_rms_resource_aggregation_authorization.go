@@ -22,9 +22,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Config GET /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization
-// @API Config PUT /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization
-// @API Config DELETE /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization/{id}
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/aggregators/aggregation-authorization
+// @API Config GET /v1/resource-manager/domains/{domain_id}/aggregators/aggregation-authorization
+// @API Config DELETE /v1/resource-manager/domains/{domain_id}/aggregators/aggregation-authorization/{id}
 func ResourceAggregationAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAggregationAuthCreate,

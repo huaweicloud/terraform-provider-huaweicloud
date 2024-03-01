@@ -33,12 +33,12 @@ const (
 	AssignmentStatusEvaluating = "Evaluating"
 )
 
-// @API Config POST /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/disable
-// @API Config POST /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/enable
-// @API Config DELETE /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}
-// @API Config GET /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}
-// @API Config PUT /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}
-// @API Config PUT /v1/resource-manager/domains/{domainId}/policy-assignments
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/policy-assignments
+// @API Config GET /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}
+// @API Config POST /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/disable
+// @API Config POST /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/enable
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}
+// @API Config DELETE /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}
 func ResourcePolicyAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceePolicyAssignmentCreate,
