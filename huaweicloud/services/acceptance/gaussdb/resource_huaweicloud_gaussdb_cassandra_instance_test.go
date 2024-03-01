@@ -14,7 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccGeminiDBInstance_basic(t *testing.T) {
@@ -74,10 +73,10 @@ func TestAccGeminiDBInstance_prePaid(t *testing.T) {
 }
 
 func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
+		return fmt.Errorf("error creating GeminiDB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -93,7 +92,7 @@ func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 			return err
 		}
 		if found.Id != "" {
-			return fmtp.Errorf("Instance <%s> still exists.", rs.Primary.ID)
+			return fmt.Errorf("instance <%s> still exists", rs.Primary.ID)
 		}
 	}
 
@@ -104,28 +103,28 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s.", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set.")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
+			return fmt.Errorf("error creating GeminiDB client: %s", err)
 		}
 
 		found, err := instances.GetInstanceByID(client, rs.Primary.ID)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("Instance <%s> not found.", rs.Primary.ID)
+				return fmt.Errorf("instance <%s> not found", rs.Primary.ID)
 			}
 			return err
 		}
 		if found.Id == "" {
-			return fmtp.Errorf("Instance <%s> not found.", rs.Primary.ID)
+			return fmt.Errorf("instance <%s> not found", rs.Primary.ID)
 		}
 		instance = &found
 
