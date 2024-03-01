@@ -21,10 +21,10 @@ import (
 )
 
 // @API VOD POST /v1.0/{project_id}/template/watermark
+// @API VOD POST /v1.0/{project_id}/watermark/status/uploaded
+// @API VOD GET /v1.0/{project_id}/template/watermark
 // @API VOD PUT /v1.0/{project_id}/template/watermark
 // @API VOD DELETE /v1.0/{project_id}/template/watermark
-// @API VOD GET /v1.0/{project_id}/template/watermark
-// @API VOD POST /v1.0/{project_id}/watermark/status/uploaded
 func ResourceWatermarkTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWatermarkTemplateCreate,
