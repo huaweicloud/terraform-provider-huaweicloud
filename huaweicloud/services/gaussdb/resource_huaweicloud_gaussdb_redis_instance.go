@@ -25,19 +25,23 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{id}/tags/action
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{id}/tags
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/security-group
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/ssl-option
-// @API GaussDBforNoSQL DELETE /v3/{project_id}/instances/{instanceID}
 // @API GaussDBforNoSQL GET /v3/{project_id}/instances
 // @API GaussDBforNoSQL POST /v3/{project_id}/instances
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/enlarge-node
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/extend-volume
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/name
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/password
-// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instanceID}/reduce-node
-// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instanceID}/resize
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances/{instance_id}/tags
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/name
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/password
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/ssl-option
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/extend-volume
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/resize
+// @API GaussDBforNoSQL PUT /v3/{project_id}/instances/{instance_id}/security-group
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/enlarge-node
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/reduce-node
+// @API GaussDBforNoSQL DELETE /v3/{project_id}/instances/{instance_id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceGaussRedisInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussRedisInstanceV3Create,
