@@ -1,5 +1,5 @@
 ---
-subcategory: "GA (Global Accelerator)"
+subcategory: "Global Accelerator (GA)"
 ---
 
 # huaweicloud_ga_address_groups
