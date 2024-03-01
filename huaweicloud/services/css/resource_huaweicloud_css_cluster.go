@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
@@ -64,6 +65,8 @@ const (
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/public/bandwidth
 // @API CSS PUT /v1.0/{project_id}/clusters/{cluster_id}/public/close
 // @API CSS PUT /v1.0/{project_id}/clusters/{cluster_id}/publickibana/close
+// @API CSS GET /v1.0/{project_id}/es-flavors
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/{types}/flavor
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -488,7 +491,6 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"instance_number": {
@@ -528,7 +530,6 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"instance_number": {
@@ -1044,9 +1045,38 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// extend cluster
-	if d.HasChanges("ess_node_config", "master_node_config", "client_node_config",
-		"cold_node_config", "expect_node_num") {
+	instanceNumAndSizeChanges := []string{
+		"ess_node_config.0.instance_number",
+		"master_node_config.0.instance_number",
+		"client_node_config.0.instance_number",
+		"cold_node_config.0.instance_number",
+		"ess_node_config.0.volume.0.size",
+		"master_node_config.0.volume.0.size",
+		"client_node_config.0.volume.0.size",
+		"cold_node_config.0.volume.0.size",
+		"expect_node_num",
+	}
+	if d.HasChanges(instanceNumAndSizeChanges...) {
 		err = extendCluster(ctx, d, cssV1Client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// update flavor
+	flavorChanges := []string{
+		"ess_node_config.0.flavor",
+		"master_node_config.0.flavor",
+		"client_node_config.0.flavor",
+		"cold_node_config.0.flavor",
+	}
+	if d.HasChanges(flavorChanges...) {
+		flavorList, err := getFlavorList(cssV1Client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		err = updateFlavor(ctx, d, flavorList, conf)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1126,7 +1156,6 @@ func extendCluster(ctx context.Context, d *schema.ResourceData, cssV1Client *css
 	if err != nil {
 		return fmt.Errorf("extend CSS cluster instance storage failed, cluster_id: %s, error: %s", d.Id(), err)
 	}
-
 	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
@@ -1668,6 +1697,141 @@ func updateCssTags(cssV1Client *cssv1.CssClient, id string, old, new map[string]
 	}
 
 	return nil
+}
+
+func updateFlavor(ctx context.Context, d *schema.ResourceData,
+	flavorsResp map[string]interface{}, conf *config.Config) error {
+	if d.HasChange("ess_node_config.0.flavor") {
+		err := updateFlavorByType(ctx, InstanceTypeEss, d, flavorsResp, conf)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("master_node_config.0.flavor") {
+		err := updateFlavorByType(ctx, InstanceTypeEssMaster, d, flavorsResp, conf)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("client_node_config.0.flavor") {
+		err := updateFlavorByType(ctx, InstanceTypeEssClient, d, flavorsResp, conf)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("cold_node_config.0.flavor") {
+		err := updateFlavorByType(ctx, InstanceTypeEssCold, d, flavorsResp, conf)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func updateFlavorByType(ctx context.Context, nodeType string, d *schema.ResourceData,
+	resp map[string]interface{}, conf *config.Config) error {
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.CssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+	hcCssV1Client, err := conf.HcCssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+
+	flavorId, err := flattenFlavorId(nodeType, d, resp)
+	if err != nil {
+		return err
+	}
+
+	updateFlavorHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/{types}/flavor"
+	updateFlavorPath := cssV1Client.Endpoint + updateFlavorHttpUrl
+	updateFlavorPath = strings.ReplaceAll(updateFlavorPath, "{project_id}", cssV1Client.ProjectID)
+	updateFlavorPath = strings.ReplaceAll(updateFlavorPath, "{cluster_id}", d.Id())
+	updateFlavorPath = strings.ReplaceAll(updateFlavorPath, "{types}", nodeType)
+
+	updateFlavorOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	updateFlavorOpt.JSONBody = map[string]interface{}{
+		"needCheckReplica": true,
+		"newFlavorId":      flavorId,
+		"isAutoPay":        1,
+	}
+	updateFlavorResp, err := cssV1Client.Request("POST", updateFlavorPath, &updateFlavorOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CSS cluster flavor, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	updateFlavorRespBody, err := utils.FlattenResponse(updateFlavorResp)
+	if err != nil {
+		return fmt.Errorf("error retrieving CSS cluster updating flavor response: %s", err)
+	}
+
+	orderId := utils.PathSearch("orderId", updateFlavorRespBody, "").(string)
+	if orderId != "" {
+		bssClient, err := conf.BssV2Client(region)
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+
+		// If charging mode is PrePaid, wait for the order to be completed.
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = checkClusterOperationCompleted(ctx, hcCssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func flattenFlavorId(nodeType string, d *schema.ResourceData, resp map[string]interface{}) (string, error) {
+	version := d.Get("engine_version").(string)
+	var flavorName string
+	switch nodeType {
+	case InstanceTypeEss:
+		flavorName = d.Get("ess_node_config.0.flavor").(string)
+	case InstanceTypeEssCold:
+		flavorName = d.Get("cold_node_config.0.flavor").(string)
+	case InstanceTypeEssMaster:
+		flavorName = d.Get("master_node_config.0.flavor").(string)
+	case InstanceTypeEssClient:
+		flavorName = d.Get("master_node_config.0.flavor").(string)
+	}
+	findFlavorIdChar := fmt.Sprintf(
+		`versions|[?type=='%s'&&version=='%s']|[0]|flavors|[?name=='%s']|[0]|flavor_id`,
+		nodeType, version, flavorName)
+	flavorId := utils.PathSearch(findFlavorIdChar, resp, "")
+	if flavorId == "" {
+		return "", fmt.Errorf("unable to find the ID of flavor(type: %s, version: %s, name: %s)",
+			nodeType, version, flavorName)
+	}
+	return flavorId.(string), nil
+}
+
+func getFlavorList(cssV1Client *cssv1.CssClient) (map[string]interface{}, error) {
+	flavorsResp, err := cssV1Client.ListFlavors(&model.ListFlavorsRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve CSS flavors: %s ", err)
+	}
+
+	getFlavorsRespJson, err := json.Marshal(flavorsResp)
+	if err != nil {
+		return nil, err
+	}
+	var data map[string]interface{}
+	err = json.Unmarshal(getFlavorsRespJson, &data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 type ResponseError struct {

@@ -197,10 +197,7 @@ The following arguments are supported:
 <a name="Css_ess_node_config"></a>
 The `ess_node_config` and `cold_node_config` block supports:
 
-* `flavor` - (Required, String, ForceNew) Specifies the flavor name. For example: value range of flavor ess.spec-2u8g:
-  40 GB to 800 GB, value range of flavor ess.spec-4u16g: 40 GB to 1600 GB, value range of flavor ess.spec-8u32g: 80 GB
-  to 3200 GB, value range of flavor ess.spec-16u64g: 100 GB to 6400 GB, value range of flavor ess.spec-32u128g: 100 GB
-  to 10240 GB. Changing this parameter will create a new resource.
+* `flavor` - (Required, String) Specifies the flavor name.
 
 * `instance_number` - (Required, Int) Specifies the number of cluster instances.
   + When it is `ess_node_config`, The value range is 1 to 200.
@@ -233,10 +230,7 @@ The `volume` block supports:
 <a name="Css_ess_node_config_volume_forceNew"></a>
 The `master_node_config` and `client_node_config` block supports:
 
-* `flavor` - (Required, String, ForceNew) Specifies the flavor name. For example: value range of flavor ess.spec-2u8g:
-  40 GB to 800 GB, value range of flavor ess.spec-4u16g: 40 GB to 1600 GB, value range of flavor ess.spec-8u32g: 80 GB
-  to 3200 GB, value range of flavor ess.spec-16u64g: 100 GB to 6400 GB, value range of flavor ess.spec-32u128g: 100 GB
-  to 10240 GB. Changing this parameter will create a new resource.
+* `flavor` - (Required, String) Specifies the flavor name.
 
 * `instance_number` - (Required, Int) Specifies the number of cluster instances.
   + When it is `master_node_config`, The value range is 3 to 10.

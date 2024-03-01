@@ -198,6 +198,52 @@ func TestAccCssCluster_updateWithEpsId(t *testing.T) {
 	})
 }
 
+func TestAccCssCluster_flavor(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+	flavor := "ess.spec-4u8g"
+	updateFlavor := "ess.spec-8u16g"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_flavor(rName, flavor),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", flavor),
+				),
+			},
+			{
+				Config: testAccCssCluster_flavor(rName, updateFlavor),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", updateFlavor),
+				),
+			},
+		},
+	})
+}
+
 func testAccCssBase(rName string) string {
 	bucketName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
@@ -406,4 +452,56 @@ resource "huaweicloud_css_cluster" "test" {
   }
 }
 `, testAccCssBase(rName), rName, nodeNum, epsId)
+}
+
+func testAccCssCluster_flavor(rName, flavorNmae string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  ess_node_config {
+    flavor          = "%[3]s"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  master_node_config {
+    flavor          = "%[3]s"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  client_node_config {
+    flavor          = "%[3]s"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  cold_node_config {
+    flavor          = "%[3]s"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+}
+`, testAccCssBase(rName), rName, flavorNmae)
 }
