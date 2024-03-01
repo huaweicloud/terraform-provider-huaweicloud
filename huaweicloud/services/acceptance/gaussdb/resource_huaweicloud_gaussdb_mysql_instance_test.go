@@ -13,7 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccGaussDBInstance_basic(t *testing.T) {
@@ -89,10 +88,10 @@ func TestAccGaussDBInstance_prePaid(t *testing.T) {
 }
 
 func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
+	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := cfg.GaussdbV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
+		return fmt.Errorf("error creating GaussDB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -102,7 +101,7 @@ func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 
 		v, err := instances.Get(client, rs.Primary.ID).Extract()
 		if err == nil && v.Id == rs.Primary.ID {
-			return fmtp.Errorf("Instance <%s> still exists.", rs.Primary.ID)
+			return fmt.Errorf("instance <%s> still exists", rs.Primary.ID)
 		}
 	}
 
@@ -113,17 +112,17 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s.", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set.")
+			return fmt.Errorf("no ID is set")
 		}
 
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		client, err := config.GaussdbV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
+			return fmt.Errorf("error creating GaussDB client: %s", err)
 		}
 
 		found, err := instances.Get(client, rs.Primary.ID).Extract()
@@ -131,7 +130,7 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 			return err
 		}
 		if found.Id != rs.Primary.ID {
-			return fmtp.Errorf("instance <%s> not found.", rs.Primary.ID)
+			return fmt.Errorf("instance <%s> not found", rs.Primary.ID)
 		}
 		instance = found
 
