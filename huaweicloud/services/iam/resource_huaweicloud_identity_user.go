@@ -210,12 +210,11 @@ func resourceIdentityUserRead(_ context.Context, d *schema.ResourceData, meta in
 		return common.CheckDeletedDiag(d, err, "user")
 	}
 
+	method := ""
 	loginProtect, err := users.GetLoginProtect(iamClient, d.Id()).ExtractLoginProtect()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "user login protect")
-	}
-	method := ""
-	if loginProtect.VerificationMethod != "none" {
+		log.Printf("[WARN] failed to get the login verification method of user (%s): %s", d.Id(), err)
+	} else if loginProtect.VerificationMethod != "none" {
 		method = loginProtect.VerificationMethod
 	}
 
@@ -261,53 +260,68 @@ func resourceIdentityUserUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	var updateOpts users.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
+	updateChanges := []string{
+		"name",
+		"description",
+		"email",
+		"country_code",
+		"phone",
+		"external_identity_id",
+		"external_identity_type",
+		"access_type",
+		"enabled",
+		"pwd_reset",
+		"password",
 	}
+	if d.HasChanges(updateChanges...) {
+		var updateOpts users.UpdateOpts
+		if d.HasChange("name") {
+			updateOpts.Name = d.Get("name").(string)
+		}
 
-	if d.HasChange("description") {
-		updateOpts.Description = utils.String(d.Get("description").(string))
-	}
+		if d.HasChange("description") {
+			updateOpts.Description = utils.String(d.Get("description").(string))
+		}
 
-	if d.HasChange("email") {
-		updateOpts.Email = d.Get("email").(string)
-	}
+		if d.HasChange("email") {
+			updateOpts.Email = d.Get("email").(string)
+		}
 
-	if d.HasChanges("country_code", "phone") {
-		updateOpts.AreaCode = d.Get("country_code").(string)
-		updateOpts.Phone = d.Get("phone").(string)
-	}
+		if d.HasChanges("country_code", "phone") {
+			updateOpts.AreaCode = d.Get("country_code").(string)
+			updateOpts.Phone = d.Get("phone").(string)
+		}
 
-	if d.HasChanges("external_identity_id", "external_identity_type") {
-		updateOpts.XUserID = utils.String(d.Get("external_identity_id").(string))
-		updateOpts.XUserType = utils.String(buildExternalIdentityType(d))
-	}
+		if d.HasChanges("external_identity_id", "external_identity_type") {
+			updateOpts.XUserID = utils.String(d.Get("external_identity_id").(string))
+			updateOpts.XUserType = utils.String(buildExternalIdentityType(d))
+		}
 
-	if d.HasChange("access_type") {
-		updateOpts.AccessMode = d.Get("access_type").(string)
-	}
+		if d.HasChange("access_type") {
+			updateOpts.AccessMode = d.Get("access_type").(string)
+		}
 
-	if d.HasChange("enabled") {
-		enabled := d.Get("enabled").(bool)
-		updateOpts.Enabled = &enabled
-	}
+		if d.HasChange("enabled") {
+			enabled := d.Get("enabled").(bool)
+			updateOpts.Enabled = &enabled
+		}
 
-	if d.HasChange("pwd_reset") {
-		reset := d.Get("pwd_reset").(bool)
-		updateOpts.PasswordReset = &reset
-	}
+		if d.HasChange("pwd_reset") {
+			reset := d.Get("pwd_reset").(bool)
+			updateOpts.PasswordReset = &reset
+		}
 
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
-	// Add password here so it wouldn't go in the above log entry
-	if d.HasChange("password") {
-		updateOpts.Password = d.Get("password").(string)
-	}
+		// Add password here so it wouldn't go in the above log entry
+		if d.HasChange("password") {
+			updateOpts.Password = d.Get("password").(string)
+		}
 
-	_, err = users.Update(iamClient, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return diag.Errorf("error updating IAM user: %s", err)
+		_, err = users.Update(iamClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error updating IAM user: %s", err)
+		}
 	}
 
 	// update login protect
