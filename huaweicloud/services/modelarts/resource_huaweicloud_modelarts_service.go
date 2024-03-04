@@ -968,13 +968,14 @@ func deleteServiceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			deleteServiceWaitingResp, err := deleteServiceWaitingClient.Request("GET", deleteServiceWaitingPath, &deleteServiceWaitingOpt)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					return deleteServiceWaitingResp, "COMPLETED", nil
+					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
+					return "Resource Not Found", "COMPLETED", nil
 				}
 
 				return nil, "ERROR", err
 			}
 
-			return nil, "PENDING", nil
+			return deleteServiceWaitingResp, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        30 * time.Second,
