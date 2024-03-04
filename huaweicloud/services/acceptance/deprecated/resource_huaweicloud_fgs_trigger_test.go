@@ -1,4 +1,4 @@
-package fgs
+package deprecated
 
 import (
 	"fmt"

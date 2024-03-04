@@ -1,10 +1,11 @@
 ---
-subcategory: "FunctionGraph"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_fgs_trigger
 
-Manages a trigger resource within HuaweiCloud FunctionGraph.
+Manages a trigger resource within HuaweiCloud FunctionGraph.  
+It's recommend to use `huaweicloud_fgs_function_trigger`, which makes a great improvement of managing function triggers.
 
 ## Example Usage
 

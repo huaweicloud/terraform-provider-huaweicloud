@@ -1061,7 +1061,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_dependency_version":         fgs.ResourceDependencyVersion(),
 			"huaweicloud_fgs_function":                   fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_fgs_function_event":             fgs.ResourceFunctionEvent(),
-			"huaweicloud_fgs_trigger":                    fgs.ResourceFunctionGraphTrigger(),
+			"huaweicloud_fgs_function_trigger":           fgs.ResourceFunctionTrigger(),
 
 			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
 			"huaweicloud_ga_address_group":  ga.ResourceIpAddressGroup(),
@@ -1551,6 +1551,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csbs_backup_policy":             deprecated.ResourceCSBSBackupPolicyV1(),
 			"huaweicloud_csbs_backup_policy_v1":          deprecated.ResourceCSBSBackupPolicyV1(),
 			"huaweicloud_csbs_backup_v1":                 deprecated.ResourceCSBSBackupV1(),
+			"huaweicloud_fgs_trigger":                    deprecated.ResourceFunctionGraphTrigger(),
 			"huaweicloud_networking_network_v2":          deprecated.ResourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":           deprecated.ResourceNetworkingSubnetV2(),
 			"huaweicloud_networking_floatingip_v2":       deprecated.ResourceNetworkingFloatingIPV2(),
