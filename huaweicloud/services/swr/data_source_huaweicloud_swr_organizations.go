@@ -113,8 +113,8 @@ func dataSourceOrganizationsRead(_ context.Context, d *schema.ResourceData, meta
 			"name":              utils.PathSearch("name", organization, nil),
 			"creator":           utils.PathSearch("creator_name", organization, nil),
 			"permission":        resourceSWRAuthToPermission(int(permission)),
-			"access_user_count": int(utils.PathSearch("access_user_count", organization, 0).(float64)),
-			"repo_count":        int(utils.PathSearch("repo_count", organization, 0).(float64)),
+			"access_user_count": int(utils.PathSearch("access_user_count", organization, float64(0)).(float64)),
+			"repo_count":        int(utils.PathSearch("repo_count", organization, float64(0)).(float64)),
 		})
 	}
 
