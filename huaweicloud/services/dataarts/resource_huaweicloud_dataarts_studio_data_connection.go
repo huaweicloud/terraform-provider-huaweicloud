@@ -21,13 +21,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceDataConnection is the impl of huaweicloud_dataarts_studio_data_connection
 // @API DataArtsStudio POST /v1/{project_id}/data-connections
 // @API DataArtsStudio GET /v1/{project_id}/data-connections/{data_connection_id}
 // @API DataArtsStudio GET /v1/{project_id}/data-connections
 // @API DataArtsStudio PUT /v1/{project_id}/data-connections/{data_connection_id}
 // @API DataArtsStudio DELETE /v1/{project_id}/data-connections/{data_connection_id}
 // @API DataArtsStudio POST /v1/{project_id}/data-connections/validation
+
+// ResourceDataConnection is the impl of huaweicloud_dataarts_studio_data_connection
 func ResourceDataConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDataConnectionCreate,
