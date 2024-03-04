@@ -37,6 +37,10 @@ const (
 // @API CFW GET /v1/{project_id}/firewall/exist
 // @API CFW POST /v1/{project_id}/firewall/east-west/protect
 // @API CFW DELETE /v2/{project_id}/firewall/{id}
+// @API CFW POST /v1/{project_id}/ips/switch
+// @API CFW GET /v1/{project_id}/ips/switch
+// @API CFW POST /v1/{project_id}/ips/protect
+// @API CFW GET /v1/{project_id}/ips/protect
 
 func ResourceFirewall() *schema.Resource {
 	return &schema.Resource{
@@ -123,6 +127,16 @@ func ResourceFirewall() *schema.Resource {
 			"period_unit": common.SchemaPeriodUnit(nil),
 			"period":      common.SchemaPeriod(nil),
 			"auto_renew":  common.SchemaAutoRenew(nil),
+			"ips_switch_status": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Specifies the IPS patch switch status of the firewall.`,
+			},
+			"ips_protection_mode": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Specifies the IPS protection mode of the firewall.`,
+			},
 			"engine_type": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -524,6 +538,16 @@ func resourceFirewallRead(_ context.Context, d *schema.ResourceData, meta interf
 		chargingMode = "postPaid"
 	}
 
+	internetBorderObjectID := utils.PathSearch("protect_objects[?type==`0`]|[0].object_id", getFirewallRespBody, "").(string)
+	mode, err := getIpsProtectMode(getFirewallClient, internetBorderObjectID)
+	if err != nil {
+		return diag.Errorf("error retrieving IPS protect mode: %s", err)
+	}
+	status, err := getIpsSwitchStatus(getFirewallClient, internetBorderObjectID)
+	if err != nil {
+		return diag.Errorf("error retrieving IPS patch switch status: %s", err)
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -536,6 +560,8 @@ func resourceFirewallRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("service_type", utils.PathSearch("service_type", getFirewallRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getFirewallRespBody, nil)),
 		d.Set("support_ipv6", utils.PathSearch("support_ipv6", getFirewallRespBody, nil)),
+		d.Set("ips_protection_mode", mode),
+		d.Set("ips_switch_status", status),
 	)
 
 	// get east-west firewall
@@ -607,11 +633,57 @@ func flattenGetFirewallResponseBodyProtectObject(resp interface{}) []interface{}
 	return rst
 }
 
+func getIpsProtectMode(client *golangsdk.ServiceClient, objectID string) (interface{}, error) {
+	getIpsProtectModeHttpUrl := "v1/{project_id}/ips/protect"
+	getIpsProtectModePath := client.Endpoint + getIpsProtectModeHttpUrl
+	getIpsProtectModePath = strings.ReplaceAll(getIpsProtectModePath, "{project_id}", client.ProjectID)
+	getIpsProtectModePath += fmt.Sprintf("?object_id=%s", objectID)
+
+	getIpsProtectModeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getIpsProtectModeResp, err := client.Request("GET", getIpsProtectModePath, &getIpsProtectModeOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getIpsProtectModeRespBody, err := utils.FlattenResponse(getIpsProtectModeResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return jmespath.Search("data.mode", getIpsProtectModeRespBody)
+}
+
+func getIpsSwitchStatus(client *golangsdk.ServiceClient, objectID string) (interface{}, error) {
+	getIpsSwitchStatusHttpUrl := "v1/{project_id}/ips/switch"
+	getIpsSwitchStatusPath := client.Endpoint + getIpsSwitchStatusHttpUrl
+	getIpsSwitchStatusPath = strings.ReplaceAll(getIpsSwitchStatusPath, "{project_id}", client.ProjectID)
+	getIpsSwitchStatusPath += fmt.Sprintf("?object_id=%s", objectID)
+
+	getIpsSwitchStatusOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getIpsSwitchStatusResp, err := client.Request("GET", getIpsSwitchStatusPath, &getIpsSwitchStatusOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getIpsSwitchStatusRespBody, err := utils.FlattenResponse(getIpsSwitchStatusResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return jmespath.Search("data.virtual_patches_status", getIpsSwitchStatusRespBody)
+}
+
 func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var objectID string
+	var vpcBoderObjectID, internetBorderObjectID string
 	if d.IsNewResource() {
 		// getFirewall: Query the List of CFW firewalls
 		var (
@@ -649,49 +721,147 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no data found")
 		}
 
-		objectID = utils.PathSearch("protect_objects[?type==`1`]|[0].object_id", getFirewallRespBody, "").(string)
+		vpcBoderObjectID = utils.PathSearch("protect_objects[?type==`1`]|[0].object_id", getFirewallRespBody, "").(string)
+		internetBorderObjectID = utils.PathSearch("protect_objects[?type==`0`]|[0].object_id", getFirewallRespBody, "").(string)
 	} else {
 		protectObjects := d.Get("protect_objects").([]interface{})
 		for _, protectObject := range protectObjects {
 			p := protectObject.(map[string]interface{})
 			if p["type"].(int) == 1 {
-				objectID = p["object_id"].(string)
+				vpcBoderObjectID = p["object_id"].(string)
+			}
+			if p["type"].(int) == 0 {
+				internetBorderObjectID = p["object_id"].(string)
 			}
 		}
 	}
 
-	if objectID != "" {
-		var (
-			updateEastWestFirewallHttpUrl = "v1/{project_id}/firewall/east-west/protect"
-			updateEastWestFirewallProduct = "cfw"
-		)
-
-		updateEastWestFirewallClient, err := cfg.NewServiceClient(updateEastWestFirewallProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating CFW client: %s", err)
+	if d.IsNewResource() || d.HasChange("east_west_firewall_status") {
+		if vpcBoderObjectID != "" {
+			err := updateEastWestFirewallStatus(d, meta, vpcBoderObjectID)
+			if err != nil {
+				return diag.Errorf("error updating east-west firewall status: %s", err)
+			}
 		}
+	}
 
-		updateEastWestFirewallPath := updateEastWestFirewallClient.Endpoint + updateEastWestFirewallHttpUrl
-		updateEastWestFirewallPath = strings.ReplaceAll(updateEastWestFirewallPath, "{project_id}", updateEastWestFirewallClient.ProjectID)
-		updateEastWestFirewallPath += fmt.Sprintf("?fw_instance_id=%s", d.Id())
-
-		updateEastWestFirewallOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-
-		updateEastWestFirewallOpt.JSONBody = utils.RemoveNil(buildUpdateEastWestFirewallStatusBodyParams(d, objectID))
-		updateEastWestFirewallResp, err := updateEastWestFirewallClient.Request("POST", updateEastWestFirewallPath, &updateEastWestFirewallOpt)
+	if d.HasChanges("ips_switch_status") {
+		err := updateIpsSwitchStatus(d, meta, internetBorderObjectID)
 		if err != nil {
-			return diag.Errorf("error updating east-west Firewall status: %s", err)
+			return diag.Errorf("error updating IPS patch switch status: %s", err)
 		}
+	}
 
-		_, err = utils.FlattenResponse(updateEastWestFirewallResp)
+	if d.HasChange("ips_protection_mode") {
+		err := updateIpsProtectMode(d, meta, internetBorderObjectID)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error updating IPS protection mode: %s", err)
 		}
 	}
 
 	return resourceFirewallRead(ctx, d, meta)
+}
+
+func updateEastWestFirewallStatus(d *schema.ResourceData, meta interface{}, objectID string) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		updateEastWestFirewallHttpUrl = "v1/{project_id}/firewall/east-west/protect"
+		updateEastWestFirewallProduct = "cfw"
+	)
+
+	updateEastWestFirewallClient, err := cfg.NewServiceClient(updateEastWestFirewallProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating CFW client: %s", err)
+	}
+
+	updateEastWestFirewallPath := updateEastWestFirewallClient.Endpoint + updateEastWestFirewallHttpUrl
+	updateEastWestFirewallPath = strings.ReplaceAll(updateEastWestFirewallPath, "{project_id}", updateEastWestFirewallClient.ProjectID)
+	updateEastWestFirewallPath += fmt.Sprintf("?fw_instance_id=%s", d.Id())
+
+	updateEastWestFirewallOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updateEastWestFirewallOpt.JSONBody = utils.RemoveNil(buildUpdateEastWestFirewallStatusBodyParams(d, objectID))
+	updateEastWestFirewallResp, err := updateEastWestFirewallClient.Request("POST", updateEastWestFirewallPath, &updateEastWestFirewallOpt)
+	if err != nil {
+		return fmt.Errorf("error updating east-west firewall status: %s", err)
+	}
+
+	_, err = utils.FlattenResponse(updateEastWestFirewallResp)
+
+	return err
+}
+
+func updateIpsSwitchStatus(d *schema.ResourceData, meta interface{}, objectID string) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		updateSwitchStatusHttpUrl = "v1/{project_id}/ips/switch"
+		updateSwitchStatusProduct = "cfw"
+	)
+	updateSwitchStatusClient, err := cfg.NewServiceClient(updateSwitchStatusProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating CFW client: %s", err)
+	}
+
+	updateSwitchStatusPath := updateSwitchStatusClient.Endpoint + updateSwitchStatusHttpUrl
+	updateSwitchStatusPath = strings.ReplaceAll(updateSwitchStatusPath, "{project_id}", updateSwitchStatusClient.ProjectID)
+	updateSwitchStatusPath += fmt.Sprintf("?fw_instance_id=%s", d.Id())
+
+	status := d.Get("ips_switch_status").(int)
+	updateSwitchStatusOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateIpsSwitchStatusBodyParams(status, objectID)),
+	}
+	_, err = updateSwitchStatusClient.Request("POST", updateSwitchStatusPath, &updateSwitchStatusOpt)
+
+	return err
+}
+
+func buildUpdateIpsSwitchStatusBodyParams(status int, objectID string) map[string]interface{} {
+	// ips_type is the patch type, only supports virtual patch, the value is 2.
+	return map[string]interface{}{
+		"object_id": objectID,
+		"ips_type":  2,
+		"status":    status,
+	}
+}
+
+func updateIpsProtectMode(d *schema.ResourceData, meta interface{}, objectID string) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		updateProtectModeHttpUrl = "v1/{project_id}/ips/protect"
+		updateProtectModeProduct = "cfw"
+	)
+	updateProtectModeClient, err := cfg.NewServiceClient(updateProtectModeProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating CFW client: %s", err)
+	}
+
+	updateProtectModePath := updateProtectModeClient.Endpoint + updateProtectModeHttpUrl
+	updateProtectModePath = strings.ReplaceAll(updateProtectModePath, "{project_id}", updateProtectModeClient.ProjectID)
+
+	mode := d.Get("ips_protection_mode").(int)
+	updateProtectModeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateIpsProtectModeBodyParams(mode, objectID)),
+	}
+	_, err = updateProtectModeClient.Request("POST", updateProtectModePath, &updateProtectModeOpt)
+
+	return err
+}
+
+func buildUpdateIpsProtectModeBodyParams(mode int, objectID string) map[string]interface{} {
+	return map[string]interface{}{
+		"object_id": objectID,
+		"mode":      mode,
+	}
 }
 
 func resourceFirewallDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

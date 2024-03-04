@@ -68,6 +68,30 @@ resource "huaweicloud_cfw_firewall" "test" {
 }
 ```
 
+### firewall with IPS switch and IPS protection mode
+
+```hcl
+resource "huaweicloud_cfw_firewall" "test" {
+  name = "test"
+
+  flavor {
+    version = "Professional"
+  }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
+
+  charging_mode        = "prePaid"
+  period_unit          = "month"
+  period               = 1
+  auto_renew           = false
+  ips_switch_status    = 1
+  ips_protection_mode  = 1
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -128,6 +152,17 @@ The following arguments are supported:
   Valid values are **true** and **false**. Defaults to **false**.
 
   Changing this parameter will create a new resource.
+
+* `ips_switch_status` - (Optional, Int) Specifies the IPS patch switch status of the firewall.
+  The value can be **0**(disabled) and **1**(enabled). Defaults to **0**.
+
+* `ips_protection_mode` - (Optional, Int) Specifies the IPS protection mode of the firewall. Defaults to **0**.
+
+  Valid values are as follows:
+  + **0**: Observation Mode.
+  + **1**: Strict Mode.
+  + **2**: Medium Mode.
+  + **3**: Loose Mode.
 
 <a name="Firewall_Flavor"></a>
 The `flavor` block supports:
