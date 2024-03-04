@@ -29,29 +29,35 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// @API GaussDBforMySQL GET /v3/{project_id}/instance/{instanceId}/audit-log/switch-status
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{id}/tags/action
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/nodes/enlarge
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations
-// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{id}/backups/policy/update
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/action
-// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instanceID}/name
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/password
-// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}
-// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}
-// @API GaussDBforMySQL GET /v3/{project_id}/instances
-// @API GaussDBforMySQL POST /v3/{project_id}/instances
-// @API GaussDBforMySQL GET /v3/{project_id}/dedicated-resources
-// @API GaussDBforMySQL POST /v3/{project_id}/instance/{instanceId}/audit-log/switch
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/proxy/enlarge
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/volume/extend
-// @API GaussDBforMySQL GET /v3/{project_id}/instances/{id}/tags
-// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}/nodes/{nodeID}
-// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instanceID}/proxy
-// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}/proxy
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceID}/proxy
-// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceId}/sql-filter/switch
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instanceId}/sql-filter/switch
+// @API GaussDBforNoSQL GET /v3/{project_id}/dedicated-resources
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances
+// @API GaussDBforMySQL POST /v3/{project_id}/instance/{instance_id}/audit-log/switch
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/sql-filter/switch
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy
+// @API GaussDBforMySQL GET /v3/{project_id}/jobs
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/name
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/password
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/action
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/nodes/enlarge
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/nodes/{nodeID}
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/volume/extend
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/enlarge
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy
+// @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/sql-filter/switch
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/tags
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceGaussDBInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGaussDBInstanceCreate,

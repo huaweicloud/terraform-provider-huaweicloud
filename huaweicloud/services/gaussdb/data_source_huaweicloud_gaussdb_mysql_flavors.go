@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB GET /v3/{project_id}/flavors/{database_name}
+// @API GaussDBforMySQL GET /v3/{project_id}/flavors/{database_name}
 func DataSourceGaussdbMysqlFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGaussdbMysqlFlavorsRead,

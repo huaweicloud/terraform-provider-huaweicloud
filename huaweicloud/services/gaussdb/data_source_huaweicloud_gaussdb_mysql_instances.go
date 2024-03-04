@@ -14,8 +14,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
-// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instanceID}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 func DataSourceGaussDBMysqlInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGaussDBMysqlInstancesRead,

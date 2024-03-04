@@ -36,12 +36,18 @@ const (
 	ConsistencyTypeEventual ConsistencyType = "eventual"
 )
 
-// @API GaussDB DELETE /v3/{project_id}/instances/{instanceID}
 // @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB POST /v3/{project_id}/instances
-// @API GaussDB PUT /v3/{project_id}/instances/{id}/backups/policy
-// @API GaussDB POST /v3/{project_id}/instances/{instanceID}/{updata}
-// @API GaussDB PUT /v3/{project_id}/instances/{instanceID}/{updata}
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
+// @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceOpenGaussInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOpenGaussInstanceCreate,

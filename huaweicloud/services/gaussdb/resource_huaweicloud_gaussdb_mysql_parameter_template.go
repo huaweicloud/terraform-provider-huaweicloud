@@ -22,10 +22,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB POST /v3/{project_id}/configurations
-// @API GaussDB DELETE /v3/{project_id}/configurations/{configuration_id}
-// @API GaussDB GET /v3/{project_id}/configurations/{configuration_id}
-// @API GaussDB PUT /v3/{project_id}/configurations/{configuration_id}
+// @API GaussDBforMySQL POST /v3/{project_id}/configurations
+// @API GaussDBforMySQL PUT /v3/{project_id}/configurations/{configuration_id}
+// @API GaussDBforMySQL GET /v3/{project_id}/configurations/{configuration_id}
+// @API GaussDBforMySQL DELETE /v3/{project_id}/configurations/{configuration_id}
 func ResourceGaussDBMysqlTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceParameterTemplateCreate,

@@ -24,9 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/db-users/privilege
-// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/db-users/privilege
-// @API GaussDB GET /v3/{project_id}/instances/{instance_id}/db-users
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/db-users/privilege
+// @API GaussDBforMySQL GET /v3/{project_id}/jobs
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/db-users
+// @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/db-users/privilege
 func ResourceGaussDBAccountPrivilege() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBAccountPrivilegeCreate,

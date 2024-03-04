@@ -23,8 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB GET /v3/{project_id}/instances
-// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-ip
+// @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-ip
+// @API GaussDBforNoSQL GET /v3/{project_id}/instances
 func ResourceGaussRedisEipAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussRedisEipAssociateCreate,
