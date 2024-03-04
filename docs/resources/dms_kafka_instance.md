@@ -191,7 +191,7 @@ The following arguments are supported:
   + **time_base**: Automatically delete the earliest messages.
   + **produce_reject**: Stop producing new messages.
 
-* `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable message dumping.
+* `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable  message dumping(smart connect).
   Changing this creates a new instance resource.
 
 * `enable_auto_topic` - (Optional, Bool) Specifies whether to enable automatic topic creation. If automatic
