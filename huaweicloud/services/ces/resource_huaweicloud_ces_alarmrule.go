@@ -53,6 +53,7 @@ var cesAlarmActions = schema.Schema{
 // @API CES PUT /v2/{project_id}/alarms/{id}/policies
 // @API CES POST /v2/{project_id}/alarms/action
 // @API CES POST /v2/{project_id}/alarms/{id}/resources/{operation}
+// @API CES POST /v2/{project_id}/alarms/batch-delete
 // @API CES GET /V1.0/{project_id}/alarms/{id}
 // @API CES PUT /V1.0/{project_id}/alarms/{id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
