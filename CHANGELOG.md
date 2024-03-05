@@ -15,8 +15,6 @@
   + `huaweicloud_dws_workload_plan_execution` [GH-4238]
   + `huaweicloud_dws_disaster_recovery_task` [GH-4262]
   + `huaweicloud_iotda_batchtask_file` [GH-4261]
-  + `huaweicloud_iotda_batchtask_file` [GH-4261]
-  + `huaweicloud_iotda_upgrade_package` [GH-4282]
   + `huaweicloud_iotda_upgrade_package` [GH-4282]
 
 * **New Data Source:**
