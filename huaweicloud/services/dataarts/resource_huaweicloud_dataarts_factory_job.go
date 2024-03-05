@@ -24,10 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DataArts POST /v1/{project_id}/jobs
-// @API DataArts GET /v1/{project_id}/jobs/{job_name}
-// @API DataArts PUT /v1/{project_id}/jobs/{job_name}
-// @API DataArts DELETE /v1/{project_id}/jobs/{job_name}
+// @API DataArtsStudio POST /v1/{project_id}/jobs
+// @API DataArtsStudio GET /v1/{project_id}/jobs/{job_name}
+// @API DataArtsStudio PUT /v1/{project_id}/jobs/{job_name}
+// @API DataArtsStudio DELETE /v1/{project_id}/jobs/{job_name}
 func ResourceFactoryJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFactoryJobCreate,
