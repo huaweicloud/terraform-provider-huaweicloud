@@ -87,7 +87,7 @@ The following arguments are supported:
   This parameter and `function_urn` are alternative.  
   Changing this parameter will create a new resource.
 
-* `function_urn` - (Optional, String, **ForceNew**) Specifies the function URN used to create the custom policy.  
+* `function_urn` - (Optional, String, ForceNew) Specifies the function URN used to create the custom policy.  
   Changing this parameter will create a new resource.
 
 * `period` - (Optional, String) Specifies the period of the organizational policy assignment.  
