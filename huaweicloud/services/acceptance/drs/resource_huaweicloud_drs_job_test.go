@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/drs/v3/jobs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -19,7 +20,15 @@ func getDrsJobResourceFunc(conf *config.Config, state *terraform.ResourceState) 
 	if err != nil {
 		return nil, fmt.Errorf("error creating DRS client, err: %s", err)
 	}
-	return jobs.Get(client, jobs.QueryJobReq{Jobs: []string{state.Primary.ID}})
+	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{state.Primary.ID}})
+	if err != nil {
+		return nil, err
+	}
+	status := detailResp.Results[0].Status
+	if status == "DELETED" {
+		return nil, golangsdk.ErrDefault404{}
+	}
+	return detailResp, nil
 }
 
 func TestAccResourceDrsJob_basic(t *testing.T) {
@@ -69,6 +78,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", name),
 				),
 			},
 			{
@@ -99,6 +109,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", updateName),
 				),
 			},
 			{
@@ -207,11 +218,15 @@ resource "huaweicloud_drs_job" "test" {
     subnet_id   = huaweicloud_rds_instance.test2.subnet_id
   }
 
+  tags = {
+    key = "%s"
+  }
+
   lifecycle {
     ignore_changes = [
       source_db.0.password, destination_db.0.password, force_destroy,
     ]
   }
 }
-`, netConfig, sourceDb, destDb, name, name, pwd, pwd)
+`, netConfig, sourceDb, destDb, name, name, pwd, pwd, name)
 }

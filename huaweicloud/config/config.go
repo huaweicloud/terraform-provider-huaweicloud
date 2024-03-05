@@ -1001,6 +1001,10 @@ func (c *Config) DrsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("drs", region)
 }
 
+func (c *Config) DrsV5Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("drsv5", region)
+}
+
 // ********** client for edge / IoT **********
 
 // IECV1Client returns a ServiceClient for IEC Endpoint APIs
