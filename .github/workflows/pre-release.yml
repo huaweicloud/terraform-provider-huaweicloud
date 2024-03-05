@@ -68,30 +68,13 @@ jobs:
           terraform init
           terraform providers schema -json > schema.json
           cd ..
-      
-      - name: parse APIs that golangsdk/go-SDK resources depend-on
-        run: |
-          cp terraform-api-scan/*.go terraform-provider-huaweicloud/
-          subPackPath="/huaweicloud"
-          providerSchemaPath="../terraform-api-scan/schema.json"
-          cd terraform-provider-huaweicloud
-          rm -rf docs/api
-          mkdir docs/api
-          go run *.go -basePath=./ -outputDir=docs/api/ -providerSchemaPath=${providerSchemaPath}
-          # terraform-api-scan can not copy static yaml files in workflow, do it manually
-          cp ../terraform-api-scan/config/static/*.yaml docs/api/
-          cd ..
-      
-      - name: parse APIs that auto-generated resources depend-on
-        run: |
-          cd terraform-api-scan/scan-autogen-code
-          go run main.go -inputDir=../../terraform-provider-generator/src/main/resources -outputDir=../../terraform-provider-huaweicloud/docs/api -providerSchemaPath=../schema.json
-          cd ../../
 
       - name: parse APIs that marked with comments
         run: |
           cp terraform-api-scan/scan-marked-comment-file/*.go terraform-provider-huaweicloud/
           cd terraform-provider-huaweicloud
+          rm -rf docs/api
+          mkdir docs/api
           go run main.go -basePath=./ -outputDir=./docs/api/ -providerSchemaPath=../terraform-api-scan/schema.json
           cd ..
 
