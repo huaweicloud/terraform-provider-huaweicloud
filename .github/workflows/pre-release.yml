@@ -73,6 +73,8 @@ jobs:
         run: |
           cp terraform-api-scan/scan-marked-comment-file/*.go terraform-provider-huaweicloud/
           cd terraform-provider-huaweicloud
+          rm -rf docs/api
+          mkdir docs/api
           go run main.go -basePath=./ -outputDir=./docs/api/ -providerSchemaPath=../terraform-api-scan/schema.json
           cd ..
 
