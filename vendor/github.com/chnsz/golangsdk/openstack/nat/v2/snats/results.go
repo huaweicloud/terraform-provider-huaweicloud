@@ -14,6 +14,10 @@ type Rule struct {
 	FloatingIpId string `json:"floating_ip_id"`
 	// The floating IP addresses (separated by commas) connected by SNAT rule.
 	FloatingIpAddress string `json:"floating_ip_address"`
+	// The IDs (separated by commas) of the global EIPs connected by SNAT rule.
+	GlobalEipId string `json:"global_eip_id"`
+	// The global EIP addresses (separated by commas) connected by SNAT rule.
+	GlobalEipAddress string `json:"global_eip_address"`
 	// The description of the SNAT rule.
 	Description string `json:"description"`
 	// The status of the SNAT rule.

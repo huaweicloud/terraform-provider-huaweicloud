@@ -61,9 +61,17 @@ func ResourcePublicSnatRule() *schema.Resource {
 			},
 			"floating_ip_id": {
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
+				Computed:         true,
+				ExactlyOneOf:     []string{"floating_ip_id", "global_eip_id"},
 				DiffSuppressFunc: utils.SuppressSnatFiplistDiffs,
 				Description:      "The IDs of floating IPs connected by SNAT rule.",
+			},
+			"global_eip_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The IDs (separated by commas) of global EIPs connected by SNAT rule.",
 			},
 			"nat_gateway_id": {
 				Type:        schema.TypeString,
@@ -106,6 +114,11 @@ func ResourcePublicSnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The floating IP addresses (separated by commas) connected by SNAT rule.",
 			},
+			"global_eip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The global EIP addresses (separated by commas) connected by SNAT rule.",
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -127,6 +140,7 @@ func buildPublicSnatRuleCreateOpts(d *schema.ResourceData) (snats.CreateOpts, er
 	result := snats.CreateOpts{
 		GatewayId:    d.Get("nat_gateway_id").(string),
 		FloatingIpId: d.Get("floating_ip_id").(string),
+		GlobalEipId:  d.Get("global_eip_id").(string),
 		Cidr:         d.Get("cidr").(string),
 		Description:  d.Get("description").(string),
 	}
@@ -219,6 +233,8 @@ func resourcePublicSnatRuleRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("nat_gateway_id", resp.GatewayId),
 		d.Set("floating_ip_id", resp.FloatingIpId),
 		d.Set("floating_ip_address", resp.FloatingIpAddress),
+		d.Set("global_eip_id", resp.GlobalEipId),
+		d.Set("global_eip_address", resp.GlobalEipAddress),
 		d.Set("source_type", resp.SourceType),
 		d.Set("subnet_id", resp.NetworkId),
 		d.Set("cidr", resp.Cidr),
@@ -264,6 +280,10 @@ func resourcePublicSnatRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		opts.FloatingIpAddress = strings.Join(eipAddrs, ",")
+	}
+
+	if d.HasChange("global_eip_id") {
+		opts.GlobalEipId = d.Get("global_eip_id").(string)
 	}
 
 	log.Printf("[DEBUG] The update options of the public SNAT rule is: %#v", opts)
