@@ -28,6 +28,8 @@ import (
 // @API CC DELETE /v3/{domain_id}/ccaas/cloud-connections/{id}
 // @API CC GET /v3/{domain_id}/ccaas/cloud-connections/{id}
 // @API CC PUT /v3/{domain_id}/ccaas/cloud-connections/{id}
+// @API CC POST /v3/{domain_id}/ccaas/cloud-connections/{id}/tag
+// @API CC POST /v3/{domain_id}/ccaas/cloud-connections/{id}/untag
 func ResourceCloudConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCloudConnectionCreate,
@@ -72,6 +74,7 @@ func ResourceCloudConnection() *schema.Resource {
 				Computed:    true,
 				Description: `The enterprise project id of the cloud connection.`,
 			},
+			"tags": common.TagsSchema(),
 			"domain_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -146,6 +149,13 @@ func resourceCloudConnectionCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	d.SetId(id.(string))
 
+	if rawTags := d.Get("tags").(map[string]interface{}); len(rawTags) > 0 {
+		err = createResourceTags(createCloudConnectionClient, d.Id(), conf.DomainID, rawTags)
+		if err != nil {
+			return diag.Errorf("error creating CloudConnection tags: %s", err)
+		}
+	}
+
 	return resourceCloudConnectionRead(ctx, d, meta)
 }
 
@@ -214,6 +224,7 @@ func resourceCloudConnectionRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("network_instance_number", utils.PathSearch("cloud_connection.network_instance_number", getCloudConnectionRespBody, nil)),
 		d.Set("bandwidth_package_number", utils.PathSearch("cloud_connection.bandwidth_package_number", getCloudConnectionRespBody, nil)),
 		d.Set("inter_region_bandwidth_number", utils.PathSearch("cloud_connection.inter_region_bandwidth_number", getCloudConnectionRespBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("cloud_connection.tags", getCloudConnectionRespBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -257,6 +268,13 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.HasChange("tags") {
+		err := updateResourceTags(updateCloudConnectionClient, d, conf.DomainID)
+		if err != nil {
+			return diag.Errorf("error updating CloudConnection tags: %s", err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := enterpriseprojects.MigrateResourceOpts{
 			ResourceId:   connectionId,
@@ -285,6 +303,68 @@ func buildUpdateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData) 
 		"description": utils.ValueIngoreEmpty(d.Get("description")),
 	}
 	return params
+}
+
+func createResourceTags(client *golangsdk.ServiceClient, id, domainID string, tags map[string]interface{}) error {
+	createTagsHttpUrl := "v3/{domain_id}/ccaas/cloud-connections/{id}/tag"
+	createTagsPath := client.Endpoint + createTagsHttpUrl
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{domain_id}", domainID)
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{id}", id)
+
+	tagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+
+	tagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+	_, err := client.Request("POST", createTagsPath, &tagsOpt)
+	return err
+}
+
+func deleteResourceTags(client *golangsdk.ServiceClient, id, domainID string, tags map[string]interface{}) error {
+	deleteTagsHttpUrl := "v3/{domain_id}/ccaas/cloud-connections/{id}/untag"
+	deleteTagsPath := client.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{domain_id}", domainID)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{id}", id)
+
+	tagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+
+	tagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+	_, err := client.Request("POST", deleteTagsPath, &tagsOpt)
+	return err
+}
+
+func updateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, domainID string) error {
+	oRaw, nRaw := d.GetChange("tags")
+
+	// remove old tags
+	if oMap := oRaw.(map[string]interface{}); len(oMap) > 0 {
+		err := deleteResourceTags(client, d.Id(), domainID, oMap)
+		if err != nil {
+			return err
+		}
+	}
+
+	// set new tags
+	if nMap := nRaw.(map[string]interface{}); len(nMap) > 0 {
+		err := createResourceTags(client, d.Id(), domainID, nMap)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceCloudConnectionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

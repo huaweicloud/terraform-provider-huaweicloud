@@ -34,6 +34,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the cloud connection.  
   Value 0 indicates the default enterprise project.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the cloud connection.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

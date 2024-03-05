@@ -69,6 +69,8 @@ func TestAccCloudConnection_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "domain_id"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "used_scene", "vpc"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.sam", "tool"),
 					resource.TestCheckResourceAttrSet(rName, "network_instance_number"),
 					resource.TestCheckResourceAttrSet(rName, "bandwidth_package_number"),
 					resource.TestCheckResourceAttrSet(rName, "inter_region_bandwidth_number"),
@@ -80,6 +82,7 @@ func TestAccCloudConnection_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "demo_description"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 				),
 			},
 			{
@@ -94,8 +97,13 @@ func TestAccCloudConnection_basic(t *testing.T) {
 func testCloudConnection_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cc_connection" "test" {
-  name = "%s"
+  name                  = "%s"
   enterprise_project_id = "0"
+
+  tags = {
+    foo = "bar"
+    sam = "tool"
+  }
 }
 `, name)
 }
@@ -103,9 +111,13 @@ resource "huaweicloud_cc_connection" "test" {
 func testCloudConnection_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cc_connection" "test" {
-  name = "%s"
+  name                  = "%s"
   enterprise_project_id = "0"
-  description = "demo_description"
+  description           = "demo_description"
+
+  tags = {
+    key = "value"
+  }
 }
 `, name)
 }
