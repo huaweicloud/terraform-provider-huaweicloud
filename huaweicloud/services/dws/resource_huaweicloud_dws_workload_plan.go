@@ -160,14 +160,33 @@ func refreshWorkLoadPlanID(client *golangsdk.ServiceClient, d *schema.ResourceDa
 	return nil
 }
 
-// The example of error message is: {"errCode":"DWS.0001","externalMessage":"The resource does not exist or is illegal,
-// Please contact technical support for assistance!", "error_code":"DWS.0001","error_msg":"The resource does not exist
-// or is illegal, Please contact technical support for assistance!"}
+// When the cluster ID does not exist, the API returns a 401 status code.
+// When the cluster ID is illegal, the API returns a 400 status code.
+// Both of the above situations need to be processed as 404 error codes.
 func parseWorkLoadPlanError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
+	var (
+		errCode401 golangsdk.ErrDefault401
+		errCode400 golangsdk.ErrDefault400
+	)
+
+	if errors.As(err, &errCode401) {
 		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+		if jsonErr := json.Unmarshal(errCode401.Body, &apiError); jsonErr != nil {
+			return err
+		}
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return err
+		}
+
+		if errorCode == "DWS.0047" {
+			return golangsdk.ErrDefault404(errCode401)
+		}
+	}
+
+	if errors.As(err, &errCode400) {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode400.Body, &apiError); jsonErr != nil {
 			return err
 		}
 		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
@@ -176,7 +195,7 @@ func parseWorkLoadPlanError(err error) error {
 		}
 
 		if errorCode == "DWS.0001" {
-			return golangsdk.ErrDefault404(errCode)
+			return golangsdk.ErrDefault404(errCode400)
 		}
 	}
 
