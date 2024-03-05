@@ -423,7 +423,7 @@ func childAttributeIsReadOnly(att *schema.Schema) bool {
 				}
 			}
 		}
-		return false
+		return implChildAttributeIsReadOnly(att)
 	}
 
 	return implChildAttributeIsReadOnly(att)
