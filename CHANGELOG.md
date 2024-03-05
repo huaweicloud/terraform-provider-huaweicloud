@@ -17,6 +17,7 @@
   + `huaweicloud_iotda_batchtask_file` [GH-4261]
   + `huaweicloud_iotda_upgrade_package` [GH-4282]
   + `huaweicloud_iotda_upgrade_package` [GH-4282]
+  + `huaweicloud_iotda_upgrade_package` [GH-4282]
 
 * **New Data Source:**
   + `huaweicloud_cdn_domain_certificates` [GH-4128]
