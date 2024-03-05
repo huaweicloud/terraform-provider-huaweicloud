@@ -11,7 +11,7 @@ paths:
     /v1/{project_id}/sources:
         POST:
             tag: EG
-    /v1/{project_id}/sources/{sourceId}:
+    /v1/{project_id}/sources/{source_id}:
         DELETE:
             tag: EG
         GET:

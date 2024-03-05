@@ -19,6 +19,16 @@ paths:
     /v1/{project_id}/firewall/exist:
         GET:
             tag: CFW
+    /v1/{project_id}/ips/protect:
+        GET:
+            tag: CFW
+        POST:
+            tag: CFW
+    /v1/{project_id}/ips/switch:
+        GET:
+            tag: CFW
+        POST:
+            tag: CFW
     /v2/{project_id}/firewall:
         POST:
             tag: CFW

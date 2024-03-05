@@ -13,7 +13,7 @@ paths:
             tag: EG
         POST:
             tag: EG
-    /v1/{project_id}/endpoints/{id}:
+    /v1/{project_id}/endpoints/{endpoint_id}:
         DELETE:
             tag: EG
         PUT:

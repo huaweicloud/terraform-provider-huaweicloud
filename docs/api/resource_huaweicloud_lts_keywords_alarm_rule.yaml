@@ -15,7 +15,7 @@ paths:
             tag: LTS
         PUT:
             tag: LTS
-    /v2/{project_id}/lts/alarms/keywords-alarm-rule/{id}:
+    /v2/{project_id}/lts/alarms/keywords-alarm-rule/{keywords_alarm_rule_id}:
         DELETE:
             tag: LTS
     /v2/{project_id}/lts/alarms/status:

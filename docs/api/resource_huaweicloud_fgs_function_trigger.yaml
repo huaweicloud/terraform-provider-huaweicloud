@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_fgs_trigger
+    title: resource_huaweicloud_fgs_function_trigger
     description: ""
 schemes:
     - https
@@ -9,12 +9,12 @@ tags:
     - name: FunctionGraph
 paths:
     /v2/{project_id}/fgs/triggers/{function_urn}:
-        GET:
-            tag: FunctionGraph
         POST:
             tag: FunctionGraph
     /v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}:
         DELETE:
+            tag: FunctionGraph
+        GET:
             tag: FunctionGraph
         PUT:
             tag: FunctionGraph

@@ -8,11 +8,14 @@ host: huaweicloud.com
 tags:
     - name: GaussDBforMySQL
 paths:
-    /v3/{project_id}/instances/{instanceID}/proxy:
+    /v3/{project_id}/instances/{instance_id}/proxy:
         DELETE:
             tag: GaussDBforMySQL
         POST:
             tag: GaussDBforMySQL
-    /v3/{project_id}/instances/{instanceID}/proxy/enlarge:
+    /v3/{project_id}/instances/{instance_id}/proxy/enlarge:
         POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/jobs:
+        GET:
             tag: GaussDBforMySQL

@@ -18,3 +18,9 @@ paths:
             tag: CC
         PUT:
             tag: CC
+    /v3/{domain_id}/ccaas/cloud-connections/{id}/tag:
+        POST:
+            tag: CC
+    /v3/{domain_id}/ccaas/cloud-connections/{id}/untag:
+        POST:
+            tag: CC

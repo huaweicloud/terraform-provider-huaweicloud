@@ -8,19 +8,19 @@ host: huaweicloud.com
 tags:
     - name: Config
 paths:
-    /v1/resource-manager/domains/{domainId}/policy-assignments:
+    /v1/resource-manager/domains/{domain_id}/policy-assignments:
         PUT:
             tag: Config
-    /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}:
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}:
         DELETE:
             tag: Config
         GET:
             tag: Config
         PUT:
             tag: Config
-    /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/disable:
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/disable:
         POST:
             tag: Config
-    /v1/resource-manager/domains/{domainId}/policy-assignments/{assignmentId}/enable:
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/enable:
         POST:
             tag: Config

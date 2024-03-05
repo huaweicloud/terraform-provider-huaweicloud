@@ -11,17 +11,17 @@ paths:
     /v2/{project_id}/cas/applications:
         POST:
             tag: ServiceStage
-    /v2/{project_id}/cas/applications/{appId}:
+    /v2/{project_id}/cas/applications/{application_id}:
         DELETE:
             tag: ServiceStage
         GET:
             tag: ServiceStage
         PUT:
             tag: ServiceStage
-    /v2/{project_id}/cas/applications/{appId}/components:
+    /v2/{project_id}/cas/applications/{application_id}/components:
         GET:
             tag: ServiceStage
-    /v2/{project_id}/cas/applications/{appId}/configuration:
+    /v2/{project_id}/cas/applications/{application_id}/configuration:
         DELETE:
             tag: ServiceStage
         GET:

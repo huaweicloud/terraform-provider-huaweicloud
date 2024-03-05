@@ -8,16 +8,16 @@ host: huaweicloud.com
 tags:
     - name: ServiceStage
 paths:
-    /v2/{project_id}/cas/applications/{appId}/components/{componentId}/instances:
+    /v2/{project_id}/cas/applications/{application_id}/components/{component_id}/instances:
         POST:
             tag: ServiceStage
-    /v2/{project_id}/cas/applications/{appId}/components/{componentId}/instances/{instanceId}:
+    /v2/{project_id}/cas/applications/{application_id}/components/{component_id}/instances/{instance_id}:
         DELETE:
             tag: ServiceStage
         GET:
             tag: ServiceStage
         PUT:
             tag: ServiceStage
-    /v2/{project_id}/cas/jobs/{jobId}:
+    /v2/{project_id}/cas/jobs/{job_id}:
         GET:
             tag: ServiceStage

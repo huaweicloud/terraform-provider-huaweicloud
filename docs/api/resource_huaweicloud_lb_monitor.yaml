@@ -11,10 +11,19 @@ paths:
     /v2/{project_id}/elb/healthmonitors:
         POST:
             tag: ELB
-    /v2/{project_id}/elb/healthmonitors/{id}:
+    /v2/{project_id}/elb/healthmonitors/{healthmonitor_id}:
         DELETE:
             tag: ELB
         GET:
             tag: ELB
         PUT:
+            tag: ELB
+    /v2/{project_id}/elb/listeners/{listener_id}:
+        GET:
+            tag: ELB
+    /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}:
+        GET:
+            tag: ELB
+    /v2/{project_id}/elb/pools/{pool_id}:
+        GET:
             tag: ELB

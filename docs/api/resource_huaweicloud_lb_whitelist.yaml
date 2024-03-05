@@ -11,7 +11,7 @@ paths:
     /v2/{project_id}/elb/whitelists:
         POST:
             tag: ELB
-    /v2/{project_id}/elb/whitelists/{id}:
+    /v2/{project_id}/elb/whitelists/{whitelist_id}:
         DELETE:
             tag: ELB
         GET:

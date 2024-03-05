@@ -8,7 +8,7 @@ host: huaweicloud.com
 tags:
     - name: SMS
 paths:
-    /v1/{project_id}/cloudservers/{serverID}:
+    /v1/{project_id}/cloudservers/{server_id}:
         GET:
             tag: ECS
     /v3/sources/{id}:

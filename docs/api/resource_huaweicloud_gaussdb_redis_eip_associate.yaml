@@ -6,11 +6,11 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: GaussDB
+    - name: GaussDBforNoSQL
 paths:
     /v3/{project_id}/instances:
         GET:
-            tag: GaussDB
+            tag: GaussDBforNoSQL
     /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-ip:
         POST:
-            tag: GaussDB
+            tag: GaussDBforNoSQL
