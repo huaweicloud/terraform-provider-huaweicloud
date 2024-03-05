@@ -28,6 +28,7 @@ import (
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/nics/delete
 // @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/tags/action
+// @API BMS POST /v1/{project_id}/baremetalservers/{server_id}/metadata
 // @API BMS GET /v1/{project_id}/baremetalservers/{server_id}/tags
 // @API BMS GET /v1/{project_id}/jobs/{job_id}
 // @API VPC GET /v2.0/ports/{port_id}
