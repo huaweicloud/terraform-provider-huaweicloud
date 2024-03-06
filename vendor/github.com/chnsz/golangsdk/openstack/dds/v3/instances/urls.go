@@ -21,3 +21,11 @@ func modifyURL(c *golangsdk.ServiceClient, serverID, action string) string {
 func portModifiedURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL("instances", instanceId, "modify-port")
 }
+
+func secondsLevelMonitoringURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "monitoring-by-seconds/switch")
+}
+
+func backupPolicyURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "backups/policy")
+}
