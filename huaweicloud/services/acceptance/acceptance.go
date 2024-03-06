@@ -284,6 +284,8 @@ var (
 	HW_DWS_MUTIL_AZS = os.Getenv("HW_DWS_MUTIL_AZS")
 
 	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
+
+	HW_DCS_INSTANCE_ID = os.Getenv("HW_DCS_INSTANCE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1336,5 +1338,12 @@ func TestAccPreCheckMutilAZ(t *testing.T) {
 func TestAccPreCheckDCSAccountWhitelist(t *testing.T) {
 	if HW_DCS_ACCOUNT_WHITELIST == "" {
 		t.Skip("HW_DCS_ACCOUNT_WHITELIST must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDCSInstanceID(t *testing.T) {
+	if HW_DCS_INSTANCE_ID == "" {
+		t.Skip("HW_DCS_INSTANCE_ID must be set for the acceptance test")
 	}
 }
