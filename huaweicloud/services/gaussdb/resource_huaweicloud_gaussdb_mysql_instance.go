@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -25,8 +26,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforNoSQL GET /v3/{project_id}/instances
@@ -60,12 +59,12 @@ import (
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceGaussDBInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceGaussDBInstanceCreate,
-		Update: resourceGaussDBInstanceUpdate,
-		Read:   resourceGaussDBInstanceRead,
-		Delete: resourceGaussDBInstanceDelete,
+		CreateContext: resourceGaussDBInstanceCreate,
+		UpdateContext: resourceGaussDBInstanceUpdate,
+		ReadContext:   resourceGaussDBInstanceRead,
+		DeleteContext: resourceGaussDBInstanceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
@@ -386,45 +385,45 @@ func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID
 	}
 }
 
-func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.GaussdbV3Client(config.GetRegion(d))
+func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
+		return diag.Errorf("error creating GaussDB client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
 	if common.HasFilledOpt(d, "force_import") {
-		logp.Printf("[DEBUG] Gaussdb mysql instance force_import is set, try to import it instead of creating")
+		log.Printf("[DEBUG] the Gaussdb mysql instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListTaurusDBInstanceOpts{
 			Name: d.Get("name").(string),
 		}
 		pages, err := instances.List(client, listOpts).AllPages()
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		allInstances, err := instances.ExtractTaurusDBInstances(pages)
 		if err != nil {
-			return fmtp.Errorf("Unable to retrieve instances: %s ", err)
+			return diag.Errorf("unable to retrieve instances: %s ", err)
 		}
 		if allInstances.TotalCount > 0 {
 			instance := allInstances.Instances[0]
-			logp.Printf("[DEBUG] Found existing mysql instance %s with name %s", instance.Id, instance.Name)
+			log.Printf("[DEBUG] found existing mysql instance %s with name %s", instance.Id, instance.Name)
 			d.SetId(instance.Id)
-			return resourceGaussDBInstanceRead(d, meta)
+			return resourceGaussDBInstanceRead(ctx, d, meta)
 		}
 	}
 
 	createOpts := instances.CreateTaurusDBOpts{
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor").(string),
-		Region:              config.GetRegion(d),
+		Region:              cfg.GetRegion(d),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		DedicatedResourceId: d.Get("dedicated_resource_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		SlaveCount:          d.Get("read_replicas").(int),
@@ -442,7 +441,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if azMode == "multi" {
 		v, exist := d.GetOk("master_availability_zone")
 		if !exist {
-			return fmtp.Errorf("missing master_availability_zone in a multi availability zone mode")
+			return diag.Errorf("missing master_availability_zone in a multi availability zone mode")
 		}
 		createOpts.MasterAZ = v.(string)
 	}
@@ -458,7 +457,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if d.Get("configuration_id") == "" && d.Get("configuration_name") != "" {
 		configsList, err := configurations.List(client).Extract()
 		if err != nil {
-			return fmtp.Errorf("Unable to retrieve configurations: %s", err)
+			return diag.Errorf("unable to retrieve configurations: %s", err)
 		}
 		confName := d.Get("configuration_name").(string)
 		for _, conf := range configsList {
@@ -468,7 +467,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 		if createOpts.ConfigurationId == "" {
-			return fmtp.Errorf("Unable to find configuration named %s", confName)
+			return diag.Errorf("unable to find configuration named %s", confName)
 		}
 	}
 
@@ -476,11 +475,11 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if d.Get("dedicated_resource_id") == "" && d.Get("dedicated_resource_name") != "" {
 		pages, err := instances.ListDeh(client).AllPages()
 		if err != nil {
-			return fmtp.Errorf("Unable to retrieve dedicated resources: %s", err)
+			return diag.Errorf("unable to retrieve dedicated resources: %s", err)
 		}
 		allResources, err := instances.ExtractDehResources(pages)
 		if err != nil {
-			return fmtp.Errorf("Unable to extract dedicated resources: %s", err)
+			return diag.Errorf("unable to extract dedicated resources: %s", err)
 		}
 
 		derName := d.Get("dedicated_resource_name").(string)
@@ -491,14 +490,14 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 		if createOpts.DedicatedResourceId == "" {
-			return fmtp.Errorf("Unable to find dedicated resource named %s", derName)
+			return diag.Errorf("unable to find dedicated resource named %s", derName)
 		}
 	}
 
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
 		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		chargeInfo := &instances.ChargeInfoOpt{
@@ -511,13 +510,13 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		createOpts.ChargeInfo = chargeInfo
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] create options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("error creating GaussDB instance : %s", err)
+		return diag.Errorf("error creating GaussDB instance : %s", err)
 	}
 
 	id := instance.Instance.Id
@@ -533,15 +532,15 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		PollInterval: 20 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
+		return diag.Errorf(
 			"error waiting for instance (%s) to become ready: %s",
 			id, err)
 	}
 
 	// This is a workaround to avoid db connection issue
-	time.Sleep(360 * time.Second) //lintignore:R018
+	time.Sleep(360 * time.Second) // lintignore:R018
 
 	// waiting for the instance to become ready again
 	// as instance will become BACKING UP state after ACTIVE
@@ -554,9 +553,9 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		PollInterval: 5 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
+		return diag.Errorf(
 			"error waiting for instance (%s) to become ready: %s",
 			id, err)
 	}
@@ -565,7 +564,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if v, ok := d.GetOk("audit_log_enabled"); ok {
 		err = switchAuditLog(client, id, v.(bool))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -573,7 +572,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if v, ok := d.GetOk("sql_filter_enabled"); ok {
 		err = switchSQLFilter(client, id, v.(bool), d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -581,16 +580,16 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
 		rawMap := backupRaw[0].(map[string]interface{})
-		keep_days := rawMap["keep_days"].(int)
-		updateOpts.KeepDays = &keep_days
+		keepDays := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keepDays
 		updateOpts.StartTime = rawMap["start_time"].(string)
 		// Fixed to "1,2,3,4,5,6,7"
 		updateOpts.Period = "1,2,3,4,5,6,7"
-		logp.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+		log.Printf("[DEBUG] update backup_strategy: %#v", updateOpts)
 
 		err = backups.Update(client, id, updateOpts).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("error updating backup_strategy: %s", err)
+			return diag.Errorf("error updating backup_strategy: %s", err)
 		}
 	}
 
@@ -599,15 +598,15 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			Flavor:  d.Get("proxy_flavor").(string),
 			NodeNum: d.Get("proxy_node_num").(int),
 		}
-		logp.Printf("[DEBUG] Enable proxy: %#v", proxyOpts)
+		log.Printf("[DEBUG] enable proxy: %#v", proxyOpts)
 
 		n, err := instances.EnableProxy(client, id, proxyOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("error enabling proxy: %s", err)
+			return diag.Errorf("error enabling proxy: %s", err)
 		}
 
 		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -616,51 +615,55 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("error setting tags of Gaussdb mysql instance %s: %s", d.Id(), tagErr)
+			return diag.Errorf("error setting tags of Gaussdb mysql instance %s: %s", d.Id(), tagErr)
 		}
 	}
 
-	return resourceGaussDBInstanceRead(d, meta)
+	return resourceGaussDBInstanceRead(ctx, d, meta)
 }
 
-func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.GaussdbV3Client(region)
+func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
+	var mErr *multierror.Error
 
 	instanceID := d.Id()
 	instance, err := instances.Get(client, instanceID).Extract()
 	if err != nil {
-		return common.CheckDeleted(d, err, "GaussDB instance")
+		return common.CheckDeletedDiag(d, err, "GaussDB instance")
 	}
 	if instance.Id == "" {
 		d.SetId("")
 		return nil
 	}
 
-	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	log.Printf("[DEBUG] retrieved instance %s: %#v", instanceID, instance)
 
-	d.Set("region", region)
-	d.Set("name", instance.Name)
-	d.Set("status", instance.Status)
-	d.Set("mode", instance.Type)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("configuration_id", instance.ConfigurationId)
-	d.Set("dedicated_resource_id", instance.DedicatedResourceId)
-	d.Set("db_user_name", instance.DbUserName)
-	d.Set("time_zone", instance.TimeZone)
-	d.Set("availability_zone_mode", instance.AZMode)
-	d.Set("master_availability_zone", instance.MasterAZ)
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", instance.Name),
+		d.Set("status", instance.Status),
+		d.Set("mode", instance.Type),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("configuration_id", instance.ConfigurationId),
+		d.Set("dedicated_resource_id", instance.DedicatedResourceId),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("availability_zone_mode", instance.AZMode),
+		d.Set("master_availability_zone", instance.MasterAZ),
+	)
 
 	if instance.ConfigurationId != "" {
 		configsList, err := configurations.List(client).Extract()
 		if err != nil {
-			logp.Printf("Unable to retrieve configurations: %s", err)
+			log.Printf("unable to retrieve configurations: %s", err)
 		} else {
 			for _, conf := range configsList {
 				if conf.ID == instance.ConfigurationId {
@@ -674,11 +677,11 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if instance.DedicatedResourceId != "" {
 		pages, err := instances.ListDeh(client).AllPages()
 		if err != nil {
-			logp.Printf("Unable to retrieve dedicated resources: %s", err)
+			log.Printf("unable to retrieve dedicated resources: %s", err)
 		} else {
 			allResources, err := instances.ExtractDehResources(pages)
 			if err != nil {
-				logp.Printf("Unable to extract dedicated resources: %s", err)
+				log.Printf("unable to extract dedicated resources: %s", err)
 			} else {
 				for _, der := range allResources.Resources {
 					if der.Id == instance.DedicatedResourceId {
@@ -713,8 +716,8 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	// set nodes
 	flavor := ""
-	slave_count := 0
-	volume_size := 0
+	slaveCount := 0
+	volumeSize := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
@@ -728,21 +731,21 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 			node["private_read_ip"] = raw.PrivateIps[0]
 		}
 		if raw.Volume.Size > 0 {
-			volume_size = raw.Volume.Size
+			volumeSize = raw.Volume.Size
 		}
 		nodesList = append(nodesList, node)
 		if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
-			slave_count += 1
+			slaveCount++
 		}
 		if flavor == "" {
 			flavor = raw.Flavor
 		}
 	}
 	d.Set("nodes", nodesList)
-	d.Set("read_replicas", slave_count)
-	d.Set("volume_size", volume_size)
+	d.Set("read_replicas", slaveCount)
+	d.Set("volume_size", volumeSize)
 	if flavor != "" {
-		logp.Printf("[DEBUG] Node Flavor: %s", flavor)
+		log.Printf("[DEBUG] node flavor: %s", flavor)
 		d.Set("flavor", flavor)
 	}
 
@@ -760,7 +763,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// set proxy
 	proxy, err := instances.GetProxy(client, instanceID).Extract()
 	if err != nil {
-		logp.Printf("[DEBUG] Instance %s Proxy not enabled: %s", instanceID, err)
+		log.Printf("[DEBUG] instance %s proxy not enabled: %s", instanceID, err)
 	} else {
 		d.Set("proxy_flavor", proxy.Flavor)
 		d.Set("proxy_node_num", proxy.NodeNum)
@@ -771,7 +774,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// set audit log status
 	resp, err := auditlog.Get(client, instanceID)
 	if err != nil {
-		logp.Printf("[DEBUG] query Instance %s audit log status failed: %s", instanceID, err)
+		log.Printf("[DEBUG] query instance %s audit log status failed: %s", instanceID, err)
 	} else {
 		var status bool
 		if resp.SwitchStatus == "ON" {
@@ -783,7 +786,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// set sql filter status
 	res, err := sqlfilter.Get(client, instanceID).Extract()
 	if err != nil {
-		log.Printf("[DEBUG] query Instance %s sql filter status failed: %s", instanceID, err)
+		log.Printf("[DEBUG] query instance %s sql filter status failed: %s", instanceID, err)
 	} else {
 		d.Set("sql_filter_enabled", res.SwitchStatus == "ON")
 	}
@@ -792,24 +795,24 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmtp.Errorf("error saving tags to state for Gaussdb mysql instance (%s): %s", d.Id(), err)
+			return diag.Errorf("error saving tags to state for Gaussdb mysql instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] error fetching tags of Gaussdb mysql instance (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of Gaussdb mysql instance (%s): %s", d.Id(), err)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.GaussdbV3Client(config.GetRegion(d))
+func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
+		return diag.Errorf("error creating GaussDB client: %s ", err)
 	}
-	bssClient, err := config.BssV2Client(config.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud bss V2 client: %s", err)
+		return diag.Errorf("error creating bss V2 client: %s", err)
 	}
 
 	instanceId := d.Id()
@@ -819,17 +822,17 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		updateNameOpts := instances.UpdateNameOpts{
 			Name: newName,
 		}
-		logp.Printf("[DEBUG] Update Name Options: %+v", updateNameOpts)
+		log.Printf("[DEBUG] update name options: %+v", updateNameOpts)
 
 		n, err := instances.UpdateName(client, instanceId, updateNameOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("error updating name for instance %s: %s ", instanceId, err)
+			return diag.Errorf("error updating name for instance %s: %s ", instanceId, err)
 		}
 
 		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
-		logp.Printf("[DEBUG] Updated Name to %s for instance %s", newName, instanceId)
+		log.Printf("[DEBUG] updated name to %s for instance %s", newName, instanceId)
 	}
 
 	if d.HasChange("password") {
@@ -840,9 +843,9 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		_, err := instances.UpdatePass(client, instanceId, updatePassOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("error updating password for instance %s: %s ", instanceId, err)
+			return diag.Errorf("error updating password for instance %s: %s ", instanceId, err)
 		}
-		logp.Printf("[DEBUG] Updated Password for instance %s", instanceId)
+		log.Printf("[DEBUG] updated password for instance %s", instanceId)
 	}
 
 	if d.HasChange("flavor") {
@@ -855,28 +858,28 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if d.Get("charging_mode") == "prePaid" {
 			resizeOpts.IsAutoPay = common.GetAutoPay(d)
 		}
-		logp.Printf("[DEBUG] Update Flavor Options: %+v", resizeOpts)
+		log.Printf("[DEBUG] update flavor options: %+v", resizeOpts)
 
 		n, err := instances.Resize(client, instanceId, resizeOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("error updating flavor for instance %s: %s ", instanceId, err)
+			return diag.Errorf("error updating flavor for instance %s: %s ", instanceId, err)
 		}
 
 		// wait for job success
 		if n.JobID != "" {
 			if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		// wait for order success
 		if n.OrderID != "" {
 			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 			// check whether the order take effect
 			instance, err := instances.Get(client, instanceId).Extract()
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 			currFlavor := ""
 			for _, raw := range instance.Nodes {
@@ -886,18 +889,18 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 			}
 			if currFlavor != newFlavor {
-				return fmtp.Errorf("error updating flavor for instance %s: order failed", instanceId)
+				return diag.Errorf("error updating flavor for instance %s: order failed", instanceId)
 			}
 		}
-		logp.Printf("[DEBUG] Updated Flavor for instance %s", instanceId)
+		log.Printf("[DEBUG] updated flavor for instance %s", instanceId)
 	}
 
 	if d.HasChange("read_replicas") {
 		old, newnum := d.GetChange("read_replicas")
 		if newnum.(int) > old.(int) {
-			expand_size := newnum.(int) - old.(int)
+			expandSize := newnum.(int) - old.(int)
 			priorities := []int{}
-			for i := 0; i < expand_size; i++ {
+			for i := 0; i < expandSize; i++ {
 				priorities = append(priorities, 1)
 			}
 			createReplicaOpts := instances.CreateReplicaOpts{
@@ -906,71 +909,71 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if d.Get("charging_mode") == "prePaid" {
 				createReplicaOpts.IsAutoPay = common.GetAutoPay(d)
 			}
-			logp.Printf("[DEBUG] Create Replica Options: %+v", createReplicaOpts)
+			log.Printf("[DEBUG] create replica options: %+v", createReplicaOpts)
 
 			n, err := instances.CreateReplica(client, instanceId, createReplicaOpts).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("error creating read replicas for instance %s: %s ", instanceId, err)
+				return diag.Errorf("error creating read replicas for instance %s: %s ", instanceId, err)
 			}
 
 			// wait for job success
 			if n.JobID != "" {
-				job_list := strings.Split(n.JobID, ",")
-				logp.Printf("[DEBUG] Create Replica Jobs: %#v", job_list)
-				for i := 0; i < len(job_list); i++ {
-					job_id := job_list[i]
-					logp.Printf("[DEBUG] Waiting for job: %s", job_id)
-					if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), job_id); err != nil {
-						return err
+				jobList := strings.Split(n.JobID, ",")
+				log.Printf("[DEBUG] create replica jobs: %#v", jobList)
+				for i := 0; i < len(jobList); i++ {
+					jobId := jobList[i]
+					log.Printf("[DEBUG] waiting for job: %s", jobId)
+					if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), jobId); err != nil {
+						return diag.FromErr(err)
 					}
 				}
 			}
 			// wait for order success
 			if n.OrderID != "" {
 				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
-					return err
+					return diag.FromErr(err)
 				}
 				// check whether the order take effect
 				instance, err := instances.Get(client, instanceId).Extract()
 				if err != nil {
-					return err
+					return diag.FromErr(err)
 				}
-				slave_count := 0
+				slaveCount := 0
 				for _, raw := range instance.Nodes {
 					if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
-						slave_count += 1
+						slaveCount++
 					}
 				}
-				if newnum.(int) != slave_count {
-					return fmtp.Errorf("error updating read_replicas for instance %s: order failed", instanceId)
+				if newnum.(int) != slaveCount {
+					return diag.Errorf("error updating read_replicas for instance %s: order failed", instanceId)
 				}
 			}
 		}
 		if newnum.(int) < old.(int) {
-			shrink_size := old.(int) - newnum.(int)
+			shrinkSize := old.(int) - newnum.(int)
 
-			slave_nodes := []string{}
+			slaveNodes := []string{}
 			nodes := d.Get("nodes").([]interface{})
 			for _, nodeRaw := range nodes {
 				node := nodeRaw.(map[string]interface{})
 				if node["type"].(string) == "slave" && node["status"] == "ACTIVE" {
-					slave_nodes = append(slave_nodes, node["id"].(string))
+					slaveNodes = append(slaveNodes, node["id"].(string))
 				}
 			}
-			logp.Printf("[DEBUG] Slave Nodes: %+v", slave_nodes)
-			if len(slave_nodes) <= shrink_size {
-				return fmtp.Errorf("error deleting read replicas for instance %s: Shrink Size is bigger than active slave nodes", instanceId)
+			log.Printf("[DEBUG] Slave Nodes: %+v", slaveNodes)
+			if len(slaveNodes) <= shrinkSize {
+				return diag.Errorf("error deleting read replicas for instance %s: Shrink Size is bigger than active slave nodes", instanceId)
 			}
-			for i := 0; i < shrink_size; i++ {
-				n, err := instances.DeleteReplica(client, instanceId, slave_nodes[i]).ExtractJobResponse()
+			for i := 0; i < shrinkSize; i++ {
+				n, err := instances.DeleteReplica(client, instanceId, slaveNodes[i]).ExtractJobResponse()
 				if err != nil {
-					return fmtp.Errorf("error creating read replica %s for instance %s: %s ", slave_nodes[i], instanceId, err)
+					return diag.Errorf("error creating read replica %s for instance %s: %s ", slaveNodes[i], instanceId, err)
 				}
 
 				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
-					return err
+					return diag.FromErr(err)
 				}
-				logp.Printf("[DEBUG] Deleted Read Replica: %s", slave_nodes[i])
+				log.Printf("[DEBUG] deleted read replica: %s", slaveNodes[i])
 			}
 		}
 	}
@@ -980,32 +983,32 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			Size:      d.Get("volume_size").(int),
 			IsAutoPay: common.GetAutoPay(d),
 		}
-		logp.Printf("[DEBUG] Extending Volume: %#v", extendOpts)
+		log.Printf("[DEBUG] Extending Volume: %#v", extendOpts)
 
 		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).ExtractJobResponse()
 		if err != nil {
-			return fmtp.Errorf("error extending volume: %s", err)
+			return diag.Errorf("error extending volume: %s", err)
 		}
 
 		// wait for order success
 		if n.OrderID != "" {
 			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 			// check whether the order take effect
 			instance, err := instances.Get(client, instanceId).Extract()
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
-			volume_size := 0
+			volumeSize := 0
 			for _, raw := range instance.Nodes {
 				if raw.Volume.Size > 0 {
-					volume_size = raw.Volume.Size
+					volumeSize = raw.Volume.Size
 					break
 				}
 			}
-			if volume_size != d.Get("volume_size").(int) {
-				return fmtp.Errorf("error updating volume for instance %s: order failed", instanceId)
+			if volumeSize != d.Get("volume_size").(int) {
+				return diag.Errorf("error updating volume for instance %s: order failed", instanceId)
 			}
 		}
 	}
@@ -1014,16 +1017,16 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
 		rawMap := backupRaw[0].(map[string]interface{})
-		keep_days := rawMap["keep_days"].(int)
-		updateOpts.KeepDays = &keep_days
+		keepDays := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keepDays
 		updateOpts.StartTime = rawMap["start_time"].(string)
 		// Fixed to "1,2,3,4,5,6,7"
 		updateOpts.Period = "1,2,3,4,5,6,7"
-		logp.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+		log.Printf("[DEBUG] update backup_strategy: %#v", updateOpts)
 
 		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
 		if err != nil {
-			return fmtp.Errorf("error updating backup_strategy: %s", err)
+			return diag.Errorf("error updating backup_strategy: %s", err)
 		}
 	}
 
@@ -1033,24 +1036,24 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				Flavor:  d.Get("proxy_flavor").(string),
 				NodeNum: d.Get("proxy_node_num").(int),
 			}
-			logp.Printf("[DEBUG] Enable proxy: %#v", proxyOpts)
+			log.Printf("[DEBUG] enable proxy: %#v", proxyOpts)
 
 			ep, err := instances.EnableProxy(client, d.Id(), proxyOpts).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("error enabling proxy: %s", err)
+				return diag.Errorf("error enabling proxy: %s", err)
 			}
 
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), ep.JobID); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			dp, err := instances.DeleteProxy(client, d.Id()).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("error disabling proxy: %s", err)
+				return diag.Errorf("error disabling proxy: %s", err)
 			}
 
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), dp.JobID); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 	}
@@ -1058,30 +1061,30 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("proxy_node_num") {
 		oldnum, newnum := d.GetChange("proxy_node_num")
 		if oldnum.(int) != 0 && newnum.(int) > oldnum.(int) && common.HasFilledOpt(d, "proxy_flavor") {
-			enlarge_size := newnum.(int) - oldnum.(int)
+			enlargeSize := newnum.(int) - oldnum.(int)
 			enlargeProxyOpts := instances.EnlargeProxyOpts{
-				NodeNum: enlarge_size,
+				NodeNum: enlargeSize,
 			}
-			logp.Printf("[DEBUG] Enlarge proxy: %#v", enlargeProxyOpts)
+			log.Printf("[DEBUG] enlarge proxy: %#v", enlargeProxyOpts)
 
 			lp, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
 			if err != nil {
-				return fmtp.Errorf("error enlarging proxy: %s", err)
+				return diag.Errorf("error enlarging proxy: %s", err)
 			}
 
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), lp.JobID); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		if newnum.(int) < oldnum.(int) && !d.HasChange("proxy_flavor") {
-			return fmtp.Errorf("error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
+			return diag.Errorf("error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
 		}
 	}
 
 	if d.HasChange("audit_log_enabled") {
 		err = switchAuditLog(client, instanceId, d.Get("audit_log_enabled").(bool))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1089,7 +1092,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		err = switchSQLFilter(client, instanceId, d.Get("sql_filter_enabled").(bool),
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1097,43 +1100,43 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("error updating tags of Gaussdb mysql instance %q: %s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of Gaussdb mysql instance %q: %s", d.Id(), tagErr)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("error creating BSS V2 client: %s", err)
+			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return fmtp.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
 	}
 
-	return resourceGaussDBInstanceRead(d, meta)
+	return resourceGaussDBInstanceRead(ctx, d, meta)
 }
 
-func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.GaussdbV3Client(config.GetRegion(d))
+func resourceGaussDBInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud GaussDB client: %s ", err)
+		return diag.Errorf("error creating GaussDB client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	if d.Get("charging_mode") == "prePaid" {
-		if err := common.UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{instanceId}); err != nil {
 			// try to delete the instance directly if unsubscribing failed
 			res := instances.Delete(client, instanceId)
 			if res.Err != nil {
-				return common.CheckDeleted(d, res.Err, "GaussDB instance")
+				return common.CheckDeletedDiag(d, res.Err, "GaussDB instance")
 			}
 		}
 	} else {
 		result := instances.Delete(client, instanceId)
 		if result.Err != nil {
-			return common.CheckDeleted(d, result.Err, "GaussDB instance")
+			return common.CheckDeletedDiag(d, result.Err, "GaussDB instance")
 		}
 	}
 
@@ -1146,13 +1149,13 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		MinTimeout: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf(
+		return diag.Errorf(
 			"error waiting for instance (%s) to be deleted: %s ",
 			instanceId, err)
 	}
-	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	log.Printf("[DEBUG] successfully deleted instance %s", instanceId)
 	return nil
 }
 
@@ -1169,7 +1172,7 @@ func switchAuditLog(client *golangsdk.ServiceClient, instanceId string, v bool) 
 
 	_, err := auditlog.Update(client, instanceId, opts)
 	if err != nil {
-		return fmtp.Errorf("switch audit log to %q failed: %s", flag, err)
+		return fmt.Errorf("switch audit log to %q failed: %s", flag, err)
 	}
 
 	return nil
@@ -1199,7 +1202,7 @@ func switchSQLFilter(client *golangsdk.ServiceClient, instanceId string, isSQLFi
 		PollInterval: 1 * time.Second,
 	}
 
-	//nolint:staticcheck
+	// nolint:staticcheck
 	_, err = stateConf.WaitForState()
 	if err != nil {
 		return fmt.Errorf("error waiting for switch SQL filter job (%s) to complete: %s", instanceId, err)
