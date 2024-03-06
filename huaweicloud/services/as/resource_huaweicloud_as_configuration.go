@@ -257,21 +257,7 @@ func ResourceASConfiguration() *schema.Resource {
 	}
 }
 
-func validateDiskSize(diskSize int, diskType string) error {
-	if diskType == "SYS" {
-		if diskSize < 40 || diskSize > 32768 {
-			return fmt.Errorf("the system disk size should be between 40 and 32768")
-		}
-	}
-	if diskType == "DATA" {
-		if diskSize < 10 || diskSize > 32768 {
-			return fmt.Errorf("the data disk size should be between 10 and 32768")
-		}
-	}
-	return nil
-}
-
-func buildDiskOpts(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
+func buildDiskOpts(diskMeta []interface{}) []configurations.DiskOpts {
 	var diskOptsList []configurations.DiskOpts
 
 	for _, v := range diskMeta {
@@ -279,9 +265,6 @@ func buildDiskOpts(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 		size := disk["size"].(int)
 		volumeType := disk["volume_type"].(string)
 		diskType := disk["disk_type"].(string)
-		if err := validateDiskSize(size, diskType); err != nil {
-			return diskOptsList, nil
-		}
 
 		diskOpts := configurations.DiskOpts{
 			Size:       size,
@@ -298,7 +281,7 @@ func buildDiskOpts(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 		diskOptsList = append(diskOptsList, diskOpts)
 	}
 
-	return diskOptsList, nil
+	return diskOptsList
 }
 
 func buildPersonalityOpts(personalityMeta []interface{}) []configurations.PersonalityOpts {
@@ -353,12 +336,9 @@ func buildSecurityGroupIDsOpts(secGroups []interface{}) []configurations.Securit
 	return res
 }
 
-func buildInstanceConfig(configDataMap map[string]interface{}) (configurations.InstanceConfigOpts, error) {
+func buildInstanceConfig(configDataMap map[string]interface{}) configurations.InstanceConfigOpts {
 	disksData := configDataMap["disk"].([]interface{})
-	disks, err := buildDiskOpts(disksData)
-	if err != nil {
-		return configurations.InstanceConfigOpts{}, fmt.Errorf("the disk size is invalid: %s", err)
-	}
+	disks := buildDiskOpts(disksData)
 
 	instanceConfigOpts := configurations.InstanceConfigOpts{
 		InstanceID:           configDataMap["instance_id"].(string),
@@ -385,7 +365,7 @@ func buildInstanceConfig(configDataMap map[string]interface{}) (configurations.I
 		instanceConfigOpts.PubicIP = &publicIps
 	}
 
-	return instanceConfigOpts, nil
+	return instanceConfigOpts
 }
 
 func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -397,10 +377,8 @@ func resourceASConfigurationCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	configDataMap := d.Get("instance_config").([]interface{})[0].(map[string]interface{})
-	instanceConfig, err := buildInstanceConfig(configDataMap)
-	if err != nil {
-		return diag.Errorf("error when getting instance_config object: %s", err)
-	}
+	instanceConfig := buildInstanceConfig(configDataMap)
+
 	createOpts := configurations.CreateOpts{
 		Name:           d.Get("scaling_configuration_name").(string),
 		InstanceConfig: instanceConfig,
