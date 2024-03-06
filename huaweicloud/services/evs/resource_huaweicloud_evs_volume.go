@@ -37,7 +37,7 @@ import (
 // @API EVS POST /v2.1/{project_id}/cloudvolumes
 // @API EVS PUT /v5/{project_id}/cloudvolumes/{volume_id}/qos
 // @API ECS DELETE /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}
-// @API ECS GET /v1/{project_id}/jobs/{job_id}
+// @API ECS GET /v1/{project_id}/jobs/{jobId}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{resource_id}
