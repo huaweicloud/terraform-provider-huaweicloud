@@ -9,7 +9,9 @@ type CreateOpts struct {
 	// The ID of the gateway to which the SNAT rule belongs.
 	GatewayId string `json:"nat_gateway_id" required:"true"`
 	//  IDs of floating IPs connected by SNAT rules (separated by commas).
-	FloatingIpId string `json:"floating_ip_id" required:"true"`
+	FloatingIpId string `json:"floating_ip_id,omitempty"`
+	// The IDs (separated by commas) of global EIPs connected by SNAT rule.
+	GlobalEipId string `json:"global_eip_id,omitempty"`
 	// The description of the SNAT rule.
 	Description string `json:"description,omitempty"`
 	// The network IDs of subnet connected by SNAT rule (VPC side).
@@ -56,6 +58,8 @@ type UpdateOpts struct {
 	GatewayId string `json:"nat_gateway_id" required:"true"`
 	// The floating IP addresses (separated by commas) connected by SNAT rule.
 	FloatingIpAddress string `json:"public_ip_address,omitempty"`
+	// The IDs (separated by commas) of global EIPs connected by SNAT rule.
+	GlobalEipId string `json:"global_eip_id,omitempty"`
 	// The description of the SNAT rule.
 	Description *string `json:"description,omitempty"`
 }
