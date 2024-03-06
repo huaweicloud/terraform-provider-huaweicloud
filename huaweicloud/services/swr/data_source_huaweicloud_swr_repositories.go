@@ -166,7 +166,7 @@ func dataSourceRepositoriesRead(_ context.Context, d *schema.ResourceData, meta 
 		repositories := listRepositoriesRespBody.([]interface{})
 		total := 0
 		if len(repositories) > 0 {
-			total = int(utils.PathSearch("total_range", repositories[0], 0).(float64))
+			total = int(utils.PathSearch("total_range", repositories[0], float64(0)).(float64))
 		}
 		for _, repository := range repositories {
 			// filter result by name
@@ -180,14 +180,14 @@ func dataSourceRepositoriesRead(_ context.Context, d *schema.ResourceData, meta 
 				"category":      utils.PathSearch("category", repository, nil),
 				"is_public":     utils.PathSearch("is_public", repository, false),
 				"description":   utils.PathSearch("description", repository, nil),
-				"size":          int(utils.PathSearch("size", repository, 0).(float64)),
-				"num_images":    int(utils.PathSearch("num_images", repository, 0).(float64)),
-				"num_download":  int(utils.PathSearch("num_download", repository, 0).(float64)),
+				"size":          int(utils.PathSearch("size", repository, float64(0)).(float64)),
+				"num_images":    int(utils.PathSearch("num_images", repository, float64(0)).(float64)),
+				"num_download":  int(utils.PathSearch("num_download", repository, float64(0)).(float64)),
 				"path":          utils.PathSearch("path", repository, nil),
 				"internal_path": utils.PathSearch("internal_path", repository, nil),
 				"tags":          utils.PathSearch("tags", repository, nil),
 				"status":        utils.PathSearch("status", repository, false),
-				"total_range":   int(utils.PathSearch("total_range", repository, 0).(float64)),
+				"total_range":   int(utils.PathSearch("total_range", repository, float64(0)).(float64)),
 				"created_at":    utils.PathSearch("created_at", repository, nil),
 				"updated_at":    utils.PathSearch("updated_at", repository, nil),
 			})

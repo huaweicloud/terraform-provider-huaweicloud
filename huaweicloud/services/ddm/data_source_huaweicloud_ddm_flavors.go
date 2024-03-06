@@ -221,14 +221,14 @@ func flattenGetFlavorsResponseBodyFlavorGroup(parma *queryParma) *queryRes {
 		if parma.cpuArch != "" && parma.cpuArch != flavorCPUArch {
 			continue
 		}
-		offset = utils.PathSearch("offset", v, 0).(float64)
-		limit = utils.PathSearch("limit", v, 0).(float64)
+		offset = utils.PathSearch("offset", v, float64(0)).(float64)
+		limit = utils.PathSearch("limit", v, float64(0)).(float64)
 		if flavorCPUArch == "X86" {
 			x86Flavors = flattenFlavorGroupFlavors(v, flavorCPUArch.(string), parma)
-			x86Total = utils.PathSearch("total", v, 0).(float64)
+			x86Total = utils.PathSearch("total", v, float64(0)).(float64)
 		} else {
 			armFlavors = flattenFlavorGroupFlavors(v, flavorCPUArch.(string), parma)
-			armTotal = utils.PathSearch("total", v, 0).(float64)
+			armTotal = utils.PathSearch("total", v, float64(0)).(float64)
 		}
 	}
 	return &queryRes{

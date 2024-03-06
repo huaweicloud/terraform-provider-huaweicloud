@@ -161,8 +161,8 @@ func resourceIdentityCenterGroupRead(_ context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	createAt := utils.PathSearch("created_at", getIdentityCenterGroupRespBody, 0).(float64)
-	updateAt := utils.PathSearch("updated_at", getIdentityCenterGroupRespBody, 0).(float64)
+	createAt := utils.PathSearch("created_at", getIdentityCenterGroupRespBody, float64(0)).(float64)
+	updateAt := utils.PathSearch("updated_at", getIdentityCenterGroupRespBody, float64(0)).(float64)
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),

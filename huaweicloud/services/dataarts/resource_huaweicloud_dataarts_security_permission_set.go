@@ -194,8 +194,8 @@ func resourceSecurityPermissionSetRead(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error retrieving DataArts Security permission set: %s", err)
 	}
 
-	createAt := utils.PathSearch("create_time", getPermissionSetRespBody, 0).(float64)
-	updateAt := utils.PathSearch("update_time", getPermissionSetRespBody, 0).(float64)
+	createAt := utils.PathSearch("create_time", getPermissionSetRespBody, float64(0)).(float64)
+	updateAt := utils.PathSearch("update_time", getPermissionSetRespBody, float64(0)).(float64)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),

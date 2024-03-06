@@ -47,7 +47,7 @@ func getSQLAuditResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 		return nil, fmt.Errorf("error retrieving RDS SQL audit: %s", err)
 	}
 
-	keepDays := utils.PathSearch("keep_days", getSQLAuditRespBody, 0).(float64)
+	keepDays := utils.PathSearch("keep_days", getSQLAuditRespBody, float64(0)).(float64)
 	if keepDays == 0 {
 		return nil, fmt.Errorf("error retrieving RDS SQL audit: %s", err)
 	}

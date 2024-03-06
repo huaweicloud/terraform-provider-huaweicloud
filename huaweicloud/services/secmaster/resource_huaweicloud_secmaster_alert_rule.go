@@ -389,9 +389,9 @@ func resourceAlertRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("triggers", flattenGetAlertRuleResponseBodyAlertRuleTrigger(getAlertRuleRespBody)),
 		d.Set("suppression", utils.PathSearch("suppression", getAlertRuleRespBody, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
-			int64(utils.PathSearch("create_time", getAlertRuleRespBody, 0).(float64))/1000, false)),
+			int64(utils.PathSearch("create_time", getAlertRuleRespBody, float64(0)).(float64))/1000, false)),
 		d.Set("updated_at", utils.FormatTimeStampRFC3339(
-			int64(utils.PathSearch("update_time", getAlertRuleRespBody, 0).(float64))/1000, false)),
+			int64(utils.PathSearch("update_time", getAlertRuleRespBody, float64(0)).(float64))/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

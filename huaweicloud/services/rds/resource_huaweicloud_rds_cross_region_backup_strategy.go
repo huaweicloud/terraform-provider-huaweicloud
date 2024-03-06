@@ -171,7 +171,7 @@ func resourceBackupStrategyRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	backupStrategies := policyPara.([]interface{})
-	if len(backupStrategies) == 0 || utils.PathSearch("keep_days", backupStrategies[0], 0).(float64) == 0 {
+	if len(backupStrategies) == 0 || utils.PathSearch("keep_days", backupStrategies[0], float64(0)).(float64) == 0 {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 

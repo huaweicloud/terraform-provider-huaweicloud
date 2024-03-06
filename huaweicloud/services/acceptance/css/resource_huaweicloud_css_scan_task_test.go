@@ -56,7 +56,7 @@ func getScanTaskFunc(conf *config.Config, state *terraform.ResourceState) (inter
 		if scanTask != nil {
 			return scanTask, nil
 		}
-		total := utils.PathSearch("total_size", getScanTaskRespBody, 0).(float64)
+		total := utils.PathSearch("total_size", getScanTaskRespBody, float64(0)).(float64)
 		currentTotal += len(scanTasks)
 		if float64(currentTotal) == total {
 			break

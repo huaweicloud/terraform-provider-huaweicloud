@@ -211,7 +211,7 @@ func flattenGetImagePermissionsSelfPermissionResponseBody(resp interface{}) []in
 		return rst
 	}
 
-	permission := utils.PathSearch("auth", curJson, 0).(float64)
+	permission := utils.PathSearch("auth", curJson, float64(0)).(float64)
 	rst = []interface{}{
 		map[string]interface{}{
 			"user_id":    utils.PathSearch("user_id", curJson, nil),
@@ -230,7 +230,7 @@ func flattenGetImagePermissionsResponseBodyUser(resp interface{}) []interface{} 
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0)
 	for _, v := range curArray {
-		permission := utils.PathSearch("auth", v, 0).(float64)
+		permission := utils.PathSearch("auth", v, float64(0)).(float64)
 		rst = append(rst, map[string]interface{}{
 			"user_id":    utils.PathSearch("user_id", v, nil),
 			"user_name":  utils.PathSearch("user_name", v, nil),

@@ -325,7 +325,7 @@ func resourceDataStandardRead(_ context.Context, d *schema.ResourceData, meta in
 		if dataStandard != nil {
 			break
 		}
-		total := utils.PathSearch("data.value.total", getDataStandardRespBody, 0).(float64)
+		total := utils.PathSearch("data.value.total", getDataStandardRespBody, float64(0)).(float64)
 		currentTotal += len(records.([]interface{}))
 		if currentTotal == int(total) {
 			break

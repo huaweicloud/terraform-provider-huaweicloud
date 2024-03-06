@@ -166,7 +166,7 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 		log.Printf("[WARN] failed to get accounts assigned to the permission set %s: %s", psID, err)
 	}
 
-	timeStamp := utils.PathSearch("permission_set.created_date", getPermissionSetRespBody, 0).(float64)
+	timeStamp := utils.PathSearch("permission_set.created_date", getPermissionSetRespBody, float64(0)).(float64)
 	mErr := multierror.Append(nil,
 		d.Set("name", utils.PathSearch("permission_set.name", getPermissionSetRespBody, nil)),
 		d.Set("session_duration", utils.PathSearch("permission_set.session_duration", getPermissionSetRespBody, nil)),

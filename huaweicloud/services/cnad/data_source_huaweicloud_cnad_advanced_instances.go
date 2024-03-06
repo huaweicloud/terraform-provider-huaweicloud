@@ -191,7 +191,7 @@ func flattenGetInstancesResponseBody(resp interface{}, d *schema.ResourceData) [
 			continue
 		}
 
-		createdAt := utils.PathSearch("create_time", v, 0).(float64)
+		createdAt := utils.PathSearch("create_time", v, float64(0)).(float64)
 		rst = append(rst, map[string]interface{}{
 			"instance_id":        instanceIDResp,
 			"instance_name":      instanceNameResp,

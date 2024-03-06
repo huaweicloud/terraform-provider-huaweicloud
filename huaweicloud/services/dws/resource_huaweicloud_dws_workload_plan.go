@@ -229,7 +229,7 @@ func resourceWorkLoadPlanRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("cluster_id", utils.PathSearch("cluster_id", plan, nil)),
 		d.Set("name", utils.PathSearch("plan_name", plan, nil)),
 		d.Set("logical_cluster_name", utils.PathSearch("logical_cluster_name", plan, nil)),
-		d.Set("status", convertWorkLoadPlanStatus(utils.PathSearch("status", plan, 0).(float64))),
+		d.Set("status", convertWorkLoadPlanStatus(utils.PathSearch("status", plan, float64(0)).(float64))),
 		d.Set("current_stage_name", utils.PathSearch("current_stage", plan, nil)),
 		d.Set("stages", flattenWorkLoadPlanStages(plan)),
 	)

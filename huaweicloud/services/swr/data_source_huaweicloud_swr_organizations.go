@@ -107,7 +107,7 @@ func dataSourceOrganizationsRead(_ context.Context, d *schema.ResourceData, meta
 			continue
 		}
 
-		permission := utils.PathSearch("auth", organization, 0).(float64)
+		permission := utils.PathSearch("auth", organization, float64(0)).(float64)
 		results = append(results, map[string]interface{}{
 			"id":                utils.PathSearch("id", organization, nil),
 			"name":              utils.PathSearch("name", organization, nil),

@@ -543,10 +543,10 @@ func resourceSQLAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("send_recovery_notifications", utils.PathSearch("whether_recovery_policy", getSQLAlarmRuleRespBody, nil)),
 		d.Set("recovery_frequency", utils.PathSearch("recovery_policy", getSQLAlarmRuleRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getSQLAlarmRuleRespBody, nil)),
-		d.Set("created_at",
-			utils.FormatTimeStampUTC(int64(utils.PathSearch("create_time", getSQLAlarmRuleRespBody, 0).(float64)/1000))),
-		d.Set("updated_at",
-			utils.FormatTimeStampUTC(int64(utils.PathSearch("update_time", getSQLAlarmRuleRespBody, 0).(float64)/1000))),
+		d.Set("created_at", utils.FormatTimeStampUTC(
+			int64(utils.PathSearch("create_time", getSQLAlarmRuleRespBody, float64(0)).(float64)/1000))),
+		d.Set("updated_at", utils.FormatTimeStampUTC(
+			int64(utils.PathSearch("update_time", getSQLAlarmRuleRespBody, float64(0)).(float64)/1000))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
