@@ -28,7 +28,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforNoSQL GET /v3/{project_id}/instances
+// @API GaussDBforMySQL GET /v3/{project_id}/instances
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations
 // @API GaussDBforNoSQL GET /v3/{project_id}/dedicated-resources
 // @API GaussDBforNoSQL POST /v3/{project_id}/instances
