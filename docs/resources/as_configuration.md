@@ -186,7 +186,8 @@ The `instance_config` block supports:
 The `disk` block supports:
 
 * `size` - (Required, Int, ForceNew) Specifies the disk size. The unit is GB.
-  The system disk size ranges from 40 to 32768, and the data disk size ranges from 10 to 32768.
+  The system disk size ranges from 1 to 1024, and not less than the minimum value of the system disk in the
+  instance image. The data disk size ranges from 10 to 32768.
   Changing this will create a new resource.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the disk type. Changing this will create a new resource.
