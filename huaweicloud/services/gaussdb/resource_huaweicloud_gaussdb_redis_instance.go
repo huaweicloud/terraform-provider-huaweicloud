@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,8 +23,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API GaussDBforNoSQL GET /v3/{project_id}/instances
@@ -341,12 +341,12 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 	region := cfg.GetRegion(d)
 	client, err := cfg.GeminiDBV3Client(region)
 	if err != nil {
-		return diag.Errorf("error creating HuaweiCloud GaussDB for Redis client: %s ", err)
+		return diag.Errorf("error creating GaussDB for Redis client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
 	if common.HasFilledOpt(d, "force_import") {
-		logp.Printf("[DEBUG] Gaussdb Redis instance force_import is set, try to import it instead of creating")
+		log.Printf("[DEBUG] the Gaussdb Redis instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListGeminiDBInstanceOpts{
 			Name: d.Get("name").(string),
 		}
@@ -361,7 +361,7 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 		}
 		if allInstances.TotalCount > 0 {
 			instance := allInstances.Instances[0]
-			logp.Printf("[DEBUG] Found existing redis instance %s with name %s", instance.Id, instance.Name)
+			log.Printf("[DEBUG] found existing redis instance %s with name %s", instance.Id, instance.Name)
 			d.SetId(instance.Id)
 			return resourceGaussRedisInstanceV3Read(ctx, d, meta)
 		}
@@ -404,7 +404,7 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 		}
 		createOpts.ChargeInfo = chargeInfo
 	}
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] create options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
@@ -453,7 +453,7 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 	}
 
 	// This is a workaround to avoid db connection issue
-	time.Sleep(360 * time.Second) //lintignore:R018
+	time.Sleep(360 * time.Second) // lintignore:R018
 
 	return resourceGaussRedisInstanceV3Read(ctx, d, meta)
 }
@@ -462,7 +462,7 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 	cfg := meta.(*config.Config)
 	client, err := cfg.GeminiDBV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating HuaweiCloud GaussRedis client: %s", err)
+		return diag.Errorf("error creating GaussRedis client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -471,26 +471,30 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 		return common.CheckDeletedDiag(d, err, "GaussRedis")
 	}
 	if instance.Id == "" {
+		log.Printf("[WARN] failed to fetch GausssDB for Redis instance: deleted")
 		d.SetId("")
-		logp.Printf("[WARN] failed to fetch GausssDB for Redis instance: deleted")
 		return nil
 	}
 
-	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	log.Printf("[DEBUG] retrieved instance %s: %#v", instanceID, instance)
 
-	d.Set("name", instance.Name)
-	d.Set("region", instance.Region)
-	d.Set("status", instance.Status)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("mode", instance.Mode)
-	d.Set("db_user_name", instance.DbUserName)
-	d.Set("lb_ip_address", instance.LbIpAddress)
-	d.Set("lb_port", instance.LbPort)
+	var mErr *multierror.Error
+	mErr = multierror.Append(
+		mErr,
+		d.Set("name", instance.Name),
+		d.Set("region", instance.Region),
+		d.Set("status", instance.Status),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("mode", instance.Mode),
+		d.Set("db_user_name", instance.DbUserName),
+		d.Set("lb_ip_address", instance.LbIpAddress),
+		d.Set("lb_port", instance.LbPort),
+	)
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
-		d.Set("port", dbPort)
+		mErr = multierror.Append(mErr, d.Set("port", dbPort))
 	}
 
 	dbList := make([]map[string]interface{}, 0, 1)
@@ -501,6 +505,7 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 	}
 	dbList = append(dbList, db)
 	d.Set("datastore", dbList)
+	mErr = multierror.Append(mErr, d.Set("datastore", dbList))
 
 	specCode := ""
 	wrongFlavor := "Inconsistent Flavor"
@@ -528,16 +533,19 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 			}
 		}
 		if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
-			d.Set("volume_size", volSize)
+			mErr = multierror.Append(mErr, d.Set("volume_size", volSize))
 		}
 		if specCode != "" {
-			logp.Printf("[DEBUG] Node SpecCode: %s", specCode)
-			d.Set("flavor", specCode)
+			log.Printf("[DEBUG] node specCode: %s", specCode)
+			mErr = multierror.Append(mErr, d.Set("flavor", specCode))
 		}
 	}
-	d.Set("nodes", nodesList)
-	d.Set("private_ips", ipsList)
-	d.Set("node_num", len(nodesList))
+	mErr = multierror.Append(
+		mErr,
+		d.Set("nodes", nodesList),
+		d.Set("private_ips", ipsList),
+		d.Set("node_num", len(nodesList)),
+	)
 
 	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
@@ -545,7 +553,7 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 		"keep_days":  instance.BackupStrategy.KeepDays,
 	}
 	backupStrategyList = append(backupStrategyList, backupStrategy)
-	d.Set("backup_strategy", backupStrategyList)
+	mErr = multierror.Append(mErr, d.Set("backup_strategy", backupStrategyList))
 
 	// save geminidb tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -554,17 +562,17 @@ func resourceGaussRedisInstanceV3Read(_ context.Context, d *schema.ResourceData,
 			return diag.Errorf("error saving tags to state for geminidb (%s): %s", d.Id(), err)
 		}
 	} else {
-		logp.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of geminidb (%s): %s", d.Id(), err)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceGaussRedisInstanceV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.GeminiDBV3Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating HuaweiCloud GaussRedis client: %s ", err)
+		return diag.Errorf("error creating GaussRedis client: %s ", err)
 	}
 
 	instanceId := d.Id()
@@ -596,8 +604,7 @@ func resourceGaussRedisInstanceV3Delete(ctx context.Context, d *schema.ResourceD
 	if err != nil {
 		return diag.Errorf("Error waiting for instance (%s) to be deleted: %s ", instanceId, err)
 	}
-	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
-	d.SetId("")
+	log.Printf("[DEBUG] successfully deleted instance %s", instanceId)
 	return nil
 }
 
@@ -606,11 +613,11 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 	region := cfg.GetRegion(d)
 	client, err := cfg.GeminiDBV3Client(region)
 	if err != nil {
-		return diag.Errorf("error creating Huaweicloud GaussRedis client: %s", err)
+		return diag.Errorf("error creating GaussRedis client: %s", err)
 	}
 	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating HuaweiCloud bss V2 client: %s", err)
+		return diag.Errorf("error creating bss V2 client: %s", err)
 	}
 	// update tags
 	if d.HasChange("tags") {
@@ -627,7 +634,7 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 
 		err = instances.UpdateName(client, d.Id(), updateNameOpts).ExtractErr()
 		if err != nil {
-			return diag.Errorf("error updating name for huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
+			return diag.Errorf("error updating name for gaussdb_redis_instance %s: %s", d.Id(), err)
 		}
 	}
 
@@ -638,7 +645,7 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 
 		err = instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
 		if err != nil {
-			return diag.Errorf("error updating password for huaweicloud_gaussdb_redis_instance %s: %s",
+			return diag.Errorf("error updating password for gaussdb_redis_instance %s: %s",
 				d.Id(), err)
 		}
 	}
@@ -755,7 +762,7 @@ func gaussRedisInstanceUpdateVolumeSize(ctx context.Context, d *schema.ResourceD
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("error extending huaweicloud_gaussdb_redis_instance %s size: %s", d.Id(), err)
+		return fmt.Errorf("error extending gaussdb_redis_instance %s size: %s", d.Id(), err)
 	}
 	// 1. wait for order success
 	if res.OrderId != "" {
@@ -811,7 +818,7 @@ func gaussRedisInstanceUpdateSecurityGroup(ctx context.Context, d *schema.Resour
 	})
 	if err != nil {
 		return fmt.Errorf(
-			"error updating security group for huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
+			"error updating security group for gaussdb_redis_instance %s: %s", d.Id(), err)
 	}
 
 	err = waitForInstanceReady(ctx, d, client, []string{"MODIFY_SECURITYGROUP"})
@@ -842,7 +849,7 @@ func gaussRedisInstanceEnlargeNodeNum(ctx context.Context, d *schema.ResourceDat
 	if d.Get("charging_mode") == "prePaid" {
 		enlargeNodeOpts.IsAutoPay = common.GetAutoPay(d)
 	}
-	logp.Printf("[DEBUG] Enlarge Node Options: %+v", enlargeNodeOpts)
+	log.Printf("[DEBUG] enlarge node options: %+v", enlargeNodeOpts)
 
 	var res *instances.ExtendResponse
 	var err error
@@ -858,7 +865,7 @@ func gaussRedisInstanceEnlargeNodeNum(ctx context.Context, d *schema.ResourceDat
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("error enlarging huaweicloud_redis_cassandra_instance %s node size: %s",
+		return fmt.Errorf("error enlarging redis_cassandra_instance %s node size: %s",
 			d.Id(), err)
 	}
 	// 1. wait for order success
@@ -898,7 +905,7 @@ func gaussRedisInstanceReduceNodeNum(ctx context.Context, d *schema.ResourceData
 	reduceNodeOpts := instances.ReduceNodeOpts{
 		Num: 1,
 	}
-	logp.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
+	log.Printf("[DEBUG] reduce node options: %+v", reduceNodeOpts)
 
 	for i := 0; i < shrinkSize; i++ {
 		var res *instances.ExtendResponse
@@ -916,7 +923,7 @@ func gaussRedisInstanceReduceNodeNum(ctx context.Context, d *schema.ResourceData
 		})
 		if err != nil {
 			return fmt.Errorf(
-				"error shrinking huaweicloud_gaussdb_redis_instance %s node size: %s", d.Id(), err)
+				"error shrinking gaussdb_redis_instance %s node size: %s", d.Id(), err)
 		}
 
 		// wait for order success
@@ -979,7 +986,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 	client, bssClient *golangsdk.ServiceClient) error {
 	instance, err := instances.GetInstanceByID(client, d.Id())
 	if err != nil {
-		return fmtp.Errorf("error fetching huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
+		return fmt.Errorf("error fetching gaussdb_redis_instance %s: %s", d.Id(), err)
 	}
 
 	// Do resize action
@@ -1006,7 +1013,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 		return nil
 	})
 	if err != nil {
-		return fmtp.Errorf("Error resizing huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
+		return fmt.Errorf("error resizing gaussdb_redis_instance %s: %s", d.Id(), err)
 	}
 	// 1. wait for order success
 	if res.OrderId != "" {
@@ -1028,7 +1035,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmt.Errorf(
-			"error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+			"error waiting for gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
 	}
 
 	// 3. check whether the order take effect
@@ -1050,7 +1057,7 @@ func gaussRedisInstanceUpdateFlavor(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 	if currFlavor != d.Get("flavor").(string) {
-		return fmtp.Errorf("Error updating flavor for instance %s: order failed", d.Id())
+		return fmt.Errorf("error updating flavor for instance %s: order failed", d.Id())
 	}
 	return nil
 }
