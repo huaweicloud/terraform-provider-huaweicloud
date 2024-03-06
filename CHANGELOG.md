@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 1.62.1 (March 6, 2024)
+
+* **New Resource:**
+  + `huaweicloud_css_logstash_configuration` [GH-4300]
+  + `huaweicloud_fgs_function_trigger` [GH-4327]
+
+* **New Data Source:**
+  + `huaweicloud_csms_events` [GH-4292]
+  + `huaweicloud_ga_endpoint_groups` [GH-4306]
+  + `huaweicloud_ram_shared_principals` [GH-4313]
+  + `huaweicloud_csms_secrets` [GH-4318]
+  + `huaweicloud_dws_disaster_recovery_tasks` [GH-4325]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_fgs_function: Support config concurrent requests number [GH-4293]
+* resource/huaweicloud_cc_connection: Add tags support [GH-4340]
+* resource/huaweicloud_nat_snat_rule: Support `global_eip_id` parameter [GH-4345]
+* resource/huaweicloud_drs_job: Support updating `tags` [GH-4352]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node: Fix can't get resource ID issue when create a BMS node [GH-4323]
+
 ## 1.62.0 (February 29, 2024)
 
 * **New Resource:**
