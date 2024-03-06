@@ -137,6 +137,9 @@ func TestAccInspectorWebsite_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"auth_type",
+					"login_password",
+					"login_cookie",
+					"http_headers",
 				},
 			},
 		},
@@ -194,6 +197,9 @@ func TestAccInspectorWebsite_publicIPAddress(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"auth_type",
+					"login_password",
+					"login_cookie",
+					"http_headers",
 				},
 			},
 		},

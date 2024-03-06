@@ -296,10 +296,7 @@ func resourceInspectorWebsiteRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("auth_status", utils.PathSearch("auth_status", getResp, nil)),
 		d.Set("login_url", utils.PathSearch("login_url", getSettingsResp, nil)),
 		d.Set("login_username", utils.PathSearch("login_username", getSettingsResp, nil)),
-		d.Set("login_password", utils.PathSearch("login_password", getSettingsResp, nil)),
-		d.Set("login_cookie", utils.PathSearch("login_cookies", getSettingsResp, nil)),
 		d.Set("verify_url", utils.PathSearch("verify_url", getSettingsResp, nil)),
-		d.Set("http_headers", utils.PathSearch("http_headers", getSettingsResp, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
