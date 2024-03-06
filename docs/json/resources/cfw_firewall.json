@@ -69,6 +69,16 @@
                 "type": "string",
                 "computed": true
               },
+              "ips_protection_mode": {
+                "type": "number",
+                "description": "Specifies the IPS protection mode of the firewall.",
+                "optional": true
+              },
+              "ips_switch_status": {
+                "type": "number",
+                "description": "Specifies the IPS patch switch status of the firewall.",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "description": "Specifies the firewall name.",

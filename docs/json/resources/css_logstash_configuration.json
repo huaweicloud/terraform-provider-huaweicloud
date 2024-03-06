@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_logstash_configuration": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "conf_content": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sensitive_words": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "setting": {
+                "block": {
+                  "attributes": {
+                    "batch_delay_ms": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "batch_size": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "queue_check_point_writes": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "queue_max_bytes_mb": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "queue_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "workers": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

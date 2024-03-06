@@ -24,7 +24,19 @@
               "floating_ip_id": {
                 "type": "string",
                 "description": "The IDs of floating IPs connected by SNAT rule.",
-                "required": true
+                "optional": true,
+                "computed": true
+              },
+              "global_eip_address": {
+                "type": "string",
+                "description": "The global EIP addresses (separated by commas) connected by SNAT rule.",
+                "computed": true
+              },
+              "global_eip_id": {
+                "type": "string",
+                "description": "The IDs (separated by commas) of global EIPs connected by SNAT rule.",
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",

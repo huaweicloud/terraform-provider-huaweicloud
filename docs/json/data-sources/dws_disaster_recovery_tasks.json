@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_disaster_recovery_tasks": {
+          "block": {
+            "attributes": {
+              "dr_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "primary_cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "primary_cluster_region": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "standby_cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "standby_cluster_region": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_at": "string",
+                      "dr_type": "string",
+                      "id": "string",
+                      "last_disaster_time": "string",
+                      "name": "string",
+                      "primary_cluster_id": "string",
+                      "primary_cluster_name": "string",
+                      "primary_cluster_project_id": "string",
+                      "primary_cluster_region": "string",
+                      "primary_cluster_role": "string",
+                      "primary_cluster_status": "string",
+                      "standby_cluster_id": "string",
+                      "standby_cluster_name": "string",
+                      "standby_cluster_project_id": "string",
+                      "standby_cluster_region": "string",
+                      "standby_cluster_role": "string",
+                      "standby_cluster_status": "string",
+                      "start_at": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

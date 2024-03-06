@@ -32,6 +32,11 @@
                 "type": "string",
                 "optional": true
               },
+              "concurrency_num": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "depend_list": {
                 "type": [
                   "set",

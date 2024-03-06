@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_endpoint_groups": {
+          "block": {
+            "attributes": {
+              "endpoint_group_id": {
+                "type": "string",
+                "description": "The ID of the endpoint group.",
+                "optional": true
+              },
+              "endpoint_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "listener_id": "string",
+                      "name": "string",
+                      "region_id": "string",
+                      "status": "string",
+                      "traffic_dial_percentage": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the endpoint groups.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "description": "The ID of the listener to which the endpoint group belongs.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the endpoint group.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the endpoint group.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

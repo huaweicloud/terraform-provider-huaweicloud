@@ -103,8 +103,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "type": {
                 "type": "string",

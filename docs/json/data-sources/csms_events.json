@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_csms_events": {
+          "block": {
+            "attributes": {
+              "event_id": {
+                "type": "string",
+                "optional": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "event_id": "string",
+                      "event_types": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "notification": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "target_id": "string",
+                            "target_name": "string",
+                            "target_type": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSMS",
+            "name": "Cloud Secret Management Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-凭据管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
