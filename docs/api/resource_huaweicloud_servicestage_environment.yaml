@@ -11,13 +11,13 @@ paths:
     /v2/{project_id}/cas/environments:
         POST:
             tag: ServiceStage
-    /v2/{project_id}/cas/environments/{envId}:
+    /v2/{project_id}/cas/environments/{environment_id}:
         DELETE:
             tag: ServiceStage
         GET:
             tag: ServiceStage
         PUT:
             tag: ServiceStage
-    /v2/{project_id}/cas/environments/{envId}/resources:
+    /v2/{project_id}/cas/environments/{environment_id}/resources:
         PATCH:
             tag: ServiceStage

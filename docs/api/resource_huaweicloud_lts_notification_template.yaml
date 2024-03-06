@@ -8,7 +8,7 @@ host: huaweicloud.com
 tags:
     - name: LTS
 paths:
-    /v2/{project_id}/{domain_id}/lts/events/notification/template/{id}:
+    /v2/{project_id}/{domain_id}/lts/events/notification/template/{template_name}:
         GET:
             tag: LTS
     /v2/{project_id}/{domain_id}/lts/events/notification/templates:

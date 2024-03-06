@@ -41,3 +41,6 @@ paths:
     /v3/{project_id}/jobs/batch-status:
         POST:
             tag: DRS
+    /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action:
+        POST:
+            tag: DRS

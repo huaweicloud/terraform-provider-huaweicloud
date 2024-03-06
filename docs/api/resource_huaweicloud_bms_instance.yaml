@@ -19,6 +19,9 @@ paths:
             tag: BMS
         PUT:
             tag: BMS
+    /v1/{project_id}/baremetalservers/{server_id}/metadata:
+        POST:
+            tag: BMS
     /v1/{project_id}/baremetalservers/{server_id}/nics:
         POST:
             tag: BMS

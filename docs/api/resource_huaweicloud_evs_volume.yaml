@@ -1,48 +1,53 @@
 info:
-  version: 
-  title: resource_huaweicloud_evs_volume
-  description: 
+    version: ""
+    title: resource_huaweicloud_evs_volume
+    description: ""
 schemes:
-  - https
+    - https
 host: huaweicloud.com
 tags:
-  - name: EVS
+    - name: EVS
 paths:
-  /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}:
-    delete:
-      tag: ECS
-      operationId: Detach
-  /v2.1/{project_id}/cloudvolumes/{id}/action:
-    post:
-      tag: EVS
-      operationId: ExtendSize
-  /v5/{project_id}/cloudvolumes/{id}/qos:
-    put:
-      tag: EVS
-      operationId: ModifyQoS
-  /v2/{project_id}/cloudvolumes/{id}/tags/action:
-    POST:
-      tag: EVS
-      operationId: batchUpdate
-  /v2/{project_id}/cloudvolumes/{id}:
-    delete:
-      tag: EVS
-      operationId: Delete
-    get:
-      tag: EVS
-      operationId: Get
-    put:
-      tag: EVS
-      operationId: Update
-  /v2.1/{project_id}/cloudvolumes:
-    post:
-      tag: EVS
-      operationId: Create
-  /v1/{project_id}/jobs/{jobId}:
-    get:
-      tag: ECS
-      operationId: Get
-  /v1/{project_id}/jobs/{jobID}:
-    get:
-      tag: EVS
-      operationId: GetJobDetails
+    /v1/{project_id}/cloudservers/{serverId}/detachvolume/{volumeId}:
+        DELETE:
+            tag: ECS
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: EVS
+    /v1/{project_id}/jobs/{jobId}:
+        GET:
+            tag: ECS
+    /v2.1/{project_id}/cloudvolumes:
+        POST:
+            tag: EVS
+    /v2.1/{project_id}/cloudvolumes/{volume_id}/action:
+        POST:
+            tag: EVS
+    /v2/{project_id}/cloudvolumes/{id}:
+        DELETE:
+            tag: EVS
+    /v2/{project_id}/cloudvolumes/{volume_id}:
+        GET:
+            tag: EVS
+        PUT:
+            tag: EVS
+    /v2/{project_id}/cloudvolumes/{volume_id}/tags/action:
+        POST:
+            tag: EVS
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{resource_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v5/{project_id}/cloudvolumes/{volume_id}/qos:
+        PUT:
+            tag: EVS

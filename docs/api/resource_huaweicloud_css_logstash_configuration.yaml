@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_logstash_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/confdetail:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/delete:
+        DELETE:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/submit:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/update:
+        POST:
+            tag: CSS

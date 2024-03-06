@@ -30,6 +30,9 @@ paths:
     /v2.0/{project_id}/vpcs/{id}/tags/action:
         POST:
             tag: VPC
+    /v3/{project_id}/vpc/vpcs/{id}:
+        GET:
+            tag: VPC
     /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr:
         PUT:
             tag: VPC

@@ -8,19 +8,19 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
-    /v2/{project_id}/elb/l7policies/{id}:
+    /v2/{project_id}/elb/l7policies/{l7policy_id}:
         GET:
             tag: ELB
-    /v2/{project_id}/elb/l7policies/{policyID}/rules:
+    /v2/{project_id}/elb/l7policies/{l7policy_id}/rules:
         POST:
             tag: ELB
-    /v2/{project_id}/elb/l7policies/{policyID}/rules/{ruleID}:
+    /v2/{project_id}/elb/l7policies/{l7policy_id}/rules/{rule_id}:
         DELETE:
             tag: ELB
         GET:
             tag: ELB
         PUT:
             tag: ELB
-    /v2/{project_id}/elb/listeners/{id}:
+    /v2/{project_id}/elb/listeners/{listener_id}:
         GET:
             tag: ELB

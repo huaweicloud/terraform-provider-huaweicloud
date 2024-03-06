@@ -6,15 +6,15 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: DataArts
+    - name: DataArtsStudio
 paths:
     /v1/{project_id}/jobs:
         POST:
-            tag: DataArts
+            tag: DataArtsStudio
     /v1/{project_id}/jobs/{job_name}:
         DELETE:
-            tag: DataArts
+            tag: DataArtsStudio
         GET:
-            tag: DataArts
+            tag: DataArtsStudio
         PUT:
-            tag: DataArts
+            tag: DataArtsStudio

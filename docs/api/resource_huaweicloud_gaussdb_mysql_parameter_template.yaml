@@ -6,15 +6,15 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: GaussDB
+    - name: GaussDBforMySQL
 paths:
     /v3/{project_id}/configurations:
         POST:
-            tag: GaussDB
+            tag: GaussDBforMySQL
     /v3/{project_id}/configurations/{configuration_id}:
         DELETE:
-            tag: GaussDB
+            tag: GaussDBforMySQL
         GET:
-            tag: GaussDB
+            tag: GaussDBforMySQL
         PUT:
-            tag: GaussDB
+            tag: GaussDBforMySQL

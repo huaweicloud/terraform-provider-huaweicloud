@@ -8,13 +8,13 @@ host: huaweicloud.com
 tags:
     - name: SMS
 paths:
-    /v1/{project_id}/security-groups/{securityGroupId}:
+    /v1/{project_id}/security-groups/{security_group_id}:
         GET:
             tag: VPC
-    /v1/{project_id}/subnets/{id}:
+    /v1/{project_id}/subnets/{subnet_id}:
         GET:
             tag: VPC
-    /v1/{project_id}/vpcs/{id}:
+    /v1/{project_id}/vpcs/{vpc_id}:
         GET:
             tag: VPC
     /v3/vm/templates:

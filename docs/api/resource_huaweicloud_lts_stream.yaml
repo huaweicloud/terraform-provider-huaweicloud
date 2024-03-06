@@ -8,11 +8,11 @@ host: huaweicloud.com
 tags:
     - name: LTS
 paths:
-    /v2/{project_id}/groups/{groupId}/streams:
+    /v2/{project_id}/groups/{log_group_id}/streams:
         GET:
             tag: LTS
         POST:
             tag: LTS
-    /v2/{project_id}/groups/{groupId}/streams/{id}:
+    /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}:
         DELETE:
             tag: LTS

@@ -15,7 +15,7 @@ paths:
             tag: LTS
         PUT:
             tag: LTS
-    /v2/{project_id}/lts/alarms/sql-alarm-rule/{id}:
+    /v2/{project_id}/lts/alarms/sql-alarm-rule/{sql_alarm_rule_id}:
         DELETE:
             tag: LTS
     /v2/{project_id}/lts/alarms/status:

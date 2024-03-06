@@ -11,16 +11,16 @@ paths:
     /v2/{project_id}/elb/l7policies:
         POST:
             tag: ELB
-    /v2/{project_id}/elb/l7policies/{id}:
+    /v2/{project_id}/elb/l7policies/{l7policy_id}:
         DELETE:
             tag: ELB
         GET:
             tag: ELB
         PUT:
             tag: ELB
-    /v2/{project_id}/elb/listeners/{id}:
+    /v2/{project_id}/elb/listeners/{listener_id}:
         GET:
             tag: ELB
-    /v2/{project_id}/elb/pools/{id}:
+    /v2/{project_id}/elb/pools/{pool_id}:
         GET:
             tag: ELB

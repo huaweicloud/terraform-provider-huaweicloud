@@ -8,11 +8,11 @@ host: huaweicloud.com
 tags:
     - name: Config
 paths:
-    /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization:
+    /v1/resource-manager/domains/{domain_id}/aggregators/aggregation-authorization:
         GET:
             tag: Config
         PUT:
             tag: Config
-    /v1/resource-manager/domains/{domain_id}/aggregations/aggregation-authorization/{id}:
+    /v1/resource-manager/domains/{domain_id}/aggregators/aggregation-authorization/{id}:
         DELETE:
             tag: Config

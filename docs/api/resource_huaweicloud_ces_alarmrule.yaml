@@ -39,3 +39,6 @@ paths:
     /v2/{project_id}/alarms/action:
         POST:
             tag: CES
+    /v2/{project_id}/alarms/batch-delete:
+        POST:
+            tag: CES
