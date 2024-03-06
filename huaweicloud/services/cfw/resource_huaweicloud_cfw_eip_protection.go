@@ -206,7 +206,7 @@ func QuerySyncedEips(client *golangsdk.ServiceClient, url, objectId string) ([]i
 func flattenProtectedEips(eips []interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(eips))
 	for _, eip := range eips {
-		if status := utils.PathSearch("status", eip, 1); int(status.(float64)) != openEipProtection {
+		if status := utils.PathSearch("status", eip, float64(1)); int(status.(float64)) != openEipProtection {
 			continue
 		}
 		rst = append(rst, map[string]interface{}{
@@ -221,7 +221,7 @@ func flattenProtectedEips(eips []interface{}) []interface{} {
 // ProtectedEipExist method will return true if a protected public IP exists under the object.
 func ProtectedEipExist(eips []interface{}) bool {
 	for _, eip := range eips {
-		status := utils.PathSearch("status", eip, 1)
+		status := utils.PathSearch("status", eip, float64(1))
 		if int(status.(float64)) == openEipProtection {
 			return true
 		}
@@ -399,8 +399,10 @@ func syncedEipsRefreshFunc(client *golangsdk.ServiceClient, url, objectId string
 		syncedEipCount := 0
 		for _, eipId := range syncEips {
 			for _, val := range resp {
+				// The valid values for status are 0 and 1.
+				// If status is not found in the response, the default value is 2.
 				if eipId == utils.PathSearch("id", val, "").(string) &&
-					int(utils.PathSearch("status", val, "").(float64)) == targetStatus {
+					int(utils.PathSearch("status", val, float64(2)).(float64)) == targetStatus {
 					syncedEipCount++
 					break
 				}
