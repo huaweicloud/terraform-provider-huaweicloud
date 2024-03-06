@@ -25,7 +25,7 @@ func getNosqlInstance(conf *config.Config, state *terraform.ResourceState) (inte
 		return nil, err
 	}
 	if found.Id == "" {
-		return nil, fmt.Errorf("Instance <%s> not found.", state.Primary.ID)
+		return nil, fmt.Errorf("instance <%s> not found", state.Primary.ID)
 	}
 
 	return &found, nil

@@ -1,8 +1,10 @@
 package gaussdb
 
 import (
+	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -32,10 +34,10 @@ import (
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceGaussDBMongoInstanceV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceGaussDBMongoInstanceCreate,
-		Read:   resourceGeminiDBInstanceV3Read,
-		Update: resourceGaussDBMongoInstanceUpdate,
-		Delete: resourceGeminiDBInstanceV3Delete,
+		CreateContext: resourceGaussDBMongoInstanceCreate,
+		ReadContext:   resourceGeminiDBInstanceV3Read,
+		UpdateContext: resourceGaussDBMongoInstanceUpdate,
+		DeleteContext: resourceGeminiDBInstanceV3Delete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -271,22 +273,22 @@ func ResourceGaussDBMongoInstanceV3() *schema.Resource {
 	}
 }
 
-func resourceGaussDBMongoInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceGaussDBMongoInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	defaults := defaultValues{
 		Mode:      "ReplicaSet",
 		dbType:    "mongodb",
 		dbVersion: "4.0",
 		logName:   "mongo",
 	}
-	return resourceGeminiDBInstanceV3Create(d, meta, defaults)
+	return resourceGeminiDBInstanceV3Create(ctx, d, meta, defaults)
 }
 
-func resourceGaussDBMongoInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceGaussDBMongoInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	defaults := defaultValues{
 		Mode:      "ReplicaSet",
 		dbType:    "mongodb",
 		dbVersion: "4.0",
 		logName:   "mongo",
 	}
-	return resourceGeminiDBInstanceV3Update(d, meta, defaults)
+	return resourceGeminiDBInstanceV3Update(ctx, d, meta, defaults)
 }

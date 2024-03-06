@@ -1,8 +1,10 @@
 package gaussdb
 
 import (
+	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -32,10 +34,10 @@ import (
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceGaussDBInfluxInstanceV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceGaussDBInfluxInstanceCreate,
-		Read:   resourceGeminiDBInstanceV3Read,
-		Update: resourceGaussDBInfluxInstanceUpdate,
-		Delete: resourceGeminiDBInstanceV3Delete,
+		CreateContext: resourceGaussDBInfluxInstanceCreate,
+		ReadContext:   resourceGeminiDBInstanceV3Read,
+		UpdateContext: resourceGaussDBInfluxInstanceUpdate,
+		DeleteContext: resourceGeminiDBInstanceV3Delete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -270,22 +272,22 @@ func ResourceGaussDBInfluxInstanceV3() *schema.Resource {
 	}
 }
 
-func resourceGaussDBInfluxInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceGaussDBInfluxInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	defaults := defaultValues{
 		Mode:      "Cluster",
 		dbType:    "influxdb",
 		dbVersion: "1.7",
 		logName:   "influx",
 	}
-	return resourceGeminiDBInstanceV3Create(d, meta, defaults)
+	return resourceGeminiDBInstanceV3Create(ctx, d, meta, defaults)
 }
 
-func resourceGaussDBInfluxInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceGaussDBInfluxInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	defaults := defaultValues{
 		Mode:      "Cluster",
 		dbType:    "influxdb",
 		dbVersion: "1.7",
 		logName:   "influx",
 	}
-	return resourceGeminiDBInstanceV3Update(d, meta, defaults)
+	return resourceGeminiDBInstanceV3Update(ctx, d, meta, defaults)
 }
