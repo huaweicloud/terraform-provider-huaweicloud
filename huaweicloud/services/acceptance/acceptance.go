@@ -281,6 +281,8 @@ var (
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
 
 	HW_DWS_MUTIL_AZS = os.Getenv("HW_DWS_MUTIL_AZS")
+
+	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1319,5 +1321,12 @@ func TestAccPreCheckIOTDABatchTaskFilePath(t *testing.T) {
 func TestAccPreCheckMutilAZ(t *testing.T) {
 	if HW_DWS_MUTIL_AZS == "" {
 		t.Skip("HW_DWS_MUTIL_AZS must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDCSAccountWhitelist(t *testing.T) {
+	if HW_DCS_ACCOUNT_WHITELIST == "" {
+		t.Skip("HW_DCS_ACCOUNT_WHITELIST must be set for the acceptance test")
 	}
 }
