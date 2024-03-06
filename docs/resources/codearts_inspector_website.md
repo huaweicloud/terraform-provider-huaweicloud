@@ -103,8 +103,8 @@ $ terraform import huaweicloud_codearts_inspector_website.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `auth_type`.
-It is generally recommended running `terraform plan` after importing a resource.
+API response, security or some other reason. The missing attributes include: `auth_type`, `login_password`, `login_cookie`,
+`http_headers`. It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
 with the resource. Also, you can ignore changes as below.
 
@@ -115,6 +115,9 @@ resource "huaweicloud_codearts_inspector_website" "test" {
   lifecycle {
     ignore_changes = [
       auth_type,
+      login_password,
+      login_cookie,
+      http_headers,
     ]
   }
 }
