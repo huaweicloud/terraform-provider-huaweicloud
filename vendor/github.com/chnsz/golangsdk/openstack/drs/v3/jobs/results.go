@@ -1,5 +1,7 @@
 package jobs
 
+import "github.com/chnsz/golangsdk/openstack/common/tags"
+
 type CreateResp struct {
 	Results []CreateJobResp `json:"results"`
 	Count   int             `json:"count"`
@@ -33,53 +35,54 @@ type JobDetailResp struct {
 }
 
 type JobDetail struct {
-	Id                       string           `json:"id"`
-	ParentId                 string           `json:"parent_id"`
-	Name                     string           `json:"name"`
-	Status                   string           `json:"status"`
-	Description              string           `json:"description"`
-	CreateTime               string           `json:"create_time"`
-	TaskType                 string           `json:"task_type"`
-	SourceEndpoint           Endpoint         `json:"source_endpoint"`
-	DmqEndpoint              Endpoint         `json:"dmq_endpoint"`
-	SourceSharding           []Endpoint       `json:"source_sharding"`
-	TargetEndpoint           Endpoint         `json:"target_endpoint"`
-	NetType                  string           `json:"net_type"`
-	FailedReason             string           `json:"failed_reason"`
-	InstInfo                 InstInfo         `json:"inst_info"`
-	ActualStartTime          string           `json:"actual_start_time"`
-	FullTransferCompleteTime string           `json:"full_transfer_complete_time"`
-	UpdateTime               string           `json:"update_time"`
-	JobDirection             string           `json:"job_direction"`
-	DbUseType                string           `json:"db_use_type"`
-	NeedRestart              bool             `json:"need_restart"`
-	IsTargetReadonly         bool             `json:"is_target_readonly"`
-	ConflictPolicy           string           `json:"conflict_policy"`
-	FilterDdlPolicy          string           `json:"filter_ddl_policy"`
-	SpeedLimit               []SpeedLimitInfo `json:"speed_limit"`
-	SchemaType               string           `json:"schema_type"`
-	NodeNum                  string           `json:"node_num"`
-	ObjectSwitch             bool             `json:"object_switch"`
-	MasterJobId              string           `json:"master_job_id"`
-	FullMode                 string           `json:"full_mode"`
-	StructTrans              bool             `json:"struct_trans"`
-	IndexTrans               bool             `json:"index_trans"`
-	ReplaceDefiner           bool             `json:"replace_definer"`
-	MigrateUser              bool             `json:"migrate_user"`
-	SyncDatabase             bool             `json:"sync_database"`
-	ErrorCode                string           `json:"error_code"`
-	ErrorMessage             string           `json:"error_message"`
-	TargetRootDb             DefaultRootDb    `json:"target_root_db"`
-	AzCode                   string           `json:"az_code"`
-	VpcId                    string           `json:"vpc_id"`
-	SubnetId                 string           `json:"subnet_id"`
-	SecurityGroupId          string           `json:"security_group_id"`
-	MultiWrite               bool             `json:"multi_write"`
-	SupportIpV6              bool             `json:"support_ip_v6"`
-	InheritId                string           `json:"inherit_id"`
-	Gtid                     string           `json:"gtid"`
-	AlarmNotify              string           `json:"alarm_notify"`
-	IncreStartPosition       string           `json:"incre_start_position"`
+	Id                       string             `json:"id"`
+	ParentId                 string             `json:"parent_id"`
+	Name                     string             `json:"name"`
+	Status                   string             `json:"status"`
+	Description              string             `json:"description"`
+	CreateTime               string             `json:"create_time"`
+	TaskType                 string             `json:"task_type"`
+	SourceEndpoint           Endpoint           `json:"source_endpoint"`
+	DmqEndpoint              Endpoint           `json:"dmq_endpoint"`
+	SourceSharding           []Endpoint         `json:"source_sharding"`
+	TargetEndpoint           Endpoint           `json:"target_endpoint"`
+	NetType                  string             `json:"net_type"`
+	FailedReason             string             `json:"failed_reason"`
+	InstInfo                 InstInfo           `json:"inst_info"`
+	ActualStartTime          string             `json:"actual_start_time"`
+	FullTransferCompleteTime string             `json:"full_transfer_complete_time"`
+	UpdateTime               string             `json:"update_time"`
+	JobDirection             string             `json:"job_direction"`
+	DbUseType                string             `json:"db_use_type"`
+	NeedRestart              bool               `json:"need_restart"`
+	IsTargetReadonly         bool               `json:"is_target_readonly"`
+	ConflictPolicy           string             `json:"conflict_policy"`
+	FilterDdlPolicy          string             `json:"filter_ddl_policy"`
+	SpeedLimit               []SpeedLimitInfo   `json:"speed_limit"`
+	SchemaType               string             `json:"schema_type"`
+	NodeNum                  string             `json:"node_num"`
+	ObjectSwitch             bool               `json:"object_switch"`
+	MasterJobId              string             `json:"master_job_id"`
+	FullMode                 string             `json:"full_mode"`
+	StructTrans              bool               `json:"struct_trans"`
+	IndexTrans               bool               `json:"index_trans"`
+	ReplaceDefiner           bool               `json:"replace_definer"`
+	MigrateUser              bool               `json:"migrate_user"`
+	SyncDatabase             bool               `json:"sync_database"`
+	ErrorCode                string             `json:"error_code"`
+	ErrorMessage             string             `json:"error_message"`
+	TargetRootDb             DefaultRootDb      `json:"target_root_db"`
+	AzCode                   string             `json:"az_code"`
+	VpcId                    string             `json:"vpc_id"`
+	SubnetId                 string             `json:"subnet_id"`
+	SecurityGroupId          string             `json:"security_group_id"`
+	MultiWrite               bool               `json:"multi_write"`
+	SupportIpV6              bool               `json:"support_ip_v6"`
+	InheritId                string             `json:"inherit_id"`
+	Gtid                     string             `json:"gtid"`
+	AlarmNotify              string             `json:"alarm_notify"`
+	IncreStartPosition       string             `json:"incre_start_position"`
+	Tags                     []tags.ResourceTag `json:"tags"`
 }
 
 type InstInfo struct {

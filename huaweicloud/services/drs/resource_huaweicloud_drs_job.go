@@ -33,6 +33,7 @@ import (
 // @API DRS POST /v3/{project_id}/jobs/batch-creation
 // @API DRS POST /v3/{project_id}/jobs/batch-detail
 // @API DRS PUT /v3/{project_id}/jobs/batch-modification
+// @API DRS POST /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action
 func ResourceDrsJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceJobCreate,
@@ -188,7 +189,7 @@ func ResourceDrsJob() *schema.Resource {
 				},
 			},
 
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 
 			"force_destroy": {
 				Type:     schema.TypeBool,
@@ -449,6 +450,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("multi_write", detail.MultiWrite),
 		d.Set("created_at", detail.CreateTime),
 		d.Set("status", detail.Status),
+		d.Set("tags", utils.TagsToMap(detail.Tags)),
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),
 	)
@@ -467,31 +469,51 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
-
-	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
+	clientV5, err := conf.DrsV5Client(region)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
-	}
-	detail := detailResp.Results[0]
-
-	if utils.StrSliceContains(
-		[]string{"RELEASE_RESOURCE_COMPLETE", "RELEASE_RESOURCE_STARTED", "RELEASE_RESOURCE_FAILED"}, detail.Status) {
-		return nil
+		return diag.Errorf("error creating DRS v5 client, error: %s", err)
 	}
 
-	updateParams := jobs.UpdateReq{
-		Jobs: []jobs.UpdateJobReq{
-			{
-				JobId:       d.Id(),
-				Name:        d.Get("name").(string),
-				Description: d.Get("description").(string),
+	// update name and description
+	if d.HasChanges("name", "description") {
+		detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
+		if err != nil {
+			return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
+		}
+		detail := detailResp.Results[0]
+
+		if utils.StrSliceContains(
+			[]string{"RELEASE_RESOURCE_COMPLETE", "RELEASE_RESOURCE_STARTED", "RELEASE_RESOURCE_FAILED"}, detail.Status) {
+			return nil
+		}
+
+		updateParams := jobs.UpdateReq{
+			Jobs: []jobs.UpdateJobReq{
+				{
+					JobId:       d.Id(),
+					Name:        d.Get("name").(string),
+					Description: d.Get("description").(string),
+				},
 			},
-		},
+		}
+
+		_, err = jobs.Update(client, updateParams)
+		if err != nil {
+			return diag.Errorf("update job: %s failed,error: %s", d.Id(), err)
+		}
 	}
 
-	_, err = jobs.Update(client, updateParams)
-	if err != nil {
-		return diag.Errorf("update job: %s failed,error: %s", d.Id(), err)
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := utils.UpdateResourceTags(clientV5, d, "jobs/"+d.Get("type").(string), d.Id())
+		if tagErr != nil {
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  fmt.Sprintf("failed to update tags for DRS job(%s): %s", d.Id(), tagErr),
+				},
+			}
+		}
 	}
 
 	return resourceJobRead(ctx, d, meta)

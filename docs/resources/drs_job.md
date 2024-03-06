@@ -150,8 +150,7 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id.
  Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the DRS job.
- Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the DRS job.
 
 * `force_destroy` - (Optional, Bool) Specifies whether to forcibly destroy the job even if it is running.
  The default value is **false**.
@@ -241,7 +240,7 @@ $ terraform import huaweicloud_drs_job.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `tags`,
+API response, security or some other reason. The missing attributes include: `enterprise_project_id`,
 `force_destroy`, `source_db.0.password` and `destination_db.0.password`.It is generally recommended running
 **terraform plan** after importing a job. You can then decide if changes should be applied to the job, or the resource
 definition should be updated to align with the job. Also you can ignore changes as below.
