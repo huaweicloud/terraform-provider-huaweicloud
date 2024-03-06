@@ -29,6 +29,8 @@ func ResourceAomMappingRule() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

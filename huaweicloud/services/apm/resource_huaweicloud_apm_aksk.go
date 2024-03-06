@@ -32,6 +32,8 @@ func ResourceApmAkSk() *schema.Resource {
 			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:     schema.TypeString,

@@ -30,6 +30,7 @@ func ResourceLtsDashboard() *schema.Resource {
 			StateContext: ltsResourceImportState,
 		},
 
+		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
