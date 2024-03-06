@@ -717,6 +717,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_disaster_recovery_tasks": dws.DataSourceDisasterRecoveryTasks(),
 			"huaweicloud_dws_event_subscriptions":     dws.DataSourceEventSubscriptions(),
 
+			"huaweicloud_dws_workload_queues": dws.DataSourceWorkloadQueues(),
+
 			"huaweicloud_workspace_desktops": workspace.DataSourceDesktops(),
 			"huaweicloud_workspace_flavors":  workspace.DataSourceWorkspaceFlavors(),
 
