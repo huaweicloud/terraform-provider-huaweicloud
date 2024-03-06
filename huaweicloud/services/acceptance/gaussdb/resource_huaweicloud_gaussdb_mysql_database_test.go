@@ -69,7 +69,7 @@ func getGaussDBDatabaseResourceFunc(cfg *config.Config, state *terraform.Resourc
 			database = db
 			break
 		}
-		total := utils.PathSearch("total_count", getGaussDBDatabaseRespBody, 0).(float64)
+		total := utils.PathSearch("total_count", getGaussDBDatabaseRespBody, float64(0)).(float64)
 		currentTotal += pageNum
 		if currentTotal == int(total) {
 			break

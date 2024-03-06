@@ -52,7 +52,7 @@ func getBackupStrategyResourceFunc(cfg *config.Config, state *terraform.Resource
 	}
 
 	backupStrategies := policyPara.([]interface{})
-	if len(backupStrategies) == 0 || utils.PathSearch("keep_days", backupStrategies[0], 0).(float64) == 0 {
+	if len(backupStrategies) == 0 || utils.PathSearch("keep_days", backupStrategies[0], float64(0)).(float64) == 0 {
 		return nil, fmt.Errorf("error retrieving RDS cross region backup strategy: %s", err)
 	}
 

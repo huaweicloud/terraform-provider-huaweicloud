@@ -178,7 +178,7 @@ func filterConsumerGroups(d *schema.ResourceData, resp interface{}) []interface{
 		enabled := utils.PathSearch("enabled", group, false).(bool)
 		broadcast := utils.PathSearch("broadcast", group, false).(bool)
 		name := utils.PathSearch("name", group, nil)
-		retryMaxTimes := utils.PathSearch("retry_max_time", group, 0).(float64)
+		retryMaxTimes := utils.PathSearch("retry_max_time", group, float64(0)).(float64)
 		if (rawBroadcast && !broadcast) || (!rawBroadcast && broadcast) {
 			continue
 		}

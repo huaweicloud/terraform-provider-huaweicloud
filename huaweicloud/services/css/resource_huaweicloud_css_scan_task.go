@@ -207,8 +207,8 @@ func resourceScanTaskRead(_ context.Context, d *schema.ResourceData, meta interf
 		common.CheckDeletedDiag(d, err, "CSS cluster scan task")
 	}
 
-	createdAt := utils.PathSearch("create_time", scanTask, 0).(float64) / 1000
-	status := int(utils.PathSearch("status", scanTask, 0).(float64))
+	createdAt := utils.PathSearch("create_time", scanTask, float64(0)).(float64) / 1000
+	status := int(utils.PathSearch("status", scanTask, float64(0)).(float64))
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -297,7 +297,7 @@ func scanTaskStateRefreshFunc(d *schema.ResourceData, region string, conf *confi
 			}
 			return scanTask, "ERROR", err
 		}
-		status := utils.PathSearch("status", scanTask, 0).(float64)
+		status := utils.PathSearch("status", scanTask, float64(0)).(float64)
 		return scanTask, convertClusterScanTaskStatus(int(status)), nil
 	}
 }
@@ -339,7 +339,7 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 		if scanTask != nil {
 			return scanTask, nil
 		}
-		total := utils.PathSearch("total_size", getScanTaskRespBody, 0).(float64)
+		total := utils.PathSearch("total_size", getScanTaskRespBody, float64(0)).(float64)
 		currentTotal += len(scanTasks)
 		if float64(currentTotal) == total {
 			break
@@ -358,9 +358,9 @@ func flattenScanTaskSummaryResponse(resp interface{}) []interface{} {
 
 	rst = []interface{}{
 		map[string]interface{}{
-			"high_num":       int(utils.PathSearch("high", curJson, 0).(float64)),
-			"medium_num":     int(utils.PathSearch("medium", curJson, 0).(float64)),
-			"suggestion_num": int(utils.PathSearch("suggestion", curJson, 0).(float64)),
+			"high_num":       int(utils.PathSearch("high", curJson, float64(0)).(float64)),
+			"medium_num":     int(utils.PathSearch("medium", curJson, float64(0)).(float64)),
+			"suggestion_num": int(utils.PathSearch("suggestion", curJson, float64(0)).(float64)),
 		},
 	}
 

@@ -537,10 +537,10 @@ func resourceKeywordsAlarmRuleRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("send_recovery_notifications", utils.PathSearch("whether_recovery_policy", getKeywordsAlarmRuleRespBody, nil)),
 		d.Set("recovery_frequency", utils.PathSearch("recovery_policy", getKeywordsAlarmRuleRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getKeywordsAlarmRuleRespBody, nil)),
-		d.Set("created_at",
-			utils.FormatTimeStampUTC(int64(utils.PathSearch("create_time", getKeywordsAlarmRuleRespBody, 0).(float64)/1000))),
-		d.Set("updated_at",
-			utils.FormatTimeStampUTC(int64(utils.PathSearch("update_time", getKeywordsAlarmRuleRespBody, 0).(float64)/1000))),
+		d.Set("created_at", utils.FormatTimeStampUTC(
+			int64(utils.PathSearch("create_time", getKeywordsAlarmRuleRespBody, float64(0)).(float64)/1000))),
+		d.Set("updated_at", utils.FormatTimeStampUTC(
+			int64(utils.PathSearch("update_time", getKeywordsAlarmRuleRespBody, float64(0)).(float64)/1000))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

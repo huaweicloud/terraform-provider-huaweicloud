@@ -423,9 +423,9 @@ func resourceCcmPrivateCertificateRead(_ context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	created := utils.PathSearch("create_time", getCertificateRespBody, 0).(float64)
-	started := utils.PathSearch("not_before", getCertificateRespBody, 0).(float64)
-	expired := utils.PathSearch("not_after", getCertificateRespBody, 0).(float64)
+	created := utils.PathSearch("create_time", getCertificateRespBody, float64(0)).(float64)
+	started := utils.PathSearch("not_before", getCertificateRespBody, float64(0)).(float64)
+	expired := utils.PathSearch("not_after", getCertificateRespBody, float64(0)).(float64)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("distinguished_name", flattenDistinguishedName(getCertificateRespBody)),

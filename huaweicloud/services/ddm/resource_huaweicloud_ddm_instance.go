@@ -639,13 +639,13 @@ func flattenGetFlavorsResponseBody(resp interface{}, flavorId string) (string, *
 		if specCode != "" {
 			return specCode, &queryRes{}
 		}
-		offset = utils.PathSearch("offset", v, 0).(float64)
-		limit = utils.PathSearch("limit", v, 0).(float64)
+		offset = utils.PathSearch("offset", v, float64(0)).(float64)
+		limit = utils.PathSearch("limit", v, float64(0)).(float64)
 		flavorCPUArch := utils.PathSearch("groupType", v, nil)
 		if flavorCPUArch == "X86" {
-			x86Total = utils.PathSearch("total", v, 0).(float64)
+			x86Total = utils.PathSearch("total", v, float64(0)).(float64)
 		} else {
-			armTotal = utils.PathSearch("total", v, 0).(float64)
+			armTotal = utils.PathSearch("total", v, float64(0)).(float64)
 		}
 	}
 	return "", &queryRes{

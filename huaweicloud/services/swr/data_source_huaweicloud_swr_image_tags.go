@@ -164,10 +164,10 @@ func dataSourceImageTagsRead(_ context.Context, d *schema.ResourceData, meta int
 				continue
 			}
 
-			tagType := int(utils.PathSearch("tag_type", imageTag, 0).(float64))
+			tagType := int(utils.PathSearch("tag_type", imageTag, float64(0)).(float64))
 			results = append(results, map[string]interface{}{
 				"name":          name,
-				"size":          int(utils.PathSearch("size", imageTag, 0).(float64)),
+				"size":          int(utils.PathSearch("size", imageTag, float64(0)).(float64)),
 				"path":          utils.PathSearch("path", imageTag, nil),
 				"internal_path": utils.PathSearch("internal_path", imageTag, nil),
 				"digest":        utils.PathSearch("digest", imageTag, nil),
@@ -175,7 +175,7 @@ func dataSourceImageTagsRead(_ context.Context, d *schema.ResourceData, meta int
 				"is_trusted":    utils.PathSearch("is_trusted", imageTag, false),
 				"manifest":      utils.PathSearch("manifest", imageTag, nil),
 				"scanned":       utils.PathSearch("scanned", imageTag, false),
-				"docker_schema": int(utils.PathSearch("schema", imageTag, 0).(float64)),
+				"docker_schema": int(utils.PathSearch("schema", imageTag, float64(0)).(float64)),
 				"type":          convertTagType(tagType),
 				"created_at":    utils.PathSearch("created", imageTag, nil),
 				"updated_at":    utils.PathSearch("updated", imageTag, nil),
