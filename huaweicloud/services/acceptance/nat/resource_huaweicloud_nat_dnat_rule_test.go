@@ -40,6 +40,7 @@ func TestAccPublicDnatRule_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -78,6 +79,29 @@ func TestAccPublicDnatRule_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccPublicDnatRule_basic_step_4(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "global_eip_id", "huaweicloud_global_eip.test", "id"),
+					resource.TestCheckResourceAttrSet(rName, "global_eip_address"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+				),
+			},
+			{
+				Config: testAccPublicDnatRule_basic_step_5(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "global_eip_id", "huaweicloud_global_eip.retest", "id"),
+					resource.TestCheckResourceAttr(rName, "protocol", "udp"),
+					resource.TestCheckResourceAttr(rName, "internal_service_port", "23"),
+					resource.TestCheckResourceAttr(rName, "external_service_port", "8023"),
+					resource.TestCheckResourceAttrSet(rName, "global_eip_address"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+				),
+			},
+			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -103,6 +127,7 @@ func TestAccPublicDnatRule_withPort(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -160,7 +185,89 @@ resource "huaweicloud_nat_gateway" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   enterprise_project_id = "0"
 }
-`, common.TestBaseComputeResources(name), name)
+
+data "huaweicloud_global_eip_pools" "all" {}
+
+resource "huaweicloud_global_internet_bandwidth" "test" {
+  access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
+  charge_mode           = "95peak_guar"
+  enterprise_project_id = "0"
+  size                  = 300
+  isp                   = data.huaweicloud_global_eip_pools.all.geip_pools[0].isp
+  name                  = "%[2]s-b1"
+  type                  = data.huaweicloud_global_eip_pools.all.geip_pools[0].allowed_bandwidth_types[0].type
+}
+
+resource "huaweicloud_global_eip" "test" {
+  access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
+  enterprise_project_id = "0"
+  geip_pool_name        = data.huaweicloud_global_eip_pools.all.geip_pools[0].name
+  internet_bandwidth_id = huaweicloud_global_internet_bandwidth.test.id
+  name                  = "%[2]s-g1"
+
+  tags = {
+    foo = "bar"
+  }
+}
+
+resource "huaweicloud_global_eip_associate" "test" {
+  global_eip_id  = huaweicloud_global_eip.test.id
+  is_reserve_gcb = false
+
+  associate_instance {
+    region        = huaweicloud_nat_gateway.test.region
+    project_id    = "%[3]s"
+    instance_type = "NATGW"
+    instance_id   = huaweicloud_nat_gateway.test.id
+  }
+
+  gc_bandwidth {
+    name        = "%[2]s-gc1"
+    charge_mode = "bwd"
+    size        = 5
+  }
+}
+
+resource "huaweicloud_global_internet_bandwidth" "retest" {
+  access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
+  charge_mode           = "95peak_guar"
+  enterprise_project_id = "0"
+  size                  = 300
+  isp                   = data.huaweicloud_global_eip_pools.all.geip_pools[0].isp
+  name                  = "%[2]s-b2"
+  type                  = data.huaweicloud_global_eip_pools.all.geip_pools[0].allowed_bandwidth_types[0].type
+}
+
+resource "huaweicloud_global_eip" "retest" {
+  access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
+  enterprise_project_id = "0"
+  geip_pool_name        = data.huaweicloud_global_eip_pools.all.geip_pools[0].name
+  internet_bandwidth_id = huaweicloud_global_internet_bandwidth.retest.id
+  name                  = "%[2]s-g2"
+
+  tags = {
+    foo = "bar"
+  }
+}
+
+resource "huaweicloud_global_eip_associate" "retest" {
+  global_eip_id  = huaweicloud_global_eip.retest.id
+  is_reserve_gcb = false
+
+  associate_instance {
+    region        = huaweicloud_nat_gateway.test.region
+    project_id    = "%[3]s"
+    instance_type = "NATGW"
+    instance_id   = huaweicloud_nat_gateway.test.id
+  }
+
+  gc_bandwidth {
+    name        = "%[2]s-gc2"
+    charge_mode = "bwd"
+    size        = 5
+  }
+}
+`, common.TestBaseComputeResources(name), name, acceptance.HW_PROJECT_ID)
 }
 
 func testAccPublicDnatRule_basic_step_1(name string) string {
@@ -200,12 +307,50 @@ func testAccPublicDnatRule_basic_step_3(name string) string {
 %[1]s
 
 resource "huaweicloud_nat_dnat_rule" "test" {
-  nat_gateway_id                  = huaweicloud_nat_gateway.test.id
+  nat_gateway_id              = huaweicloud_nat_gateway.test.id
   floating_ip_id              = huaweicloud_vpc_eip.test.id
   private_ip                  = huaweicloud_compute_instance.test.network[0].fixed_ip_v4
   protocol                    = "tcp"
   internal_service_port_range = "23-823"
   external_service_port_range = "8023-8823"
+}
+`, testAccPublicDnatRule_base(name))
+}
+
+func testAccPublicDnatRule_basic_step_4(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_nat_dnat_rule" "test" {
+  depends_on = [
+    huaweicloud_global_eip_associate.test
+  ]
+
+  nat_gateway_id              = huaweicloud_nat_gateway.test.id
+  global_eip_id               = huaweicloud_global_eip.test.id
+  private_ip                  = huaweicloud_compute_instance.test.network[0].fixed_ip_v4
+  protocol                    = "tcp"
+  internal_service_port_range = "23-823"
+  external_service_port_range = "8023-8823"
+}
+`, testAccPublicDnatRule_base(name))
+}
+
+func testAccPublicDnatRule_basic_step_5(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_nat_dnat_rule" "test" {
+  depends_on = [
+    huaweicloud_global_eip_associate.retest
+  ]
+
+  nat_gateway_id        = huaweicloud_nat_gateway.test.id
+  global_eip_id         = huaweicloud_global_eip.retest.id
+  private_ip            = huaweicloud_compute_instance.test.network[0].fixed_ip_v4
+  protocol              = "udp"
+  internal_service_port = 23
+  external_service_port = 8023
 }
 `, testAccPublicDnatRule_base(name))
 }

@@ -18,6 +18,10 @@ type Rule struct {
 	FloatingIpId string `json:"floating_ip_id"`
 	// The floating IP address connected by DNAT rule.
 	FloatingIpAddress string `json:"floating_ip_address"`
+	// The ID of the global EIP connected by the DNAT rule.
+	GlobalEipId string `json:"global_eip_id"`
+	// The global EIP address connected by the DNAT rule.
+	GlobalEipAddress string `json:"global_eip_address"`
 	// The current status of the DNAT rule.
 	Status string `json:"status"`
 	// The frozen status.
