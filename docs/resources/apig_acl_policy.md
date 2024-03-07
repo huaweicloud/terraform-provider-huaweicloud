@@ -22,7 +22,7 @@ resource "huaweicloud_apig_acl_policy" "ip_rule" {
   name        = var.policy_name
   type        = "PERMIT"
   entity_type = "IP"
-  value       = join(var.ip_addresses, ",")
+  value       = join(",", var.ip_addresses)
 }
 ```
 
@@ -40,7 +40,7 @@ resource "huaweicloud_apig_acl_policy" "domain_rule" {
   name        = var.policy_name
   type        = "PERMIT"
   entity_type = "DOMAIN"
-  value       = join(var.domain_names, ",")
+  value       = join(",", var.domain_names)
 }
 ```
 
@@ -58,7 +58,7 @@ resource "huaweicloud_apig_acl_policy" "domain_id_rule" {
   name        = var.policy_name
   type        = "PERMIT"
   entity_type = "DOMAIN_ID"
-  value       = join(var.domain_ids, ",")
+  value       = join(",", var.domain_ids)
 }
 ```
 
