@@ -53,6 +53,8 @@ type Function struct {
 	// GPU memory.
 	// Range: 1024 to 16,384, and the value is a multiple of 1024.
 	GPUMemory int `json:"gpu_memory"`
+	// GPU type.
+	GPUType string `json:"gpu_type"`
 	// Ephemeral storage size, the maximum value is 10 GB. Defaults to 512 MB.
 	EphemeralStorage int `json:"ephemeral_storage"`
 	// Whether to allow a long timeout.

@@ -360,6 +360,16 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"gpu_memory": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"gpu_type"},
+			},
+			"gpu_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"gpu_memory"},
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -481,6 +491,8 @@ func buildFgsFunctionParameters(d *schema.ResourceData, cfg *config.Config) (fun
 		Xrole:               agencyV,
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		CustomImage:         buildCustomImage(d.Get("custom_image").([]interface{})),
+		GPUMemory:           d.Get("gpu_memory").(int),
+		GPUType:             d.Get("gpu_type").(string),
 	}
 	if v, ok := d.GetOk("func_code"); ok {
 		funcCode := function.FunctionCodeOpts{
@@ -821,6 +833,8 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		setFuncionMountConfig(d, f.MountConfig),
 		d.Set("concurrency_num", getConcurrencyNum(f.StrategyConfig.ConcurrencyNum)),
 		d.Set("versions", versionConfig),
+		d.Set("gpu_memory", f.GPUMemory),
+		d.Set("gpu_type", f.GPUType),
 	)
 
 	reservedInstances, err := getReservedInstanceConfig(fgsClient, d)
@@ -1086,7 +1100,7 @@ func resourceFgsFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if d.HasChanges("app", "handler", "memory_size", "timeout", "encrypted_user_data",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
-		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num") {
+		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num", "gpu_memory", "gpu_type") {
 		err := resourceFgsFunctionMetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return diag.FromErr(err)
@@ -1175,6 +1189,8 @@ func resourceFgsFunctionMetadataUpdate(fgsClient *golangsdk.ServiceClient, urn s
 		InitializerTimeout: d.Get("initializer_timeout").(int),
 		CustomImage:        buildCustomImage(d.Get("custom_image").([]interface{})),
 		DomainNames:        d.Get("dns_list").(string),
+		GPUMemory:          d.Get("gpu_memory").(int),
+		GPUType:            d.Get("gpu_type").(string),
 	}
 
 	if _, ok := d.GetOk("vpc_id"); ok {
