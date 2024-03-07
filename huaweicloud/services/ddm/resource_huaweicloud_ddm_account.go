@@ -30,11 +30,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DDM GET /v1/{project_id}/instances/{instance_id}/users
 // @API DDM POST /v1/{project_id}/instances/{instance_id}/users
-// @API DDM DELETE /v1/{project_id}/instances/{instance_id}/users/{username}
 // @API DDM PUT /v1/{project_id}/instances/{instance_id}/users/{username}
 // @API DDM POST /v2/{project_id}/instances/{instance_id}/users/{username}/password
+// @API DDM GET /v1/{project_id}/instances/{instance_id}/users
+// @API DDM DELETE /v1/{project_id}/instances/{instance_id}/users/{username}
 func ResourceDdmAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdmAccountCreate,
