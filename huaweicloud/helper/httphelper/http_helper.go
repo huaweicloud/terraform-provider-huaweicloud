@@ -340,14 +340,14 @@ func marshalQueryParams(params map[string]any) string {
 			switch v.Type().Elem() {
 			case reflect.TypeOf(0):
 				for i := 0; i < v.Len(); i++ {
-					query.Add(key, strconv.FormatInt(v.Index(i).Int(), 10))
+					query.Add(key, fmt.Sprintf("%v", v.Index(i).Interface()))
 				}
 			default:
 				for i := 0; i < v.Len(); i++ {
 					if v.Index(i).IsZero() {
 						continue
 					}
-					query.Add(key, v.Index(i).String())
+					query.Add(key, fmt.Sprintf("%v", v.Index(i).Interface()))
 				}
 			}
 		case reflect.Map:
