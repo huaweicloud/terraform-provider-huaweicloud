@@ -186,7 +186,8 @@ func elasticResourcePoolStatusRefreshFunc(client *golangsdk.ServiceClient, d *sc
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
 				log.Printf("[DEBUG] The DLI elastic resource pool (%s) has been deleted", resourceName)
-				return respBody, "COMPLETED", nil
+				// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
+				return "Resource Not Found", "COMPLETED", nil
 			}
 			return respBody, "ERROR", err
 		}
