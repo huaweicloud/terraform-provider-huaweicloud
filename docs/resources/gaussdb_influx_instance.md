@@ -94,8 +94,8 @@ The following arguments are supported:
 * `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this
   parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id, Only valid for users who
-  have enabled the enterprise multi-project service. Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id, Only valid for users who
+  have enabled the enterprise multi-project service.
 
 * `ssl` - (Optional, Bool, ForceNew) Specifies whether to enable or disable SSL. Defaults to **false**. Changing this
   parameter will create a new resource.

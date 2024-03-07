@@ -76,6 +76,46 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccGaussRedisInstance_updateWithEpsId(t *testing.T) {
+	var instance instances.GeminiDBInstance
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("Acc%s@123", acctest.RandString(5))
+	newPassword := fmt.Sprintf("Acc%sUpdate@123", acctest.RandString(5))
+	resourceName := "huaweicloud_gaussdb_redis_instance.test"
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGaussRedisInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussRedisInstanceConfig_withEpsId(rName, password, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussRedisInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "password", password),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccGaussRedisInstanceConfig_withEpsId(rName, newPassword, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussRedisInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGaussRedisInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := cfg.GeminiDBV3Client(acceptance.HW_REGION_NAME)
@@ -228,4 +268,52 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   }
 }
 `, common.TestSecGroup(rName+"_update"), rName, password, nodeNum)
+}
+
+func testAccGaussRedisInstanceConfig_withEpsId(rName, password, epsId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_gaussdb_redis_instance" "test" {
+  name                  = "%[2]s"
+  password              = "%[3]s"
+  flavor                = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  volume_size           = 50
+  vpc_id                = data.huaweicloud_vpc.test.id
+  subnet_id             = data.huaweicloud_vpc_subnet.test.id
+  node_num              = 3
+  port                  = 8888
+  ssl                   = true
+  enterprise_project_id = "%s"
+
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  backup_strategy {
+    start_time = "03:00-04:00"
+    keep_days  = 14
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, common.TestSecGroup(rName), rName, password, epsId)
 }

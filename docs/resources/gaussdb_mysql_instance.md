@@ -77,8 +77,7 @@ The following arguments are supported:
 * `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this parameter
   will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Required if EPS enabled.
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id. Required if EPS enabled.
 
 * `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive. The value can
   be `true` (case sensitive) and `false` (case insensitive). Defaults to `false`. This parameter only works during

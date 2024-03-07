@@ -145,8 +145,7 @@ The following arguments are supported:
   Double replicas are only available for specific users and supports only instance versions are v1.3.0 or later.
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
-  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
 * `time_zone` - (Optional, String, ForceNew) Specifies the time zone. Defaults to **UTC+08:00**.
   Changing this parameter will create a new resource.

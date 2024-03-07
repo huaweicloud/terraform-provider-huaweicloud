@@ -108,7 +108,6 @@ func ResourceGaussDBMongoInstanceV3() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"dedicated_resource_id": {
 				Type:     schema.TypeString,

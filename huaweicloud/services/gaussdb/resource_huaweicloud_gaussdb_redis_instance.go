@@ -18,6 +18,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -110,7 +111,6 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"port": {
 				Type:     schema.TypeInt,
@@ -611,6 +611,7 @@ func resourceGaussRedisInstanceV3Delete(ctx context.Context, d *schema.ResourceD
 func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	instanceId := d.Id()
 	client, err := cfg.GeminiDBV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating GaussRedis client: %s", err)
@@ -621,9 +622,9 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 	}
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceId)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of GaussDB for Redis %q: %s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of GaussDB for Redis %q: %s", instanceId, tagErr)
 		}
 	}
 
@@ -632,9 +633,9 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 			Name: d.Get("name").(string),
 		}
 
-		err = instances.UpdateName(client, d.Id(), updateNameOpts).ExtractErr()
+		err = instances.UpdateName(client, instanceId, updateNameOpts).ExtractErr()
 		if err != nil {
-			return diag.Errorf("error updating name for gaussdb_redis_instance %s: %s", d.Id(), err)
+			return diag.Errorf("error updating name for gaussdb_redis_instance %s: %s", instanceId, err)
 		}
 	}
 
@@ -643,10 +644,10 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 			Password: d.Get("password").(string),
 		}
 
-		err = instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
+		err = instances.UpdatePass(client, instanceId, updatePassOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating password for gaussdb_redis_instance %s: %s",
-				d.Id(), err)
+				instanceId, err)
 		}
 	}
 
@@ -685,8 +686,20 @@ func resourceGaussRedisInstanceV3Update(ctx context.Context, d *schema.ResourceD
 	}
 
 	if d.HasChange("auto_renew") {
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "nosql",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
