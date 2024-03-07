@@ -1218,3 +1218,94 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, name, concurrencyNum)
 }
+
+func TestAccFgsV2Function_gpuMemory(t *testing.T) {
+	var (
+		f function.Function
+
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Only the cn-east-3 region supports this function, and you need to submit a service ticket to enable the function.
+			acceptance.TestAccPreCheckFgsGpuType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_gpuMemory(name, 1024),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "gpu_memory", "1024"),
+					resource.TestCheckResourceAttr(resourceName, "gpu_type", acceptance.HW_FGS_GPU_TYPE),
+				),
+			},
+			{
+				Config: testAccFunction_gpuMemory(name, 2048),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "gpu_memory", "2048"),
+					resource.TestCheckResourceAttr(resourceName, "gpu_type", acceptance.HW_FGS_GPU_TYPE),
+				),
+			},
+			{
+				Config: testAccFunction_default(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "gpu_memory", "0"),
+					resource.TestCheckResourceAttr(resourceName, "gpu_type", ""),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_gpuMemory(name string, memory int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  handler     = "bootstrap"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Custom"
+  code_type   = "inline"
+  gpu_memory  = %[2]d
+  gpu_type    = "%[3]s"
+}
+`, name, memory, acceptance.HW_FGS_GPU_TYPE)
+}
+
+func testAccFunction_default(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  handler     = "bootstrap"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Custom"
+  code_type   = "inline"
+}
+`, name)
+}

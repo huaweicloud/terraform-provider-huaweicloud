@@ -41,6 +41,8 @@ type CreateOpts struct {
 	UserData            string            `json:"user_data,omitempty"`
 	Xrole               string            `json:"xrole,omitempty"`
 	LogConfig           *FuncLogConfig    `json:"log_config,omitempty"`
+	GPUMemory           int               `json:"gpu_memory,omitempty"`
+	GPUType             string            `json:"gpu_type,omitempty"`
 }
 
 type CustomImage struct {
@@ -161,6 +163,9 @@ type UpdateMetadataOpts struct {
 	// GPU memory.
 	// Range: 1024 to 16,384, and the value is a multiple of 1024.
 	GPUMemory int `json:"gpu_memory,omitempty"`
+	// GPU type.
+	// Currently, only nvidia-t4 is supported.
+	GPUType string `json:"gpu_type,omitempty"`
 	// Function policy configuration.
 	StrategyConfig *StrategyConfig `json:"strategy_config,omitempty"`
 	// Extended configuration.

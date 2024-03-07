@@ -133,6 +133,7 @@ var (
 
 	HW_FGS_AGENCY_NAME = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_TEMPLATE_ID = os.Getenv("HW_FGS_TEMPLATE_ID")
+	HW_FGS_GPU_TYPE    = os.Getenv("HW_FGS_GPU_TYPE")
 
 	HW_KMS_ENVIRONMENT    = os.Getenv("HW_KMS_ENVIRONMENT")
 	HW_KMS_HSM_CLUSTER_ID = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
@@ -482,6 +483,13 @@ func TestAccPreCheckFgsAgency(t *testing.T) {
 func TestAccPreCheckFgsTemplateId(t *testing.T) {
 	if HW_FGS_TEMPLATE_ID == "" {
 		t.Skip("HW_FGS_TEMPLATE_ID must be set for FGS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckFgsGpuType(t *testing.T) {
+	if HW_FGS_GPU_TYPE == "" {
+		t.Skip("HW_FGS_GPU_TYPE must be set for FGS acceptance tests")
 	}
 }
 

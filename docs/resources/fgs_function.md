@@ -318,6 +318,17 @@ The following arguments are supported:
 * `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.
   The [reserved_instances](#functiongraph_reserved_instances) structure is documented below.
 
+* `gpu_memory` - (Optional, Int) Specifies the GPU memory size allocated to the function, in MByte (MB).
+  The valid value ranges form `1,024` to `16,384`, the value must be a multiple of `1,024`.
+  If not specified, the GPU function is disabled.
+
+* `gpu_type` - (Optional, String) Specifies the GPU type to the function.
+  Currently, only **nvidia-t4** is supported.
+
+  -> If you want to use the `gpu_memory` and `gpu_type` parameters, the `runtime` parameter must be set to `Custom` or
+  `Custom Image`. And you need to submit a service ticket to open this function, please refer to
+  the documentation [how to submit a service ticket](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
+
 The `func_mounts` block supports:
 
 * `mount_type` - (Required, String) Specifies the mount type.
