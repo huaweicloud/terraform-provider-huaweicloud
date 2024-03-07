@@ -18,6 +18,8 @@ type CreateOpts struct {
 	KeySpec string `json:"key_spec,omitempty"`
 	// Enterprise project id
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+	// Key source, the value can be kms or external, the default value is kms.
+	Origin string `json:"origin,omitempty"`
 }
 
 type DeleteOpts struct {

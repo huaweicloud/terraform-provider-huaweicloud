@@ -36,18 +36,27 @@ The following arguments are supported:
 * `pending_days` - (Optional, String) Duration in days after which the key is deleted after destruction of the resource,
   must be between 7 and 1096 days. It doesn't have default value. It only be used when delete a key.
 
-* `is_enabled` - (Optional, Bool) Specifies whether the key is enabled. Defaults to true. Changing this updates the
-  state of existing key.
+* `is_enabled` - (Optional, Bool) Specifies whether the key is enabled. Defaults to true. This field is not supported
+  when creating an external import key for the first time. This field only takes effect when the value
+  of `key_state` is **2** or **3**. Changing this updates the state of existing key.
 
 * `rotation_enabled` - (Optional, Bool) Specifies whether the key rotation is enabled. Defaults to false.
+  This field is supported when the origin of the key is **kms**.
 
 * `rotation_interval` - (Optional, Int) Specifies the key rotation interval. The valid value is range from 30 to 365,
-  defaults to 365.
+  defaults to 365. This field is supported when the source of the key is **kms**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the kms key. Changing this creates
   a new key.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the kms key.
+
+* `origin` - (Optional, String, ForceNew) Specifies the source of the kms key. Valid values are **kms** and **external**.
+  The default value is **kms**. Changing this creates a new key.
+
+* `key_usage` - (Optional, String, ForceNew) Specifies the key usage. The value can be **ENCRYPT_DECRYPT** or **SIGN_VERIFY**.
+  For key_usage selection, see the [documentation](https://support.huaweicloud.com/intl/en-us/productdesc-ram/ram_01_0007.html).
+  Changing this creates a new key.
 
 ## Attribute Reference
 
@@ -62,6 +71,12 @@ In addition to all arguments above, the following attributes are exported:
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
 * `rotation_number` - The total number of key rotations.
+* `key_state` - The status of the kms key. The valid values are as follows:
+  **1**: To be activated
+  **2**: Enabled.
+  **3**: Disabled.
+  **4**: Pending deletion.
+  **5**: Pending import.
 
 ## Import
 
@@ -72,7 +87,7 @@ $ terraform import huaweicloud_kms_key.key_1 7056d636-ac60-4663-8a6c-82d3c32c1c6
 ```
 
 Note that the imported state may not be identical to your resource definition,
-due to `pending_days` is missing from the API response.
+due to `pending_days` and `is_enabled` are missing from the API response.
 It is generally recommended running `terraform plan` after importing a KMS Key.
 You can then decide if changes should be applied to the KMS Key, or the resource
 definition should be updated to align with the KMS Key. Also you can ignore changes as below.
@@ -82,7 +97,7 @@ resource "huaweicloud_kms_key" "key_1" {
     ...
 
   lifecycle {
-    ignore_changes = [ pending_days ]
+    ignore_changes = [ pending_days, is_enabled ]
   }
 }
 ```

@@ -39,6 +39,8 @@ type Key struct {
 	Origin string `json:"origin"`
 	//Enterprise peoject id
 	EnterpriseProjectID string `json:"sys_enterprise_project_id"`
+	// Key usage
+	KeyUsage string `json:"key_usage"`
 }
 
 type ListKey struct {

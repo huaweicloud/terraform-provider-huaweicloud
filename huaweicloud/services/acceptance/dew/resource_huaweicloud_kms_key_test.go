@@ -76,6 +76,46 @@ func TestAccKmsKey_Basic(t *testing.T) {
 	})
 }
 
+func TestAccKmsKey_ExternalKey(t *testing.T) {
+	var keyAlias = acceptance.RandomAccResourceName()
+	var resourceName = "huaweicloud_kms_key.key_1"
+
+	var key keys.Key
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&key,
+		getKmsKeyResourceFunc,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsKey_ExternalKey(keyAlias),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "origin", "external"),
+					resource.TestCheckResourceAttr(resourceName, "key_usage", "ENCRYPT_DECRYPT"),
+					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
+					resource.TestCheckResourceAttr(resourceName, "key_state", "5"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"pending_days", "is_enabled",
+				},
+			},
+		},
+	})
+}
+
 func TestAccKmsKey_Enable(t *testing.T) {
 	var rName = acceptance.RandomAccResourceName()
 	var resourceName = "huaweicloud_kms_key.key_1"
@@ -233,6 +273,18 @@ resource "huaweicloud_kms_key" "key_1" {
   key_alias    = "%s"
   pending_days = "7"
   region       = "%s"
+}
+`, keyAlias, acceptance.HW_REGION_NAME)
+}
+
+func testAccKmsKey_ExternalKey(keyAlias string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "key_1" {
+  key_alias    = "%s"
+  pending_days = "7"
+  region       = "%s"
+  origin       = "external"
+  key_usage    = "ENCRYPT_DECRYPT"
 }
 `, keyAlias, acceptance.HW_REGION_NAME)
 }
