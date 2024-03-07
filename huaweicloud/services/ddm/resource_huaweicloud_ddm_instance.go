@@ -27,15 +27,22 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API DDM POST /v1/{project_id}/instances
+// @API DDM GET /v1/{project_id}/instances/{instance_id}
+// @API DDM PUT /v1/{project_id}/instances/{instance_id}/modify-name
+// @API DDM PUT /v1/{project_id}/instances/{instance_id}/modify-security-group
+// @API DDM GET /v2/{project_id}/flavors
+// @API DDM PUT /v3/{project_id}/instances/{instance_id}/flavor
 // @API DDM POST /v2/{project_id}/instances/{instance_id}/action/enlarge
 // @API DDM POST /v2/{project_id}/instances/{instance_id}/action/reduce
 // @API DDM PUT /v3/{project_id}/instances/{instance_id}/admin-user
-// @API DDM PUT /v3/{project_id}/instances/{instance_id}/flavor
-// @API DDM POST /v1/{project_id}/instances
-// @API DDM GET /v1/{project_id}/instances/{instance_id}
 // @API DDM DELETE /v1/{project_id}/instances/{instance_id}
-// @API DDM PUT /v1/{project_id}/instances/{instance_id}/modify-name
-// @API DDM PUT /v1/{project_id}/instances/{instance_id}/modify-security-group
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceDdmInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDdmInstanceCreate,
