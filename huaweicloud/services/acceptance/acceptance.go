@@ -279,6 +279,7 @@ var (
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 
+	HW_IOTDA_ACCESS_ADDRESS      = os.Getenv("HW_IOTDA_ACCESS_ADDRESS")
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
 
 	HW_DWS_MUTIL_AZS = os.Getenv("HW_DWS_MUTIL_AZS")
@@ -1315,6 +1316,13 @@ func TestAccPreCheckAKAndSK(t *testing.T) {
 func TestAccPreCheckECSLaunchTemplateID(t *testing.T) {
 	if HW_ECS_LAUNCH_TEMPLATE_ID == "" {
 		t.Skip("HW_ECS_LAUNCH_TEMPLATE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHWIOTDAAccessAddress(t *testing.T) {
+	if HW_IOTDA_ACCESS_ADDRESS == "" {
+		t.Skip("HW_IOTDA_ACCESS_ADDRESS must be set for the acceptance test")
 	}
 }
 

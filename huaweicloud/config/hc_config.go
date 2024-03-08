@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
+	hcregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
 	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
 	ccev3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cce/v3"
 	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
@@ -43,7 +44,7 @@ import (
 This file is used to impl the configuration of huaweicloud-sdk-go-v3 package and
 genetate service clients.
 */
-func buildAuthCredentials(c *Config, region string) (*basic.Credentials, error) {
+func buildAuthCredentials(c *Config, region string, isDerived bool) (*basic.Credentials, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("access_key or secret_key is missing in the provider")
 	}
@@ -53,6 +54,10 @@ func buildAuthCredentials(c *Config, region string) (*basic.Credentials, error) 
 		SK:            c.SecretKey,
 		SecurityToken: c.SecurityToken,
 		IamEndpoint:   c.IdentityEndpoint,
+	}
+
+	if isDerived {
+		credentials.DerivedPredicate = basic.DefaultDerivedPredicate
 	}
 
 	c.RPLock.Lock()
@@ -226,9 +231,9 @@ func (c *Config) HcMpcV1Client(region string) (*mpcv1.MpcClient, error) {
 	return mpcv1.NewMpcClient(hcClient), nil
 }
 
-// HcIoTdaV5Client is the live service client using huaweicloud-sdk-go-v3 package
-func (c *Config) HcIoTdaV5Client(region string) (*iotdav5.IoTDAClient, error) {
-	hcClient, err := NewHcClient(c, region, "iotda", false)
+// HcIoTdaV5Client is the IoTDA service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcIoTdaV5Client(region string, isDerived bool) (*iotdav5.IoTDAClient, error) {
+	hcClient, err := implNewHcClient(c, region, "iotda", false, isDerived)
 	if err != nil {
 		return nil, err
 	}
@@ -299,26 +304,37 @@ func (c *Config) HcCceV3Client(region string) (*ccev3.CceClient, error) {
 }
 
 // NewHcClient is the common client using huaweicloud-sdk-go-v3 package
-func NewHcClient(c *Config, region, product string, globalFlag bool) (*core.HcHttpClient, error) {
+func NewHcClient(c *Config, region, product string, isGlobal bool) (*core.HcHttpClient, error) {
+	return implNewHcClient(c, region, product, isGlobal, false)
+}
+
+func implNewHcClient(c *Config, region, product string, isGlobal, isDerived bool) (*core.HcHttpClient, error) {
 	endpoint := GetServiceEndpoint(c, product, region)
 	if endpoint == "" {
 		return nil, fmt.Errorf("failed to get the endpoint of %q service in region %s", product, region)
 	}
 
-	builder := core.NewHcHttpClientBuilder().WithEndpoint(endpoint).WithHttpConfig(buildHTTPConfig(c))
+	builder := core.NewHcHttpClientBuilder().
+		WithRegion(hcregion.NewRegion(region, endpoint)).
+		WithHttpConfig(buildHTTPConfig(c))
 
-	if globalFlag {
+	if isGlobal {
 		credentials, err := buildGlobalAuthCredentials(c, region)
 		if err != nil {
 			return nil, err
 		}
 		builder.WithCredentialsType("global.Credentials").WithCredential(credentials)
 	} else {
-		credentials, err := buildAuthCredentials(c, region)
+		credentials, err := buildAuthCredentials(c, region, isDerived)
 		if err != nil {
 			return nil, err
 		}
+
 		builder.WithCredential(credentials)
+		if isDerived {
+			// the derivedAuthServiceName is fixed to "iotdm", now only IoTDA service need derived sign
+			builder.WithDerivedAuthServiceName("iotdm")
+		}
 	}
 
 	headers := make(map[string]string)

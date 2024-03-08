@@ -157,7 +157,8 @@ func buildUpgradePackageCreateParams(d *schema.ResourceData) *model.CreateOtaPac
 func resourceUpgradePackageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.HcIoTdaV5Client(region)
+	isDerived := withDerivedAuth(cfg, region)
+	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
@@ -180,7 +181,8 @@ func resourceUpgradePackageCreate(ctx context.Context, d *schema.ResourceData, m
 func resourceUpgradePackageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.HcIoTdaV5Client(region)
+	isDerived := withDerivedAuth(cfg, region)
+	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
@@ -243,7 +245,8 @@ func flattenObsLocation(resp *model.ObsLocation) []interface{} {
 func resourceUpgradePackageDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.HcIoTdaV5Client(region)
+	isDerived := withDerivedAuth(cfg, region)
+	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
