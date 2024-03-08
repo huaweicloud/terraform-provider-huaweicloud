@@ -69,6 +69,10 @@ jobs:
           github_token: ${{ secrets.github_token }}
           locale: "US"
           ignore: "cancelled"
+          exclude: |
+            ./.github/*
+            ./scripts/*
+            ./vendor/*
           pattern: |
             *.md
             *.tf
