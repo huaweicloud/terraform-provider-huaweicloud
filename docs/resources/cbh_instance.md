@@ -37,11 +37,12 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the product ID of the CBH server.
+* `name` - (Required, String, ForceNew) Specifies the name of the CBH instance. The field can contain `1` to `64` characters.
+  Only letters, digits, underscores (_), and hyphens (-) are allowed.
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the CBH instance.
+* `flavor_id` - (Required, String, ForceNew) Specifies the product ID of the CBH server.
 
   Changing this parameter will create a new resource.
 
@@ -61,7 +62,14 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `charging_mode` - (Required, String, ForceNew) Specifies the charging mode of the read replica instance.
+* `password` - (Required, String) Specifies the password for logging in to the management console. The value of the field
+  has the following restrictions:
+  + The value of the field must contain `8` to `32` characters.
+  + The value of the field must contain at least three of the following: letters, digits, and special characters
+    (!@$%^-_=+[{}]:,./?~#*).
+  + The value of the field cannot contain the username or the username spelled backwards.
+
+* `charging_mode` - (Required, String, ForceNew) Specifies the charging mode of the CBH instance.
   The options are as follows:
   + **prePaid**: the yearly/monthly billing mode.
 
@@ -72,15 +80,13 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `period` - (Required, Int, ForceNew) Specifies the charging period of the read replica instance.
+* `period` - (Required, Int, ForceNew) Specifies the charging period of the CBH instance.
   If `period_unit` is set to **month**, the value ranges from 1 to 9.
   If `period_unit` is set to **year**, the value ranges from 1 to 3.
 
   Changing this parameter will create a new resource.
 
-* `password` - (Required, String) Specifies the password for logging in to the management console.
-
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
 
 * `subnet_address` - (Optional, String) Specifies the IP address of the subnet.
@@ -88,9 +94,7 @@ The following arguments are supported:
 
 * `public_ip_id` - (Optional, String) Specifies the ID of the elastic IP.
 
-* `public_ip` - (Optional, String) Specifies the elastic IP address.
-
-* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether the IPv6 network is enabled. Default to false.
+* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether the IPv6 network is enabled. Defaults to **false**.
 
   Changing this parameter will create a new resource.
 
@@ -100,7 +104,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `private_ip` - Indicates the private ip of the instance.
+* `public_ip` - Indicates the elastic IP address.
+
+* `private_ip` - Indicates the private IP address of the instance.
 
 * `status` - Indicates the status of the instance.
 
@@ -118,15 +124,15 @@ This resource provides the following timeouts configuration options:
 The CBH instance can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_cbh_instance.test <instance_id>
+$ terraform import huaweicloud_cbh_instance.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `charging_mode`, `period`, `period_unit`,
-`auto_renew`, `password`.
+`auto_renew`, `password`, `ipv6_enable`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated
-to align with the instance. Also you can ignore changes as below.
+to align with the instance. Also, you can ignore changes as below.
 
 ```
 resource "huaweicloud_cbh_instance" "test" {
@@ -134,7 +140,7 @@ resource "huaweicloud_cbh_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, period, period_unit, auto_renew, password,
+      charging_mode, period, period_unit, auto_renew, password, ipv6_enable,
     ]
   }
 }
