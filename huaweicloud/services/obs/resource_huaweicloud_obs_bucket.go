@@ -38,6 +38,7 @@ import (
 // @API OBS DELETE /
 // @API OBS PUT /
 // @API OBS HEAD /
+// @API OBS GET /
 // @API OBS PUT ?versioning
 // @API OBS GET ?versioning
 // @API OBS PUT ?quota
@@ -45,6 +46,7 @@ import (
 // @API OBS POST ?delete
 // @API OBS PUT ?tagging
 // @API OBS GET ?tagging
+// @API OBS GET ?storageinfo
 // @API OBS PUT ?storageClass
 // @API OBS GET ?storageClass
 // @API OBS PUT ?encryption
@@ -58,6 +60,7 @@ import (
 // @API OBS DELETE ?cors
 // @API OBS PUT ?cors
 // @API OBS GET ?cors
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 func ResourceObsBucket() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceObsBucketCreate,
