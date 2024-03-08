@@ -28,7 +28,7 @@ import (
 // @API VPC PUT /v1/{project_id}/vpcs/{id}
 // @API VPC DELETE /v1/{project_id}/vpcs/{id}
 // @API VPC PUT /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr
-// @API VPC PUT /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr
+// @API VPC PUT /v3/{project_id}/vpc/vpcs/{id}/remove-extend-cidr
 // @API VPC GET /v3/{project_id}/vpc/vpcs/{id}
 // @API VPC POST /v2.0/{project_id}/vpcs/{id}/tags/action
 // @API VPC GET /v2.0/{project_id}/vpcs/{id}/tags
