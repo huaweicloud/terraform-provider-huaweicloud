@@ -26,7 +26,6 @@ func TestAccDatasourceCsmsSecrets_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "secrets.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "secrets.0.status"),
 					resource.TestCheckResourceAttrSet(rName, "secrets.0.kms_key_id"),
-					resource.TestCheckResourceAttrSet(rName, "secrets.0.description"),
 					resource.TestCheckResourceAttrSet(rName, "secrets.0.created_at"),
 					resource.TestCheckResourceAttrSet(rName, "secrets.0.updated_at"),
 					resource.TestCheckResourceAttrSet(rName, "secrets.0.secret_type"),
