@@ -51,7 +51,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDrsJob_migrate_mysql(name, dbName, pwd),
+				Config: testAccDrsJob_migrate_mysql(name, dbName, pwd, ""),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -82,7 +82,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd),
+				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd, "stop"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -106,10 +106,17 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 						"huaweicloud_rds_instance.test2", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.region",
 						"huaweicloud_rds_instance.test2", "region"),
-					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttr(resourceName, "status", "PAUSING"),
 					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", updateName),
+				),
+			},
+			{
+				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd, "restart"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
 				),
 			},
 			{
@@ -117,7 +124,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
-					"expired_days", "migrate_definer", "force_destroy"},
+					"expired_days", "migrate_definer", "force_destroy", "action"},
 			},
 		},
 	})
@@ -158,7 +165,7 @@ resource "huaweicloud_rds_instance" "test%d" {
 `, index, name, index, ip, pwd)
 }
 
-func testAccDrsJob_migrate_mysql(name, dbName, pwd string) string {
+func testAccDrsJob_migrate_mysql(name, dbName, pwd, action string) string {
 	netConfig := common.TestBaseNetwork(name)
 	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
 	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
@@ -222,11 +229,13 @@ resource "huaweicloud_drs_job" "test" {
     key = "%s"
   }
 
+  action = "%s"
+
   lifecycle {
     ignore_changes = [
       source_db.0.password, destination_db.0.password, force_destroy,
     ]
   }
 }
-`, netConfig, sourceDb, destDb, name, name, pwd, pwd, name)
+`, netConfig, sourceDb, destDb, name, name, pwd, pwd, name, action)
 }

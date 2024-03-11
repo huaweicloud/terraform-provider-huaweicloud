@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -34,6 +35,7 @@ import (
 // @API DRS POST /v3/{project_id}/jobs/batch-detail
 // @API DRS PUT /v3/{project_id}/jobs/batch-modification
 // @API DRS POST /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action
+// @API DRS POST /v5/{project_id}/jobs/{job_id}/action
 func ResourceDrsJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceJobCreate,
@@ -197,6 +199,23 @@ func ResourceDrsJob() *schema.Resource {
 				Default:  false,
 			},
 
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"is_sync_re_edit": {
+				Type:         schema.TypeBool,
+				Optional:     true,
+				RequiredWith: []string{"action"},
+			},
+
+			"pause_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"action"},
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -219,6 +238,7 @@ func ResourceDrsJob() *schema.Resource {
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 	}
@@ -516,7 +536,104 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
+	if d.HasChange("action") {
+		if action, ok := d.GetOk("action"); ok && utils.StrSliceContains([]string{"stop", "restart", "reset"}, action.(string)) {
+			// precheck status
+			resp, err := jobs.Status(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
+			if err != nil {
+				return diag.Errorf("error retrieving job status: %s", err)
+			}
+			if resp.Count == 0 || resp.Results[0].ErrorCode != "" {
+				return diag.Errorf("error retrieving job status, %s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMessage)
+			}
+			err = preCheckStatus(resp.Results[0].Status)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			// execute action
+			err = executeJobAction(clientV5, buildExecuteJobActionBodyParams(d), action.(string), d.Id())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			// wait for action complete
+			err = waitingforJobStatus(ctx, client, d.Id(), action.(string), d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceJobRead(ctx, d, meta)
+}
+
+func preCheckStatus(status string) error {
+	switch status {
+	case "stop":
+		if !utils.StrSliceContains(
+			[]string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}, status) {
+			return fmt.Errorf("error pausing job for status(%s)", status)
+		}
+	case "restart":
+		if status != "PAUSING" {
+			return fmt.Errorf("error restarting job for status(%s)", status)
+		}
+	case "reset":
+		if !utils.StrSliceContains([]string{"FULL_TRANSFER_FAILED", "INCRE_TRANSFER_FAILED"}, status) {
+			return fmt.Errorf("error reseting job for status(%s)", status)
+		}
+	}
+	return nil
+}
+
+func buildExecuteJobActionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	action := d.Get("action").(string)
+	switch action {
+	case "stop":
+		return map[string]interface{}{
+			"pause_mode": utils.ValueIngoreEmpty(d.Get("pause_mode")),
+		}
+	case "restart":
+		return map[string]interface{}{
+			"is_sync_re_edit": utils.ValueIngoreEmpty(d.Get("is_sync_re_edit")),
+		}
+	case "reset":
+		return map[string]interface{}{}
+	}
+	return nil
+}
+
+func executeJobAction(client *golangsdk.ServiceClient, jsonBody map[string]interface{}, action, id string) error {
+	executeJobActionHttpUrl := "v5/{project_id}/jobs/{job_id}/action"
+	executeJobActionPath := client.Endpoint + executeJobActionHttpUrl
+	executeJobActionPath = strings.ReplaceAll(executeJobActionPath, "{project_id}", client.ProjectID)
+	executeJobActionPath = strings.ReplaceAll(executeJobActionPath, "{job_id}", id)
+	executeJobActionOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: utils.RemoveNil(map[string]interface{}{
+			"job": map[string]interface{}{
+				"action_name":   action,
+				"action_params": jsonBody,
+			},
+		}),
+	}
+	executeJobActionResp, err := client.Request("POST", executeJobActionPath, &executeJobActionOpt)
+	if err != nil {
+		return fmt.Errorf("error executing job action: %s", err)
+	}
+	executeJobActionRespBody, err := utils.FlattenResponse(executeJobActionResp)
+	if err != nil {
+		return fmt.Errorf("error flattening job action response: %s", err)
+	}
+	status := utils.PathSearch("status", executeJobActionRespBody, nil)
+	if status == nil {
+		return fmt.Errorf("error getting job action status")
+	} else if status.(string) != "success" {
+		return fmt.Errorf("error executing job action: status(%s)", status)
+	}
+
+	return nil
 }
 
 func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -589,6 +706,12 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 	case "terminate":
 		pending = []string{"RELEASE_RESOURCE_STARTED"}
 		target = []string{"RELEASE_RESOURCE_COMPLETE"}
+	case "stop":
+		pending = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
+		target = []string{"PAUSING"}
+	case "restart", "reset":
+		pending = []string{"STARTJOBING", "WAITING_FOR_START"}
+		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -603,7 +726,8 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 				return resp, "failed", fmt.Errorf("%s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMessage)
 			}
 
-			if resp.Results[0].Status == "CREATE_FAILED" || resp.Results[0].Status == "RELEASE_RESOURCE_FAILED" {
+			if utils.StrSliceContains(
+				[]string{"START_JOB_FAILED", "CREATE_FAILED", "RELEASE_RESOURCE_FAILED"}, resp.Results[0].Status) {
 				return resp, "failed", fmt.Errorf("%s", resp.Results[0].Status)
 			}
 
