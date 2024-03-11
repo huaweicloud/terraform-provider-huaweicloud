@@ -53,6 +53,7 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/password
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
