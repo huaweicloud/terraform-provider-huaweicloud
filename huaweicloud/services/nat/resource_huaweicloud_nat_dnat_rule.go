@@ -48,9 +48,15 @@ func ResourcePublicDnatRule() *schema.Resource {
 				Description: "The region where the DNAT rule is located.",
 			},
 			"floating_ip_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"floating_ip_id", "global_eip_id"},
+				Description:  "The ID of the floating IP address.",
+			},
+			"global_eip_id": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The ID of the floating IP address.",
+				Optional:    true,
+				Description: "The ID of the global EIP connected by the DNAT rule.",
 			},
 			"protocol": {
 				Type:        schema.TypeString,
@@ -116,6 +122,11 @@ func ResourcePublicDnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The floating IP address of the DNAT rule.",
 			},
+			"global_eip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The global EIP address connected by the DNAT rule.",
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -129,6 +140,7 @@ func buildPublicDnatRuleCreateOpts(d *schema.ResourceData) dnats.CreateOpts {
 	return dnats.CreateOpts{
 		GatewayId:                d.Get("nat_gateway_id").(string),
 		FloatingIpId:             d.Get("floating_ip_id").(string),
+		GlobalEipId:              d.Get("global_eip_id").(string),
 		Protocol:                 d.Get("protocol").(string),
 		InternalServicePort:      utils.Int(d.Get("internal_service_port").(int)),
 		ExternalServicePort:      utils.Int(d.Get("external_service_port").(int)),
@@ -209,6 +221,7 @@ func resourcePublicDnatRuleRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("region", region),
 		d.Set("nat_gateway_id", resp.GatewayId),
 		d.Set("floating_ip_id", resp.FloatingIpId),
+		d.Set("global_eip_id", resp.GlobalEipId),
 		d.Set("protocol", resp.Protocol),
 		d.Set("internal_service_port", resp.InternalServicePort),
 		d.Set("external_service_port", resp.ExternalServicePort),
@@ -219,6 +232,7 @@ func resourcePublicDnatRuleRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("private_ip", resp.PrivateIp),
 		d.Set("created_at", resp.CreatedAt),
 		d.Set("floating_ip_address", resp.FloatingIpAddress),
+		d.Set("global_eip_address", resp.GlobalEipAddress),
 		d.Set("status", resp.Status),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -231,6 +245,7 @@ func buildPublicDnatRuleUpdateOpts(d *schema.ResourceData) dnats.UpdateOpts {
 	return dnats.UpdateOpts{
 		GatewayId:                d.Get("nat_gateway_id").(string),
 		FloatingIpId:             d.Get("floating_ip_id").(string),
+		GlobalEipId:              d.Get("global_eip_id").(string),
 		Protocol:                 d.Get("protocol").(string),
 		InternalServicePort:      utils.Int(d.Get("internal_service_port").(int)),
 		ExternalServicePort:      utils.Int(d.Get("external_service_port").(int)),

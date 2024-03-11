@@ -7,7 +7,9 @@ type CreateOpts struct {
 	// The ID of the gateway to which the DNAT rule belongs.
 	GatewayId string `json:"nat_gateway_id" required:"true"`
 	// The IDs of floating IP connected by DNAT rule.
-	FloatingIpId string `json:"floating_ip_id" required:"true"`
+	FloatingIpId string `json:"floating_ip_id,omitempty"`
+	// The ID of the global EIP connected by the DNAT rule.
+	GlobalEipId string `json:"global_eip_id,omitempty"`
 	// The protocol type. The valid values are 'udp', 'tcp' and 'any'.
 	Protocol string `json:"protocol" required:"true"`
 	// The port used by Floating IP provide services for external systems.
@@ -67,6 +69,8 @@ type UpdateOpts struct {
 	Protocol string `json:"protocol,omitempty"`
 	// The IDs of floating IP connected by DNAT rule.
 	FloatingIpId string `json:"floating_ip_id,omitempty"`
+	// The ID of the global EIP connected by the DNAT rule.
+	GlobalEipId string `json:"global_eip_id,omitempty"`
 	// The port used by Floating IP provide services for external systems.
 	InternalServicePort *int `json:"internal_service_port,omitempty"`
 	// The port used by ECSs or BMSs to provide services for external systems.

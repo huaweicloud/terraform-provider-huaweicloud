@@ -28,6 +28,32 @@ resource "huaweicloud_nat_dnat_rule" "test" {
 }
 ```
 
+```hcl
+variable "gateway_id" {}
+variable "geip_id" {}
+
+resource "huaweicloud_compute_instance" "test" {
+  ...
+}
+
+resource "huaweicloud_global_eip_associate" "test" {
+  ...
+}
+
+resource "huaweicloud_nat_dnat_rule" "test" {
+  depends_on = [
+    huaweicloud_global_eip_associate.test
+  ]
+
+  nat_gateway_id        = var.gateway_id
+  global_eip_id         = var.geip_id
+  port_id               = huaweicloud_compute_instance.test.network[0].port
+  protocol              = "tcp"
+  internal_service_port = 23
+  external_service_port = 8023
+}
+```
+
 ### DNAT rule in VPC scenario and specify the port ranges
 
 ```hcl
@@ -48,6 +74,32 @@ resource "huaweicloud_nat_dnat_rule" "test" {
 }
 ```
 
+```hcl
+variable "gateway_id" {}
+variable "geip_id" {}
+
+resource "huaweicloud_compute_instance" "test" {
+  ...
+}
+
+resource "huaweicloud_global_eip_associate" "test" {
+  ...
+}
+
+resource "huaweicloud_nat_dnat_rule" "test" {
+  depends_on = [
+    huaweicloud_global_eip_associate.test
+  ]
+
+  nat_gateway_id              = var.gateway_id
+  global_eip_id               = var.geip_id
+  port_id                     = huaweicloud_compute_instance.test.network[0].port
+  protocol                    = "tcp"
+  internal_service_port_range = "23-823"
+  external_service_port_range = "8023-8823"
+}
+```
+
 ### DNAT rule in Direct Connect scenario
 
 ```hcl
@@ -57,6 +109,28 @@ variable "publicip_id" {}
 resource "huaweicloud_nat_dnat_rule" "test" {
   nat_gateway_id        = var.gateway_id
   floating_ip_id        = var.publicip_id
+  private_ip            = "10.0.0.12"
+  protocol              = "any"
+  internal_service_port = 0
+  external_service_port = 0
+}
+```
+
+```hcl
+variable "gateway_id" {}
+variable "geip_id" {}
+
+resource "huaweicloud_global_eip_associate" "test" {
+  ...
+}
+
+resource "huaweicloud_nat_dnat_rule" "test" {
+  depends_on = [
+    huaweicloud_global_eip_associate.test
+  ]
+
+  nat_gateway_id        = var.gateway_id
+  global_eip_id         = var.geip_id
   private_ip            = "10.0.0.12"
   protocol              = "any"
   internal_service_port = 0
@@ -100,7 +174,11 @@ The following arguments are supported:
 * `nat_gateway_id` - (Required, String, ForceNew) Specifies the ID of the NAT gateway to which the DNAT rule belongs.  
   Changing this will create a new resource.
 
-* `floating_ip_id` - (Required, String) Specifies the ID of the floating IP address.
+* `floating_ip_id` - (Optional, String) Specifies the ID of the floating IP address.
+
+* `global_eip_id` - (Optional, String) Specifies the ID of the global EIP connected by the DNAT rule.
+
+-> Fields `floating_ip_id` and `global_eip_id` cannot be set or empty simultaneously.
 
 * `protocol` - (Required, String) Specifies the protocol type.  
   The valid values are **tcp**, **udp**, and **any**.
@@ -146,6 +224,8 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The current status of the DNAT rule.
 
 * `floating_ip_address` - The actual floating IP address.
+
+* `global_eip_address` - The global EIP address connected by the DNAT rule.
 
 ## Timeouts
 
