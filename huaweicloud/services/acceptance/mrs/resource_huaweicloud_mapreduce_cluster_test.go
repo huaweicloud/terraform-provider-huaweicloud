@@ -71,6 +71,44 @@ func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccMrsMapReduceCluster_prepaid_basic(t *testing.T) {
+	var clusterGet cluster.Cluster
+	resourceName := "huaweicloud_mapreduce_cluster.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	password := acceptance.RandomPassword()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMrsMapReduceClusterPrePaidConfig_basic(rName, password),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "STREAMING"),
+					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "status", "running"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"manager_admin_pass",
+					"node_admin_pass",
+					"charging_mode",
+					"period",
+					"period_unit",
+					"auto_pay",
+				},
+			},
+		},
+	})
+}
+
 func TestAccMrsMapReduceCluster_keypair(t *testing.T) {
 	var clusterGet cluster.Cluster
 	resourceName := "huaweicloud_mapreduce_cluster.test"
@@ -632,6 +670,54 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     key  = "update_value"
   }
 }`, testAccMrsMapReduceClusterConfig_base(rName), newName, pwd, pwd)
+}
+
+func testAccMrsMapReduceClusterPrePaidConfig_basic(rName, pwd string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  type               = "STREAMING"
+  version            = "MRS 1.9.2"
+  manager_admin_pass = "%s"
+  node_admin_pass    = "%s"
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  component_list     = ["Storm"]
+  charging_mode      = "prePaid"
+  period             = 1
+  period_unit        = "month"
+
+  master_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_core_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+  streaming_task_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 1
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+}`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd)
 }
 
 func testAccMrsMapReduceClusterConfig_keypair(rName, pwd string) string {
