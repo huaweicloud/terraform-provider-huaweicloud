@@ -38,7 +38,7 @@ The following arguments are supported:
 
 * `flavor_id` - (Optional, String) Specifies the specification of the instance.
 
-* `version` - (Optional, String) Specifies the current version of the instance image
+* `version` - (Optional, String) Specifies the current version of the instance image.
 
 ## Attribute Reference
 
@@ -47,10 +47,10 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The data source ID.
 
 * `instances` - Indicates the list of CBH instance.
-  The [Instance](#CbhInstances_Instance) structure is documented below.
+  The [instances](#CbhInstances_Instance) structure is documented below.
 
 <a name="CbhInstances_Instance"></a>
-The `Instance` block supports:
+The `instances` block supports:
 
 * `id` - Indicates the ID of the instance.
 
@@ -60,7 +60,7 @@ The `Instance` block supports:
 
 * `name` - Indicates the instance name.
 
-* `private_ip` - Indicates the private ip of the instance.
+* `private_ip` - Indicates the private IP address of the instance.
 
 * `status` - Indicates the status of the instance.
 

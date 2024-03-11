@@ -22,7 +22,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CBH GET /v1/{project_id}/cbs/instance/list
 // @API CBH POST /v2/{project_id}/cbs/instance/{server_id}/eip/bind
 // @API CBH POST /v2/{project_id}/cbs/instance/{server_id}/eip/unbind
 // @API CBH POST /v2/{project_id}/cbs/instance
@@ -403,36 +402,6 @@ func waitingForCBHInstanceActive(ctx context.Context, client *golangsdk.ServiceC
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
-}
-
-// This method will be deleted when the datasource API is upgraded.
-func getInstanceList(client *golangsdk.ServiceClient) ([]interface{}, error) {
-	// getCbhInstances: Query the List of CBH instances
-	var (
-		getCbhInstancesHttpUrl = "v1/{project_id}/cbs/instance/list"
-	)
-
-	getCbhInstancesPath := client.Endpoint + getCbhInstancesHttpUrl
-	getCbhInstancesPath = strings.ReplaceAll(getCbhInstancesPath, "{project_id}", client.ProjectID)
-
-	getCbhInstancesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getCbhInstancesResp, err := client.Request("GET", getCbhInstancesPath, &getCbhInstancesOpt)
-
-	if err != nil {
-		return nil, err
-	}
-
-	getCbhInstancesRespBody, err := utils.FlattenResponse(getCbhInstancesResp)
-	if err != nil {
-		return nil, err
-	}
-	instances := utils.PathSearch("instance", getCbhInstancesRespBody, make([]interface{}, 0)).([]interface{})
-	return instances, nil
 }
 
 func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

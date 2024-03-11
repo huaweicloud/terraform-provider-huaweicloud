@@ -10,9 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CBH GET /v1/{project_id}/cbs/instance/list
+// @API CBH GET /v2/{project_id}/cbs/instance/list
 func DataSourceCbhInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceCbhInstancesRead,
@@ -88,7 +89,7 @@ func instancesInstanceSchema() *schema.Resource {
 			"private_ip": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the private ip of the instance.`,
+				Description: `Indicates the private IP address of the instance.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -131,75 +132,20 @@ func instancesInstanceSchema() *schema.Resource {
 }
 
 func resourceCbhInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getCbhInstances: Query the List of CBH instances
 	var (
+		cfg                    = meta.(*config.Config)
+		region                 = cfg.GetRegion(d)
+		mErr                   *multierror.Error
 		getCbhInstancesProduct = "cbh"
 	)
-	getCbhInstancesClient, err := cfg.NewServiceClient(getCbhInstancesProduct, region)
+	client, err := cfg.NewServiceClient(getCbhInstancesProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CbhInstances Client: %s", err)
+		return diag.Errorf("error creating CBH client: %s", err)
 	}
 
-	instances, err := getInstanceList(getCbhInstancesClient)
+	instances, err := getCBHInstanceList(client)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	name := d.Get("name").(string)
-	vpcId := d.Get("vpc_id").(string)
-	subnetId := d.Get("subnet_id").(string)
-	securityGroupId := d.Get("security_group_id").(string)
-	flavorId := d.Get("flavor_id").(string)
-	version := d.Get("version").(string)
-
-	res := make([]interface{}, 0)
-	for _, v := range instances {
-		instance := v.(map[string]interface{})
-		if len(name) > 0 && instance["name"].(string) != name {
-			continue
-		}
-		if len(vpcId) > 0 && instance["vpcId"].(string) != vpcId {
-			continue
-		}
-		if len(subnetId) > 0 && instance["subnetId"].(string) != subnetId {
-			continue
-		}
-		if len(securityGroupId) > 0 && instance["securityGroupId"].(string) != securityGroupId {
-			continue
-		}
-		if len(flavorId) > 0 && instance["specification"].(string) != flavorId {
-			continue
-		}
-		if len(version) > 0 && instance["bastionVersion"].(string) != version {
-			continue
-		}
-		publicIpId := instance["publicId"]
-		var publicIp string
-		if publicIpId != nil && strings.TrimSpace(publicIpId.(string)) != "" {
-			publicIp, err = getPublicAddressById(d, cfg, strings.TrimSpace(publicIpId.(string)))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
-		res = append(res, map[string]interface{}{
-			"id":                instance["instanceId"],
-			"public_ip_id":      publicIpId,
-			"public_ip":         publicIp,
-			"name":              instance["name"],
-			"private_ip":        instance["privateIp"],
-			"status":            instance["status"],
-			"vpc_id":            instance["vpcId"],
-			"subnet_id":         instance["subnetId"],
-			"security_group_id": instance["securityGroupId"],
-			"flavor_id":         instance["specification"],
-			"availability_zone": instance["zone"],
-			"version":           instance["bastionVersion"],
-		})
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -211,8 +157,70 @@ func resourceCbhInstancesRead(_ context.Context, d *schema.ResourceData, meta in
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("instances", res),
+		d.Set("instances", flattenCBHResponseInstances(filterCBHResponseInstances(d, instances))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenCBHResponseInstances(instances []interface{}) []interface{} {
+	res := make([]interface{}, 0, len(instances))
+	for _, v := range instances {
+		// When EIP is not configured, the query interface field will return a space string.
+		publicIpId := strings.TrimSpace(utils.PathSearch("network.public_id", v, "").(string))
+		res = append(res, map[string]interface{}{
+			"id":                utils.PathSearch("server_id", v, nil),
+			"public_ip_id":      publicIpId,
+			"public_ip":         utils.PathSearch("network.public_ip", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"private_ip":        utils.PathSearch("network.private_ip", v, nil),
+			"status":            utils.PathSearch("status_info.status", v, nil),
+			"vpc_id":            utils.PathSearch("network.vpc_id", v, nil),
+			"subnet_id":         utils.PathSearch("network.subnet_id", v, nil),
+			"security_group_id": utils.PathSearch("network.security_group_id", v, nil),
+			"flavor_id":         utils.PathSearch("resource_info.specification", v, nil),
+			"availability_zone": utils.PathSearch("az_info.zone", v, nil),
+			"version":           utils.PathSearch("bastion_version", v, nil),
+		})
+	}
+	return res
+}
+
+func filterCBHResponseInstances(d *schema.ResourceData, instances []interface{}) []interface{} {
+	name := d.Get("name").(string)
+	vpcId := d.Get("vpc_id").(string)
+	subnetId := d.Get("subnet_id").(string)
+	securityGroupId := d.Get("security_group_id").(string)
+	flavorId := d.Get("flavor_id").(string)
+	version := d.Get("version").(string)
+	res := make([]interface{}, 0, len(instances))
+	for _, v := range instances {
+		nameResp := utils.PathSearch("name", v, "").(string)
+		if len(name) > 0 && name != nameResp {
+			continue
+		}
+		vpcIdResp := utils.PathSearch("network.vpc_id", v, "").(string)
+		if len(vpcId) > 0 && vpcId != vpcIdResp {
+			continue
+		}
+		subnetIdResp := utils.PathSearch("network.subnet_id", v, "").(string)
+		if len(subnetId) > 0 && subnetId != subnetIdResp {
+			continue
+		}
+		securityGroupIdResp := utils.PathSearch("network.security_group_id", v, "").(string)
+		if len(securityGroupId) > 0 && securityGroupId != securityGroupIdResp {
+			continue
+		}
+		flavorIdResp := utils.PathSearch("resource_info.specification", v, "").(string)
+		if len(flavorId) > 0 && flavorId != flavorIdResp {
+			continue
+		}
+		versionResp := utils.PathSearch("bastion_version", v, "").(string)
+		if len(version) > 0 && version != versionResp {
+			continue
+		}
+
+		res = append(res, v)
+	}
+	return res
 }
