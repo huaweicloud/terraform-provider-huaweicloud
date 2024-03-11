@@ -12,20 +12,21 @@ import (
 var (
 	// Some error codes that need to be retried coming from https://console-intl.huaweicloud.com/apiexplorer/#/errorcenter/RDS.
 	retryErrCodes = map[string]struct{}{
-		"DBS.201202": {},
-		"DBS.200011": {},
-		"DBS.200018": {},
-		"DBS.200019": {},
-		"DBS.200047": {},
-		"DBS.200611": {},
-		"DBS.200080": {},
-		"DBS.200463": {}, // create replica instance
-		"DBS.201015": {},
-		"DBS.201206": {},
-		"DBS.212033": {}, // http response code is 403
-		"DBS.280011": {},
-		"DBS.280343": {},
-		"DBS.280816": {},
+		"DBS.201202":   {},
+		"DBS.200011":   {},
+		"DBS.200018":   {},
+		"DBS.200019":   {},
+		"DBS.200047":   {},
+		"DBS.200611":   {},
+		"DBS.200080":   {},
+		"DBS.200463":   {}, // create replica instance
+		"DBS.201015":   {},
+		"DBS.201206":   {},
+		"DBS.212033":   {}, // http response code is 403
+		"DBS.280011":   {},
+		"DBS.280343":   {},
+		"DBS.280816":   {},
+		"DBS.01280030": {}, // instance status is illegal
 	}
 )
 
@@ -61,6 +62,23 @@ func handleMultiOperationsError(err error) (bool, error) {
 		}
 
 		errorCode, errorCodeErr := jmespath.Search("errCode||error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		if _, ok = retryErrCodes[errorCode.(string)]; ok {
+			// The operation failed to execute and needs to be executed again, because other operations are
+			// currently in progress.
+			return true, err
+		}
+	}
+	if errCode, ok := err.(golangsdk.ErrDefault500); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
 		if errorCodeErr != nil {
 			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
 		}
