@@ -53,7 +53,7 @@ func TestAccCssThesaurus_basic(t *testing.T) {
 }
 
 func testAccCssThesaurus_basic(rName string, bucketName string, obsObjectKey string) string {
-	cssClusterBasic := testAccCssCluster_basic(rName, 1, 1, "value")
+	cssClusterBasic := testAccCssCluster_basic(rName, "Test@passw0rd", 1, "value")
 
 	return fmt.Sprintf(`
 %s

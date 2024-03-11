@@ -1044,25 +1044,6 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	// extend cluster
-	instanceNumAndSizeChanges := []string{
-		"ess_node_config.0.instance_number",
-		"master_node_config.0.instance_number",
-		"client_node_config.0.instance_number",
-		"cold_node_config.0.instance_number",
-		"ess_node_config.0.volume.0.size",
-		"master_node_config.0.volume.0.size",
-		"client_node_config.0.volume.0.size",
-		"cold_node_config.0.volume.0.size",
-		"expect_node_num",
-	}
-	if d.HasChanges(instanceNumAndSizeChanges...) {
-		err = extendCluster(ctx, d, cssV1Client)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
 	// update flavor
 	flavorChanges := []string{
 		"ess_node_config.0.flavor",
@@ -1077,6 +1058,34 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		err = updateFlavor(ctx, d, flavorList, conf)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// extend instance number
+	instanceNumChanges := []string{
+		"ess_node_config.0.instance_number",
+		"master_node_config.0.instance_number",
+		"client_node_config.0.instance_number",
+		"cold_node_config.0.instance_number",
+		"expect_node_num",
+	}
+	if d.HasChanges(instanceNumChanges...) {
+		err = extendInstanceNumber(ctx, d, conf)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// extend volume size
+	instanceVolumeSizeChanges := []string{
+		"ess_node_config.0.volume.0.size",
+		"cold_node_config.0.volume.0.size",
+		"node_config.0.volume.0.size",
+	}
+	if d.HasChanges(instanceVolumeSizeChanges...) {
+		err = extendVolumeSize(ctx, d, conf)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1145,22 +1154,6 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceCssClusterRead(ctx, d, meta)
-}
-
-func extendCluster(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
-	opts, err := buildCssClusterV1ExtendClusterParameters(d)
-	if err != nil {
-		return fmt.Errorf("error building the request body of api(extend_cluster), err: %s", err)
-	}
-	_, err = cssV1Client.UpdateExtendInstanceStorage(opts)
-	if err != nil {
-		return fmt.Errorf("extend CSS cluster instance storage failed, cluster_id: %s, error: %s", d.Id(), err)
-	}
-	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func updateBackupStrategy(d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
@@ -1439,103 +1432,6 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 	}
 
 	return nil
-}
-
-func buildCssClusterV1ExtendClusterParameters(d *schema.ResourceData) (*model.UpdateExtendInstanceStorageRequest, error) {
-	var grow = make([]model.RoleExtendGrowReq, 0, 4)
-
-	if d.HasChange("ess_node_config") {
-		oldv, newv := d.GetChange("ess_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return nil, fmt.Errorf("instance_number only supports to be extended")
-		}
-
-		oldDisksize, newDisksize := d.GetChange("ess_node_config.0.volume.0.size")
-		disksize := newDisksize.(int) - oldDisksize.(int)
-		if disksize < 0 {
-			return nil, fmt.Errorf("volume size only supports to be extended")
-		}
-
-		grow = append(grow, model.RoleExtendGrowReq{
-			Type:     InstanceTypeEss,
-			Nodesize: int32(nodesize),
-			Disksize: int32(disksize),
-		})
-	}
-
-	if d.HasChange("cold_node_config") {
-		oldv, newv := d.GetChange("cold_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return nil, fmt.Errorf("instance_number only supports to be extended")
-		}
-
-		oldDisksize, newDisksize := d.GetChange("cold_node_config.0.volume.0.size")
-		disksize := newDisksize.(int) - oldDisksize.(int)
-		if disksize < 0 {
-			return nil, fmt.Errorf("volume size only supports to be extended")
-		}
-
-		grow = append(grow, model.RoleExtendGrowReq{
-			Type:     InstanceTypeEssCold,
-			Nodesize: int32(nodesize),
-			Disksize: int32(disksize),
-		})
-	}
-
-	if d.HasChange("master_node_config") {
-		oldv, newv := d.GetChange("master_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return nil, fmt.Errorf("instance_number only supports to be extended")
-		}
-
-		grow = append(grow, model.RoleExtendGrowReq{
-			Type:     InstanceTypeEssMaster,
-			Nodesize: int32(nodesize),
-		})
-	}
-
-	if d.HasChange("client_node_config") {
-		oldv, newv := d.GetChange("client_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return nil, fmt.Errorf("instance_number only supports to be extended")
-		}
-
-		grow = append(grow, model.RoleExtendGrowReq{
-			Type:     InstanceTypeEssClient,
-			Nodesize: int32(nodesize),
-		})
-	}
-
-	if d.HasChanges("node_config.0.volume.0.size", "expect_node_num") {
-		oldv, newv := d.GetChange("expect_node_num")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return nil, fmt.Errorf("expect_node_num only supports to be extended")
-		}
-
-		oldDisksize, newDisksize := d.GetChange("node_config.0.volume.0.size")
-		disksize := newDisksize.(int) - oldDisksize.(int)
-		if disksize < 0 {
-			return nil, fmt.Errorf("volume size only supports to be extended")
-		}
-
-		grow = append(grow, model.RoleExtendGrowReq{
-			Type:     InstanceTypeEss,
-			Nodesize: 1,
-			Disksize: int32(disksize),
-		})
-	}
-
-	return &model.UpdateExtendInstanceStorageRequest{
-		ClusterId: d.Id(),
-		Body: &model.RoleExtendReq{
-			Grow: grow,
-		},
-	}, nil
 }
 
 func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1832,6 +1728,190 @@ func getFlavorList(cssV1Client *cssv1.CssClient) (map[string]interface{}, error)
 		return nil, err
 	}
 	return data, nil
+}
+
+func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *config.Config) error {
+	if d.HasChange("ess_node_config.0.instance_number") {
+		oldv, newv := d.GetChange("ess_node_config.0.instance_number")
+		nodesize := newv.(int) - oldv.(int)
+		if nodesize < 0 {
+			return fmt.Errorf("instance_number only supports to be extended")
+		}
+
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEss, nodesize, 0)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("master_node_config.0.instance_number") {
+		oldv, newv := d.GetChange("master_node_config.0.instance_number")
+		nodesize := newv.(int) - oldv.(int)
+		if nodesize < 0 {
+			return fmt.Errorf("instance_number only supports to be extended")
+		}
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssMaster, nodesize, 0)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("client_node_config.0.instance_number") {
+		oldv, newv := d.GetChange("client_node_config.0.instance_number")
+		nodesize := newv.(int) - oldv.(int)
+		if nodesize < 0 {
+			return fmt.Errorf("instance_number only supports to be extended")
+		}
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssClient, nodesize, 0)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("cold_node_config.0.instance_number") {
+		oldv, newv := d.GetChange("cold_node_config.0.instance_number")
+		nodesize := newv.(int) - oldv.(int)
+		if nodesize < 0 {
+			return fmt.Errorf("instance_number only supports to be extended")
+		}
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssCold, nodesize, 0)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("expect_node_num") {
+		oldv, newv := d.GetChange("expect_node_num")
+		nodesize := newv.(int) - oldv.(int)
+		if nodesize < 0 {
+			return fmt.Errorf("instance_number only supports to be extended")
+		}
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEss, nodesize, 0)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func updateExtendInstanceStorage(ctx context.Context, d *schema.ResourceData,
+	conf *config.Config, bodyParams map[string]interface{}) error {
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.CssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+	hcCssV1Client, err := conf.HcCssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+
+	updateExtendHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/role_extend"
+	updateExtendPath := cssV1Client.Endpoint + updateExtendHttpUrl
+	updateExtendPath = strings.ReplaceAll(updateExtendPath, "{project_id}", cssV1Client.ProjectID)
+	updateExtendPath = strings.ReplaceAll(updateExtendPath, "{cluster_id}", d.Id())
+
+	updateExtendOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	updateExtendOpt.JSONBody = bodyParams
+	updateExtendResp, err := cssV1Client.Request("POST", updateExtendPath, &updateExtendOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CSS cluster extend, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	updateExtendRespBody, err := utils.FlattenResponse(updateExtendResp)
+	if err != nil {
+		return fmt.Errorf("error retrieving CSS cluster updating extend response: %s", err)
+	}
+
+	orderId := utils.PathSearch("orderId", updateExtendRespBody, "").(string)
+	if orderId != "" {
+		bssClient, err := conf.BssV2Client(region)
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+
+		// If charging mode is PrePaid, wait for the order to be completed.
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = checkClusterOperationCompleted(ctx, hcCssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func buildUpdateExtendInstanceStorageBodyParams(nodeType string, nodesize, disksize int) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"grow": []map[string]interface{}{
+			{
+				"type":     nodeType,
+				"nodesize": nodesize,
+				"disksize": disksize,
+			},
+		},
+		"isAutoPay": 1,
+	}
+	return bodyParams
+}
+
+func extendVolumeSize(ctx context.Context, d *schema.ResourceData, conf *config.Config) error {
+	if d.HasChange("ess_node_config.0.volume.0.size") {
+		oldDisksize, newDisksize := d.GetChange("ess_node_config.0.volume.0.size")
+		disksize := newDisksize.(int) - oldDisksize.(int)
+		if disksize < 0 {
+			return fmt.Errorf("volume size only supports to be extended")
+		}
+
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEss, 0, disksize)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("cold_node_config.0.volume.0.size") {
+		oldDisksize, newDisksize := d.GetChange("cold_node_config.0.volume.0.size")
+		disksize := newDisksize.(int) - oldDisksize.(int)
+		if disksize < 0 {
+			return fmt.Errorf("volume size only supports to be extended")
+		}
+
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssCold, 0, disksize)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("node_config.0.volume.0.size") {
+		oldDisksize, newDisksize := d.GetChange("node_config.0.volume.0.size")
+		disksize := newDisksize.(int) - oldDisksize.(int)
+		if disksize < 0 {
+			return fmt.Errorf("volume size only supports to be extended")
+		}
+
+		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEss, 0, disksize)
+
+		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type ResponseError struct {

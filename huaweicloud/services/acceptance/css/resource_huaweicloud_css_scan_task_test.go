@@ -141,5 +141,5 @@ resource "huaweicloud_css_scan_task" "test" {
     smn_topic = huaweicloud_smn_topic.test.name
   }
 }
-`, testAccCssCluster_basic(rName, 1, 7, "bar"), rName)
+`, testAccCssCluster_basic(rName, "Test@passw0rd", 7, "bar"), rName)
 }
