@@ -35,11 +35,9 @@ The following arguments are supported:
 * `log_type` - (Required, String, ForceNew) Specifies the type of the LTS log. The value can be **audit_log**.
   Changing this creates a new resource.
 
-* `lts_group_id` - (Required, String, ForceNew) Specifies the ID of the LTS log group.
-  Changing this creates a new resource.
+* `lts_group_id` - (Required, String) Specifies the ID of the LTS log group.
 
-* `lts_stream_id` - (Required, String, ForceNew) Specifies the ID of the LTS log stream.
-  Changing this creates a new resource.
+* `lts_stream_id` - (Required, String) Specifies the ID of the LTS log stream.
 
 ## Attribute Reference
 
