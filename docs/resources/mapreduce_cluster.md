@@ -309,6 +309,54 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 }
 ```
 
+### Create a prePaid stream cluster
+
+```hcl
+data "huaweicloud_availability_zones" "test" {}
+
+variable "cluster_name" {}
+variable "password" {}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "period" {}
+variable "period_unit" {}
+
+resource "huaweicloud_mapreduce_cluster" "test" {
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  name               = var.cluster_name
+  type               = "STREAMING"
+  version            = "MRS 1.9.2"
+  manager_admin_pass = var.password
+  node_admin_pass    = var.password
+  vpc_id             = var.vpc_id
+  subnet_id          = var.subnet_id
+  component_list     = ["Storm"]
+  charging_mode      = "prePaid"
+  period             = var.period
+  period_unit        = var.period_unit
+
+  master_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+
+  streaming_core_nodes {
+    flavor            = "c6.2xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 300
+    data_volume_type  = "SAS"
+    data_volume_size  = 480
+    data_volume_count = 1
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -436,6 +484,20 @@ The EIP must have been created and must be in the same region as the cluster.
 * `smn_notify` - (Optional, List, ForceNew) Specifies the alarm configuration of the cluster. The [smn_notify](#SMNNotify)
   structure is documented below.
   Changing this will create a new MapReduce cluster resource.
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the cluster.  
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the cluster.  
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the cluster.  
+  If `period_unit` is set to **month**, the value ranges from 1 to 9.  
+  If `period_unit` is set to **year**, the value ranges from 1 to 3.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
 
 The `nodes` block supports:
 
@@ -632,8 +694,9 @@ terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-9239
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`manager_admin_pass`, `node_admin_pass`,`template_id`, `assigned_roles`, `external_datasources`, `component_configs`
-and `smn_notify`. It is generally recommended running `terraform plan` after importing a cluster.
+`manager_admin_pass`, `node_admin_pass`,`template_id`, `assigned_roles`, `external_datasources`, `component_configs`,
+`smn_notify`, `charging_mode`, `period` and `period_unit`. It is generally recommended running `terraform plan`
+after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
@@ -644,6 +707,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   lifecycle {
     ignore_changes = [
       manager_admin_pass, node_admin_pass, template_id, assigned_roles, external_datasources, component_configs, smn_notify,
+      charging_mode, period, period_unit,
     ]
   }
 }

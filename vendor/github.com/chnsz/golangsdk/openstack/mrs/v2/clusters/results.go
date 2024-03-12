@@ -6,7 +6,8 @@ import (
 
 // Cluster is a struct that represents the result of Create methods.
 type Cluster struct {
-	ID string `json:"cluster_id"`
+	ID     string `json:"cluster_id"`
+	OrdeId string `json:"order_id"`
 }
 
 // CreateResult represents a result of the Create method.

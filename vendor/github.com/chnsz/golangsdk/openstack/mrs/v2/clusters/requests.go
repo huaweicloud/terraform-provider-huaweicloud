@@ -162,7 +162,21 @@ type ChargeInfo struct {
 	// Billing mode.
 	// The valid values are as follows:
 	//   postPaid: indicates the pay-per-use billing mode.
+	//   prePaid: indicates the yearly/monthly billing mode.
 	ChargeMode string `json:"charge_mode" required:"true"`
+	// Specifies the unit of the subscription term.
+	// This parameter is valid and mandatory only when chargingMode is set to prePaid.
+	//   month: indicates that the unit is month.
+	//   year: indicates that the unit is year.
+	PeriodType string `json:"period_type,omitempty"`
+	// Specifies the subscription term. This parameter is valid and mandatory only when chargingMode is set to prePaid.
+	//   When periodType is set to month, the parameter value ranges from 1 to 9.
+	//   When periodType is set to year, the parameter value ranges from 1 to 3.
+	PeriodNum int `json:"period_num,omitempty"`
+	// Specifies whether to pay immediately. This parameter is valid only when chargingMode is set to prePaid. The default value is false.
+	//   false: indicates not to pay immediately after an order is created.
+	//   true: indicates to pay immediately after an order is created. The system will automatically deduct fees from the account balance.
+	IsAutoPay *bool `json:"is_auto_pay,omitempty"`
 }
 
 // NodeGroupOpts is a structure representing node group.

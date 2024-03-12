@@ -19,7 +19,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
-	clusterV2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
+	clusterv2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -259,6 +259,9 @@ func ResourceMRSClusterV2() *schema.Resource {
 				MaxItems: 1,
 				Elem:     smnNotifySchema(),
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
 			"total_node_number": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -546,9 +549,9 @@ func buildMrsSafeMode(d *schema.ResourceData) string {
 }
 
 // buildMrsClusterNodeGroups is a method which to build a node group list with all node group arguments.
-func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusterV2.NodeGroupOpts {
+func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusterv2.NodeGroupOpts {
 	var (
-		groupOpts      []clusterV2.NodeGroupOpts
+		groupOpts      []clusterv2.NodeGroupOpts
 		nodeGroupTypes = map[string]string{
 			"master_nodes":         masterGroup,
 			"analysis_core_nodes":  analysisCoreGroup,
@@ -567,10 +570,10 @@ func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusterV2.NodeGroupOpts
 	return groupOpts
 }
 
-func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultName string) []clusterV2.NodeGroupOpts {
-	var result []clusterV2.NodeGroupOpts
+func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultName string) []clusterv2.NodeGroupOpts {
+	var result []clusterv2.NodeGroupOpts
 	for i := 0; i < len(optsRaw); i++ {
-		var nodeGroup = clusterV2.NodeGroupOpts{}
+		var nodeGroup = clusterv2.NodeGroupOpts{}
 		opts := optsRaw[i].(map[string]interface{})
 
 		nodeGroup.GroupName = defaultName
@@ -581,24 +584,38 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 
 		nodeGroup.NodeSize = opts["flavor"].(string)
 		nodeGroup.NodeNum = opts["node_number"].(int)
-		nodeGroup.RootVolume = &clusterV2.Volume{
+		nodeGroup.RootVolume = &clusterv2.Volume{
 			Type: opts["root_volume_type"].(string),
 			Size: opts["root_volume_size"].(int),
 		}
 		volumeCount := opts["data_volume_count"].(int)
 		if volumeCount != 0 {
-			nodeGroup.DataVolume = &clusterV2.Volume{
+			nodeGroup.DataVolume = &clusterv2.Volume{
 				Type: opts["data_volume_type"].(string),
 				Size: opts["data_volume_size"].(int),
 			}
 		} else {
 			// According to the API rules, when the data disk is not mounted, the parameters in the structure still
 			// need to be filled in (but not used), fill in the system disk data here.
-			nodeGroup.DataVolume = &clusterV2.Volume{
+			nodeGroup.DataVolume = &clusterv2.Volume{
 				Type: opts["root_volume_type"].(string),
 				Size: opts["root_volume_size"].(int),
 			}
 		}
+
+		chargingMode := d.Get("charging_mode").(string)
+		if chargingMode == "prePaid" {
+			var chargeInfo clusterv2.ChargeInfo
+			log.Printf("nodeGroup.GroupName:%s", nodeGroup.GroupName)
+			if nodeGroup.GroupName == masterGroup || nodeGroup.GroupName == analysisCoreGroup || nodeGroup.GroupName == streamingCoreGroup {
+				chargeInfo.ChargeMode = "prePaid"
+				chargeInfo.PeriodNum = d.Get("period").(int)
+				chargeInfo.PeriodType = d.Get("period_unit").(string)
+				chargeInfo.IsAutoPay = utils.Bool(true)
+				nodeGroup.ChargeInfo = &chargeInfo
+			}
+		}
+
 		nodeGroup.DataVolumeCount = golangsdk.IntToPointer(volumeCount)
 		// This parameter is mandatory when the cluster type is CUSTOM. Specifies the roles deployed in a node group.
 		if clusterType := d.Get("type").(string); clusterType == typeCustom {
@@ -612,29 +629,29 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 	return result
 }
 
-func buildComponentConfigOpts(d *schema.ResourceData) []clusterV2.ComponentConfigOpts {
+func buildComponentConfigOpts(d *schema.ResourceData) []clusterv2.ComponentConfigOpts {
 	v, ok := d.GetOk("component_configs")
 	if !ok {
 		return nil
 	}
 
 	optsRaw := v.([]interface{})
-	var result = make([]clusterV2.ComponentConfigOpts, len(optsRaw))
+	var result = make([]clusterv2.ComponentConfigOpts, len(optsRaw))
 	for i, v := range optsRaw {
 		opts := v.(map[string]interface{})
 		configOptsRaw := opts["configs"].([]interface{})
 
-		var configOpts = make([]clusterV2.ConfigOpts, len(configOptsRaw))
+		var configOpts = make([]clusterv2.ConfigOpts, len(configOptsRaw))
 		for j, item := range configOptsRaw {
 			opt := item.(map[string]interface{})
-			configOpts[j] = clusterV2.ConfigOpts{
+			configOpts[j] = clusterv2.ConfigOpts{
 				Key:            opt["key"].(string),
 				Value:          opt["value"].(string),
 				ConfigFileName: opt["config_file_name"].(string),
 			}
 		}
 
-		result[i] = clusterV2.ComponentConfigOpts{
+		result[i] = clusterv2.ComponentConfigOpts{
 			Name:    opts["name"].(string),
 			Configs: configOpts,
 		}
@@ -708,7 +725,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 			d.Get("public_ip").(string), err)
 	}
 
-	createOpts := &clusterV2.CreateOpts{
+	createOpts := &clusterv2.CreateOpts{
 		Region:               region,
 		AvailabilityZone:     d.Get("availability_zone").(string),
 		ClusterVersion:       d.Get("version").(string),
@@ -742,32 +759,65 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		createOpts.LoginMode = "PASSWORD"
 	}
 
-	resp, err := clusterV2.Create(mrsV2Client, createOpts).Extract()
-	if err != nil {
-		return diag.Errorf("error creating Cluster: %s", err)
-	}
-	d.SetId(resp.ID)
-	refresh := stateRefresh{
-		Pending:      []string{"starting"},
-		Target:       []string{"running"},
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        480 * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-	// After request send, check the cluster state and wait for it become running.
-	if err = waitForMrsClusterStateCompleted(ctx, mrsV1Client, d.Id(), refresh); err != nil {
-		d.SetId("")
-		return diag.Errorf("error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
+	// add charge info
+	var chargeInfo clusterv2.ChargeInfo
+	chargingMode := d.Get("charging_mode").(string)
+	if chargingMode == "prePaid" {
+		chargeInfo.ChargeMode = chargingMode
+		chargeInfo.PeriodNum = d.Get("period").(int)
+		chargeInfo.PeriodType = d.Get("period_unit").(string)
+		chargeInfo.IsAutoPay = utils.Bool(true)
+		if chargeInfo != (clusterv2.ChargeInfo{}) {
+			createOpts.ChargeInfo = &chargeInfo
+		}
+
+		resp, err := clusterv2.Create(mrsV2Client, createOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error creating Cluster: %s", err)
+		}
+
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, resp.OrdeId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrdeId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.SetId(resourceId)
+	} else {
+		resp, err := clusterv2.Create(mrsV2Client, createOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error creating Cluster: %s", err)
+		}
+		d.SetId(resp.ID)
+		refresh := stateRefresh{
+			Pending:      []string{"starting"},
+			Target:       []string{"running"},
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			Delay:        480 * time.Second,
+			PollInterval: 15 * time.Second,
+		}
+		// After request send, check the cluster state and wait for it become running.
+		if err = waitForMrsClusterStateCompleted(ctx, mrsV1Client, d.Id(), refresh); err != nil {
+			d.SetId("")
+			return diag.Errorf("error waiting for MapReduce cluster (%s) to become ready: %s", d.Id(), err)
+		}
 	}
 
 	return resourceMRSClusterV2Read(ctx, d, meta)
 }
 
-func buildSMNNotify(d *schema.ResourceData) *clusterV2.SMNNotifyConfigOpts {
+func buildSMNNotify(d *schema.ResourceData) *clusterv2.SMNNotifyConfigOpts {
 	if v, ok := d.GetOk("smn_notify"); ok {
 		smnNotifyConfigs := v.([]interface{})
 		smnNotifyConfig := smnNotifyConfigs[0].(map[string]interface{})
-		return &clusterV2.SMNNotifyConfigOpts{
+		return &clusterv2.SMNNotifyConfigOpts{
 			TopicURN:         smnNotifyConfig["topic_urn"].(string),
 			SubscriptionName: smnNotifyConfig["subscription_name"].(string),
 		}
@@ -775,16 +825,16 @@ func buildSMNNotify(d *schema.ResourceData) *clusterV2.SMNNotifyConfigOpts {
 	return nil
 }
 
-func buildClusterExternalDatasources(rawParams interface{}) []clusterV2.ExternalDatasource {
+func buildClusterExternalDatasources(rawParams interface{}) []clusterv2.ExternalDatasource {
 	if rawArray, ok := rawParams.([]interface{}); ok {
 		if len(rawArray) == 0 {
 			return nil
 		}
 
-		params := make([]clusterV2.ExternalDatasource, 0)
+		params := make([]clusterv2.ExternalDatasource, 0)
 		for _, raw := range rawArray {
 			item := raw.(map[string]interface{})
-			param := clusterV2.ExternalDatasource{
+			param := clusterv2.ExternalDatasource{
 				ComponentName: item["component_name"].(string),
 				RoleType:      item["role_type"].(string),
 				SourceType:    item["source_type"].(string),
@@ -797,15 +847,15 @@ func buildClusterExternalDatasources(rawParams interface{}) []clusterV2.External
 	return nil
 }
 
-func buildBootstrapScripts(rawParams *schema.Set) []clusterV2.ScriptOpts {
+func buildBootstrapScripts(rawParams *schema.Set) []clusterv2.ScriptOpts {
 	if rawParams.Len() < 1 {
 		return nil
 	}
 
-	params := make([]clusterV2.ScriptOpts, 0)
+	params := make([]clusterv2.ScriptOpts, 0)
 	for _, raw := range rawParams.List() {
 		if item, ok := raw.(map[string]interface{}); ok {
-			param := clusterV2.ScriptOpts{
+			param := clusterv2.ScriptOpts{
 				Name:                 item["name"].(string),
 				URI:                  item["uri"].(string),
 				Parameters:           item["parameters"].(string),
@@ -953,7 +1003,7 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 	}
 
 	for k, v := range values {
-		//lintignore:R001
+		// lintignore:R001
 		if err := d.Set(k, v); err != nil {
 			return fmt.Errorf("set nodeGroup= %s error", k)
 		}
@@ -1315,7 +1365,7 @@ func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes",
 		"streaming_task_nodes", "custom_nodes") {
 		err = updateMRSClusterNodes(ctx, d, client)
@@ -1331,12 +1381,35 @@ func resourceMRSClusterV2Delete(ctx context.Context, d *schema.ResourceData, met
 	cfg := meta.(*config.Config)
 	client, err := cfg.MrsV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating MRS V1 client: %s", err)
+		return diag.Errorf("error creating MRS client: %s", err)
+	}
+
+	// if charging mode is pre-paid, unsubscribe the order.
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribing MRS cluster: %s", err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"running", "terminating"},
+			Target:       []string{"terminated", "DELETED"},
+			Refresh:      clusterV2StateRefreshFunc(client, d.Id()),
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			Delay:        15 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+
+		_, err := stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("Error deleting MRS cluster: %s", err)
+		}
+
+		return nil
 	}
 
 	err = cluster.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting Cluster: %s", err)
+		return diag.Errorf("error deleting MRS cluster: %s", err)
 	}
 	refresh := stateRefresh{
 		Pending:      []string{"running", "terminating"},
