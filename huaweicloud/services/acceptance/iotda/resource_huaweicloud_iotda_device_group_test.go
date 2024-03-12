@@ -14,7 +14,7 @@ import (
 )
 
 func getDeviceGroupResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME)
+	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, withDerivedAuth())
 	if err != nil {
 		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
 	}
