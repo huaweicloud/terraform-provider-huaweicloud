@@ -56,10 +56,49 @@ func TestAccSpace_basic(t *testing.T) {
 	})
 }
 
+func TestAccSpace_derived(t *testing.T) {
+	var obj model.ShowApplicationRequest
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_iotda_space.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getSpaceResourceFunc,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testSpace_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "is_default", "false"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testSpace_basic(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_iotda_space" "test" {
   name = "%s"
 }
-`, name)
+`, buildIoTDAEndpoint(), name)
 }
