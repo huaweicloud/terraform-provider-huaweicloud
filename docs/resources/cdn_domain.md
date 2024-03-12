@@ -4,11 +4,11 @@ subcategory: "Content Delivery Network (CDN)"
 
 # huaweicloud_cdn_domain
 
-CDN domain management.
+Manages a CDN domain resource within HuaweiCloud.
 
 ## Example Usage
 
-### Create a cdn domain
+### Create a CDN domain
 
 ```hcl
 variable "domain_name" {}
@@ -31,7 +31,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 }
 ```
 
-### Create a cdn domain with cache rules
+### Create a CDN domain with cache rules
 
 ```hcl
 variable "domain_name" {}
@@ -58,7 +58,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 }
 ```
 
-### Create a cdn domain with configs
+### Create a CDN domain with configs
 
 ```hcl
 variable "domain_name" {}
@@ -121,52 +121,80 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, ForceNew) The acceleration domain name. Changing this parameter will create a new
-  resource.
+* `name` - (Required, String, ForceNew) Specifies acceleration domain name. Changing this parameter will create a new
+  resource. The domain name consists of one or more parts, representing domains at different levels.
+  Domain names at all levels can only be composed of letters, digits, and hyphens (-), and the letters are equivalent in
+  upper and lower case. Domain names at all levels are connected with (.). The domain name can contain up to `75` characters.
 
-* `type` - (Required, String, ForceNew) The service type. The valid values are  'web', 'download', 'video' and
-  'wholeSite'.  Changing this parameter will create a new resource.
+* `type` - (Required, String, ForceNew) Specifies the service type of the domain name. Changing this parameter will
+  create a new resource. The valid values are as follows:
+  + **web**: Static acceleration. For websites with many images and small files, such as portals and e-commerce websites.
+  + **download**: Download acceleration. For large files, such as apps in app stores and game clients.
+  + **video**: Streaming media acceleration. For video on demand (VOD) websites and online education websites.
+  + **wholeSite**: Whole site acceleration. For websites with both dynamic and static content, such as online exam
+    platforms, forums, and blogs.
 
-* `sources` - (Required, List, ForceNew) An array of one or more objects specifies the domain name of the origin server.
-  The sources object structure is documented below.
+* `sources` - (Required, List, ForceNew) Specifies an array of one or more objects specifying origin server settings.
+  A maximum of `50` origin site configurations can be configured. Changing this parameter will create a new resource.
+  The [sources](#sources_cdn_domain) structure is documented below.
 
-* `service_area` - (Optional, String, ForceNew) The area covered by the acceleration service. Valid values are
-  `mainland_china`, `outside_mainland_china`, and `global`. Changing this parameter will create a new resource.
+* `service_area` - (Optional, String, ForceNew) Specifies the area covered by the acceleration service.
+  Changing this parameter will create a new resource. Valid values are as follows:
+  + **mainland_china**: Indicates that the service scope is mainland China.
+  + **outside_mainland_china**: Indicates that the service scope is outside mainland China.
+  + **global**: Indicates that the service scope is global.
 
-* `configs` - (Optional, List) Specifies the domain configuration items. The [object](#configs_object) structure is
+* `configs` - (Optional, List) Specifies the domain configuration items. The [configs](#configs_object) structure is
   documented below.
 
-* `cache_settings` - (Optional, List) Specifies the cache configuration. The [object](#cache_settings_object) structure
+* `cache_settings` - (Optional, List) Specifies the cache configuration. The [cache_settings](#cache_settings_object) structure
   is documented below.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id. Changing this parameter will create
-  a new resource.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. Changing this parameter
+  will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the domain.
 
+<a name="sources_cdn_domain"></a>
 The `sources` block supports:
 
-* `origin` - (Required, String) The domain name or IP address of the origin server.
+* `origin` - (Required, String) Specifies the unique domain name or IP address of the origin server.
+  + If `origin_type` is set to **ipaddr**, this field can only be set to IPv4 address.
+  + If `origin_type` is set to **domain**, this field can only be set to domain name.
+  + If `origin_type` is set to **obs_bucket**, this field can only be set to OBS bucket domain name. The OBS bucket
+    domain name must end with `.myhuaweicloud.com` or `.myhuaweicloud.cn`.
 
-* `origin_type` - (Required, String) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
+* `origin_type` - (Required, String) Specifies the origin server type. The valid values are as follows:
+  + **ipaddr**: Origin server IP address.
+  + **domain**: Origin server domain name.
+  + **obs_bucket**: OBS bucket domain name.
 
-* `active` - (Optional, Int) Whether an origin server is active or standby (1: active; 0: standby). The default value is
-  1.
+* `active` - (Optional, Int) Specifies whether the origin server is primary or standby. Valid values are as follows:
+  + **1**: Primary.
+  + **0**: Standby.
 
-* `obs_web_hosting_enabled` - (Optional, Bool) Whether to enable static website hosting for the OBS bucket.
-  This parameter is mandatory when the `origin_type` is **obs_bucket**.
+  Defaults to **1**.
 
-* `http_port` - (Optional, Int) Specifies the HTTP port. Default value: **80**.
+* `obs_web_hosting_enabled` - (Optional, Bool) Specifies whether to enable static website hosting for the OBS bucket.
+  This parameter is valid only when the `origin_type` is set to **obs_bucket**. Defaults to **false**.
 
-* `https_port` - (Optional, Int) Specifies the HTTPS port. Default value: **443**.
+* `http_port` - (Optional, Int) Specifies the HTTP port. The port number ranges from `1` to `65535`.
+  Defaults to **80**.
 
-* `retrieval_host` - (Optional, String) Specifies the retrieval host. The default value is the acceleration domain name.
+* `https_port` - (Optional, Int) Specifies the HTTPS port. The port number ranges from `1` to `65535`.
+  Default value: **443**.
+
+-> Fields `http_port` and `https_port` are valid only when `origin_type` is set to **ipaddr** or **domain**.
+
+* `retrieval_host` - (Optional, String) Specifies the retrieval host. Things to note when using this field are as follows:
+  + If `origin_type` is set to **ipaddr** or **domain**, the acceleration domain name will be used by default.
+  + If `origin_type` is set to **obs_bucket**, the bucket's domain name will be used by default.
 
 <a name="configs_object"></a>
 The `configs` block support:
 
 * `origin_protocol` - (Optional, String) Specifies the content retrieval protocol. Possible values:
-  + **follow**: same as user requests.
+  + **follow**: Same as user requests.
   + **http**: HTTP, which is the default value.
   + **https**: HTTPS.
 
@@ -174,33 +202,36 @@ The `configs` block support:
 
 * `range_based_retrieval_enabled` - (Optional, Bool) Specifies whether to enable range-based retrieval.
 
-* `https_settings` - (Optional, List) Specifies the certificate configuration. The [object](#https_settings_object)
+  -> The prerequisite for enabling range-based retrieval is that your origin site supports Range requests, that is, the
+  HTTP request header contains the Range field. Otherwise, the back-to-origin may fail.
+
+* `https_settings` - (Optional, List) Specifies the certificate configuration. The [https_settings](#https_settings_object)
   structure is documented below.
 
 * `retrieval_request_header` - (Optional, List) Specifies the retrieval request header settings.
-  The [object](#request_and_response_header_object) structure is documented below.
+  The [retrieval_request_header](#retrieval_request_header_object) structure is documented below.
 
 * `http_response_header` - (Optional, List) Specifies the HTTP response header settings.
-  The [object](#request_and_response_header_object) structure is documented below.
+  The [http_response_header](#http_response_header_object) structure is documented below.
 
 * `url_signing` - (Optional, List) Specifies the URL signing.
-  The [object](#url_signing_object) structure is documented below.
+  The [url_signing](#url_signing_object) structure is documented below.
 
 * `force_redirect` - (Optional, List) Specifies the force redirect.
-  The [object](#redirect_and_compress_object) structure is documented below.
+  The [force_redirect](#force_redirect_object) structure is documented below.
 
-* `compress` - (Optional, List) Specifies the smart compression. The [object](#redirect_and_compress_object) structure
+* `compress` - (Optional, List) Specifies the smart compression. The [compress](#compress_object) structure
   is documented below.
 
 * `cache_url_parameter_filter` - (Optional, List) Specifies the settings for caching URL parameters.
-  The [object](#cache_url_parameter_filter_object) structure is documented below.
+  The [cache_url_parameter_filter](#cache_url_parameter_filter_object) structure is documented below.
 
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
-* `https_enabled` - (Optional, Bool) Specifies whether to enable HTTPS.
+* `https_enabled` - (Optional, Bool) Specifies whether to enable HTTPS. Defaults to **false**.
 
-* `certificate_name` - (Optional, String) Specifies the certificate name. The value contains 3 to 32 characters.
+* `certificate_name` - (Optional, String) Specifies the certificate name. The value contains `3` to `32` characters.
   This parameter is mandatory when a certificate is configured.
 
 * `certificate_body` - (Optional, String) Specifies the content of the certificate used by the HTTPS protocol.
@@ -211,26 +242,43 @@ The `https_settings` block support:
 
 * `certificate_source` - (Optional, Int) Specifies the certificate type. Possible values are:
   + **1**: Huawei-managed certificate.
-  + **0**: your own certificate.
+  + **0**: Your own certificate.
   
-  Default value: **0**.
-  This parameter is mandatory when a certificate is configured.
+  Defaults to **0**.
 
-* `http2_enabled` - (Optional, Bool) Specifies whether HTTP/2 is used.
+* `http2_enabled` - (Optional, Bool) Specifies whether HTTP/2 is used. Defaults to **false**.
+  When `https_enabled` is set to **false**, this parameter does not take effect.
 
 * `tls_version` - (Optional, String) Specifies the transport Layer Security (TLS). Currently, **TLSv1.0**,
-  **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are supported. By default, all versions are enabled. You can enable
-  a single version or consecutive versions. To enable multiple versions, use commas (,) to separate versions,
-  for example, **TLSv1.1,TLSv1.2**.
+  **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are supported. By default, **TLS 1.1**, **TLS 1.2**, and **TLS 1.3** are
+  enabled. You can enable a single version or consecutive versions. To enable multiple versions, use commas (,) to
+  separate versions, for example, **TLSv1.1,TLSv1.2**.
 
-<a name="request_and_response_header_object"></a>
-The `retrieval_request_header` and `http_response_header` block support:
+<a name="retrieval_request_header_object"></a>
+The `retrieval_request_header` block support:
 
-* `name` - (Required, String) Specifies the request or response header.
+* `name` - (Required, String) Specifies the name of a retrieval request header. The value contains `1` to `64` characters,
+  including digits, letters, and hyphens (-). The value must start with a letter.
 
-* `action` - (Required, String) Specifies the operation type of request or response
+* `action` - (Required, String) Specifies the operation type of the retrieval request header. Valid values are **delete**
+  and **set**. If the header does not exist in the original retrieval request, add the header before setting its value.
 
-* `value` - (Optional, String) Specifies the value of request or response header.
+* `value` - (Optional, String) Specifies the value of the retrieval request header. The value contains `1` to `1000`
+  characters, including letters, digits, and special characters `.-_*#!&+|^~'"/:;,=@?<>`. Variables, for example,
+  `$client_ip` and `$remote_port`, are not supported.
+
+<a name="http_response_header_object"></a>
+The `http_response_header` block support:
+
+* `name` - (Required, String) Specifies the HTTP response header. Valid values are **Content-Disposition**, **Content-Language**,
+  **Access-Control-Allow-Origin**, **Access-Control-Allow-Methods**, **Access-Control-Max-Age**, **Access-Control-Expose-Headers**,
+  **Access-Control-Allow-Headers** or custom headers. A header contains `1` to `100` characters, including letters, digits,
+  and hyphens (-), and starts with a letter.
+
+* `action` - (Required, String) Specifies the operation type of the HTTP response header. The value can be **set** or **delete**.
+
+* `value` - (Optional, String) Specifies the value of the HTTP response header. The value contains `1` to `128` characters,
+  including letters, digits, and special characters `.-_*#!&+|^~'"/:;,=@?<>`.
 
 <a name="url_signing_object"></a>
 The `url_signing` block support:
@@ -243,42 +291,48 @@ The `url_signing` block support:
   **type_c1**: Method C1.
   **type_c2**: Method C2.
 
-* `key` - (Optional, String) Specifies the authentication key contains 6 to 32 characters, including letters and digits.
+* `key` - (Optional, String) Specifies the authentication key contains `6` to `32` characters, including letters and digits.
 
 * `time_format` - (Optional, String) Specifies the time format. Possible values are:
   **dec**: Decimal, can be used in Method A, Method B and Method C2.
   **hex**: Hexadecimal, can be used in Method C1 and Method C2.
 
-* `expire_time` - (Optional, Int) Specifies the expiration time. The value ranges from **0** to **31536000**,
-  in seconds.
+* `expire_time` - (Optional, Int) Specifies the expiration time. The value ranges from `0` to `31536000`, in seconds.
 
-<a name="redirect_and_compress_object"></a>
-The `force_redirect` and `compress` blocks support:
+<a name="force_redirect_object"></a>
+The `force_redirect` blocks support:
 
-* `enabled` - (Required, Bool) Specifies the whether to enable force redirect or smart compression.
+* `enabled` - (Required, Bool) Specifies whether to enable force redirect.
 
-* `type` - (Optional, String) Specifies the force redirect or smart compression type.
-  Possible values for force redirect: **http** (force redirect to HTTP) and **https** (force redirect to HTTPS).
-  Possible values for smart compression: **gzip** (gzip) and **br** (Brotli).
+* `type` - (Optional, String) Specifies the force redirect type.
+  Possible values are: **http** (force redirect to HTTP) and **https** (force redirect to HTTPS).
+
+<a name="compress_object"></a>
+The `compress` blocks support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable smart compression.
+
+* `type` - (Optional, String) Specifies the smart compression type.
+  Possible values are: **gzip** (gzip) and **br** (Brotli).
 
 <a name="cache_url_parameter_filter_object"></a>
 The `cache_url_parameter_filter` block support:
 
 * `type` - (Optional, String) Specifies the operation type for caching URL parameters. Valid values are:
-  **full_url**: cache all parameters
-  **ignore_url_params**: ignore all parameters
-  **del_args**: ignore specific URL parameters
-  **reserve_args**: reserve specified URL parameters
+  **full_url**: Cache all parameters
+  **ignore_url_params**: Ignore all parameters
+  **del_params**: Ignore specific URL parameters
+  **reserve_params**: Reserve specified URL parameters
 
 * `value` - (Optional, String) Specifies the parameter values. Multiple values are separated by semicolons (;).
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
 
-* `follow_origin` - (Optional, Bool) Specifies whether to enable origin cache control.
+* `follow_origin` - (Optional, Bool) Specifies whether to enable origin cache control. Defaults to **false**.
 
 * `rules` - (Optional, List) Specifies the cache rules, which overwrite the previous rule configurations.
-  Blank rules are reset to default rules. The [object](#rules_object) structure is documented below.
+  Blank rules are reset to default rules. The [rules](#rules_object) structure is documented below.
 
 <a name="rules_object"></a>
 The `rules` block support:
@@ -288,6 +342,7 @@ The `rules` block support:
   + **file_extension**: Files are matched based on their suffixes.
   + **catalog**: Files are matched based on their directories.
   + **full_path**: Files are matched based on their full paths.
+  + **home_page**: Files are matched based on their homepage.
 
 * `ttl` - (Required, Int) Specifies the cache age. The maximum cache age is 365 days.
 
@@ -300,12 +355,16 @@ The `rules` block support:
 * `priority` - (Required, Int) Specifies the priority weight of this rule. The default value is 1.
   A larger value indicates a higher priority. The value ranges from 1 to 100. The weight values must be unique.
 
-* `content` - (Optional, String) Specifies the content that matches `rule_type`. If `rule_type` is set to **0**,
-  this parameter is empty. If `rule_type` is set to **1**, the value of this parameter is a list of file name
-  extensions. A file name extension starts with a period (.). File name extensions are separated by semicolons (;),
-  for example, .jpg;.zip;.exe. If `rule_type` is set to **2**, the value of this parameter is a list of directories.
-  A directory starts with a slash (/). Directories are separated by semicolons (;), for example,
-  /test/folder01;/test/folder02.
+* `content` - (Optional, String) Specifies the content that matches `rule_type`.
+  + If `rule_type` is set to **all** or **home_page**, keep this parameter empty.
+  + If `rule_type` is set to **file_extension**, the value of this parameter is a list of file name
+    extensions. A file name extension starts with a period (.). File name extensions are separated by semicolons (;),
+    for example, `.jpg;.zip;.exe`. Up to 20 file types are supported.
+  + If `rule_type` is set to **catalog**, the value of this parameter is a list of directories. A directory starts with
+    a slash (/). Directories are separated by semicolons (;), for example, `/test/folder01;/test/folder02`.
+    Up to 20 directories are supported.
+  + If `rule_type` is set to **full_path**, the value must start with a slash (/) and cannot end with an asterisk.
+    Example: `/test/index.html` or `/test/*.jpg`
 
 ## Attribute Reference
 
@@ -339,6 +398,6 @@ This resource provides the following timeouts configuration options:
 
 Domains can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_cdn_domain.domain_1 fe2462fac09a4a42a76ecc4a1ef542f1
+```bash
+$ terraform import huaweicloud_cdn_domain.test <id>
 ```
