@@ -58,6 +58,9 @@ func TestAccDliDatabase_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccDatabaseImportStateFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"tags",
+				},
 			},
 		},
 	})
@@ -83,6 +86,10 @@ resource "huaweicloud_dli_database" "test" {
   name                  = "%s"
   description           = "For terraform acc test"
   enterprise_project_id = "%s"
+
+  tags = {
+    foo = "bar"
+  }
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

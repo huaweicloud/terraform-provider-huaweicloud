@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API DLI POST /v1.0/{project_id}/databases
@@ -66,6 +67,7 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": common.TagsForceNewSchema(),
 		},
 	}
 }
@@ -83,6 +85,7 @@ func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, m
 		Name:                dbName,
 		Description:         d.Get("description").(string),
 		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	_, err = databases.Create(c, opts)
 	if err != nil {
