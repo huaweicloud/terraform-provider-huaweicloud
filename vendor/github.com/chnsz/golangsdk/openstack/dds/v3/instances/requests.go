@@ -52,6 +52,10 @@ type BackupStrategy struct {
 	Period    string `json:"period,omitempty"`
 }
 
+type BackupPolicyOpts struct {
+	BackupPolicy BackupStrategy `json:"backup_policy" required:"true"`
+}
+
 type ChargeInfo struct {
 	ChargeMode  string `json:"charge_mode" required:"true"`
 	PeriodType  string `json:"period_type,omitempty"`
@@ -229,6 +233,64 @@ type PortOpts struct {
 	Port int `json:"port"`
 }
 
+type EnabledOpts struct {
+	Enabled *bool `json:"enabled" required:"true"`
+}
+
+type AvailabilityZoneOpts struct {
+	TargetAzs string `json:"target_azs" required:"true"`
+}
+
+type DescriptionOpts struct {
+	Remark string `json:"remark" required:"true"`
+}
+
+// UpdateAvailabilityZone is a method to update the AvailabilityZone.
+func UpdateAvailabilityZone(c *golangsdk.ServiceClient, instanceId string, opts AvailabilityZoneOpts) (*AvailabilityZoneResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r AvailabilityZoneResp
+	_, err = c.Post(availabilityZoneURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// UpdateRemark is a method to update the description.
+func UpdateRemark(c *golangsdk.ServiceClient, instanceId string, opts DescriptionOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Put(remarkURL(c, instanceId), b, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
+}
+
+// UpdateSlowLogStatus is a method to update the slow log status.
+func UpdateSlowLogStatus(c *golangsdk.ServiceClient, instanceId string, slowLogStatus string) error {
+	_, err := c.Put(updateSlowLogStatusURL(c, instanceId, slowLogStatus), nil, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
+}
+
+// GetSlowLogStatus is a method to get the slow log status.
+func GetSlowLogStatus(c *golangsdk.ServiceClient, instanceId string) (string, error) {
+	var r struct {
+		Status string `json:"status"`
+	}
+	_, err := c.Get(getSlowLogStatusURL(c, instanceId), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return r.Status, err
+}
+
 // UpdatePort is a method to update the database access port using given parameters.
 func UpdatePort(c *golangsdk.ServiceClient, instanceId string, port int) (*PortUpdateResp, error) {
 	opts := PortOpts{
@@ -241,6 +303,61 @@ func UpdatePort(c *golangsdk.ServiceClient, instanceId string, port int) (*PortU
 
 	var r PortUpdateResp
 	_, err = c.Post(portModifiedURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// UpdateSecondsLevelMonitoring is a method to update seconds level monitoring.
+func UpdateSecondsLevelMonitoring(c *golangsdk.ServiceClient, instanceId string, enabled bool) (*EnabledOpts, error) {
+	opts := EnabledOpts{
+		Enabled: &enabled,
+	}
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r EnabledOpts
+	_, err = c.Put(secondsLevelMonitoringURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+		OkCodes: []int{
+			204,
+		},
+	})
+	return &r, err
+}
+
+// GetSecondsLevelMonitoring is a method to get seconds level monitoring.
+func GetSecondsLevelMonitoring(c *golangsdk.ServiceClient, instanceId string) (*EnabledOpts, error) {
+	var r EnabledOpts
+	_, err := c.Get(secondsLevelMonitoringURL(c, instanceId), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// CreateBackupPolicy is a method to create the backup policy.
+func CreateBackupPolicy(c *golangsdk.ServiceClient, instanceId string, backPolicy BackupStrategy) (*BackupPolicyResp, error) {
+	opts := BackupPolicyOpts{
+		BackupPolicy: backPolicy,
+	}
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r BackupPolicyResp
+	_, err = c.Put(backupPolicyURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// GetBackupPolicy is a method to get the backup policy.
+func GetBackupPolicy(c *golangsdk.ServiceClient, instanceId string) (*BackupPolicyResp, error) {
+	var r BackupPolicyResp
+	_, err := c.Get(backupPolicyURL(c, instanceId), &r, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err

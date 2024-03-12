@@ -60,6 +60,8 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "100"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "launched_at"),
 				),
 			},
 			{
@@ -77,6 +79,8 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "10"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "latency-monitor-threshold"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "120"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "launched_at"),
 				),
 			},
 			{

@@ -299,6 +299,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `order_id` - The ID of the order that created the instance.
 
+* `created_at` - Indicates the time when the instance is created, in RFC3339 format.
+
+* `launched_at` - Indicates the time when the instance is started, in RFC3339 format.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

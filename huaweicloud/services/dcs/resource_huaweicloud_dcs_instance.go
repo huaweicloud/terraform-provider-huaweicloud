@@ -368,6 +368,14 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"launched_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 
 			// Deprecated
 			"product_id": {
@@ -964,6 +972,8 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("user_name", r.UserName),
 		d.Set("access_user", r.AccessUser),
 		d.Set("ssl_enable", r.EnableSsl),
+		d.Set("created_at", r.CreatedAt),
+		d.Set("launched_at", r.LaunchedAt),
 	)
 
 	if mErr.ErrorOrNil() != nil {

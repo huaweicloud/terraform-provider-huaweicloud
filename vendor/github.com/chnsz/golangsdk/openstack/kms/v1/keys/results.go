@@ -80,8 +80,17 @@ type GetResult struct {
 	commonResult
 }
 
+type ImportKeyMaterialResult struct {
+	commonResult
+}
+
 // DeleteResult contains the response body and error from a Delete request.
 type DeleteResult struct {
+	commonResult
+}
+
+// DeleteKeyMaterialResult contains the response body and error from a DeleteKeyMaterial request.
+type DeleteKeyMaterialResult struct {
 	commonResult
 }
 

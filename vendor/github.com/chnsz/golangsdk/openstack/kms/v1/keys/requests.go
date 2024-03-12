@@ -22,12 +22,39 @@ type CreateOpts struct {
 	Origin string `json:"origin,omitempty"`
 }
 
+type ImportMaterialOpts struct {
+	// The ID of the key.
+	KeyID string `json:"key_id" required:"true"`
+	// Key import token in Base64 format.
+	// It matches the regular expression ^[0-9a-zA-Z+/=]{200,6144}$.
+	ImportToken string `json:"import_token" required:"true"`
+	// Encrypted symmetric key material in Base64 format.
+	// It matches the regular expression ^[0-9a-zA-Z+/=]{344,360}$.
+	// If an asymmetric key is imported, this parameter is a temporary intermediate key used to encrypt the private key.
+	EncryptedKeyMaterial string `json:"encrypted_key_material" required:"true"`
+	// Private key encrypted using a temporary intermediate key.
+	// This parameter is required for importing an asymmetric key.
+	// The value must be encoded using in Base64 and match the following regular expression: ^[0-9a-zA-Z+/=]{200,6144}$
+	EncryptedPrivatekey string `json:"encrypted_privatekey,omitempty"`
+	// Expiration time of the key material.
+	ExpirationTime string `json:"expiration_time,omitempty"`
+	// 36-byte sequence number of a request message
+	Sequence string `json:"sequence,omitempty"`
+}
+
 type DeleteOpts struct {
 	// ID of a CMK
 	KeyID string `json:"key_id" required:"true"`
 	// Number of days after which a CMK is scheduled to be deleted
 	// (The value ranges from 7 to 1096.)
 	PendingDays string `json:"pending_days" required:"true"`
+}
+
+type DeleteKeyMaterialOpts struct {
+	// ID of the key
+	KeyID string `json:"key_id" required:"true"`
+	// 36-byte sequence number of a request message
+	Sequence string `json:"sequence,omitempty"`
 }
 
 type UpdateAliasOpts struct {
@@ -81,6 +108,14 @@ func (opts CreateOpts) ToKeyCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
+func (opts ImportMaterialOpts) ToKeyMaterialImportMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func (opts DeleteKeyMaterialOpts) ToKeyMaterialDeleteMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
 // ToKeyDeleteMap assembles a request body based on the contents of a
 // DeleteOpts.
 func (opts DeleteOpts) ToKeyDeleteMap() (map[string]interface{}, error) {
@@ -115,8 +150,16 @@ type CreateOptsBuilder interface {
 	ToKeyCreateMap() (map[string]interface{}, error)
 }
 
+type ImportKeyMaterialOptsBuilder interface {
+	ToKeyMaterialImportMap() (map[string]interface{}, error)
+}
+
 type DeleteOptsBuilder interface {
 	ToKeyDeleteMap() (map[string]interface{}, error)
+}
+
+type DeleteKeyMaterialOptsBuilder interface {
+	ToKeyMaterialDeleteMap() (map[string]interface{}, error)
 }
 
 type UpdateAliasOptsBuilder interface {
@@ -154,6 +197,17 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 	return
 }
 
+// ImportKeyMaterial will import a key material for a pending import key.
+func ImportKeyMaterial(client *golangsdk.ServiceClient, opts ImportKeyMaterialOptsBuilder) (r ImportKeyMaterialResult) {
+	b, err := opts.ToKeyMaterialImportMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(importKeyMaterialURL(client), b, &r.Body, nil)
+	return
+}
+
 // Get retrieves the key with the provided ID. To extract the key object
 // from the response, call the Extract method on the GetResult.
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
@@ -175,6 +229,17 @@ func Delete(client *golangsdk.ServiceClient, opts DeleteOptsBuilder) (r DeleteRe
 		OkCodes:      []int{200},
 		JSONResponse: &r.Body,
 	})
+	return
+}
+
+// DeleteKeyMaterial will delete the existing key material with the keyID.
+func DeleteKeyMaterial(client *golangsdk.ServiceClient, opts DeleteKeyMaterialOptsBuilder) (r DeleteKeyMaterialResult) {
+	b, err := opts.ToKeyMaterialDeleteMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(deleteKeyMaterialURL(client), b, &r.Body, nil)
 	return
 }
 
