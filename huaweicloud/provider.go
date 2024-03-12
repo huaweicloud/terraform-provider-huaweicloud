@@ -979,6 +979,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_flinkjar_job":                    dli.ResourceFlinkJarJob(),
 			"huaweicloud_dli_permission":                      dli.ResourceDliPermission(),
 			"huaweicloud_dli_datasource_connection":           dli.ResourceDatasourceConnection(),
+			"huaweicloud_dli_datasource_connection_associate": dli.ResourceDatasourceConnectionAssociate(),
 			"huaweicloud_dli_datasource_connection_privilege": dli.ResourceDatasourceConnectionPrivilege(),
 			"huaweicloud_dli_datasource_auth":                 dli.ResourceDatasourceAuth(),
 			"huaweicloud_dli_template_sql":                    dli.ResourceSQLTemplate(),
