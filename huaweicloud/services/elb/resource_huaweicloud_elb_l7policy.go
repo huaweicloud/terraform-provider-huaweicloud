@@ -19,9 +19,9 @@ import (
 )
 
 // @API ELB POST /v3/{project_id}/elb/l7policies
-// @API ELB PUT /v3/{project_id}/elb/l7policies/{id}
-// @API ELB DELETE /v3/{project_id}/elb/l7policies/{id}
-// @API ELB GET /v3/{project_id}/elb/l7policies/{id}
+// @API ELB GET /v3/{project_id}/elb/l7policies/{l7policy_id}
+// @API ELB PUT /v3/{project_id}/elb/l7policies/{l7policy_id}
+// @API ELB DELETE /v3/{project_id}/elb/l7policies/{l7policy_id}
 func ResourceL7PolicyV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceL7PolicyV3Create,

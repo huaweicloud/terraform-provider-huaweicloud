@@ -20,9 +20,9 @@ import (
 )
 
 // @API ELB POST /v3/{project_id}/elb/pools
-// @API ELB DELETE /v3/{project_id}/elb/pools/{id}
-// @API ELB GET /v3/{project_id}/elb/pools/{id}
-// @API ELB PUT /v3/{project_id}/elb/pools/{id}
+// @API ELB GET /v3/{project_id}/elb/pools/{pool_id}
+// @API ELB PUT /v3/{project_id}/elb/pools/{pool_id}
+// @API ELB DELETE /v3/{project_id}/elb/pools/{pool_id}
 func ResourcePoolV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePoolV3Create,
