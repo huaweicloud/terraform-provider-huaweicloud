@@ -16,6 +16,7 @@ type DcsInstance struct {
 	VpcId               string               `json:"vpc_id"`
 	UserName            string               `json:"user_name"`
 	CreatedAt           string               `json:"created_at"`
+	LaunchedAt          string               `json:"launched_at"`
 	Description         string               `json:"description"`
 	SecurityGroupId     string               `json:"security_group_id"`
 	SecurityGroupName   string               `json:"security_group_name"`

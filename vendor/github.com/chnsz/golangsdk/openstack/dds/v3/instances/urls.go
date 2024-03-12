@@ -21,3 +21,27 @@ func modifyURL(c *golangsdk.ServiceClient, serverID, action string) string {
 func portModifiedURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL("instances", instanceId, "modify-port")
 }
+
+func secondsLevelMonitoringURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "monitoring-by-seconds/switch")
+}
+
+func backupPolicyURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "backups/policy")
+}
+
+func availabilityZoneURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "migrate")
+}
+
+func remarkURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "remark")
+}
+
+func updateSlowLogStatusURL(c *golangsdk.ServiceClient, instanceId string, status string) string {
+	return c.ServiceURL("instances", instanceId, "slowlog-desensitization", status)
+}
+
+func getSlowLogStatusURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "slowlog-desensitization/status")
+}
