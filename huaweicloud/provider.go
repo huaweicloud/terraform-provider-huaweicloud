@@ -939,6 +939,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_scan_task":              css.ResourceScanTask(),
 			"huaweicloud_css_logstash_cluster":       css.ResourceLogstashCluster(),
 			"huaweicloud_css_logstash_configuration": css.ResourceLogstashConfiguration(),
+			"huaweicloud_css_logstash_pipeline":      css.ResourceLogstashPipeline(),
 
 			"huaweicloud_dbss_instance": dbss.ResourceInstance(),
 
