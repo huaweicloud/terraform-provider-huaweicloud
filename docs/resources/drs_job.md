@@ -155,6 +155,21 @@ The following arguments are supported:
 * `force_destroy` - (Optional, Bool) Specifies whether to forcibly destroy the job even if it is running.
  The default value is **false**.
 
+* `action` - (Optional, String) Specifies the action of job. The options are as follows:
+  + **stop**: Stop the job. Available when job status is **FULL_TRANSFER_STARTED**, **FULL_TRANSFER_COMPLETE** or
+    **INCRE_TRANSFER_STARTED**.
+  + **restart**: Continue the job. Available when job status is **PAUSING**.
+  + **reset**: Retry the job. Available when job status is **FULL_TRANSFER_FAILED** or **INCRE_TRANSFER_FAILED**.
+
+  -> It will only take effect when **updating** a job.
+
+* `pause_mode` - (Optional, String) Specifies the stop type of job. It's valid when `action` is **stop**.
+  Default value is **target**. The options are as follows:
+  + **target**: Stop playback.
+  + **all**: Stop log capture and playback.
+
+* `is_sync_re_edit` - (Optional, Bool) Specifies whether to start the sync re-edit job. It's valid when `action` is **restart**.
+
 The `db_info` block supports:
 
 * `engine_type` - (Required, String, ForceNew) Specifies the engine type of database. Changing this parameter will
@@ -229,6 +244,8 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minutes.
 
+* `update` - Default is 10 minutes.
+
 * `delete` - Default is 10 minutes.
 
 ## Import
@@ -240,10 +257,10 @@ $ terraform import huaweicloud_drs_job.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `enterprise_project_id`,
-`force_destroy`, `source_db.0.password` and `destination_db.0.password`.It is generally recommended running
-**terraform plan** after importing a job. You can then decide if changes should be applied to the job, or the resource
-definition should be updated to align with the job. Also you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
+`source_db.0.password` and `destination_db.0.password`, `action`, `is_sync_re_edit`, `pause_mode`. It is generally
+recommended running **terraform plan** after importing a job. You can then decide if changes should be applied to the
+job, or the resource definition should be updated to align with the job. Also you can ignore changes as below.
 
 ```
 resource "huaweicloud_drs_job" "test" {
@@ -251,7 +268,7 @@ resource "huaweicloud_drs_job" "test" {
 
   lifecycle {
     ignore_changes = [
-      source_db.0.password,destination_db.0.password
+      source_db.0.password, destination_db.0.password, action,
     ]
   }
 }
