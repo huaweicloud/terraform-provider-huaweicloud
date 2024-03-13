@@ -73,6 +73,8 @@ type UrlDomian struct {
 	//     TLSv1.1
 	//     TLSv1.2
 	MinSSLVersion string `json:"min_ssl_version"`
+	// Whether to enable redirection from HTTP to HTTPS.
+	IsHttpRedirectToHttps bool `json:"is_http_redirect_to_https"`
 }
 
 func (r commonResult) Extract() (*Group, error) {
@@ -95,4 +97,24 @@ func ExtractGroups(r pagination.Page) ([]Group, error) {
 // DeleteResult represents a result of the Delete method.
 type DeleteResult struct {
 	golangsdk.ErrResult
+}
+
+// AssociateDoaminResp is the structure that represents the API response of AssociateDomain method request.
+type AssociateDoaminResp struct {
+	// Domain ID.
+	ID string `json:"id"`
+	// Custom domain name.
+	UrlDoamin string `json:"url_domain"`
+	// CNAME resolution status of the domain name.
+	// + 1: not resolved
+	// + 2: resolving
+	// + 3: resolved
+	// + 4: resolving failed
+	Status int `json:"status"`
+	// The minimum SSL version supported.
+	MinSSLVersion string `json:"min_ssl_version"`
+	// Whether to enable redirection from HTTP to HTTPS.
+	IsHttpRedirectToHttps bool `json:"is_http_redirect_to_https"`
+	// Whether to enable client certificate verification.
+	VerifiedClientCertificateEnabled bool `json:"verified_client_certificate_enabled"`
 }

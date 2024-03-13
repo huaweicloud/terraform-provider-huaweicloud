@@ -103,3 +103,39 @@ func Delete(client *golangsdk.ServiceClient, instanceId, groupId string) (r Dele
 	_, r.Err = client.Delete(resourceURL(client, instanceId, groupId), nil)
 	return
 }
+
+// AssociateDomainOpts is the structure that used to bind domain name to specified API group.
+type AssociateDomainOpts struct {
+	// The dedicated instance ID.
+	InstanceId string `json:"-" requires:"true"`
+	// The API group ID.
+	GroupId string `json:"-" requires:"true"`
+	// Custom domain name.
+	// The valid length is limited from 0 to 255 characters and must comply with the domian name specifications.
+	UrlDomain string `json:"url_domain" requires:"true"`
+	// The minimum TLS version that can be used to access the domain name, the default value is TLSv1.2.
+	// The valid value are as follows:
+	// + TLSv1.1.
+	// + TLSv1.2.
+	MinSSLVersion string `json:"min_ssl_version,omitempty"`
+	// Whether to enable redirection from HTTP to HTTPS, the default value is false.
+	IsHttpRedirectToHttps bool `json:"is_http_redirect_to_https,omitempty"`
+}
+
+// AssociateDomain is a method that used to bind domain name to specified API group.
+func AssociateDomain(client *golangsdk.ServiceClient, opts AssociateDomainOpts) (*AssociateDoaminResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r AssociateDoaminResp
+	_, err = client.Post(associateDomainURL(client, opts.InstanceId, opts.GroupId), b, &r, nil)
+	return &r, err
+}
+
+// AssociateDomain is a method that used to unbind domain name to specified API group.
+func DisAssociateDomain(client *golangsdk.ServiceClient, intanceId string, groupId string, domainId string) error {
+	_, err := client.Delete(disAssociateDomainURL(client, intanceId, groupId, domainId), nil)
+	return err
+}
