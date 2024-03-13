@@ -86,8 +86,8 @@ The following arguments are supported:
 * `security_group_id` - (Optional, String) Specifies the security group ID. Required if the selected subnet doesn't
   enable network ACL.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id, Only valid for users who
-  have enabled the enterprise multi-project service. Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id, Only valid for users who
+  have enabled the enterprise multi-project service.
 
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.

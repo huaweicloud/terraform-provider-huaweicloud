@@ -17,6 +17,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/auditlog"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
@@ -134,7 +135,6 @@ func ResourceGaussDBInstance() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"dedicated_resource_id": {
 				Type:     schema.TypeString,
@@ -806,11 +806,12 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 
 func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.GaussdbV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s ", err)
 	}
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating bss V2 client: %s", err)
 	}
@@ -985,7 +986,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 		log.Printf("[DEBUG] Extending Volume: %#v", extendOpts)
 
-		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).ExtractJobResponse()
+		n, err := instances.ExtendVolume(client, instanceId, extendOpts).ExtractJobResponse()
 		if err != nil {
 			return diag.Errorf("error extending volume: %s", err)
 		}
@@ -1024,7 +1025,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		updateOpts.Period = "1,2,3,4,5,6,7"
 		log.Printf("[DEBUG] update backup_strategy: %#v", updateOpts)
 
-		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		err = backups.Update(client, instanceId, updateOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating backup_strategy: %s", err)
 		}
@@ -1038,7 +1039,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			}
 			log.Printf("[DEBUG] enable proxy: %#v", proxyOpts)
 
-			ep, err := instances.EnableProxy(client, d.Id(), proxyOpts).ExtractJobResponse()
+			ep, err := instances.EnableProxy(client, instanceId, proxyOpts).ExtractJobResponse()
 			if err != nil {
 				return diag.Errorf("error enabling proxy: %s", err)
 			}
@@ -1047,7 +1048,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 				return diag.FromErr(err)
 			}
 		} else {
-			dp, err := instances.DeleteProxy(client, d.Id()).ExtractJobResponse()
+			dp, err := instances.DeleteProxy(client, instanceId).ExtractJobResponse()
 			if err != nil {
 				return diag.Errorf("error disabling proxy: %s", err)
 			}
@@ -1067,7 +1068,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			}
 			log.Printf("[DEBUG] enlarge proxy: %#v", enlargeProxyOpts)
 
-			lp, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
+			lp, err := instances.EnlargeProxy(client, instanceId, enlargeProxyOpts).ExtractJobResponse()
 			if err != nil {
 				return diag.Errorf("error enlarging proxy: %s", err)
 			}
@@ -1077,7 +1078,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			}
 		}
 		if newnum.(int) < oldnum.(int) && !d.HasChange("proxy_flavor") {
-			return diag.Errorf("error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
+			return diag.Errorf("error updating proxy_node_num for instance %s: new num should be greater than old num", instanceId)
 		}
 	}
 
@@ -1098,19 +1099,31 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceId)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of Gaussdb mysql instance %q: %s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of Gaussdb mysql instance %q: %s", instanceId, tagErr)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "gaussdb",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

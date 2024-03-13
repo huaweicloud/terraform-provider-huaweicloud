@@ -15,6 +15,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
@@ -125,7 +126,6 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"dedicated_resource_id": {
 				Type:     schema.TypeString,
@@ -667,19 +667,21 @@ func resourceGaussDBCassandraInstanceUpdate(ctx context.Context, d *schema.Resou
 
 func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}, defaults defaultValues) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.GeminiDBV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	client, err := cfg.GeminiDBV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating Vpc: %s", err)
 	}
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating bss V2 client: %s", err)
 	}
 	// update tags
+	instanceId := d.Id()
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceId)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
+			return diag.Errorf("error updating tags of GeminiDB %q: %s", instanceId, tagErr)
 		}
 	}
 
@@ -688,9 +690,9 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			Name: d.Get("name").(string),
 		}
 
-		err := instances.UpdateName(client, d.Id(), updateNameOpts).ExtractErr()
+		err := instances.UpdateName(client, instanceId, updateNameOpts).ExtractErr()
 		if err != nil {
-			return diag.Errorf("error updating name for gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+			return diag.Errorf("error updating name for gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 		}
 	}
 
@@ -699,9 +701,9 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			Password: d.Get("password").(string),
 		}
 
-		err := instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
+		err := instances.UpdatePass(client, instanceId, updatePassOpts).ExtractErr()
 		if err != nil {
-			return diag.Errorf("error updating password for gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+			return diag.Errorf("error updating password for gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 		}
 	}
 
@@ -714,13 +716,13 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		configId := d.Get("configuration_id").(string)
 		ret, err := configurations.Apply(client, configId, applyOpts).Extract()
 		if err != nil || !ret.Success {
-			return diag.Errorf("error updating configuration_id for gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+			return diag.Errorf("error updating configuration_id for gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 		}
 
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"SET_CONFIGURATION"},
 			Target:     []string{"available"},
-			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "SET_CONFIGURATION"),
+			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "SET_CONFIGURATION"),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			MinTimeout: 10 * time.Second,
 		}
@@ -728,7 +730,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
 			return diag.Errorf(
-				"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, d.Id(), err)
+				"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, instanceId, err)
 		}
 
 		// Compare the target configuration and the instance configuration
@@ -739,19 +741,19 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		configParams := config.Parameters
 		log.Printf("[DEBUG] configuration parameters %#v", configParams)
 
-		instanceConfig, err := configurations.GetInstanceConfig(client, d.Id()).Extract()
+		instanceConfig, err := configurations.GetInstanceConfig(client, instanceId).Extract()
 		if err != nil {
-			return diag.Errorf("error fetching instance configuration for gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+			return diag.Errorf("error fetching instance configuration for gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 		}
 		instanceConfigParams := instanceConfig.Parameters
 		log.Printf("[DEBUG] instance configuration parameters %#v", instanceConfigParams)
 
 		if len(configParams) != len(instanceConfigParams) {
-			return diag.Errorf("error updating configuration for instance: %s", d.Id())
+			return diag.Errorf("error updating configuration for instance: %s", instanceId)
 		}
 		for i := range configParams {
 			if !configParams[i].ReadOnly && configParams[i] != instanceConfigParams[i] {
-				return diag.Errorf("error updating configuration for instance: %s", d.Id())
+				return diag.Errorf("error updating configuration for instance: %s", instanceId)
 			}
 		}
 	}
@@ -764,9 +766,9 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			extendOpts.IsAutoPay = "true"
 		}
 
-		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).Extract()
+		n, err := instances.ExtendVolume(client, instanceId, extendOpts).Extract()
 		if err != nil {
-			return diag.Errorf("error extending gaussdb_%s_instance %s size: %s", defaults.logName, d.Id(), err)
+			return diag.Errorf("error extending gaussdb_%s_instance %s size: %s", defaults.logName, instanceId, err)
 		}
 		// 1. wait for order success
 		if n.OrderId != "" {
@@ -779,7 +781,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"RESIZE_VOLUME"},
 			Target:     []string{"available"},
-			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_VOLUME"),
+			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "RESIZE_VOLUME"),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			MinTimeout: 10 * time.Second,
 		}
@@ -787,12 +789,12 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
 			return diag.Errorf(
-				"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, d.Id(), err)
+				"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, instanceId, err)
 		}
 
 		// 3. check whether the order take effect
 		if n.OrderId != "" {
-			instance, err := instances.GetInstanceByID(client, d.Id())
+			instance, err := instances.GetInstanceByID(client, instanceId)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -804,7 +806,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				}
 			}
 			if volumeSize != d.Get("volume_size").(int) {
-				return diag.Errorf("error extending volume for instance %s: order failed", d.Id())
+				return diag.Errorf("error extending volume for instance %s: order failed", instanceId)
 			}
 		}
 	}
@@ -822,9 +824,9 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			}
 			log.Printf("[DEBUG] enlarge node options: %+v", enlargeNodeOpts)
 
-			n, err := instances.EnlargeNode(client, d.Id(), enlargeNodeOpts).Extract()
+			n, err := instances.EnlargeNode(client, instanceId, enlargeNodeOpts).Extract()
 			if err != nil {
-				return diag.Errorf("error enlarging gaussdb_%s_instance %s node size: %s", defaults.logName, d.Id(), err)
+				return diag.Errorf("error enlarging gaussdb_%s_instance %s node size: %s", defaults.logName, instanceId, err)
 			}
 			// 1. wait for order success
 			if n.OrderId != "" {
@@ -837,7 +839,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			stateConf := &resource.StateChangeConf{
 				Pending:      []string{"GROWING"},
 				Target:       []string{"available"},
-				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "GROWING"),
+				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "GROWING"),
 				Timeout:      d.Timeout(schema.TimeoutUpdate),
 				Delay:        15 * time.Second,
 				PollInterval: 20 * time.Second,
@@ -846,12 +848,12 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			_, err = stateConf.WaitForStateContext(ctx)
 			if err != nil {
 				return diag.Errorf(
-					"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, d.Id(), err)
+					"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, instanceId, err)
 			}
 
 			// 3. check whether the order take effect
 			if n.OrderId != "" {
-				instance, err := instances.GetInstanceByID(client, d.Id())
+				instance, err := instances.GetInstanceByID(client, instanceId)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -860,7 +862,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 					nodeNum += len(group.Nodes)
 				}
 				if nodeNum != newnum.(int) {
-					return diag.Errorf("error enlarging node for instance %s: order failed", d.Id())
+					return diag.Errorf("error enlarging node for instance %s: order failed", instanceId)
 				}
 			}
 		}
@@ -887,9 +889,9 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				}
 				log.Printf("[DEBUG] reduce node options: %+v", reduceNodeOpts)
 
-				n, err := instances.ReduceNode(client, d.Id(), reduceNodeOpts).Extract()
+				n, err := instances.ReduceNode(client, instanceId, reduceNodeOpts).Extract()
 				if err != nil {
-					return diag.Errorf("error shrinking gaussdb %s instance %s node size: %s", defaults.logName, d.Id(), err)
+					return diag.Errorf("error shrinking gaussdb %s instance %s node size: %s", defaults.logName, instanceId, err)
 				}
 
 				// 1. wait for order success
@@ -903,7 +905,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				stateConf := &resource.StateChangeConf{
 					Pending:      []string{"REDUCING"},
 					Target:       []string{"available"},
-					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "REDUCING"),
+					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "REDUCING"),
 					Timeout:      d.Timeout(schema.TimeoutUpdate),
 					Delay:        15 * time.Second,
 					PollInterval: 20 * time.Second,
@@ -912,17 +914,17 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				_, err = stateConf.WaitForStateContext(ctx)
 				if err != nil {
 					return diag.Errorf(
-						"error waiting for gaussdb %s instance %s to become ready: %s", defaults.logName, d.Id(), err)
+						"error waiting for gaussdb %s instance %s to become ready: %s", defaults.logName, instanceId, err)
 				}
 			}
 		}
 	}
 
 	if d.HasChange("flavor") {
-		instance, err := instances.GetInstanceByID(client, d.Id())
+		instance, err := instances.GetInstanceByID(client, instanceId)
 		if err != nil {
 			return diag.Errorf(
-				"error fetching gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+				"error fetching gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 		}
 
 		specCode := ""
@@ -932,7 +934,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				stateConf := &resource.StateChangeConf{
 					Pending:      []string{"RESIZE_FLAVOR"},
 					Target:       []string{"available"},
-					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "RESIZE_FLAVOR"),
 					Timeout:      d.Timeout(schema.TimeoutUpdate),
 					PollInterval: 20 * time.Second,
 				}
@@ -940,13 +942,13 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				_, err = stateConf.WaitForStateContext(ctx)
 				if err != nil {
 					return diag.Errorf(
-						"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, d.Id(), err)
+						"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, instanceId, err)
 				}
 
-				instance, err := instances.GetInstanceByID(client, d.Id())
+				instance, err := instances.GetInstanceByID(client, instanceId)
 				if err != nil {
 					return diag.Errorf(
-						"error fetching gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+						"error fetching gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 				}
 
 				// Fetch node flavor
@@ -978,9 +980,9 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 				resizeOpts.IsAutoPay = "true"
 			}
 
-			n, err := instances.Resize(client, d.Id(), resizeOpts).Extract()
+			n, err := instances.Resize(client, instanceId, resizeOpts).Extract()
 			if err != nil {
-				return diag.Errorf("error resizing gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), err)
+				return diag.Errorf("error resizing gaussdb_%s_instance %s: %s", defaults.logName, instanceId, err)
 			}
 			// 1. wait for order success
 			if n.OrderId != "" {
@@ -993,7 +995,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			stateConf := &resource.StateChangeConf{
 				Pending:      []string{"RESIZE_FLAVOR"},
 				Target:       []string{"available"},
-				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "RESIZE_FLAVOR"),
 				Timeout:      d.Timeout(schema.TimeoutUpdate),
 				PollInterval: 20 * time.Second,
 			}
@@ -1001,12 +1003,12 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			_, err = stateConf.WaitForStateContext(ctx)
 			if err != nil {
 				return diag.Errorf(
-					"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, d.Id(), err)
+					"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, instanceId, err)
 			}
 
 			// 3. check whether the order take effect
 			if n.OrderId != "" {
-				instance, err := instances.GetInstanceByID(client, d.Id())
+				instance, err := instances.GetInstanceByID(client, instanceId)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -1020,7 +1022,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 					}
 				}
 				if currFlavor != d.Get("flavor").(string) {
-					return diag.Errorf("error updating flavor for instance %s: order failed", d.Id())
+					return diag.Errorf("error updating flavor for instance %s: order failed", instanceId)
 				}
 			}
 		}
@@ -1031,15 +1033,15 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 			SecurityGroupID: d.Get("security_group_id").(string),
 		}
 
-		result := instances.UpdateSg(client, d.Id(), updateSgOpts)
+		result := instances.UpdateSg(client, instanceId, updateSgOpts)
 		if result.Err != nil {
-			return diag.Errorf("error updating security group for gaussdb_%s_instance %s: %s", defaults.logName, d.Id(), result.Err)
+			return diag.Errorf("error updating security group for gaussdb_%s_instance %s: %s", defaults.logName, instanceId, result.Err)
 		}
 
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"MODIFY_SECURITYGROUP"},
 			Target:       []string{"available"},
-			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "MODIFY_SECURITYGROUP"),
+			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, instanceId, "MODIFY_SECURITYGROUP"),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			PollInterval: 3 * time.Second,
 		}
@@ -1047,7 +1049,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
 			return diag.Errorf(
-				"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, d.Id(), err)
+				"error waiting for gaussdb_%s_instance %s to become ready: %s", defaults.logName, instanceId, err)
 		}
 	}
 
@@ -1062,19 +1064,31 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		updateOpts.Period = "1,2,3,4,5,6,7"
 		log.Printf("[DEBUG] update backup_strategy: %#v", updateOpts)
 
-		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		err = backups.Update(client, instanceId, updateOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating backup_strategy: %s", err)
 		}
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "nosql",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

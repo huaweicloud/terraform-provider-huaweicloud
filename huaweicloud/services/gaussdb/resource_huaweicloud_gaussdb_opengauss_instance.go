@@ -16,6 +16,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
 
@@ -198,7 +199,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"time_zone": {
 				Type:     schema.TypeString,
@@ -774,8 +774,8 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
 
-	log.Printf("[DEBUG] updating OpenGaussDB instances %s", d.Id())
 	instanceId := d.Id()
+	log.Printf("[DEBUG] updating OpenGaussDB instances %s", instanceId)
 
 	if d.HasChange("name") {
 		renameOpts := instances.RenameOpts{
@@ -827,7 +827,7 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 
 		log.Printf("[DEBUG] the updateOpts object of backup_strategy parameter is: %#v", updateOpts)
-		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		err = backups.Update(client, instanceId, updateOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error updating backup_strategy: %s", err)
 		}
@@ -838,8 +838,20 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   instanceId,
+			ResourceType: "gaussdb",
+			RegionId:     region,
+			ProjectId:    config.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

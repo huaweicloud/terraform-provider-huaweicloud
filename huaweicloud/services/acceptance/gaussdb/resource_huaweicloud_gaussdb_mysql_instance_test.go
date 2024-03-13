@@ -87,6 +87,42 @@ func TestAccGaussDBInstance_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccGaussDBInstance_updateWithEpsId(t *testing.T) {
+	var instance instances.TaurusDBInstance
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_gaussdb_mysql_instance.test"
+	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGaussDBInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussDBInstanceConfig_withEpsId(rName, srcEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+				),
+			},
+			{
+				Config: testAccGaussDBInstanceConfig_withEpsId(rName, destEPS),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	client, err := cfg.GaussdbV3Client(acceptance.HW_REGION_NAME)
@@ -210,4 +246,28 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   auto_renew    = "%v"
 }
 `, common.TestBaseNetwork(rName), rName, password, isAutoRenew)
+}
+
+func testAccGaussDBInstanceConfig_withEpsId(rName, epsId string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_gaussdb_mysql_instance" "test" {
+  name                  = "%s"
+  password              = "Test@12345678"
+  flavor                = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "%s"
+  sql_filter_enabled    = true
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, common.TestBaseNetwork(rName), rName, epsId)
 }
