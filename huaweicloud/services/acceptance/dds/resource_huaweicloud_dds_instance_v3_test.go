@@ -609,7 +609,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name                  = "%s"
-  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone     = data.huaweicloud_availability_zones.test.names[1]
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
