@@ -118,7 +118,7 @@ resource "huaweicloud_css_configuration" "test" {
   thread_pool_force_merge_size = "3"
   http_cors_allow_credetials   = true
 }
-`, testAccCssCluster_basic(name, 1, 7, "bar"))
+`, testAccCssCluster_basic(name, "Test@passw0rd", 7, "bar"))
 }
 
 func testCssConfiguration_basic_update(name string) string {
@@ -131,5 +131,5 @@ resource "huaweicloud_css_configuration" "test" {
   http_cors_allow_credetials   = true
   http_cors_allow_headers      = "X-Requested-With, Content-Type"
 }
-`, testAccCssCluster_basic(name, 1, 7, "bar"))
+`, testAccCssCluster_basic(name, "Test@passw0rd", 7, "bar"))
 }

@@ -112,7 +112,7 @@ func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 
 func testAccCssSnapshot_basic(val string) string {
 	clusterName := acceptance.RandomAccResourceName()
-	clusterString := testAccCssCluster_basic(clusterName, 1, 1, "tag")
+	clusterString := testAccCssCluster_basic(clusterName, "Test@passw0rd", 1, "tag")
 
 	return fmt.Sprintf(`
 %s
