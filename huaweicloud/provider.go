@@ -983,9 +983,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_audit_log_policy":   dds.ResourceDdsAuditLogPolicy(),
 			"huaweicloud_dds_lts_log":            dds.ResourceDdsLtsLog(),
 
-			"huaweicloud_ddm_instance": ddm.ResourceDdmInstance(),
-			"huaweicloud_ddm_schema":   ddm.ResourceDdmSchema(),
-			"huaweicloud_ddm_account":  ddm.ResourceDdmAccount(),
+			"huaweicloud_ddm_instance":               ddm.ResourceDdmInstance(),
+			"huaweicloud_ddm_schema":                 ddm.ResourceDdmSchema(),
+			"huaweicloud_ddm_account":                ddm.ResourceDdmAccount(),
+			"huaweicloud_ddm_instance_read_strategy": ddm.ResourceDdmInstanceReadStrategy(),
 
 			"huaweicloud_dis_stream": dis.ResourceDisStream(),
 
