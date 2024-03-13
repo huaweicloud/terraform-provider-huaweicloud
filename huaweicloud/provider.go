@@ -521,6 +521,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ga_accelerators":    ga.DataSourceAccelerators(),
 			"huaweicloud_ga_address_groups":  ga.DataSourceAddressGroups(),
 			"huaweicloud_ga_endpoint_groups": ga.DataSourceEndpointGroups(),
+			"huaweicloud_ga_health_checks":   ga.DataSourceHealthChecks(),
 			"huaweicloud_ga_listeners":       ga.DataSourceListeners(),
 
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": gaussdb.DataSourceGeminiDBDehResource(),
