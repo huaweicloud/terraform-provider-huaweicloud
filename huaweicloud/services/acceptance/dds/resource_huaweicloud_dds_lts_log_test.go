@@ -87,6 +87,16 @@ func TestAccDdsLtsLog_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccDdsLtsLog_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_dds_instance.instance", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "lts_group_id", "huaweicloud_lts_group.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "lts_stream_id", "huaweicloud_lts_stream.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "log_type", "audit_log"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -105,9 +115,30 @@ resource "huaweicloud_lts_group" "test" {
 }
 
 resource "huaweicloud_lts_stream" "test" {
-  depends_on  = [huaweicloud_lts_group.test]
   group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[2]s"
+}
+
+resource "huaweicloud_dds_lts_log" "test" {
+  instance_id   = huaweicloud_dds_instance.instance.id
+  log_type      = "audit_log"
+  lts_group_id  = huaweicloud_lts_group.test.id
+  lts_stream_id = huaweicloud_lts_stream.test.id
+}`, testAccDDSInstanceV3Config_basic(rName, 8800), rName)
+}
+
+func testAccDdsLtsLog_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[2]s-update"
+  ttl_in_days = 1
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[2]s-update"
 }
 
 resource "huaweicloud_dds_lts_log" "test" {
