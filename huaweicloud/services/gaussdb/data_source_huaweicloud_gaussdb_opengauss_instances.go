@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -331,7 +332,7 @@ func dataSourceOpenGaussInstancesRead(_ context.Context, d *schema.ResourceData,
 			instanceToSet["replica_num"] = instanceInAll.ReplicaNum
 		}
 
-		//remove duplicate az
+		// remove duplicate az
 		azList = utils.RemoveDuplicateElem(azList)
 		sort.Strings(azList)
 		instanceToSet["availability_zone"] = strings.Join(azList, ",")
@@ -366,7 +367,10 @@ func dataSourceOpenGaussInstancesRead(_ context.Context, d *schema.ResourceData,
 	}
 
 	d.SetId(hashcode.Strings(instancesIds))
-	err = d.Set("instances", instancesToSet)
+	var mErr *multierror.Error
+	mErr = multierror.Append(mErr,
+		d.Set("instances", instancesToSet),
+	)
 
-	return diag.FromErr(err)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

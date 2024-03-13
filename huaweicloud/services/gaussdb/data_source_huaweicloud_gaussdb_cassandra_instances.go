@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -204,6 +205,8 @@ func dataSourceGeminiDBInstancesRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
+	var mErr *multierror.Error
+
 	listOpts := instances.ListGeminiDBInstanceOpts{
 		Name:     d.Get("name").(string),
 		VpcId:    d.Get("vpc_id").(string),
@@ -319,7 +322,9 @@ func dataSourceGeminiDBInstancesRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	d.SetId(hashcode.Strings(instancesIds))
-	d.Set("instances", instancesToSet)
+	mErr = multierror.Append(mErr,
+		d.Set("instances", instancesToSet),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

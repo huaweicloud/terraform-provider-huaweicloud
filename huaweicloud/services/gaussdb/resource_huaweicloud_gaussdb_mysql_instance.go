@@ -560,7 +560,7 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 			id, err)
 	}
 
-	//audit-log switch
+	// audit-log switch
 	if v, ok := d.GetOk("audit_log_enabled"); ok {
 		err = switchAuditLog(client, id, v.(bool))
 		if err != nil {

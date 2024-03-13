@@ -666,7 +666,7 @@ func resourceOpenGaussInstanceRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func expandOpenGaussShardingNumber(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+func expandOpenGaussShardingNumber(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient,
 	d *schema.ResourceData) error {
 	old, newnum := d.GetChange("sharding_num")
 	if newnum.(int) < old.(int) {
@@ -682,10 +682,10 @@ func expandOpenGaussShardingNumber(ctx context.Context, config *config.Config, c
 		IsAutoPay: "true",
 	}
 	log.Printf("[DEBUG] the updateOpts object of sharding number is: %#v", opts)
-	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
+	return updateVolumeAndRelatedHaNumbers(ctx, cfg, client, d, opts)
 }
 
-func expandOpenGaussCoordinatorNumber(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+func expandOpenGaussCoordinatorNumber(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient,
 	d *schema.ResourceData) error {
 	old, newnum := d.GetChange("coordinator_num")
 	if newnum.(int) < old.(int) {
@@ -708,10 +708,10 @@ func expandOpenGaussCoordinatorNumber(ctx context.Context, config *config.Config
 		IsAutoPay: "true",
 	}
 	log.Printf("[DEBUG] the updateOpts object of coordinator number is: %#v", opts)
-	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
+	return updateVolumeAndRelatedHaNumbers(ctx, cfg, client, d, opts)
 }
 
-func updateOpenGaussVolumeSize(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+func updateOpenGaussVolumeSize(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient,
 	d *schema.ResourceData) error {
 	volumeRaw := d.Get("volume").([]interface{})
 	dnSize := volumeRaw[0].(map[string]interface{})["size"].(int)
@@ -729,10 +729,10 @@ func updateOpenGaussVolumeSize(ctx context.Context, config *config.Config, clien
 		IsAutoPay: "true",
 	}
 	log.Printf("[DEBUG] the updateOpts object of volume size is: %#v", opts)
-	return updateVolumeAndRelatedHaNumbers(ctx, config, client, d, opts)
+	return updateVolumeAndRelatedHaNumbers(ctx, cfg, client, d, opts)
 }
 
-func updateVolumeAndRelatedHaNumbers(ctx context.Context, config *config.Config, client *golangsdk.ServiceClient,
+func updateVolumeAndRelatedHaNumbers(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient,
 	d *schema.ResourceData, opts instances.UpdateOpts) error {
 	instanceId := d.Id()
 	resp, err := instances.Update(client, instanceId, opts)
@@ -740,7 +740,7 @@ func updateVolumeAndRelatedHaNumbers(ctx context.Context, config *config.Config,
 		return fmt.Errorf("error updating instance (%s): %s", instanceId, err)
 	}
 	if resp.OrderId != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return fmt.Errorf("error creating BSS v2 client: %s", err)
 		}
@@ -767,9 +767,9 @@ func updateVolumeAndRelatedHaNumbers(ctx context.Context, config *config.Config,
 }
 
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.OpenGaussV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.OpenGaussV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
@@ -799,17 +799,17 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("sharding_num") {
-		if err := expandOpenGaussShardingNumber(ctx, config, client, d); err != nil {
+		if err := expandOpenGaussShardingNumber(ctx, cfg, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("coordinator_num") {
-		if err := expandOpenGaussCoordinatorNumber(ctx, config, client, d); err != nil {
+		if err := expandOpenGaussCoordinatorNumber(ctx, cfg, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	if d.HasChange("volume") {
-		if err := updateOpenGaussVolumeSize(ctx, config, client, d); err != nil {
+		if err := updateOpenGaussVolumeSize(ctx, cfg, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -834,7 +834,7 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(region)
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -848,9 +848,9 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 			ResourceId:   instanceId,
 			ResourceType: "gaussdb",
 			RegionId:     region,
-			ProjectId:    config.GetProjectID(region),
+			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -859,15 +859,15 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceOpenGaussInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.OpenGaussV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating GaussDB v3 client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		if err := common.UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{instanceId}); err != nil {
 			return diag.Errorf("error unsubscribe OpenGauss instance: %s", err)
 		}
 	} else {

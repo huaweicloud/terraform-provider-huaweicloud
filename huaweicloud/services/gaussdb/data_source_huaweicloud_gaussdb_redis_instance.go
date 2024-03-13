@@ -274,7 +274,7 @@ func dataSourceGaussRedisInstanceRead(_ context.Context, d *schema.ResourceData,
 	d.Set("nodes", nodesList)
 	d.Set("private_ips", ipsList)
 
-	//remove duplicate az
+	// remove duplicate az
 	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
@@ -288,7 +288,7 @@ func dataSourceGaussRedisInstanceRead(_ context.Context, d *schema.ResourceData,
 	backupStrategyList = append(backupStrategyList, backupStrategy)
 	d.Set("backup_strategy", backupStrategyList)
 
-	//save geminidb tags
+	// save geminidb tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
