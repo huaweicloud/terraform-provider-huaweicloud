@@ -150,7 +150,9 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. The structure is described below.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the dds instance.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the DDS instance.
+
+* `description` - (Optional, String) Specifies the description of the DDS instance.
 
 * `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
