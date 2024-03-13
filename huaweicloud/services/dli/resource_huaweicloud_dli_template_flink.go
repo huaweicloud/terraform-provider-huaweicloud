@@ -112,6 +112,10 @@ func resourceFlinkTemplateCreate(ctx context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	if !utils.PathSearch("is_success", createFlinkTemplateRespBody, true).(bool) {
+		return diag.Errorf("unable to create the flink template: %s",
+			utils.PathSearch("message", createFlinkTemplateRespBody, "Message Not Found"))
+	}
 
 	id, err := jmespath.Search("template.template_id", createFlinkTemplateRespBody)
 	if err != nil {
@@ -170,6 +174,10 @@ func resourceFlinkTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 	getFlinkTemplateRespBody, err := utils.FlattenResponse(getFlinkTemplateResp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", getFlinkTemplateRespBody, true).(bool) {
+		return diag.Errorf("unable to query the flink templates: %s",
+			utils.PathSearch("message", getFlinkTemplateRespBody, "Message Not Found"))
 	}
 
 	jsonPath := fmt.Sprintf("template_list.templates[?template_id==`%s`]|[0]", d.Id())
@@ -231,9 +239,17 @@ func resourceFlinkTemplateUpdate(ctx context.Context, d *schema.ResourceData, me
 			},
 		}
 		updateFlinkTemplateOpt.JSONBody = utils.RemoveNil(buildUpdateFlinkTemplateBodyParams(d))
-		_, err = updateFlinkTemplateClient.Request("PUT", updateFlinkTemplatePath, &updateFlinkTemplateOpt)
+		requestResp, err := updateFlinkTemplateClient.Request("PUT", updateFlinkTemplatePath, &updateFlinkTemplateOpt)
 		if err != nil {
 			return diag.Errorf("error updating FlinkTemplate: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return diag.Errorf("unable to update the flink template: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
 		}
 	}
 	return resourceFlinkTemplateRead(ctx, d, meta)
@@ -272,9 +288,17 @@ func resourceFlinkTemplateDelete(_ context.Context, d *schema.ResourceData, meta
 			200,
 		},
 	}
-	_, err = deleteFlinkTemplateClient.Request("DELETE", deleteFlinkTemplatePath, &deleteFlinkTemplateOpt)
+	requestResp, err := deleteFlinkTemplateClient.Request("DELETE", deleteFlinkTemplatePath, &deleteFlinkTemplateOpt)
 	if err != nil {
 		return diag.Errorf("error deleting FlinkTemplate: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to delete the flink template: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	return nil

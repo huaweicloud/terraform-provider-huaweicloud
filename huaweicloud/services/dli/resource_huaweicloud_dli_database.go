@@ -87,10 +87,14 @@ func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, m
 		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
 		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
-	_, err = databases.Create(c, opts)
+	respBody, err := databases.Create(c, opts)
 	if err != nil {
 		return diag.Errorf("error creating DLI database, %s", err)
 	}
+	if !respBody.IsSuccess {
+		return diag.Errorf("unable to create the database: %s", respBody.Message)
+	}
+
 	// The resource ID (database name) at this time is only used as a mark the resource, and the value will be refreshed
 	// in the READ method.
 	d.SetId(dbName)
@@ -104,6 +108,9 @@ func GetDliSQLDatabaseByName(c *golangsdk.ServiceClient, dbName string) (databas
 	})
 	if err != nil {
 		return databases.Database{}, fmt.Errorf("error getting database: %s", err)
+	}
+	if !resp.IsSuccess {
+		return databases.Database{}, fmt.Errorf("unable to query the database: %s", resp.Message)
 	}
 
 	if len(resp.Databases) < 1 {
@@ -151,11 +158,14 @@ func resourceDliSQLDatabaseUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	dbName := d.Get("name").(string)
-	_, err = databases.UpdateDBOwner(c, dbName, databases.UpdateDBOwnerOpts{
+	resp, err := databases.UpdateDBOwner(c, dbName, databases.UpdateDBOwnerOpts{
 		NewOwner: d.Get("owner").(string),
 	})
 	if err != nil {
 		return diag.Errorf("error updating SQL database owner: %s", err)
+	}
+	if !resp.IsSuccess {
+		return diag.Errorf("unable to update the database owner: %s", resp.Message)
 	}
 
 	return resourceDliSQLDatabaseRead(ctx, d, meta)

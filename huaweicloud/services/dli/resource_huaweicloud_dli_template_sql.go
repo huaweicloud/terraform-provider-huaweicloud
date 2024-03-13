@@ -107,6 +107,10 @@ func resourceSQLTemplateCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	if !utils.PathSearch("is_success", createSQLTemplateRespBody, true).(bool) {
+		return diag.Errorf("unable to create the SQL template: %s",
+			utils.PathSearch("message", createSQLTemplateRespBody, "Message Not Found"))
+	}
 
 	id, err := jmespath.Search("sql_id", createSQLTemplateRespBody)
 	if err != nil {
@@ -164,6 +168,10 @@ func resourceSQLTemplateRead(_ context.Context, d *schema.ResourceData, meta int
 	getSQLTemplateRespBody, err := utils.FlattenResponse(getSQLTemplateResp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", getSQLTemplateRespBody, true).(bool) {
+		return diag.Errorf("unable to query the SQL templates: %s",
+			utils.PathSearch("message", getSQLTemplateRespBody, "Message Not Found"))
 	}
 
 	jsonPath := fmt.Sprintf("sqls[?sql_id=='%s']|[0]", d.Id())
@@ -230,9 +238,17 @@ func resourceSQLTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta
 			},
 		}
 		updateSQLTemplateOpt.JSONBody = utils.RemoveNil(buildSQLTemplateBodyParams(d))
-		_, err = updateSQLTemplateClient.Request("PUT", updateSQLTemplatePath, &updateSQLTemplateOpt)
+		requestResp, err := updateSQLTemplateClient.Request("PUT", updateSQLTemplatePath, &updateSQLTemplateOpt)
 		if err != nil {
 			return diag.Errorf("error updating SQLTemplate: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return diag.Errorf("unable to update the SQL template: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
 		}
 	}
 	return resourceSQLTemplateRead(ctx, d, meta)
@@ -261,9 +277,17 @@ func resourceSQLTemplateDelete(_ context.Context, d *schema.ResourceData, meta i
 		},
 	}
 	deleteSQLTemplateOpt.JSONBody = utils.RemoveNil(buildDeleteSQLTemplateBodyParams(d))
-	_, err = deleteSQLTemplateClient.Request("POST", deleteSQLTemplatePath, &deleteSQLTemplateOpt)
+	requestResp, err := deleteSQLTemplateClient.Request("POST", deleteSQLTemplatePath, &deleteSQLTemplateOpt)
 	if err != nil {
 		return diag.Errorf("error deleting SQLTemplate: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to delete the SQL template: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	return nil

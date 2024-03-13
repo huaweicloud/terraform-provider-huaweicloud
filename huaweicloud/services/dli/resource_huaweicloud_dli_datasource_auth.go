@@ -169,9 +169,17 @@ func resourceDatasourceAuthCreate(ctx context.Context, d *schema.ResourceData, m
 		},
 	}
 	createDatasourceAuthOpt.JSONBody = utils.RemoveNil(buildCreateDatasourceAuthBodyParams(d, cfg))
-	_, err = createDatasourceAuthClient.Request("POST", createDatasourceAuthPath, &createDatasourceAuthOpt)
+	requestResp, err := createDatasourceAuthClient.Request("POST", createDatasourceAuthPath, &createDatasourceAuthOpt)
 	if err != nil {
 		return diag.Errorf("error creating DatasourceAuth: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to create the authentication: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	d.SetId(d.Get("name").(string))
@@ -234,6 +242,10 @@ func resourceDatasourceAuthRead(_ context.Context, d *schema.ResourceData, meta 
 	getDatasourceAuthRespBody, err := utils.FlattenResponse(getDatasourceAuthResp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", getDatasourceAuthRespBody, true).(bool) {
+		return diag.Errorf("unable to query the authentication: %s",
+			utils.PathSearch("message", getDatasourceAuthRespBody, "Message Not Found"))
 	}
 
 	v := utils.PathSearch("auth_infos[0]", getDatasourceAuthRespBody, nil)
@@ -304,9 +316,17 @@ func resourceDatasourceAuthUpdate(ctx context.Context, d *schema.ResourceData, m
 			},
 		}
 		updateDatasourceAuthOpt.JSONBody = utils.RemoveNil(buildUpdateDatasourceAuthBodyParams(d, cfg))
-		_, err = updateDatasourceAuthClient.Request("PUT", updateDatasourceAuthPath, &updateDatasourceAuthOpt)
+		requestResp, err := updateDatasourceAuthClient.Request("PUT", updateDatasourceAuthPath, &updateDatasourceAuthOpt)
 		if err != nil {
 			return diag.Errorf("error updating DatasourceAuth: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return diag.Errorf("unable to update the authentication: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
 		}
 	}
 	return resourceDatasourceAuthRead(ctx, d, meta)
@@ -351,9 +371,17 @@ func resourceDatasourceAuthDelete(_ context.Context, d *schema.ResourceData, met
 			200,
 		},
 	}
-	_, err = deleteDatasourceAuthClient.Request("DELETE", deleteDatasourceAuthPath, &deleteDatasourceAuthOpt)
+	requestResp, err := deleteDatasourceAuthClient.Request("DELETE", deleteDatasourceAuthPath, &deleteDatasourceAuthOpt)
 	if err != nil {
 		return diag.Errorf("error deleting DatasourceAuth: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to delete the authentication: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	return nil

@@ -137,6 +137,10 @@ func resourceElasticResourcePoolCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to create the elastic resource pool: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
+	}
 
 	resourceName := utils.PathSearch("elastic_resource_pool_name", respBody, "").(string)
 	respBody, err = GetElasticResourcePoolByName(client, resourceName)
@@ -269,6 +273,10 @@ func GetElasticResourcePools(client *golangsdk.ServiceClient) ([]interface{}, er
 		if err != nil {
 			return nil, err
 		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return nil, fmt.Errorf("unable to query the elastic resource pools: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
+		}
 		pools := utils.PathSearch("elastic_resource_pools", respBody, make([]interface{}, 0)).([]interface{})
 		if len(pools) < 1 {
 			break
@@ -311,9 +319,17 @@ func updateElasticResourcePoolMetadata(ctx context.Context, client *golangsdk.Se
 		JSONBody:         buildUpdateElasticResourcePoolBodyParams(d),
 	}
 
-	_, err := client.Request("PUT", updatePath, &updateOpts)
+	requestResp, err := client.Request("PUT", updatePath, &updateOpts)
 	if err != nil {
 		return fmt.Errorf("error updating DLI elastic resource pool: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return fmt.Errorf("unable to update the elastic resource pool: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	err = waitForElasticResourcePoolStatusCompleted(ctx, client, d)
@@ -388,9 +404,17 @@ func resourceElasticResourcePoolDelete(ctx context.Context, d *schema.ResourceDa
 		},
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteOpts)
+	requestResp, err := client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
 		return diag.Errorf("error deleting DLI elastic resource pool (%s): %s", resourceName, err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to delete the elastic resource pool: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	err = waitForElasticResourcePoolDeleted(ctx, client, d)

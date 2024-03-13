@@ -186,6 +186,10 @@ func resourceDatasourceConnectionCreate(ctx context.Context, d *schema.ResourceD
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	if !utils.PathSearch("is_success", createDatasourceConnectionRespBody, true).(bool) {
+		return diag.Errorf("unable to create the enhanced connection: %s",
+			utils.PathSearch("message", createDatasourceConnectionRespBody, "Message Not Found"))
+	}
 
 	id, err := jmespath.Search("connection_id", createDatasourceConnectionRespBody)
 	if err != nil {
@@ -270,6 +274,11 @@ func resourceDatasourceConnectionRead(_ context.Context, d *schema.ResourceData,
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DatasourceConnection")
 	}
+	if !utils.PathSearch("is_success", getDatasourceConnectionRespBody, true).(bool) {
+		return diag.Errorf("unable to query the enhanced connection: %s",
+			utils.PathSearch("message", getDatasourceConnectionRespBody, "Message Not Found"))
+	}
+
 	if utils.PathSearch("status", getDatasourceConnectionRespBody, "") == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "the datasource connection has been deleted")
 	}
@@ -352,9 +361,17 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 			},
 		}
 		updateDatasourceConnectionHostsOpt.JSONBody = utils.RemoveNil(buildUpdateDatasourceConnectionHostsBodyParams(d, cfg))
-		_, err = updateDatasourceConnectionHostsClient.Request("PUT", updateDatasourceConnectionHostsPath, &updateDatasourceConnectionHostsOpt)
+		resp, err := updateDatasourceConnectionHostsClient.Request("PUT", updateDatasourceConnectionHostsPath, &updateDatasourceConnectionHostsOpt)
 		if err != nil {
 			return diag.Errorf("error updating DatasourceConnection: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return diag.Errorf("unable to update the hosts configuration: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
 		}
 	}
 
@@ -390,10 +407,18 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 				},
 			}
 			updateDatasourceConnectionQueuesOpt.JSONBody = buildDatasourceConnectionQueuesBodyParams(addRaws)
-			_, err = updateDatasourceConnectionQueuesClient.Request("POST", updateDatasourceConnectionQueuesPath,
+			requestResp, err := updateDatasourceConnectionQueuesClient.Request("POST", updateDatasourceConnectionQueuesPath,
 				&updateDatasourceConnectionQueuesOpt)
 			if err != nil {
 				return diag.Errorf("error updating DatasourceConnection: %s", err)
+			}
+			respBody, err := utils.FlattenResponse(requestResp)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			if !utils.PathSearch("is_success", respBody, true).(bool) {
+				return diag.Errorf("unable to associate the queues: %s",
+					utils.PathSearch("message", respBody, "Message Not Found"))
 			}
 		}
 
@@ -419,10 +444,18 @@ func resourceDatasourceConnectionUpdate(ctx context.Context, d *schema.ResourceD
 				},
 			}
 			deleteDatasourceConnectionQueuesOpt.JSONBody = buildDatasourceConnectionQueuesBodyParams(delRaws)
-			_, err = deleteDatasourceConnectionQueuesClient.Request("POST", deleteDatasourceConnectionQueuesPath,
+			requestResp, err := deleteDatasourceConnectionQueuesClient.Request("POST", deleteDatasourceConnectionQueuesPath,
 				&deleteDatasourceConnectionQueuesOpt)
 			if err != nil {
 				return diag.Errorf("error updating DatasourceConnection: %s", err)
+			}
+			respBody, err := utils.FlattenResponse(requestResp)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			if !utils.PathSearch("is_success", respBody, true).(bool) {
+				return diag.Errorf("unable to disassociate the queues: %s",
+					utils.PathSearch("message", respBody, "Message Not Found"))
 			}
 		}
 	}
@@ -477,9 +510,17 @@ func addRoutes(connectionRouteClient *golangsdk.ServiceClient, id string, addRaw
 
 	for _, params := range addRaws.List() {
 		addConnectionRouteOpt.JSONBody = params
-		_, err := connectionRouteClient.Request("POST", addConnectionRoutePath, &addConnectionRouteOpt)
+		requestResp, err := connectionRouteClient.Request("POST", addConnectionRoutePath, &addConnectionRouteOpt)
 		if err != nil {
 			return err
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return err
+		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return fmt.Errorf("unable to add the routes: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
 		}
 	}
 	return nil
@@ -503,10 +544,18 @@ func removeRoutes(connectionRouteClient *golangsdk.ServiceClient, id string, raw
 				200,
 			},
 		}
-		_, err := connectionRouteClient.Request("DELETE", removeDatasourceConnectionRoutesPath,
+		requestResp, err := connectionRouteClient.Request("DELETE", removeDatasourceConnectionRoutesPath,
 			&removeDatasourceConnectionRoutesOpt)
 		if err != nil {
 			return err
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return err
+		}
+		if !utils.PathSearch("is_success", respBody, true).(bool) {
+			return fmt.Errorf("unable to remove the routes: %s",
+				utils.PathSearch("message", respBody, "Message Not Found"))
 		}
 	}
 	return nil
@@ -568,9 +617,17 @@ func resourceDatasourceConnectionDelete(_ context.Context, d *schema.ResourceDat
 			200,
 		},
 	}
-	_, err = deleteDatasourceConnectionClient.Request("DELETE", deleteDatasourceConnectionPath, &deleteDatasourceConnectionOpt)
+	requestResp, err := deleteDatasourceConnectionClient.Request("DELETE", deleteDatasourceConnectionPath, &deleteDatasourceConnectionOpt)
 	if err != nil {
 		return diag.Errorf("error deleting DatasourceConnection: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to delete the enhanced connection: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	return nil
