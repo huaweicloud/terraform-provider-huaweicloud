@@ -50,20 +50,71 @@ func TestAccCdnDomain_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCdnDomainV1_basic,
+				Config: testAccCdnDomain_basic,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "type", "web"),
+					resource.TestCheckResourceAttr(resourceName, "service_area", "outside_mainland_china"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "http"),
+					resource.TestCheckResourceAttr(resourceName, "sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.active", "1"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.origin", "100.254.53.75"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.origin_type", "ipaddr"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "80"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
+			},
+			{
+				Config: testAccCdnDomain_cache,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.rule_type", "all"),
+					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.ttl", "180"),
+					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.ttl_type", "d"),
+					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.priority", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+				),
+			},
+			{
+				Config: testAccCdnDomain_retrievalHost,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "8002"),
+				),
+			},
+			{
+				Config: testAccCdnDomain_standby,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.active", "1"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.origin", "14.215.177.39"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.origin_type", "ipaddr"),
+					resource.TestCheckResourceAttr(resourceName, "sources.1.active", "0"),
+					resource.TestCheckResourceAttr(resourceName, "sources.1.origin", "220.181.28.52"),
+					resource.TestCheckResourceAttr(resourceName, "sources.1.origin_type", "ipaddr"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"enterprise_project_id",
+				},
 			},
 		},
 	})
 }
 
-var testAccCdnDomainV1_basic = fmt.Sprintf(`
+var testAccCdnDomain_basic = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
@@ -89,39 +140,7 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-func TestAccCdnDomain_cache(t *testing.T) {
-	var (
-		domain       domains.CdnDomain
-		resourceName = "huaweicloud_cdn_domain.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&domain,
-		getCdnDomainFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCdnDomainV1_cache,
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.rule_type", "all"),
-					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.ttl", "180"),
-					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.ttl_type", "d"),
-					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.priority", "2"),
-				),
-			},
-		},
-	})
-}
-
-var testAccCdnDomainV1_cache = fmt.Sprintf(`
+var testAccCdnDomain_cache = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
@@ -151,43 +170,12 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-func TestAccCdnDomain_retrievalHost(t *testing.T) {
-	var (
-		domain       domains.CdnDomain
-		resourceName = "huaweicloud_cdn_domain.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&domain,
-		getCdnDomainFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCdnDomainV1_retrievalHost,
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "8002"),
-				),
-			},
-		},
-	})
-}
-
-var testAccCdnDomainV1_retrievalHost = fmt.Sprintf(`
+var testAccCdnDomain_retrievalHost = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
   service_area          = "outside_mainland_china"
-  enterprise_project_id = 0
+  enterprise_project_id = "0"
 
   configs {
     origin_protocol = "http"
@@ -200,6 +188,26 @@ resource "huaweicloud_cdn_domain" "test" {
     retrieval_host = "customize.test.huaweicloud.com"
     http_port      = 8001
     https_port     = 8002
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
+
+var testAccCdnDomain_standby = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+
+  sources {
+    active      = 1
+    origin      = "14.215.177.39"
+    origin_type = "ipaddr"
+  }
+  sources {
+    active      = 0
+    origin      = "220.181.28.52"
+    origin_type = "ipaddr"
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
@@ -225,7 +233,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCdnDomainV1_configs,
+				Config: testAccCdnDomain_configs,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
@@ -246,7 +254,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 	})
 }
 
-var testAccCdnDomainV1_configs = fmt.Sprintf(`
+var testAccCdnDomain_configs = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
@@ -303,52 +311,3 @@ resource "huaweicloud_cdn_domain" "test" {
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
-
-func TestAccCdnDomain_standby(t *testing.T) {
-	var (
-		domain       domains.CdnDomain
-		resourceName = "huaweicloud_cdn_domain.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&domain,
-		getCdnDomainFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckCDN(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCdnDomainV1_standby,
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.active", "1"),
-					resource.TestCheckResourceAttr(resourceName, "sources.1.active", "0"),
-				),
-			},
-		},
-	})
-}
-
-var testAccCdnDomainV1_standby = fmt.Sprintf(`
-resource "huaweicloud_cdn_domain" "test" {
-  name         = "%s"
-  type         = "web"
-  service_area = "outside_mainland_china"
-
-  sources {
-    active      = 1
-    origin      = "14.215.177.39"
-    origin_type = "ipaddr"
-  }
-  sources {
-    active      = 0
-    origin      = "220.181.28.52"
-    origin_type = "ipaddr"
-  }
-}
-`, acceptance.HW_CDN_DOMAIN_NAME)

@@ -3,7 +3,6 @@ package cdn
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -206,18 +205,19 @@ var cacheUrlParameterFilter = schema.Schema{
 // @API CDN GET /v1.1/cdn/configuration/domains/{domain_name}/configs
 // @API CDN POST /v1.0/cdn/configuration/tags/batch-delete
 // @API CDN POST /v1.0/cdn/configuration/tags
-func ResourceCdnDomainV1() *schema.Resource {
+func ResourceCdnDomain() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCdnDomainV1Create,
-		ReadContext:   resourceCdnDomainV1Read,
-		UpdateContext: resourceCdnDomainV1Update,
-		DeleteContext: resourceCdnDomainV1Delete,
+		CreateContext: resourceCdnDomainCreate,
+		ReadContext:   resourceCdnDomainRead,
+		UpdateContext: resourceCdnDomainUpdate,
+		DeleteContext: resourceCdnDomainDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -238,7 +238,6 @@ func ResourceCdnDomainV1() *schema.Resource {
 			"sources": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"origin": {
@@ -398,14 +397,7 @@ func ResourceCdnDomainV1() *schema.Resource {
 	}
 }
 
-type WaitDomainStatus struct {
-	ID      string
-	Penging []string
-	Target  []string
-	Opts    *domains.ExtensionOpts
-}
-
-func getDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
+func buildCreateDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 	var sourceRequests []domains.SourcesOpts
 
 	sources := d.Get("sources").([]interface{})
@@ -684,7 +676,7 @@ func updateDomainFullConfigs(client *cdnv1.CdnClient, cfg *config.Config, d *sch
 	return nil
 }
 
-func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -694,59 +686,82 @@ func resourceCdnDomainV1Create(ctx context.Context, d *schema.ResourceData, meta
 	createOpts := &domains.CreateOpts{
 		DomainName:          d.Get("name").(string),
 		BusinessType:        d.Get("type").(string),
-		Sources:             getDomainSources(d),
+		Sources:             buildCreateDomainSources(d),
 		ServiceArea:         d.Get("service_area").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := domains.Create(cdnClient, createOpts).Extract()
 	if err != nil {
-		return diag.Errorf("error creating CDN Domain: %s", err)
+		return diag.Errorf("error creating CDN domain: %s", err)
 	}
 	d.SetId(v.ID)
 
-	// Wait for CDN domain to become active again before continuing
-	opts := getResourceExtensionOpts(d, cfg)
-	timeout := d.Timeout(schema.TimeoutCreate)
-	log.Printf("[INFO] Waiting for CDN domain %s to become online.", v.ID)
-	err = waitDomainOnline(ctx, cdnClient, v.ID, opts, timeout)
-	if err != nil {
-		return diag.FromErr(err)
+	opts := buildResourceExtensionOpts(d, cfg)
+	if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutCreate), opts); err != nil {
+		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
-
-	return resourceCdnDomainV1Update(ctx, d, meta)
+	return resourceCdnDomainUpdate(ctx, d, meta)
 }
 
-func waitforCDNV1DomainStatus(ctx context.Context, c *golangsdk.ServiceClient,
-	waitstatus *WaitDomainStatus, timeout time.Duration) error {
+func waitingForStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	unexpectedStatus := []string{"offline", "configure_failed", "check_failed", "deleting"}
 	stateConf := &resource.StateChangeConf{
-		Pending:    waitstatus.Penging,
-		Target:     waitstatus.Target,
-		Refresh:    resourceCDNV1DomainRefreshFunc(c, waitstatus.ID, waitstatus.Opts),
-		Timeout:    timeout,
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			domain, err := domains.Get(client, d.Id(), opts).Extract()
+			if err != nil || domain == nil {
+				return nil, "ERROR", err
+			}
 
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for CDN domain %s to become %s: %s",
-			waitstatus.ID, waitstatus.Target, err)
+			status := domain.DomainStatus
+			if status == "online" {
+				return domain, "COMPLETED", nil
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, status) {
+				return domain, status, nil
+			}
+			return domain, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
-	return nil
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
-func resourceCDNV1DomainRefreshFunc(c *golangsdk.ServiceClient, id string, opts *domains.ExtensionOpts) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		domain, err := domains.Get(c, id, opts).Extract()
-		if err != nil {
-			return nil, "", err
-		}
+func waitingForStatusOffline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	unexpectedStatus := []string{"online", "configure_failed", "check_failed", "deleting"}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			domain, err := domains.Get(client, d.Id(), opts).Extract()
+			if err != nil || domain == nil {
+				return nil, "ERROR", err
+			}
 
-		// return DomainStatus attribute of CDN domain resource
-		return domain, domain.DomainStatus, nil
+			status := domain.DomainStatus
+			if status == "offline" {
+				return domain, "COMPLETED", nil
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, status) {
+				return domain, status, nil
+			}
+			return domain, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func analyseFunctionEnabledStatus(enabledStatus string) bool {
@@ -918,23 +933,10 @@ func flattenCacheRulesAttrs(cacheRulesPtr *[]model.CacheRules) []map[string]inte
 	}
 }
 
-func getConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey, urlAuthKey string) (sources, configs,
-	cacheRules []map[string]interface{}, err error) {
-	req := model.ShowDomainFullConfigRequest{
-		DomainName:          domainName,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-	}
-	resp, err := hcCdnClient.ShowDomainFullConfig(&req)
-	if err != nil {
-		return
-	}
+func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceData) []map[string]interface{} {
+	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
+	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
 
-	if resp.Configs == nil {
-		err = fmt.Errorf("unbale to find the configs of domain: %s", domainName)
-		return
-	}
-
-	configsResp := resp.Configs
 	configsAttrs := map[string]interface{}{
 		"https_settings":                flattenHTTPSAttrs(configsResp.Https, privateKey),
 		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configsResp.OriginRequestHeader),
@@ -947,79 +949,77 @@ func getConfigsAttrs(hcCdnClient *cdnv1.CdnClient, domainName, epsId, privateKey
 		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
 		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
 	}
-
-	sources = flattenSourcesAttrs(configsResp.Sources)
-	configs = []map[string]interface{}{configsAttrs}
-	cacheRules = flattenCacheRulesAttrs(configsResp.CacheRules)
-	return
+	return []map[string]interface{}{configsAttrs}
 }
 
-func getCacheAttrs(hcCdnClient *cdnv1.CdnClient, domainId, epsId string) ([]map[string]interface{}, error) {
-	req := model.ShowCacheRulesRequest{
-		DomainId:            domainId,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-	}
-	resp, err := hcCdnClient.ShowCacheRules(&req)
+func queryDomainFullConfig(cfg *config.Config, d *schema.ResourceData, domainName string) (*model.ConfigsGetBody, error) {
+	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
+	}
+	req := model.ShowDomainFullConfigRequest{
+		DomainName:          domainName,
+		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 
-	if resp.CacheConfig == nil {
-		return nil, fmt.Errorf("unbale to find the cache config of domain: %s", domainId)
+	resp, err := hcCdnClient.ShowDomainFullConfig(&req)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving CDN domain full config: %s", err)
 	}
 
-	cacheConfig := resp.CacheConfig
-	cacheAttrs := map[string]interface{}{
-		"follow_origin": cacheConfig.FollowOrigin,
+	if resp == nil || resp.Configs == nil {
+		return nil, fmt.Errorf("error retrieving CDN domain full config: Config is not found in API response")
+	}
+	return resp.Configs, nil
+}
+
+func queryAndFlattenDomainTags(cfg *config.Config, d *schema.ResourceData) (map[string]string, error) {
+	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
+	if err != nil {
+		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	if cacheConfig.Rules == nil {
-		return nil, fmt.Errorf("unbale to find the cache config rules of domain: %s", domainId)
+	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: d.Id()})
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving CDN domain tags: %s", err)
 	}
-	rules := make([]map[string]interface{}, len(*cacheConfig.Rules))
-	for i, v := range *cacheConfig.Rules {
-		rules[i] = map[string]interface{}{
-			"rule_type": v.RuleType,
-			"content":   v.Content,
-			"ttl":       v.Ttl,
-			"ttl_type":  v.TtlType,
-			"priority":  v.Priority,
+
+	if tags.Tags == nil || len(*tags.Tags) == 0 {
+		return nil, nil
+	}
+
+	tagMap := make(map[string]string, len(*tags.Tags))
+	for _, tag := range *tags.Tags {
+		if tag.Value != nil {
+			tagMap[tag.Key] = *tag.Value
+		} else {
+			tagMap[tag.Key] = ""
 		}
 	}
-
-	cacheAttrs["rules"] = rules
-
-	return []map[string]interface{}{cacheAttrs}, nil
+	return tagMap, nil
 }
 
-func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
+	// TODO The details API will be offline soon and needs to be replaced in the future.
+	v, err := domains.Get(cdnClient, d.Id(), buildResourceExtensionOpts(d, cfg)).Extract()
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving CDN domain")
 	}
 
-	id := d.Id()
-	epsId := cfg.GetEnterpriseProjectID(d)
-
-	opts := getResourceExtensionOpts(d, cfg)
-	v, err := domains.Get(cdnClient, id, opts).Extract()
+	configsResp, err := queryDomainFullConfig(cfg, d, v.DomainName)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error reading CDN Domain")
+		return diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] Retrieved CDN domain %s: %+v", id, v)
-
-	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
-	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
-	sources, configAttrs, cacheRules, err := getConfigsAttrs(hcCdnClient, v.DomainName, epsId, privateKey, urlAuthKey)
+	tags, err := queryAndFlattenDomainTags(cfg, d)
 	if err != nil {
-		return diag.Errorf("error reading CDN Domain configs settings: %s", err)
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(nil,
@@ -1028,178 +1028,122 @@ func resourceCdnDomainV1Read(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("cname", v.CName),
 		d.Set("domain_status", v.DomainStatus),
 		d.Set("service_area", v.ServiceArea),
-		d.Set("sources", sources),
-		d.Set("configs", configAttrs),
-		d.Set("cache_settings", cacheRules),
+		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
+		d.Set("configs", flattenConfigAttrs(configsResp, d)),
+		d.Set("cache_settings", flattenCacheRulesAttrs(configsResp.CacheRules)),
+		d.Set("tags", tags),
 	)
-
-	// Set domain tags
-	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: id})
-	if err != nil {
-		return diag.Errorf("error reading CDN Domain tags: %s", err)
-	}
-	if tags.Tags != nil {
-		tagsToSet := make(map[string]interface{}, len(*tags.Tags))
-		for _, tag := range *tags.Tags {
-			if tag.Value != nil {
-				tagsToSet[tag.Key] = *tag.Value
-			} else {
-				tagsToSet[tag.Key] = ""
-			}
-		}
-
-		mErr = multierror.Append(mErr, d.Set("tags", tagsToSet))
-	}
-
-	if mErr.ErrorOrNil() != nil {
-		return diag.FromErr(mErr)
-	}
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceCdnDomainV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
-	}
-
 	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	id := d.Id()
-	opts := getResourceExtensionOpts(d, cfg)
-	timeout := d.Timeout(schema.TimeoutCreate)
-
 	if d.HasChanges("sources", "configs", "cache_settings") || d.IsNewResource() {
 		err = updateDomainFullConfigs(hcCdnClient, cfg, d)
 		if err != nil {
-			return diag.Errorf("error updating CDN Domain configs settings: %s", err)
+			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		// Wait for CDN domain to become active again before continuing
-		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
-		err = waitDomainOnline(ctx, cdnClient, id, opts, timeout)
+		cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error creating CDN v1 client: %s", err)
+		}
+		opts := buildResourceExtensionOpts(d, cfg)
+		if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutUpdate), opts); err != nil {
+			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		oTagsRaw, nTagsRaw := d.GetChange("tags")
-		oTagsMap := oTagsRaw.(map[string]interface{})
-		nTagsMap := nTagsRaw.(map[string]interface{})
-
-		// remove old tags
-		if len(oTagsMap) > 0 {
-			var taglist []string
-			for k := range oTagsMap {
-				taglist = append(taglist, k)
-			}
-			deleteTagsReq := model.BatchDeleteTagsRequest{
-				Body: &model.DeleteTagsRequestBody{
-					ResourceId: id,
-					Tags:       taglist,
-				},
-			}
-			_, err := hcCdnClient.BatchDeleteTags(&deleteTagsReq)
-			if err != nil {
-				return diag.Errorf("error deleting CDN Domain tags: %s", err)
-			}
-		}
-
-		// set new tags
-		if len(nTagsMap) > 0 {
-			taglist := make([]model.Map, 0, len(nTagsMap))
-			for k, v := range nTagsMap {
-				tag := model.Map{
-					Key:   k,
-					Value: utils.String(v.(string)),
-				}
-				taglist = append(taglist, tag)
-			}
-			createTagsReq := model.CreateTagsRequest{
-				Body: &model.CreateTagsRequestBody{
-					ResourceId: id,
-					Tags:       taglist,
-				},
-			}
-			_, err := hcCdnClient.CreateTags(&createTagsReq)
-			if err != nil {
-				return diag.Errorf("error creating CDN Domain tags: %s", err)
-			}
+		if err := updateDomainTags(hcCdnClient, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceCdnDomainV1Read(ctx, d, meta)
+	return resourceCdnDomainRead(ctx, d, meta)
 }
 
-func waitDomainOnline(ctx context.Context, cdnClient *golangsdk.ServiceClient,
-	id string, opts *domains.ExtensionOpts, timeout time.Duration) error {
-	wait := &WaitDomainStatus{
-		ID:      id,
-		Penging: []string{"configuring"},
-		Target:  []string{"online"},
-		Opts:    opts,
-	}
-	err := waitforCDNV1DomainStatus(ctx, cdnClient, wait, timeout)
-	if err != nil {
-		return fmt.Errorf("error waiting for CDN domain %s to become online: %s", id, err)
+func updateDomainTags(hcCdnClient *cdnv1.CdnClient, d *schema.ResourceData) error {
+	oTagsRaw, nTagsRaw := d.GetChange("tags")
+	oTagsMap := oTagsRaw.(map[string]interface{})
+	nTagsMap := nTagsRaw.(map[string]interface{})
+
+	if len(oTagsMap) > 0 {
+		var tagList []string
+		for k := range oTagsMap {
+			tagList = append(tagList, k)
+		}
+		deleteTagsReq := model.BatchDeleteTagsRequest{
+			Body: &model.DeleteTagsRequestBody{
+				ResourceId: d.Id(),
+				Tags:       tagList,
+			},
+		}
+		_, err := hcCdnClient.BatchDeleteTags(&deleteTagsReq)
+		if err != nil {
+			return fmt.Errorf("error deleting CDN domain tags: %s", err)
+		}
 	}
 
+	if len(nTagsMap) > 0 {
+		tagList := make([]model.Map, 0, len(nTagsMap))
+		for k, v := range nTagsMap {
+			tag := model.Map{
+				Key:   k,
+				Value: utils.String(v.(string)),
+			}
+			tagList = append(tagList, tag)
+		}
+		createTagsReq := model.CreateTagsRequest{
+			Body: &model.CreateTagsRequestBody{
+				ResourceId: d.Id(),
+				Tags:       tagList,
+			},
+		}
+		_, err := hcCdnClient.CreateTags(&createTagsReq)
+		if err != nil {
+			return fmt.Errorf("error creating CDN domain tags: %s", err)
+		}
+	}
 	return nil
 }
 
-func resourceCdnDomainV1Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	id := d.Id()
-	opts := getResourceExtensionOpts(d, cfg)
-	timeout := d.Timeout(schema.TimeoutCreate)
-
+	opts := buildResourceExtensionOpts(d, cfg)
 	if d.Get("domain_status").(string) == "online" {
-		// make sure the status has changed to offline
-		log.Printf("[INFO] Disable CDN domain %s.", id)
-		if err = domains.Disable(cdnClient, id, opts).Err; err != nil {
-			return diag.Errorf("error disable CDN Domain %s: %s", id, err)
+		// make sure the status has changed to offline before deleting it.
+		if err = domains.Disable(cdnClient, d.Id(), opts).Err; err != nil {
+			return diag.Errorf("error disable CDN domain %s: %s", d.Id(), err)
 		}
 
-		log.Printf("[INFO] Waiting for disabling CDN domain %s.", id)
-		wait := &WaitDomainStatus{
-			ID:      id,
-			Penging: []string{"configuring", "online"},
-			Target:  []string{"offline"},
-			Opts:    opts,
-		}
-
-		err = waitforCDNV1DomainStatus(ctx, cdnClient, wait, timeout)
-		if err != nil {
-			return diag.Errorf("error waiting for CDN domain %s to become offline: %s", id, err)
+		if err := waitingForStatusOffline(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts); err != nil {
+			return diag.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
 		}
 	}
 
-	log.Printf("[INFO] Waiting for deleting CDN domain %s.", id)
-	_, err = domains.Delete(cdnClient, id, opts).Extract()
+	_, err = domains.Delete(cdnClient, d.Id(), opts).Extract()
 	if err != nil {
-		return diag.Errorf("error deleting CDN Domain %s: %s", id, err)
+		return diag.Errorf("error deleting CDN domain (%s): %s", d.Id(), err)
 	}
 
 	// an API issue will be raised in ForceNew scene, so wait for a while
 	time.Sleep(3 * time.Second) // lintignore:R018
-
-	d.SetId("")
 	return nil
 }
 
-func getResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {
-	epsID := cfg.GetEnterpriseProjectID(d)
-	if epsID != "" {
+func buildResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {
+	if epsID := cfg.GetEnterpriseProjectID(d); epsID != "" {
 		return &domains.ExtensionOpts{
 			EnterpriseProjectId: epsID,
 		}

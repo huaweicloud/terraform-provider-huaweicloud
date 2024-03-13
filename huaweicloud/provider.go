@@ -891,7 +891,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_job":            cdm.ResourceCdmJob(),
 			"huaweicloud_cdm_link":           cdm.ResourceCdmLink(),
 
-			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomainV1(),
+			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomain(),
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
 			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 			"huaweicloud_ces_alarm_template": ces.ResourceCesAlarmTemplate(),
@@ -1551,7 +1551,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate_v2": vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunctionV2(),
-			"huaweicloud_cdn_domain_v1":               cdn.ResourceCdnDomainV1(),
+			"huaweicloud_cdn_domain_v1":               cdn.ResourceCdnDomain(),
 
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),
