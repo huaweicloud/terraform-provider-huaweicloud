@@ -15,7 +15,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   name              = "gaussdb_redis_instance_1"
   password          = var.password
   flavor            = "geminidb.redis.xlarge.4"
-  volume_size       = 100
+  volume_size       = 16
   vpc_id            = var.vpc_id
   subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
@@ -35,7 +35,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   name              = "gaussdb_redis_instance_1"
   password          = var.password
   flavor            = "geminidb.redis.xlarge.4"
-  volume_size       = 100
+  volume_size       = 16
   vpc_id            = var.vpc_id
   subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
