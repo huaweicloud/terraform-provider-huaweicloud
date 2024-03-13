@@ -10,6 +10,21 @@ A resource space is the basic unit of service management and provides independen
 configuration capabilities at the service layer. Resources (such as products and devices) must be created on
 a resource space.
 
+-> When accessing an IoTDA **standard** or **enterprise** edition instance, you need to specify
+  the IoTDA service endpoint in `provider` block.
+  You can login to the IoTDA console, choose the instance **Overview** and click **Access Details**
+  to view the HTTPS application access address. An example of the access address might be
+  *9bc34xxxxx.st1.iotda-app.ap-southeast-1.myhuaweicloud.com*, then you need to configure the
+  `provider` block as follows:
+
+  ```hcl
+  provider "huaweicloud" {
+    endpoints = {
+      iotda = "https://9bc34xxxxx.st1.iotda-app.ap-southeast-1.myhuaweicloud.com"
+    }
+  }
+  ```
+
 ## Example Usage
 
 ```hcl
