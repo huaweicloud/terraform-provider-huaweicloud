@@ -174,20 +174,32 @@ func resourceKmsGrantRead(_ context.Context, d *schema.ResourceData, meta interf
 		},
 	}
 
+	allGrants := make([]interface{}, 0)
+	var nextMarker string
 	getGrantOpt.JSONBody = utils.RemoveNil(buildReadGrantBodyParams(d, cfg))
-	getGrantResp, err := getGrantClient.Request("POST", getGrantPath, &getGrantOpt)
-
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "KMS grant")
+	getGrantJSONBody := getGrantOpt.JSONBody.(map[string]interface{})
+	for {
+		getGrantResp, err := getGrantClient.Request("POST", getGrantPath, &getGrantOpt)
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "KMS grant")
+		}
+		getGrantRespBody, err := utils.FlattenResponse(getGrantResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		grants := utils.PathSearch("grants", getGrantRespBody, make([]interface{}, 0)).([]interface{})
+		if len(grants) > 0 {
+			allGrants = append(allGrants, grants...)
+		}
+		nextMarker = utils.PathSearch("next_marker", getGrantRespBody, "").(string)
+		if nextMarker == "" {
+			break
+		}
+		getGrantJSONBody["marker"] = nextMarker
 	}
 
-	getGrantRespBody, err := utils.FlattenResponse(getGrantResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	searchPath := fmt.Sprintf("grants[?grant_id=='%s']|[0]", d.Id())
-	grantDetail := utils.PathSearch(searchPath, getGrantRespBody, nil)
+	searchPath := fmt.Sprintf("[?grant_id=='%s']|[0]", d.Id())
+	grantDetail := utils.PathSearch(searchPath, allGrants, nil)
 	if grantDetail == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "KMS grant")
 	}
