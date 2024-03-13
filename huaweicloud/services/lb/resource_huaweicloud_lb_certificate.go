@@ -20,9 +20,9 @@ import (
 )
 
 // @API ELB POST /v2/{project_id}/elb/certificates
-// @API ELB GET /v2/{project_id}/elb/certificates/{id}
-// @API ELB PUT /v2/{project_id}/elb/certificates/{id}
-// @API ELB DELETE /v2/{project_id}/elb/certificates/{id}
+// @API ELB GET /v2/{project_id}/elb/certificates/{certificate_id}
+// @API ELB PUT /v2/{project_id}/elb/certificates/{certificate_id}
+// @API ELB DELETE /v2/{project_id}/elb/certificates/{certificate_id}
 func ResourceCertificateV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCertificateV2Create,
