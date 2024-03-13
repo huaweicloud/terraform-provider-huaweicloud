@@ -22,15 +22,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ELB POST /v3/{project_id}/elb/loadbalancers/{id}/availability-zone/{action}
-// @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{id}/force-elb
-// @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{id}
-// @API ELB GET /v3/{project_id}/elb/loadbalancers/{id}
-// @API ELB PUT /v3/{project_id}/elb/loadbalancers/{id}
 // @API ELB POST /v3/{project_id}/elb/loadbalancers
-// @API ELB POST /v2.0/{project_id}/loadbalancers/{id}/tags/action
-// @API ELB GET /v2.0/{project_id}/loadbalancers/{id}/tags
-// @API EIP DELETE /v1/{project_id}/publicips/{id}
+// @API ELB POST /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags/action
+// @API ELB GET /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
+// @API ELB GET /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags
+// @API ELB PUT /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
+// @API ELB POST /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-add}
+// @API ELB POST /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-remove}
+// @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/force-elb
+// @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
+// @API EIP DELETE /v1/{project_id}/publicips/{publicip_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe

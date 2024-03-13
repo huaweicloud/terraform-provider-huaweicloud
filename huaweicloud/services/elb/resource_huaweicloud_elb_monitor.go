@@ -15,9 +15,9 @@ import (
 )
 
 // @API ELB POST /v3/{project_id}/elb/healthmonitors
-// @API ELB GET /v3/{project_id}/elb/healthmonitors/{id}
-// @API ELB PUT /v3/{project_id}/elb/healthmonitors/{id}
-// @API ELB DELETE /v3/{project_id}/elb/healthmonitors/{id}
+// @API ELB GET /v3/{project_id}/elb/healthmonitors/{healthmonitor_id}
+// @API ELB PUT /v3/{project_id}/elb/healthmonitors/{healthmonitor_id}
+// @API ELB DELETE /v3/{project_id}/elb/healthmonitors/{healthmonitor_id}
 func ResourceMonitorV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMonitorV3Create,

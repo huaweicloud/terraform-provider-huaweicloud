@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API ELB PUT /v3/{project_id}/elb/pools/{poolID}/members/{memeberID}
-// @API ELB DELETE /v3/{project_id}/elb/pools/{poolID}/members/{memeberID}
-// @API ELB GET /v3/{project_id}/elb/pools/{poolID}/members/{memeberID}
-// @API ELB POST /v3/{project_id}/elb/pools/{poolId}/members
+// @API ELB POST /v3/{project_id}/elb/pools/{pool_id}/members
+// @API ELB GET /v3/{project_id}/elb/pools/{pool_id}/members/{member_id}
+// @API ELB PUT /v3/{project_id}/elb/pools/{pool_id}/members/{member_id}
+// @API ELB DELETE /v3/{project_id}/elb/pools/{pool_id}/members/{member_id}
 func ResourceMemberV3() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMemberV3Create,
