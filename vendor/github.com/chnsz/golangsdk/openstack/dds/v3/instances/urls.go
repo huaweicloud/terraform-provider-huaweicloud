@@ -38,10 +38,6 @@ func remarkURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL("instances", instanceId, "remark")
 }
 
-func updateSlowLogStatusURL(c *golangsdk.ServiceClient, instanceId string, status string) string {
+func slowLogStatusURL(c *golangsdk.ServiceClient, instanceId string, status string) string {
 	return c.ServiceURL("instances", instanceId, "slowlog-desensitization", status)
-}
-
-func getSlowLogStatusURL(c *golangsdk.ServiceClient, instanceId string) string {
-	return c.ServiceURL("instances", instanceId, "slowlog-desensitization/status")
 }

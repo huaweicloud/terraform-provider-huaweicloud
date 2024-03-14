@@ -210,6 +210,10 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -437,6 +441,16 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		d.SetId(instance.Id)
 	}
 
+	if description, ok := d.GetOk("description"); ok {
+		opt := instances.RemarkOpts{
+			Remark: description.(string),
+		}
+		err = instances.UpdateRemark(client, d.Id(), opt)
+		if err != nil {
+			return diag.Errorf("error adding description of the DDS instance (%s) : %s ", d.Id(), err)
+		}
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating", "updating"},
 		Target:     []string{"normal"},
@@ -506,6 +520,7 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("status", instanceObj.Status),
 		d.Set("enterprise_project_id", instanceObj.EnterpriseProjectID),
 		d.Set("nodes", flattenDdsInstanceV3Nodes(instanceObj)),
+		d.Set("description", instanceObj.Remark),
 	)
 
 	port, err := strconv.Atoi(instanceObj.Port)
@@ -590,6 +605,16 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	client, err := conf.DdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating DDS client: %s ", err)
+	}
+
+	if d.HasChange("description") {
+		opt := instances.RemarkOpts{
+			Remark: d.Get("description").(string),
+		}
+		err = instances.UpdateRemark(client, instanceId, opt)
+		if err != nil {
+			return diag.Errorf("error updating description of the DDS instance (%s) : %s ", instanceId, err)
+		}
 	}
 
 	var opts []instances.UpdateOpt
