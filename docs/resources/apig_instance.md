@@ -13,7 +13,6 @@ variable "instance_name" {}
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
-variable "eip_id" {}
 variable "enterprise_project_id" {}
 
 data "huaweicloud_availability_zones" "test" {}
@@ -28,7 +27,6 @@ resource "huaweicloud_apig_instance" "test" {
   maintain_begin        = "06:00:00"
   description           = "Created by script"
   bandwidth_size        = 3
-  eip_id                = var.eip_id
 
   available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -92,19 +90,7 @@ The following arguments are supported:
 * `maintain_begin` - (Optional, String) Specifies the start time of the maintenance time window.  
   The format is **xx:00:00**, the value of **xx** can be `02`, `06`, `10`, `14`, `18` or `22`.
 
-* `eip_id` - (Optional, String) Specifies the EIP ID associated with the dedicated instance.
-
-  -> This parameter is only available if the `loadbalancer_provider` is **lvs**.
-
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether public access with an IPv6 address is supported.  
-  Changing this will create a new resource.
-
-* `loadbalancer_provider` - (Optional, String, ForceNew) Specifies the provider type of load balancer used by the
-  dedicated instance.  
-  The valid values are as follows:
-  + **lvs**: Linux virtual server.
-  + **elb**: Elastic load balance.
-
   Changing this will create a new resource.
 
 * `vpcep_service_name` - (Optional, String) Specifies the name of the VPC endpoint service.
@@ -113,8 +99,7 @@ The following arguments are supported:
   If this parameter is specified, the system automatically generates a name in the
   "{region}.{vpcep_service_name}.{service_id}" format.
 
-  -> This parameter is only available if the `loadbalancer_provider` is **elb**.
-     Only enable and update operations are supported, and disable operation is not supported.
+  -> Only enable and update operations are supported, and disable operation is not supported.
 
 * `ingress_bandwidth_size` - (Optional, Int) Specifies the ingress bandwidth size of the dedicated instance.  
   The minimum value is `5`
@@ -123,9 +108,6 @@ The following arguments are supported:
   The valid values are as follows:
   + **bandwidth**: Billed by bandwidth.
   + **traffic**: Billed by traffic.
-
-  -> The `ingress_bandwidth_size` and `ingress_bandwidth_size` parameter is only available if the `loadbalancer_provider`
-     is **elb**.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the dedicated instance.
 
@@ -144,6 +126,10 @@ In addition to all arguments above, the following attributes are exported:
 * `vpcep_service_address` - The address (full name) of the VPC endpoint service, in the
   "{region}.{vpcep_service_name}.{service_id}" format. If this parameter is not specified, the system automatically
   generates a name in the "{region}.apig.{service_id}" format.
+
+* `loadbalancer_provider` - The type of load balancer used by the dedicated instance.  
+  The valid value is as follows:
+  + **elb**: Elastic load balance.
 
 ## Timeouts
 

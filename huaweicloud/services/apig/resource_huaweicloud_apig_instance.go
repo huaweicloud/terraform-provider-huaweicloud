@@ -157,31 +157,12 @@ func ResourceApigInstanceV2() *schema.Resource {
 				ValidateFunc: validation.IntBetween(0, 2000),
 				Description:  `The egress bandwidth size of the dedicated instance.`,
 			},
-			"eip_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ConflictsWith: []string{
-					"ingress_bandwidth_size", "ingress_bandwidth_charging_mode",
-				},
-				Description: `The EIP ID associated with the dedicated instance.`,
-			},
 			"ipv6_enable": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
 				Description: `Whether public access with an IPv6 address is supported.`,
-			},
-			"loadbalancer_provider": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ProviderTypeLvs), string(ProviderTypeElb),
-				}, false),
-				Description: `The type of loadbalancer provider used by the instance.`,
 			},
 			"maintain_begin": {
 				Type:     schema.TypeString,
@@ -266,6 +247,33 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Computed:    true,
 				Deprecated:  "Use 'created_at' instead",
 				Description: `schema: Deprecated; Time when the dedicated instance is created.`,
+			},
+			"eip_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ConflictsWith: []string{
+					"ingress_bandwidth_size", "ingress_bandwidth_charging_mode",
+				},
+				Description: utils.SchemaDesc(
+					`The EIP ID associated with the dedicated instance.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
+			},
+			"loadbalancer_provider": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					string(ProviderTypeLvs), string(ProviderTypeElb),
+				}, false),
+				Description: utils.SchemaDesc(
+					`The type of loadbalancer provider used by the instance.`,
+					utils.SchemaDescInput{
+						Computed: true,
+					}),
 			},
 		},
 	}
