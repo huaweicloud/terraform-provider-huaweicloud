@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -83,6 +84,8 @@ func DataSourceGaussdbMysqlFlavors() *schema.Resource {
 func dataSourceGaussdbMysqlFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 
+	var mErr *multierror.Error
+
 	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating GaussDB client: %s", err)
@@ -113,8 +116,10 @@ func dataSourceGaussdbMysqlFlavorsRead(_ context.Context, d *schema.ResourceData
 	}
 
 	d.SetId("flavors")
-	d.Set("flavors", flavors)
-	return nil
+	mErr = multierror.Append(mErr,
+		d.Set("flavors", flavors),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func sendGaussdbMysqlFlavorsListRequest(client *golangsdk.ServiceClient, url string) (interface{}, error) {

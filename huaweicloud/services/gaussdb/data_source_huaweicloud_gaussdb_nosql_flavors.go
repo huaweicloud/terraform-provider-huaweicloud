@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -159,6 +160,10 @@ func dataSourceGaussDBFlavorsRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("an error occurred while filtering the GaussDB NoSQL flavors: %s", err)
 	}
 	d.SetId(hashcode.Strings(names))
+	var mErr *multierror.Error
+	mErr = multierror.Append(mErr,
+		d.Set("flavors", result),
+	)
 
-	return diag.FromErr(d.Set("flavors", result))
+	return diag.FromErr(mErr.ErrorOrNil())
 }

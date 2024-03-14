@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -124,5 +125,9 @@ func dataSourceCassandraFlavorsRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	d.SetId(hashcode.Strings(flavorsIds))
-	return diag.FromErr(d.Set("flavors", flavorsToSet))
+	var mErr *multierror.Error
+	mErr = multierror.Append(mErr,
+		d.Set("flavors", flavorsToSet),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }

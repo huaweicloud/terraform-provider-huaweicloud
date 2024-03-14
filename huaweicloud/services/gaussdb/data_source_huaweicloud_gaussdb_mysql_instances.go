@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -310,7 +311,10 @@ func dataSourceGaussDBMysqlInstancesRead(_ context.Context, d *schema.ResourceDa
 	}
 
 	d.SetId(hashcode.Strings(instancesIds))
-	d.Set("instances", instancesToSet)
+	var mErr *multierror.Error
+	mErr = multierror.Append(mErr,
+		d.Set("instances", instancesToSet),
+	)
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }

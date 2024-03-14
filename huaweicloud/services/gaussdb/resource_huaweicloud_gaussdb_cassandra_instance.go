@@ -362,8 +362,8 @@ func GeminiDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 }
 
 func resourceGeminiDBInstanceV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}, defaults defaultValues) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.GeminiDBV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating GeminiDB client: %s ", err)
 	}
@@ -393,13 +393,13 @@ func resourceGeminiDBInstanceV3Create(ctx context.Context, d *schema.ResourceDat
 
 	createOpts := instances.CreateGeminiDBOpts{
 		Name:                d.Get("name").(string),
-		Region:              config.GetRegion(d),
+		Region:              cfg.GetRegion(d),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		DedicatedResourceId: d.Get("dedicated_resource_id").(string),
 		Mode:                defaults.Mode,
 		Flavor:              resourceGeminiDBFlavor(d),
@@ -491,8 +491,8 @@ func resourceGeminiDBInstanceV3Create(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.GeminiDBV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating GeminiDB client: %s", err)
 	}
@@ -535,7 +535,7 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 			} else {
 				for _, der := range allResources.Resources {
 					if der.Id == instance.DedicatedResourceId {
-						d.Set("dedicated_resource_name", der.ResourceName)
+						mErr = multierror.Append(mErr, d.Set("dedicated_resource_name", der.ResourceName))
 						break
 					}
 				}
@@ -544,7 +544,7 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 	}
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
-		d.Set("port", dbPort)
+		mErr = multierror.Append(mErr, d.Set("port", dbPort))
 	}
 
 	dbList := make([]map[string]interface{}, 0, 1)
@@ -554,7 +554,7 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 		"storage_engine": instance.Engine,
 	}
 	dbList = append(dbList, db)
-	d.Set("datastore", dbList)
+	mErr = multierror.Append(mErr, d.Set("datastore", dbList))
 
 	specCode := ""
 	wrongFlavor := "Inconsistent Flavor"
@@ -581,16 +581,19 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 			}
 		}
 		if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
-			d.Set("volume_size", volSize)
+			mErr = multierror.Append(mErr, d.Set("volume_size", volSize))
 		}
 		if specCode != "" {
 			log.Printf("[DEBUG] node specCode: %s", specCode)
-			d.Set("flavor", specCode)
+			mErr = multierror.Append(mErr, d.Set("flavor", specCode))
 		}
 	}
-	d.Set("nodes", nodesList)
-	d.Set("private_ips", ipsList)
-	d.Set("node_num", len(nodesList))
+	mErr = multierror.Append(
+		mErr,
+		d.Set("nodes", nodesList),
+		d.Set("private_ips", ipsList),
+		d.Set("node_num", len(nodesList)),
+	)
 
 	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
@@ -598,7 +601,7 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 		"keep_days":  instance.BackupStrategy.KeepDays,
 	}
 	backupStrategyList = append(backupStrategyList, backupStrategy)
-	d.Set("backup_strategy", backupStrategyList)
+	mErr = multierror.Append(mErr, d.Set("backup_strategy", backupStrategyList))
 
 	// save geminidb tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -614,15 +617,15 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 }
 
 func resourceGeminiDBInstanceV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.GeminiDBV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating GeminiDB client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	if d.Get("charging_mode") == "prePaid" {
-		if err := common.UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{instanceId}); err != nil {
 			// Try to delete resource directly when unsubscrbing failed
 			res := instances.Delete(client, instanceId)
 			if res.Err != nil {
@@ -734,11 +737,11 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 		}
 
 		// Compare the target configuration and the instance configuration
-		config, err := configurations.Get(client, configId).Extract()
+		cfg, err := configurations.Get(client, configId).Extract()
 		if err != nil {
 			return diag.Errorf("error fetching configuration %s: %s", configId, err)
 		}
-		configParams := config.Parameters
+		configParams := cfg.Parameters
 		log.Printf("[DEBUG] configuration parameters %#v", configParams)
 
 		instanceConfig, err := configurations.GetInstanceConfig(client, instanceId).Extract()
