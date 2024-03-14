@@ -236,43 +236,40 @@ func buildCreateDatasourceConnectionRequestBodyHost(rawParams interface{}) []map
 	return nil
 }
 
+func getConnectionById(client *golangsdk.ServiceClient, connectionId string) (interface{}, error) {
+	var (
+		httpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{connection_id}"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{connection_id}", connectionId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(requestResp)
+}
+
 func resourceDatasourceConnectionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
-	// getDatasourceConnection: Query the DLI instance
-	var (
-		getDatasourceConnectionHttpUrl = "v2.0/{project_id}/datasource/enhanced-connections/{id}"
-		getDatasourceConnectionProduct = "dli"
-	)
-	getDatasourceConnectionClient, err := cfg.NewServiceClient(getDatasourceConnectionProduct, region)
+	getDatasourceConnectionClient, err := cfg.NewServiceClient("dli", region)
 	if err != nil {
 		return diag.Errorf("error creating DLI Client: %s", err)
 	}
 
-	getDatasourceConnectionPath := getDatasourceConnectionClient.Endpoint + getDatasourceConnectionHttpUrl
-	getDatasourceConnectionPath = strings.ReplaceAll(getDatasourceConnectionPath, "{project_id}", getDatasourceConnectionClient.ProjectID)
-	getDatasourceConnectionPath = strings.ReplaceAll(getDatasourceConnectionPath, "{id}", d.Id())
-
-	getDatasourceConnectionOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getDatasourceConnectionResp, err := getDatasourceConnectionClient.Request("GET", getDatasourceConnectionPath, &getDatasourceConnectionOpt)
-
+	getDatasourceConnectionRespBody, err := getConnectionById(getDatasourceConnectionClient, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DatasourceConnection")
 	}
-
-	getDatasourceConnectionRespBody, err := utils.FlattenResponse(getDatasourceConnectionResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
 	if utils.PathSearch("status", getDatasourceConnectionRespBody, "") == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "the datasource connection has been deleted")
 	}
