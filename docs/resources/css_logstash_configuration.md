@@ -8,11 +8,11 @@ Manages a CSS logstah configuration resource within HuaweiCloud.
 
 ## Example Usage
 
+```hcl
 variable "cluster_id" {}
 variable "logstash_conf_name" {}
 variable "conf_content" {}
 
-```hcl
 resource "huaweicloud_css_logstash_configuration" "test"  {
   cluster_id   = var.cluster_id
   name         = var.logstash_conf_name
@@ -47,6 +47,7 @@ The following arguments are supported:
   After configuring the hidden string list, all strings in the list will be hidden as `***` in the returned
   configuration content (the list supports a maximum of **20** items, and the maximum length of a single string
   is 512 bytes).
+
   -> **NOTE:** When this field is used, the configuration file content will also trigger update changes when the
     update operation is performed again, restoring the hidden content. If you import resources, you need to manually
     restore sensitive characters hidden in the configuration content.
