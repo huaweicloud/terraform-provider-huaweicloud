@@ -99,7 +99,6 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  loadbalancer_provider = "elb"
 
   edition               = "BASIC"
   name                  = "%[2]s"
@@ -127,7 +126,6 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.new.id
   availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  loadbalancer_provider = "elb"
   vpcep_service_name    = "new_custom_apig"
 
   edition               = "BASIC"
@@ -226,7 +224,6 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  loadbalancer_provider = "elb"
   edition               = "BASIC"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
