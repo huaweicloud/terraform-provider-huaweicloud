@@ -270,3 +270,114 @@ resource "huaweicloud_apig_group" "test" {
 }
 `, testAccGroup_variablesBase(rName), rName)
 }
+
+func TestAccGroup_urlDomains(t *testing.T) {
+	var (
+		group apigroups.Group
+		rName = "huaweicloud_apig_group.test"
+		name  = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&group,
+		getGroupFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGroup_urlDomain_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					// since the order in the schema is inconsistent with the order of data obtained by the API, other parameters are not verified.
+					resource.TestCheckResourceAttr(rName, "url_domains.#", "2"),
+				),
+			},
+			{
+				Config: testAccGroup_urlDomain_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "url_domains.#", "1"),
+					resource.TestCheckResourceAttr(rName, "url_domains.0.name", "www.terraform.test3.com"),
+					resource.TestCheckResourceAttr(rName, "url_domains.0.min_ssl_version", "TLSv1.2"),
+					resource.TestCheckResourceAttr(rName, "url_domains.0.is_http_redirect_to_https", "false"),
+				),
+			},
+			{
+				Config: testAccGroup_urlDomain_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "url_domains.#", "1"),
+					resource.TestCheckResourceAttr(rName, "url_domains.0.name", "www.terraform.test3.com"),
+					resource.TestCheckResourceAttr(rName, "url_domains.0.min_ssl_version", "TLSv1.1"),
+					resource.TestCheckResourceAttr(rName, "url_domains.0.is_http_redirect_to_https", "true"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupImportStateFunc(),
+			},
+		},
+	})
+}
+
+func testAccGroup_urlDomain_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_group" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_apig_instance.test.id
+
+  url_domains {
+    name = "www.terraform.test1.com"
+  }
+  url_domains {
+    name = "www.terraform.test2.com"
+  }
+}
+`, testAccGroup_base(name), name)
+}
+
+func testAccGroup_urlDomain_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_group" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_apig_instance.test.id
+
+  url_domains {
+    name = "www.terraform.test3.com"
+  }
+}
+`, testAccGroup_base(name), name)
+}
+
+func testAccGroup_urlDomain_step3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_group" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_apig_instance.test.id
+
+  url_domains {
+    name                      = "www.terraform.test3.com"
+    min_ssl_version           = "TLSv1.1"
+    is_http_redirect_to_https = true
+  }
+}
+`, testAccGroup_base(name), name)
+}
