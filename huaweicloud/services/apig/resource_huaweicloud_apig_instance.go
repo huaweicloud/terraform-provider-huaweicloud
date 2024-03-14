@@ -39,9 +39,6 @@ const (
 	Ipv6EditionProfessional Edition = "PROFESSIONAL_IPv6" // IPv6 instance of the Professional Edition.
 	Ipv6EditionEnterprise   Edition = "ENTERPRISE_IPv6"   // IPv6 instance of the Enterprise Edition.
 	Ipv6EditionPlatinum     Edition = "PLATINUM_IPv6"     // IPv6 instance of the Platinum Edition.
-
-	ProviderTypeLvs ProviderType = "lvs" // Linux virtual server.
-	ProviderTypeElb ProviderType = "elb" // Elastic load balance.
 )
 
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/eip
@@ -266,9 +263,6 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ProviderTypeLvs), string(ProviderTypeElb),
-				}, false),
 				Description: utils.SchemaDesc(
 					`The type of loadbalancer provider used by the instance.`,
 					utils.SchemaDescInput{
