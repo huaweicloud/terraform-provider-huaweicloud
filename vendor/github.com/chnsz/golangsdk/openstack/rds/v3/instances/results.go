@@ -42,6 +42,10 @@ type ModifyCollationResult struct {
 	commonResult
 }
 
+type ModifyBinlogRetentionHoursResult struct {
+	commonResult
+}
+
 type ModifySwitchStrategyResult struct {
 	commonResult
 }
@@ -67,6 +71,10 @@ type ModifyConfigurationResult struct {
 }
 
 type GetConfigurationResult struct {
+	commonResult
+}
+
+type GetBinlogRetentionHoursResult struct {
 	commonResult
 }
 
@@ -219,6 +227,17 @@ func (r GetConfigurationResult) Extract() (*GetConfigurationResp, error) {
 	return &response, err
 }
 
+type GetBinlogRetentionHoursResp struct {
+	BinlogRetentionHours int    `json:"binlog_retention_hours"`
+	BinlogClearType      string `json:"binlog_clear_type"`
+}
+
+func (r GetBinlogRetentionHoursResult) Extract() (*GetBinlogRetentionHoursResp, error) {
+	var response GetBinlogRetentionHoursResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
 type ReplicationMode struct {
 	WorkflowId      string `json:"workflowId"`
 	InstanceId      string `json:"instanceId"`
@@ -237,6 +256,16 @@ type Collation struct {
 
 func (r ModifyCollationResult) Extract() (*Collation, error) {
 	var response Collation
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type BinlogRetentionHoursResp struct {
+	Resp string `json:"resp"`
+}
+
+func (r ModifyBinlogRetentionHoursResult) Extract() (*BinlogRetentionHoursResp, error) {
+	var response BinlogRetentionHoursResp
 	err := r.ExtractInto(&response)
 	return &response, err
 }

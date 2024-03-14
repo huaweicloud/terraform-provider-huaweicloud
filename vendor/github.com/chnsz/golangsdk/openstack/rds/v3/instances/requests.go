@@ -717,3 +717,30 @@ func ModifyCollation(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, ins
 	_, r.Err = c.Put(updateURL(c, instanceId, "collations"), b, &r.Body, &golangsdk.RequestOpts{})
 	return
 }
+
+type ModifyBinlogRetentionHoursOpts struct {
+	BinlogRetentionHours int `json:"binlog_retention_hours"`
+}
+
+func (opts ModifyBinlogRetentionHoursOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifyBinlogRetentionHours is a method used to modify binlog retention hours.
+func ModifyBinlogRetentionHours(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r ModifyCollationResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(binlogRetentionHoursURL(c, instanceId), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
+
+// GetBinlogRetentionHours is a method used to obtain the binlog retention hours.
+func GetBinlogRetentionHours(c *golangsdk.ServiceClient, instanceId string) (r GetBinlogRetentionHoursResult) {
+	_, r.Err = c.Get(binlogRetentionHoursURL(c, instanceId), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}

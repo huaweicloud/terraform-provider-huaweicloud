@@ -267,6 +267,9 @@ The following arguments are supported:
 * `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the RDS instance after
   launched. You can check on console to see which parameters supported. Structure is documented below.
 
+* `binlog_retention_hours` - (Optional, Int) Specify the binlog retention period in hours. This parameter applies only to
+  MySQL Server databases. Value range: **0** to **168 (7x24)**.
+
 The `db` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the DB engine. Available value are **MySQL**, **PostgreSQL**,

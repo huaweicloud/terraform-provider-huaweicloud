@@ -153,6 +153,7 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "div_precision_increment"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "12"),
+					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "12"),
 				),
 			},
 			{
@@ -169,6 +170,7 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "connect_timeout"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "14"),
+					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "db.0.password"),
 				),
 			},
@@ -178,6 +180,7 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "0"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "0"),
+					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "6"),
 				),
 			},
 		},
@@ -579,13 +582,14 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[2]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
-  ssl_enable        = true  
+  name                   = "%[2]s"
+  flavor                 = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id      = data.huaweicloud_networking_secgroup.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable             = true  
+  binlog_retention_hours = "12"
 
   db {
     type     = "MySQL"
@@ -628,14 +632,15 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[3]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
-  ssl_enable        = false
-  param_group_id    = huaweicloud_rds_parametergroup.pg_1.id
+  name                   = "%[3]s"
+  flavor                 = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id      = data.huaweicloud_networking_secgroup.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable             = false
+  param_group_id         = huaweicloud_rds_parametergroup.pg_1.id
+  binlog_retention_hours = "0"
 
   db {
     password = "Huangwei!120521"
@@ -679,14 +684,15 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[3]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[1].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
-  ssl_enable        = false
-  param_group_id    = huaweicloud_rds_parametergroup.pg_1.id
+  name                   = "%[3]s"
+  flavor                 = data.huaweicloud_rds_flavors.test.flavors[1].name
+  security_group_id      = data.huaweicloud_networking_secgroup.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable             = false
+  param_group_id         = huaweicloud_rds_parametergroup.pg_1.id
+  binlog_retention_hours = "6"
 
   db {
     password = "Huangwei!120521"
