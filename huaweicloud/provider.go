@@ -935,14 +935,15 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_event":  dew.ResourceCsmsEvent(),
 			"huaweicloud_csms_secret": dew.ResourceCsmsSecret(),
 
-			"huaweicloud_css_cluster":                css.ResourceCssCluster(),
-			"huaweicloud_css_snapshot":               css.ResourceCssSnapshot(),
-			"huaweicloud_css_thesaurus":              css.ResourceCssthesaurus(),
-			"huaweicloud_css_configuration":          css.ResourceCssConfiguration(),
-			"huaweicloud_css_scan_task":              css.ResourceScanTask(),
-			"huaweicloud_css_logstash_cluster":       css.ResourceLogstashCluster(),
-			"huaweicloud_css_logstash_configuration": css.ResourceLogstashConfiguration(),
-			"huaweicloud_css_logstash_pipeline":      css.ResourceLogstashPipeline(),
+			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
+			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
+			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
+			"huaweicloud_css_configuration":               css.ResourceCssConfiguration(),
+			"huaweicloud_css_scan_task":                   css.ResourceScanTask(),
+			"huaweicloud_css_logstash_cluster":            css.ResourceLogstashCluster(),
+			"huaweicloud_css_logstash_configuration":      css.ResourceLogstashConfiguration(),
+			"huaweicloud_css_logstash_pipeline":           css.ResourceLogstashPipeline(),
+			"huaweicloud_css_logstash_custom_certificate": css.ResourceLogstashCertificate(),
 
 			"huaweicloud_dbss_instance": dbss.ResourceInstance(),
 
