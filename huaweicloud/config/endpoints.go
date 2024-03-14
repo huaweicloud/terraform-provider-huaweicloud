@@ -939,6 +939,11 @@ func GetServiceEndpoint(c *Config, srv, region string) string {
 		return ""
 	}
 
+	// update the service catalog name if necessary
+	if name := getServiceCatalogNameByRegion(srv, region); name != "" {
+		catalog.Name = name
+	}
+
 	var ep string
 	if catalog.Scope == "global" && !c.RegionClient {
 		ep = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
