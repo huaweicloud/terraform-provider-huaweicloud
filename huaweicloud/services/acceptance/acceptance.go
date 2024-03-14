@@ -135,8 +135,12 @@ var (
 	HW_FGS_TEMPLATE_ID = os.Getenv("HW_FGS_TEMPLATE_ID")
 	HW_FGS_GPU_TYPE    = os.Getenv("HW_FGS_GPU_TYPE")
 
-	HW_KMS_ENVIRONMENT    = os.Getenv("HW_KMS_ENVIRONMENT")
-	HW_KMS_HSM_CLUSTER_ID = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
+	HW_KMS_ENVIRONMENT     = os.Getenv("HW_KMS_ENVIRONMENT")
+	HW_KMS_HSM_CLUSTER_ID  = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
+	HW_KMS_KEY_ID          = os.Getenv("HW_KMS_KEY_ID")
+	HW_KMS_IMPORT_TOKEN    = os.Getenv("HW_KMS_IMPORT_TOKEN")
+	HW_KMS_KEY_MATERIAL    = os.Getenv("HW_KMS_KEY_MATERIAL")
+	HW_KMS_KEY_PRIVATE_KEY = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_OPEN                   = os.Getenv("HW_ORGANIZATIONS_OPEN")
@@ -848,6 +852,34 @@ func TestAccPreCheckKms(t *testing.T) {
 func TestAccPreCheckKmsHsmClusterId(t *testing.T) {
 	if HW_KMS_HSM_CLUSTER_ID == "" {
 		t.Skip("HW_KMS_HSM_CLUSTER_ID must be set for KMS dedicated keystore acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsImportToken(t *testing.T) {
+	if HW_KMS_IMPORT_TOKEN == "" {
+		t.Skip("HW_KMS_IMPORT_TOKEN must be set for KMS key material acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyID(t *testing.T) {
+	if HW_KMS_KEY_ID == "" {
+		t.Skip("HW_KMS_KEY_ID must be set for KMS key material acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyMaterial(t *testing.T) {
+	if HW_KMS_KEY_MATERIAL == "" {
+		t.Skip("HW_KMS_KEY_MATERIAL must be set for KMS key material acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyPrivateKey(t *testing.T) {
+	if HW_KMS_KEY_PRIVATE_KEY == "" {
+		t.Skip("HW_KMS_KEY_PRIVATE_KEY must be set for KMS key material acceptance tests.")
 	}
 }
 
