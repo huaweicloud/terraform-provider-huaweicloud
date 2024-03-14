@@ -291,6 +291,18 @@ var (
 	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
 
 	HW_DCS_INSTANCE_ID = os.Getenv("HW_DCS_INSTANCE_ID")
+
+	HW_LTS_AGENCY_STREAM_NAME = os.Getenv("HW_LTS_AGENCY_STREAM_NAME")
+	HW_LTS_AGENCY_STREAM_ID   = os.Getenv("HW_LTS_AGENCY_STREAM_ID")
+	HW_LTS_AGENCY_GROUP_NAME  = os.Getenv("HW_LTS_AGENCY_GROUP_NAME")
+	HW_LTS_AGENCY_GROUP_ID    = os.Getenv("HW_LTS_AGENCY_GROUP_ID")
+	HW_LTS_LOG_STREAM_NAME    = os.Getenv("HW_LTS_LOG_STREAM_NAME")
+	HW_LTS_LOG_STREAM_ID      = os.Getenv("HW_LTS_LOG_STREAM_ID")
+	HW_LTS_LOG_GROUP_NAME     = os.Getenv("HW_LTS_LOG_GROUP_NAME")
+	HW_LTS_LOG_GROUP_ID       = os.Getenv("HW_LTS_LOG_GROUP_ID")
+	HW_LTS_AGENCY_PROJECT_ID  = os.Getenv("HW_LTS_AGENCY_PROJECT_ID")
+	HW_LTS_AGENCY_DOMAIN_NAME = os.Getenv("HW_LTS_AGENCY_DOMAIN_NAME")
+	HW_LTS_AGENCY_NAME        = os.Getenv("HW_LTS_AGENCY_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1385,5 +1397,22 @@ func TestAccPreCheckDCSAccountWhitelist(t *testing.T) {
 func TestAccPreCheckDCSInstanceID(t *testing.T) {
 	if HW_DCS_INSTANCE_ID == "" {
 		t.Skip("HW_DCS_INSTANCE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLTSCrossAccountAccess(t *testing.T) {
+	if HW_LTS_AGENCY_STREAM_NAME == "" || HW_LTS_AGENCY_STREAM_ID == "" || HW_LTS_AGENCY_GROUP_NAME == "" ||
+		HW_LTS_AGENCY_GROUP_ID == "" || HW_LTS_AGENCY_PROJECT_ID == "" ||
+		HW_LTS_AGENCY_DOMAIN_NAME == "" || HW_LTS_AGENCY_NAME == "" {
+		t.Skip("The delegator account config of HW_LTS_AGENCY_STREAM_NAME, HW_LTS_AGENCY_STREAM_ID, HW_LTS_AGENCY_GROUP_NAME," +
+			" HW_LTS_AGENCY_GROUP_ID, HW_LTS_AGENCY_PROJECT_ID, HW_LTS_AGENCY_DOMAIN_NAME and HW_LTS_AGENCY_NAME " +
+			"must be set for the acceptance test")
+	}
+
+	if HW_LTS_LOG_STREAM_NAME == "" || HW_LTS_LOG_STREAM_ID == "" ||
+		HW_LTS_LOG_GROUP_NAME == "" || HW_LTS_LOG_GROUP_ID == "" {
+		t.Skip("The delegatee account config of HW_LTS_LOG_STREAM_NAME, HW_LTS_LOG_STREAM_ID, HW_LTS_LOG_GROUP_NAME" +
+			" and HW_LTS_LOG_GROUP_ID must be set for the acceptance test")
 	}
 }
