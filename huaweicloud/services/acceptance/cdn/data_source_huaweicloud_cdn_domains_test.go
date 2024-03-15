@@ -124,5 +124,5 @@ output "enterprise_project_id_filter_is_useful" {
     [for v in data.huaweicloud_cdn_domains.enterprise_project_id_filter.domains[*].enterprise_project_id : v == local.enterprise_project_id]
   )  
 }
-`, testAccCdnDomainV1_basic)
+`, testAccCdnDomain_basic)
 }

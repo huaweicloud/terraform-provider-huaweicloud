@@ -134,8 +134,8 @@ The following arguments are supported:
   + **wholeSite**: Whole site acceleration. For websites with both dynamic and static content, such as online exam
     platforms, forums, and blogs.
 
-* `sources` - (Required, List, ForceNew) Specifies an array of one or more objects specifying origin server settings.
-  A maximum of `50` origin site configurations can be configured. Changing this parameter will create a new resource.
+* `sources` - (Required, List) Specifies an array of one or more objects specifying origin server settings.
+  A maximum of `50` origin site configurations can be configured.
   The [sources](#sources_cdn_domain) structure is documented below.
 
 * `service_area` - (Optional, String, ForceNew) Specifies the area covered by the acceleration service.
@@ -392,6 +392,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 20 minutes.
+* `update` - Default is 20 minutes.
 * `delete` - Default is 20 minutes.
 
 ## Import
@@ -400,4 +401,22 @@ Domains can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_cdn_domain.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `enterprise_project_id`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also, you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_cdn_domain" "test" {
+  ...
+  
+  lifecycle {
+    ignore_changes = [
+      enterprise_project_id,
+    ]
+  }
+}
 ```
