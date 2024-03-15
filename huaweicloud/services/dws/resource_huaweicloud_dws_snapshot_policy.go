@@ -89,9 +89,6 @@ func resourceDwsSnapshotPolicyCreate(ctx context.Context, d *schema.ResourceData
 	createDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	createDwsSnapshotPolicyOpt.JSONBody = utils.RemoveNil(buildCreateDwsSnapshotPolicyBodyParams(d))
 	createDwsSnapshotPolicyResp, err := createDwsSnapshotPolicyClient.Request("PUT", createDwsSnapshotPolicyPath, &createDwsSnapshotPolicyOpt)
@@ -121,9 +118,6 @@ func resourceDwsSnapshotPolicyCreate(ctx context.Context, d *schema.ResourceData
 	getDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      requestOpts.MoreHeaders,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getDwsSnapshotPolicyResp, err := getDwsSnapshotPolicyClient.Request("GET", getDwsSnapshotPolicyPath, &getDwsSnapshotPolicyOpt)
 	if err != nil {
@@ -183,9 +177,6 @@ func resourceDwsSnapshotPolicyRead(_ context.Context, d *schema.ResourceData, me
 	getDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      requestOpts.MoreHeaders,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getDwsSnapshotPolicyResp, err := getDwsSnapshotPolicyClient.Request("GET", getDwsSnapshotPolicyPath, &getDwsSnapshotPolicyOpt)
 
@@ -237,9 +228,6 @@ func resourceDwsSnapshotPolicyDelete(_ context.Context, d *schema.ResourceData, 
 	deleteDwsSnapshotPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      requestOpts.MoreHeaders,
-		OkCodes: []int{
-			200,
-		},
 	}
 	_, err = deleteDwsSnapshotPolicyClient.Request("DELETE", deleteDwsSnapshotPolicyPath, &deleteDwsSnapshotPolicyOpt)
 	if err != nil {

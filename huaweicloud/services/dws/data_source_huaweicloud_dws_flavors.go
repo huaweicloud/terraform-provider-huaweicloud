@@ -168,9 +168,6 @@ func resourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta inte
 	listFlavorsOpt := golangsdk.RequestOpts{
 		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
 
