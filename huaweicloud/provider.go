@@ -531,6 +531,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_accounts":        dcs.DataSourceDcsAccounts(),
 			"huaweicloud_dcs_diagnosis_tasks": dcs.DataSourceDcsDiagnosisTasks(),
 
+			"huaweicloud_dds_database_versions":          dds.DataSourceDdsDatabaseVersions(),
 			"huaweicloud_dds_flavors":                    dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_migrate_availability_zones": dds.DataSourceDDSMigrateAvailabilityZones(),
 			"huaweicloud_dds_instances":                  dds.DataSourceDdsInstance(),
