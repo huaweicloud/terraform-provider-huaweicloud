@@ -36,6 +36,7 @@ import (
 // @API DRS PUT /v3/{project_id}/jobs/batch-modification
 // @API DRS POST /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action
 // @API DRS POST /v5/{project_id}/jobs/{job_id}/action
+// @API DRS PUT /v5/{project_id}/jobs/{job_id}
 func ResourceDrsJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceJobCreate,
@@ -216,6 +217,33 @@ func ResourceDrsJob() *schema.Resource {
 				RequiredWith: []string{"action"},
 			},
 
+			"databases": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"tables"},
+				Elem:          &schema.Schema{Type: schema.TypeString},
+			},
+
+			"tables": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"databases"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"database": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"table_names": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -348,6 +376,10 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
+	clientV5, err := conf.DrsV5Client(region)
+	if err != nil {
+		return diag.Errorf("error creating DRS v5 client, error: %s", err)
+	}
 
 	opts, err := buildCreateParamter(d, client.ProjectID, conf.GetEnterpriseProjectID(d))
 	if err != nil {
@@ -403,7 +435,17 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
-	err = preCheck(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	// Only support migration or synchronization job to select objects, this limitation is stated in docs.
+	_, ok1 := d.GetOk("databases")
+	_, ok2 := d.GetOk("tables")
+	if ok1 || ok2 {
+		err = updateJobConfig(clientV5, buildUpdateJobConfigBodyParams(d, "db_object"), "db_object", d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	err = preCheck(ctx, client, jobId, d.Timeout(schema.TimeoutCreate), "forStartJob")
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -427,6 +469,91 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 	return resourceJobRead(ctx, d, meta)
+}
+
+func buildUpdateJobConfigBodyParams(d *schema.ResourceData, updateType string) map[string]interface{} {
+	// in next update for policy, it will change to switch/case
+	if updateType == "db_object" {
+		if _, ok1 := d.GetOk("databases"); ok1 {
+			return map[string]interface{}{
+				"db_object": map[string]interface{}{
+					"object_scope": "database",
+					"object_info":  buildDatabaseInfos(d.Get("databases").(*schema.Set).List()),
+				},
+			}
+		}
+		return map[string]interface{}{
+			"db_object": map[string]interface{}{
+				"object_scope": "table",
+				"object_info":  buildTables(d.Get("tables").(*schema.Set).List()),
+			},
+		}
+	}
+	return nil
+}
+
+func buildDatabaseInfos(list []interface{}) map[string]interface{} {
+	rst := make(map[string]interface{})
+	for _, val := range list {
+		if v, ok := val.(string); ok {
+			m := map[string]interface{}{
+				"name": v,
+				"all":  true,
+			}
+			rst[v] = m
+		}
+	}
+	return rst
+}
+
+func buildTables(tables []interface{}) map[string]interface{} {
+	rst := make(map[string]interface{})
+	for _, val := range tables {
+		v := val.(map[string]interface{})
+		database := v["database"].(string)
+		tableNames := v["table_names"].(*schema.Set).List()
+		rst[database] = map[string]interface{}{
+			"name":   database,
+			"tables": buildTableInfos(tableNames),
+		}
+	}
+	return rst
+}
+
+func buildTableInfos(list []interface{}) map[string]interface{} {
+	rst := make(map[string]interface{})
+	for _, val := range list {
+		if v, ok := val.(string); ok {
+			m := map[string]interface{}{
+				"name": v,
+				"all":  true,
+				"type": "table",
+			}
+			rst[v] = m
+		}
+	}
+	return rst
+}
+
+func updateJobConfig(client *golangsdk.ServiceClient, jsonBody map[string]interface{}, updateType, id string) error {
+	updateJobConfigHttpUrl := "v5/{project_id}/jobs/{job_id}"
+	updateJobConfigPath := client.Endpoint + updateJobConfigHttpUrl
+	updateJobConfigPath = strings.ReplaceAll(updateJobConfigPath, "{project_id}", client.ProjectID)
+	updateJobConfigPath = strings.ReplaceAll(updateJobConfigPath, "{job_id}", id)
+	updateJobConfigOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: utils.RemoveNil(map[string]interface{}{
+			"job": map[string]interface{}{
+				"type":   updateType,
+				"params": jsonBody,
+			},
+		}),
+	}
+	_, err := client.Request("PUT", updateJobConfigPath, &updateJobConfigOpt)
+	if err != nil {
+		return fmt.Errorf("error updating job for %s: %s", updateType, err)
+	}
+	return nil
 }
 
 func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -475,11 +602,56 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),
 	)
 
+	// set objects
+	if detail.ObjectSwitch {
+		objectName := flattenObjectName(detail.ObjectInfos, detail.SyncDatabase)
+		if detail.SyncDatabase {
+			mErr = multierror.Append(mErr,
+				d.Set("databases", objectName),
+			)
+		} else {
+			mErr = multierror.Append(mErr,
+				d.Set("tables", objectName),
+			)
+		}
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error setting DRS job fields: %s", mErr)
 	}
 
 	return nil
+}
+
+func flattenObjectName(objectInfos []jobs.ObjectInfo, isDateBase bool) []interface{} {
+	if len(objectInfos) == 0 {
+		return nil
+	}
+	rst := make([]interface{}, 0)
+
+	if isDateBase {
+		for _, objectInfo := range objectInfos {
+			rst = append(rst, objectInfo.Name)
+		}
+	} else {
+		databases := make(map[string][]string)
+		for _, objectInfo := range objectInfos {
+			if objectInfo.Type == "table" {
+				databases[objectInfo.ParentId] = append(databases[objectInfo.ParentId], objectInfo.Name)
+			}
+		}
+		if len(databases) == 0 {
+			return nil
+		}
+		for database, tableNames := range databases {
+			rst = append(rst, map[string]interface{}{
+				"database":    database,
+				"table_names": tableNames,
+			})
+		}
+	}
+
+	return rst
 }
 
 func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -565,7 +737,69 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
+	if d.HasChanges("databases", "tables") {
+		err := updateObjectsSelection(ctx, d, client, clientV5)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceJobRead(ctx, d, meta)
+}
+
+func updateObjectsSelection(ctx context.Context, d *schema.ResourceData, client, clientV5 *golangsdk.ServiceClient) error {
+	// preCheck type and status
+	if d.Get("type").(string) != "sync" {
+		return fmt.Errorf("only synchronization job supports updating object selection")
+	}
+	if !utils.StrSliceContains([]string{"INCRE_TRANSFER_STARTED", "INCRE_TRANSFER_FAILED"}, d.Get("status").(string)) {
+		return fmt.Errorf("error updating synchronization object for status(%s)", d.Get("status").(string))
+	}
+
+	// update object
+	_, ok1 := d.GetOk("databases")
+	_, ok2 := d.GetOk("tables")
+	if ok1 || ok2 {
+		err := updateJobConfig(clientV5, buildUpdateJobConfigBodyParams(d, "db_object"), "db_object", d.Id())
+		if err != nil {
+			return err
+		}
+	}
+
+	// preCheck job
+	err := preCheck(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate), "forRetryJob")
+	if err != nil {
+		return err
+	}
+
+	// restart re-edit sync job
+	reEditRequestBody := map[string]interface{}{
+		"is_sync_re_edit": true,
+	}
+	err = executeJobAction(clientV5, reEditRequestBody, "restart", d.Id())
+	if err != nil {
+		return err
+	}
+
+	// wait for children transfer job started
+	listResp, err := jobs.List(client, jobs.ListJobsReq{
+		CurPage:   1,
+		PerPage:   1,
+		Name:      d.Id(),
+		DbUseType: "sync",
+	})
+	if err != nil {
+		return err
+	}
+	if listResp.Jobs[0].Children[0].Id == "" {
+		return fmt.Errorf("error updating synchronization object: children synchronization job ID not found")
+	}
+	err = waitingforJobStatus(ctx, client, listResp.Jobs[0].Children[0].Id, "restart", d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func preCheckStatus(status string) error {
@@ -709,9 +943,13 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 	case "stop":
 		pending = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
 		target = []string{"PAUSING"}
-	case "restart", "reset":
+	case "reset":
 		pending = []string{"STARTJOBING", "WAITING_FOR_START"}
 		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
+	case "restart":
+		pending = []string{"STARTJOBING", "WAITING_FOR_START", "CHILD_TRANSFER_STARTING"}
+		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED",
+			"CHILD_TRANSFER_STARTED", "CHILD_TRANSFER_COMPLETE"}
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -726,8 +964,8 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 				return resp, "failed", fmt.Errorf("%s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMessage)
 			}
 
-			if utils.StrSliceContains(
-				[]string{"START_JOB_FAILED", "CREATE_FAILED", "RELEASE_RESOURCE_FAILED"}, resp.Results[0].Status) {
+			if utils.StrSliceContains([]string{"START_JOB_FAILED", "CREATE_FAILED", "RELEASE_RESOURCE_FAILED",
+				"CHILD_TRANSFER_FAILED"}, resp.Results[0].Status) {
 				return resp, "failed", fmt.Errorf("%s", resp.Results[0].Status)
 			}
 
@@ -935,12 +1173,12 @@ func reUpdateJob(client *golangsdk.ServiceClient, jobId string, opts jobs.Create
 	return nil
 }
 
-func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) error {
+func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration, precheckMode string) error {
 	_, err := jobs.PreCheckJobs(client, jobs.BatchPrecheckReq{
 		Jobs: []jobs.PreCheckInfo{
 			{
 				JobId:        jobId,
-				PrecheckMode: "forStartJob",
+				PrecheckMode: precheckMode,
 			},
 		},
 	})

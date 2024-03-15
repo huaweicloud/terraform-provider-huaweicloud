@@ -60,6 +60,120 @@ resource "huaweicloud_drs_job" "test" {
 }
 ```
 
+### Create a DRS job to synchronize database level data to the HuaweiCloud RDS database
+
+```hcl
+variable "name" {}
+variable "source_db_ip" {}
+variable "source_db_port" {}
+variable "source_db_user" {}
+variable "source_db_password" {}
+variable "source_db_port" {}
+variable "destination_db_password" {}
+variable "database_name" {}
+
+resource "huaweicloud_rds_instance" "mysql" {
+  ...
+}
+
+resource "huaweicloud_drs_job" "test" {
+  name           = var.name
+  type           = "sync"
+  engine_type    = "mysql"
+  direction      = "up"
+  net_type       = "eip"
+  migration_type = "FULL_INCR_TRANS"
+  description    = "terraform demo"
+
+  source_db {
+    engine_type = "mysql"
+    ip          = var.source_db_ip
+    port        = var.source_db_port
+    user        = var.source_db_user
+    password    = var.source_db_password
+    ssl_link    = false
+  }
+
+  destination_db {
+    region      = huaweicloud_rds_instance.mysql.region
+    ip          = huaweicloud_rds_instance.mysql.fixed_ip
+    port        = 3306
+    engine_type = "mysql"
+    user        = "root"
+    password    = var.destination_db_password
+    instance_id = huaweicloud_rds_instance.mysql.id
+    subnet_id   = huaweicloud_rds_instance.mysql.subnet_id
+  }
+
+  databases = [var.database_name]
+
+  lifecycle {
+    ignore_changes = [
+      source_db.0.password, destination_db.0.password,
+    ]
+  }
+}
+```
+
+### Create a DRS job to synchronize table level data to the HuaweiCloud RDS database
+
+```hcl
+variable "name" {}
+variable "source_db_ip" {}
+variable "source_db_port" {}
+variable "source_db_user" {}
+variable "source_db_password" {}
+variable "source_db_port" {}
+variable "destination_db_password" {}
+variable "database_name" {}
+variable "table_name" {}
+
+resource "huaweicloud_rds_instance" "mysql" {
+  ...
+}
+
+resource "huaweicloud_drs_job" "test" {
+  name           = var.name
+  type           = "sync"
+  engine_type    = "mysql"
+  direction      = "up"
+  net_type       = "eip"
+  migration_type = "FULL_INCR_TRANS"
+  description    = "terraform demo"
+
+  source_db {
+    engine_type = "mysql"
+    ip          = var.source_db_ip
+    port        = var.source_db_port
+    user        = var.source_db_user
+    password    = var.source_db_password
+    ssl_link    = false
+  }
+
+  destination_db {
+    region      = huaweicloud_rds_instance.mysql.region
+    ip          = huaweicloud_rds_instance.mysql.fixed_ip
+    port        = 3306
+    engine_type = "mysql"
+    user        = "root"
+    password    = var.destination_db_password
+    instance_id = huaweicloud_rds_instance.mysql.id
+    subnet_id   = huaweicloud_rds_instance.mysql.subnet_id
+  }
+
+  tables {
+    database    = var.database_name
+    table_names = [var.table_name]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      source_db.0.password, destination_db.0.password,
+    ]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -94,11 +208,11 @@ The following arguments are supported:
   + **non-dbs**: self-built database.
   
 * `source_db` - (Required, List, ForceNew) Specifies the source database configuration.
- The `db_info` object structure of the `source_db` is documented below.
+ The [db_info](#block--db_info) structure of the `source_db` is documented below.
  Changing this parameter will create a new resource.
 
 * `destination_db` - (Required, List, ForceNew) Specifies the destination database configuration.
- The `db_info` object structure of the `destination_db` is documented below.
+ The [db_info](#block--db_info) structure of the `destination_db` is documented below.
  Changing this parameter will create a new resource.
 
 * `net_type` - (Optional, String, ForceNew) Specifies the network type.
@@ -124,7 +238,7 @@ The following arguments are supported:
  Changing this parameter will create a new resource.
 
 * `limit_speed` - (Optional, List, ForceNew) Specifies the migration speed by setting a time period.
- The default is no speed limit. The maximum length is 3. Structure is documented below.
+ The default is no speed limit. The maximum length is 3. The [limit_speed](#block--limit_speed) structure is documented below.
  Changing this parameter will create a new resource.
 
 * `multi_write` - (Optional, Bool, ForceNew) Specifies whether to enable multi write. It is mandatory when `type`
@@ -170,6 +284,22 @@ The following arguments are supported:
 
 * `is_sync_re_edit` - (Optional, Bool) Specifies whether to start the sync re-edit job. It's valid when `action` is **restart**.
 
+* `databases` - (Optional, List)  Specifies the list of the databases which the job migrates or synchronizes. Means to
+  transfer database level data. This parameter conflicts with `tables`.
+
+* `tables` - (Optional, List)  Specifies the list of the tables which the job migrates or synchronizes. Means to transfer
+  table level data. This parameter conflicts with `databases`.
+  The [tables](#block--tables) structure is documented below.
+
+  ->   1. `databases` and `tables` will only take effect when `type` is **migration** or **sync**.
+  <br/>2. When `type` is **migration**, they are not allowed to **update**, if they are empty, means to migrate all objects.
+  <br/>3. When `type` is **sync**, exactly one data level of `databases` and `tables` must be specified. It's **not allowed**
+       to transfer the data level to another. Only when `status` is **INCRE_TRANSFER_STARTED** or **INCRE_TRANSFER_FAILED**,
+       **update** will take effect.
+  <br/>4. It's only for synchronization from **MySQL** to **MySQL**, migration from **Redis** to **GeminiDB Redis**,
+       migration from cluster **Redis** to **GeminiDB Redis**, and synchronization from **Oracle** to **GaussDB Distributed**.
+
+<a name="block--db_info"></a>
 The `db_info` block supports:
 
 * `engine_type` - (Required, String, ForceNew) Specifies the engine type of database. Changing this parameter will
@@ -212,6 +342,7 @@ The `db_info` block supports:
 * `ssl_cert_password` - (Optional, String, ForceNew) Specifies SSL certificate password. It is mandatory when
  `ssl_enabled` is **true** and the certificate file suffix is **.p12**. Changing this parameter will create a new resource.
 
+<a name="block--limit_speed"></a>
 The `limit_speed` block supports:
 
 * `speed` - (Required, String, ForceNew) Specifies the transmission speed, the value range is 1 to 9999, unit: **MB/s**.
@@ -223,6 +354,13 @@ is two digits, for example: 01:00. Changing this parameter will create a new res
 
 * `end_time` - (Required, String, ForceNew) Specifies the time to end speed limit, this time is UTC time. The input must
  end at 59 minutes, the format is **hh:mm**, for example: 15:59. Changing this parameter will create a new resource.
+
+<a name="block--tables"></a>
+The `tables` block supports:
+
+* `database` - (Required, String) Specifies the name of database to which the tables belong.
+
+* `table_names` - (Required, List) Specifies the names of table which belong to a same datebase.
 
 ## Attribute Reference
 
