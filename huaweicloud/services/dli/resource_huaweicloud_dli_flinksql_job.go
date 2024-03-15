@@ -370,7 +370,7 @@ func resourceFlinkSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("delete DLI flink job failed. %q:%s", jobId, err)
 	}
 	if deleteRst != nil && !deleteRst.IsSuccess {
-		return diag.Errorf("delete DLI flink job failed. %q", jobId)
+		return diag.Errorf("delete DLI flink job (%d) failed: %s", jobId, deleteRst.Message)
 	}
 
 	return nil
@@ -503,7 +503,7 @@ func authorizeObsBucket(client *golangsdk.ServiceClient, d *schema.ResourceData)
 		}
 
 		if rst != nil && !rst.IsSuccess {
-			return diag.Errorf("DLI Authorization on the following OBS buckets failed= %s", value)
+			return diag.Errorf("DLI Authorization on the following OBS buckets failed: %s", rst.Message)
 		}
 	}
 

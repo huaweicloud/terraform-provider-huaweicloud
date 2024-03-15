@@ -80,9 +80,17 @@ func resourceDliAgencyCreateOrUpdate(ctx context.Context, d *schema.ResourceData
 		},
 	}
 	createAgencyOpt.JSONBody = utils.RemoveNil(buildDliAgencyBodyParams(d))
-	_, err = createAgencyClient.Request("POST", createAgencyPath, &createAgencyOpt)
+	requestResp, err := createAgencyClient.Request("POST", createAgencyPath, &createAgencyOpt)
 	if err != nil {
 		return diag.Errorf("error creating DLI Agency: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to modify the agency: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	d.SetId(DliAgencyID)
@@ -132,6 +140,10 @@ func resourceDliAgencyRead(_ context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	if !utils.PathSearch("is_success", getAgencyRespBody, true).(bool) {
+		return diag.Errorf("unable to query the agency: %s",
+			utils.PathSearch("message", getAgencyRespBody, "Message Not Found"))
+	}
 
 	mErr = multierror.Append(
 		mErr,
@@ -170,10 +182,17 @@ func resourceDliAgencyDelete(_ context.Context, d *schema.ResourceData, meta int
 		"roles": make([]string, 0),
 	}
 
-	_, err = deleteAgencyClient.Request("POST", deleteAgencyPath, &deleteAgencyOpt)
+	requestResp, err := deleteAgencyClient.Request("POST", deleteAgencyPath, &deleteAgencyOpt)
 	if err != nil {
 		return diag.Errorf("error deleting DLI Agency: %s", err)
 	}
-
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to delete the agency: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
+	}
 	return nil
 }

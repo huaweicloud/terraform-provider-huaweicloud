@@ -171,7 +171,7 @@ func queryDatabaseRelatePermission(client *golangsdk.ServiceClient, obj, userNam
 			return nil, parseDliErrorToError404(err)
 		}
 		if rst != nil && !rst.IsSuccess {
-			return nil, fmt.Errorf("error query DLI permission of database: %s", err)
+			return nil, fmt.Errorf("error query DLI permission of database: %s", rst.Message)
 		}
 
 		for _, v := range rst.Privileges {
@@ -185,7 +185,7 @@ func queryDatabaseRelatePermission(client *golangsdk.ServiceClient, obj, userNam
 			return nil, parseDliErrorToError404(err)
 		}
 		if rst != nil && !rst.IsSuccess {
-			return nil, fmt.Errorf("error query DLI permission of table: %s", err)
+			return nil, fmt.Errorf("error query DLI permission of table: %s", rst.Message)
 		}
 		for _, v := range rst.Privileges {
 			if v.Object == obj && v.UserName == userName {

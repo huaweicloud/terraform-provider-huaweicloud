@@ -113,7 +113,8 @@ func modifyDatasourceConnectionPrivileges(client *golangsdk.ServiceClient, d *sc
 		return err
 	}
 	if !utils.PathSearch("is_success", respBody, "").(bool) {
-		return fmt.Errorf("unable to %s the privileges: %s", action, utils.PathSearch("message", respBody, ""))
+		return fmt.Errorf("unable to %s the privileges: %s", action,
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 	return nil
 }
@@ -186,6 +187,10 @@ func resourceDatasourceConnectionPrivilegeRead(_ context.Context, d *schema.Reso
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return diag.Errorf("unable to query the privileges: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
 	}
 
 	privilege := utils.PathSearch(fmt.Sprintf("privileges[?project_id=='%v']|[0]", d.Get("project_id")), respBody, nil)

@@ -243,9 +243,12 @@ func ResourceDliDependentPackageV2Update(ctx context.Context, d *schema.Resource
 		GroupName:    d.Get("group_name").(string),
 		NewOwner:     d.Get("owner").(string),
 	}
-	_, err = resources.UpdateOwner(c, opt)
+	resp, err := resources.UpdateOwner(c, opt)
 	if err != nil {
 		return diag.Errorf("error updating package owner: %s", err)
+	}
+	if !resp.IsSuccess {
+		return diag.Errorf("unable to update the package: %s", resp.Message)
 	}
 
 	return ResourceDliDependentPackageV2Read(ctx, d, meta)

@@ -179,7 +179,7 @@ func resourceSQLJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if rst == nil || !rst.IsSuccess {
-		return diag.Errorf("error creating DLI sql job")
+		return diag.Errorf("error creating DLI sql job: %s", rst.Message)
 	}
 
 	d.SetId(rst.JobId)
@@ -211,7 +211,7 @@ func resourceSQLJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	if listResp == nil || !listResp.IsSuccess {
-		return diag.Errorf("error query DLI sql job")
+		return diag.Errorf("error query DLI sql job: %s", listResp.Message)
 	}
 
 	if listResp.JobCount == 0 {
@@ -250,7 +250,7 @@ func resourceSQLJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if detail == nil || !detail.IsSuccess {
-		return diag.Errorf("error query DLI sql job")
+		return diag.Errorf("error query DLI sql job: %s", detail.Message)
 	}
 
 	if detail.Status != sqljob.JobStatusFinished &&
@@ -261,7 +261,7 @@ func resourceSQLJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.Errorf("cancel DLI sql job failed. %q:%s", jobId, err)
 		}
 		if cancelRst == nil || !cancelRst.IsSuccess {
-			return diag.Errorf("cancel DLI sql job failed. %q", jobId)
+			return diag.Errorf("cancel DLI sql job (%s) failed: %s", jobId, cancelRst.Message)
 		}
 	}
 

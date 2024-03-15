@@ -281,6 +281,9 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err error) {
 	if queueList, ok := body.(*queues.ListResult); ok {
 		log.Printf("[DEBUG]The list of queue from SDK:%+v", queueList)
+		if !queueList.IsSuccess {
+			return nil, fmt.Errorf("unable to query the queue list: %s", queueList.Message)
+		}
 
 		for _, v := range queueList.Queues {
 			if v.QueueName == queueName {
@@ -401,7 +404,13 @@ func validCuCount(val interface{}, key string) (warns []string, errs []error) {
 }
 
 func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr string) error {
-	_, err := queues.UpdateCidr(client, queueName, queues.UpdateCidrOpts{Cidr: cidr})
+	resp, err := queues.UpdateCidr(client, queueName, queues.UpdateCidrOpts{Cidr: cidr})
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess {
+		return fmt.Errorf("unable to update the VPC CIDR: %s", resp.Message)
+	}
 	return err
 }
 
@@ -410,7 +419,13 @@ func associateQueueToElasticResourcePool(cfg *config.Config, region string, opts
 	if err != nil {
 		return fmt.Errorf("error creating DLI V3 client: %s", err)
 	}
-	_, err = elasticresourcepool.AssociateQueue(client, opts)
+	resp, err := elasticresourcepool.AssociateQueue(client, opts)
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess {
+		return fmt.Errorf("unable to associate the queue to the elastic resource pool: %s", resp.Message)
+	}
 	return err
 }
 

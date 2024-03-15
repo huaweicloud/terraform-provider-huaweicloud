@@ -357,7 +357,7 @@ func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("delete DLI flink jar job failed. %q:%s", jobId, dErr)
 	}
 	if deleteRst != nil && !deleteRst.IsSuccess {
-		return diag.Errorf("delete DLI flink jar job failed. %q", jobId)
+		return diag.Errorf("delete DLI flink jar job (%d) failed: %s", jobId, deleteRst.Message)
 	}
 
 	return nil
