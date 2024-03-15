@@ -122,8 +122,7 @@ The following arguments are supported:
 * `datastore` - (Required, List, ForceNew) Specifies database information. The structure is described below. Changing
   this creates a new instance.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the ID of the availability zone. Changing this creates a
-  new instance.
+* `availability_zone` - (Required, String) Specifies the availability zone names separated by commas.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this creates a new instance.
 
