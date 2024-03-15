@@ -462,10 +462,7 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 
 	createDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: requestOpts.MoreHeaders,
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	createDwsClusterOpt.JSONBody = utils.RemoveNil(buildCreateDwsClusterBodyParams(d, cfg))
@@ -535,10 +532,7 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 
 	createDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: requestOpts.MoreHeaders,
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	createDwsClusterOpt.JSONBody = utils.RemoveNil(buildCreateDwsClusterBodyParamsV1(d, cfg))
@@ -682,10 +676,7 @@ func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, met
 
 			clusterWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-				MoreHeaders: requestOpts.MoreHeaders,
+				MoreHeaders:      requestOpts.MoreHeaders,
 			}
 
 			clusterWaitingResp, err := clusterWaitingClient.Request("GET", clusterWaitingPath,
@@ -760,10 +751,7 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: requestOpts.MoreHeaders,
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	getDwsClusterResp, err := getDwsClusterClient.Request("GET", getDwsClusterPath, &getDwsClusterOpt)
@@ -929,10 +917,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		expandInstanceStorageOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: requestOpts.MoreHeaders,
+			MoreHeaders:      requestOpts.MoreHeaders,
 		}
 
 		expandInstanceStorageOpt.JSONBody = utils.RemoveNil(buildExpandInstanceStorageBodyParams(d))
@@ -961,10 +946,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		resetPasswordOfClusterOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: requestOpts.MoreHeaders,
+			MoreHeaders:      requestOpts.MoreHeaders,
 		}
 
 		resetPasswordOfClusterOpt.JSONBody = utils.RemoveNil(buildResetPasswordOfClusterBodyParams(d))
@@ -994,10 +976,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		scaleOutClusterOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: requestOpts.MoreHeaders,
+			MoreHeaders:      requestOpts.MoreHeaders,
 		}
 
 		scaleOutClusterOpt.JSONBody = utils.RemoveNil(buildScaleOutClusterBodyParams(d))
@@ -1119,10 +1098,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	deleteDwsClusterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200, 202,
-		},
-		MoreHeaders: requestOpts.MoreHeaders,
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	deleteDwsClusterOpt.JSONBody = utils.RemoveNil(buildDeleteDwsClusterBodyParams(d))
@@ -1168,10 +1144,7 @@ func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceDat
 
 			deleteDwsClusterWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-				MoreHeaders: requestOpts.MoreHeaders,
+				MoreHeaders:      requestOpts.MoreHeaders,
 			}
 
 			deleteDwsClusterWaitingResp, err := deleteDwsClusterWaitingClient.Request("GET", deleteDwsClusterWaitingPath, &deleteDwsClusterWaitingOpt)
@@ -1260,10 +1233,7 @@ func addClusterTags(client *golangsdk.ServiceClient, clusterId string, rawTags [
 
 	addTagsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: requestOpts.MoreHeaders,
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 	addTagsOpt.JSONBody = map[string]interface{}{
 		"tags": rawTags,
@@ -1287,10 +1257,7 @@ func deleteClusterTags(client *golangsdk.ServiceClient, clusterId string, rawTag
 
 	deleteTagsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: requestOpts.MoreHeaders,
+		MoreHeaders:      requestOpts.MoreHeaders,
 	}
 
 	deleteTagsOpt.JSONBody = map[string]interface{}{

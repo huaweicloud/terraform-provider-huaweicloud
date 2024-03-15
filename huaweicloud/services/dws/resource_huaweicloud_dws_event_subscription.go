@@ -125,9 +125,6 @@ func resourceDwsEventSubsCreate(ctx context.Context, d *schema.ResourceData, met
 	createDwsEventSubsOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	createDwsEventSubsOpt.JSONBody = utils.RemoveNil(buildCreateDwsEventSubsBodyParams(d))
 	createDwsEventSubsResp, err := createDwsEventSubsClient.Request("POST", createDwsEventSubsPath, &createDwsEventSubsOpt)
@@ -262,9 +259,6 @@ func resourceDwsEventSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 		updateDwsEventSubsOpt := golangsdk.RequestOpts{
 			MoreHeaders:      requestOpts.MoreHeaders,
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateDwsEventSubsOpt.JSONBody = utils.RemoveNil(buildUpdateDwsEventSubsBodyParams(d))
 		_, err = updateDwsEventSubsClient.Request("PUT", updateDwsEventSubsPath, &updateDwsEventSubsOpt)
@@ -311,9 +305,6 @@ func resourceDwsEventSubsDelete(_ context.Context, d *schema.ResourceData, meta 
 	deleteDwsEventSubsOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	_, err = deleteDwsEventSubsClient.Request("DELETE", deleteDwsEventSubsPath, &deleteDwsEventSubsOpt)
 	if err != nil {

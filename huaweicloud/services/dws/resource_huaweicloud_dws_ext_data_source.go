@@ -151,9 +151,6 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 	createDwsExtDataSourceOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	createDwsExtDataSourceOpt.JSONBody = utils.RemoveNil(buildCreateDwsExtDataSourceBodyParams(d))
 	createDwsExtDataSourceResp, err := createDwsExtDataSourceClient.Request("POST", createDwsExtDataSourcePath,
@@ -252,9 +249,6 @@ func GetExtDataSource(cfg *config.Config, region string, d *schema.ResourceData,
 	getDwsExtDataSourceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      requestOpts.MoreHeaders,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getDwsExtDataSourceResp, err := getDwsExtDataSourceClient.Request("GET", getDwsExtDataSourcePath, &getDwsExtDataSourceOpt)
 
@@ -301,9 +295,6 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 		updateDwsExtDataSourceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			MoreHeaders:      requestOpts.MoreHeaders,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateDwsExtDataSourceOpt.JSONBody = utils.RemoveNil(buildUpdateDwsExtDataSourceBodyParams(d))
 		updateDwsExtDataSourceResp, err := updateDwsExtDataSourceClient.Request("PUT", updateDwsExtDataSourcePath, &updateDwsExtDataSourceOpt)
@@ -362,9 +353,6 @@ func resourceDwsExtDataSourceDelete(ctx context.Context, d *schema.ResourceData,
 	deleteDwsExtDataSourceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      requestOpts.MoreHeaders,
-		OkCodes: []int{
-			200,
-		},
 	}
 	deleteDwsExtDataSourceResp, err := deleteDwsExtDataSourceClient.Request("DELETE", deleteDwsExtDataSourcePath, &deleteDwsExtDataSourceOpt)
 	if err != nil {
@@ -449,9 +437,6 @@ func extDataSourceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			extDataSourceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
 				MoreHeaders:      requestOpts.MoreHeaders,
-				OkCodes: []int{
-					200,
-				},
 			}
 			extDataSourceWaitingResp, err := extDataSourceWaitingClient.Request("GET", extDataSourceWaitingPath, &extDataSourceWaitingOpt)
 			if err != nil {

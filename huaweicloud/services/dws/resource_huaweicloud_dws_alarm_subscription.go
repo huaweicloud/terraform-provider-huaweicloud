@@ -107,9 +107,6 @@ func resourceDwsAlarmSubsCreate(ctx context.Context, d *schema.ResourceData, met
 	createDwsAlarmSubsOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	createDwsAlarmSubsOpt.JSONBody = utils.RemoveNil(buildCreateDwsAlarmSubsBodyParams(d))
 	createDwsAlarmSubsResp, err := createDwsAlarmSubsClient.Request("POST", createDwsAlarmSubsPath, &createDwsAlarmSubsOpt)
@@ -235,9 +232,6 @@ func resourceDwsAlarmSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 		updateDwsAlarmSubsOpt := golangsdk.RequestOpts{
 			MoreHeaders:      requestOpts.MoreHeaders,
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateDwsAlarmSubsOpt.JSONBody = utils.RemoveNil(buildUpdateDwsAlarmSubsBodyParams(d))
 		_, err = updateDwsAlarmSubsClient.Request("PUT", updateDwsAlarmSubsPath, &updateDwsAlarmSubsOpt)
