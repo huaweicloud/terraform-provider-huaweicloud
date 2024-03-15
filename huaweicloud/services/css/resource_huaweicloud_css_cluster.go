@@ -968,6 +968,10 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 			nodeConfigMap[nodeType] = map[string]interface{}{
 				"flavor":          v.SpecCode,
 				"instance_number": 1,
+				"volume": []interface{}{map[string]interface{}{
+					"size":        v.Volume.Size,
+					"volume_type": v.Volume.Type,
+				}},
 			}
 		}
 	}
@@ -980,12 +984,14 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 		switch k {
 		case InstanceTypeEss:
 			// old version nodeConfig, NO volume return, so get from state
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
 			nodeConfig := map[string]interface{}{
 				"flavor":            v["flavor"],
 				"availability_zone": az,
 				"volume": []interface{}{map[string]interface{}{
-					"size":        d.Get("node_config.0.volume.0.size").(int),
-					"volume_type": d.Get("node_config.0.volume.0.volume_type").(string),
+					"size":        *volumeSize,
+					"volume_type": *volumeType,
 				}},
 				"network_info": []interface{}{map[string]interface{}{
 					"vpc_id":            detail.VpcId,
@@ -995,36 +1001,50 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 			}
 
 			// NO volume return, so get from state
-			v["volume"] = []interface{}{map[string]interface{}{
-				"size":        d.Get("ess_node_config.0.volume.0.size").(int),
-				"volume_type": d.Get("ess_node_config.0.volume.0.volume_type").(string),
-			}}
+			if *volumeSize == 0 && *volumeType == "" {
+				v["volume"] = []interface{}{map[string]interface{}{
+					"size":        d.Get("ess_node_config.0.volume.0.size").(int),
+					"volume_type": d.Get("ess_node_config.0.volume.0.volume_type").(string),
+				}}
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("node_config", []interface{}{nodeConfig}),
 				d.Set("ess_node_config", []interface{}{v}),
 				d.Set("expect_node_num", v["instance_number"]),
 			)
 		case InstanceTypeEssMaster:
-			v["volume"] = []interface{}{map[string]interface{}{
-				"size":        d.Get("master_node_config.0.volume.0.size").(int),
-				"volume_type": d.Get("master_node_config.0.volume.0.volume_type").(string),
-			}}
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
+			if *volumeSize == 0 && *volumeType == "" {
+				v["volume"] = []interface{}{map[string]interface{}{
+					"size":        d.Get("master_node_config.0.volume.0.size").(int),
+					"volume_type": d.Get("master_node_config.0.volume.0.volume_type").(string),
+				}}
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("master_node_config", []interface{}{v}),
 			)
 		case InstanceTypeEssClient:
-			v["volume"] = []interface{}{map[string]interface{}{
-				"size":        d.Get("client_node_config.0.volume.0.size").(int),
-				"volume_type": d.Get("client_node_config.0.volume.0.volume_type").(string),
-			}}
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
+			if *volumeSize == 0 && *volumeType == "" {
+				v["volume"] = []interface{}{map[string]interface{}{
+					"size":        d.Get("client_node_config.0.volume.0.size").(int),
+					"volume_type": d.Get("client_node_config.0.volume.0.volume_type").(string),
+				}}
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("client_node_config", []interface{}{v}),
 			)
 		case InstanceTypeEssCold:
-			v["volume"] = []interface{}{map[string]interface{}{
-				"size":        d.Get("cold_node_config.0.volume.0.size").(int),
-				"volume_type": d.Get("cold_node_config.0.volume.0.volume_type").(string),
-			}}
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
+			if *volumeSize == 0 && *volumeType == "" {
+				v["volume"] = []interface{}{map[string]interface{}{
+					"size":        d.Get("cold_node_config.0.volume.0.size").(int),
+					"volume_type": d.Get("cold_node_config.0.volume.0.volume_type").(string),
+				}}
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("cold_node_config", []interface{}{v}),
 			)
