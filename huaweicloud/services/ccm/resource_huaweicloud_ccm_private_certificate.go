@@ -19,10 +19,10 @@ import (
 )
 
 // @API CCM POST /v1/private-certificates
-// @API CCM POST /v1/private-certificates/{id}/tags/create
-// @API CCM DELETE /v1/private-certificates/{id}/tags/delete
+// @API CCM POST /v1/private-certificates/{certificate_id}/tags/create
+// @API CCM DELETE /v1/private-certificates/{certificate_id}/tags/delete
 // @API CCM GET /v1/private-certificates/{certificate_id}
-// @API CCM GET /v1/private-certificates/{id}/tags
+// @API CCM GET /v1/private-certificates/{certificate_id}/tags
 // @API CCM DELETE /v1/private-certificates/{certificate_id}
 func ResourceCcmPrivateCertificate() *schema.Resource {
 	return &schema.Resource{
@@ -273,9 +273,9 @@ func resourceCcmPrivateCertificateCreate(ctx context.Context, d *schema.Resource
 	d.SetId(id.(string))
 
 	// deal tags
-	createTagsHttpUrl := "v1/private-certificates/{id}/tags/create"
+	createTagsHttpUrl := "v1/private-certificates/{certificate_id}/tags/create"
 	tags := d.Get("tags").(map[string]interface{})
-	if err := createTags(id.(string), client, tags, createTagsHttpUrl); err != nil {
+	if err := createTags(id.(string), client, tags, createTagsHttpUrl, "{certificate_id}"); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -370,16 +370,16 @@ func resourceCcmPrivateCertificateUpdate(_ context.Context, d *schema.ResourceDa
 
 		// remove old tags
 		if len(oMap) > 0 {
-			deleteTagsHttpUrl := "v1/private-certificates/{id}/tags/delete"
-			if err = deleteTags(d.Id(), client, oMap, deleteTagsHttpUrl); err != nil {
+			deleteTagsHttpUrl := "v1/private-certificates/{certificate_id}/tags/delete"
+			if err = deleteTags(d.Id(), client, oMap, deleteTagsHttpUrl, "{certificate_id}"); err != nil {
 				return diag.FromErr(err)
 			}
 		}
 
 		// set new tags
 		if len(nMap) > 0 {
-			createTagsHttpUrl := "v1/private-certificates/{id}/tags/create"
-			if err := createTags(d.Id(), client, nMap, createTagsHttpUrl); err != nil {
+			createTagsHttpUrl := "v1/private-certificates/{certificate_id}/tags/create"
+			if err := createTags(d.Id(), client, nMap, createTagsHttpUrl, "{certificate_id}"); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -417,8 +417,8 @@ func resourceCcmPrivateCertificateRead(_ context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	getTagsHttpUrl := "v1/private-certificates/{id}/tags"
-	tags, err := getTags(d.Id(), client, getTagsHttpUrl)
+	getTagsHttpUrl := "v1/private-certificates/{certificate_id}/tags"
+	tags, err := getTags(d.Id(), client, getTagsHttpUrl, "{certificate_id}")
 	if err != nil {
 		return diag.FromErr(err)
 	}
