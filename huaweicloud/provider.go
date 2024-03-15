@@ -906,6 +906,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_service_group_member": cfw.ResourceServiceGroupMember(),
 			"huaweicloud_cfw_firewall":             cfw.ResourceFirewall(),
 			"huaweicloud_cfw_domain_name_group":    cfw.ResourceDomainNameGroup(),
+			"huaweicloud_cfw_lts_log":              cfw.ResourceLtsLog(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
