@@ -74,5 +74,5 @@ output "character_set_filter_is_useful" {
   [for v in data.huaweicloud_rds_mysql_databases.character_set_filter.databases[*].character_set : v == local.character_set]
   )
 }
-`, testMysqlDatabase_basic(name, "", "test_database"))
+`, testMysqlDatabase_basic(name, "test_database"))
 }

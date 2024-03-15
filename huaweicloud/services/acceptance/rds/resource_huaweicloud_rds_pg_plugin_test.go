@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -57,8 +56,6 @@ func TestAccPgPlugin_basic(t *testing.T) {
 	var obj interface{}
 
 	randName := acceptance.RandomAccResourceName()
-	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
-		acctest.RandIntRange(10, 99))
 
 	resourceName := "huaweicloud_rds_pg_plugin.test"
 
@@ -74,7 +71,7 @@ func TestAccPgPlugin_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testPgPlugin_basic(randName, pwd),
+				Config: testPgPlugin_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_rds_instance.test", "id"),
@@ -93,7 +90,7 @@ func TestAccPgPlugin_basic(t *testing.T) {
 	})
 }
 
-func testPgPlugin_basic(randName, pwd string) string {
+func testPgPlugin_basic(randName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -102,5 +99,5 @@ resource "huaweicloud_rds_pg_plugin" "test" {
   name          = "pgl_ddl_deploy"
   database_name = "postgres"
 }
-`, testAccRdsInstance_basic(randName, pwd))
+`, testAccRdsInstance_basic(randName))
 }

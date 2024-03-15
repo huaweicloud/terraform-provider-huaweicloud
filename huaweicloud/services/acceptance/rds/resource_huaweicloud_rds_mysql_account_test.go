@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -75,8 +74,6 @@ func TestAccMysqlAccount_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_rds_mysql_account.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -90,7 +87,7 @@ func TestAccMysqlAccount_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testMysqlAccount_basic(name, dbPwd),
+				Config: testMysqlAccount_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -101,7 +98,7 @@ func TestAccMysqlAccount_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testMysqlAccount_basic_update(name, dbPwd),
+				Config: testMysqlAccount_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -121,7 +118,7 @@ func TestAccMysqlAccount_basic(t *testing.T) {
 	})
 }
 
-func testMysqlAccount_basic(name, dbPwd string) string {
+func testMysqlAccount_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -135,10 +132,10 @@ resource "huaweicloud_rds_mysql_account" "test" {
     "10.10.%%"
   ]
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), name)
+`, testAccRdsInstance_mysql_step1(name), name)
 }
 
-func testMysqlAccount_basic_update(name, dbPwd string) string {
+func testMysqlAccount_basic_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -152,5 +149,5 @@ resource "huaweicloud_rds_mysql_account" "test" {
     "10.10.%%"
   ]
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd), name)
+`, testAccRdsInstance_mysql_step1(name), name)
 }

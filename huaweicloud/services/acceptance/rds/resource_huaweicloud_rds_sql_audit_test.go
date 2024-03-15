@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -60,8 +59,6 @@ func TestAccSQLAudit_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_rds_sql_audit.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -75,7 +72,7 @@ func TestAccSQLAudit_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testSQLAudit_basic(name, dbPwd),
+				Config: testSQLAudit_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -85,7 +82,7 @@ func TestAccSQLAudit_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testSQLAudit_basic_update(name, dbPwd),
+				Config: testSQLAudit_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -103,7 +100,7 @@ func TestAccSQLAudit_basic(t *testing.T) {
 	})
 }
 
-func testSQLAudit_basic(name, dbPwd string) string {
+func testSQLAudit_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -117,10 +114,10 @@ resource "huaweicloud_rds_sql_audit" "test" {
     "PREPARED_STATEMENT"
   ]
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd))
+`, testAccRdsInstance_mysql_step1(name))
 }
 
-func testSQLAudit_basic_update(name, dbPwd string) string {
+func testSQLAudit_basic_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -135,5 +132,5 @@ resource "huaweicloud_rds_sql_audit" "test" {
     "BEGIN/COMMIT/ROLLBACK"
   ]
 }
-`, testAccRdsInstance_mysql_step1(name, dbPwd))
+`, testAccRdsInstance_mysql_step1(name))
 }

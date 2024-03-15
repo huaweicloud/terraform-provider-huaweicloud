@@ -113,5 +113,5 @@ resource "huaweicloud_rds_sqlserver_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%s"
 }
-`, testAccRdsInstance_sqlserver(name, "Test@123456789"), name)
+`, testAccRdsInstance_sqlserver(name), name)
 }
