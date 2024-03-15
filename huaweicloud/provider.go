@@ -470,9 +470,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_template_detail": dcs.DataSourceTemplateDetail(),
 			"huaweicloud_dcs_backups":         dcs.DataSourceBackups(),
 
-			"huaweicloud_dds_flavors":       dds.DataSourceDDSFlavorV3(),
-			"huaweicloud_dds_instances":     dds.DataSourceDdsInstance(),
-			"huaweicloud_dds_storage_types": dds.DataSourceDdsStorageTypes(),
+			"huaweicloud_dds_flavors":             dds.DataSourceDDSFlavorV3(),
+			"huaweicloud_dds_instances":           dds.DataSourceDdsInstance(),
+			"huaweicloud_dds_parameter_templates": dds.DataSourceDdsParameterTemplates(),
+			"huaweicloud_dds_storage_types":       dds.DataSourceDdsStorageTypes(),
 
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
