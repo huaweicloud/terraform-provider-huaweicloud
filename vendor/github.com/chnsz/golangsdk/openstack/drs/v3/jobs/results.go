@@ -62,6 +62,7 @@ type JobDetail struct {
 	SchemaType               string             `json:"schema_type"`
 	NodeNum                  string             `json:"node_num"`
 	ObjectSwitch             bool               `json:"object_switch"`
+	ObjectInfos              []ObjectInfo       `json:"object_infos"`
 	MasterJobId              string             `json:"master_job_id"`
 	FullMode                 string             `json:"full_mode"`
 	StructTrans              bool               `json:"struct_trans"`
@@ -93,6 +94,14 @@ type InstInfo struct {
 	StartTime  string `json:"start_time"`
 	Status     string `json:"status"`
 	VolumeSize int    `json:"volume_size"`
+}
+
+type ObjectInfo struct {
+	Id        string `json:"id"`
+	ParentId  string `json:"parent_id"`
+	Type      string `json:"type"`
+	Name      string `json:"name"`
+	AliasName string `json:"alias_name"`
 }
 
 type DefaultRootDb struct {
@@ -184,7 +193,7 @@ type JobInfo struct {
 }
 
 type ChildrenJobInfo struct {
-	BillingTag       string `json:"billing_tag"`
+	BillingTag       bool   `json:"billing_tag"`
 	CreateTime       string `json:"create_time"`
 	DbUseType        string `json:"db_use_type"`
 	Description      string `json:"description"`
@@ -194,7 +203,7 @@ type ChildrenJobInfo struct {
 	JobDirection     string `json:"job_direction"`
 	Name             string `json:"name"`
 	NetType          string `json:"net_type"`
-	NodeNewFramework string `json:"node_newFramework"`
+	NodeNewFramework bool   `json:"node_newFramework"`
 	Status           string `json:"status"`
 	TaskType         string `json:"task_type"`
 }

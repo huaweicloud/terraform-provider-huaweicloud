@@ -22,6 +22,10 @@ func getURL(sc *golangsdk.ServiceClient, domainId string) string {
 	return sc.ServiceURL(rootPath, domainId, "detail")
 }
 
+func getDetailURL(sc *golangsdk.ServiceClient, domainName string) string {
+	return sc.ServiceURL("cdn/configuration/domains", domainName)
+}
+
 func enableURL(sc *golangsdk.ServiceClient, domainId string) string {
 	return sc.ServiceURL(rootPath, domainId, "enable")
 }

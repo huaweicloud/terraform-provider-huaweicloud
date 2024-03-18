@@ -45,6 +45,7 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/configurations
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/collations
@@ -52,6 +53,7 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/password
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -280,6 +282,11 @@ func ResourceRdsInstance() *schema.Resource {
 
 			"ssl_enable": {
 				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"binlog_retention_hours": {
+				Type:     schema.TypeInt,
 				Optional: true,
 			},
 
@@ -529,6 +536,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if err = updateBinlogRetentionHours(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -678,6 +689,14 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	if err := d.Set("nodes", nodes); err != nil {
 		return diag.Errorf("error saving nodes to RDS instance (%s): %s", instanceID, err)
+	}
+
+	if isMySQLDatabase(d) {
+		binlogRetentionHours, err := instances.GetBinlogRetentionHours(client, instanceID).Extract()
+		if err != nil {
+			return diag.Errorf("error getting RDS binlog retention hours: %s", err)
+		}
+		d.Set("binlog_retention_hours", binlogRetentionHours.BinlogRetentionHours)
 	}
 
 	return setRdsInstanceParameters(ctx, d, client, instanceID)
@@ -850,6 +869,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateVolumeAutoExpand(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateBinlogRetentionHours(d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1602,6 +1625,23 @@ func updateVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client 
 			return err
 		}
 	}
+	return nil
+}
+
+func updateBinlogRetentionHours(d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("binlog_retention_hours") {
+		return nil
+	}
+
+	binlogRetentionHoursOpts := instances.ModifyBinlogRetentionHoursOpts{
+		BinlogRetentionHours: d.Get("binlog_retention_hours").(int),
+	}
+	r := instances.ModifyBinlogRetentionHours(client, binlogRetentionHoursOpts, instanceID)
+	if r.Result.Err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) binlog retention hours: %s", instanceID, r.Err)
+	}
+
 	return nil
 }
 

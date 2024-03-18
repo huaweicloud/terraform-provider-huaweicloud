@@ -45,3 +45,7 @@ func actionURL(c *golangsdk.ServiceClient, instancesId string) string {
 func autoExpandURL(c *golangsdk.ServiceClient, instancesId string) string {
 	return c.ServiceURL("instances", instancesId, "disk-auto-expansion")
 }
+
+func binlogRetentionHoursURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL("instances", instancesId, "binlog/clear-policy")
+}

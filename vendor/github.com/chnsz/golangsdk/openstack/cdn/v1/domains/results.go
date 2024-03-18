@@ -59,6 +59,45 @@ type CdnDomain struct {
 	ModifyTime time.Time `json:"-"`
 }
 
+type DomainSourcesDetail struct {
+	OriginType          string `json:"origin_type"`
+	OriginAddr          string `json:"origin_addr"`
+	Priority            int    `json:"priority"`
+	ObsWebHostingStatus string `json:"obs_web_hosting_status"`
+	HttpPort            int    `json:"http_port"`
+	HttpsPort           int    `json:"https_port"`
+	HostName            string `json:"host_name"`
+	ObsBucketType       string `json:"obs_bucket_type"`
+}
+
+// CdnDomainDetail represents a CDN domain by domain name
+type CdnDomainDetail struct {
+	// the acceleration domain name ID
+	ID string `json:"id"`
+	// the acceleration domain name
+	DomainName string `json:"domain_name"`
+	// the service type, valid values are web, download, video and wholeSite
+	BusinessType string `json:"business_type"`
+	// the status of the acceleration domain name.
+	DomainStatus string `json:"domain_status"`
+	// the CNAME of the acceleration domain name
+	CName string `json:"cname"`
+	// the sources of the domain.
+	Sources []DomainSourcesDetail `json:"sources"`
+	// whether the HTTPS certificate is enabled
+	HttpsStatus int `json:"https_status"`
+	// time when the domain name was created.
+	CreateTime int `json:"create_time"`
+	// time when the domain name was modified.
+	UpdateTime int `json:"update_time"`
+	// whether the domain name is banned. Possible values: 0 (not banned) and 1 (banned).
+	Disabled int `json:"disabled"`
+	// whether the domain name is locked. Possible values: 0 (not locked) and 1 (locked).
+	Locked int `json:"locked"`
+	// service area of the CDN service. Valid values are mainland_china, outside_mainland_china, and global.
+	ServiceArea string `json:"service_area"`
+}
+
 type PrivateBucketAccessStatus struct {
 	Status    bool      `json:"status"`
 	ErrorResp ErrorResp `json:"error"`
@@ -108,6 +147,16 @@ func (r GetResult) Extract() (*CdnDomain, error) {
 
 func (r GetResult) ExtractInto(v interface{}) error {
 	return r.Result.ExtractIntoStructPtr(v, "domain")
+}
+
+type GetDetailResult struct {
+	commonResult
+}
+
+func (r GetDetailResult) Extract() (*CdnDomainDetail, error) {
+	var domain CdnDomainDetail
+	err := r.Result.ExtractIntoStructPtr(&domain, "domain")
+	return &domain, err
 }
 
 // CreateResult is the result of a Create request.
