@@ -1157,7 +1157,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_amqp":                iotda.ResourceAmqp(),
 			"huaweicloud_iotda_device_certificate":  iotda.ResourceDeviceCertificate(),
 			"huaweicloud_iotda_device_linkage_rule": iotda.ResourceDeviceLinkageRule(),
-			"huaweicloud_iotda_batchtask_file":      iotda.ResourceBatchTaskFile(),
 			"huaweicloud_iotda_upgrade_package":     iotda.ResourceUpgradePackage(),
 			"huaweicloud_iotda_batchtask":           iotda.ResourceBatchTask(),
 
@@ -1619,6 +1618,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpnaas_ipsec_policy":    deprecated.ResourceVpnIPSecPolicyV2(),
 			"huaweicloud_vpnaas_service":         deprecated.ResourceVpnServiceV2(),
 			"huaweicloud_vpnaas_site_connection": deprecated.ResourceVpnSiteConnectionV2(),
+
+			"huaweicloud_iotda_batchtask_file": deprecated.ResourceBatchTaskFile(),
 		},
 	}
 

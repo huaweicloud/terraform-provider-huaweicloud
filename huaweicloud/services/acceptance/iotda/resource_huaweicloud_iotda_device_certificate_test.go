@@ -15,7 +15,7 @@ import (
 )
 
 func getDeviceCertificateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, withDerivedAuth())
+	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
 	if err != nil {
 		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
 	}

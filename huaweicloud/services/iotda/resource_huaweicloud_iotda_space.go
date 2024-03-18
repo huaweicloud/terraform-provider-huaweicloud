@@ -56,7 +56,7 @@ func ResourceSpace() *schema.Resource {
 func resourceSpaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -85,7 +85,7 @@ func resourceSpaceCreate(ctx context.Context, d *schema.ResourceData, meta inter
 func resourceSpaceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -108,7 +108,7 @@ func resourceSpaceRead(_ context.Context, d *schema.ResourceData, meta interface
 func resourceSpaceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)

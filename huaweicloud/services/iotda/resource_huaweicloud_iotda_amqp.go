@@ -55,7 +55,7 @@ func ResourceAmqp() *schema.Resource {
 func resourceAmqpCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -84,7 +84,7 @@ func resourceAmqpCreate(ctx context.Context, d *schema.ResourceData, meta interf
 func resourceAmqpRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -111,7 +111,7 @@ func resourceAmqpRead(_ context.Context, d *schema.ResourceData, meta interface{
 func resourceAmqpDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)

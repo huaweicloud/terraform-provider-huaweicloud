@@ -88,7 +88,7 @@ func ResourceDeviceGroup() *schema.Resource {
 func resourceDeviceGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -127,7 +127,7 @@ func resourceDeviceGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 func resourceDeviceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -152,7 +152,7 @@ func resourceDeviceGroupRead(_ context.Context, d *schema.ResourceData, meta int
 func resourceDeviceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -198,7 +198,7 @@ func resourceDeviceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta
 func resourceDeviceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
