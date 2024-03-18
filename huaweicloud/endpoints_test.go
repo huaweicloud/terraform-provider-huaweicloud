@@ -353,6 +353,46 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	t.Logf("DRS endpoint:\t %s", actualURL)
 }
 
+func TestAccServiceEndpoints_GaussDBForMySQL(t *testing.T) {
+	testProvider := Provider()
+	raw := make(map[string]interface{})
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Summary)
+	}
+
+	var expectedURL, actualURL string
+	var serviceClient *golangsdk.ServiceClient
+	var err error
+	cfg := testProvider.Meta().(*config.Config)
+
+	// test the endpoint of gaussdb service in cn-north-4
+	region := "cn-north-4"
+	serviceClient, err = cfg.GaussdbV3Client(region)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://gaussdb.%s.%s/", region, cfg.Cloud)
+	actualURL = serviceClient.Endpoint
+	if actualURL != expectedURL {
+		t.Fatalf("gaussdb endpoint in %s: expected %s but got %s", region, green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("gaussdb endpoint in %s:\t %s", region, actualURL)
+
+	// test the endpoint of gaussdb service in ap-southeast-1
+	region = "ap-southeast-1"
+	serviceClient, err = cfg.GaussdbV3Client(region)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://gaussdbformysql.%s.%s/", region, cfg.Cloud)
+	actualURL = serviceClient.Endpoint
+	if actualURL != expectedURL {
+		t.Fatalf("gaussdb endpoint in %s: expected %s but got %s", region, green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("gaussdb endpoint in %s:\t %s", region, actualURL)
+}
+
 func TestAccServiceEndpoints_Security(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 

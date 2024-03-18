@@ -307,6 +307,10 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 	if !ok {
 		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
 	}
+	// update the service catalog name if necessary
+	if name := getServiceCatalogNameByRegion(srv, region); name != "" {
+		serviceCatalog.Name = name
+	}
 
 	if !c.SecurityKeyExpiresAt.IsZero() {
 		c.SecurityKeyLock.Lock()
