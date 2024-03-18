@@ -17,6 +17,9 @@ type ExtensionsResponse struct {
 	// 插件版本。
 	Version *string `json:"version,omitempty"`
 
+	// 可更新插件版本
+	VersionUpdate *string `json:"version_update,omitempty"`
+
 	// 依赖预加载库。
 	SharedPreloadLibraries *string `json:"shared_preload_libraries,omitempty"`
 

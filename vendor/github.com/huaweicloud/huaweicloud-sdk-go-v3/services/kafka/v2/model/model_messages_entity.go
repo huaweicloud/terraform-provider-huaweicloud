@@ -23,14 +23,14 @@ type MessagesEntity struct {
 	// 消息大小。
 	Size *int32 `json:"size,omitempty"`
 
-	// topic名称。
+	// 生产消息的时间。 格式为Unix时间戳。单位为毫秒。
 	Timestamp *int64 `json:"timestamp,omitempty"`
 
 	// 大数据标识。
 	HugeMessage *bool `json:"huge_message,omitempty"`
 
 	// 消息偏移量。
-	MessageOffset *int32 `json:"message_offset,omitempty"`
+	MessageOffset *int64 `json:"message_offset,omitempty"`
 
 	// 消息ID。
 	MessageId *string `json:"message_id,omitempty"`

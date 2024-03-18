@@ -8,22 +8,22 @@ import (
 
 type TempDetailInfo struct {
 
-	// description
+	// 描述
 	Description *string `json:"description,omitempty"`
 
-	// id
+	// 事务id
 	Id *int32 `json:"id,omitempty"`
 
 	// 是否被引用
 	IsQuoted *bool `json:"is_quoted,omitempty"`
 
-	// name
+	// 事务名称
 	Name *string `json:"name,omitempty"`
 
-	// temp_type
+	// 事务类型（已弃用，兼容性保留）
 	TempType *int32 `json:"temp_type,omitempty"`
 
-	// update_time
+	// 更新时间
 	UpdateTime *string `json:"update_time,omitempty"`
 }
 

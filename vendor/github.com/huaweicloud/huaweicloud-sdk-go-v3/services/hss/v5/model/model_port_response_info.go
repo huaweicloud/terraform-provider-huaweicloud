@@ -29,6 +29,12 @@ type PortResponseInfo struct {
 
 	// 程序文件
 	Path *string `json:"path,omitempty"`
+
+	// agent id
+	AgentId *string `json:"agent_id,omitempty"`
+
+	// 容器id
+	ContainerId *string `json:"container_id,omitempty"`
 }
 
 func (o PortResponseInfo) String() string {

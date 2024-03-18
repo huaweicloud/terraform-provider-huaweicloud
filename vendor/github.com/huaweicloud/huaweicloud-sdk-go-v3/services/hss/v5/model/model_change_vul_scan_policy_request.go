@@ -9,7 +9,7 @@ import (
 // ChangeVulScanPolicyRequest Request Object
 type ChangeVulScanPolicyRequest struct {
 
-	// 企业租户ID，查询所有企业项目时填写：all_granted_eps
+	// 企业租户ID，注：修改漏洞扫描策略将影响租户账号下所有主机的漏洞扫描行为，因此开通了多企业项目的用户，该参数须填写“all_granted_eps”才能执行漏洞策略修改。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	Body *ChangeVulScanPolicyRequestInfo `json:"body,omitempty"`

@@ -35,7 +35,22 @@ type ShowAssetStatisticResponse struct {
 
 	// 内核模块数量
 	KernelModuleNum *int64 `json:"kernel_module_num,omitempty"`
-	HttpStatusCode  int    `json:"-"`
+
+	// web服务数量
+	WebServiceNum *int64 `json:"web_service_num,omitempty"`
+
+	// web应用数量
+	WebAppNum *int64 `json:"web_app_num,omitempty"`
+
+	// 数据库数量
+	DatabaseNum *int64 `json:"database_num,omitempty"`
+
+	// 关键配置文件数量
+	CoreConfFileNum *int64 `json:"core_conf_file_num,omitempty"`
+
+	// 环境变量数量
+	EnvironmentNum *int64 `json:"environment_num,omitempty"`
+	HttpStatusCode int    `json:"-"`
 }
 
 func (o ShowAssetStatisticResponse) String() string {

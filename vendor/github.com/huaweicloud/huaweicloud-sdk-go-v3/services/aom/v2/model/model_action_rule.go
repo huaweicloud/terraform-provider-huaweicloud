@@ -12,7 +12,7 @@ import (
 // ActionRule 告警行动规则
 type ActionRule struct {
 
-	// 规则名称
+	// 规则名称 只含有汉字数字、字母、下划线，不能以下划线等特殊符号开头和结尾，长度为 1 - 100
 	RuleName string `json:"rule_name"`
 
 	// 项目ID
@@ -21,7 +21,7 @@ type ActionRule struct {
 	// 子账号名称
 	UserName string `json:"user_name"`
 
-	// 规则描述
+	// 规则描述。规则描述长度为0到1024个字符，并且只能是数字、字母、特殊字符（_*）、空格和中文组成，不能以下划线开头和结尾。
 	Desc *string `json:"desc,omitempty"`
 
 	// 规则类型。\"1\"：通知，\"2\"：用户
@@ -64,10 +64,10 @@ type ActionRuleTypeEnum struct {
 func GetActionRuleTypeEnum() ActionRuleTypeEnum {
 	return ActionRuleTypeEnum{
 		E_1: ActionRuleType{
-			value: "\"1\"",
+			value: "1",
 		},
 		E_2: ActionRuleType{
-			value: "\"2\"",
+			value: "2",
 		},
 	}
 }

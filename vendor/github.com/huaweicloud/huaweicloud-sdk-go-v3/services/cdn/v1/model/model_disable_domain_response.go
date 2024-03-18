@@ -8,8 +8,10 @@ import (
 
 // DisableDomainResponse Response Object
 type DisableDomainResponse struct {
-	Domain         *DomainsWithPort `json:"domain,omitempty"`
-	HttpStatusCode int              `json:"-"`
+	Domain *DomainsWithPort `json:"domain,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o DisableDomainResponse) String() string {

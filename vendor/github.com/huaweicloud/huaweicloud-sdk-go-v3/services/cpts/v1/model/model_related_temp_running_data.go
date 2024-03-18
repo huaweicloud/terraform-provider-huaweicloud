@@ -8,19 +8,22 @@ import (
 
 type RelatedTempRunningData struct {
 
-	// task_run_info_id
+	// 运行任务id，即报告id。启动任务（更新任务状态或批量启停任务）接口，会返回运行任务id。
 	TaskRunInfoId *int32 `json:"task_run_info_id,omitempty"`
 
-	// related_temp_running_id
+	// 运行用例id。对应其他（如报告）接口的运行用例id（case_run_id）。
 	RelatedTempRunningId *int32 `json:"related_temp_running_id,omitempty"`
 
-	// temp_id
+	// 用例id
 	TempId *int32 `json:"temp_id,omitempty"`
 
-	// temp_name
+	// 用例名称
 	TempName *string `json:"temp_name,omitempty"`
 
-	// related_temp_running_data
+	// 请求信息，包括请求名称，方法，url信息
+	ContentMethodUrl *[]string `json:"content_method_url,omitempty"`
+
+	// 最近一次运行的报告简略信息
 	RelatedTempRunningData *[]TempRunningData `json:"related_temp_running_data,omitempty"`
 }
 

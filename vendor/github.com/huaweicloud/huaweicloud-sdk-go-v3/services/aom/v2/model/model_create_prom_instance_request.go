@@ -8,7 +8,11 @@ import (
 
 // CreatePromInstanceRequest Request Object
 type CreatePromInstanceRequest struct {
-	Body *PromInstanceEpsModel `json:"body,omitempty"`
+
+	// Prometheus实例所属Region，一般为承载REST服务端点的服务器域名或IP，不同服务不同区域的名称不同。
+	Region string `json:"region"`
+
+	Body *PromInstanceRequestModel `json:"body,omitempty"`
 }
 
 func (o CreatePromInstanceRequest) String() string {

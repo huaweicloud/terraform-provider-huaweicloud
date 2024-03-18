@@ -17,7 +17,7 @@ type Event2alarmRuleBodyTriggerPolicies struct {
 	// 事件名称
 	Name *string `json:"name,omitempty"`
 
-	// 触发类型
+	// 触发类型。accumulative: 累计触发，immediately: 立即触发
 	TriggerType *Event2alarmRuleBodyTriggerPoliciesTriggerType `json:"trigger_type,omitempty"`
 
 	// 触发周期
@@ -48,7 +48,7 @@ type Event2alarmRuleBodyTriggerPoliciesTriggerType struct {
 
 type Event2alarmRuleBodyTriggerPoliciesTriggerTypeEnum struct {
 	ACCUMULATIVE Event2alarmRuleBodyTriggerPoliciesTriggerType
-	NOTIFICATION Event2alarmRuleBodyTriggerPoliciesTriggerType
+	IMMEDIATELY  Event2alarmRuleBodyTriggerPoliciesTriggerType
 }
 
 func GetEvent2alarmRuleBodyTriggerPoliciesTriggerTypeEnum() Event2alarmRuleBodyTriggerPoliciesTriggerTypeEnum {
@@ -56,8 +56,8 @@ func GetEvent2alarmRuleBodyTriggerPoliciesTriggerTypeEnum() Event2alarmRuleBodyT
 		ACCUMULATIVE: Event2alarmRuleBodyTriggerPoliciesTriggerType{
 			value: "accumulative",
 		},
-		NOTIFICATION: Event2alarmRuleBodyTriggerPoliciesTriggerType{
-			value: "notification",
+		IMMEDIATELY: Event2alarmRuleBodyTriggerPoliciesTriggerType{
+			value: "immediately",
 		},
 	}
 }

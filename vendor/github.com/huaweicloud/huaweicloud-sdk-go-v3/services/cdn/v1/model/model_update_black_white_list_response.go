@@ -16,8 +16,10 @@ type UpdateBlackWhiteListResponse struct {
 	Result *string `json:"result,omitempty"`
 
 	// 响应体返回内容。
-	Data           *interface{} `json:"data,omitempty"`
-	HttpStatusCode int          `json:"-"`
+	Data *interface{} `json:"data,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o UpdateBlackWhiteListResponse) String() string {

@@ -9,12 +9,12 @@ import (
 // UpdateVariableResponse Response Object
 type UpdateVariableResponse struct {
 
-	// code
+	// 响应码
 	Code *string `json:"code,omitempty"`
 
 	Json *CreateVariableResultJson `json:"json,omitempty"`
 
-	// message
+	// 响应消息
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

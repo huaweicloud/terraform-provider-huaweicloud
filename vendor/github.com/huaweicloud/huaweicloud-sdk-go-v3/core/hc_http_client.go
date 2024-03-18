@@ -84,6 +84,7 @@ func (hc *HcHttpClient) GetCredential() auth.ICredential {
 	return hc.credential
 }
 
+// Deprecated: This function will be removed in the future version.
 func (hc *HcHttpClient) PreInvoke(headers map[string]string) *HcHttpClient {
 	hc.extraHeader = headers
 	return hc
@@ -99,6 +100,11 @@ func (hc *HcHttpClient) Sync(req interface{}, reqDef *def.HttpRequestDef) (inter
 
 func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 	exchange *exchange.SdkExchange) (interface{}, error) {
+	return hc.SyncInvokeWithExtraHeaders(req, reqDef, exchange, hc.extraHeader)
+}
+
+func (hc *HcHttpClient) SyncInvokeWithExtraHeaders(req interface{}, reqDef *def.HttpRequestDef,
+	exchange *exchange.SdkExchange, extraHeaders map[string]string) (interface{}, error) {
 	var (
 		httpRequest *request.DefaultHttpRequest
 		resp        *response.DefaultHttpResponse
@@ -106,7 +112,7 @@ func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 	)
 
 	for {
-		httpRequest, err = hc.buildRequest(req, reqDef)
+		httpRequest, err = hc.buildRequest(req, reqDef, extraHeaders)
 		if err != nil {
 			return nil, err
 		}
@@ -149,7 +155,7 @@ func (hc *HcHttpClient) extractEndpoint(req interface{}, reqDef *def.HttpRequest
 	return endpoint, nil
 }
 
-func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef) (*request.DefaultHttpRequest, error) {
+func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef, extraHeaders map[string]string) (*request.DefaultHttpRequest, error) {
 	t := reflect.TypeOf(req)
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
@@ -169,11 +175,13 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 	}
 
 	uaValue := "huaweicloud-usdk-go/3.0"
-	for k, v := range hc.extraHeader {
-		if strings.ToLower(k) == strings.ToLower(userAgent) {
-			uaValue = uaValue + ";" + v
-		} else {
-			builder.AddHeaderParam(k, v)
+	if extraHeaders != nil {
+		for k, v := range extraHeaders {
+			if strings.ToLower(k) == strings.ToLower(userAgent) {
+				uaValue = uaValue + ";" + v
+			} else {
+				builder.AddHeaderParam(k, v)
+			}
 		}
 	}
 	builder.AddHeaderParam(userAgent, uaValue)

@@ -8,8 +8,10 @@ import (
 
 // UpdateFollow302SwitchResponse Response Object
 type UpdateFollow302SwitchResponse struct {
-	FollowStatus   *Follow302StatusBody `json:"follow_status,omitempty"`
-	HttpStatusCode int                  `json:"-"`
+	FollowStatus *Follow302StatusBody `json:"follow_status,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o UpdateFollow302SwitchResponse) String() string {

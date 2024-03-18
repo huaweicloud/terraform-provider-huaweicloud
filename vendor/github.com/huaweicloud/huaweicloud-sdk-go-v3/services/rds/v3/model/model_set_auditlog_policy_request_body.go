@@ -13,6 +13,9 @@ type SetAuditlogPolicyRequestBody struct {
 
 	// 仅关闭审计日志策略时有效。  - true（默认），表示关闭审计日志策略的同时，延迟删除已有的历史审计日志。 - false，表示关闭审计日志策略的同时，删除已有的历史审计日志。
 	ReserveAuditlogs *bool `json:"reserve_auditlogs,omitempty"`
+
+	// 审计记录的操作类型，动态范围。空表示不过滤任何操作类型。
+	AuditTypes *[]string `json:"audit_types,omitempty"`
 }
 
 func (o SetAuditlogPolicyRequestBody) String() string {

@@ -8,13 +8,13 @@ import (
 
 type PeakMetric struct {
 
-	// vusers
+	// 虚拟用户数
 	Vuser *int32 `json:"vuser,omitempty"`
 
-	// tps
+	// 每秒事务数
 	Rps *float64 `json:"rps,omitempty"`
 
-	// avgRT
+	// 平均响应时间
 	AvgRT *float64 `json:"avgRT,omitempty"`
 
 	// 成功率

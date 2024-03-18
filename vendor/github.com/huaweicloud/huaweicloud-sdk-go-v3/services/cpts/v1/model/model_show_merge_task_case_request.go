@@ -9,7 +9,7 @@ import (
 // ShowMergeTaskCaseRequest Request Object
 type ShowMergeTaskCaseRequest struct {
 
-	// 任务运行id（报告id）
+	// 运行任务id，即报告id。启动任务（更新任务状态或批量启停任务）接口，会返回运行任务id。
 	TaskRunId int32 `json:"task_run_id"`
 }
 

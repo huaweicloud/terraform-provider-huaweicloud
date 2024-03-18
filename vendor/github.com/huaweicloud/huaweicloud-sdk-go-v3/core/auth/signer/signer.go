@@ -108,7 +108,8 @@ func authHeaderValue(alg, sig, ak string, signedHeaders []string) string {
 }
 
 func processContentHeader(req *request.DefaultHttpRequest, contentHeader string) {
-	if contentType, ok := req.GetHeaderParams()["Content-Type"]; ok && !strings.Contains(contentType, "application/json") {
+	if contentType, ok := req.GetHeaderParams()["Content-Type"]; ok && (!strings.Contains(contentType, "application/json") &&
+		!strings.Contains(contentType, "application/bson")) {
 		req.AddHeaderParam(contentHeader, "UNSIGNED-PAYLOAD")
 	}
 }

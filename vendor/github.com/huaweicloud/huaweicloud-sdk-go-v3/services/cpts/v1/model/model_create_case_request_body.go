@@ -9,13 +9,13 @@ import (
 // CreateCaseRequestBody CreateCaseRequestBody
 type CreateCaseRequestBody struct {
 
-	// name
+	// 名称
 	Name string `json:"name"`
 
 	// type（0-常规用例，1-视频流用例，2-预制用例）
 	Type int32 `json:"type"`
 
-	// task_id
+	// 所属任务id
 	TaskId int32 `json:"task_id"`
 }
 

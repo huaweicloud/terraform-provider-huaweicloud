@@ -8,16 +8,16 @@ import (
 
 type UploadProcessJsonDetail struct {
 
-	// id
+	// 导入进度Id
 	Id *int32 `json:"id,omitempty"`
 
-	// name
+	// 工程名称
 	Name *string `json:"name,omitempty"`
 
-	// status
+	// 导入状态（0：导入中；1：成功；2：失败）
 	Status *int32 `json:"status,omitempty"`
 
-	// cause
+	// 失败原因
 	Cause *string `json:"cause,omitempty"`
 }
 

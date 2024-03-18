@@ -24,7 +24,7 @@ type ShowTopUrlRequest struct {
 	// 域名列表，多个域名以逗号（半角）分隔，如：www.test1.com,www.test2.com，all表示查询名下全部域名。如果域名在查询时间段内无数据，结果将不返回该域名的信息。
 	DomainName string `json:"domain_name"`
 
-	// mainland_china(中国大陆)，outside_mainland_china(中国大陆境外)，默认为mainland_china。
+	// mainland_china(中国大陆)，outside_mainland_china(中国大陆境外)，默认为global(全球)。
 	ServiceArea *ShowTopUrlRequestServiceArea `json:"service_area,omitempty"`
 
 	// 参数类型支持：flux(流量),req_num(请求总数)。
@@ -47,6 +47,7 @@ type ShowTopUrlRequestServiceArea struct {
 type ShowTopUrlRequestServiceAreaEnum struct {
 	MAINLAND_CHINA         ShowTopUrlRequestServiceArea
 	OUTSIDE_MAINLAND_CHINA ShowTopUrlRequestServiceArea
+	GLOBAL                 ShowTopUrlRequestServiceArea
 }
 
 func GetShowTopUrlRequestServiceAreaEnum() ShowTopUrlRequestServiceAreaEnum {
@@ -56,6 +57,9 @@ func GetShowTopUrlRequestServiceAreaEnum() ShowTopUrlRequestServiceAreaEnum {
 		},
 		OUTSIDE_MAINLAND_CHINA: ShowTopUrlRequestServiceArea{
 			value: "outside_mainland_china",
+		},
+		GLOBAL: ShowTopUrlRequestServiceArea{
+			value: "global",
 		},
 	}
 }

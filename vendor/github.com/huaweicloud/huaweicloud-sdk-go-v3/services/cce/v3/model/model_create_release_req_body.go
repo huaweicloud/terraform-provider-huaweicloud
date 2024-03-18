@@ -21,6 +21,9 @@ type CreateReleaseReqBody struct {
 	// 模板实例所在的命名空间
 	Namespace string `json:"namespace"`
 
+	// 模板实例版本号
+	Version string `json:"version"`
+
 	Parameters *ReleaseReqBodyParams `json:"parameters,omitempty"`
 
 	Values *CreateReleaseReqBodyValues `json:"values"`

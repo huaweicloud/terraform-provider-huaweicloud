@@ -12,10 +12,10 @@ type ShowKafkaUserClientQuotaRequest struct {
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
-	// 偏移量，表示查询该偏移量后面的记录
+	// 偏移量，表示查询该偏移量后面的记录。
 	Offset *int32 `json:"offset,omitempty"`
 
-	// 查询返回记录的数量限制
+	// 查询返回记录的数量限制。
 	Limit *int32 `json:"limit,omitempty"`
 }
 

@@ -19,8 +19,8 @@ type UpdateNodePoolResponse struct {
 
 	Spec *NodePoolSpec `json:"spec,omitempty"`
 
-	Status         *NodePoolStatus `json:"status,omitempty"`
-	HttpStatusCode int             `json:"-"`
+	Status         *UpdateNodePoolStatus `json:"status,omitempty"`
+	HttpStatusCode int                   `json:"-"`
 }
 
 func (o UpdateNodePoolResponse) String() string {

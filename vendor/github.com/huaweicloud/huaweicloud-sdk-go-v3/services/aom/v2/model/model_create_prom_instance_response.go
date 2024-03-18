@@ -10,8 +10,8 @@ import (
 type CreatePromInstanceResponse struct {
 
 	// Prometheus实例名称列表。
-	Prometheus     *[]PromInstanceEpsModel `json:"prometheus,omitempty"`
-	HttpStatusCode int                     `json:"-"`
+	Prometheus     *[]PromInstanceEpsCreateModel `json:"prometheus,omitempty"`
+	HttpStatusCode int                           `json:"-"`
 }
 
 func (o CreatePromInstanceResponse) String() string {

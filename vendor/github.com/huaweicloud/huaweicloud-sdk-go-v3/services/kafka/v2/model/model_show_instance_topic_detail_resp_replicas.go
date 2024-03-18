@@ -21,7 +21,7 @@ type ShowInstanceTopicDetailRespReplicas struct {
 	Size *int32 `json:"size,omitempty"`
 
 	// 该副本当前落后hw的消息数。
-	Lag *int32 `json:"lag,omitempty"`
+	Lag *int64 `json:"lag,omitempty"`
 }
 
 func (o ShowInstanceTopicDetailRespReplicas) String() string {

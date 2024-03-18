@@ -13,8 +13,10 @@ type ShowCertificatesHttpsInfoResponse struct {
 	Total *int32 `json:"total,omitempty"`
 
 	// https配置。
-	Https          *[]HttpsDetail `json:"https,omitempty"`
-	HttpStatusCode int            `json:"-"`
+	Https *[]HttpsDetail `json:"https,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o ShowCertificatesHttpsInfoResponse) String() string {

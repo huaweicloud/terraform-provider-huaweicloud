@@ -24,6 +24,9 @@ type UpdateInstanceTopicReqTopics struct {
 	// 分区数。
 	NewPartitionNumbers *int32 `json:"new_partition_numbers,omitempty"`
 
+	// 增加分区时指定broker列表
+	NewPartitionBrokers *[]int32 `json:"new_partition_brokers,omitempty"`
+
 	// topic配置
 	TopicOtherConfigs *[]CreateInstanceTopicReqTopicOtherConfigs `json:"topic_other_configs,omitempty"`
 

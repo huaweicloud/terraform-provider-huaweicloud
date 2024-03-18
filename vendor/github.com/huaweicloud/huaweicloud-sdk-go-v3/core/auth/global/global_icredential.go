@@ -58,6 +58,7 @@ type Credentials struct {
 	expiredAt              int64
 }
 
+// ProcessAuthParams This function may panic under certain circumstances.
 func (s *Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region string) auth.ICredential {
 	if s.DomainId != "" {
 		return s
@@ -83,7 +84,7 @@ func (s *Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region s
 	}
 
 	s.DomainId = id
-	authCache.PutAuth(s.AK, id)
+	_ = authCache.PutAuth(s.AK, id)
 
 	s.DerivedPredicate = derivedPredicate
 
@@ -289,17 +290,26 @@ func (builder *CredentialsBuilder) WithIdTokenFile(idTokenFile string) *Credenti
 	return builder
 }
 
+// Deprecated: This function may panic under certain circumstances. Use SafeBuild instead.
 func (builder *CredentialsBuilder) Build() *Credentials {
+	credentials, err := builder.SafeBuild()
+	if err != nil {
+		panic(err)
+	}
+	return credentials
+}
+
+func (builder *CredentialsBuilder) SafeBuild() (*Credentials, error) {
 	if builder.Credentials.IdpId != "" || builder.Credentials.IdTokenFile != "" {
 		if builder.Credentials.IdpId == "" {
-			panic(sdkerr.NewCredentialsTypeError("IdpId is required when using IdpId&IdTokenFile"))
+			return nil, sdkerr.NewCredentialsTypeError("IdpId is required when using IdpId&IdTokenFile")
 		}
 		if builder.Credentials.IdTokenFile == "" {
-			panic(sdkerr.NewCredentialsTypeError("IdTokenFile is required when using IdpId&IdTokenFile"))
+			return nil, sdkerr.NewCredentialsTypeError("IdTokenFile is required when using IdpId&IdTokenFile")
 		}
 		if builder.Credentials.DomainId == "" {
-			panic(sdkerr.NewCredentialsTypeError("DomainId is required when using IdpId&IdTokenFile"))
+			return nil, sdkerr.NewCredentialsTypeError("DomainId is required when using IdpId&IdTokenFile")
 		}
 	}
-	return builder.Credentials
+	return builder.Credentials, nil
 }

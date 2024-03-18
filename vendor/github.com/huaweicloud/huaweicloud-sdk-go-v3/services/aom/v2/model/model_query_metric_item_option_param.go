@@ -15,10 +15,10 @@ type QueryMetricItemOptionParam struct {
 	// 指标维度列表。
 	Dimensions *[]Dimension `json:"dimensions,omitempty"`
 
-	// 指标名称。名称长度取值范围为1~255个字符。 取值范围：AOM提供的基础指标，cpuUsage、cpuCoreUsed等。 cpuUage：cpu使用率； cpuCoreUsed：cpu内核占用； 用户上报的自定义指标名称。
+	// 指标名称。名称长度取值范围为1~255个字符。取值范围：AOM提供的基础指标，cpuUsage、cpuCoreUsed等。cpuUsage：cpu使用率；cpuCoreUsed：cpu内核占用；用户上报的自定义指标名称。
 	MetricName *string `json:"metricName,omitempty"`
 
-	// 指标命名空间。 取值范围 PAAS.CONTAINER：组件指标、实例指标、进程指标和容器指标的命名空间， PAAS.NODE： 主机指标、网络指标、磁盘指标和文件系统指标的命名空间， PAAS.SLA：SLA指标的命名空间， PAAS.AGGR：集群指标的命名空间， CUSTOMMETRICS：默认的自定义指标的命名空间。
+	// 指标命名空间。取值范围：PAAS.CONTAINER：组件指标、实例指标、进程指标和容器指标的命名空间，PAAS.NODE： 主机指标、网络指标、磁盘指标和文件系统指标的命名空间，PAAS.SLA：SLA指标的命名空间，PAAS.AGGR：集群指标的命名空间，CUSTOMMETRICS：默认的自定义指标的命名空间。
 	Namespace QueryMetricItemOptionParamNamespace `json:"namespace"`
 }
 

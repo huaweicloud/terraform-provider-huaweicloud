@@ -1,21 +1,21 @@
 package v3
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/rds/v3/model"
 )
 
 type RdsClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewRdsClient(hcClient *http_client.HcHttpClient) *RdsClient {
+func NewRdsClient(hcClient *httpclient.HcHttpClient) *RdsClient {
 	return &RdsClient{HcClient: hcClient}
 }
 
-func RdsClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder()
+func RdsClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder()
 	return builder
 }
 
@@ -355,6 +355,27 @@ func (c *RdsClient) CreateManualBackupInvoker(request *model.CreateManualBackupR
 	return &CreateManualBackupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateRdSforMySqlProxy 开启数据库代理
+//
+// 开启数据库代理。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) CreateRdSforMySqlProxy(request *model.CreateRdSforMySqlProxyRequest) (*model.CreateRdSforMySqlProxyResponse, error) {
+	requestDef := GenReqDefForCreateRdSforMySqlProxy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateRdSforMySqlProxyResponse), nil
+	}
+}
+
+// CreateRdSforMySqlProxyInvoker 开启数据库代理
+func (c *RdsClient) CreateRdSforMySqlProxyInvoker(request *model.CreateRdSforMySqlProxyRequest) *CreateRdSforMySqlProxyInvoker {
+	requestDef := GenReqDefForCreateRdSforMySqlProxy()
+	return &CreateRdSforMySqlProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateRestoreInstance 恢复到新实例
 //
 // 恢复到新实例。
@@ -374,6 +395,27 @@ func (c *RdsClient) CreateRestoreInstance(request *model.CreateRestoreInstanceRe
 func (c *RdsClient) CreateRestoreInstanceInvoker(request *model.CreateRestoreInstanceRequest) *CreateRestoreInstanceInvoker {
 	requestDef := GenReqDefForCreateRestoreInstance()
 	return &CreateRestoreInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateSqlLimit 新增SQL限流
+//
+// 新增SQL限流
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) CreateSqlLimit(request *model.CreateSqlLimitRequest) (*model.CreateSqlLimitResponse, error) {
+	requestDef := GenReqDefForCreateSqlLimit()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateSqlLimitResponse), nil
+	}
+}
+
+// CreateSqlLimitInvoker 新增SQL限流
+func (c *RdsClient) CreateSqlLimitInvoker(request *model.CreateSqlLimitRequest) *CreateSqlLimitInvoker {
+	requestDef := GenReqDefForCreateSqlLimit()
+	return &CreateSqlLimitInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateXelLogDownload 获取扩展日志下载信息
@@ -519,6 +561,48 @@ func (c *RdsClient) DeletePostgresqlHbaConf(request *model.DeletePostgresqlHbaCo
 func (c *RdsClient) DeletePostgresqlHbaConfInvoker(request *model.DeletePostgresqlHbaConfRequest) *DeletePostgresqlHbaConfInvoker {
 	requestDef := GenReqDefForDeletePostgresqlHbaConf()
 	return &DeletePostgresqlHbaConfInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteRdSforMySqlProxy 关闭数据库代理
+//
+// 关闭数据库代理。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeleteRdSforMySqlProxy(request *model.DeleteRdSforMySqlProxyRequest) (*model.DeleteRdSforMySqlProxyResponse, error) {
+	requestDef := GenReqDefForDeleteRdSforMySqlProxy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteRdSforMySqlProxyResponse), nil
+	}
+}
+
+// DeleteRdSforMySqlProxyInvoker 关闭数据库代理
+func (c *RdsClient) DeleteRdSforMySqlProxyInvoker(request *model.DeleteRdSforMySqlProxyRequest) *DeleteRdSforMySqlProxyInvoker {
+	requestDef := GenReqDefForDeleteRdSforMySqlProxy()
+	return &DeleteRdSforMySqlProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteSqlLimit 删除SQL限流
+//
+// 删除SQL限流
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeleteSqlLimit(request *model.DeleteSqlLimitRequest) (*model.DeleteSqlLimitResponse, error) {
+	requestDef := GenReqDefForDeleteSqlLimit()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteSqlLimitResponse), nil
+	}
+}
+
+// DeleteSqlLimitInvoker 删除SQL限流
+func (c *RdsClient) DeleteSqlLimitInvoker(request *model.DeleteSqlLimitRequest) *DeleteSqlLimitInvoker {
+	requestDef := GenReqDefForDeleteSqlLimit()
+	return &DeleteSqlLimitInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DownloadSlowlog 获取慢日志下载链接
@@ -1196,6 +1280,48 @@ func (c *RdsClient) ListProjectTagsInvoker(request *model.ListProjectTagsRequest
 	return &ListProjectTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListRdSforMySqlProxy 查询数据库代理信息列表
+//
+// 查询数据库代理信息列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListRdSforMySqlProxy(request *model.ListRdSforMySqlProxyRequest) (*model.ListRdSforMySqlProxyResponse, error) {
+	requestDef := GenReqDefForListRdSforMySqlProxy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListRdSforMySqlProxyResponse), nil
+	}
+}
+
+// ListRdSforMySqlProxyInvoker 查询数据库代理信息列表
+func (c *RdsClient) ListRdSforMySqlProxyInvoker(request *model.ListRdSforMySqlProxyRequest) *ListRdSforMySqlProxyInvoker {
+	requestDef := GenReqDefForListRdSforMySqlProxy()
+	return &ListRdSforMySqlProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListRdSforMysqlProxyFlavors 查询数据库代理规格信息
+//
+// 查询数据库代理规格信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListRdSforMysqlProxyFlavors(request *model.ListRdSforMysqlProxyFlavorsRequest) (*model.ListRdSforMysqlProxyFlavorsResponse, error) {
+	requestDef := GenReqDefForListRdSforMysqlProxyFlavors()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListRdSforMysqlProxyFlavorsResponse), nil
+	}
+}
+
+// ListRdSforMysqlProxyFlavorsInvoker 查询数据库代理规格信息
+func (c *RdsClient) ListRdSforMysqlProxyFlavorsInvoker(request *model.ListRdSforMysqlProxyFlavorsRequest) *ListRdSforMysqlProxyFlavorsInvoker {
+	requestDef := GenReqDefForListRdSforMysqlProxyFlavors()
+	return &ListRdSforMysqlProxyFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListRecycleInstances 查询回收站
 //
 // 查询回收站实例信息
@@ -1387,6 +1513,27 @@ func (c *RdsClient) ListSlowlogStatisticsInvoker(request *model.ListSlowlogStati
 	return &ListSlowlogStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListSqlLimit 查询SQL限流列表
+//
+// 查询SQL限流列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListSqlLimit(request *model.ListSqlLimitRequest) (*model.ListSqlLimitResponse, error) {
+	requestDef := GenReqDefForListSqlLimit()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListSqlLimitResponse), nil
+	}
+}
+
+// ListSqlLimitInvoker 查询SQL限流列表
+func (c *RdsClient) ListSqlLimitInvoker(request *model.ListSqlLimitRequest) *ListSqlLimitInvoker {
+	requestDef := GenReqDefForListSqlLimit()
+	return &ListSqlLimitInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListSslCertDownloadLink 获取SSL证书下载地址
 //
 // 获取SSL证书下载地址
@@ -1512,6 +1659,27 @@ func (c *RdsClient) ModifyPostgresqlHbaConf(request *model.ModifyPostgresqlHbaCo
 func (c *RdsClient) ModifyPostgresqlHbaConfInvoker(request *model.ModifyPostgresqlHbaConfRequest) *ModifyPostgresqlHbaConfInvoker {
 	requestDef := GenReqDefForModifyPostgresqlHbaConf()
 	return &ModifyPostgresqlHbaConfInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ModifyRdSforMySqlProxyRouteMode 设置读写分离路由模式
+//
+// 设置读写分离路由模式。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ModifyRdSforMySqlProxyRouteMode(request *model.ModifyRdSforMySqlProxyRouteModeRequest) (*model.ModifyRdSforMySqlProxyRouteModeResponse, error) {
+	requestDef := GenReqDefForModifyRdSforMySqlProxyRouteMode()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ModifyRdSforMySqlProxyRouteModeResponse), nil
+	}
+}
+
+// ModifyRdSforMySqlProxyRouteModeInvoker 设置读写分离路由模式
+func (c *RdsClient) ModifyRdSforMySqlProxyRouteModeInvoker(request *model.ModifyRdSforMySqlProxyRouteModeRequest) *ModifyRdSforMySqlProxyRouteModeInvoker {
+	requestDef := GenReqDefForModifyRdSforMySqlProxyRouteMode()
+	return &ModifyRdSforMySqlProxyRouteModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // RestoreExistInstance 恢复到已有实例
@@ -1682,6 +1850,27 @@ func (c *RdsClient) SetBinlogClearPolicy(request *model.SetBinlogClearPolicyRequ
 func (c *RdsClient) SetBinlogClearPolicyInvoker(request *model.SetBinlogClearPolicyRequest) *SetBinlogClearPolicyInvoker {
 	requestDef := GenReqDefForSetBinlogClearPolicy()
 	return &SetBinlogClearPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetInstancesProxyRestart 重启数据库代理
+//
+// 重启数据库代理。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) SetInstancesProxyRestart(request *model.SetInstancesProxyRestartRequest) (*model.SetInstancesProxyRestartResponse, error) {
+	requestDef := GenReqDefForSetInstancesProxyRestart()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetInstancesProxyRestartResponse), nil
+	}
+}
+
+// SetInstancesProxyRestartInvoker 重启数据库代理
+func (c *RdsClient) SetInstancesProxyRestartInvoker(request *model.SetInstancesProxyRestartRequest) *SetInstancesProxyRestartInvoker {
+	requestDef := GenReqDefForSetInstancesProxyRestart()
+	return &SetInstancesProxyRestartInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // SetLogLtsConfigs
@@ -2022,6 +2211,27 @@ func (c *RdsClient) ShowDrReplicaStatusInvoker(request *model.ShowDrReplicaStatu
 	return &ShowDrReplicaStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowIncreBackupPolicy1 获取增备策略
+//
+// 获取增备策略
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowIncreBackupPolicy1(request *model.ShowIncreBackupPolicy1Request) (*model.ShowIncreBackupPolicy1Response, error) {
+	requestDef := GenReqDefForShowIncreBackupPolicy1()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowIncreBackupPolicy1Response), nil
+	}
+}
+
+// ShowIncreBackupPolicy1Invoker 获取增备策略
+func (c *RdsClient) ShowIncreBackupPolicy1Invoker(request *model.ShowIncreBackupPolicy1Request) *ShowIncreBackupPolicy1Invoker {
+	requestDef := GenReqDefForShowIncreBackupPolicy1()
+	return &ShowIncreBackupPolicy1Invoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowInstanceConfiguration 获取指定实例的参数模板
 //
 // 获取指定实例的参数模板。
@@ -2148,6 +2358,27 @@ func (c *RdsClient) ShowSecondLevelMonitoringInvoker(request *model.ShowSecondLe
 	return &ShowSecondLevelMonitoringInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowStorageUsedSpace 查询实例磁盘空间使用量
+//
+// 查询实例磁盘空间使用量。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowStorageUsedSpace(request *model.ShowStorageUsedSpaceRequest) (*model.ShowStorageUsedSpaceResponse, error) {
+	requestDef := GenReqDefForShowStorageUsedSpace()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowStorageUsedSpaceResponse), nil
+	}
+}
+
+// ShowStorageUsedSpaceInvoker 查询实例磁盘空间使用量
+func (c *RdsClient) ShowStorageUsedSpaceInvoker(request *model.ShowStorageUsedSpaceRequest) *ShowStorageUsedSpaceInvoker {
+	requestDef := GenReqDefForShowStorageUsedSpace()
+	return &ShowStorageUsedSpaceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowTdeStatus 根据实例id查询sqlserver TDE状态
 //
 // 根据实例id查询sqlserver TDE状态
@@ -2230,6 +2461,27 @@ func (c *RdsClient) StartInstanceEnlargeVolumeAction(request *model.StartInstanc
 func (c *RdsClient) StartInstanceEnlargeVolumeActionInvoker(request *model.StartInstanceEnlargeVolumeActionRequest) *StartInstanceEnlargeVolumeActionInvoker {
 	requestDef := GenReqDefForStartInstanceEnlargeVolumeAction()
 	return &StartInstanceEnlargeVolumeActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// StartInstanceReduceVolumeAction 数据库实例的磁盘空间缩容
+//
+// 数据库实例的磁盘空间缩容。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) StartInstanceReduceVolumeAction(request *model.StartInstanceReduceVolumeActionRequest) (*model.StartInstanceReduceVolumeActionResponse, error) {
+	requestDef := GenReqDefForStartInstanceReduceVolumeAction()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.StartInstanceReduceVolumeActionResponse), nil
+	}
+}
+
+// StartInstanceReduceVolumeActionInvoker 数据库实例的磁盘空间缩容
+func (c *RdsClient) StartInstanceReduceVolumeActionInvoker(request *model.StartInstanceReduceVolumeActionRequest) *StartInstanceReduceVolumeActionInvoker {
+	requestDef := GenReqDefForStartInstanceReduceVolumeAction()
+	return &StartInstanceReduceVolumeActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // StartInstanceRestartAction 重启数据库实例
@@ -2337,6 +2589,27 @@ func (c *RdsClient) StartupInstanceInvoker(request *model.StartupInstanceRequest
 	return &StartupInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// StopBackup 停止备份
+//
+// 停止创建备份
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) StopBackup(request *model.StopBackupRequest) (*model.StopBackupResponse, error) {
+	requestDef := GenReqDefForStopBackup()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.StopBackupResponse), nil
+	}
+}
+
+// StopBackupInvoker 停止备份
+func (c *RdsClient) StopBackupInvoker(request *model.StopBackupRequest) *StopBackupInvoker {
+	requestDef := GenReqDefForStopBackup()
+	return &StopBackupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // StopInstance 停止实例
 //
 // 实例进行关机，通过暂时停止按需实例以节省费用，实例默认停止七天。
@@ -2356,6 +2629,27 @@ func (c *RdsClient) StopInstance(request *model.StopInstanceRequest) (*model.Sto
 func (c *RdsClient) StopInstanceInvoker(request *model.StopInstanceRequest) *StopInstanceInvoker {
 	requestDef := GenReqDefForStopInstance()
 	return &StopInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SwitchSqlLimit 开启/关闭/禁用所有SQL限流
+//
+// 开启/关闭/禁用所有SQL限流
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) SwitchSqlLimit(request *model.SwitchSqlLimitRequest) (*model.SwitchSqlLimitResponse, error) {
+	requestDef := GenReqDefForSwitchSqlLimit()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SwitchSqlLimitResponse), nil
+	}
+}
+
+// SwitchSqlLimitInvoker 开启/关闭/禁用所有SQL限流
+func (c *RdsClient) SwitchSqlLimitInvoker(request *model.SwitchSqlLimitRequest) *SwitchSqlLimitInvoker {
+	requestDef := GenReqDefForSwitchSqlLimit()
+	return &SwitchSqlLimitInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // SwitchSsl 设置SSL数据加密
@@ -2440,6 +2734,27 @@ func (c *RdsClient) UpdateDnsName(request *model.UpdateDnsNameRequest) (*model.U
 func (c *RdsClient) UpdateDnsNameInvoker(request *model.UpdateDnsNameRequest) *UpdateDnsNameInvoker {
 	requestDef := GenReqDefForUpdateDnsName()
 	return &UpdateDnsNameInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateIncreBackupPolicy1 修改增备策略
+//
+// 修改增备策略
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdateIncreBackupPolicy1(request *model.UpdateIncreBackupPolicy1Request) (*model.UpdateIncreBackupPolicy1Response, error) {
+	requestDef := GenReqDefForUpdateIncreBackupPolicy1()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateIncreBackupPolicy1Response), nil
+	}
+}
+
+// UpdateIncreBackupPolicy1Invoker 修改增备策略
+func (c *RdsClient) UpdateIncreBackupPolicy1Invoker(request *model.UpdateIncreBackupPolicy1Request) *UpdateIncreBackupPolicy1Invoker {
+	requestDef := GenReqDefForUpdateIncreBackupPolicy1()
+	return &UpdateIncreBackupPolicy1Invoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateInstanceConfiguration 修改指定实例的参数
@@ -2545,6 +2860,27 @@ func (c *RdsClient) UpdatePostgresqlInstanceAlias(request *model.UpdatePostgresq
 func (c *RdsClient) UpdatePostgresqlInstanceAliasInvoker(request *model.UpdatePostgresqlInstanceAliasRequest) *UpdatePostgresqlInstanceAliasInvoker {
 	requestDef := GenReqDefForUpdatePostgresqlInstanceAlias()
 	return &UpdatePostgresqlInstanceAliasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateSqlLimit 修改SQL限流
+//
+// 修改SQL限流
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdateSqlLimit(request *model.UpdateSqlLimitRequest) (*model.UpdateSqlLimitResponse, error) {
+	requestDef := GenReqDefForUpdateSqlLimit()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateSqlLimitResponse), nil
+	}
+}
+
+// UpdateSqlLimitInvoker 修改SQL限流
+func (c *RdsClient) UpdateSqlLimitInvoker(request *model.UpdateSqlLimitRequest) *UpdateSqlLimitInvoker {
+	requestDef := GenReqDefForUpdateSqlLimit()
+	return &UpdateSqlLimitInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateTdeStatus sqlserverTDE开关
@@ -3030,6 +3366,27 @@ func (c *RdsClient) UpdateDbUserCommentInvoker(request *model.UpdateDbUserCommen
 	return &UpdateDbUserCommentInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateHostPrivilege 修改实例下用户host信息
+//
+// 修改实例下用户host信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdateHostPrivilege(request *model.UpdateHostPrivilegeRequest) (*model.UpdateHostPrivilegeResponse, error) {
+	requestDef := GenReqDefForUpdateHostPrivilege()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateHostPrivilegeResponse), nil
+	}
+}
+
+// UpdateHostPrivilegeInvoker 修改实例下用户host信息
+func (c *RdsClient) UpdateHostPrivilegeInvoker(request *model.UpdateHostPrivilegeRequest) *UpdateHostPrivilegeInvoker {
+	requestDef := GenReqDefForUpdateHostPrivilege()
+	return &UpdateHostPrivilegeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // AllowDbPrivilege 授权数据库帐号
 //
 // 在指定实例的数据库中, 设置帐号的权限。
@@ -3240,6 +3597,69 @@ func (c *RdsClient) DeletePostgresqlExtension(request *model.DeletePostgresqlExt
 func (c *RdsClient) DeletePostgresqlExtensionInvoker(request *model.DeletePostgresqlExtensionRequest) *DeletePostgresqlExtensionInvoker {
 	requestDef := GenReqDefForDeletePostgresqlExtension()
 	return &DeletePostgresqlExtensionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ExecutePrivilegeDatabaseUserRole 授予用户角色
+//
+// 授予用户角色
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ExecutePrivilegeDatabaseUserRole(request *model.ExecutePrivilegeDatabaseUserRoleRequest) (*model.ExecutePrivilegeDatabaseUserRoleResponse, error) {
+	requestDef := GenReqDefForExecutePrivilegeDatabaseUserRole()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ExecutePrivilegeDatabaseUserRoleResponse), nil
+	}
+}
+
+// ExecutePrivilegeDatabaseUserRoleInvoker 授予用户角色
+func (c *RdsClient) ExecutePrivilegeDatabaseUserRoleInvoker(request *model.ExecutePrivilegeDatabaseUserRoleRequest) *ExecutePrivilegeDatabaseUserRoleInvoker {
+	requestDef := GenReqDefForExecutePrivilegeDatabaseUserRole()
+	return &ExecutePrivilegeDatabaseUserRoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ExecuteRevokeDatabaseUserRole 撤回用户角色
+//
+// 撤回用户角色
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ExecuteRevokeDatabaseUserRole(request *model.ExecuteRevokeDatabaseUserRoleRequest) (*model.ExecuteRevokeDatabaseUserRoleResponse, error) {
+	requestDef := GenReqDefForExecuteRevokeDatabaseUserRole()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ExecuteRevokeDatabaseUserRoleResponse), nil
+	}
+}
+
+// ExecuteRevokeDatabaseUserRoleInvoker 撤回用户角色
+func (c *RdsClient) ExecuteRevokeDatabaseUserRoleInvoker(request *model.ExecuteRevokeDatabaseUserRoleRequest) *ExecuteRevokeDatabaseUserRoleInvoker {
+	requestDef := GenReqDefForExecuteRevokeDatabaseUserRole()
+	return &ExecuteRevokeDatabaseUserRoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDatabaseUserRole 查询数据库角色信息
+//
+// 查询数据库角色信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListDatabaseUserRole(request *model.ListDatabaseUserRoleRequest) (*model.ListDatabaseUserRoleResponse, error) {
+	requestDef := GenReqDefForListDatabaseUserRole()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListDatabaseUserRoleResponse), nil
+	}
+}
+
+// ListDatabaseUserRoleInvoker 查询数据库角色信息
+func (c *RdsClient) ListDatabaseUserRoleInvoker(request *model.ListDatabaseUserRoleRequest) *ListDatabaseUserRoleInvoker {
+	requestDef := GenReqDefForListDatabaseUserRole()
+	return &ListDatabaseUserRoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListPostgresqlDatabaseSchemas 查询数据库SCHEMA列表
@@ -3519,6 +3939,27 @@ func (c *RdsClient) StopDatabaseProxyInvoker(request *model.StopDatabaseProxyReq
 	return &StopDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpdateDatabaseOwner 修改数据库owner
+//
+// 修改数据库owner
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdateDatabaseOwner(request *model.UpdateDatabaseOwnerRequest) (*model.UpdateDatabaseOwnerResponse, error) {
+	requestDef := GenReqDefForUpdateDatabaseOwner()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDatabaseOwnerResponse), nil
+	}
+}
+
+// UpdateDatabaseOwnerInvoker 修改数据库owner
+func (c *RdsClient) UpdateDatabaseOwnerInvoker(request *model.UpdateDatabaseOwnerRequest) *UpdateDatabaseOwnerInvoker {
+	requestDef := GenReqDefForUpdateDatabaseOwner()
+	return &UpdateDatabaseOwnerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateDbUserPrivilege
 //
 // 数据库帐号授权。
@@ -3580,6 +4021,27 @@ func (c *RdsClient) UpdatePostgresqlDbUserComment(request *model.UpdatePostgresq
 func (c *RdsClient) UpdatePostgresqlDbUserCommentInvoker(request *model.UpdatePostgresqlDbUserCommentRequest) *UpdatePostgresqlDbUserCommentInvoker {
 	requestDef := GenReqDefForUpdatePostgresqlDbUserComment()
 	return &UpdatePostgresqlDbUserCommentInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdatePostgresqlExtension 更新插件
+//
+// 在指定数据库上更新插件。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UpdatePostgresqlExtension(request *model.UpdatePostgresqlExtensionRequest) (*model.UpdatePostgresqlExtensionResponse, error) {
+	requestDef := GenReqDefForUpdatePostgresqlExtension()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdatePostgresqlExtensionResponse), nil
+	}
+}
+
+// UpdatePostgresqlExtensionInvoker 更新插件
+func (c *RdsClient) UpdatePostgresqlExtensionInvoker(request *model.UpdatePostgresqlExtensionRequest) *UpdatePostgresqlExtensionInvoker {
+	requestDef := GenReqDefForUpdatePostgresqlExtension()
+	return &UpdatePostgresqlExtensionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdatePostgresqlParameterValue 修改实例指定参数的值
@@ -3916,4 +4378,25 @@ func (c *RdsClient) SetInstancesDbShrink(request *model.SetInstancesDbShrinkRequ
 func (c *RdsClient) SetInstancesDbShrinkInvoker(request *model.SetInstancesDbShrinkRequest) *SetInstancesDbShrinkInvoker {
 	requestDef := GenReqDefForSetInstancesDbShrink()
 	return &SetInstancesDbShrinkInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SetInstancesNewDbShrink 收缩数据库日志
+//
+// 收缩数据库日志
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) SetInstancesNewDbShrink(request *model.SetInstancesNewDbShrinkRequest) (*model.SetInstancesNewDbShrinkResponse, error) {
+	requestDef := GenReqDefForSetInstancesNewDbShrink()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetInstancesNewDbShrinkResponse), nil
+	}
+}
+
+// SetInstancesNewDbShrinkInvoker 收缩数据库日志
+func (c *RdsClient) SetInstancesNewDbShrinkInvoker(request *model.SetInstancesNewDbShrinkRequest) *SetInstancesNewDbShrinkInvoker {
+	requestDef := GenReqDefForSetInstancesNewDbShrink()
+	return &SetInstancesNewDbShrinkInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

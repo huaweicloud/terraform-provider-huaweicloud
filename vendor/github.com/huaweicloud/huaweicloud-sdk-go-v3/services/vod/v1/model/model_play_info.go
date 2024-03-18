@@ -11,6 +11,12 @@ type PlayInfo struct {
 	// 播放协议类型。  取值如下： - hls - dash - mp4
 	PlayType *string `json:"play_type,omitempty"`
 
+	// 所属转码组Id
+	GroupId *string `json:"group_id,omitempty"`
+
+	// 所属转码组名称
+	GroupName *string `json:"group_name,omitempty"`
+
 	// 播放URL。
 	Url *string `json:"url,omitempty"`
 

@@ -55,6 +55,9 @@ type RecycleInstsanceV3 struct {
 
 	// 备份状态 取值范围如下，区分大小写: - BUILDING 备份中，不能进行重建 - COMPLETED，标识备份完成，可以重建
 	RecycleStatus *string `json:"recycle_status,omitempty"`
+
+	// 是否为serverless实例 - false 不是serverless实例 - true 是serverless实例
+	IsServerless *bool `json:"is_serverless,omitempty"`
 }
 
 func (o RecycleInstsanceV3) String() string {

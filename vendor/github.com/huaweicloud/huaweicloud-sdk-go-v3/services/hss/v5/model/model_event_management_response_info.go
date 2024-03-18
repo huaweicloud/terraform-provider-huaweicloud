@@ -130,6 +130,9 @@ type EventManagementResponseInfo struct {
 
 	// 标签列表
 	TagList *[]string `json:"tag_list,omitempty"`
+
+	// 事件发生次数
+	EventCount *int32 `json:"event_count,omitempty"`
 }
 
 func (o EventManagementResponseInfo) String() string {

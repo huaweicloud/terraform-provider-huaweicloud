@@ -18,6 +18,9 @@ type AssetInfo struct {
 	// 媒资子状态或描述信息。 - 对于媒资异常场景，描述具体的异常原因。 - 对于正常场景，描述媒资的处理信息。
 	Description *string `json:"description,omitempty"`
 
+	// 是否是多转码模式
+	IsMultiTranscode *bool `json:"is_multi_transcode,omitempty"`
+
 	BaseInfo *BaseInfo `json:"base_info,omitempty"`
 
 	// 转码文件的播放信息。 - HLS或DASH：此数组的成员个数为n+1，n为转码输出路数。 - MP4：此数组的成员个数为n，n为转码输出路数。

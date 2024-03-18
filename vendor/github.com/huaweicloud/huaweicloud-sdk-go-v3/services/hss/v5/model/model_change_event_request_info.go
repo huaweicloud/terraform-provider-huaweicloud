@@ -17,6 +17,9 @@ type ChangeEventRequestInfo struct {
 
 	// 操作的事件列表
 	OperateEventList []OperateEventRequestInfo `json:"operate_event_list"`
+
+	// 用户自定义告警白名单规则列表
+	EventWhiteRuleList *[]EventWhiteRuleListRequestInfo `json:"event_white_rule_list,omitempty"`
 }
 
 func (o ChangeEventRequestInfo) String() string {

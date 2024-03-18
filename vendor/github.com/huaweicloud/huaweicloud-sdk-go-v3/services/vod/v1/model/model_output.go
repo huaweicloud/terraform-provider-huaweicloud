@@ -18,6 +18,12 @@ type Output struct {
 	// 播放URL。
 	Url string `json:"url"`
 
+	// 所属转码组Id
+	GroupId *string `json:"group_id,omitempty"`
+
+	// 所属转码组名称
+	GroupName *string `json:"group_name,omitempty"`
+
 	// 标记流是否已被加密。  取值如下： - 0：表示未加密。 - 1：表示已被加密。
 	Encrypted *int32 `json:"encrypted,omitempty"`
 

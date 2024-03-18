@@ -15,12 +15,12 @@ type MuteRule struct {
 	// 规则描述
 	Desc *string `json:"desc,omitempty"`
 
-	// 规则的匹配条件
+	// 规则的匹配条件。串行条件和并行条件的最大数量限制为10。
 	Match [][]Match `json:"match"`
 
 	MuteConfig *MuteConfig `json:"mute_config"`
 
-	// 规则名称
+	// 规则名称。名称包含大小写字母、数字、特殊字符（_）、不能以下划线开头或结尾，最大长度为100。
 	Name string `json:"name"`
 
 	// 时区

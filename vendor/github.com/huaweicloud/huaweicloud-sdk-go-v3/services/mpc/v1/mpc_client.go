@@ -1,21 +1,21 @@
 package v1
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 )
 
 type MpcClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewMpcClient(hcClient *http_client.HcHttpClient) *MpcClient {
+func NewMpcClient(hcClient *httpclient.HcHttpClient) *MpcClient {
 	return &MpcClient{HcClient: hcClient}
 }
 
-func MpcClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder()
+func MpcClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder()
 	return builder
 }
 
@@ -1025,6 +1025,48 @@ func (c *MpcClient) UpdateTemplateGroup(request *model.UpdateTemplateGroupReques
 func (c *MpcClient) UpdateTemplateGroupInvoker(request *model.UpdateTemplateGroupRequest) *UpdateTemplateGroupInvoker {
 	requestDef := GenReqDefForUpdateTemplateGroup()
 	return &UpdateTemplateGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowTenantAccessInfo 租户查询服务开通状态信息
+//
+// 租户查询媒体转码服务开通状态信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) ShowTenantAccessInfo(request *model.ShowTenantAccessInfoRequest) (*model.ShowTenantAccessInfoResponse, error) {
+	requestDef := GenReqDefForShowTenantAccessInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowTenantAccessInfoResponse), nil
+	}
+}
+
+// ShowTenantAccessInfoInvoker 租户查询服务开通状态信息
+func (c *MpcClient) ShowTenantAccessInfoInvoker(request *model.ShowTenantAccessInfoRequest) *ShowTenantAccessInfoInvoker {
+	requestDef := GenReqDefForShowTenantAccessInfo()
+	return &ShowTenantAccessInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateTenantAccessInfo 租户开通媒体转码服务
+//
+// 租户开通媒体转码服务。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *MpcClient) UpdateTenantAccessInfo(request *model.UpdateTenantAccessInfoRequest) (*model.UpdateTenantAccessInfoResponse, error) {
+	requestDef := GenReqDefForUpdateTenantAccessInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateTenantAccessInfoResponse), nil
+	}
+}
+
+// UpdateTenantAccessInfoInvoker 租户开通媒体转码服务
+func (c *MpcClient) UpdateTenantAccessInfoInvoker(request *model.UpdateTenantAccessInfoRequest) *UpdateTenantAccessInfoInvoker {
+	requestDef := GenReqDefForUpdateTenantAccessInfo()
+	return &UpdateTenantAccessInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateThumbnailsTask 新建截图任务

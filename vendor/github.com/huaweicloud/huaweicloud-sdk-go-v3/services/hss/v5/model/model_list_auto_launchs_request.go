@@ -32,6 +32,9 @@ type ListAutoLaunchsRequest struct {
 
 	// 默认是0
 	Offset *int32 `json:"offset,omitempty"`
+
+	// 是否模糊匹配，默认false表示精确匹配
+	PartMatch *bool `json:"part_match,omitempty"`
 }
 
 func (o ListAutoLaunchsRequest) String() string {

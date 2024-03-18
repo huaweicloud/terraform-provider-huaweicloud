@@ -9,12 +9,12 @@ import (
 // CreateCaseResponse Response Object
 type CreateCaseResponse struct {
 
-	// code
+	// 响应码
 	Code *string `json:"code,omitempty"`
 
 	Json *CreateCaseResultJson `json:"json,omitempty"`
 
-	// message
+	// 响应消息
 	Message        *string `json:"message,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

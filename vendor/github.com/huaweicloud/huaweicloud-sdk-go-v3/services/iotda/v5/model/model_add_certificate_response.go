@@ -24,6 +24,12 @@ type AddCertificateResponse struct {
 	// CA证书验证码。
 	VerifyCode *string `json:"verify_code,omitempty"`
 
+	// 是否开启自注册能力，当为true时该功能必须配合自注册模板使用，true：是，false：否。
+	ProvisionEnable *bool `json:"provision_enable,omitempty"`
+
+	// 绑定的自注册模板ID。
+	TemplateId *string `json:"template_id,omitempty"`
+
 	// 创建证书日期。格式：yyyyMMdd'T'HHmmss'Z'，如20151212T121212Z。
 	CreateDate *string `json:"create_date,omitempty"`
 

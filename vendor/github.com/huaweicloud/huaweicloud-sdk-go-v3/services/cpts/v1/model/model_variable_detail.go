@@ -8,22 +8,22 @@ import (
 
 type VariableDetail struct {
 
-	// file_size
+	// 文件大小
 	FileSize *int32 `json:"file_size,omitempty"`
 
-	// id
+	// 变量id
 	Id *int32 `json:"id,omitempty"`
 
 	// 是否被引用
 	IsQuoted *bool `json:"is_quoted,omitempty"`
 
-	// name
+	// 变量名称
 	Name *string `json:"name,omitempty"`
 
-	// variable
+	// 变量值
 	Variable *[]interface{} `json:"variable,omitempty"`
 
-	// variable_type
+	// 变量类型（1：整数；2：枚举；3：文件[；5：文本](tag:hws,hws_hk)）
 	VariableType *int32 `json:"variable_type,omitempty"`
 
 	// 变量读取模式，0：顺序模式；1：随机模式

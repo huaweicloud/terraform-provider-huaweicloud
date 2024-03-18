@@ -281,6 +281,18 @@ func (i *ListAssetCategoryInvoker) Invoke() (*model.ListAssetCategoryResponse, e
 	}
 }
 
+type ListAssetDailySummaryLogInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAssetDailySummaryLogInvoker) Invoke() (*model.ListAssetDailySummaryLogResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAssetDailySummaryLogResponse), nil
+	}
+}
+
 type ListAssetListInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -641,6 +653,18 @@ func (i *ShowTakeOverTaskDetailsInvoker) Invoke() (*model.ShowTakeOverTaskDetail
 	}
 }
 
+type ShowVodRetrievalInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowVodRetrievalInvoker) Invoke() (*model.ShowVodRetrievalResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowVodRetrievalResponse), nil
+	}
+}
+
 type ModifySubtitleInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -650,5 +674,17 @@ func (i *ModifySubtitleInvoker) Invoke() (*model.ModifySubtitleResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.ModifySubtitleResponse), nil
+	}
+}
+
+type UpdateStorageModeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateStorageModeInvoker) Invoke() (*model.UpdateStorageModeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateStorageModeResponse), nil
 	}
 }

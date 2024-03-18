@@ -22,9 +22,12 @@ type ActionSmnForwarding struct {
 	TopicUrn string `json:"topic_urn"`
 
 	// **参数说明**：短信或邮件的内容。
-	MessageContent string `json:"message_content"`
+	MessageContent *string `json:"message_content,omitempty"`
 
-	// **参数说明**：短信或邮件的主题。
+	// **参数说明**：SMN服务对应的模板名称。
+	MessageTemplateName *string `json:"message_template_name,omitempty"`
+
+	// **参数说明**：短信或邮件的主题。最大长度支持UTF-8编码后的521个字节。
 	MessageTitle string `json:"message_title"`
 }
 

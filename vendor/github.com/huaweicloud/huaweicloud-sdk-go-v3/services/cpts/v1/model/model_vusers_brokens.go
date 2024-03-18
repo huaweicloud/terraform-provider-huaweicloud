@@ -8,7 +8,7 @@ import (
 
 type VusersBrokens struct {
 
-	// vusers
+	// 虚拟用户数
 	Vusers *[]float64 `json:"vusers,omitempty"`
 }
 

@@ -12,7 +12,7 @@ import (
 type AnimatedGraphicsOutputParam struct {
 
 	// 动图格式，目前仅支持取值 gif
-	Format *AnimatedGraphicsOutputParamFormat `json:"format,omitempty"`
+	Format AnimatedGraphicsOutputParamFormat `json:"format"`
 
 	// 输出动图的宽。  取值范围：0，-1或[32,3840]之间2的倍数。  >- 若设置为-1， 则宽根据高来自适应，此时“height”不能取-1或0。 >- 若设置为0，则取原始视频的宽，此时“height”只能取0。
 	Width int32 `json:"width"`

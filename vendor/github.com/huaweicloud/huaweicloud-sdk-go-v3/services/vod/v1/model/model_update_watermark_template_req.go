@@ -16,7 +16,7 @@ type UpdateWatermarkTemplateReq struct {
 	Id string `json:"id"`
 
 	// 水印模板名称<br/>
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name"`
 
 	// 水印图片相对输出视频的水平偏移量，默认值是0<br/>
 	Dx *string `json:"dx,omitempty"`

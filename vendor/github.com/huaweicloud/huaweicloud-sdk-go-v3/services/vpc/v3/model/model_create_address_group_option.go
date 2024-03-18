@@ -26,6 +26,9 @@ type CreateAddressGroupOption struct {
 
 	// 功能说明：企业项目ID。创建IP地址组时，给IP地址组绑定企业项目ID。 取值范围：最大长度36字节，带“-”连字符的UUID格式，或者是字符串“0”。“0”表示默认企业项目。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
+
+	// 功能说明：IP地址组包含的IP列表及其备注信息 约束：ip数量限制默认20, 与ip_set参数只能二选一
+	IpExtraSet *[]IpExtraSetOption `json:"ip_extra_set,omitempty"`
 }
 
 func (o CreateAddressGroupOption) String() string {

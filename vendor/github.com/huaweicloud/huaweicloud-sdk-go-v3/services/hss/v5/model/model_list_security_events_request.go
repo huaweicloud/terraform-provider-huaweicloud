@@ -27,6 +27,9 @@ type ListSecurityEventsRequest struct {
 	// 服务器私有IP
 	PrivateIp *string `json:"private_ip,omitempty"`
 
+	// 服务器公网IP
+	PublicIp *string `json:"public_ip,omitempty"`
+
 	// 容器实例名称
 	ContainerName *string `json:"container_name,omitempty"`
 
@@ -71,6 +74,9 @@ type ListSecurityEventsRequest struct {
 
 	// ATT&CK攻击阶，包含如下：   - Reconnaissance : 侦察   - Initial Access : 初始访问   - Execution : 执行   - Persistence : 持久化   - Privilege Escalation : 权限提升   - Defense Evasion : 防御绕过   - Credential Access : 凭据访问   - Command and Control : 命令与控制   - Impact : 影响破坏
 	AttCk *string `json:"att_ck,omitempty"`
+
+	// 告警名称
+	EventName *string `json:"event_name,omitempty"`
 }
 
 func (o ListSecurityEventsRequest) String() string {

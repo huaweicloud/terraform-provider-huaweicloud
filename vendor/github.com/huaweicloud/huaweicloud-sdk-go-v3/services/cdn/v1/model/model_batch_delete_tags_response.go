@@ -8,7 +8,8 @@ import (
 
 // BatchDeleteTagsResponse Response Object
 type BatchDeleteTagsResponse struct {
-	HttpStatusCode int `json:"-"`
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o BatchDeleteTagsResponse) String() string {

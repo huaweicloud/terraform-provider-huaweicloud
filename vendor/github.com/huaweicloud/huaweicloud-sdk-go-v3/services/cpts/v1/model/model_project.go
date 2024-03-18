@@ -8,25 +8,25 @@ import (
 
 type Project struct {
 
-	// create_time
+	// 创建时间
 	CreateTime *string `json:"create_time,omitempty"`
 
-	// description
+	// 描述
 	Description *string `json:"description,omitempty"`
 
-	// group
+	// 租户id（domain_id）
 	Group *string `json:"group,omitempty"`
 
-	// id
+	// 工程id
 	Id *int32 `json:"id,omitempty"`
 
-	// name
+	// 工程名称
 	Name *string `json:"name,omitempty"`
 
-	// source
+	// 来源（0-PerfTest；2-CloudTest）
 	Source *int32 `json:"source,omitempty"`
 
-	// update_time
+	// 更新时间
 	UpdateTime *string `json:"update_time,omitempty"`
 }
 

@@ -13,6 +13,12 @@ type PartitionReassignRequest struct {
 
 	// 重平衡门限值。
 	Throttle *int32 `json:"throttle,omitempty"`
+
+	// 是否作为定时任务执行。若非定时执行，则is_schedule 和execute_at字段可为空；若为定时执行，is_schedule为true，execute_at字段非空。
+	IsSchedule *bool `json:"is_schedule,omitempty"`
+
+	// 定时时间，格式为Unix时间戳，单位为毫秒
+	ExecuteAt *int64 `json:"execute_at,omitempty"`
 }
 
 func (o PartitionReassignRequest) String() string {

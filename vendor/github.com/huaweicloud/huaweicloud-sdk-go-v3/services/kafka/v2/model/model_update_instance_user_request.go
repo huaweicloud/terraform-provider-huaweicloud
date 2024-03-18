@@ -9,7 +9,7 @@ import (
 // UpdateInstanceUserRequest Request Object
 type UpdateInstanceUserRequest struct {
 
-	// 消息中间件。
+	// 消息引擎的类型。
 	Engine string `json:"engine"`
 
 	// 实例ID。

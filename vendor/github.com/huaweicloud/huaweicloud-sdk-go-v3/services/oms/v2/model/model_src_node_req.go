@@ -9,7 +9,7 @@ import (
 // SrcNodeReq 源端节点信息。
 type SrcNodeReq struct {
 
-	// 源端云服务提供商，task_type为非url_list时，本参数为URLSource且必选。  可选值有AWS、Azure、Aliyun、Tencent、HuaweiCloud、QingCloud、KingsoftCloud、Baidu、Qiniu、URLSource或者UCloud。默认值为Aliyun。
+	// 源端云服务提供商，task_type为非url_list时，本参数为URLSource。  可选值有AWS、Azure、Aliyun、Tencent、HuaweiCloud、QingCloud、KingsoftCloud、Baidu、Qiniu、Google、URLSource或者UCloud。默认值为Aliyun。
 	CloudType *string `json:"cloud_type,omitempty"`
 
 	// 源端桶所处的区域，task_type为非url_list时，本参数为必选。
@@ -20,6 +20,9 @@ type SrcNodeReq struct {
 
 	// 源端桶的SK（最大长度100个字符），task_type为非url_list时，本参数为必选。
 	Sk *string `json:"sk,omitempty"`
+
+	// 用于谷歌云Cloud Storage鉴权
+	JsonAuthFile *string `json:"json_auth_file,omitempty"`
 
 	// 源端桶的临时Token（最大长度16384个字符）
 	SecurityToken *string `json:"security_token,omitempty"`

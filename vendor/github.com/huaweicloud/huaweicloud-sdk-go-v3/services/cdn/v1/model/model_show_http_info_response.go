@@ -8,8 +8,10 @@ import (
 
 // ShowHttpInfoResponse Response Object
 type ShowHttpInfoResponse struct {
-	Https          *HttpInfoResponseBody `json:"https,omitempty"`
-	HttpStatusCode int                   `json:"-"`
+	Https *HttpInfoResponseBody `json:"https,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o ShowHttpInfoResponse) String() string {

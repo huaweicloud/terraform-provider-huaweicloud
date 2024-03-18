@@ -24,7 +24,7 @@ type CreateAssetByFileUploadReq struct {
 	VideoType string `json:"video_type"`
 
 	// 媒资分类ID。  您可以调用[创建媒资分类](https://support.huaweicloud.com/api-vod/vod_04_0028.html)接口或在点播控制台的[分类设置](https://support.huaweicloud.com/usermanual-vod/vod010006.html)中创建对应的媒资分类，并获取分类ID。  > 若不设置或者设置为-1，则上传的音视频归类到系统预置的“其它”分类中。
-	CategoryId *string `json:"category_id,omitempty"`
+	CategoryId *int32 `json:"category_id,omitempty"`
 
 	// 视频文件MD5值。  建议参考[媒资上传和更新](https://support.huaweicloud.com/api-vod/vod_04_0212.html)生成对应的MD5值。
 	VideoMd5 *string `json:"video_md5,omitempty"`

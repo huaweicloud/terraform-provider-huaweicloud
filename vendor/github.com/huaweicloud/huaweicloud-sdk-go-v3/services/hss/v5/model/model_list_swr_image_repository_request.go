@@ -33,11 +33,41 @@ type ListSwrImageRepositoryRequest struct {
 	// 每页显示个数
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库
+	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库   - local_image : 本地镜像   - instance_image : 企业镜像
 	ImageType string `json:"image_type"`
 
 	// 扫描状态，包含如下:   - unscan : 未扫描   - success : 扫描完成   - scanning : 扫描中   - failed : 扫描失败   - download_failed : 下载失败   - image_oversized : 镜像超大
 	ScanStatus *string `json:"scan_status,omitempty"`
+
+	// 企业镜像实例名称
+	InstanceName *string `json:"instance_name,omitempty"`
+
+	// 镜像大小
+	ImageSize *int64 `json:"image_size,omitempty"`
+
+	// 创建时间开始日期
+	StartLatestUpdateTime *int64 `json:"start_latest_update_time,omitempty"`
+
+	// 创建时间结束日期
+	EndLatestUpdateTime *int64 `json:"end_latest_update_time,omitempty"`
+
+	// 最近一次扫描完成时间开始日期
+	StartLatestScanTime *int64 `json:"start_latest_scan_time,omitempty"`
+
+	// 最近一次扫描完成时间结束日期
+	EndLatestScanTime *int64 `json:"end_latest_scan_time,omitempty"`
+
+	// 是否存在恶意文件
+	HasMaliciousFile *bool `json:"has_malicious_file,omitempty"`
+
+	// 是否存在基线检查
+	HasUnsafeSetting *bool `json:"has_unsafe_setting,omitempty"`
+
+	// 是否存在软件漏洞
+	HasVul *bool `json:"has_vul,omitempty"`
+
+	// 企业仓库实例ID，swr共享版无需使用该参数
+	InstanceId *string `json:"instance_id,omitempty"`
 }
 
 func (o ListSwrImageRepositoryRequest) String() string {

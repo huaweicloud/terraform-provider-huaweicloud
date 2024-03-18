@@ -1,21 +1,21 @@
 package v3
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cce/v3/model"
 )
 
 type CceClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewCceClient(hcClient *http_client.HcHttpClient) *CceClient {
+func NewCceClient(hcClient *httpclient.HcHttpClient) *CceClient {
 	return &CceClient{HcClient: hcClient}
 }
 
-func CceClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder()
+func CceClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder()
 	return builder
 }
 
@@ -198,6 +198,27 @@ func (c *CceClient) CreateClusterInvoker(request *model.CreateClusterRequest) *C
 	return &CreateClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateClusterMasterSnapshot 集群备份
+//
+// 集群备份
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateClusterMasterSnapshot(request *model.CreateClusterMasterSnapshotRequest) (*model.CreateClusterMasterSnapshotResponse, error) {
+	requestDef := GenReqDefForCreateClusterMasterSnapshot()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateClusterMasterSnapshotResponse), nil
+	}
+}
+
+// CreateClusterMasterSnapshotInvoker 集群备份
+func (c *CceClient) CreateClusterMasterSnapshotInvoker(request *model.CreateClusterMasterSnapshotRequest) *CreateClusterMasterSnapshotInvoker {
+	requestDef := GenReqDefForCreateClusterMasterSnapshot()
+	return &CreateClusterMasterSnapshotInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateKubernetesClusterCert 获取集群证书
 //
 // 该API用于获取指定集群的证书信息。
@@ -291,6 +312,48 @@ func (c *CceClient) CreatePartitionInvoker(request *model.CreatePartitionRequest
 	return &CreatePartitionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreatePostCheck 集群升级后确认
+//
+// 集群升级后确认，该接口建议配合Console使用，主要用于升级步骤完成后，客户确认集群状态和业务正常后做反馈。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreatePostCheck(request *model.CreatePostCheckRequest) (*model.CreatePostCheckResponse, error) {
+	requestDef := GenReqDefForCreatePostCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreatePostCheckResponse), nil
+	}
+}
+
+// CreatePostCheckInvoker 集群升级后确认
+func (c *CceClient) CreatePostCheckInvoker(request *model.CreatePostCheckRequest) *CreatePostCheckInvoker {
+	requestDef := GenReqDefForCreatePostCheck()
+	return &CreatePostCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreatePreCheck 集群升级前检查
+//
+// 集群升级前检查
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreatePreCheck(request *model.CreatePreCheckRequest) (*model.CreatePreCheckResponse, error) {
+	requestDef := GenReqDefForCreatePreCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreatePreCheckResponse), nil
+	}
+}
+
+// CreatePreCheckInvoker 集群升级前检查
+func (c *CceClient) CreatePreCheckInvoker(request *model.CreatePreCheckRequest) *CreatePreCheckInvoker {
+	requestDef := GenReqDefForCreatePreCheck()
+	return &CreatePreCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateRelease 创建模板实例
 //
 // 创建模板实例
@@ -310,6 +373,28 @@ func (c *CceClient) CreateRelease(request *model.CreateReleaseRequest) (*model.C
 func (c *CceClient) CreateReleaseInvoker(request *model.CreateReleaseRequest) *CreateReleaseInvoker {
 	requestDef := GenReqDefForCreateRelease()
 	return &CreateReleaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateUpgradeWorkFlow 开启集群升级流程引导任务
+//
+// 该API用于创建一个集群升级流程引导任务。请在调用本接口完成引导任务创建之后，通过集群升级前检查开始检查任务。
+// 升级流程任务用于控制集群升级任务的执行流程，执行流程为 升级前检查 &#x3D;&gt; 集群升级 &#x3D;&gt; 升级后检查。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateUpgradeWorkFlow(request *model.CreateUpgradeWorkFlowRequest) (*model.CreateUpgradeWorkFlowResponse, error) {
+	requestDef := GenReqDefForCreateUpgradeWorkFlow()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateUpgradeWorkFlowResponse), nil
+	}
+}
+
+// CreateUpgradeWorkFlowInvoker 开启集群升级流程引导任务
+func (c *CceClient) CreateUpgradeWorkFlowInvoker(request *model.CreateUpgradeWorkFlowRequest) *CreateUpgradeWorkFlowInvoker {
+	requestDef := GenReqDefForCreateUpgradeWorkFlow()
+	return &CreateUpgradeWorkFlowInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteAddonInstance 删除AddonInstance
@@ -568,6 +653,69 @@ func (c *CceClient) ListChartsInvoker(request *model.ListChartsRequest) *ListCha
 	return &ListChartsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListClusterMasterSnapshotTasks 获取集群备份任务详情列表
+//
+// 获取集群备份任务详情列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListClusterMasterSnapshotTasks(request *model.ListClusterMasterSnapshotTasksRequest) (*model.ListClusterMasterSnapshotTasksResponse, error) {
+	requestDef := GenReqDefForListClusterMasterSnapshotTasks()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListClusterMasterSnapshotTasksResponse), nil
+	}
+}
+
+// ListClusterMasterSnapshotTasksInvoker 获取集群备份任务详情列表
+func (c *CceClient) ListClusterMasterSnapshotTasksInvoker(request *model.ListClusterMasterSnapshotTasksRequest) *ListClusterMasterSnapshotTasksInvoker {
+	requestDef := GenReqDefForListClusterMasterSnapshotTasks()
+	return &ListClusterMasterSnapshotTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListClusterUpgradeFeatureGates 获取集群升级特性开关配置
+//
+// 获取集群升级特性开关配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListClusterUpgradeFeatureGates(request *model.ListClusterUpgradeFeatureGatesRequest) (*model.ListClusterUpgradeFeatureGatesResponse, error) {
+	requestDef := GenReqDefForListClusterUpgradeFeatureGates()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListClusterUpgradeFeatureGatesResponse), nil
+	}
+}
+
+// ListClusterUpgradeFeatureGatesInvoker 获取集群升级特性开关配置
+func (c *CceClient) ListClusterUpgradeFeatureGatesInvoker(request *model.ListClusterUpgradeFeatureGatesRequest) *ListClusterUpgradeFeatureGatesInvoker {
+	requestDef := GenReqDefForListClusterUpgradeFeatureGates()
+	return &ListClusterUpgradeFeatureGatesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListClusterUpgradePaths 获取集群升级路径
+//
+// 获取集群升级路径
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListClusterUpgradePaths(request *model.ListClusterUpgradePathsRequest) (*model.ListClusterUpgradePathsResponse, error) {
+	requestDef := GenReqDefForListClusterUpgradePaths()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListClusterUpgradePathsResponse), nil
+	}
+}
+
+// ListClusterUpgradePathsInvoker 获取集群升级路径
+func (c *CceClient) ListClusterUpgradePathsInvoker(request *model.ListClusterUpgradePathsRequest) *ListClusterUpgradePathsInvoker {
+	requestDef := GenReqDefForListClusterUpgradePaths()
+	return &ListClusterUpgradePathsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListClusters 获取指定项目下的集群
 //
 // 该API用于获取指定项目下所有集群的详细信息。
@@ -655,6 +803,27 @@ func (c *CceClient) ListPartitionsInvoker(request *model.ListPartitionsRequest) 
 	return &ListPartitionsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ListPreCheckTasks 获取集群升级前检查任务详情列表
+//
+// 获取集群升级前检查任务详情列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListPreCheckTasks(request *model.ListPreCheckTasksRequest) (*model.ListPreCheckTasksResponse, error) {
+	requestDef := GenReqDefForListPreCheckTasks()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPreCheckTasksResponse), nil
+	}
+}
+
+// ListPreCheckTasksInvoker 获取集群升级前检查任务详情列表
+func (c *CceClient) ListPreCheckTasksInvoker(request *model.ListPreCheckTasksRequest) *ListPreCheckTasksInvoker {
+	requestDef := GenReqDefForListPreCheckTasks()
+	return &ListPreCheckTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ListReleases 获取模板实例列表
 //
 // 获取模板实例列表
@@ -674,6 +843,48 @@ func (c *CceClient) ListReleases(request *model.ListReleasesRequest) (*model.Lis
 func (c *CceClient) ListReleasesInvoker(request *model.ListReleasesRequest) *ListReleasesInvoker {
 	requestDef := GenReqDefForListReleases()
 	return &ListReleasesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListUpgradeClusterTasks 获取集群升级任务详情列表
+//
+// 获取集群升级任务详情列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListUpgradeClusterTasks(request *model.ListUpgradeClusterTasksRequest) (*model.ListUpgradeClusterTasksResponse, error) {
+	requestDef := GenReqDefForListUpgradeClusterTasks()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListUpgradeClusterTasksResponse), nil
+	}
+}
+
+// ListUpgradeClusterTasksInvoker 获取集群升级任务详情列表
+func (c *CceClient) ListUpgradeClusterTasksInvoker(request *model.ListUpgradeClusterTasksRequest) *ListUpgradeClusterTasksInvoker {
+	requestDef := GenReqDefForListUpgradeClusterTasks()
+	return &ListUpgradeClusterTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListUpgradeWorkFlows 获取UpgradeWorkFlows列表
+//
+// 获取历史集群升级引导任务列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListUpgradeWorkFlows(request *model.ListUpgradeWorkFlowsRequest) (*model.ListUpgradeWorkFlowsResponse, error) {
+	requestDef := GenReqDefForListUpgradeWorkFlows()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListUpgradeWorkFlowsResponse), nil
+	}
+}
+
+// ListUpgradeWorkFlowsInvoker 获取UpgradeWorkFlows列表
+func (c *CceClient) ListUpgradeWorkFlowsInvoker(request *model.ListUpgradeWorkFlowsRequest) *ListUpgradeWorkFlowsInvoker {
+	requestDef := GenReqDefForListUpgradeWorkFlows()
+	return &ListUpgradeWorkFlowsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // MigrateNode 节点迁移
@@ -984,6 +1195,27 @@ func (c *CceClient) ShowClusterEndpointsInvoker(request *model.ShowClusterEndpoi
 	return &ShowClusterEndpointsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowClusterUpgradeInfo 获取集群升级相关信息
+//
+// 获取集群升级相关信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowClusterUpgradeInfo(request *model.ShowClusterUpgradeInfoRequest) (*model.ShowClusterUpgradeInfoResponse, error) {
+	requestDef := GenReqDefForShowClusterUpgradeInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowClusterUpgradeInfoResponse), nil
+	}
+}
+
+// ShowClusterUpgradeInfoInvoker 获取集群升级相关信息
+func (c *CceClient) ShowClusterUpgradeInfoInvoker(request *model.ShowClusterUpgradeInfoRequest) *ShowClusterUpgradeInfoInvoker {
+	requestDef := GenReqDefForShowClusterUpgradeInfo()
+	return &ShowClusterUpgradeInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowJob 获取任务信息
 //
 // 该API用于获取任务信息。通过某一任务请求下发后返回的jobID来查询指定任务的进度。
@@ -1095,6 +1327,27 @@ func (c *CceClient) ShowPartitionInvoker(request *model.ShowPartitionRequest) *S
 	return &ShowPartitionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowPreCheck 获取集群升级前检查任务详情
+//
+// 获取集群升级前检查任务详情，任务ID由调用集群检查API后从响应体中uid字段获取。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowPreCheck(request *model.ShowPreCheckRequest) (*model.ShowPreCheckResponse, error) {
+	requestDef := GenReqDefForShowPreCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowPreCheckResponse), nil
+	}
+}
+
+// ShowPreCheckInvoker 获取集群升级前检查任务详情
+func (c *CceClient) ShowPreCheckInvoker(request *model.ShowPreCheckRequest) *ShowPreCheckInvoker {
+	requestDef := GenReqDefForShowPreCheck()
+	return &ShowPreCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowQuotas 查询CCE服务下的资源配额
 //
 // 该API用于查询CCE服务下的资源配额。
@@ -1179,6 +1432,27 @@ func (c *CceClient) ShowUpgradeClusterTask(request *model.ShowUpgradeClusterTask
 func (c *CceClient) ShowUpgradeClusterTaskInvoker(request *model.ShowUpgradeClusterTaskRequest) *ShowUpgradeClusterTaskInvoker {
 	requestDef := GenReqDefForShowUpgradeClusterTask()
 	return &ShowUpgradeClusterTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowUpgradeWorkFlow 获取指定集群升级引导任务详情
+//
+// 该API用于通过升级引导任务ID获取任务的详细信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowUpgradeWorkFlow(request *model.ShowUpgradeWorkFlowRequest) (*model.ShowUpgradeWorkFlowResponse, error) {
+	requestDef := GenReqDefForShowUpgradeWorkFlow()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowUpgradeWorkFlowResponse), nil
+	}
+}
+
+// ShowUpgradeWorkFlowInvoker 获取指定集群升级引导任务详情
+func (c *CceClient) ShowUpgradeWorkFlowInvoker(request *model.ShowUpgradeWorkFlowRequest) *ShowUpgradeWorkFlowInvoker {
+	requestDef := GenReqDefForShowUpgradeWorkFlow()
+	return &ShowUpgradeWorkFlowInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowUserChartsQuotas 获取用户模板配额
@@ -1441,6 +1715,28 @@ func (c *CceClient) UpgradeCluster(request *model.UpgradeClusterRequest) (*model
 func (c *CceClient) UpgradeClusterInvoker(request *model.UpgradeClusterRequest) *UpgradeClusterInvoker {
 	requestDef := GenReqDefForUpgradeCluster()
 	return &UpgradeClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpgradeWorkFlowUpdate 更新指定集群升级引导任务状态
+//
+// 该API用于更新指定集群升级引导任务状态，当前仅适用于取消升级流程
+// 调用该API时升级流程引导任务状态不能为进行中(running) 已完成(success) 已取消(cancel),升级子任务状态不能为running(进行中) init(已初始化) pause(任务被暂停) queue(队列中)
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpgradeWorkFlowUpdate(request *model.UpgradeWorkFlowUpdateRequest) (*model.UpgradeWorkFlowUpdateResponse, error) {
+	requestDef := GenReqDefForUpgradeWorkFlowUpdate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpgradeWorkFlowUpdateResponse), nil
+	}
+}
+
+// UpgradeWorkFlowUpdateInvoker 更新指定集群升级引导任务状态
+func (c *CceClient) UpgradeWorkFlowUpdateInvoker(request *model.UpgradeWorkFlowUpdateRequest) *UpgradeWorkFlowUpdateInvoker {
+	requestDef := GenReqDefForUpgradeWorkFlowUpdate()
+	return &UpgradeWorkFlowUpdateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UploadChart 上传模板

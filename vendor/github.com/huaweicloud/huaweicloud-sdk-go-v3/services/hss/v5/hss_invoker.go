@@ -65,6 +65,18 @@ func (i *ChangeBlockedIpInvoker) Invoke() (*model.ChangeBlockedIpResponse, error
 	}
 }
 
+type ChangeCheckRuleActionInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ChangeCheckRuleActionInvoker) Invoke() (*model.ChangeCheckRuleActionResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ChangeCheckRuleActionResponse), nil
+	}
+}
+
 type ChangeEventInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -122,6 +134,18 @@ func (i *ChangeVulStatusInvoker) Invoke() (*model.ChangeVulStatusResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ChangeVulStatusResponse), nil
+	}
+}
+
+type CreateVulnerabilityScanTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateVulnerabilityScanTaskInvoker) Invoke() (*model.CreateVulnerabilityScanTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateVulnerabilityScanTaskResponse), nil
 	}
 }
 
@@ -413,6 +437,18 @@ func (i *ListPolicyGroupInvoker) Invoke() (*model.ListPolicyGroupResponse, error
 	}
 }
 
+type ListPortHostInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPortHostInvoker) Invoke() (*model.ListPortHostResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPortHostResponse), nil
+	}
+}
+
 type ListPortStatisticsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -446,6 +482,18 @@ func (i *ListProcessStatisticsInvoker) Invoke() (*model.ListProcessStatisticsRes
 		return nil, err
 	} else {
 		return result.(*model.ListProcessStatisticsResponse), nil
+	}
+}
+
+type ListProcessesHostInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListProcessesHostInvoker) Invoke() (*model.ListProcessesHostResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListProcessesHostResponse), nil
 	}
 }
 
@@ -590,6 +638,30 @@ func (i *ListVulHostsInvoker) Invoke() (*model.ListVulHostsResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListVulHostsResponse), nil
+	}
+}
+
+type ListVulScanTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListVulScanTaskInvoker) Invoke() (*model.ListVulScanTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListVulScanTaskResponse), nil
+	}
+}
+
+type ListVulScanTaskHostInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListVulScanTaskHostInvoker) Invoke() (*model.ListVulScanTaskHostResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListVulScanTaskHostResponse), nil
 	}
 }
 

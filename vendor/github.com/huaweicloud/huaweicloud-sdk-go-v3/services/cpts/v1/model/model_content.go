@@ -8,7 +8,7 @@ import (
 
 type Content struct {
 
-	// content_type
+	// 用例卡片类型（1：思考时间；2：报文；3：检查点；4：变量提取）
 	ContentType *int32 `json:"content_type,omitempty"`
 
 	Content *ContentInfo `json:"content,omitempty"`

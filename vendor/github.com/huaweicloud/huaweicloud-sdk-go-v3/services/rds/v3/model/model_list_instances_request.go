@@ -28,6 +28,9 @@ type ListInstancesRequest struct {
 	// 数据库类型，区分大小写。 - MySQL - PostgreSQL - SQLServer - MariaDB
 	DatastoreType *ListInstancesRequestDatastoreType `json:"datastore_type,omitempty"`
 
+	// 企业项目id。
+	EpsId *string `json:"eps_id,omitempty"`
+
 	// 虚拟私有云ID。
 	VpcId *string `json:"vpc_id,omitempty"`
 

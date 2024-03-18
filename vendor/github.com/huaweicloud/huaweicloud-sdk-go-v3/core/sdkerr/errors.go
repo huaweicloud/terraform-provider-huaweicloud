@@ -22,6 +22,7 @@ package sdkerr
 import (
 	"bytes"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"net/http"
 
@@ -102,8 +103,8 @@ func (m errMap) getStringValue(key string) string {
 type ServiceResponseError struct {
 	StatusCode                  int    `json:"status_code"`
 	RequestId                   string `json:"request_id"`
-	ErrorCode                   string `json:"error_code"`
-	ErrorMessage                string `json:"error_message"`
+	ErrorCode                   string `json:"error_code" bson:"errorCode"`
+	ErrorMessage                string `json:"error_message" bson:"errorMsg"`
 	EncodedAuthorizationMessage string `json:"encoded_authorization_message"`
 }
 
@@ -123,7 +124,11 @@ func NewServiceResponseError(resp *http.Response) *ServiceResponseError {
 
 	if err == nil {
 		dataBuf := errMap{}
-		err := utils.Unmarshal(data, &dataBuf)
+		if resp.Header.Get("Content-Type") == "application/bson" {
+			err = bson.Unmarshal(data, &sr)
+		} else {
+			err = utils.Unmarshal(data, &dataBuf)
+		}
 		if err != nil {
 			sr.ErrorMessage = string(data)
 		} else {
