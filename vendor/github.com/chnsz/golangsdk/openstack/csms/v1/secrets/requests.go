@@ -79,6 +79,7 @@ type CreateVersionOpts struct {
 	SecretBinary  string   `json:"secret_binary,omitempty" xor:"SecretString"`
 	SecretString  string   `json:"secret_string,omitempty" xor:"SecretBinary"`
 	VersionStages []string `json:"version_stages,omitempty"`
+	ExpireTime    int      `json:"expire_time,omitempty"`
 }
 
 func CreateSecretVersion(c *golangsdk.ServiceClient, secretName string, opts CreateVersionOpts) (*VersionMetadata, error) {
@@ -104,6 +105,32 @@ func CreateSecretVersion(c *golangsdk.ServiceClient, secretName string, opts Cre
 func ShowSecretVersion(c *golangsdk.ServiceClient, secretName string, versionId string) (*Version, error) {
 	var rst golangsdk.Result
 	_, err := c.Get(resourceVersionURL(c, secretName, versionId), &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err == nil {
+		var r struct {
+			Version Version `json:"version"`
+		}
+		rst.ExtractInto(&r)
+		return &r.Version, nil
+	}
+	return nil, err
+}
+
+type UpdateVersionOpts struct {
+	ExpireTime int `json:"expire_time" required:"true"`
+}
+
+// UpdateSecretVersion only support update expire_time field.
+// The current method can only update secret in the ENABLED state
+func UpdateSecretVersion(c *golangsdk.ServiceClient, secretName string, versionId string, opts UpdateVersionOpts) (*Version, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst golangsdk.Result
+	_, err = c.Put(resourceVersionURL(c, secretName, versionId), b, &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	if err == nil {

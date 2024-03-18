@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
 
@@ -31,6 +32,7 @@ const (
 // @API DEW GET /v1/{project_id}/secrets/{secret_name}
 // @API DEW GET /v1/{project_id}/secrets/{secret_name}/versions
 // @API DEW GET /v1/{project_id}/secrets/{secret_name}/versions/{version_id}
+// @API DEW PUT /v1/{project_id}/secrets/{secret_name}/versions/{version_id}
 // @API DEW GET /v1/{project_id}/{resourceType}/{id}/tags
 // @API DEW PUT /v1/{project_id}/secrets/{secret_name}
 // @API DEW POST /v1/{project_id}/secrets/{secret_name}/versions
@@ -61,10 +63,22 @@ func ResourceCsmsSecret() *schema.Resource {
 						"Only letters, digits, underscores (_) hyphens (-) and dots (.) are allowed."),
 			},
 			"secret_text": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				StateFunc:    utils.HashAndHexEncode,
+				ExactlyOneOf: []string{"secret_text", "secret_binary"},
+			},
+			"secret_binary": {
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
 				Sensitive: true,
 				StateFunc: utils.HashAndHexEncode,
+			},
+			"expire_time": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"kms_key_id": {
 				Type:     schema.TypeString,
@@ -107,12 +121,12 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	name := d.Get("name").(string)
 	createOpts := secrets.CreateSecretOpts{
-		Name:        name,
-		KmsKeyID:    d.Get("kms_key_id").(string),
-		Description: d.Get("description").(string),
+		Name:         name,
+		KmsKeyID:     d.Get("kms_key_id").(string),
+		Description:  d.Get("description").(string),
+		SecretString: d.Get("secret_text").(string),
+		SecretBinary: d.Get("secret_binary").(string),
 	}
-	log.Printf("[DEBUG] Create CSMS secret options: %s", createOpts)
-	createOpts.SecretString = d.Get("secret_text").(string)
 
 	rst, err := secrets.Create(client, createOpts)
 	if err != nil {
@@ -169,12 +183,31 @@ func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta inte
 			mErr,
 			err)
 	}
-	secretTxt := version.SecretString
-	encodedSecretTxt := utils.HashAndHexEncode(secretTxt)
+	var encodedSecretTxt string
+	var encodedSecretBinary string
+	if version.SecretString != "" {
+		encodedSecretTxt = utils.HashAndHexEncode(version.SecretString)
+		mErr = multierror.Append(
+			mErr,
+			d.Set("secret_text", encodedSecretTxt),
+		)
+	} else {
+		encodedSecretBinary = utils.HashAndHexEncode(version.SecretBinary)
+		mErr = multierror.Append(
+			mErr,
+			d.Set("secret_binary", encodedSecretBinary),
+		)
+	}
+
+	if version.VersionMetadata.ExpireTime > 0 {
+		mErr = multierror.Append(
+			mErr,
+			d.Set("expire_time", version.VersionMetadata.ExpireTime),
+		)
+	}
 	versionID := version.VersionMetadata.ID
 	mErr = multierror.Append(
 		mErr,
-		d.Set("secret_text", encodedSecretTxt),
 		d.Set("latest_version", versionID),
 	)
 
@@ -257,13 +290,23 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Update secret text
-	if d.HasChanges("secret_text") {
+	if d.HasChanges("secret_text", "secret_binary") {
 		opts := secrets.CreateVersionOpts{
 			SecretString: d.Get("secret_text").(string),
+			SecretBinary: d.Get("secret_binary").(string),
 		}
+
 		_, err = secrets.CreateSecretVersion(client, name, opts)
 		if err != nil {
 			return diag.Errorf("failed to create a new version of CSMS secret: %s", err)
+		}
+	}
+
+	// The expire_time can be update only when the secret key state is ENABLED.
+	if d.HasChanges("expire_time") && d.Get("status") == "ENABLED" {
+		err = updateSecretVersion(client, d, name)
+		if err != nil {
+			return diag.Errorf("failed to update the CSMS secret version: %s", err)
 		}
 	}
 
@@ -275,6 +318,34 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 	return resourceCsmsSecretRead(ctx, d, meta)
+}
+
+func updateSecretVersion(client *golangsdk.ServiceClient, d *schema.ResourceData, name string) error {
+	opts := secrets.UpdateVersionOpts{
+		ExpireTime: d.Get("expire_time").(int),
+	}
+
+	// Query the version list
+	versions, err := secrets.ListSecretVersions(client, name)
+	if err != nil {
+		return fmt.Errorf("failed to query the list of secret versions: %s", err)
+	}
+	if len(versions) == 0 {
+		return fmt.Errorf("the list of secret versions is empty")
+	}
+
+	// Sort by created time in descending order.
+	sort.Slice(versions, func(i, j int) bool {
+		return versions[i].CreateTime > versions[j].CreateTime
+	})
+
+	versionID := versions[0].ID
+	_, err = secrets.UpdateSecretVersion(client, name, versionID, opts)
+	if err != nil {
+		return fmt.Errorf("failed to update the expire time of CSMS secret: %s", err)
+	}
+
+	return nil
 }
 
 func resourceCsmsSecretDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

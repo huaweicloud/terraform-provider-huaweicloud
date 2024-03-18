@@ -29,6 +29,17 @@ resource "huaweicloud_csms_secret" "test2" {
 }
 ```
 
+### Encrypt String Binary
+
+```hcl
+variable "secret_binary" {}
+
+resource "huaweicloud_csms_secret" "test3" {
+  name          = "test_binary"
+  secret_binary = var.secret_binary
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -39,9 +50,17 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) The secret name. The maximum length is 64 characters.
   Only digits, letters, underscores(_), hyphens(-) and dots(.) are allowed.
 
-* `secret_text` - (Required, String) The plaintext of a secret in text format. The maximum size is 32 KB.
+* `secret_text` - (Optional, String) Specifies the plaintext of a secret in text format. The maximum size is 32 KB.
 
-  -> **NOTE:** The `secret_text` is sensitive and in the state file we store its hash.
+* `secret_binary` - (Optional, String) Specifies the plaintext of a binary secret in text format encoded using Base64.
+  The maximum size is 32 KB.
+
+-> **NOTE:** Exactly one of `secret_text` and `secret_binary` should be specified.
+  The `secret_text` and `secret_binary` are sensitive and in the state file we store its hash.
+
+* `expire_time` - (Optional, Int) Specifies the expiration time of a secret, `expire_time` can only be edited
+  when `status` is **ENABLED**. The time is in the format of timestamp, that is, the offset milliseconds
+  from 1970-01-01 00:00:00 UTC to the specified time. The time must be greater than the current time.
 
 * `kms_key_id` - (Optional, String) The ID of the KMS key used to encrypt secrets.
   If this parameter is not specified when creating the secret, the default master key csms/default will be used.

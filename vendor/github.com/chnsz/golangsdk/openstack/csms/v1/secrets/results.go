@@ -28,4 +28,5 @@ type VersionMetadata struct {
 	KmsKeyID      string   `json:"kms_key_id"`
 	SecretName    string   `json:"secret_name"`
 	VersionStages []string `json:"version_stages"`
+	ExpireTime    int      `json:"expire_time"`
 }
