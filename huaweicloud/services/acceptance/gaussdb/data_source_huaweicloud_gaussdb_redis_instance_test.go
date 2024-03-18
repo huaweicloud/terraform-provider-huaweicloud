@@ -60,7 +60,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%s"
   password    = "Test@12345678"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
-  volume_size = 100
+  volume_size = 16
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
   node_num    = 4

@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccOpenGaussInstanceDataSource_basic(t *testing.T) {
@@ -72,71 +71,24 @@ func testAccOpenGaussInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
-  name        = "%[2]s"
-  password    = "Test@12345678"
-  flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
-  vpc_id      = huaweicloud_vpc.test.id
-  subnet_id   = huaweicloud_vpc_subnet.test.id
-
-  availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
-  security_group_id = huaweicloud_networking_secgroup.test.id
-
-  ha {
-    mode             = "enterprise"
-    replication_mode = "sync"
-    consistency      = "strong"
-  }
-  volume {
-    type = "ULTRAHIGH"
-    size = 40
-  }
-
-  sharding_num = 1
-  coordinator_num = 2
-}
-
 data "huaweicloud_gaussdb_opengauss_instance" "test" {
   name = huaweicloud_gaussdb_opengauss_instance.test.name
   depends_on = [
     huaweicloud_gaussdb_opengauss_instance.test,
   ]
 }
-`, common.TestBaseNetwork(rName), rName)
+`, testAccOpenGaussInstance_basic(rName, fmt.Sprintf("%s@123", acctest.RandString(5)), 2))
 }
 
 func testAccOpenGaussInstanceDataSource_haModeCentralized(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_gaussdb_opengauss_instance" "test" {
-  name        = "%[2]s"
-  password    = "Test@12345678"
-  flavor      = "gaussdb.opengauss.ee.m6.2xlarge.x868.ha"
-  vpc_id      = huaweicloud_vpc.test.id
-  subnet_id   = huaweicloud_vpc_subnet.test.id
-
-  availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
-  security_group_id = huaweicloud_networking_secgroup.test.id
-
-  ha {
-    mode             = "centralization_standard"
-    replication_mode = "sync"
-    consistency      = "strong"
-  }
-  volume {
-    type = "ULTRAHIGH"
-    size = 40
-  }
-
-  replica_num = 3
-}
-
 data "huaweicloud_gaussdb_opengauss_instance" "test" {
   name = huaweicloud_gaussdb_opengauss_instance.test.name
   depends_on = [
     huaweicloud_gaussdb_opengauss_instance.test,
   ]
 }
-`, common.TestBaseNetwork(rName), rName)
+`, testAccOpenGaussInstance_haModeCentralized(rName, fmt.Sprintf("%s@123", acctest.RandString(5))))
 }

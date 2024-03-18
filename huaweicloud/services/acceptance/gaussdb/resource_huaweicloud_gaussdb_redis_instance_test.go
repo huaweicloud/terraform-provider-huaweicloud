@@ -36,7 +36,7 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "password", password),
 					resource.TestCheckResourceAttr(resourceName, "node_num", "3"),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "16"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
@@ -49,7 +49,7 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
 					resource.TestCheckResourceAttr(resourceName, "node_num", "5"),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "24"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "ssl", "false"),
@@ -62,7 +62,7 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
 					resource.TestCheckResourceAttr(resourceName, "node_num", "4"),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "24"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 				),
 			},
@@ -200,7 +200,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%[2]s"
   password    = "%[3]s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
-  volume_size = 50
+  volume_size = 16
   vpc_id      = data.huaweicloud_vpc.test.id
   subnet_id   = data.huaweicloud_vpc_subnet.test.id
   node_num    = 3
@@ -247,7 +247,7 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   name        = "%[2]s-update"
   password    = "%[3]s"
   flavor      = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
-  volume_size = 100
+  volume_size = 24
   vpc_id      = data.huaweicloud_vpc.test.id
   subnet_id   = data.huaweicloud_vpc_subnet.test.id
   node_num    = %[4]d
