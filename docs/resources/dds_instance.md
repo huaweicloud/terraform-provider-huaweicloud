@@ -157,6 +157,8 @@ The following arguments are supported:
 
 **NOTE:** The instance will be restarted in the background when switching SSL. Please operate with caution.
 
+* `second_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable second level monitoring.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
   The valid values are as follows:
   + `prePaid`: indicates the yearly/monthly billing mode.
@@ -235,17 +237,22 @@ The `flavor` block supports:
 
 The `backup_strategy` block supports:
 
-* `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered during the
-  backup time window. The value cannot be empty. It must be a valid value in the
-  "hh:mm-HH:MM" format. The current time is in the UTC format.
+* `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered during
+  the backup time window. The value cannot be empty. It must be a valid value in the "hh:mm-HH:MM" format.
+  The current time is in the UTC format.
   + The HH value must be 1 greater than the hh value.
-  + The values from mm and MM must be the same and must be set to any of the following 00, 15, 30, or 45.
+  + The values from mm and MM must be the same and must be set to **00**.
 
 * `keep_days` - (Required, Int) Specifies the number of days to retain the generated backup files. The value range is
-  from 0 to 732.
-  + If this parameter is set to 0, the automated backup policy is not set.
-  + If this parameter is not transferred, the automated backup policy is enabled by default. Backup files are stored
-      for seven days by default.
+  from 0 to 732. If this parameter is set to 0, the automated backup policy is disabled.
+
+* `period` - (Optional, String) Specifies the backup cycle. Data will be automatically backed up on the
+  selected days every week.
+  + If you set the `keep_days` to 0, this parameter is no need to set.
+  + If you set the `keep_days` within 6 days, set the parameter value to **1,2,3,4,5,6,7**, data is automatically
+    backed up on each day every week.
+  + If you set the `keep_days` between 7 and 732 days, set the parameter value to at least one day of every week.
+    For example: **1**, **3,5**.
 
 ## Attribute Reference
 
