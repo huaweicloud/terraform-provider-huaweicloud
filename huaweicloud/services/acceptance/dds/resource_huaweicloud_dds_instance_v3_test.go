@@ -66,6 +66,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.period", "1,3,5"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8800"),
 				),
 			},
@@ -83,6 +84,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "00:00-01:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.period", "2,4,6"),
 				),
 			},
 			{
@@ -274,6 +276,44 @@ func TestAccDDSV3Instance_withConfigurationReplicaSet(t *testing.T) {
 	})
 }
 
+func TestAccDDSV3Instance_withSecondLevelMonitoring(t *testing.T) {
+	var instance instances.InstanceResponse
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dds_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDdsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDDSInstanceV3Config_secondLevelMonitoring(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "true"),
+				),
+			},
+			{
+				Config: testAccDDSInstanceV3Config_secondLevelMonitoringUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "false"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, groupType, key string, v interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if key == "num" {
@@ -380,6 +420,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,3,5"
   }
 
   tags = {
@@ -433,6 +474,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "00:00-01:00"
     keep_days  = "7"
+    period     = "2,4,6"
   }
 
   tags = {
@@ -486,6 +528,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
 
   tags = {
@@ -539,6 +582,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
 
   tags = {
@@ -592,6 +636,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
 
   tags = {
@@ -609,7 +654,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
   name                  = "%s"
-  availability_zone     = data.huaweicloud_availability_zones.test.names[1]
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
@@ -646,6 +691,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
 
   tags = {
@@ -700,6 +746,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
 
   tags = {
@@ -759,6 +806,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 8
+    period     = "1,5"
   }
 }`, common.TestBaseNetwork(rName), rName)
 }
@@ -812,6 +860,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "00:00-01:00"
     keep_days  = 7
+    period     = "1,3"
   }
 }`, common.TestBaseNetwork(rName), rName)
 }
@@ -898,6 +947,7 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
   tags = {
     foo   = "bar"
@@ -948,10 +998,115 @@ resource "huaweicloud_dds_instance" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = "8"
+    period     = "1,5"
   }
   tags = {
     foo   = "bar"
     owner = "terraform"
   }
 }`, common.TestBaseNetwork(rName), rName, port)
+}
+
+func testAccDDSInstanceV3Config_secondLevelMonitoring(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dds_instance" "test" {
+  name                            = "%s"
+  availability_zone               = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                          = huaweicloud_vpc.test.id
+  subnet_id                       = huaweicloud_vpc_subnet.test.id
+  security_group_id               = huaweicloud_networking_secgroup.test.id
+  password                        = "Terraform@123"
+  mode                            = "Sharding"
+  second_level_monitoring_enabled = true
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.s6.xlarge.2.mongos"
+  }
+
+  flavor {
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.s6.xlarge.2.shard"
+  }
+
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.s6.xlarge.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+    period     = "1,3"
+  }
+}`, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccDDSInstanceV3Config_secondLevelMonitoringUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dds_instance" "test" {
+  name                            = "%s"
+  availability_zone               = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                          = huaweicloud_vpc.test.id
+  subnet_id                       = huaweicloud_vpc_subnet.test.id
+  security_group_id               = huaweicloud_networking_secgroup.test.id
+  password                        = "Terraform@123"
+  mode                            = "Sharding"
+  second_level_monitoring_enabled = false
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.s6.xlarge.2.mongos"
+  }
+  
+  flavor {
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.s6.xlarge.2.shard"
+  }
+
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.s6.xlarge.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+    period     = "1,3"
+  }
+}`, common.TestBaseNetwork(rName), rName)
 }
