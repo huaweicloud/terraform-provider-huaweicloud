@@ -100,33 +100,35 @@ func ResourceDevice() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				Sensitive:     true,
-				ConflictsWith: []string{"fingerprint"},
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(8, 32),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
+				ConflictsWith: []string{"fingerprint", "secondary_fingerprint"},
 			},
-
+			"secondary_secret": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"fingerprint", "secondary_fingerprint"},
+			},
 			"fingerprint": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"secret"},
-				ValidateFunc: func(i interface{}, k string) (warnings []string, errors []error) {
-					v, ok := i.(string)
-					if !ok {
-						errors = append(errors, fmt.Errorf("expected type of %s to be string", k))
-						return warnings, errors
-					}
-
-					if len(v) != 40 && len(v) != 64 {
-						errors = append(errors,
-							fmt.Errorf("expected the fingerprint is a 40-digit or 64-digit hexadecimal string"))
-					}
-
-					return warnings, errors
-				},
+				ConflictsWith: []string{"secret", "secondary_secret"},
+			},
+			"secondary_fingerprint": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"secret", "secondary_secret"},
+			},
+			"secure_access": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"force_disconnect": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 
 			"gateway_id": {
@@ -191,6 +193,22 @@ func ResourceDeviceCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	d.SetId(*resp.DeviceId)
 
+	// Set Secondary Secret.
+	if v, ok := d.Get("secondary_secret").(string); ok && v != "" {
+		err = resetDeviceSecondarySecret(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Set Secondary Fingerprint.
+	if v, ok := d.Get("secondary_fingerprint").(string); ok && v != "" {
+		err = resetDeviceSecondaryFingerprint(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// bind tags
 	err = bindDeviceTags(client, d.Id(), nil, d.Get("tags").(map[string]interface{}))
 	if err != nil {
@@ -239,7 +257,10 @@ func ResourceDeviceRead(_ context.Context, d *schema.ResourceData, meta interfac
 	if response.AuthInfo != nil {
 		mErr = multierror.Append(mErr,
 			d.Set("secret", response.AuthInfo.Secret),
+			d.Set("secondary_secret", response.AuthInfo.SecondarySecret),
 			d.Set("fingerprint", response.AuthInfo.Fingerprint),
+			d.Set("secondary_fingerprint", response.AuthInfo.SecondaryFingerprint),
+			d.Set("secure_access", response.AuthInfo.SecureAccess),
 			d.Set("auth_type", response.AuthInfo.AuthType),
 		)
 	}
@@ -256,8 +277,8 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
 	}
 
-	// name,desc
-	if d.HasChanges("name", "description") {
+	// Update name,desc,secure_access
+	if d.HasChanges("name", "description", "secure_access") {
 		updateOpts := buildDeviceUpdateParams(d)
 		_, err = client.UpdateDevice(updateOpts)
 		if err != nil {
@@ -265,30 +286,50 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
-	// Reset Device Secret
+	// Reset Device Primary Secret.
 	if d.HasChange("secret") {
 		_, err = client.ResetDeviceSecret(&model.ResetDeviceSecretRequest{
 			DeviceId: d.Id(),
 			ActionId: "resetSecret",
 			Body: &model.ResetDeviceSecret{
-				Secret: utils.StringIgnoreEmpty(d.Get("secret").(string)),
+				Secret:          utils.StringIgnoreEmpty(d.Get("secret").(string)),
+				ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
+				SecretType:      utils.String("PRIMARY"),
 			},
 		})
 		if err != nil {
-			return diag.Errorf("error updating the secret of IoTDA device: %s", err)
+			return diag.Errorf("error updating the primary secret of IoTDA device: %s", err)
 		}
 	}
 
-	// Reset Fingerprint
+	// Reset Device Secondary Secret.
+	if d.HasChange("secondary_secret") {
+		err = resetDeviceSecondarySecret(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Reset Primary Fingerprint.
 	if d.HasChange("fingerprint") {
 		_, err = client.ResetFingerprint(&model.ResetFingerprintRequest{
 			DeviceId: d.Id(),
 			Body: &model.ResetFingerprint{
-				Fingerprint: utils.StringIgnoreEmpty(d.Get("fingerprint").(string)),
+				Fingerprint:     utils.StringIgnoreEmpty(d.Get("fingerprint").(string)),
+				ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
+				FingerprintType: utils.String("PRIMARY"),
 			},
 		})
 		if err != nil {
-			return diag.Errorf("error updating the fingerprint of IoTDA device: %s", err)
+			return diag.Errorf("error updating the primary fingerprint of IoTDA device: %s", err)
+		}
+	}
+
+	// Reset Secondary Fingerprint.
+	if d.HasChange("secondary_fingerprint") {
+		err = resetDeviceSecondaryFingerprint(client, d)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -312,6 +353,39 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	return ResourceDeviceRead(ctx, d, meta)
+}
+
+func resetDeviceSecondarySecret(client *iotdav5.IoTDAClient, d *schema.ResourceData) error {
+	_, err := client.ResetDeviceSecret(&model.ResetDeviceSecretRequest{
+		DeviceId: d.Id(),
+		ActionId: "resetSecret",
+		Body: &model.ResetDeviceSecret{
+			Secret:          utils.StringIgnoreEmpty(d.Get("secondary_secret").(string)),
+			ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
+			SecretType:      utils.String("SECONDARY"),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("error updating the secondary secret of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func resetDeviceSecondaryFingerprint(client *iotdav5.IoTDAClient, d *schema.ResourceData) error {
+	_, err := client.ResetFingerprint(&model.ResetFingerprintRequest{
+		DeviceId: d.Id(),
+		Body: &model.ResetFingerprint{
+			Fingerprint:     utils.StringIgnoreEmpty(d.Get("secondary_fingerprint").(string)),
+			ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
+			FingerprintType: utils.String("SECONDARY"),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("error updating the secondary fingerprint of IoTDA device: %s", err)
+	}
+
+	return nil
 }
 
 func ResourceDeviceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -397,7 +471,7 @@ func buildDeviceCreateParams(d *schema.ResourceData) *model.AddDeviceRequest {
 			GatewayId:   utils.StringIgnoreEmpty(d.Get("gateway_id").(string)),
 			Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
 			AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			AuthInfo:    buildAuthInfo(d.Get("secret").(string), d.Get("fingerprint").(string)),
+			AuthInfo:    buildAuthInfo(d.Get("secret").(string), d.Get("fingerprint").(string), d.Get("secure_access").(bool)),
 		},
 	}
 	return &req
@@ -409,23 +483,28 @@ func buildDeviceUpdateParams(d *schema.ResourceData) *model.UpdateDeviceRequest 
 		Body: &model.UpdateDevice{
 			DeviceName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
 			Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
+			AuthInfo: &model.AuthInfoWithoutSecret{
+				SecureAccess: utils.Bool(d.Get("secure_access").(bool)),
+			},
 		},
 	}
 	return &req
 }
 
-func buildAuthInfo(secret, fingerprint string) *model.AuthInfo {
+func buildAuthInfo(secret, fingerprint string, secureAccess bool) *model.AuthInfo {
 	if len(secret) > 0 {
 		return &model.AuthInfo{
-			AuthType: utils.String("SECRET"),
-			Secret:   &secret,
+			AuthType:     utils.String("SECRET"),
+			Secret:       &secret,
+			SecureAccess: &secureAccess,
 		}
 	}
 
 	if len(fingerprint) > 0 {
 		return &model.AuthInfo{
-			AuthType:    utils.String("CERTIFICATES"),
-			Fingerprint: &fingerprint,
+			AuthType:     utils.String("CERTIFICATES"),
+			Fingerprint:  &fingerprint,
+			SecureAccess: &secureAccess,
 		}
 	}
 

@@ -48,6 +48,8 @@ func TestAccDevice_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", nodeId),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
 					resource.TestCheckResourceAttr(rName, "secret", "1234567890"),
+					resource.TestCheckResourceAttr(rName, "secondary_secret", "test123456"),
+					resource.TestCheckResourceAttr(rName, "secure_access", "false"),
 					resource.TestCheckResourceAttr(rName, "description", "demo"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "status", "INACTIVE"),
@@ -67,6 +69,8 @@ func TestAccDevice_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
 					resource.TestCheckResourceAttr(rName, "fingerprint", "1234567890123456789012345678901234567890"),
+					resource.TestCheckResourceAttr(rName, "secondary_fingerprint", "dc0f1016f495157344ac5f1296335cff725ef22f"),
+					resource.TestCheckResourceAttr(rName, "secure_access", "true"),
 					resource.TestCheckResourceAttr(rName, "description", "demo_update"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(rName, "status", "FROZEN"),
@@ -84,6 +88,9 @@ func TestAccDevice_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"force_disconnect",
+				},
 			},
 		},
 	})
@@ -95,12 +102,15 @@ func testDevice_basic(name, nodeId string) string {
 %s
 
 resource "huaweicloud_iotda_device" "test" {
-  node_id     = "%[3]s"
-  name        = "%[2]s"
-  space_id    = huaweicloud_iotda_space.test.id
-  product_id  = huaweicloud_iotda_product.test.id
-  secret      = "1234567890"
-  description = "demo"
+  node_id          = "%[3]s"
+  name             = "%[2]s"
+  space_id         = huaweicloud_iotda_space.test.id
+  product_id       = huaweicloud_iotda_product.test.id
+  secret           = "1234567890"
+  secondary_secret = "test123456"
+  secure_access    = false
+  force_disconnect = true
+  description      = "demo"
 
   tags = {
     foo = "bar"
@@ -124,13 +134,14 @@ func testDevice_basic_update(name, nodeId string) string {
 %s
 
 resource "huaweicloud_iotda_device" "test" {
-  node_id     = "%[3]s"
-  name        = "%[2]s"
-  space_id    = huaweicloud_iotda_space.test.id
-  product_id  = huaweicloud_iotda_product.test.id
-  fingerprint = "1234567890123456789012345678901234567890"
-  description = "demo_update"
-  frozen      = true
+  node_id               = "%[3]s"
+  name                  = "%[2]s"
+  space_id              = huaweicloud_iotda_space.test.id
+  product_id            = huaweicloud_iotda_product.test.id
+  fingerprint           = "1234567890123456789012345678901234567890"
+  secondary_fingerprint = "dc0f1016f495157344ac5f1296335cff725ef22f"
+  description           = "demo_update"
+  frozen                = true
 
   tags = {
     foo = "bar_update"
