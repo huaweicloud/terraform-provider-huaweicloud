@@ -57,7 +57,8 @@ func ResourceVPCEndpoint() *schema.Resource {
 			},
 			"network_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"enable_dns": {
@@ -77,6 +78,13 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+			},
+			"routetables": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"enable_whitelist": {
 				Type:     schema.TypeBool,
@@ -133,6 +141,11 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 		Tags:            utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 
+	routeTables := d.Get("routetables").(*schema.Set)
+	if routeTables.Len() > 0 {
+		createOpts.RouteTables = utils.ExpandToStringList(routeTables.List())
+	}
+
 	raw := d.Get("whitelist").(*schema.Set).List()
 	if enableACL && len(raw) > 0 {
 		createOpts.Whitelist = utils.ExpandToStringList(raw)
@@ -177,21 +190,35 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] retrieving VPC endpoint: %#v", ep)
+
+	serviceType := ep.ServiceType
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("status", ep.Status),
 		d.Set("service_id", ep.ServiceID),
 		d.Set("service_name", ep.ServiceName),
-		d.Set("service_type", ep.ServiceType),
+		d.Set("service_type", serviceType),
 		d.Set("vpc_id", ep.VpcID),
 		d.Set("network_id", ep.SubnetID),
 		d.Set("ip_address", ep.IPAddr),
 		d.Set("description", ep.Description),
-		d.Set("enable_dns", ep.EnableDNS),
 		d.Set("enable_whitelist", ep.EnableWhitelist),
 		d.Set("packet_id", ep.MarkerID),
 		d.Set("tags", utils.TagsToMap(ep.Tags)),
 	)
+
+	// if the VPC endpoint type is interface, the field is used and need to be set
+	if serviceType == "interface" {
+		mErr = multierror.Append(mErr, d.Set("enable_dns", ep.EnableDNS))
+	}
+
+	// if the VPC endpoint type is interface, the parameter can be ignored
+	// the api will return an empty array
+	if len(ep.RouteTables) == 0 {
+		mErr = multierror.Append(mErr, d.Set("routetables", nil))
+	} else {
+		mErr = multierror.Append(mErr, d.Set("routetables", ep.RouteTables))
+	}
 
 	if len(ep.Whitelist) == 0 {
 		// if the "whitelist" is not specified, the api will return an empty array

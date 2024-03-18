@@ -88,6 +88,7 @@ func TestAccVPCEndpoint_Public(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_domain_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "routetables.#"),
 				),
 			},
 		},
@@ -204,3 +205,121 @@ resource "huaweicloud_vpcep_endpoint" "myendpoint" {
   whitelist        = ["192.168.0.0/24", "10.10.10.10"]
 }
 `
+
+func TestAccVPCEndpoint_RouteTables(t *testing.T) {
+	var endpoint endpoints.Endpoint
+
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_vpcep_endpoint.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&endpoint,
+		getVpcepEndpointResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckVPCEPServiceId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCEndpoint_RouteTables(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "routetables.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"enable_dns"},
+			},
+		},
+	})
+}
+
+func testAccVPCEndpoint_RouteTables_base(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id            = huaweicloud_vpc.test.id
+  name              = "%[1]s"
+  cidr              = "192.168.1.0/24"
+  gateway_ip        = "192.168.1.1"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_vpc_subnet" "retest" {
+  depends_on = [
+    huaweicloud_vpc_subnet.test
+  ]
+
+  vpc_id            = huaweicloud_vpc.test.id
+  name              = "%[1]s-rt"
+  cidr              = "192.168.5.0/24"
+  gateway_ip        = "192.168.5.1"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+data "huaweicloud_vpc_subnet_ids" "test" {
+  depends_on = [
+    huaweicloud_vpc_subnet.retest
+  ]
+
+  vpc_id = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_vpc_route_table" "test" {
+  name    = "%[1]s-rtb"
+  vpc_id  = huaweicloud_vpc.test.id
+  subnets = data.huaweicloud_vpc_subnet_ids.test.ids
+}
+
+data "huaweicloud_vpc_route_table" "test" {
+  vpc_id = huaweicloud_vpc.test.id
+}
+
+data "huaweicloud_vpc_route_table" "custom" {
+  vpc_id = huaweicloud_vpc.test.id
+  name   = huaweicloud_vpc_route_table.test.name
+}
+`, rName)
+}
+
+func testAccVPCEndpoint_RouteTables(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpcep_endpoint" "test" {
+  depends_on = [
+    huaweicloud_vpc_route_table.test
+  ]
+
+  service_id  = "%[2]s"
+  vpc_id      = huaweicloud_vpc.test.id
+  description = "created by terraform"
+
+  routetables = [
+    data.huaweicloud_vpc_route_table.custom.id,
+    data.huaweicloud_vpc_route_table.test.id
+  ]
+
+  tags = {
+    owner = "tf-acc"
+  }
+}
+`, testAccVPCEndpoint_RouteTables_base(rName), acceptance.HW_VPCEP_SERVICE_ID)
+}

@@ -303,6 +303,8 @@ var (
 	HW_LTS_AGENCY_PROJECT_ID  = os.Getenv("HW_LTS_AGENCY_PROJECT_ID")
 	HW_LTS_AGENCY_DOMAIN_NAME = os.Getenv("HW_LTS_AGENCY_DOMAIN_NAME")
 	HW_LTS_AGENCY_NAME        = os.Getenv("HW_LTS_AGENCY_NAME")
+
+	HW_VPCEP_SERVICE_ID = os.Getenv("HW_VPCEP_SERVICE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1414,5 +1416,12 @@ func TestAccPreCheckLTSCrossAccountAccess(t *testing.T) {
 		HW_LTS_LOG_GROUP_NAME == "" || HW_LTS_LOG_GROUP_ID == "" {
 		t.Skip("The delegatee account config of HW_LTS_LOG_STREAM_NAME, HW_LTS_LOG_STREAM_ID, HW_LTS_LOG_GROUP_NAME" +
 			" and HW_LTS_LOG_GROUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVPCEPServiceId(t *testing.T) {
+	if HW_VPCEP_SERVICE_ID == "" {
+		t.Skip("HW_VPCEP_SERVICE_ID must be set for the acceptance test")
 	}
 }
