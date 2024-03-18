@@ -217,7 +217,10 @@ The `sequence` block supports:
 The `service` block supports:
 
 * `type` - (Required, Int) The service input type.
-  The value **0** indicates manual input, and the value **1** indicates automatic input.
+  The options are as follows:
+  + **0**: manual input;
+  + **1**: automatic input;
+  + **2**: multiple objects;
 
 * `dest_port` - (Optional, String) The destination port.
 
@@ -245,10 +248,14 @@ The `service` block supports:
 <a name="ProtectionRule_RuleSourceAddress"></a>
 The `source` block supports:
 
-* `type` - (Required, Int) The Source type. The options are as follows:
+* `type` - (Required, Int) The source type. The options are as follows:
   + **0**: manual input;
   + **1**: associated IP address group;
   + **2**: domain name;
+  + **3**: region;
+  + **4**: domain name group using URL filtering;
+  + **5**: multiple objects;
+  + **6**: domain name group using DNS resolution;
 
 * `address` - (Optional, String) The IP address.
   The value cannot be empty for the manual type, and cannot be empty for the automatic or domain type.
@@ -275,10 +282,14 @@ The `source` block supports:
 <a name="ProtectionRule_RuleDestinationAddress"></a>
 The `destination` block supports:
 
-* `type` - (Required, Int) The Source type. The options are as follows:
+* `type` - (Required, Int) The destination type. The options are as follows:
   + **0**: manual input;
   + **1**: associated IP address group;
   + **2**: domain name;
+  + **3**: region;
+  + **4**: domain name group using URL filtering;
+  + **5**: multiple objects;
+  + **6**: domain name group using DNS resolution;
 
 * `address` - (Optional, String) The IP address.
   The value cannot be empty for the manual type, and cannot be empty for the automatic or domain type.
