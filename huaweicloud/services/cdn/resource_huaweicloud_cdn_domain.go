@@ -14,8 +14,8 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
 
-	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1/model"
+	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -601,10 +601,10 @@ func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules
 	for i, val := range rules {
 		rule := val.(map[string]interface{})
 		result[i] = model.CacheRules{
-			FollowOrigin: parseFunctionEnabledStatus(followOrigin),
-			MatchType:    parseCacheRuleType(rule["rule_type"].(string)),
+			FollowOrigin: utils.StringIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
+			MatchType:    utils.StringIgnoreEmpty(parseCacheRuleType(rule["rule_type"].(string))),
 			MatchValue:   utils.StringIgnoreEmpty(rule["content"].(string)),
-			Ttl:          int32(rule["ttl"].(int)),
+			Ttl:          utils.Int32IgnoreEmpty(int32(rule["ttl"].(int))),
 			TtlUnit:      parseCacheTTLUnits(rule["ttl_type"].(string)),
 			Priority:     int32(rule["priority"].(int)),
 		}
@@ -612,7 +612,7 @@ func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules
 	return &result
 }
 
-func updateDomainFullConfigs(client *cdnv1.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
+func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
 	rawConfigs := d.Get("configs").([]interface{})
 	if len(rawConfigs) < 1 || rawConfigs[0] == nil {
 		return nil
@@ -870,7 +870,7 @@ func flattenCompressAttrs(compress *model.Compress) []map[string]interface{} {
 	return []map[string]interface{}{compressAttrs}
 }
 
-func flattenCacheUrlParameterFilterAttrs(cacheUrlParameterFilter *model.CacheUrlParameterFilter) []map[string]interface{} {
+func flattenCacheUrlParameterFilterAttrs(cacheUrlParameterFilter *model.CacheUrlParameterFilterGetBody) []map[string]interface{} {
 	if cacheUrlParameterFilter == nil {
 		return nil
 	}
@@ -927,7 +927,7 @@ func flattenCacheRulesAttrs(cacheRulesPtr *[]model.CacheRules) []map[string]inte
 
 	return []map[string]interface{}{
 		{
-			"follow_origin": analyseFunctionEnabledStatus(cacheRules[0].FollowOrigin),
+			"follow_origin": analyseFunctionEnabledStatus(utils.StringValue(cacheRules[0].FollowOrigin)),
 			"rules":         sourcesAttrs,
 		},
 	}
@@ -953,9 +953,9 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 }
 
 func queryDomainFullConfig(cfg *config.Config, d *schema.ResourceData, domainName string) (*model.ConfigsGetBody, error) {
-	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
+	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN v2 client: %s", err)
 	}
 	req := model.ShowDomainFullConfigRequest{
 		DomainName:          domainName,
@@ -974,9 +974,9 @@ func queryDomainFullConfig(cfg *config.Config, d *schema.ResourceData, domainNam
 }
 
 func queryAndFlattenDomainTags(cfg *config.Config, d *schema.ResourceData) (map[string]string, error) {
-	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
+	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN v2 client: %s", err)
 	}
 
 	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: d.Id()})
@@ -1038,9 +1038,9 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 
 func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	hcCdnClient, err := cfg.HcCdnV1Client(cfg.GetRegion(d))
+	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN v2 client: %s", err)
 	}
 
 	if d.HasChanges("sources", "configs", "cache_settings") || d.IsNewResource() {
@@ -1068,7 +1068,7 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceCdnDomainRead(ctx, d, meta)
 }
 
-func updateDomainTags(hcCdnClient *cdnv1.CdnClient, d *schema.ResourceData) error {
+func updateDomainTags(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceData) error {
 	oTagsRaw, nTagsRaw := d.GetChange("tags")
 	oTagsMap := oTagsRaw.(map[string]interface{})
 	nTagsMap := nTagsRaw.(map[string]interface{})
@@ -1091,9 +1091,9 @@ func updateDomainTags(hcCdnClient *cdnv1.CdnClient, d *schema.ResourceData) erro
 	}
 
 	if len(nTagsMap) > 0 {
-		tagList := make([]model.Map, 0, len(nTagsMap))
+		tagList := make([]model.TagMap, 0, len(nTagsMap))
 		for k, v := range nTagsMap {
-			tag := model.Map{
+			tag := model.TagMap{
 				Key:   k,
 				Value: utils.String(v.(string)),
 			}
