@@ -259,6 +259,22 @@ func buildStatisticCreateOpts(statistic string) aom.AlarmRuleParamStatistic {
 	return *statisticToReq
 }
 
+func buildPeriodCreateOpts(period int) aom.AlarmRuleParamPeriod {
+	periodToReq := new(aom.AlarmRuleParamPeriod)
+	if err := periodToReq.UnmarshalJSON([]byte(strconv.Itoa(period))); err != nil {
+		log.Printf("[WARN] failed to parse period %d: %s", period, err)
+	}
+	return *periodToReq
+}
+
+func buildComparisonOperatorCreateOpts(comparisonOperator string) aom.AlarmRuleParamComparisonOperator {
+	comparisonOperatorToReq := new(aom.AlarmRuleParamComparisonOperator)
+	if err := comparisonOperatorToReq.UnmarshalJSON([]byte(comparisonOperator)); err != nil {
+		log.Printf("[WARN] failed to parse comparison_operator %s: %s", comparisonOperator, err)
+	}
+	return *comparisonOperatorToReq
+}
+
 func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
@@ -270,7 +286,7 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		AlarmRuleName:           d.Get("name").(string),
 		AlarmDescription:        utils.String(d.Get("description").(string)),
 		AlarmLevel:              buildAlarmLevelCreateOpts(d.Get("alarm_level").(int)),
-		IdTurnOn:                utils.Bool(true),
+		IsTurnOn:                utils.Bool(true),
 		AlarmActions:            buildActionOpts(d.Get("alarm_actions").([]interface{})),
 		ActionEnabled:           utils.Bool(d.Get("alarm_action_enabled").(bool)),
 		OkActions:               buildActionOpts(d.Get("ok_actions").([]interface{})),
@@ -283,9 +299,9 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		Unit:               d.Get("unit").(string),
 		Threshold:          d.Get("threshold").(string),
 		Statistic:          buildStatisticCreateOpts(d.Get("statistic").(string)),
-		Period:             int32(d.Get("period").(int)),
+		Period:             buildPeriodCreateOpts(d.Get("period").(int)),
 		EvaluationPeriods:  int32(d.Get("evaluation_periods").(int)),
-		ComparisonOperator: d.Get("comparison_operator").(string),
+		ComparisonOperator: buildComparisonOperatorCreateOpts(d.Get("comparison_operator").(string)),
 	}
 
 	log.Printf("[DEBUG] Create %s Options: %#v", createOpts.AlarmRuleName, createOpts)
@@ -363,6 +379,38 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
+func buildAlarmLevelUpdateOpts(alarmLevel int) aom.UpdateAlarmRuleParamAlarmLevel {
+	alarmLevelToReq := new(aom.UpdateAlarmRuleParamAlarmLevel)
+	if err := alarmLevelToReq.UnmarshalJSON([]byte(strconv.Itoa(alarmLevel))); err != nil {
+		log.Printf("[WARN] failed to parse alarm_level %d: %s", alarmLevel, err)
+	}
+	return *alarmLevelToReq
+}
+
+func buildPeriodUpdateOpts(period int) aom.UpdateAlarmRuleParamPeriod {
+	periodToReq := new(aom.UpdateAlarmRuleParamPeriod)
+	if err := periodToReq.UnmarshalJSON([]byte(strconv.Itoa(period))); err != nil {
+		log.Printf("[WARN] failed to parse period %d: %s", period, err)
+	}
+	return *periodToReq
+}
+
+func buildComparisonOperatorUpdateOpts(comparisonOperator string) aom.UpdateAlarmRuleParamComparisonOperator {
+	comparisonOperatorToReq := new(aom.UpdateAlarmRuleParamComparisonOperator)
+	if err := comparisonOperatorToReq.UnmarshalJSON([]byte(comparisonOperator)); err != nil {
+		log.Printf("[WARN] failed to parse comparison_operator %s: %s", comparisonOperator, err)
+	}
+	return *comparisonOperatorToReq
+}
+
+func buildStatisticUpdateOpts(statistic string) aom.UpdateAlarmRuleParamStatistic {
+	statisticToReq := new(aom.UpdateAlarmRuleParamStatistic)
+	if err := statisticToReq.UnmarshalJSON([]byte(statistic)); err != nil {
+		log.Printf("[WARN] failed to parse statistic %s: %s", statistic, err)
+	}
+	return *statisticToReq
+}
+
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
@@ -371,24 +419,23 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	// all parameters should be set when updating due to the API issue
-	dimensions := buildDimensionsOpts(d.Get("dimensions").([]interface{}))
 	updateOpts := aom.UpdateAlarmRuleParam{
 		AlarmRuleName:           d.Get("name").(string),
-		AlarmLevel:              buildAlarmLevelOpts(d.Get("alarm_level").(int)),
+		AlarmLevel:              buildAlarmLevelUpdateOpts(d.Get("alarm_level").(int)),
 		AlarmDescription:        utils.String(d.Get("description").(string)),
-		IdTurnOn:                utils.Bool(d.Get("alarm_enabled").(bool)),
+		IsTurnOn:                utils.Bool(d.Get("alarm_enabled").(bool)),
 		AlarmActions:            buildActionOpts(d.Get("alarm_actions").([]interface{})),
 		OkActions:               buildActionOpts(d.Get("ok_actions").([]interface{})),
 		InsufficientDataActions: buildActionOpts(d.Get("insufficient_data_actions").([]interface{})),
-		Namespace:               utils.String(d.Get("namespace").(string)),
-		MetricName:              utils.String(d.Get("metric_name").(string)),
-		Dimensions:              &dimensions,
-		Period:                  utils.Int32(int32(d.Get("period").(int))),
-		Unit:                    utils.String(d.Get("unit").(string)),
-		ComparisonOperator:      utils.String(d.Get("comparison_operator").(string)),
-		Statistic:               buildStatisticOpts(d.Get("statistic").(string)),
-		Threshold:               utils.String(d.Get("threshold").(string)),
-		EvaluationPeriods:       utils.Int32(int32(d.Get("evaluation_periods").(int))),
+		Namespace:               d.Get("namespace").(string),
+		MetricName:              d.Get("metric_name").(string),
+		Dimensions:              buildDimensionsOpts(d.Get("dimensions").([]interface{})),
+		Period:                  buildPeriodUpdateOpts(d.Get("period").(int)),
+		Unit:                    d.Get("unit").(string),
+		ComparisonOperator:      buildComparisonOperatorUpdateOpts(d.Get("comparison_operator").(string)),
+		Statistic:               buildStatisticUpdateOpts(d.Get("statistic").(string)),
+		Threshold:               d.Get("threshold").(string),
+		EvaluationPeriods:       int32(d.Get("evaluation_periods").(int)),
 	}
 
 	log.Printf("[DEBUG] Update %s Options: %#v", updateOpts.AlarmRuleName, updateOpts)
