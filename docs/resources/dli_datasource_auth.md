@@ -92,9 +92,10 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `username` - (Optional, String) Username for accessing the security cluster or datasource.
+* `user_name` - (Optional, String) Specifies the user name for accessing the security cluster or datasource.
 
 * `password` - (Optional, String) The password for accessing the security cluster or datasource.
+  This parameter must be used together with `user_name`.
 
 * `certificate_location` - (Optional, String, ForceNew) Path of the security cluster certificate.  
  Currently, only OBS paths and CER files are supported.

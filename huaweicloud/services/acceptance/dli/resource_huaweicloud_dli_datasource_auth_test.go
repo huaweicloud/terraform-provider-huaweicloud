@@ -76,7 +76,7 @@ func TestAccDatasourceAuth_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "type", "passwd"),
-					resource.TestCheckResourceAttr(rName, "username", "test"),
+					resource.TestCheckResourceAttr(rName, "user_name", "test"),
 					resource.TestCheckResourceAttrSet(rName, "owner"),
 				),
 			},
@@ -85,7 +85,7 @@ func TestAccDatasourceAuth_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "username", "test123"),
+					resource.TestCheckResourceAttr(rName, "user_name", "test123"),
 				),
 			},
 			{
@@ -106,10 +106,10 @@ func TestAccDatasourceAuth_basic(t *testing.T) {
 func testDatasourceAuth_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_datasource_auth" "test" {
-  name     = "%s"
-  type     = "passwd"
-  username = "test"
-  password = "Huawei12!"
+  name      = "%s"
+  type      = "passwd"
+  user_name = "test"
+  password  = "Huawei12!"
 }
 `, name)
 }
@@ -117,10 +117,10 @@ resource "huaweicloud_dli_datasource_auth" "test" {
 func testDatasourceAuth_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_datasource_auth" "test" {
-  name     = "%s"
-  type     = "passwd"
-  username = "test123"
-  password = "Huawei12!"
+  name      = "%s"
+  type      = "passwd"
+  user_name = "test123"
+  password  = "Huawei12!"
 }
 `, name)
 }
@@ -151,7 +151,7 @@ func TestAccDatasourceAuth_css(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "type", "CSS"),
-					resource.TestCheckResourceAttr(rName, "username", "test"),
+					resource.TestCheckResourceAttr(rName, "user_name", "test"),
 					resource.TestCheckResourceAttrSet(rName, "owner"),
 				),
 			},
@@ -160,7 +160,7 @@ func TestAccDatasourceAuth_css(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "username", "test_update"),
+					resource.TestCheckResourceAttr(rName, "user_name", "test_update"),
 				),
 			},
 			{
@@ -183,7 +183,7 @@ func testDatasourceAuth_css(name string) string {
 resource "huaweicloud_dli_datasource_auth" "test" {
   name                 = "%s"
   type                 = "CSS"
-  username             = "test"
+  user_name            = "test"
   password             = "Huawei12!"
   certificate_location = "%s"
 }
@@ -195,7 +195,7 @@ func testDatasourceAuth_css_update(name string) string {
 resource "huaweicloud_dli_datasource_auth" "test" {
   name                 = "%s"
   type                 = "CSS"
-  username             = "test_update"
+  user_name            = "test_update"
   password             = "Huawei12!"
   certificate_location = "%s"
 }
@@ -328,11 +328,11 @@ func TestAccDatasourceAuth_KRB(t *testing.T) {
 func testDatasourceAuth_KRB(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_datasource_auth" "test" {
-  name      = "%s"
-  type      = "KRB"
-  username  = "test"
-  krb5_conf = "%s"
-  keytab    = "%s"
+  name       = "%s"
+  type       = "KRB"
+  user_name  = "test"
+  krb5_conf  = "%s"
+  keytab     = "%s"
 }
 `, name, acceptance.HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH, acceptance.HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH)
 }

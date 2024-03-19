@@ -55,7 +55,7 @@ func ResourceDatasourceAuth() *schema.Resource {
 				ForceNew:    true,
 				Description: `Data source type.`,
 			},
-			"username": {
+			"user_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -70,9 +70,6 @@ func ResourceDatasourceAuth() *schema.Resource {
 				Computed:    true,
 				Sensitive:   true,
 				Description: `The password for accessing the security cluster or datasource.`,
-				RequiredWith: []string{
-					"username",
-				},
 			},
 			"certificate_location": {
 				Type:        schema.TypeString,
@@ -141,6 +138,20 @@ func ResourceDatasourceAuth() *schema.Resource {
 				Computed:    true,
 				Description: `The user name of owner.`,
 			},
+			// Deprecated arguments
+			"username": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ConflictsWith: []string{
+					"truststore_location",
+				},
+				Description: utils.SchemaDesc(
+					`Username for accessing the security cluster or datasource. Use 'user_name' instead.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
+			},
 		},
 	}
 }
@@ -187,11 +198,20 @@ func resourceDatasourceAuthCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceDatasourceAuthRead(ctx, d, meta)
 }
 
+func buildUserName(d *schema.ResourceData) interface{} {
+	userName := d.Get("user_name")
+	if userName.(string) == "" {
+		userName = d.Get("username")
+	}
+
+	return utils.ValueIngoreEmpty(userName)
+}
+
 func buildCreateDatasourceAuthBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"auth_info_name":       utils.ValueIngoreEmpty(d.Get("name")),
 		"datasource_type":      utils.ValueIngoreEmpty(d.Get("type")),
-		"username":             utils.ValueIngoreEmpty(d.Get("username")),
+		"user_name":            buildUserName(d),
 		"password":             utils.ValueIngoreEmpty(d.Get("password")),
 		"certificate_location": utils.ValueIngoreEmpty(d.Get("certificate_location")),
 		"truststore_location":  utils.ValueIngoreEmpty(d.Get("truststore_location")),
@@ -258,7 +278,7 @@ func resourceDatasourceAuthRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("auth_infos[0].auth_info_name", getDatasourceAuthRespBody, nil)),
 		d.Set("type", utils.PathSearch("auth_infos[0].datasource_type", getDatasourceAuthRespBody, nil)),
-		d.Set("username", utils.PathSearch("auth_infos[0].user_name", getDatasourceAuthRespBody, nil)),
+		d.Set("user_name", utils.PathSearch("auth_infos[0].user_name", getDatasourceAuthRespBody, nil)),
 		d.Set("certificate_location", utils.PathSearch("auth_infos[0].certificate_location", getDatasourceAuthRespBody, nil)),
 		d.Set("truststore_location", utils.PathSearch("auth_infos[0].truststore_location", getDatasourceAuthRespBody, nil)),
 		d.Set("keystore_location", utils.PathSearch("auth_infos[0].keystore_location", getDatasourceAuthRespBody, nil)),
@@ -287,6 +307,7 @@ func resourceDatasourceAuthUpdate(ctx context.Context, d *schema.ResourceData, m
 	updateDatasourceAuthChanges := []string{
 		"name",
 		"username",
+		"user_name",
 		"password",
 		"truststore_location",
 		"truststore_password",
@@ -335,7 +356,7 @@ func resourceDatasourceAuthUpdate(ctx context.Context, d *schema.ResourceData, m
 func buildUpdateDatasourceAuthBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"auth_info_name":      utils.ValueIngoreEmpty(d.Get("name")),
-		"username":            utils.ValueIngoreEmpty(d.Get("username")),
+		"user_name":           buildUserName(d),
 		"password":            utils.ValueIngoreEmpty(d.Get("password")),
 		"truststore_location": utils.ValueIngoreEmpty(d.Get("truststore_location")),
 		"truststore_password": utils.ValueIngoreEmpty(d.Get("truststore_password")),
