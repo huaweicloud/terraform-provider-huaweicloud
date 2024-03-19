@@ -7,7 +7,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func withDerivedAuth() bool {
+func WithDerivedAuth() bool {
 	endpoint := acceptance.HW_IOTDA_ACCESS_ADDRESS
 	if endpoint == "" {
 		return false

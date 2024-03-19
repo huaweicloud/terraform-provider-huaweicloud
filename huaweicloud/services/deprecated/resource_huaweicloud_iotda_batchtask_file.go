@@ -1,4 +1,4 @@
-package iotda
+package deprecated
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 )
 
 // @API IoTDA POST /v5/iot/{project_id}/batchtask-files
@@ -29,6 +30,7 @@ func ResourceBatchTaskFile() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		DeprecationMessage: "batchtask file has been deprecated.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -57,7 +59,7 @@ func ResourceBatchTaskFile() *schema.Resource {
 func resourceBatchTaskFileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	isDerived := withDerivedAuth(cfg, region)
+	isDerived := iotda.WithDerivedAuth(cfg, region)
 	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -94,7 +96,7 @@ func resourceBatchTaskFileCreate(ctx context.Context, d *schema.ResourceData, me
 func resourceBatchTaskFileRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	isDerived := withDerivedAuth(cfg, region)
+	isDerived := iotda.WithDerivedAuth(cfg, region)
 	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -130,7 +132,7 @@ func resourceBatchTaskFileRead(_ context.Context, d *schema.ResourceData, meta i
 func resourceBatchTaskFileDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	isDerived := withDerivedAuth(cfg, region)
+	isDerived := iotda.WithDerivedAuth(cfg, region)
 	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)

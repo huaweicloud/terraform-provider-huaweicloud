@@ -174,7 +174,7 @@ func ResourceBatchTask() *schema.Resource {
 func resourceBatchTaskCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	isDerived := withDerivedAuth(cfg, region)
+	isDerived := WithDerivedAuth(cfg, region)
 	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -323,7 +323,7 @@ func batchTaskStateRefreshFunc(client *iotdav5.IoTDAClient, taskId string) resou
 func resourceBatchTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	isDerived := withDerivedAuth(cfg, region)
+	isDerived := WithDerivedAuth(cfg, region)
 	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -423,7 +423,7 @@ func flattenErrorInfo(errorInfo *model.ErrorInfo) []interface{} {
 func resourceBatchTaskDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	isDerived := withDerivedAuth(cfg, region)
+	isDerived := WithDerivedAuth(cfg, region)
 	client, err := cfg.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)

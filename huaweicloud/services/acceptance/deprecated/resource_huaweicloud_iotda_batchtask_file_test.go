@@ -1,4 +1,4 @@
-package iotda
+package deprecated
 
 import (
 	"fmt"
@@ -13,10 +13,11 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/iotda"
 )
 
 func getBatchTaskFileResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, withDerivedAuth())
+	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, iotda.WithDerivedAuth())
 	if err != nil {
 		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
 	}

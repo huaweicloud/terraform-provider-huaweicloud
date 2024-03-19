@@ -309,7 +309,7 @@ func ResourceDataForwardingRule() *schema.Resource {
 func ResourceDataForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -361,7 +361,7 @@ func ResourceDataForwardingRuleCreate(ctx context.Context, d *schema.ResourceDat
 func ResourceDataForwardingRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -390,7 +390,7 @@ func ResourceDataForwardingRuleRead(_ context.Context, d *schema.ResourceData, m
 func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)
@@ -471,7 +471,7 @@ func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceDat
 func ResourceDataForwardingRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*config.Config)
 	region := c.GetRegion(d)
-	isDerived := withDerivedAuth(c, region)
+	isDerived := WithDerivedAuth(c, region)
 	client, err := c.HcIoTdaV5Client(region, isDerived)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA v5 client: %s", err)

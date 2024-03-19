@@ -1,8 +1,10 @@
 ---
-subcategory: "IoT Device Access (IoTDA)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_iotda_batchtask_file
+
+!> **WARNING:** It has been deprecated.
 
 Manages an IoTDA batch task file within HuaweiCloud.
 
