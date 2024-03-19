@@ -2,7 +2,9 @@ package cce
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -43,6 +45,18 @@ func DataSourceNodes() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"ignore_details": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: func(v interface{}, _ string) ([]string, []error) {
+					validValues := []string{"tags"}
+					params := strings.Split(v.(string), ",")
+					if !utils.StrSliceContainsAnother(validValues, params) {
+						return nil, []error{fmt.Errorf("the value must within %s", validValues)}
+					}
+					return nil, nil
+				},
 			},
 			"ids": {
 				Type:     schema.TypeList,
@@ -219,18 +233,20 @@ func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interfa
 		node["root_volume"] = rootVolume
 
 		// fetch tags from ECS instance
-		computeClient, err := config.ComputeV1Client(config.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating compute client: %s", err)
-		}
+		if !strings.Contains(d.Get("ignore_details").(string), "tags") {
+			computeClient, err := config.ComputeV1Client(config.GetRegion(d))
+			if err != nil {
+				return diag.Errorf("error creating compute client: %s", err)
+			}
 
-		serverId := v.Status.ServerID
+			serverId := v.Status.ServerID
 
-		if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
-			tagmap := utils.TagsToMap(resourceTags.Tags)
-			node["tags"] = tagmap
-		} else {
-			log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+			if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
+				tagmap := utils.TagsToMap(resourceTags.Tags)
+				node["tags"] = tagmap
+			} else {
+				log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+			}
 		}
 
 		nodesToSet = append(nodesToSet, node)
