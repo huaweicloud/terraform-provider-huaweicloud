@@ -258,7 +258,8 @@ var (
 	HW_CC_PEER_DOMAIN_ID     = os.Getenv("HW_CC_PEER_DOMAIN_ID")
 	HW_CC_PEER_CONNECTION_ID = os.Getenv("HW_CC_PEER_CONNECTION_ID")
 
-	HW_CERT_BATCH_PUSH_ID = os.Getenv("HW_CERT_BATCH_PUSH_ID")
+	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
+	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
 
 	HW_AS_SCALING_GROUP_ID  = os.Getenv("HW_AS_SCALING_GROUP_ID")
 	HW_AS_SCALING_POLICY_ID = os.Getenv("HW_AS_SCALING_POLICY_ID")
@@ -1416,6 +1417,20 @@ func TestAccPreCheckLTSCrossAccountAccess(t *testing.T) {
 		HW_LTS_LOG_GROUP_NAME == "" || HW_LTS_LOG_GROUP_ID == "" {
 		t.Skip("The delegatee account config of HW_LTS_LOG_STREAM_NAME, HW_LTS_LOG_STREAM_ID, HW_LTS_LOG_GROUP_NAME" +
 			" and HW_LTS_LOG_GROUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCMPushCertificateID(t *testing.T) {
+	if HW_CERT_BATCH_PUSH_ID == "" {
+		t.Skip("HW_CERT_BATCH_PUSH_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCMPushWAFInstance(t *testing.T) {
+	if HW_CERT_BATCH_PUSH_WAF_ID == "" {
+		t.Skip("HW_CERT_BATCH_PUSH_WAF_ID must be set for the acceptance test")
 	}
 }
 
