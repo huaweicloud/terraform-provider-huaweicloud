@@ -181,14 +181,11 @@ func (c *HttpHelper) buildURL() *HttpHelper {
 	endpoint := strings.TrimRight(c.client.Endpoint, "/")
 	c.url = fmt.Sprintf("%s/%s", endpoint, strings.TrimLeft(c.url, "/"))
 	c.url = strings.ReplaceAll(c.url, "{project_id}", c.client.ProjectID)
+	c.url = strings.ReplaceAll(c.url, "{domain_id}", c.client.DomainID)
 	return c
 }
 
 func (c *HttpHelper) appendQueryParams() {
-	if len(c.query) == 0 {
-		return
-	}
-
 	query := make(map[string]any)
 	for k, v := range c.query {
 		query[k] = v
