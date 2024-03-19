@@ -92,6 +92,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `zookeeper_link` - The intranet zookeeper connection access address.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+* `delete` - Default is 5 minutes.
+
 ## Import
 
 Clusters can be imported by their `id`. e.g.:
@@ -118,10 +125,3 @@ resource "huaweicloud_cloudtable_cluster" "test" {
   }
 }
 ```
-
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 30 minutes.
-* `delete` - Default is 5 minutes.
