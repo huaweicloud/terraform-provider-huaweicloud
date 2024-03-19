@@ -23,7 +23,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API SCM GET /v3/scm/certificates
+// @API CCM GET /v3/scm/certificates
 func DataSourceCertificates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceCertificatesRead,

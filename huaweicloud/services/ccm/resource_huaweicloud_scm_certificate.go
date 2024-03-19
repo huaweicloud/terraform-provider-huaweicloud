@@ -25,10 +25,10 @@ const (
 	targetServiceCdn = "CDN"
 )
 
-// @API SCM POST /v3/scm/certificates/import
-// @API SCM POST /v3/scm/certificates/{id}/push
-// @API SCM DELETE /v3/scm/certificates/{id}
-// @API SCM GET /v3/scm/certificates/{id}
+// @API CCM POST /v3/scm/certificates/import
+// @API CCM POST /v3/scm/certificates/{certificate_id}/push
+// @API CCM DELETE /v3/scm/certificates/{certificate_id}
+// @API CCM GET /v3/scm/certificates/{certificate_id}
 func ResourceScmCertificate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScmCertificateCreate,
