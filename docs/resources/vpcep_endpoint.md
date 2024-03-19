@@ -70,8 +70,10 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC where the VPC endpoint is to be created. Changing
   this creates a new VPC endpoint.
 
-* `network_id` - (Required, String, ForceNew) Specifies the network ID of the subnet in the VPC specified by `vpc_id`.
+* `network_id` - (Optional, String, ForceNew) Specifies the network ID of the subnet in the VPC specified by `vpc_id`.
   Changing this creates a new VPC endpoint.
+
+  -> This field is required when creating a VPC endpoint for connecting an interface VPC endpoint service.
 
 * `ip_address` - (Optional, String, ForceNew) Specifies the IP address for accessing the associated VPC endpoint
   service. Only IPv4 addresses are supported. Changing this creates a new VPC endpoint.
@@ -79,9 +81,17 @@ The following arguments are supported:
 * `enable_dns` - (Optional, Bool, ForceNew) Specifies whether to create a private domain name. The default value is
   true. Changing this creates a new VPC endpoint.
 
+  -> This field is valid only when creating a VPC endpoint for connecting an interface VPC endpoint service.
+
 * `description` - (Optional, String, ForceNew) Specifies the description of the VPC endpoint.
 
   Changing this creates a new VPC endpoint.
+
+* `routetables` - (Optional, List, ForceNew) Specifies the IDs of the route tables associated with the VPC endpoint.
+  Changing this creates a new VPC endpoint.
+
+  -> This field is valid only when creating a VPC endpoint for connecting a gateway VPC endpoint service.
+    The default route table will be used when this field is not specified.
 
 * `enable_whitelist` - (Optional, Bool) Specifies whether to enable access control. The default value is
   false.
@@ -121,4 +131,23 @@ VPC endpoint can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_vpcep_endpoint.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `enable_dns`.
+
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also, you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_vpcep_endpoint" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      enable_dns,
+    ]
+  }
+}
 ```
