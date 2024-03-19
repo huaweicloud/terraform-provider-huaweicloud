@@ -30,6 +30,9 @@ type Group struct {
 	//   pyFile: User Python file
 	//   file: User file
 	ModuleType string `json:"module_type"`
+	// List of names of resource packages contained in the group.
+	// This field is returned only when group name is not specified.
+	ResourceNames []string `json:"resource_names"`
 }
 
 // Group is a object that represents the detail about a group resource package.

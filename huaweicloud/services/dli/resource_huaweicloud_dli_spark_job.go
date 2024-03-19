@@ -20,6 +20,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const (
+	jarFile    = "jar"
+	pythonFile = "pyFile"
+	userFile   = "file"
+)
+
 // @API DLI POST /v2.0/{project_id}/batches
 // @API DLI GET /v2.0/{project_id}/batches/{batch_id}
 // @API DLI GET /v2.0/{project_id}/batches/{batch_id}/state

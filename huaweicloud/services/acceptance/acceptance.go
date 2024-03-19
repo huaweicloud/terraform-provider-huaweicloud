@@ -95,6 +95,7 @@ var (
 	HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH    = os.Getenv("HW_DLI_DS_AUTH_KRB_CONF_OBS_PATH")
 	HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH     = os.Getenv("HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH")
 	HW_DLI_AGENCY_FLAG                  = os.Getenv("HW_DLI_AGENCY_FLAG")
+	HW_DLI_OWNER                        = os.Getenv("HW_DLI_OWNER")
 
 	HW_GITHUB_REPO_HOST        = os.Getenv("HW_GITHUB_REPO_HOST")        // Repository host (Github, Gitlab, Gitee)
 	HW_GITHUB_PERSONAL_TOKEN   = os.Getenv("HW_GITHUB_PERSONAL_TOKEN")   // Personal access token (Github, Gitlab, Gitee)
@@ -759,6 +760,13 @@ func TestAccPreCheckDliDsAuthKrb(t *testing.T) {
 func TestAccPreCheckDliAgency(t *testing.T) {
 	if HW_DLI_AGENCY_FLAG == "" {
 		t.Skip("HW_DLI_AGENCY_FLAG must be set for DLI datasource DLI agency acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliOwner(t *testing.T) {
+	if HW_DLI_OWNER == "" {
+		t.Skip("HW_DLI_OWNER must be set for DLI datasource DLI agency acceptance tests.")
 	}
 }
 
