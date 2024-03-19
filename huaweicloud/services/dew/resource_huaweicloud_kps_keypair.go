@@ -102,7 +102,12 @@ func ResourceKeypair() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"key_file"},
 			},
-
+			"private_key": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				ForceNew:  true,
+			},
 			"key_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -295,6 +300,10 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		k, kmsExist := d.GetOk("kms_key_name")
 		if t == "kms" && !kmsExist {
 			return nil, fmt.Errorf("kms_key_name is mandatory when the encryption_type is kms")
+		}
+
+		if v, ok := d.GetOk("private_key"); ok {
+			keyProtection.PrivateKey = utils.String(v.(string))
 		}
 		keyProtection.Encryption.KmsKeyName = k.(string)
 		createOpts.Body.Keypair.KeyProtection = &keyProtection
