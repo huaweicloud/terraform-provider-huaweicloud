@@ -397,10 +397,10 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-Domains can be imported using the `id`, e.g.
+The CDN domain resource can be imported using the domain `name`, e.g.
 
 ```bash
-$ terraform import huaweicloud_cdn_domain.test <id>
+$ terraform import huaweicloud_cdn_domain.test <name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the

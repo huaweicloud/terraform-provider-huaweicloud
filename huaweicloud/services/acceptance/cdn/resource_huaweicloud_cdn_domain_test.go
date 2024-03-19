@@ -7,40 +7,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getResourceExtensionOpts(epsId string) *domains.ExtensionOpts {
-	if epsId != "" {
-		return &domains.ExtensionOpts{
-			EnterpriseProjectId: epsId,
-		}
-	}
-	return nil
-}
-
 func getCdnDomainFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
+	hcCdnClient, err := cfg.HcCdnV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN v2 client: %s", err)
 	}
 
-	opts := getResourceExtensionOpts(state.Primary.Attributes["enterprise_project_id"])
-	return domains.Get(client, state.Primary.ID, opts).Extract()
+	requestOpts := &model.ShowDomainDetailByNameRequest{
+		DomainName:          state.Primary.Attributes["name"],
+		EnterpriseProjectId: utils.StringIgnoreEmpty(state.Primary.Attributes["enterprise_project_id"]),
+	}
+	return hcCdnClient.ShowDomainDetailByName(requestOpts)
 }
 
 func TestAccCdnDomain_basic(t *testing.T) {
 	var (
-		domain       domains.CdnDomain
+		obj          interface{}
 		resourceName = "huaweicloud_cdn_domain.test"
 	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&domain,
+		&obj,
 		getCdnDomainFunc,
 	)
 
@@ -106,6 +101,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testCDNDomainImportState(resourceName),
 				ImportStateVerifyIgnore: []string{
 					"enterprise_project_id",
 				},
@@ -214,13 +210,13 @@ resource "huaweicloud_cdn_domain" "test" {
 
 func TestAccCdnDomain_configs(t *testing.T) {
 	var (
-		domain       domains.CdnDomain
+		obj          interface{}
 		resourceName = "huaweicloud_cdn_domain.test"
 	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&domain,
+		&obj,
 		getCdnDomainFunc,
 	)
 
@@ -311,3 +307,15 @@ resource "huaweicloud_cdn_domain" "test" {
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
+
+// testCDNDomainImportState use to return an ID using `name`
+func testCDNDomainImportState(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found", name)
+		}
+
+		return rs.Primary.Attributes["name"], nil
+	}
+}
