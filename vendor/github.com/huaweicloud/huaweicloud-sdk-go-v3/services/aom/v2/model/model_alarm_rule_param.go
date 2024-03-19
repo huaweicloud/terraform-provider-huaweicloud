@@ -27,11 +27,11 @@ type AlarmRuleParam struct {
 	// 告警级别。1：紧急，2：重要，3：一般，4：提示。
 	AlarmLevel AlarmRuleParamAlarmLevel `json:"alarm_level"`
 
-	// 阈值规则名称。
+	// 阈值规则名称。规则名称包含大小写字母、数字、特殊字符（-_）和汉字组成，不能以特殊字符开头或结尾，最大长度为100。
 	AlarmRuleName string `json:"alarm_rule_name"`
 
-	// 超限条件。
-	ComparisonOperator string `json:"comparison_operator"`
+	// 超限条件。<：小于阈值。>：大于阈值。<=：小于等于阈值。>=：大于等于阈值。
+	ComparisonOperator AlarmRuleParamComparisonOperator `json:"comparison_operator"`
 
 	// 时间序列维度。
 	Dimensions []Dimension `json:"dimensions"`
@@ -40,7 +40,7 @@ type AlarmRuleParam struct {
 	EvaluationPeriods int32 `json:"evaluation_periods"`
 
 	// 阈值规则是否启用。
-	IdTurnOn *bool `json:"id_turn_on,omitempty"`
+	IsTurnOn *bool `json:"is_turn_on,omitempty"`
 
 	// 数据不足通知列表。
 	InsufficientDataActions *[]string `json:"insufficient_data_actions,omitempty"`
@@ -54,8 +54,8 @@ type AlarmRuleParam struct {
 	// 正常状态通知列表。
 	OkActions *[]string `json:"ok_actions,omitempty"`
 
-	// 统计周期。
-	Period int32 `json:"period"`
+	// 统计周期。60000：一分钟。300000：五分钟。900000：十五分钟。3600000：一小时。
+	Period AlarmRuleParamPeriod `json:"period"`
 
 	// 统计方式。
 	Statistic AlarmRuleParamStatistic `json:"statistic"`
@@ -110,6 +110,113 @@ func (c AlarmRuleParamAlarmLevel) MarshalJSON() ([]byte, error) {
 }
 
 func (c *AlarmRuleParamAlarmLevel) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("int32")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: int32")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(int32); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to int32 error")
+	}
+}
+
+type AlarmRuleParamComparisonOperator struct {
+	value string
+}
+
+type AlarmRuleParamComparisonOperatorEnum struct {
+	LESS_THAN                AlarmRuleParamComparisonOperator
+	GREATER_THAN             AlarmRuleParamComparisonOperator
+	LESS_THAN_OR_EQUAL_TO    AlarmRuleParamComparisonOperator
+	GREATER_THAN_OR_EQUAL_TO AlarmRuleParamComparisonOperator
+}
+
+func GetAlarmRuleParamComparisonOperatorEnum() AlarmRuleParamComparisonOperatorEnum {
+	return AlarmRuleParamComparisonOperatorEnum{
+		LESS_THAN: AlarmRuleParamComparisonOperator{
+			value: "<",
+		},
+		GREATER_THAN: AlarmRuleParamComparisonOperator{
+			value: ">",
+		},
+		LESS_THAN_OR_EQUAL_TO: AlarmRuleParamComparisonOperator{
+			value: "<=",
+		},
+		GREATER_THAN_OR_EQUAL_TO: AlarmRuleParamComparisonOperator{
+			value: ">=",
+		},
+	}
+}
+
+func (c AlarmRuleParamComparisonOperator) Value() string {
+	return c.value
+}
+
+func (c AlarmRuleParamComparisonOperator) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *AlarmRuleParamComparisonOperator) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type AlarmRuleParamPeriod struct {
+	value int32
+}
+
+type AlarmRuleParamPeriodEnum struct {
+	E_60000    AlarmRuleParamPeriod
+	E_300000   AlarmRuleParamPeriod
+	E_900000   AlarmRuleParamPeriod
+	E_36000000 AlarmRuleParamPeriod
+}
+
+func GetAlarmRuleParamPeriodEnum() AlarmRuleParamPeriodEnum {
+	return AlarmRuleParamPeriodEnum{
+		E_60000: AlarmRuleParamPeriod{
+			value: 60000,
+		}, E_300000: AlarmRuleParamPeriod{
+			value: 300000,
+		}, E_900000: AlarmRuleParamPeriod{
+			value: 900000,
+		}, E_36000000: AlarmRuleParamPeriod{
+			value: 36000000,
+		},
+	}
+}
+
+func (c AlarmRuleParamPeriod) Value() int32 {
+	return c.value
+}
+
+func (c AlarmRuleParamPeriod) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *AlarmRuleParamPeriod) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("int32")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: int32")

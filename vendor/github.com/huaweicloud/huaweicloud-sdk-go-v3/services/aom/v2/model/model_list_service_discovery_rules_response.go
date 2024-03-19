@@ -16,8 +16,11 @@ type ListServiceDiscoveryRulesResponse struct {
 	ErrorCode *string `json:"errorCode,omitempty"`
 
 	// 响应信息描述。
-	ErrorMessage   *string `json:"errorMessage,omitempty"`
-	HttpStatusCode int     `json:"-"`
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+
+	// 服务发现规则id列表，多AZ配置同步时使用。
+	Id             *[]string `json:"id,omitempty"`
+	HttpStatusCode int       `json:"-"`
 }
 
 func (o ListServiceDiscoveryRulesResponse) String() string {

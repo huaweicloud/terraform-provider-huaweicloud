@@ -15,7 +15,7 @@ type TaskGroupSrcNodeResp struct {
 	// 源端桶的名称。
 	Bucket *string `json:"bucket,omitempty"`
 
-	// 源端云服务提供商。  可选值有AWS、AZURE、ALIYUN、TENCENT、HUAWEICLOUD、QINGCLOUD、KINGSOFTCLOUD、BAIDU、QINIU、URLSOURCE或者UCLOUD。默认值为ALIYUN。
+	// 源端云服务提供商。  可选值有AWS、AZURE、ALIYUN、TENCENT、HUAWEICLOUD、QINGCLOUD、KINGSOFTCLOUD、BAIDU、QINIU、GOOGLE、URLSOURCE或者UCLOUD。默认值为ALIYUN。
 	CloudType *TaskGroupSrcNodeRespCloudType `json:"cloud_type,omitempty"`
 
 	// 源端桶所处的区域。
@@ -55,6 +55,7 @@ type TaskGroupSrcNodeRespCloudTypeEnum struct {
 	QINIU         TaskGroupSrcNodeRespCloudType
 	URLSOURCE     TaskGroupSrcNodeRespCloudType
 	UCLOUD        TaskGroupSrcNodeRespCloudType
+	GOOGLE        TaskGroupSrcNodeRespCloudType
 }
 
 func GetTaskGroupSrcNodeRespCloudTypeEnum() TaskGroupSrcNodeRespCloudTypeEnum {
@@ -91,6 +92,9 @@ func GetTaskGroupSrcNodeRespCloudTypeEnum() TaskGroupSrcNodeRespCloudTypeEnum {
 		},
 		UCLOUD: TaskGroupSrcNodeRespCloudType{
 			value: "UCLOUD",
+		},
+		GOOGLE: TaskGroupSrcNodeRespCloudType{
+			value: "GOOGLE",
 		},
 	}
 }

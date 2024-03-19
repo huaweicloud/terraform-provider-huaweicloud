@@ -9,13 +9,13 @@ import (
 // CreateProjectResponse Response Object
 type CreateProjectResponse struct {
 
-	// code
+	// 响应码
 	Code *string `json:"code,omitempty"`
 
-	// message
+	// 响应消息
 	Message *string `json:"message,omitempty"`
 
-	// project_id
+	// 项目ID
 	ProjectId      *int32 `json:"project_id,omitempty"`
 	HttpStatusCode int    `json:"-"`
 }

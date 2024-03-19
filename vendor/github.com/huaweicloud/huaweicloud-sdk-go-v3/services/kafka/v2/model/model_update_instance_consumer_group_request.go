@@ -9,7 +9,7 @@ import (
 // UpdateInstanceConsumerGroupRequest Request Object
 type UpdateInstanceConsumerGroupRequest struct {
 
-	// 消息中间件类型。
+	// 消息引擎的类型。
 	Engine string `json:"engine"`
 
 	// 实例ID。

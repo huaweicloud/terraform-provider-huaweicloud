@@ -9,16 +9,16 @@ import (
 // DebugCaseRequestBody DebugCaseRequestBody
 type DebugCaseRequestBody struct {
 
-	// status
+	// 状态（9：启动调试）
 	Status int32 `json:"status"`
 
-	// cluster_id
+	// 资源组id
 	ClusterId int32 `json:"cluster_id"`
 
-	// cluster_type
+	// 资源组类型（共享资源组：shared-cluster-internet；私有资源组：private-cluster）
 	ClusterType string `json:"cluster_type"`
 
-	// without_package
+	// 套餐包VUM不足的情况下用户选择是不是要走按需计费模式（当前版本固定值：0）
 	WithoutPackage int32 `json:"without_package"`
 }
 

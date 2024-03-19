@@ -314,7 +314,7 @@ func resourceWatermarkTemplateUpdate(ctx context.Context, d *schema.ResourceData
 
 	updateOpts := vod.UpdateWatermarkTemplateReq{
 		Id:               d.Id(),
-		Name:             utils.String(d.Get("name").(string)),
+		Name:             d.Get("name").(string),
 		ImageProcess:     buildUpdateImageProcessOpts(d.Get("image_process").(string)),
 		Dx:               utils.String(d.Get("horizontal_offset").(string)),
 		Dy:               utils.String(d.Get("vertical_offset").(string)),

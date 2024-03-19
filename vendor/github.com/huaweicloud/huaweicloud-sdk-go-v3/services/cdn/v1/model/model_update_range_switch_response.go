@@ -8,8 +8,10 @@ import (
 
 // UpdateRangeSwitchResponse Response Object
 type UpdateRangeSwitchResponse struct {
-	OriginRange    *OriginRangeBody `json:"origin_range,omitempty"`
-	HttpStatusCode int              `json:"-"`
+	OriginRange *OriginRangeBody `json:"origin_range,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o UpdateRangeSwitchResponse) String() string {

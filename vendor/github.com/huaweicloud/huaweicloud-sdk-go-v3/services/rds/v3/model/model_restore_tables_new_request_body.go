@@ -14,7 +14,7 @@ type RestoreTablesNewRequestBody struct {
 	// 表信息
 	RestoreTables []RestoreDatabasesInfoNew `json:"restore_tables"`
 
-	// 是否使用极速恢复，可先根据“获取实例是否能使用极速恢复”接口判断本次恢复是否能使用急速恢复。 如果实例使用了XA事务，则不可使用极速恢复！使用恢复会导致恢复失败！
+	// 是否使用极速恢复，可先根据“获取实例是否能使用极速恢复”接口判断本次恢复是否能使用极速恢复。 如果实例使用了XA事务，采用极速恢复的方式会导致恢复失败！
 	IsFastRestore *bool `json:"is_fast_restore,omitempty"`
 }
 

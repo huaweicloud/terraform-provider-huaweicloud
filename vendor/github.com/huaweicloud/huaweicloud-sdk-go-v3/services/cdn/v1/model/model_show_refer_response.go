@@ -8,8 +8,10 @@ import (
 
 // ShowReferResponse Response Object
 type ShowReferResponse struct {
-	Referer        *RefererRsp `json:"referer,omitempty"`
-	HttpStatusCode int         `json:"-"`
+	Referer *RefererRsp `json:"referer,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o ShowReferResponse) String() string {

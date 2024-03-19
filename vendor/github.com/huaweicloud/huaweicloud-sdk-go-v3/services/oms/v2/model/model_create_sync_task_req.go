@@ -51,6 +51,9 @@ type CreateSyncTaskReq struct {
 	// 是否自动解冻归档数据，默认否。  开启后，如果遇到归档类型数据，会自动解冻再进行迁移。
 	EnableRestore *bool `json:"enable_restore,omitempty"`
 
+	// 目的端存储类型设置，当且仅当目的端为华为云OBS时需要，默认为标准存储 STANDARD：华为云OBS标准存储 IA：华为云OBS低频存储 ARCHIVE：华为云OBS归档存储 DEEP_ARCHIVE：华为云OBS深度归档存储 SRC_STORAGE_MAPPING：保留源端存储类型，将源端存储类型映射为华为云OBS存储类型
+	DstStoragePolicy *CreateSyncTaskReqDstStoragePolicy `json:"dst_storage_policy,omitempty"`
+
 	// 当源端为腾讯云时，需要填写此参数。
 	AppId *string `json:"app_id,omitempty"`
 
@@ -67,6 +70,65 @@ func (o CreateSyncTaskReq) String() string {
 	}
 
 	return strings.Join([]string{"CreateSyncTaskReq", string(data)}, " ")
+}
+
+type CreateSyncTaskReqDstStoragePolicy struct {
+	value string
+}
+
+type CreateSyncTaskReqDstStoragePolicyEnum struct {
+	STANDARD            CreateSyncTaskReqDstStoragePolicy
+	IA                  CreateSyncTaskReqDstStoragePolicy
+	ARCHIVE             CreateSyncTaskReqDstStoragePolicy
+	DEEP_ARCHIVE        CreateSyncTaskReqDstStoragePolicy
+	SRC_STORAGE_MAPPING CreateSyncTaskReqDstStoragePolicy
+}
+
+func GetCreateSyncTaskReqDstStoragePolicyEnum() CreateSyncTaskReqDstStoragePolicyEnum {
+	return CreateSyncTaskReqDstStoragePolicyEnum{
+		STANDARD: CreateSyncTaskReqDstStoragePolicy{
+			value: "STANDARD",
+		},
+		IA: CreateSyncTaskReqDstStoragePolicy{
+			value: "IA",
+		},
+		ARCHIVE: CreateSyncTaskReqDstStoragePolicy{
+			value: "ARCHIVE",
+		},
+		DEEP_ARCHIVE: CreateSyncTaskReqDstStoragePolicy{
+			value: "DEEP_ARCHIVE",
+		},
+		SRC_STORAGE_MAPPING: CreateSyncTaskReqDstStoragePolicy{
+			value: "SRC_STORAGE_MAPPING",
+		},
+	}
+}
+
+func (c CreateSyncTaskReqDstStoragePolicy) Value() string {
+	return c.value
+}
+
+func (c CreateSyncTaskReqDstStoragePolicy) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *CreateSyncTaskReqDstStoragePolicy) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }
 
 type CreateSyncTaskReqConsistencyCheck struct {

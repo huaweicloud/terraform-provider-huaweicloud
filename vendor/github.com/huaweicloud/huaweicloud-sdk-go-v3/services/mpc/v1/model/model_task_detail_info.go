@@ -17,6 +17,9 @@ type TaskDetailInfo struct {
 	// 任务执行状态，取值如下。
 	Status *TaskDetailInfoStatus `json:"status,omitempty"`
 
+	// 任务执行进度百分比, 取值范围：[0, 100]。
+	Progress *int32 `json:"progress,omitempty"`
+
 	// 转码任务启动时间
 	CreateTime *string `json:"create_time,omitempty"`
 

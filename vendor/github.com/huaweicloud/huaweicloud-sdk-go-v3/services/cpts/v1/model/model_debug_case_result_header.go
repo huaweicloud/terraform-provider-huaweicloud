@@ -8,13 +8,13 @@ import (
 
 type DebugCaseResultHeader struct {
 
-	// Connection
+	// 连接
 	Connection *string `json:"Connection,omitempty"`
 
-	// Content-Type
+	// 内容类型
 	ContentType *string `json:"Content-Type,omitempty"`
 
-	// Host
+	// 主机
 	Host *string `json:"Host,omitempty"`
 }
 

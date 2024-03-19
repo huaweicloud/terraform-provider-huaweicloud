@@ -14,6 +14,9 @@ type ListFile struct {
 
 	// 存放对象列表文件的OBS桶名。  请确保与目的端桶处于同一区域，否则将导致任务创建失败。
 	ObsBucket string `json:"obs_bucket"`
+
+	// 存放对象列表文件的数量
+	ListFileNum *string `json:"list_file_num,omitempty"`
 }
 
 func (o ListFile) String() string {

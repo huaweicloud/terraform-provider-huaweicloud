@@ -16,8 +16,8 @@ type ListNodePoolsResponse struct {
 	ApiVersion *string `json:"apiVersion,omitempty"`
 
 	// /
-	Items          *[]NodePool `json:"items,omitempty"`
-	HttpStatusCode int         `json:"-"`
+	Items          *[]NodePoolResp `json:"items,omitempty"`
+	HttpStatusCode int             `json:"-"`
 }
 
 func (o ListNodePoolsResponse) String() string {

@@ -13,8 +13,10 @@ type ListDomainsResponse struct {
 	Total *int32 `json:"total,omitempty"`
 
 	// 域名信息
-	Domains        *[]Domains `json:"domains,omitempty"`
-	HttpStatusCode int        `json:"-"`
+	Domains *[]Domains `json:"domains,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o ListDomainsResponse) String() string {

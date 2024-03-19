@@ -11,6 +11,8 @@ type CreatePreheatingTasksResponse struct {
 
 	// 任务ID。
 	PreheatingTask *string `json:"preheating_task,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

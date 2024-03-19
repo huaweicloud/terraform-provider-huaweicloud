@@ -23,6 +23,9 @@ type ListFlavorsRequest struct {
 
 	// 规格编码
 	SpecCode *string `json:"spec_code,omitempty"`
+
+	// 是否查询serverless规格。取值范围如下，区分大小写： true：查询serverless规格 false：查询非serverless规格 默认值 false。
+	IsServerless *string `json:"is_serverless,omitempty"`
 }
 
 func (o ListFlavorsRequest) String() string {

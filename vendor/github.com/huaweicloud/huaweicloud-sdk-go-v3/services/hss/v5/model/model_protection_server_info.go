@@ -35,6 +35,9 @@ type ProtectionServerInfo struct {
 	// 勒索防护状态，包含如下4种。   - closed ：关闭。   - opened ：开启。   - opening ：开启中。   - closing ：关闭中。
 	RansomProtectionStatus *string `json:"ransom_protection_status,omitempty"`
 
+	// agent版本
+	AgentVersion *string `json:"agent_version,omitempty"`
+
 	// 防护状态，包含如下2种。 - closed ：未防护。 - opened ：防护中。
 	ProtectStatus *string `json:"protect_status,omitempty"`
 

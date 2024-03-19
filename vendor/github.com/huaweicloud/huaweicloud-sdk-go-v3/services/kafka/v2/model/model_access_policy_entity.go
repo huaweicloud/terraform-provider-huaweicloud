@@ -12,10 +12,10 @@ import (
 // AccessPolicyEntity 权限实体。
 type AccessPolicyEntity struct {
 
-	// 用户名称。
+	// 用户名称。  设置用户权限时，为必选参数。
 	UserName *string `json:"user_name,omitempty"`
 
-	// 权限类型。 - all：拥有发布、订阅权限; - pub：拥有发布权限; - sub：拥有订阅权限。
+	// 权限类型。 - all：拥有发布、订阅权限; - pub：拥有发布权限; - sub：拥有订阅权限。  设置用户权限时，为必选参数。
 	AccessPolicy *AccessPolicyEntityAccessPolicy `json:"access_policy,omitempty"`
 }
 

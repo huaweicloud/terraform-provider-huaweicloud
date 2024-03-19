@@ -12,10 +12,10 @@ type DiscoveryRule struct {
 	// 匹配值。
 	CheckContent []string `json:"checkContent"`
 
-	// 匹配条件。 contain、equals
+	// 匹配条件。contain、equals
 	CheckMode string `json:"checkMode"`
 
-	// 匹配类型。 cmdLine、env、scope
+	// 匹配类型。cmdLine、env、scope
 	CheckType string `json:"checkType"`
 }
 

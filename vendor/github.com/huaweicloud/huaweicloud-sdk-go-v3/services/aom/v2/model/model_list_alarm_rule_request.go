@@ -12,7 +12,7 @@ type ListAlarmRuleRequest struct {
 	// 分页信息。
 	Offset *string `json:"offset,omitempty"`
 
-	// 用于限制结果数据条数。 取值范围(0,1000],默认值为1000。
+	// 用于限制结果数据条数。 取值范围(0,1000]，默认值为1000。
 	Limit *int32 `json:"limit,omitempty"`
 }
 

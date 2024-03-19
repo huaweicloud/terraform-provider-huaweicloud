@@ -20,6 +20,9 @@ type UpdateAddressGroupOption struct {
 
 	// 功能说明：地址组最大条目数，限制地址组可以包含的地址数量 取值范围：0-20
 	MaxCapacity *int32 `json:"max_capacity,omitempty"`
+
+	// 功能说明：IP地址组包含的IP列表及其备注信息 约束：ip数量限制默认20, 与ip_set参数只能二选一
+	IpExtraSet *[]IpExtraSetOption `json:"ip_extra_set,omitempty"`
 }
 
 func (o UpdateAddressGroupOption) String() string {

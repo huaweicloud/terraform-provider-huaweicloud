@@ -8,8 +8,10 @@ import (
 
 // UpdateResponseHeaderResponse Response Object
 type UpdateResponseHeaderResponse struct {
-	Headers        *HeaderMap `json:"headers,omitempty"`
-	HttpStatusCode int        `json:"-"`
+	Headers *HeaderMap `json:"headers,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o UpdateResponseHeaderResponse) String() string {

@@ -15,7 +15,7 @@ type ListImageRiskConfigRulesRequest struct {
 	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
-	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库
+	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库   - local_image : 本地镜像   - instance_image : 企业镜像
 	ImageType string `json:"image_type"`
 
 	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
@@ -47,6 +47,9 @@ type ListImageRiskConfigRulesRequest struct {
 
 	// 风险等级，包含如下:   - Security : 安全   - Low : 低危   - Medium : 中危   - High : 高危   - Critical : 危急
 	Severity *string `json:"severity,omitempty"`
+
+	// 企业仓库实例ID，swr共享版无需使用该参数
+	InstanceId *string `json:"instance_id,omitempty"`
 }
 
 func (o ListImageRiskConfigRulesRequest) String() string {

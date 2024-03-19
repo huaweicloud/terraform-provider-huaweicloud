@@ -17,6 +17,9 @@ type UserForCreation struct {
 	// 数据库用户备注。 取值范围：长度1~512个字符。目前仅支持MySQL 8.0.25及以上版本。
 	Comment *string `json:"comment,omitempty"`
 
+	// 是否创建高权限用户。 • 若为true，则不用传hosts、databases参数。
+	IsPrivilege *bool `json:"is_privilege,omitempty"`
+
 	// 授权用户登录主机IP列表 • 若IP地址为%，则表示允许所有地址访问MySQL实例。 • 若IP地址为“10.10.10.%”，则表示10.10.10.X的IP地址都可以访问该MySQL实例。 • 支持添加多个IP地址。
 	Hosts *[]string `json:"hosts,omitempty"`
 

@@ -11,6 +11,8 @@ type DeleteConnectorRequest struct {
 
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
+
+	Body *interface{} `json:"body,omitempty"`
 }
 
 func (o DeleteConnectorRequest) String() string {

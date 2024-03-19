@@ -545,6 +545,30 @@ func (i *UpdateTemplateGroupInvoker) Invoke() (*model.UpdateTemplateGroupRespons
 	}
 }
 
+type ShowTenantAccessInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTenantAccessInfoInvoker) Invoke() (*model.ShowTenantAccessInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTenantAccessInfoResponse), nil
+	}
+}
+
+type UpdateTenantAccessInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateTenantAccessInfoInvoker) Invoke() (*model.UpdateTenantAccessInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateTenantAccessInfoResponse), nil
+	}
+}
+
 type CreateThumbnailsTaskInvoker struct {
 	*invoker.BaseInvoker
 }

@@ -67,8 +67,17 @@ func (b *BaseInvoker) ReplaceCredentialWhen(fun func(auth.ICredential) auth.ICre
 	return b
 }
 
+// Deprecated: This function will be removed in the future version, use AddHeaders instead.
 func (b *BaseInvoker) AddHeader(headers map[string]string) *BaseInvoker {
-	b.headers = headers
+	return b.AddHeaders(headers)
+}
+
+func (b *BaseInvoker) AddHeaders(headers map[string]string) *BaseInvoker {
+	if headers != nil {
+		for k, v := range headers {
+			b.headers[k] = v
+		}
+	}
 	return b
 }
 
@@ -88,7 +97,7 @@ func (b *BaseInvoker) Invoke() (interface{}, error) {
 			if execTimes == b.retryTimes {
 				break
 			}
-			resp, err = b.client.PreInvoke(b.headers).SyncInvoke(b.request, b.meta, b.Exchange)
+			resp, err = b.client.SyncInvokeWithExtraHeaders(b.request, b.meta, b.Exchange, b.headers)
 			execTimes += 1
 
 			if b.retryChecker(resp, err) {
@@ -99,6 +108,6 @@ func (b *BaseInvoker) Invoke() (interface{}, error) {
 		}
 		return resp, err
 	} else {
-		return b.client.PreInvoke(b.headers).SyncInvoke(b.request, b.meta, b.Exchange)
+		return b.client.SyncInvokeWithExtraHeaders(b.request, b.meta, b.Exchange, b.headers)
 	}
 }

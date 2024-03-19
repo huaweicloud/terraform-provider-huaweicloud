@@ -101,6 +101,18 @@ func (i *CreateClusterInvoker) Invoke() (*model.CreateClusterResponse, error) {
 	}
 }
 
+type CreateClusterMasterSnapshotInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateClusterMasterSnapshotInvoker) Invoke() (*model.CreateClusterMasterSnapshotResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateClusterMasterSnapshotResponse), nil
+	}
+}
+
 type CreateKubernetesClusterCertInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -149,6 +161,30 @@ func (i *CreatePartitionInvoker) Invoke() (*model.CreatePartitionResponse, error
 	}
 }
 
+type CreatePostCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreatePostCheckInvoker) Invoke() (*model.CreatePostCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreatePostCheckResponse), nil
+	}
+}
+
+type CreatePreCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreatePreCheckInvoker) Invoke() (*model.CreatePreCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreatePreCheckResponse), nil
+	}
+}
+
 type CreateReleaseInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -158,6 +194,18 @@ func (i *CreateReleaseInvoker) Invoke() (*model.CreateReleaseResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.CreateReleaseResponse), nil
+	}
+}
+
+type CreateUpgradeWorkFlowInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateUpgradeWorkFlowInvoker) Invoke() (*model.CreateUpgradeWorkFlowResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateUpgradeWorkFlowResponse), nil
 	}
 }
 
@@ -305,6 +353,42 @@ func (i *ListChartsInvoker) Invoke() (*model.ListChartsResponse, error) {
 	}
 }
 
+type ListClusterMasterSnapshotTasksInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClusterMasterSnapshotTasksInvoker) Invoke() (*model.ListClusterMasterSnapshotTasksResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClusterMasterSnapshotTasksResponse), nil
+	}
+}
+
+type ListClusterUpgradeFeatureGatesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClusterUpgradeFeatureGatesInvoker) Invoke() (*model.ListClusterUpgradeFeatureGatesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClusterUpgradeFeatureGatesResponse), nil
+	}
+}
+
+type ListClusterUpgradePathsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClusterUpgradePathsInvoker) Invoke() (*model.ListClusterUpgradePathsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClusterUpgradePathsResponse), nil
+	}
+}
+
 type ListClustersInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -353,6 +437,18 @@ func (i *ListPartitionsInvoker) Invoke() (*model.ListPartitionsResponse, error) 
 	}
 }
 
+type ListPreCheckTasksInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListPreCheckTasksInvoker) Invoke() (*model.ListPreCheckTasksResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListPreCheckTasksResponse), nil
+	}
+}
+
 type ListReleasesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -362,6 +458,30 @@ func (i *ListReleasesInvoker) Invoke() (*model.ListReleasesResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListReleasesResponse), nil
+	}
+}
+
+type ListUpgradeClusterTasksInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListUpgradeClusterTasksInvoker) Invoke() (*model.ListUpgradeClusterTasksResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListUpgradeClusterTasksResponse), nil
+	}
+}
+
+type ListUpgradeWorkFlowsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListUpgradeWorkFlowsInvoker) Invoke() (*model.ListUpgradeWorkFlowsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListUpgradeWorkFlowsResponse), nil
 	}
 }
 
@@ -533,6 +653,18 @@ func (i *ShowClusterEndpointsInvoker) Invoke() (*model.ShowClusterEndpointsRespo
 	}
 }
 
+type ShowClusterUpgradeInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowClusterUpgradeInfoInvoker) Invoke() (*model.ShowClusterUpgradeInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowClusterUpgradeInfoResponse), nil
+	}
+}
+
 type ShowJobInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -593,6 +725,18 @@ func (i *ShowPartitionInvoker) Invoke() (*model.ShowPartitionResponse, error) {
 	}
 }
 
+type ShowPreCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowPreCheckInvoker) Invoke() (*model.ShowPreCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowPreCheckResponse), nil
+	}
+}
+
 type ShowQuotasInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -638,6 +782,18 @@ func (i *ShowUpgradeClusterTaskInvoker) Invoke() (*model.ShowUpgradeClusterTaskR
 		return nil, err
 	} else {
 		return result.(*model.ShowUpgradeClusterTaskResponse), nil
+	}
+}
+
+type ShowUpgradeWorkFlowInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowUpgradeWorkFlowInvoker) Invoke() (*model.ShowUpgradeWorkFlowResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowUpgradeWorkFlowResponse), nil
 	}
 }
 
@@ -782,6 +938,18 @@ func (i *UpgradeClusterInvoker) Invoke() (*model.UpgradeClusterResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.UpgradeClusterResponse), nil
+	}
+}
+
+type UpgradeWorkFlowUpdateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeWorkFlowUpdateInvoker) Invoke() (*model.UpgradeWorkFlowUpdateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeWorkFlowUpdateResponse), nil
 	}
 }
 

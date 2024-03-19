@@ -1,21 +1,21 @@
 package v1
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
 )
 
 type VodClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewVodClient(hcClient *http_client.HcHttpClient) *VodClient {
+func NewVodClient(hcClient *httpclient.HcHttpClient) *VodClient {
 	return &VodClient{HcClient: hcClient}
 }
 
-func VodClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder()
+func VodClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder()
 	return builder
 }
 
@@ -506,6 +506,31 @@ func (c *VodClient) ListAssetCategory(request *model.ListAssetCategoryRequest) (
 func (c *VodClient) ListAssetCategoryInvoker(request *model.ListAssetCategoryRequest) *ListAssetCategoryInvoker {
 	requestDef := GenReqDefForListAssetCategory()
 	return &ListAssetCategoryInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAssetDailySummaryLog 查询媒资日播放统计数据
+//
+// 查询媒资日播放统计数据。
+//
+// 使用媒资日播放统计查询API前，需要先提交工单开通统计功能，才能触发统计任务。
+//
+// 支持查询最近一年的播放统计数据。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) ListAssetDailySummaryLog(request *model.ListAssetDailySummaryLogRequest) (*model.ListAssetDailySummaryLogResponse, error) {
+	requestDef := GenReqDefForListAssetDailySummaryLog()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAssetDailySummaryLogResponse), nil
+	}
+}
+
+// ListAssetDailySummaryLogInvoker 查询媒资日播放统计数据
+func (c *VodClient) ListAssetDailySummaryLogInvoker(request *model.ListAssetDailySummaryLogRequest) *ListAssetDailySummaryLogInvoker {
+	requestDef := GenReqDefForListAssetDailySummaryLog()
+	return &ListAssetDailySummaryLogInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListAssetList 查询媒资列表
@@ -1150,6 +1175,33 @@ func (c *VodClient) ShowTakeOverTaskDetailsInvoker(request *model.ShowTakeOverTa
 	return &ShowTakeOverTaskDetailsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowVodRetrieval 查询取回数据信息
+//
+// ## 典型场景 ##
+//
+//	用于查询点播低频和归档取回量统计数据。&lt;br/&gt;
+//
+// ## 接口功能 ##
+//
+//	用于查询点播低频和归档取回量统计数据。&lt;br/&gt;
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) ShowVodRetrieval(request *model.ShowVodRetrievalRequest) (*model.ShowVodRetrievalResponse, error) {
+	requestDef := GenReqDefForShowVodRetrieval()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowVodRetrievalResponse), nil
+	}
+}
+
+// ShowVodRetrievalInvoker 查询取回数据信息
+func (c *VodClient) ShowVodRetrievalInvoker(request *model.ShowVodRetrievalRequest) *ShowVodRetrievalInvoker {
+	requestDef := GenReqDefForShowVodRetrieval()
+	return &ShowVodRetrievalInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ModifySubtitle 多字幕封装
 //
 // 多字幕封装，仅支持 HLS VTT格式
@@ -1169,4 +1221,27 @@ func (c *VodClient) ModifySubtitle(request *model.ModifySubtitleRequest) (*model
 func (c *VodClient) ModifySubtitleInvoker(request *model.ModifySubtitleRequest) *ModifySubtitleInvoker {
 	requestDef := GenReqDefForModifySubtitle()
 	return &ModifySubtitleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateStorageMode 修改媒资文件在obs的存储模式
+//
+// ## 接口功能 ##
+//
+//	修改媒资文件在obs的存储模式&lt;br/&gt;
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) UpdateStorageMode(request *model.UpdateStorageModeRequest) (*model.UpdateStorageModeResponse, error) {
+	requestDef := GenReqDefForUpdateStorageMode()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateStorageModeResponse), nil
+	}
+}
+
+// UpdateStorageModeInvoker 修改媒资文件在obs的存储模式
+func (c *VodClient) UpdateStorageModeInvoker(request *model.UpdateStorageModeRequest) *UpdateStorageModeInvoker {
+	requestDef := GenReqDefForUpdateStorageMode()
+	return &UpdateStorageModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

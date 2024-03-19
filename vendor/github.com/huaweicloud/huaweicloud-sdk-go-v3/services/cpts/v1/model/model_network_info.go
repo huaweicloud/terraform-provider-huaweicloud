@@ -8,7 +8,7 @@ import (
 
 type NetworkInfo struct {
 
-	// network_type
+	// 网络类型（固定值：internet）
 	NetworkType string `json:"network_type"`
 }
 

@@ -23,7 +23,10 @@ type ImageVulInfo struct {
 	// 漏洞的软件名称
 	AppName *string `json:"app_name,omitempty"`
 
-	// 漏洞版本
+	// 应用软件的路径（只有应用漏洞有该字段）
+	AppPath *string `json:"app_path,omitempty"`
+
+	// 软件版本
 	Version *string `json:"version,omitempty"`
 
 	// 解决方案

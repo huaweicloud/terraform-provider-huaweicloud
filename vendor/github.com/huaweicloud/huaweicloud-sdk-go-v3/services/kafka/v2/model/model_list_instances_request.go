@@ -24,7 +24,7 @@ type ListInstancesRequest struct {
 	// 实例状态。 详细状态说明请参考[实例状态说明](kafka-api-180514012.xml)。
 	Status *ListInstancesRequestStatus `json:"status,omitempty"`
 
-	// 是否返回创建失败的实例数。  当参数值为“true”时，返回创建失败的实例数。参数值为“false”或者其他值，不返回创建失败的实例数。
+	// 是否返回创建失败的实例数。  当参数值为“true”时，返回创建失败的实例数。参数值为“false”，不返回创建失败的实例数。
 	IncludeFailure *ListInstancesRequestIncludeFailure `json:"include_failure,omitempty"`
 
 	// 是否按照实例名称进行精确匹配查询。  默认为“false”，表示模糊匹配实例名称查询。若参数值为“true”表示按照实例名称进行精确匹配查询。
@@ -109,8 +109,6 @@ type ListInstancesRequestStatusEnum struct {
 	SHRINKING          ListInstancesRequestStatus
 	EXTENDEDFAILED     ListInstancesRequestStatus
 	CONFIGURING        ListInstancesRequestStatus
-	UPGRADING          ListInstancesRequestStatus
-	UPGRADINGFAILED    ListInstancesRequestStatus
 	ROLLBACK           ListInstancesRequestStatus
 	ROLLBACKFAILED     ListInstancesRequestStatus
 	VOLUMETYPECHANGING ListInstancesRequestStatus
@@ -153,12 +151,6 @@ func GetListInstancesRequestStatusEnum() ListInstancesRequestStatusEnum {
 		},
 		CONFIGURING: ListInstancesRequestStatus{
 			value: "CONFIGURING",
-		},
-		UPGRADING: ListInstancesRequestStatus{
-			value: "UPGRADING",
-		},
-		UPGRADINGFAILED: ListInstancesRequestStatus{
-			value: "UPGRADINGFAILED",
 		},
 		ROLLBACK: ListInstancesRequestStatus{
 			value: "ROLLBACK",

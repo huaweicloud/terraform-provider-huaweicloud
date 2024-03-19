@@ -1,27 +1,27 @@
 package v2
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
 )
 
 type AomClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewAomClient(hcClient *http_client.HcHttpClient) *AomClient {
+func NewAomClient(hcClient *httpclient.HcHttpClient) *AomClient {
 	return &AomClient{HcClient: hcClient}
 }
 
-func AomClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder()
+func AomClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder()
 	return builder
 }
 
 // AddActionRule 新增告警行动规则
 //
-// 新增告警行动规则。（注：接口目前开放的region为：上海一）。
+// 新增告警行动规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) AddActionRule(request *model.AddActionRuleRequest) (*model.AddActionRuleResponse, error) {
@@ -42,7 +42,7 @@ func (c *AomClient) AddActionRuleInvoker(request *model.AddActionRuleRequest) *A
 
 // AddAlarmRule 添加阈值规则
 //
-// 该接口用于添加一条阈值规则。
+// 该接口用于添加一条阈值规则。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) AddAlarmRule(request *model.AddAlarmRuleRequest) (*model.AddAlarmRuleResponse, error) {
@@ -63,7 +63,7 @@ func (c *AomClient) AddAlarmRuleInvoker(request *model.AddAlarmRuleRequest) *Add
 
 // AddEvent2alarmRule 新增一条事件类告警规则
 //
-// 新增一条事件类告警规则。（注：接口目前开放的region为：上海一）。
+// 新增一条事件类告警规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) AddEvent2alarmRule(request *model.AddEvent2alarmRuleRequest) (*model.AddEvent2alarmRuleResponse, error) {
@@ -84,7 +84,7 @@ func (c *AomClient) AddEvent2alarmRuleInvoker(request *model.AddEvent2alarmRuleR
 
 // AddMetricData 添加监控数据
 //
-// 该接口用于向服务端添加一条或多条监控数据。
+// 该接口用于向服务端添加一条或多条监控数据。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) AddMetricData(request *model.AddMetricDataRequest) (*model.AddMetricDataResponse, error) {
@@ -105,7 +105,7 @@ func (c *AomClient) AddMetricDataInvoker(request *model.AddMetricDataRequest) *A
 
 // AddMuteRules 新增静默规则
 //
-// 新增静默规则。（注：接口目前开放的region为：上海一）。
+// 新增静默规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) AddMuteRules(request *model.AddMuteRulesRequest) (*model.AddMuteRulesResponse, error) {
@@ -126,7 +126,7 @@ func (c *AomClient) AddMuteRulesInvoker(request *model.AddMuteRulesRequest) *Add
 
 // AddOrUpdateServiceDiscoveryRules 添加或修改服务发现规则
 //
-// 该接口用于添加或修改一条或多条服务发现规则。同一projectid下可添加的规则上限为100条。
+// 该接口用于添加或修改一条或多条服务发现规则。同一projectid下可添加的规则上限为100条。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) AddOrUpdateServiceDiscoveryRules(request *model.AddOrUpdateServiceDiscoveryRulesRequest) (*model.AddOrUpdateServiceDiscoveryRulesResponse, error) {
@@ -168,7 +168,7 @@ func (c *AomClient) CountEventsInvoker(request *model.CountEventsRequest) *Count
 
 // DeleteActionRule 删除告警行动规则
 //
-// 删除告警行动规则。（注：接口目前开放的region为：上海一）。
+// 删除告警行动规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) DeleteActionRule(request *model.DeleteActionRuleRequest) (*model.DeleteActionRuleResponse, error) {
@@ -189,7 +189,7 @@ func (c *AomClient) DeleteActionRuleInvoker(request *model.DeleteActionRuleReque
 
 // DeleteAlarmRule 删除阈值规则
 //
-// 该接口用于删除阈值规则。
+// 该接口用于删除阈值规则。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) DeleteAlarmRule(request *model.DeleteAlarmRuleRequest) (*model.DeleteAlarmRuleResponse, error) {
@@ -210,7 +210,7 @@ func (c *AomClient) DeleteAlarmRuleInvoker(request *model.DeleteAlarmRuleRequest
 
 // DeleteAlarmRules 批量删除阈值规则
 //
-// 批量删除阈值规则
+// 批量删除阈值规则[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) DeleteAlarmRules(request *model.DeleteAlarmRulesRequest) (*model.DeleteAlarmRulesResponse, error) {
@@ -231,7 +231,7 @@ func (c *AomClient) DeleteAlarmRulesInvoker(request *model.DeleteAlarmRulesReque
 
 // DeleteEvent2alarmRule 删除事件类告警规则
 //
-// 删除一条事件类告警规则。（注：接口目前开放的region为：上海一）。
+// 删除一条事件类告警规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) DeleteEvent2alarmRule(request *model.DeleteEvent2alarmRuleRequest) (*model.DeleteEvent2alarmRuleResponse, error) {
@@ -252,7 +252,7 @@ func (c *AomClient) DeleteEvent2alarmRuleInvoker(request *model.DeleteEvent2alar
 
 // DeleteMuteRules 删除静默规则
 //
-// 删除静默规则。（注：接口目前开放的region为：上海一）。
+// 删除静默规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) DeleteMuteRules(request *model.DeleteMuteRulesRequest) (*model.DeleteMuteRulesResponse, error) {
@@ -273,7 +273,7 @@ func (c *AomClient) DeleteMuteRulesInvoker(request *model.DeleteMuteRulesRequest
 
 // DeleteserviceDiscoveryRules 删除服务发现规则
 //
-// 该接口用于删除服务发现规则。
+// 该接口用于删除服务发现规则。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) DeleteserviceDiscoveryRules(request *model.DeleteserviceDiscoveryRulesRequest) (*model.DeleteserviceDiscoveryRulesResponse, error) {
@@ -294,7 +294,7 @@ func (c *AomClient) DeleteserviceDiscoveryRulesInvoker(request *model.Deleteserv
 
 // ListActionRule 获取告警行动规则列表
 //
-// 获取告警行动规则列表。（注：接口目前开放的region为：上海一）。
+// 获取告警行动规则列表。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListActionRule(request *model.ListActionRuleRequest) (*model.ListActionRuleResponse, error) {
@@ -313,9 +313,9 @@ func (c *AomClient) ListActionRuleInvoker(request *model.ListActionRuleRequest) 
 	return &ListActionRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListAgents 查询集群主机安装的ICAgent信息
+// ListAgents 查询主机安装的ICAgent信息
 //
-// 该接口用于查询集群主机安装的ICAgent信息。
+// 该接口用于查询集群主机或用户自定义主机安装的ICAgent信息。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListAgents(request *model.ListAgentsRequest) (*model.ListAgentsResponse, error) {
@@ -328,7 +328,7 @@ func (c *AomClient) ListAgents(request *model.ListAgentsRequest) (*model.ListAge
 	}
 }
 
-// ListAgentsInvoker 查询集群主机安装的ICAgent信息
+// ListAgentsInvoker 查询主机安装的ICAgent信息
 func (c *AomClient) ListAgentsInvoker(request *model.ListAgentsRequest) *ListAgentsInvoker {
 	requestDef := GenReqDefForListAgents()
 	return &ListAgentsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -336,7 +336,7 @@ func (c *AomClient) ListAgentsInvoker(request *model.ListAgentsRequest) *ListAge
 
 // ListAlarmRule 查询阈值规则列表
 //
-// 该接口用于查询阈值规则列表。
+// 该接口用于查询阈值规则列表。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListAlarmRule(request *model.ListAlarmRuleRequest) (*model.ListAlarmRuleResponse, error) {
@@ -357,7 +357,7 @@ func (c *AomClient) ListAlarmRuleInvoker(request *model.ListAlarmRuleRequest) *L
 
 // ListEvent2alarmRule 查询事件类告警规则列表
 //
-// 查询事件类告警规则列表。（注：接口目前开放的region为：上海一）。
+// 查询事件类告警规则列表。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListEvent2alarmRule(request *model.ListEvent2alarmRuleRequest) (*model.ListEvent2alarmRuleResponse, error) {
@@ -420,7 +420,7 @@ func (c *AomClient) ListLogItemsInvoker(request *model.ListLogItemsRequest) *Lis
 
 // ListMetricItems 查询指标
 //
-// 该接口用于查询系统当前可监控的指标列表，可以指定指标命名空间、指标名称、维度、所属资源的编号（格式为：resType_resId），分页查询的起始位置和返回的最大记录条数。
+// 该接口用于查询系统当前可监控的指标列表，可以指定指标命名空间、指标名称、维度、所属资源的编号（格式为：resType_resId），分页查询的起始位置和返回的最大记录条数。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListMetricItems(request *model.ListMetricItemsRequest) (*model.ListMetricItemsResponse, error) {
@@ -441,7 +441,7 @@ func (c *AomClient) ListMetricItemsInvoker(request *model.ListMetricItemsRequest
 
 // ListMuteRule 获取静默规则列表
 //
-// 获取静默规则列表。（注：接口目前开放的region为：上海一）。
+// 获取静默规则列表。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListMuteRule(request *model.ListMuteRuleRequest) (*model.ListMuteRuleResponse, error) {
@@ -462,7 +462,7 @@ func (c *AomClient) ListMuteRuleInvoker(request *model.ListMuteRuleRequest) *Lis
 
 // ListNotifiedHistories 获取告警发送结果
 //
-// 获取告警发送结果。（注：接口目前开放的region为：上海一）。
+// 获取告警发送结果。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListNotifiedHistories(request *model.ListNotifiedHistoriesRequest) (*model.ListNotifiedHistoriesResponse, error) {
@@ -504,7 +504,7 @@ func (c *AomClient) ListPermissionsInvoker(request *model.ListPermissionsRequest
 
 // ListSample 查询时序数据
 //
-// 该接口用于查询指定时间范围内的监控时序数据，可以通过参数指定需要查询的数据维度，数据周期等。
+// 该接口用于查询指定时间范围内的监控时序数据，可以通过参数指定需要查询的数据维度，数据周期等。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListSample(request *model.ListSampleRequest) (*model.ListSampleResponse, error) {
@@ -525,7 +525,7 @@ func (c *AomClient) ListSampleInvoker(request *model.ListSampleRequest) *ListSam
 
 // ListSeries 查询时间序列
 //
-// 该接口用于查询系统当前可监控的时间序列列表，可以指定时间序列命名空间、名称、维度、所属资源的编号（格式为：resType_resId），分页查询的起始位置和返回的最大记录条数。
+// 该接口用于查询系统当前可监控的时间序列列表，可以指定时间序列命名空间、名称、维度、所属资源的编号（格式为：resType_resId），分页查询的起始位置和返回的最大记录条数。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListSeries(request *model.ListSeriesRequest) (*model.ListSeriesResponse, error) {
@@ -546,7 +546,7 @@ func (c *AomClient) ListSeriesInvoker(request *model.ListSeriesRequest) *ListSer
 
 // ListServiceDiscoveryRules 查询系统中已有服务发现规则
 //
-// 该接口用于查询系统当前已存在的服务发现规则。
+// 该接口用于查询系统当前已存在的服务发现规则。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListServiceDiscoveryRules(request *model.ListServiceDiscoveryRulesRequest) (*model.ListServiceDiscoveryRulesResponse, error) {
@@ -588,7 +588,7 @@ func (c *AomClient) PushEventsInvoker(request *model.PushEventsRequest) *PushEve
 
 // ShowActionRule 通过规则名称获取告警行动规则
 //
-// 通过规则名称获取告警行动规则。（注：接口目前开放的region为：上海一）。
+// 通过规则名称获取告警行动规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ShowActionRule(request *model.ShowActionRuleRequest) (*model.ShowActionRuleResponse, error) {
@@ -609,7 +609,7 @@ func (c *AomClient) ShowActionRuleInvoker(request *model.ShowActionRuleRequest) 
 
 // ShowAlarmRule 查询单条阈值规则
 //
-// 该接口用于查询单条阈值规则。
+// 该接口用于查询单条阈值规则。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ShowAlarmRule(request *model.ShowAlarmRuleRequest) (*model.ShowAlarmRuleResponse, error) {
@@ -630,7 +630,7 @@ func (c *AomClient) ShowAlarmRuleInvoker(request *model.ShowAlarmRuleRequest) *S
 
 // ShowMetricsData 查询监控数据
 //
-// 该接口用于查询指定时间范围内指标的监控数据，可以通过参数指定需要查询的数据维度，数据周期等。
+// 该接口用于查询指定时间范围内指标的监控数据，可以通过参数指定需要查询的数据维度，数据周期等。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ShowMetricsData(request *model.ShowMetricsDataRequest) (*model.ShowMetricsDataResponse, error) {
@@ -651,7 +651,7 @@ func (c *AomClient) ShowMetricsDataInvoker(request *model.ShowMetricsDataRequest
 
 // UpdateActionRule 修改告警行动规则
 //
-// 修改告警行动规则。（注：接口目前开放的region为：上海一）。
+// 修改告警行动规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) UpdateActionRule(request *model.UpdateActionRuleRequest) (*model.UpdateActionRuleResponse, error) {
@@ -672,7 +672,7 @@ func (c *AomClient) UpdateActionRuleInvoker(request *model.UpdateActionRuleReque
 
 // UpdateAlarmRule 修改阈值规则
 //
-// 该接口用于修改一条阈值规则。
+// 该接口用于修改一条阈值规则。[（当前接口未上线墨西哥城二、圣地亚哥、圣保罗一）](tag:hws,hws_hk)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) UpdateAlarmRule(request *model.UpdateAlarmRuleRequest) (*model.UpdateAlarmRuleResponse, error) {
@@ -693,7 +693,7 @@ func (c *AomClient) UpdateAlarmRuleInvoker(request *model.UpdateAlarmRuleRequest
 
 // UpdateEventRule 更新事件类告警规则
 //
-// 更新事件类告警规则。（注：接口目前开放的region为：上海一）。
+// 更新事件类告警规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) UpdateEventRule(request *model.UpdateEventRuleRequest) (*model.UpdateEventRuleResponse, error) {
@@ -714,7 +714,7 @@ func (c *AomClient) UpdateEventRuleInvoker(request *model.UpdateEventRuleRequest
 
 // UpdateMuteRule 修改静默规则
 //
-// 修改静默规则。（注：接口目前开放的region为：上海一）。
+// 修改静默规则。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) UpdateMuteRule(request *model.UpdateMuteRuleRequest) (*model.UpdateMuteRuleResponse, error) {
@@ -817,9 +817,9 @@ func (c *AomClient) ListAccessCodeInvoker(request *model.ListAccessCodeRequest) 
 	return &ListAccessCodeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListInstantQueryAomPromGet 瞬时数据查询
+// ListInstantQueryAomPromGet GET方法查询瞬时数据
 //
-// 该接口用于查询PromQL(Prometheus Query Language)在特定时间点下的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）。
+// 该接口使用GET方法查询PromQL(Prometheus Query Language)在特定时间点下的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListInstantQueryAomPromGet(request *model.ListInstantQueryAomPromGetRequest) (*model.ListInstantQueryAomPromGetResponse, error) {
@@ -832,15 +832,15 @@ func (c *AomClient) ListInstantQueryAomPromGet(request *model.ListInstantQueryAo
 	}
 }
 
-// ListInstantQueryAomPromGetInvoker 瞬时数据查询
+// ListInstantQueryAomPromGetInvoker GET方法查询瞬时数据
 func (c *AomClient) ListInstantQueryAomPromGetInvoker(request *model.ListInstantQueryAomPromGetRequest) *ListInstantQueryAomPromGetInvoker {
 	requestDef := GenReqDefForListInstantQueryAomPromGet()
 	return &ListInstantQueryAomPromGetInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListInstantQueryAomPromPost 瞬时数据查询
+// ListInstantQueryAomPromPost （推荐）POST方法查询瞬时数据
 //
-// 该接口用于查询PromQL(Prometheus Query Language) 在特定时间点下的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）
+// 该接口使用POST方法查询PromQL(Prometheus Query Language) 在特定时间点下的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListInstantQueryAomPromPost(request *model.ListInstantQueryAomPromPostRequest) (*model.ListInstantQueryAomPromPostResponse, error) {
@@ -853,7 +853,7 @@ func (c *AomClient) ListInstantQueryAomPromPost(request *model.ListInstantQueryA
 	}
 }
 
-// ListInstantQueryAomPromPostInvoker 瞬时数据查询
+// ListInstantQueryAomPromPostInvoker （推荐）POST方法查询瞬时数据
 func (c *AomClient) ListInstantQueryAomPromPostInvoker(request *model.ListInstantQueryAomPromPostRequest) *ListInstantQueryAomPromPostInvoker {
 	requestDef := GenReqDefForListInstantQueryAomPromPost()
 	return &ListInstantQueryAomPromPostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -880,9 +880,9 @@ func (c *AomClient) ListLabelValuesAomPromGetInvoker(request *model.ListLabelVal
 	return &ListLabelValuesAomPromGetInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListLabelsAomPromGet 获取标签名列表
+// ListLabelsAomPromGet GET方法获取标签名列表
 //
-// 该接口用于获取标签名列表。（注：接口目前开放的region为：北京四、上海一和广州）。
+// 该接口使用GET方法获取标签名列表。（注：接口目前开放的region为：北京四、上海一和广州）。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListLabelsAomPromGet(request *model.ListLabelsAomPromGetRequest) (*model.ListLabelsAomPromGetResponse, error) {
@@ -895,15 +895,15 @@ func (c *AomClient) ListLabelsAomPromGet(request *model.ListLabelsAomPromGetRequ
 	}
 }
 
-// ListLabelsAomPromGetInvoker 获取标签名列表
+// ListLabelsAomPromGetInvoker GET方法获取标签名列表
 func (c *AomClient) ListLabelsAomPromGetInvoker(request *model.ListLabelsAomPromGetRequest) *ListLabelsAomPromGetInvoker {
 	requestDef := GenReqDefForListLabelsAomPromGet()
 	return &ListLabelsAomPromGetInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListLabelsAomPromPost 获取标签名列表
+// ListLabelsAomPromPost （推荐）POST方法获取标签名列表
 //
-// 该接口用于获取标签名列表。（注：接口目前开放的region为：北京四、上海一和广州）。
+// 该接口使用POST方法获取标签名列表。（注：接口目前开放的region为：北京四、上海一和广州）。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListLabelsAomPromPost(request *model.ListLabelsAomPromPostRequest) (*model.ListLabelsAomPromPostResponse, error) {
@@ -916,7 +916,7 @@ func (c *AomClient) ListLabelsAomPromPost(request *model.ListLabelsAomPromPostRe
 	}
 }
 
-// ListLabelsAomPromPostInvoker 获取标签名列表
+// ListLabelsAomPromPostInvoker （推荐）POST方法获取标签名列表
 func (c *AomClient) ListLabelsAomPromPostInvoker(request *model.ListLabelsAomPromPostRequest) *ListLabelsAomPromPostInvoker {
 	requestDef := GenReqDefForListLabelsAomPromPost()
 	return &ListLabelsAomPromPostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -964,9 +964,9 @@ func (c *AomClient) ListPromInstanceInvoker(request *model.ListPromInstanceReque
 	return &ListPromInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListRangeQueryAomPromGet 区间数据查询
+// ListRangeQueryAomPromGet GET方法查询区间数据
 //
-// 该接口用于查询PromQL(Prometheus Query Language)在一段时间返回内的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）。
+// 该接口使用GET方法查询PromQL(Prometheus Query Language)在一段时间返回内的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListRangeQueryAomPromGet(request *model.ListRangeQueryAomPromGetRequest) (*model.ListRangeQueryAomPromGetResponse, error) {
@@ -979,15 +979,15 @@ func (c *AomClient) ListRangeQueryAomPromGet(request *model.ListRangeQueryAomPro
 	}
 }
 
-// ListRangeQueryAomPromGetInvoker 区间数据查询
+// ListRangeQueryAomPromGetInvoker GET方法查询区间数据
 func (c *AomClient) ListRangeQueryAomPromGetInvoker(request *model.ListRangeQueryAomPromGetRequest) *ListRangeQueryAomPromGetInvoker {
 	requestDef := GenReqDefForListRangeQueryAomPromGet()
 	return &ListRangeQueryAomPromGetInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListRangeQueryAomPromPost 区间数据查询
+// ListRangeQueryAomPromPost （推荐）POST方法查询区间数据
 //
-// 该接口用于查询PromQL(Prometheus Query Language)在一段时间返回内的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）。
+// 该接口使用POST方法查询PromQL(Prometheus Query Language)在一段时间返回内的计算结果。（注：接口目前开放的region为：北京四、上海一和广州）。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *AomClient) ListRangeQueryAomPromPost(request *model.ListRangeQueryAomPromPostRequest) (*model.ListRangeQueryAomPromPostResponse, error) {
@@ -1000,7 +1000,7 @@ func (c *AomClient) ListRangeQueryAomPromPost(request *model.ListRangeQueryAomPr
 	}
 }
 
-// ListRangeQueryAomPromPostInvoker 区间数据查询
+// ListRangeQueryAomPromPostInvoker （推荐）POST方法查询区间数据
 func (c *AomClient) ListRangeQueryAomPromPostInvoker(request *model.ListRangeQueryAomPromPostRequest) *ListRangeQueryAomPromPostInvoker {
 	requestDef := GenReqDefForListRangeQueryAomPromPost()
 	return &ListRangeQueryAomPromPostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}

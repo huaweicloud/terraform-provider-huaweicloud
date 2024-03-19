@@ -15,7 +15,7 @@ type SrcNodeResp struct {
 	// 源端桶的名称。
 	Bucket *string `json:"bucket,omitempty"`
 
-	// 源端云服务提供商。  可选值有AWS、Azure、Aliyun、Tencent、HuaweiCloud、QingCloud、KingsoftCloud、Baidu、Qiniu、URLSource或者UCloud。默认值为Aliyun。
+	// 源端云服务提供商。  可选值有AWS、Azure、Aliyun、Tencent、HuaweiCloud、QingCloud、KingsoftCloud、Baidu、Google、Qiniu、URLSource或者UCloud。默认值为Aliyun。
 	CloudType *SrcNodeRespCloudType `json:"cloud_type,omitempty"`
 
 	// 源端桶所处的区域。
@@ -55,6 +55,7 @@ type SrcNodeRespCloudTypeEnum struct {
 	QINIU          SrcNodeRespCloudType
 	URL_SOURCE     SrcNodeRespCloudType
 	U_CLOUD        SrcNodeRespCloudType
+	GOOGLE         SrcNodeRespCloudType
 }
 
 func GetSrcNodeRespCloudTypeEnum() SrcNodeRespCloudTypeEnum {
@@ -91,6 +92,9 @@ func GetSrcNodeRespCloudTypeEnum() SrcNodeRespCloudTypeEnum {
 		},
 		U_CLOUD: SrcNodeRespCloudType{
 			value: "UCloud",
+		},
+		GOOGLE: SrcNodeRespCloudType{
+			value: "Google",
 		},
 	}
 }

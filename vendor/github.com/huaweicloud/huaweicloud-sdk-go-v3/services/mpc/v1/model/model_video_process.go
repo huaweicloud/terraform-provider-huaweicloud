@@ -17,6 +17,9 @@ type VideoProcess struct {
 	// 表示前面hls_init_count个HLS分片的时长,hls_init_count不为0时，该字段才起作用。
 	HlsInitInterval *int32 `json:"hls_init_interval,omitempty"`
 
+	// hls的音视频流存储方式。  - composite：存储在同一个文件中。 - separate：存储在不同的文件中
+	HlsStorageType *VideoProcessHlsStorageType `json:"hls_storage_type,omitempty"`
+
 	// 视频顺时针旋转角度。  - 0：表示不旋转 - 1：表示顺时针旋转90度 - 2：表示顺时针旋转180度 - 3：表示顺时针旋转270度
 	Rotate *int32 `json:"rotate,omitempty"`
 
@@ -34,6 +37,53 @@ func (o VideoProcess) String() string {
 	}
 
 	return strings.Join([]string{"VideoProcess", string(data)}, " ")
+}
+
+type VideoProcessHlsStorageType struct {
+	value string
+}
+
+type VideoProcessHlsStorageTypeEnum struct {
+	COMPOSITE VideoProcessHlsStorageType
+	SEPARATE  VideoProcessHlsStorageType
+}
+
+func GetVideoProcessHlsStorageTypeEnum() VideoProcessHlsStorageTypeEnum {
+	return VideoProcessHlsStorageTypeEnum{
+		COMPOSITE: VideoProcessHlsStorageType{
+			value: "composite",
+		},
+		SEPARATE: VideoProcessHlsStorageType{
+			value: "separate",
+		},
+	}
+}
+
+func (c VideoProcessHlsStorageType) Value() string {
+	return c.value
+}
+
+func (c VideoProcessHlsStorageType) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *VideoProcessHlsStorageType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }
 
 type VideoProcessAdaptation struct {

@@ -1,21 +1,21 @@
 package v5
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
 )
 
 type HssClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewHssClient(hcClient *http_client.HcHttpClient) *HssClient {
+func NewHssClient(hcClient *httpclient.HcHttpClient) *HssClient {
 	return &HssClient{HcClient: hcClient}
 }
 
-func HssClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder()
+func HssClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder()
 	return builder
 }
 
@@ -124,6 +124,27 @@ func (c *HssClient) ChangeBlockedIpInvoker(request *model.ChangeBlockedIpRequest
 	return &ChangeBlockedIpInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ChangeCheckRuleAction 对未通过的配置检查项进行忽略/取消忽略/修复/验证操作
+//
+// 对未通过的配置检查项进行忽略/取消忽略/修复/验证操作
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) ChangeCheckRuleAction(request *model.ChangeCheckRuleActionRequest) (*model.ChangeCheckRuleActionResponse, error) {
+	requestDef := GenReqDefForChangeCheckRuleAction()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ChangeCheckRuleActionResponse), nil
+	}
+}
+
+// ChangeCheckRuleActionInvoker 对未通过的配置检查项进行忽略/取消忽略/修复/验证操作
+func (c *HssClient) ChangeCheckRuleActionInvoker(request *model.ChangeCheckRuleActionRequest) *ChangeCheckRuleActionInvoker {
+	requestDef := GenReqDefForChangeCheckRuleAction()
+	return &ChangeCheckRuleActionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ChangeEvent 处理告警事件
 //
 // 处理告警事件
@@ -227,6 +248,27 @@ func (c *HssClient) ChangeVulStatus(request *model.ChangeVulStatusRequest) (*mod
 func (c *HssClient) ChangeVulStatusInvoker(request *model.ChangeVulStatusRequest) *ChangeVulStatusInvoker {
 	requestDef := GenReqDefForChangeVulStatus()
 	return &ChangeVulStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateVulnerabilityScanTask 创建漏洞扫描任务
+//
+// 创建漏洞扫描任务
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) CreateVulnerabilityScanTask(request *model.CreateVulnerabilityScanTaskRequest) (*model.CreateVulnerabilityScanTaskResponse, error) {
+	requestDef := GenReqDefForCreateVulnerabilityScanTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateVulnerabilityScanTaskResponse), nil
+	}
+}
+
+// CreateVulnerabilityScanTaskInvoker 创建漏洞扫描任务
+func (c *HssClient) CreateVulnerabilityScanTaskInvoker(request *model.CreateVulnerabilityScanTaskRequest) *CreateVulnerabilityScanTaskInvoker {
+	requestDef := GenReqDefForCreateVulnerabilityScanTask()
+	return &CreateVulnerabilityScanTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteHostsGroup 删除服务器组
@@ -733,7 +775,28 @@ func (c *HssClient) ListPolicyGroupInvoker(request *model.ListPolicyGroupRequest
 	return &ListPolicyGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListPortStatistics 查询开放端口列表
+// ListPortHost 资产指纹-端口-服务器列表
+//
+// 具备该端口的主机/容器信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) ListPortHost(request *model.ListPortHostRequest) (*model.ListPortHostResponse, error) {
+	requestDef := GenReqDefForListPortHost()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListPortHostResponse), nil
+	}
+}
+
+// ListPortHostInvoker 资产指纹-端口-服务器列表
+func (c *HssClient) ListPortHostInvoker(request *model.ListPortHostRequest) *ListPortHostInvoker {
+	requestDef := GenReqDefForListPortHost()
+	return &ListPortHostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListPortStatistics 查询开放端口统计信息
 //
 // 查询开放端口列表，支持通过传入端口或协议类型查询服务器数
 //
@@ -748,7 +811,7 @@ func (c *HssClient) ListPortStatistics(request *model.ListPortStatisticsRequest)
 	}
 }
 
-// ListPortStatisticsInvoker 查询开放端口列表
+// ListPortStatisticsInvoker 查询开放端口统计信息
 func (c *HssClient) ListPortStatisticsInvoker(request *model.ListPortStatisticsRequest) *ListPortStatisticsInvoker {
 	requestDef := GenReqDefForListPortStatistics()
 	return &ListPortStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -794,6 +857,27 @@ func (c *HssClient) ListProcessStatistics(request *model.ListProcessStatisticsRe
 func (c *HssClient) ListProcessStatisticsInvoker(request *model.ListProcessStatisticsRequest) *ListProcessStatisticsInvoker {
 	requestDef := GenReqDefForListProcessStatistics()
 	return &ListProcessStatisticsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListProcessesHost 资产指纹-进程-服务器列表
+//
+// 具备该进程的主机/容器信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) ListProcessesHost(request *model.ListProcessesHostRequest) (*model.ListProcessesHostResponse, error) {
+	requestDef := GenReqDefForListProcessesHost()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListProcessesHostResponse), nil
+	}
+}
+
+// ListProcessesHostInvoker 资产指纹-进程-服务器列表
+func (c *HssClient) ListProcessesHostInvoker(request *model.ListProcessesHostRequest) *ListProcessesHostInvoker {
+	requestDef := GenReqDefForListProcessesHost()
+	return &ListProcessesHostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListProtectionPolicy 查询防护策略列表
@@ -1046,6 +1130,48 @@ func (c *HssClient) ListVulHosts(request *model.ListVulHostsRequest) (*model.Lis
 func (c *HssClient) ListVulHostsInvoker(request *model.ListVulHostsRequest) *ListVulHostsInvoker {
 	requestDef := GenReqDefForListVulHosts()
 	return &ListVulHostsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListVulScanTask 查询漏洞扫描任务列表
+//
+// 查询漏洞扫描任务列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) ListVulScanTask(request *model.ListVulScanTaskRequest) (*model.ListVulScanTaskResponse, error) {
+	requestDef := GenReqDefForListVulScanTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListVulScanTaskResponse), nil
+	}
+}
+
+// ListVulScanTaskInvoker 查询漏洞扫描任务列表
+func (c *HssClient) ListVulScanTaskInvoker(request *model.ListVulScanTaskRequest) *ListVulScanTaskInvoker {
+	requestDef := GenReqDefForListVulScanTask()
+	return &ListVulScanTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListVulScanTaskHost 查询漏洞扫描任务对应的主机列表
+//
+// 查询漏洞扫描任务对应的主机列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) ListVulScanTaskHost(request *model.ListVulScanTaskHostRequest) (*model.ListVulScanTaskHostResponse, error) {
+	requestDef := GenReqDefForListVulScanTaskHost()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListVulScanTaskHostResponse), nil
+	}
+}
+
+// ListVulScanTaskHostInvoker 查询漏洞扫描任务对应的主机列表
+func (c *HssClient) ListVulScanTaskHostInvoker(request *model.ListVulScanTaskHostRequest) *ListVulScanTaskHostInvoker {
+	requestDef := GenReqDefForListVulScanTaskHost()
+	return &ListVulScanTaskHostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListVulnerabilities 查询漏洞列表

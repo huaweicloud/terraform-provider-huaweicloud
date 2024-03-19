@@ -35,6 +35,12 @@ type ListAppsRequest struct {
 
 	// 默认是0
 	Offset *int32 `json:"offset,omitempty"`
+
+	// 类别，默认为host，包含如下： - host：主机 - container：容器
+	Category *string `json:"category,omitempty"`
+
+	// 是否模糊匹配，默认false表示精确匹配
+	PartMatch *bool `json:"part_match,omitempty"`
 }
 
 func (o ListAppsRequest) String() string {

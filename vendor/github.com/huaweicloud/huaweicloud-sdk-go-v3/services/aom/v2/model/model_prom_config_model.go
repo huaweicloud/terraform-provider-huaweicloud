@@ -17,7 +17,7 @@ type PromConfigModel struct {
 	// Prometheus实例调用url。
 	PromHttpApiEndpoint *string `json:"prom_http_api_endpoint,omitempty"`
 
-	// Prometheus实例关联dashboard的dashboard id。
+	// Prometheus实例关联dashboard的dashboard id（目前未使用）。
 	DashboardId *string `json:"dashboard_id,omitempty"`
 
 	// Prometheus实例所属的region。

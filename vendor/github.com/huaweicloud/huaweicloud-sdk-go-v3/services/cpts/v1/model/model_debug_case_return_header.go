@@ -8,19 +8,19 @@ import (
 
 type DebugCaseReturnHeader struct {
 
-	// Connection
+	// 连接
 	Connection *string `json:"Connection,omitempty"`
 
-	// Content-Length
+	// 内容长度
 	ContentLength *string `json:"Content-Length,omitempty"`
 
-	// Content-Type
+	// 内容类型
 	ContentType *string `json:"Content-Type,omitempty"`
 
-	// Date
+	// 时间
 	Date *string `json:"Date,omitempty"`
 
-	// Vary
+	// 兼容性保留，当前版本未使用
 	Vary *string `json:"Vary,omitempty"`
 }
 

@@ -56,6 +56,9 @@ type Host struct {
 	// 云主机安全检测结果，包含如下4种。 - undetected ：未检测。 - clean ：无风险。 - risk ：有风险。 - scanning ：检测中。
 	DetectResult *string `json:"detect_result,omitempty"`
 
+	// 试用版到期时间（-1表示非试用版配额，当值不为-1时为试用版本过期时间）
+	ExpireTime *int64 `json:"expire_time,omitempty"`
+
 	// 收费模式，包含如下2种。   - packet_cycle ：包年/包月。   - on_demand ：按需。
 	ChargingMode *string `json:"charging_mode,omitempty"`
 
@@ -115,6 +118,9 @@ type Host struct {
 
 	// 开启防护时间，采用时间戳，默认毫秒，
 	OpenTime *int64 `json:"open_time,omitempty"`
+
+	// 防护是否中断
+	ProtectInterrupt *bool `json:"protect_interrupt,omitempty"`
 }
 
 func (o Host) String() string {

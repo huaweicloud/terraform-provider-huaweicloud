@@ -10,8 +10,10 @@ import (
 type ShowIpInfoResponse struct {
 
 	// IP归属信息列表。
-	CdnIps         *[]CdnIps `json:"cdn_ips,omitempty"`
-	HttpStatusCode int       `json:"-"`
+	CdnIps *[]CdnIps `json:"cdn_ips,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o ShowIpInfoResponse) String() string {

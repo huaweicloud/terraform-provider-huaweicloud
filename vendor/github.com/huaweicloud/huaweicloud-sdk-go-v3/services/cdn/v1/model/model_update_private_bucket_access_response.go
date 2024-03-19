@@ -10,8 +10,10 @@ import (
 type UpdatePrivateBucketAccessResponse struct {
 
 	// 桶开启关闭状态（true：开启；false：关闭）
-	Status         *bool `json:"status,omitempty"`
-	HttpStatusCode int   `json:"-"`
+	Status *bool `json:"status,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o UpdatePrivateBucketAccessResponse) String() string {

@@ -16,12 +16,12 @@ type MuteConfig struct {
 	EndsAt *int64 `json:"ends_at,omitempty"`
 
 	// 当type为每周或者每月时，scope不能为空
-	Scope *[]string `json:"scope,omitempty"`
+	Scope *[]int32 `json:"scope,omitempty"`
 
 	// 静默规则开始时间
 	StartsAt int64 `json:"starts_at"`
 
-	// 静默规则生效时间种类。FIXED:固定方式统计,DAILY:按日合计,WEEKLY:按周统计,MONTHLY:按月统计
+	// 静默规则生效时间种类。FIXED：固定方式统计，DAILY：按日合计，WEEKLY：按周统计，MONTHLY：按月统计
 	Type MuteConfigType `json:"type"`
 }
 

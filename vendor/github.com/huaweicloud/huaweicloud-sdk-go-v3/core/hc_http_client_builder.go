@@ -89,6 +89,7 @@ func (builder *HcHttpClientBuilder) WithErrorHandler(errorHandler sdkerr.ErrorHa
 	return builder
 }
 
+// Deprecated: This function may panic under certain circumstances. Use SafeBuild instead.
 func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 	if builder.httpConfig == nil {
 		builder.httpConfig = config.DefaultHttpConfig()
@@ -141,4 +142,14 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 		WithCredential(builder.credentials).
 		WithErrorHandler(builder.errorHandler)
 	return hcHttpClient
+}
+
+func (builder *HcHttpClientBuilder) SafeBuild() (client *HcHttpClient, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("%v", r)
+		}
+	}()
+	client = builder.Build()
+	return
 }

@@ -19,8 +19,8 @@ type DeleteNodePoolResponse struct {
 
 	Spec *NodePoolSpec `json:"spec,omitempty"`
 
-	Status         *NodePoolStatus `json:"status,omitempty"`
-	HttpStatusCode int             `json:"-"`
+	Status         *DeleteNodePoolStatus `json:"status,omitempty"`
+	HttpStatusCode int                   `json:"-"`
 }
 
 func (o DeleteNodePoolResponse) String() string {

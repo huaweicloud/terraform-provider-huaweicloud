@@ -14,6 +14,9 @@ type ShowAssetStatisticRequest struct {
 
 	// host id
 	HostId *string `json:"host_id,omitempty"`
+
+	// 类别，默认为host，包含如下： - host：主机 - container：容器
+	Category *string `json:"category,omitempty"`
 }
 
 func (o ShowAssetStatisticRequest) String() string {

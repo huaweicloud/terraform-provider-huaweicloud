@@ -12,10 +12,10 @@ import (
 // ListPromInstanceRequest Request Object
 type ListPromInstanceRequest struct {
 
-	// Prometheus实例id。
+	// Prometheus实例id(prom_id与prom_type同时存在时，仅prom_id生效)。
 	PromId *string `json:"prom_id,omitempty"`
 
-	// Prometheus实例类型。
+	// Prometheus实例类型（暂时不支持VPC、KUBERNETES）。
 	PromType *ListPromInstanceRequestPromType `json:"prom_type,omitempty"`
 
 	// cce集群开关。
@@ -157,17 +157,21 @@ type ListPromInstanceRequestPromStatus struct {
 }
 
 type ListPromInstanceRequestPromStatusEnum struct {
-	TRUE  ListPromInstanceRequestPromStatus
-	FALSE ListPromInstanceRequestPromStatus
+	DELETED ListPromInstanceRequestPromStatus
+	NORMAL  ListPromInstanceRequestPromStatus
+	ALL     ListPromInstanceRequestPromStatus
 }
 
 func GetListPromInstanceRequestPromStatusEnum() ListPromInstanceRequestPromStatusEnum {
 	return ListPromInstanceRequestPromStatusEnum{
-		TRUE: ListPromInstanceRequestPromStatus{
-			value: "true",
+		DELETED: ListPromInstanceRequestPromStatus{
+			value: "DELETED",
 		},
-		FALSE: ListPromInstanceRequestPromStatus{
-			value: "false",
+		NORMAL: ListPromInstanceRequestPromStatus{
+			value: "NORMAL",
+		},
+		ALL: ListPromInstanceRequestPromStatus{
+			value: "ALL",
 		},
 	}
 }

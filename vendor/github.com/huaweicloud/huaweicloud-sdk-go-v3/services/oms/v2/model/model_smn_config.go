@@ -18,8 +18,11 @@ type SmnConfig struct {
 	// 迁移任务所绑定的SMN消息主题的urn号。
 	TopicUrn string `json:"topic_urn"`
 
-	//   SMN消息的触发条件，取决于迁移任务状态。  迁移任务状态的取值范围为SUCCESS或者FAILURE。  - FAILURE表示任务失败后发送SMN消息。 - SUCCESS表示任务成功后发送SMN消息。
+	// SMN消息的触发条件，取决于迁移任务状态。  迁移任务状态的取值范围为SUCCESS或者FAILURE。  - FAILURE表示任务失败后发送SMN消息。 - SUCCESS表示任务成功后发送SMN消息。
 	TriggerConditions []string `json:"trigger_conditions"`
+
+	// 如果设置此值，则表示用模板方式发送smn信息。 模板示例: {  “Task_Status”: \"\",     \"Task_Name\" : \"\",     \"Start_Time\": \"\",     \"Total_Time_Used\": \"\",     \"Transferred_Data\": \"\",     \"Average_Speed\": \"\",     \"Source_Bucket\": \"\",     \"Destination_Bucket\": \"\",     \"List_File_Bucket\": \"\",     \"List_File_Key\": \"\",     \"Success_object_list_path\": \"\",     \"Skip_object_list_path\": \"\",     \"Failed_object_list_path\": \"\" }
+	MessageTemplateName *string `json:"message_template_name,omitempty"`
 }
 
 func (o SmnConfig) String() string {

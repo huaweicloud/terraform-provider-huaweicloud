@@ -32,6 +32,12 @@ type AppResponseInfo struct {
 
 	// 最近扫描时间
 	RecentScanTime *int64 `json:"recent_scan_time,omitempty"`
+
+	// 容器id
+	ContainerId *string `json:"container_id,omitempty"`
+
+	// 容器名称
+	ContainerName *string `json:"container_name,omitempty"`
 }
 
 func (o AppResponseInfo) String() string {

@@ -1,21 +1,21 @@
 package v5
 
 import (
-	http_client "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
+	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/invoker"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
 )
 
 type IoTDAClient struct {
-	HcClient *http_client.HcHttpClient
+	HcClient *httpclient.HcHttpClient
 }
 
-func NewIoTDAClient(hcClient *http_client.HcHttpClient) *IoTDAClient {
+func NewIoTDAClient(hcClient *httpclient.HcHttpClient) *IoTDAClient {
 	return &IoTDAClient{HcClient: hcClient}
 }
 
-func IoTDAClientBuilder() *http_client.HcHttpClientBuilder {
-	builder := http_client.NewHcHttpClientBuilder().WithDerivedAuthServiceName("iotdm")
+func IoTDAClientBuilder() *httpclient.HcHttpClientBuilder {
+	builder := httpclient.NewHcHttpClientBuilder().WithDerivedAuthServiceName("iotdm")
 	return builder
 }
 

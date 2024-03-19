@@ -9,7 +9,7 @@ import (
 // ShowBucketReq 查询桶请求体
 type ShowBucketReq struct {
 
-	// 云类型 AWS：亚马逊 Aliyun：阿里云 Qiniu：七牛云 QingCloud：青云 Tencent：腾讯云 Baidu：百度云 KingsoftCloud：金山云 Azure：微软云 UCloud：优刻得 HuaweiCloud：华为云 URLSource：URL HEC：HEC
+	// 云类型 AWS：亚马逊 Aliyun：阿里云 Qiniu：七牛云 QingCloud：青云 Tencent：腾讯云 Baidu：百度云 KingsoftCloud：金山云 Azure：微软云 UCloud：优刻得 HuaweiCloud：华为云 Google: 谷歌云 URLSource：URL HEC：HEC
 	CloudType string `json:"cloud_type"`
 
 	// 目标桶中需要查询的对象文件路径，/结尾
@@ -20,6 +20,9 @@ type ShowBucketReq struct {
 
 	// 源端桶的SK（最大长度100个字符）
 	Sk *string `json:"sk,omitempty"`
+
+	// 用于谷歌云Cloud Storage鉴权
+	JsonAuthFile *string `json:"json_auth_file,omitempty"`
 
 	// 数据中心，区域
 	DataCenter string `json:"data_center"`

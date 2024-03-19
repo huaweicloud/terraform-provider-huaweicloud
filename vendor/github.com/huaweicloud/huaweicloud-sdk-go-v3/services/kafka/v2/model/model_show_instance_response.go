@@ -51,7 +51,7 @@ type ShowInstanceResponse struct {
 	// 资源规格标识。   - dms.instance.kafka.cluster.c3.mini：Kafka实例的基准带宽为100MByte/秒。   - dms.instance.kafka.cluster.c3.small.2：Kafka实例的基准带宽为300MByte/秒。   - dms.instance.kafka.cluster.c3.middle.2：Kafka实例的基准带宽为600MByte/秒。   - dms.instance.kafka.cluster.c3.high.2：Kafka实例的基准带宽为1200MByte/秒。
 	ResourceSpecCode *string `json:"resource_spec_code,omitempty"`
 
-	// [付费模式，1表示按需计费，0表示包年/包月计费。](tag:hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[付费模式，暂未使用。](tag:hws_ocb,ocb) [付费模式，1表示按需计费。](tag:otc,dt,g42,tm,hk_g42,hk_tm)
+	// [付费模式，1表示按需计费，0表示包年/包月计费。](tag:hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[付费模式，暂未使用。](tag:hws_ocb,ocb) [付费模式，1表示按需计费。](tag:dt,g42,tm,hk_g42,hk_tm,hcs)
 	ChargingMode *int32 `json:"charging_mode,omitempty"`
 
 	// VPC ID。
@@ -96,7 +96,7 @@ type ShowInstanceResponse struct {
 	// 是否开启安全认证。 - true：开启 - false：未开启
 	SslEnable *bool `json:"ssl_enable,omitempty"`
 
-	// 开启SASL后使用的安全协议。 - SASL_SSL: 采用SSL证书进行加密传输，支持帐号密码认证，安全性更高。 - SASL_PLAINTEXT: 明文传输，支持帐号密码认证，性能更好，仅支持SCRAM-SHA-512机制。
+	// 开启SASL后使用的安全协议。 - SASL_SSL: 采用SSL证书进行加密传输，支持账号密码认证，安全性更高。 - SASL_PLAINTEXT: 明文传输，支持账号密码认证，性能更好，建议使用SCRAM-SHA-512机制。
 	KafkaSecurityProtocol *string `json:"kafka_security_protocol,omitempty"`
 
 	// 开启SASL后使用的认证机制。 - PLAIN: 简单的用户名密码校验。 - SCRAM-SHA-512: 用户凭证校验，安全性比PLAIN机制更高。
@@ -188,6 +188,9 @@ type ShowInstanceResponse struct {
 
 	// 是否开启转储。新规格产品暂不支持开启转储。
 	ConnectorEnable *bool `json:"connector_enable,omitempty"`
+
+	// connector节点数量。
+	ConnectorNodeNum *int32 `json:"connector_node_num,omitempty"`
 
 	// 转储任务ID。
 	ConnectorId *string `json:"connector_id,omitempty"`

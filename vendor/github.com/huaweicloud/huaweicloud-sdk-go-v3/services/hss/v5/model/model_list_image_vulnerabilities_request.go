@@ -15,7 +15,7 @@ type ListImageVulnerabilitiesRequest struct {
 	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
-	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库
+	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库   - local_image : 本地镜像   - instance_image : 企业镜像
 	ImageType string `json:"image_type"`
 
 	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
@@ -36,7 +36,7 @@ type ListImageVulnerabilitiesRequest struct {
 	// 镜像名称
 	ImageName string `json:"image_name"`
 
-	// 镜像版本名称
+	// 镜像版本
 	TagName string `json:"tag_name"`
 
 	// 危险程度，包含如下3种。   - immediate_repair ：高危。   - delay_repair ：中危。   - not_needed_repair ：低危。
@@ -47,6 +47,9 @@ type ListImageVulnerabilitiesRequest struct {
 
 	// 软件名
 	AppName *string `json:"app_name,omitempty"`
+
+	// 漏洞类型，包含如下：   -linux_vul : linux漏洞   -app_vul : 应用漏洞
+	Type *string `json:"type,omitempty"`
 }
 
 func (o ListImageVulnerabilitiesRequest) String() string {

@@ -45,6 +45,7 @@ type SourceCdnReqAuthenticationTypeEnum struct {
 	ALIYUN_OSS_B                 SourceCdnReqAuthenticationType
 	ALIYUN_OSS_C                 SourceCdnReqAuthenticationType
 	KSYUN_PRIVATE_AUTHENTICATION SourceCdnReqAuthenticationType
+	AZURE_SAS_TOKEN              SourceCdnReqAuthenticationType
 	TENCENT_COS_A                SourceCdnReqAuthenticationType
 	TENCENT_COS_B                SourceCdnReqAuthenticationType
 	TENCENT_COS_C                SourceCdnReqAuthenticationType
@@ -70,6 +71,9 @@ func GetSourceCdnReqAuthenticationTypeEnum() SourceCdnReqAuthenticationTypeEnum 
 		},
 		KSYUN_PRIVATE_AUTHENTICATION: SourceCdnReqAuthenticationType{
 			value: "KSYUN_PRIVATE_AUTHENTICATION",
+		},
+		AZURE_SAS_TOKEN: SourceCdnReqAuthenticationType{
+			value: "AZURE_SAS_TOKEN",
 		},
 		TENCENT_COS_A: SourceCdnReqAuthenticationType{
 			value: "TENCENT_COS_A",

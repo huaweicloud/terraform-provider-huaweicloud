@@ -11,6 +11,9 @@ type CreateAccessCodeRequestBody struct {
 
 	// **参数说明**：接入凭证类型，默认为AMQP的接入凭证类型。 **取值范围**： - [AMQP,MQTT]
 	Type *string `json:"type,omitempty"`
+
+	// **参数说明**: 是否将AMQP/MQTT连接断开
+	ForceDisconnect *bool `json:"force_disconnect,omitempty"`
 }
 
 func (o CreateAccessCodeRequestBody) String() string {

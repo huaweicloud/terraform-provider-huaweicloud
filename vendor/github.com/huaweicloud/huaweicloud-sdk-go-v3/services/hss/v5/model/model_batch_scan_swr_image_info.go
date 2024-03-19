@@ -17,6 +17,12 @@ type BatchScanSwrImageInfo struct {
 
 	// 镜像版本
 	ImageVersion *string `json:"image_version,omitempty"`
+
+	// 企业实例ID
+	InstanceId *string `json:"instance_id,omitempty"`
+
+	// 下载企业镜像URL
+	InstanceUrl *string `json:"instance_url,omitempty"`
 }
 
 func (o BatchScanSwrImageInfo) String() string {

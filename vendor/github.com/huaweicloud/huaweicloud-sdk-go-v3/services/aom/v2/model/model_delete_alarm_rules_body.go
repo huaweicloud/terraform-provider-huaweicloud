@@ -8,7 +8,7 @@ import (
 
 type DeleteAlarmRulesBody struct {
 
-	// 阈值规则列表
+	// 要删除的规则名称
 	AlarmRules []string `json:"alarm_rules"`
 }
 

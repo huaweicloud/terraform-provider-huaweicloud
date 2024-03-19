@@ -13,7 +13,7 @@ type MetaData struct {
 	Count *int32 `json:"count,omitempty"`
 
 	// 下一个开始的标记，用于分页，null表示无更多数据。
-	Start *int64 `json:"start,omitempty"`
+	Start *string `json:"start,omitempty"`
 
 	// 总条数。
 	Total *int32 `json:"total,omitempty"`

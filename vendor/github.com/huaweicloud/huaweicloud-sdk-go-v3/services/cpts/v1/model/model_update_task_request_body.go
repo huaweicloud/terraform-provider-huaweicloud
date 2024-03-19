@@ -9,36 +9,36 @@ import (
 // UpdateTaskRequestBody UpdateTaskRequestBody
 type UpdateTaskRequestBody struct {
 
-	// id
+	// 任务id
 	Id int32 `json:"id"`
 
-	// name
+	// 任务名称
 	Name string `json:"name"`
 
-	// description
+	// 描述
 	Description *string `json:"description,omitempty"`
 
-	// project_id
+	// 工程id
 	ProjectId int32 `json:"project_id"`
 
-	// run_status
+	// 任务运行状态（9：等待运行；0：运行中；1：暂停；2：结束； 3：异常中止；4：用户主动终止（完成状态）；5：用户主动终止）
 	RunStatus *int32 `json:"run_status,omitempty"`
 
-	// run_type
+	// 任务类型（0：旧版本任务；1：融合版本任务）
 	RunType *int32 `json:"run_type,omitempty"`
 
 	TaskRunInfo *TaskRunInfo `json:"task_run_info,omitempty"`
 
-	// case_list
+	// 用例信息
 	CaseList *[]CaseInfoDetail `json:"case_list,omitempty"`
 
-	// operate_mode
+	// 压力阶段模式，0：时长模式；1：次数模式
 	OperateMode *int32 `json:"operate_mode,omitempty"`
 
-	// bench_concurrent
+	// 基准并发
 	BenchConcurrent *int32 `json:"bench_concurrent,omitempty"`
 
-	// related_temp_running_data
+	// 最近一次运行的报告简略信息
 	RelatedTempRunningData *[]RelatedTempRunningData `json:"related_temp_running_data,omitempty"`
 }
 

@@ -72,14 +72,8 @@ type AgentConfig struct {
 	// pulsar影子库前缀
 	PulsarShadowTopicPrefix *string `json:"pulsar_shadow_topic_prefix,omitempty"`
 
-	// elasticsearch影子规则开关
-	ElasticsearchEnable *bool `json:"elasticsearch_enable,omitempty"`
-
-	// elasticsearch影子规则类型
-	ElasticsearchShadowType *string `json:"elasticsearch_shadow_type,omitempty"`
-
-	// elasticsearch影子库映射信息
-	ElasticsearchShadowRepository *string `json:"elasticsearch_shadow_repository,omitempty"`
+	// 自定义配置
+	Extensions *string `json:"extensions,omitempty"`
 }
 
 func (o AgentConfig) String() string {

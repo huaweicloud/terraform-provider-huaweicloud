@@ -12,7 +12,7 @@ type Dimension2 struct {
 	// 维度名称。
 	Name string `json:"name"`
 
-	// 指标数据的值。
+	// 维度取值。
 	Value string `json:"value"`
 }
 

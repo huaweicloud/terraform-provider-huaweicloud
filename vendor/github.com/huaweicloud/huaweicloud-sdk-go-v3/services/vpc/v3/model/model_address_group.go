@@ -47,6 +47,9 @@ type AddressGroup struct {
 
 	// 功能说明：地址组状态详情信息
 	StatusMessage string `json:"status_message"`
+
+	// 功能说明：地址组包含的地址集及其备注信息
+	IpExtraSet []IpExtraSetRespOption `json:"ip_extra_set"`
 }
 
 func (o AddressGroup) String() string {

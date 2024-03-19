@@ -119,7 +119,7 @@ func KeystoneListProjects(client *impl.DefaultHttpClient, req *request.DefaultHt
 			projectIds = append(projectIds, project.Id)
 		}
 
-		return "", errors.New(fmt.Sprintf("multiple project ids found: [%s], please specify one when initializing the credentials", strings.Join(projectIds, ",")))
+		return "", fmt.Errorf("multiple project ids found: [%s], please specify one when initializing the credentials", strings.Join(projectIds, ","))
 	}
 
 	return "", errors.New(NoProjectIdFound)

@@ -650,7 +650,7 @@ func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.Ru
 				ThemeName:      f["topic_name"].(string),
 				TopicUrn:       f["topic_urn"].(string),
 				MessageTitle:   f["message_title"].(string),
-				MessageContent: f["message_content"].(string),
+				MessageContent: utils.String(f["message_content"].(string)),
 			},
 		}
 		return &d, nil

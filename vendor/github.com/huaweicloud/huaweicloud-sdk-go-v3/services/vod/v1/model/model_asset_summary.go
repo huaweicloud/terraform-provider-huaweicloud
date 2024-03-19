@@ -24,9 +24,6 @@ type AssetSummary struct {
 	// 媒资时长。  单位：秒。
 	Duration int32 `json:"duration"`
 
-	// 视频时长，单位毫秒。
-	DurationMs *int64 `json:"duration_ms,omitempty"`
-
 	// 媒资大小。  单位：字节。
 	Size int64 `json:"size"`
 

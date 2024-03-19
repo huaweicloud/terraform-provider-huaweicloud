@@ -9,16 +9,16 @@ import (
 // DebugCaseResponse Response Object
 type DebugCaseResponse struct {
 
-	// code
+	// 响应码
 	Code *string `json:"code,omitempty"`
 
-	// message
+	// 响应消息
 	Message *string `json:"message,omitempty"`
 
-	// extend
+	// 扩展信息
 	Extend *string `json:"extend,omitempty"`
 
-	// result
+	// 结果
 	Result         *[]DebugCaseResult `json:"result,omitempty"`
 	HttpStatusCode int                `json:"-"`
 }

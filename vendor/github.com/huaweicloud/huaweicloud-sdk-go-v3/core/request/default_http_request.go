@@ -32,6 +32,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -182,7 +183,11 @@ func (httpRequest *DefaultHttpRequest) ConvertRequest() (*http.Request, error) {
 			return nil, err
 		}
 	} else if len(httpRequest.GetFormPrams()) != 0 {
-		req, err = httpRequest.covertFormBody()
+		if httpRequest.headerParams["Content-Type"] == "application/x-www-form-urlencoded" {
+			req, err = httpRequest.covertFormUrlencodedBody()
+		} else {
+			req, err = httpRequest.covertFormDataBody()
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -207,7 +212,20 @@ func (httpRequest *DefaultHttpRequest) ConvertRequest() (*http.Request, error) {
 	return req, nil
 }
 
-func (httpRequest *DefaultHttpRequest) covertFormBody() (*http.Request, error) {
+func (httpRequest *DefaultHttpRequest) covertFormUrlencodedBody() (*http.Request, error) {
+	form := url.Values{}
+	for k, v := range httpRequest.GetFormPrams() {
+		if part, ok := v.(*def.MultiPart); ok {
+			form.Add(k, converter.ConvertInterfaceToString(part.Content))
+		} else {
+			return nil, errors.New("failed to encode form field: " + k)
+		}
+	}
+
+	return http.NewRequest(httpRequest.GetMethod(), httpRequest.GetEndpoint(), bytes.NewBufferString(form.Encode()))
+}
+
+func (httpRequest *DefaultHttpRequest) covertFormDataBody() (*http.Request, error) {
 	bodyBuffer := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuffer)
 

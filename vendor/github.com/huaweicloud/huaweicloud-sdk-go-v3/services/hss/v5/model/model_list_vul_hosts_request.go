@@ -9,13 +9,13 @@ import (
 // ListVulHostsRequest Request Object
 type ListVulHostsRequest struct {
 
-	// 企业租户ID，查询所有企业项目时填写：all_granted_eps
+	// 企业租户ID，“0”表示默认企业项目，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 漏洞ID
 	VulId string `json:"vul_id"`
 
-	// 漏洞类型   - linux_vul : 漏洞类型-linux漏洞   - windows_vul : 漏洞类型-windows漏洞   - web_cms : Web-CMS漏洞   - app_vul : 应用漏洞
+	// 漏洞类型   - linux_vul : 漏洞类型-linux漏洞   - windows_vul : 漏洞类型-windows漏洞   - web_cms : Web-CMS漏洞   - app_vul : 应用漏洞   - urgent_vul : 应急漏洞
 	Type string `json:"type"`
 
 	// 受影响资产名称

@@ -24,7 +24,7 @@ type GroupInfoSimple struct {
 	GroupDesc *string `json:"group_desc,omitempty"`
 
 	// 堆积数。
-	Lag *int32 `json:"lag,omitempty"`
+	Lag *int64 `json:"lag,omitempty"`
 }
 
 func (o GroupInfoSimple) String() string {

@@ -8,8 +8,10 @@ import (
 
 // ShowDomainFullConfigResponse Response Object
 type ShowDomainFullConfigResponse struct {
-	Configs        *ConfigsGetBody `json:"configs,omitempty"`
-	HttpStatusCode int             `json:"-"`
+	Configs *ConfigsGetBody `json:"configs,omitempty"`
+
+	XRequestId     *string `json:"X-Request-Id,omitempty"`
+	HttpStatusCode int     `json:"-"`
 }
 
 func (o ShowDomainFullConfigResponse) String() string {

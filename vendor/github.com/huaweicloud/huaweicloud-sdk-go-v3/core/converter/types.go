@@ -1,7 +1,6 @@
 package converter
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -24,7 +23,7 @@ func (i Int32Converter) CovertStringToPrimitiveTypeAndSetField(field reflect.Val
 	}
 	val, ok := v.(int32)
 	if !ok {
-		return errors.New(fmt.Sprintf("failed to convert string (%s) to int32", value))
+		return fmt.Errorf("failed to convert string (%s) to int32", value)
 	}
 
 	if isPtr {
@@ -52,7 +51,7 @@ func (i Int64Converter) CovertStringToPrimitiveTypeAndSetField(field reflect.Val
 	}
 	val, ok := v.(int64)
 	if !ok {
-		return errors.New(fmt.Sprintf("failed to convert string (%s) to int64", value))
+		return fmt.Errorf("failed to convert string (%s) to int64", value)
 	}
 
 	if isPtr {
@@ -80,7 +79,7 @@ func (i Float32Converter) CovertStringToPrimitiveTypeAndSetField(field reflect.V
 	}
 	val, ok := v.(float32)
 	if !ok {
-		return errors.New(fmt.Sprintf("failed to convert string (%s) to float32", value))
+		return fmt.Errorf("failed to convert string (%s) to float32", value)
 	}
 
 	if isPtr {
@@ -108,7 +107,7 @@ func (i Float64Converter) CovertStringToPrimitiveTypeAndSetField(field reflect.V
 	}
 	val, ok := v.(float64)
 	if !ok {
-		return errors.New(fmt.Sprintf("failed to convert string (%s) to float64", value))
+		return fmt.Errorf("failed to convert string (%s) to float64", value)
 	}
 
 	if isPtr {
@@ -137,7 +136,7 @@ func (i BooleanConverter) CovertStringToPrimitiveTypeAndSetField(field reflect.V
 
 	val, ok := v.(bool)
 	if !ok {
-		return errors.New(fmt.Sprintf("failed to convert string (%s) to bool", value))
+		return fmt.Errorf("failed to convert string (%s) to bool", value)
 	}
 
 	if isPtr {

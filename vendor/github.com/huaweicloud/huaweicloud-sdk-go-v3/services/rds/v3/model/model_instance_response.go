@@ -82,7 +82,7 @@ type InstanceResponse struct {
 	// 内存大小（单位：GB）。
 	Mem *string `json:"mem,omitempty"`
 
-	Volume *Volume `json:"volume"`
+	Volume *VolumeForInstanceResponse `json:"volume"`
 
 	// 区域ID。
 	Region string `json:"region"`
@@ -123,6 +123,8 @@ type InstanceResponse struct {
 
 	// 实例的到期时间，格式为“yyyy-mm-ddThh:mm:ssZ”。  仅包周期场景返回。
 	ExpirationTime *string `json:"expiration_time,omitempty"`
+
+	ServerlessInfo *ServerlessInfoResponse `json:"serverless_info,omitempty"`
 }
 
 func (o InstanceResponse) String() string {

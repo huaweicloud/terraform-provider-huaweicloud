@@ -8,32 +8,32 @@ import (
 
 type DebugCaseResult struct {
 
-	// body
+	// 响应内容
 	Body *string `json:"body,omitempty"`
 
-	// errorReason
+	// 错误原因
 	ErrorReason *string `json:"errorReason,omitempty"`
 
 	Header *DebugCaseResultHeader `json:"header,omitempty"`
 
-	// name
+	// 请求名称
 	Name *string `json:"name,omitempty"`
 
-	// responseTime
+	// 响应时间
 	ResponseTime *int32 `json:"responseTime,omitempty"`
 
-	// result
+	// 调试结果（1：成功；）
 	Result *int32 `json:"result,omitempty"`
 
-	// returnBody
+	// 响应正文
 	ReturnBody *string `json:"returnBody,omitempty"`
 
 	ReturnHeader *DebugCaseReturnHeader `json:"returnHeader,omitempty"`
 
-	// statusCode
+	// 响应状态码
 	StatusCode *string `json:"statusCode,omitempty"`
 
-	// url
+	// 请求地址
 	Url *string `json:"url,omitempty"`
 }
 

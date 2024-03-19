@@ -17,6 +17,9 @@ type ChangeVulScanPolicyRequestInfo struct {
 	// 主机ID列表；当scan_range_type的值为specific_host时必填
 	HostIds *[]string `json:"host_ids,omitempty"`
 
+	// 扫描的漏洞类型列表
+	ScanVulTypes *[]string `json:"scan_vul_types,omitempty"`
+
 	// 扫描策略状态，包含如下：   -open : 开启   -close : 关闭
 	Status string `json:"status"`
 }
