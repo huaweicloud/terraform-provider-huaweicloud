@@ -20,6 +20,7 @@ import (
 	aomv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2"
 	ccev3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cce/v3"
 	cdnv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v1"
+	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
 	cptsv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	cssv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2"
@@ -274,6 +275,15 @@ func (c *Config) HcCdnV1Client(region string) (*cdnv1.CdnClient, error) {
 		return nil, err
 	}
 	return cdnv1.NewCdnClient(hcClient), nil
+}
+
+// HcCdnV2Client is the CDN service client using huaweicloud-sdk-go-v3 package
+func (c *Config) HcCdnV2Client(region string) (*cdnv2.CdnClient, error) {
+	hcClient, err := NewHcClient(c, region, "cdn", false)
+	if err != nil {
+		return nil, err
+	}
+	return cdnv2.NewCdnClient(hcClient), nil
 }
 
 // HcDmsV2Client is the DMS service client using huaweicloud-sdk-go-v3 package
