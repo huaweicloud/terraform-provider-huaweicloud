@@ -79,6 +79,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", name),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 				),
 			},
 			{
@@ -263,7 +264,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd),
+				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -290,6 +291,18 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "order_id"),
+				),
+			},
+			{
+				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 				),
 			},
 			{
@@ -297,7 +310,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
-					"expired_days", "migrate_definer", "force_destroy", "status"},
+					"expired_days", "migrate_definer", "force_destroy", "status", "auto_renew"},
 			},
 		},
 	})
@@ -313,7 +326,7 @@ resource "huaweicloud_rds_mysql_database" "test" {
 `, dbname)
 }
 
-func testAccDrsJob_synchronize_mysql(name, dbName, pwd string) string {
+func testAccDrsJob_synchronize_mysql(name, dbName, pwd string, autoRenew bool) string {
 	netConfig := common.TestBaseNetwork(name)
 	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
 	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
@@ -361,11 +374,16 @@ resource "huaweicloud_drs_job" "test" {
 
   databases = [huaweicloud_rds_mysql_database.test.name]
 
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%v"
+
   lifecycle {
     ignore_changes = [
       source_db.0.password, destination_db.0.password, force_destroy,
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, name, pwd, pwd)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, name, pwd, pwd, autoRenew)
 }

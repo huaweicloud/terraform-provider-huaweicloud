@@ -84,6 +84,7 @@ type JobDetail struct {
 	AlarmNotify              string             `json:"alarm_notify"`
 	IncreStartPosition       string             `json:"incre_start_position"`
 	Tags                     []tags.ResourceTag `json:"tags"`
+	PeriodOrder              OrderInfo          `json:"period_order"`
 }
 
 type InstInfo struct {
@@ -107,6 +108,17 @@ type ObjectInfo struct {
 type DefaultRootDb struct {
 	DbName     string `json:"db_name"`
 	DbEncoding string `json:"db_encoding"`
+}
+
+type OrderInfo struct {
+	Status       string `json:"status"`
+	OrderId      string `json:"order_id"`
+	ChargingMode int    `json:"charging_mode"`
+	PeriodType   int    `json:"period_type"`
+	PeriodNum    int    `json:"period_num"`
+	IsAutoRenew  int    `json:"is_auto_renew"`
+	EffTime      string `json:"eff_time"`
+	ExpTime      string `json:"exp_time"`
 }
 
 type ActionResp struct {
