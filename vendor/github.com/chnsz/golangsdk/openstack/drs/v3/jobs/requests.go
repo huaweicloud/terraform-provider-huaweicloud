@@ -35,6 +35,8 @@ type CreateJobReq struct {
 	MultiWrite       *bool              `json:"multi_write,omitempty"`
 	Tags             []tags.ResourceTag `json:"tags,omitempty"`
 	SysTags          []tags.ResourceTag `json:"sys_tags,omitempty"`
+	ChargingMode     string             `json:"charging_mode,omitempty"`
+	PeriodOrder      *PeriodOrder       `json:"period_order,omitempty"`
 }
 
 type Endpoint struct {
@@ -64,6 +66,12 @@ type Endpoint struct {
 	MongoHaMode string `json:"mongo_ha_mode,omitempty"`
 	Topic       string `json:"topic,omitempty"`
 	ClusterMode string `json:"cluster_mode,omitempty"`
+}
+
+type PeriodOrder struct {
+	PeriodType  int `json:"period_type,omitempty"`
+	PeriodNum   int `json:"period_num,omitempty"`
+	IsAutoRenew int `json:"is_auto_renew,omitempty"`
 }
 
 type QueryJobReq struct {

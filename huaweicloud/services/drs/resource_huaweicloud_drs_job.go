@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,6 +39,10 @@ import (
 // @API DRS POST /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action
 // @API DRS POST /v5/{project_id}/jobs/{job_id}/action
 // @API DRS PUT /v5/{project_id}/jobs/{job_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceDrsJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceJobCreate,
@@ -242,6 +248,18 @@ func ResourceDrsJob() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			// once start the job, the bill will be auto paid
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+
+			"order_id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			"created_at": {
@@ -582,6 +600,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		return diag.Errorf("query the job list by jobId: %s, error: %s", d.Id(), err)
 	}
 
+	createdAt, _ := strconv.ParseInt(detail.CreateTime, 10, 64)
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", detail.Name),
@@ -595,7 +614,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("migration_type", detail.TaskType),
 		d.Set("description", detail.Description),
 		d.Set("multi_write", detail.MultiWrite),
-		d.Set("created_at", detail.CreateTime),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(createdAt/1000, false)),
 		d.Set("status", detail.Status),
 		d.Set("tags", utils.TagsToMap(detail.Tags)),
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
@@ -614,6 +633,26 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 				d.Set("tables", objectName),
 			)
 		}
+	}
+
+	// set charging info
+	if !reflect.DeepEqual(detail.PeriodOrder, jobs.OrderInfo{}) {
+		// `2` menas `month`, `3` means `year`
+		periodType := "month"
+		if detail.PeriodOrder.PeriodType == 3 {
+			periodType = "year"
+		}
+		// after updating auto_renew from CBC, auto_renew doesn't change in DRS returns
+		mErr = multierror.Append(mErr,
+			d.Set("charging_mode", "prePaid"),
+			d.Set("period_unit", periodType),
+			d.Set("period", detail.PeriodOrder.PeriodNum),
+			d.Set("order_id", detail.PeriodOrder.OrderId),
+		)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("charging_mode", "postPaid"),
+		)
 	}
 
 	if mErr.ErrorOrNil() != nil {
@@ -664,6 +703,10 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	clientV5, err := conf.DrsV5Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DRS v5 client, error: %s", err)
+	}
+	bssClient, err := conf.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS V2 client: %s", err)
 	}
 
 	// update name and description
@@ -741,6 +784,17 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		err := updateObjectsSelection(ctx, d, client, clientV5)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		// resource_id is different from job_id
+		resourceIDs, err := common.GetResourceIDsByOrder(bssClient, d.Get("order_id").(string), 1)
+		if err != nil || len(resourceIDs) == 0 {
+			return diag.Errorf("error getting resource IDs: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceIDs[0]); err != nil {
+			return diag.Errorf("error updating the auto-renew of DRS job (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -877,15 +931,34 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("error creating DRS v3 client, error: %s", err)
 	}
+	bssV2Client, err := conf.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
 
 	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
 
-	// force terminate
-	if !utils.StrSliceContains([]string{"CREATE_FAILED", "RELEASE_RESOURCE_COMPLETE", "RELEASE_CHILD_TRANSFER_COMPLETE"},
+	if d.Get("charging_mode").(string) == "prePaid" {
+		// unsubscribe the order
+		// resource_id is different from job_id
+		resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, detailResp.Results[0].PeriodOrder.OrderId, 1)
+		if err != nil {
+			return diag.Errorf("error getting resource IDs: %s", err)
+		}
+		err = common.UnsubscribePrePaidResource(d, conf, resourceIDs)
+		if err != nil {
+			return diag.Errorf("error unsubscribing DRS job: %s", err)
+		}
+		err = waitingforJobStatus(ctx, client, d.Id(), "terminate", d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else if !utils.StrSliceContains([]string{"CREATE_FAILED", "RELEASE_RESOURCE_COMPLETE", "RELEASE_CHILD_TRANSFER_COMPLETE"},
 		detailResp.Results[0].Status) {
+		// force terminate
 		if !d.Get("force_destroy").(bool) {
 			return diag.Errorf("the job: %s cannot be deleted when it is running. "+
 				"If you want to forcibly delete the job please set force_destroy to True", d.Id())
@@ -938,7 +1011,7 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 		pending = []string{"STARTJOBING", "WAITING_FOR_START"}
 		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
 	case "terminate":
-		pending = []string{"RELEASE_RESOURCE_STARTED"}
+		pending = []string{"PENDING"}
 		target = []string{"RELEASE_RESOURCE_COMPLETE"}
 	case "stop":
 		pending = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
@@ -967,6 +1040,11 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 			if utils.StrSliceContains([]string{"START_JOB_FAILED", "CREATE_FAILED", "RELEASE_RESOURCE_FAILED",
 				"CHILD_TRANSFER_FAILED"}, resp.Results[0].Status) {
 				return resp, "failed", fmt.Errorf("%s", resp.Results[0].Status)
+			}
+
+			// if job is prepaid mode, need to unsubscribe from CBC, status delay changes into RELEASE_RESOURCE_STARTED
+			if statusType == "terminate" && resp.Results[0].Status != "RELEASE_RESOURCE_COMPLETE" {
+				return resp, "PENDING", nil
 			}
 
 			return resp, resp.Results[0].Status, nil
@@ -1032,6 +1110,31 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 		SubnetId:         subnetId,
 		Tags:             utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		SysTags:          utils.BuildSysTags(enterpriseProjectID),
+	}
+
+	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode.(string) == "prePaid" {
+		// the prepaid mode only take effect when `type` is `sync` or `cloudDataGuard`,
+		// this limitation has been stated in docs
+		if err = common.ValidatePrePaidChargeInfo(d); err != nil {
+			return nil, err
+		}
+
+		// `2` menas `month`, `3` means `year`
+		periodType := 2
+		if d.Get("period_unit").(string) == "year" {
+			periodType = 3
+		}
+
+		autoRenew := 0
+		if d.Get("auto_renew").(string) == "true" {
+			autoRenew = 1
+		}
+		job.ChargingMode = "period"
+		job.PeriodOrder = &jobs.PeriodOrder{
+			PeriodType:  periodType,
+			PeriodNum:   d.Get("period").(int),
+			IsAutoRenew: autoRenew,
+		}
 	}
 
 	return &jobs.BatchCreateJobReq{Jobs: []jobs.CreateJobReq{job}}, nil

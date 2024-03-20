@@ -299,6 +299,23 @@ The following arguments are supported:
   <br/>4. It's only for synchronization from **MySQL** to **MySQL**, migration from **Redis** to **GeminiDB Redis**,
        migration from cluster **Redis** to **GeminiDB Redis**, and synchronization from **Oracle** to **GaussDB Distributed**.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the billing mode of the job.
+  The valid values are **prePaid** and **postPaid**. Defaults to **postPaid**.
+  When `type` is **sync** or **cloudDataGuard**, **prePaid** is valid.
+  Changing this will create a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the job.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the job.
+  If `period_unit` is set to **month**, the value ranges from 1 to 9.
+  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
+
 <a name="block--db_info"></a>
 The `db_info` block supports:
 
@@ -368,6 +385,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
+* `order_id` - The order ID which will return if `charging_mode` is **prePaid**.
+
 * `created_at` - Create time. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ
 
 * `status` - Status.
@@ -396,9 +415,10 @@ $ terraform import huaweicloud_drs_job.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
-`source_db.0.password` and `destination_db.0.password`, `action`, `is_sync_re_edit`, `pause_mode`. It is generally
-recommended running **terraform plan** after importing a job. You can then decide if changes should be applied to the
-job, or the resource definition should be updated to align with the job. Also you can ignore changes as below.
+`source_db.0.password` and `destination_db.0.password`, `action`, `is_sync_re_edit`, `pause_mode`, `auto_renew`.
+It is generally recommended running **terraform plan** after importing a job. You can then decide if changes should be
+applied to the job, or the resource definition should be updated to align with the job. Also you can ignore changes as
+below.
 
 ```
 resource "huaweicloud_drs_job" "test" {
