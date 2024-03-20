@@ -28,6 +28,7 @@ func getKmsKeyResourceFunc(conf *config.Config, state *terraform.ResourceState) 
 	return key, err
 }
 
+// Keystore_id scenario testing is currently not supported.
 func TestAccKmsKey_Basic(t *testing.T) {
 	var keyAlias = acceptance.RandomAccResourceName()
 	var keyAliasUpdate = acceptance.RandomAccResourceName()
