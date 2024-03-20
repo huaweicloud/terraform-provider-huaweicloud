@@ -51,7 +51,6 @@ func TestAccGEIP_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -60,7 +59,7 @@ func TestAccGEIP_basic(t *testing.T) {
 				Config: testAccGEIP_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "isp"),
@@ -95,7 +94,6 @@ func testAccGEIP_basic(name string) string {
 
 resource "huaweicloud_global_eip" "test" {
   access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
-  enterprise_project_id = "%s"
   geip_pool_name        = data.huaweicloud_global_eip_pools.all.geip_pools[0].name
   internet_bandwidth_id = huaweicloud_global_internet_bandwidth.test.id
   name                  = "%s"
@@ -104,7 +102,7 @@ resource "huaweicloud_global_eip" "test" {
     foo = "bar"
   }
 }
-`, testAccInternetBandwidth_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name)
+`, testAccInternetBandwidth_basic(name), name)
 }
 
 func testAccGEIP_update(name string) string {
@@ -113,7 +111,6 @@ func testAccGEIP_update(name string) string {
 
 resource "huaweicloud_global_eip" "test" {
   access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
-  enterprise_project_id = "%s"
   geip_pool_name        = data.huaweicloud_global_eip_pools.all.geip_pools[0].name
   internet_bandwidth_id = huaweicloud_global_internet_bandwidth.test.id
   name                  = "%s-update"
@@ -123,5 +120,5 @@ resource "huaweicloud_global_eip" "test" {
     key = "value"
   }
 }
-`, testAccInternetBandwidth_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name)
+`, testAccInternetBandwidth_basic(name), name)
 }
