@@ -410,6 +410,13 @@ func ResourceComputeInstance() *schema.Resource {
 							ForceNew:     true,
 							RequiredWith: []string{"bandwidth.0.size"},
 						},
+						"extend_param": {
+							Type:         schema.TypeMap,
+							Optional:     true,
+							ForceNew:     true,
+							Elem:         &schema.Schema{Type: schema.TypeString},
+							RequiredWith: []string{"bandwidth.0.charge_mode"},
+						},
 					},
 				},
 			},
@@ -1524,10 +1531,20 @@ func buildInstancePublicIPRequest(d *schema.ResourceData) *cloudservers.PublicIp
 		Size:       bandWidth["size"].(int),
 	}
 
+	extendParam := d.Get("bandwidth.0.extend_param").(map[string]interface{})
+	if len(extendParam) != 1 {
+		extendParam["charging_mode"] = ""
+	}
+
+	epOpts := cloudservers.EipExtendParam{
+		ChargingMode: extendParam["charging_mode"].(string),
+	}
+
 	return &cloudservers.PublicIp{
 		Eip: &cloudservers.Eip{
-			IpType:    d.Get("eip_type").(string),
-			BandWidth: &bwOpts,
+			IpType:      d.Get("eip_type").(string),
+			BandWidth:   &bwOpts,
+			ExtendParam: &epOpts,
 		},
 		DeleteOnTermination: d.Get("delete_eip_on_termination").(bool),
 	}

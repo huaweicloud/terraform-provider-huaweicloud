@@ -117,6 +117,32 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_traffic(t *testing.T) {
+	var instance cloudservers.CloudServer
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_traffic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.charge_mode", "traffic"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_spot(t *testing.T) {
 	var instance cloudservers.CloudServer
 
@@ -519,6 +545,34 @@ resource "huaweicloud_compute_instance" "test" {
   period_unit   = "month"
   period        = 1
   auto_renew    = "true"
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccComputeInstance_traffic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+
+  eip_type = "5_bgp"
+  bandwidth {
+    share_type   = "PER"
+    size         = 5
+    charge_mode  = "traffic"
+    extend_param = {
+      charging_mode = "postPaid"
+    }
+  }
 }
 `, testAccCompute_data, rName)
 }
