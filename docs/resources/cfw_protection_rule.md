@@ -199,6 +199,9 @@ The [Rule Destination Address](#ProtectionRule_RuleDestinationAddress) structure
   + **0**: inbound;
   + **1**: outbound;
 
+* `rule_hit_count` - (Optional, String) The number of times the protection rule is hit.
+  Setting the value to **0** will clear the hit count. Value options: **0**.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the protection rule.
   Tags should have only one key/value pair.
 
@@ -350,8 +353,6 @@ The `region_list` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
-
-* `rule_hit_count` - The number of times the protection rule is hit.
 
 ## Import
 

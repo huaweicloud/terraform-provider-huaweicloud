@@ -113,6 +113,7 @@ func TestAccProtectionRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "action_type", "1"),
 					resource.TestCheckResourceAttr(rName, "source.0.address", "2.2.2.1"),
 					resource.TestCheckResourceAttr(rName, "destination.0.address", "2.2.2.2"),
+					resource.TestCheckResourceAttr(rName, "rule_hit_count", "0"),
 				),
 			},
 			{
@@ -383,6 +384,7 @@ resource "huaweicloud_cfw_protection_rule" "test" {
   action_type         = 1
   long_connect_enable = 0
   status              = 1
+  rule_hit_count      = 0
 
   source {
     type    = 0
