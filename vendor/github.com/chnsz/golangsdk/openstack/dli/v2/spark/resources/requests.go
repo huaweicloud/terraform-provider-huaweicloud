@@ -19,7 +19,7 @@ type CreateGroupAndUploadOpts struct {
 	// file to be uploaded.
 	Kind string `json:"kind" required:"true"`
 	// Name of the group to be created.
-	Group string `json:"group" required:"true"`
+	Group string `json:"group,omitempty"`
 	// Whether to upload resource packages in asynchronous mode.
 	// The default value is false, indicating that the asynchronous mode is not used.
 	// You are advised to upload resource packages in asynchronous mode.
@@ -73,7 +73,7 @@ func Upload(c *golangsdk.ServiceClient, typePath string, opts UploadOpts) (*Grou
 // ResourceLocatedOpts is a structure which specify the resource package located.
 type ResourceLocatedOpts struct {
 	// Name of the package group returned when the resource package is uploaded.
-	Group string `q:"group" required:"true"`
+	Group string `q:"group,omitempty"`
 }
 
 // Get is a method to obtain the resource (packages) from the specified group.
