@@ -13,12 +13,14 @@ and a maximum of 100 authorizations can be created under one master key.
 ```HCL
 variable "key_id" {}
 variable "user_id" {}
+variable "retiring_principal" {}
 
 resource "huaweicloud_kms_grant" "test" {
-  key_id            = var.key_id
-  type              = "user"
-  grantee_principal = var.user_id
-  operations        = ["create-datakey", "encrypt-datakey"]
+  key_id             = var.key_id
+  type               = "user"
+  grantee_principal  = var.user_id
+  operations         = ["create-datakey", "encrypt-datakey"]
+  retiring_principal = var.retiring_principal
 }
 ```
 
@@ -30,30 +32,28 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `key_id` - (Required, String, ForceNew) Key ID.
-
   Changing this parameter will create a new resource.
 
 * `grantee_principal` - (Required, String, ForceNew) The ID of the authorized user or account.  
-
   Changing this parameter will create a new resource.
 
 * `operations` - (Required, List, ForceNew) List of granted operations.
   The options are: **create-datakey**, **create-datakey-without-plaintext**, **encrypt-datakey**,
   **decrypt-datakey**, **describe-key**, **create-grant**, **retire-grant**, **encrypt-data**, **decrypt-data**
   A value containing only **create-grant** is invalid.
-
   Changing this parameter will create a new resource.
 
 * `name` - (Optional, String, ForceNew) Grant name.  
   It must be 1 to 255 characters long, start with a letter, and contain only letters (case-sensitive),
   digits, hyphens (-), underscores (_), and slash(/).
-
   Changing this parameter will create a new resource.
 
 * `type` - (Optional, String, ForceNew) Authorization type.
-  The options are: **user**, **domain**. The default value is **user**.  
-
+  The options are: **user**, **domain**. The default value is **user**.
   Changing this parameter will create a new resource.
+
+* `retiring_principal` - (Optional, String, ForceNew) Specifies the ID of the retiring user who has the
+  authority to retire the authorization. Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
