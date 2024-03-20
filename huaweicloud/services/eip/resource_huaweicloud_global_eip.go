@@ -196,7 +196,7 @@ func buildCreateGEIPBodyParams(d *schema.ResourceData, epsID string) map[string]
 		"internet_bandwidth_id": d.Get("internet_bandwidth_id"),
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"enterprise_project_id": epsID,
+		"enterprise_project_id": utils.ValueIngoreEmpty(epsID),
 		"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams

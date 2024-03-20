@@ -154,7 +154,7 @@ func buildCreateInternetBandwidthBodyParams(d *schema.ResourceData, epsID string
 		"description":           utils.ValueIngoreEmpty(d.Get("description")),
 		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
 		"type":                  utils.ValueIngoreEmpty(d.Get("type")),
-		"enterprise_project_id": epsID,
+		"enterprise_project_id": utils.ValueIngoreEmpty(epsID),
 		"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams

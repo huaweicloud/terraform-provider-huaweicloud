@@ -51,7 +51,6 @@ func TestAccInternetBandwidth_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -61,7 +60,7 @@ func TestAccInternetBandwidth_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "charge_mode", "95peak_guar"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(rName, "size", "300"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
@@ -97,7 +96,6 @@ func testAccInternetBandwidth_basic(name string) string {
 resource "huaweicloud_global_internet_bandwidth" "test" {
   access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
   charge_mode           = "95peak_guar"
-  enterprise_project_id = "%s"
   size                  = 300
   isp                   = data.huaweicloud_global_eip_pools.all.geip_pools[0].isp
   name                  = "%s"
@@ -107,7 +105,7 @@ resource "huaweicloud_global_internet_bandwidth" "test" {
     foo = "bar"
   }
 }
-`, testAccGlobalEIPPoolsDataSource_basic, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name)
+`, testAccGlobalEIPPoolsDataSource_basic, name)
 }
 
 func testAccInternetBandwidth_update(name string) string {
@@ -117,7 +115,6 @@ func testAccInternetBandwidth_update(name string) string {
 resource "huaweicloud_global_internet_bandwidth" "test" {
   access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
   charge_mode           = "95peak_guar"
-  enterprise_project_id = "%s"
   size                  = 400
   isp                   = data.huaweicloud_global_eip_pools.all.geip_pools[0].isp
   name                  = "%s-update"
@@ -128,5 +125,5 @@ resource "huaweicloud_global_internet_bandwidth" "test" {
     key = "value"
   }
 }
-`, testAccGlobalEIPPoolsDataSource_basic, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name)
+`, testAccGlobalEIPPoolsDataSource_basic, name)
 }
