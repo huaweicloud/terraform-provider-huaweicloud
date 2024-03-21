@@ -188,9 +188,6 @@ var cacheUrlParameterFilter = schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"full_url", "ignore_url_params", "del_args", "reserve_args",
-				}, false),
 			},
 			"value": {
 				Type:     schema.TypeString,
