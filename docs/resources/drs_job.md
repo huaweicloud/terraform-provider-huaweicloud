@@ -60,7 +60,7 @@ resource "huaweicloud_drs_job" "test" {
 }
 ```
 
-### Create a DRS job to synchronize database level data to the HuaweiCloud RDS database
+### Create a DRS job to synchronize database level data to the HuaweiCloud RDS database and net type is VPC
 
 ```hcl
 variable "name" {}
@@ -71,6 +71,8 @@ variable "source_db_password" {}
 variable "source_db_port" {}
 variable "destination_db_password" {}
 variable "database_name" {}
+variable "source_db_vpc_id" {}
+variable "source_db_subnet_id" {}
 
 resource "huaweicloud_rds_instance" "mysql" {
   ...
@@ -81,7 +83,7 @@ resource "huaweicloud_drs_job" "test" {
   type           = "sync"
   engine_type    = "mysql"
   direction      = "up"
-  net_type       = "eip"
+  net_type       = "vpc"
   migration_type = "FULL_INCR_TRANS"
   description    = "terraform demo"
 
@@ -92,6 +94,8 @@ resource "huaweicloud_drs_job" "test" {
     user        = var.source_db_user
     password    = var.source_db_password
     ssl_link    = false
+    vpc_id      = var.source_db_vpc_id
+    subnet_id   = var.source_db_subnet_id
   }
 
   destination_db {
@@ -335,8 +339,14 @@ The `db_info` block supports:
 * `instance_id` - (Optional, String, ForceNew) Specifies the instance id of database when it is a RDS database.
  Changing this parameter will create a new resource.
 
+* `vpc_id` - (Optional, String, ForceNew) Specifies vpc ID of database.
+ Changing this parameter will create a new resource.
+
 * `subnet_id` - (Optional, String, ForceNew) Specifies subnet ID of database when it is a RDS database.
  It is mandatory when `direction` is **down**. Changing this parameter will create a new resource.
+
+ -> When `net_type` is **vpc**, if `direction` is **up**, `source_db.vpc_id` and `source_db.subnet_id` is mandatory, if
+ `direction` is **down**, `destination_db.vpc_id` and `destination_db.subnet_id` is mandatory.
 
 * `region` - (Optional, String, ForceNew) Specifies the region which the database belongs when it is a RDS database.
  Changing this parameter will create a new resource.
