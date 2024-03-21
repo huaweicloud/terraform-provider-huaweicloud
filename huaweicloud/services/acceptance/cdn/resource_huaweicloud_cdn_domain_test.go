@@ -208,7 +208,8 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-func TestAccCdnDomain_configs(t *testing.T) {
+// Prepare the HTTPS certificate before running this test case
+func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 	var (
 		obj          interface{}
 		resourceName = "huaweicloud_cdn_domain.test"
@@ -229,7 +230,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCdnDomain_configs,
+				Config: testAccCdnDomain_configHttpSettings,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
@@ -250,7 +251,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 	})
 }
 
-var testAccCdnDomain_configs = fmt.Sprintf(`
+var testAccCdnDomain_configHttpSettings = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
@@ -302,11 +303,177 @@ resource "huaweicloud_cdn_domain" "test" {
 
     force_redirect {
       enabled = true
-      type   = "http"
+      type    = "http"
     }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
+
+func TestAccCdnDomain_configs(t *testing.T) {
+	var (
+		obj          interface{}
+		resourceName = "huaweicloud_cdn_domain.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCdnDomainFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheckCDN(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCdnDomain_configs,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "http"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ipv6_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.range_based_retrieval_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "ignore_url_params"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+				),
+			},
+			{
+				Config: testAccCdnDomain_configsUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "follow"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ipv6_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.range_based_retrieval_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "del_params"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.value", "test_value"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name-update"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.value", "test-val-update"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.action", "set"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testCDNDomainImportState(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"enterprise_project_id",
+				},
+			},
+		},
+	})
+}
+
+var testAccCdnDomain_configs = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = 0
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    origin_protocol               = "http"
+    ipv6_enable                   = true
+    range_based_retrieval_enabled = true
+
+    cache_url_parameter_filter {
+      type = "ignore_url_params"
+    }
+
+    retrieval_request_header {
+      name   = "test-name"
+      value  = "test-val"
+      action = "set"
+    }
+
+    http_response_header {
+      name   = "test-name"
+      value  = "test-val"
+      action = "set"
+    }
+
+    url_signing {
+      enabled = false
+    }
+
+    compress {
+      enabled = false
+    }
+
+    force_redirect {
+      enabled = true
+      type    = "http"
+    }
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
+
+var testAccCdnDomain_configsUpdate = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = 0
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    origin_protocol               = "follow"
+    ipv6_enable                   = false
+    range_based_retrieval_enabled = false
+
+    cache_url_parameter_filter {
+      type  = "del_params"
+      value = "test_value"
+    }
+
+    retrieval_request_header {
+      name   = "test-name-update"
+      value  = "test-val-update"
+      action = "set"
+    }
+
+    http_response_header {
+      name   = "Content-Disposition"
+      value  = "test-val-update"
+      action = "set"
+    }
+
+    url_signing {
+      enabled = false
+    }
+
+    compress {
+      enabled = false
+    }
+
+    force_redirect {
+      enabled = true
+      type    = "http"
+    }
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
 
 // testCDNDomainImportState use to return an ID using `name`
 func testCDNDomainImportState(name string) resource.ImportStateIdFunc {
