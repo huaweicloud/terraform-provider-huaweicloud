@@ -2,6 +2,7 @@ package dew
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -167,6 +168,48 @@ func TestAccKpsKeypair_publicKey(t *testing.T) {
 	})
 }
 
+func TestAccKpsKeypair_privateKey(t *testing.T) {
+	var group kps.ListKeypairDetailResponse
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_kps_keypair.test"
+	publicKey, privateKeyPEM, _ := acctest.RandSSHKeyPair("Generated-by-AccTest")
+	privateKey := strings.ReplaceAll(privateKeyPEM, "\n", " ")
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&group,
+		getKpsKeypairResourceFunc,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testKeypair_privateKey(rName, publicKey, privateKey),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "scope", "user"),
+					resource.TestCheckResourceAttr(resourceName, "public_key", publicKey),
+					resource.TestCheckResourceAttr(resourceName, "is_managed", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "fingerprint"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"private_key",
+				},
+			},
+		},
+	})
+}
+
 func testKeypair_basic(rName, desc string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_kps_keypair" "test" {
@@ -183,6 +226,16 @@ resource "huaweicloud_kps_keypair" "test" {
   public_key = "%s"
 }
 `, rName, key)
+}
+
+func testKeypair_privateKey(rName, publicKey, privateKey string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kps_keypair" "test" {
+  name        = "%[1]s"
+  public_key  = "%[2]s"
+  private_key = "%[3]s"
+}
+`, rName, publicKey, privateKey)
 }
 
 func testKeypair_domain(rName string) string {
