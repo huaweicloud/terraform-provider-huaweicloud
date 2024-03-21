@@ -341,10 +341,12 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_frequency_limit.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_frequency_limit.0.qps", "1"),
 				),
 			},
 			{
-				Config: testAccCdnDomain_configsUpdate,
+				Config: testAccCdnDomain_configsUpdate1,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
@@ -359,6 +361,16 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_frequency_limit.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_frequency_limit.0.qps", "100000"),
+				),
+			},
+			{
+				Config: testAccCdnDomain_configsUpdate2,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_frequency_limit.0.enabled", "false"),
 				),
 			},
 			{
@@ -420,11 +432,16 @@ resource "huaweicloud_cdn_domain" "test" {
       enabled = true
       type    = "http"
     }
+
+    ip_frequency_limit {
+      enabled = true
+      qps     = 1
+    }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-var testAccCdnDomain_configsUpdate = fmt.Sprintf(`
+var testAccCdnDomain_configsUpdate1 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
@@ -470,6 +487,36 @@ resource "huaweicloud_cdn_domain" "test" {
     force_redirect {
       enabled = true
       type    = "http"
+    }
+
+    ip_frequency_limit {
+      enabled = true
+      qps     = 100000
+    }
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
+
+var testAccCdnDomain_configsUpdate2 = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = 0
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    origin_protocol               = "follow"
+    ipv6_enable                   = false
+    range_based_retrieval_enabled = false
+
+    ip_frequency_limit {
+      enabled = false
     }
   }
 }

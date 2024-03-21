@@ -226,6 +226,12 @@ The `configs` block support:
 * `cache_url_parameter_filter` - (Optional, List) Specifies the settings for caching URL parameters.
   The [cache_url_parameter_filter](#cache_url_parameter_filter_object) structure is documented below.
 
+* `ip_frequency_limit` - (Optional, List) Specifies the IP access frequency limit.
+  The [ip_frequency_limit](#ip_frequency_limit_object) structure is documented below.
+
+  -> Restricting the IP access frequency can effectively defend against CC attacks, but it may affect normal access.
+  Please set access thresholds carefully.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -325,6 +331,14 @@ The `cache_url_parameter_filter` block support:
   **reserve_params**: Reserve specified URL parameters
 
 * `value` - (Optional, String) Specifies the parameter values. Multiple values are separated by semicolons (;).
+
+<a name="ip_frequency_limit_object"></a>
+The `ip_frequency_limit` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable IP access frequency.
+
+* `qps` - (Optional, Int) Specifies the access threshold, in times/second. The value ranges from **1** to **100,000**.
+  This field is required when enable IP access frequency.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
