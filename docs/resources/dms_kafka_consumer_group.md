@@ -34,6 +34,12 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the consumer group.
 
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID.
+
 * `state` - Indicates the state of the consumer group. This value can be :
   **DEAD**, **EMPTY**, **PreparingRebalance**, **CompletingRebalance**, **Stable**.
 
@@ -42,12 +48,6 @@ The following arguments are supported:
 * `lag` - Indicates the lag number of the consumer group.
 
 * `created_at` - Indicates the creation time of the consumer group.
-
-## Attribute Reference
-
-In addition to all arguments above, the following attributes are exported:
-
-* `id` - The resource ID.
 
 ## Import
 
