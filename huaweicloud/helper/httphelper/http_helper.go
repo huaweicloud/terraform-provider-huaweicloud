@@ -133,6 +133,7 @@ func (c *HttpHelper) LinkPager(dataPath, linkExp string) *HttpHelper {
 func (c *HttpHelper) OffsetPager(dataPath, offsetKey, limitKey string, defaultLimit int) *HttpHelper {
 	if defaultLimit > 0 {
 		c.queryExt[limitKey] = defaultLimit
+		c.queryExt[offsetKey] = 0
 	}
 	timestamp, _ := uuid.GenerateUUID()
 
@@ -240,12 +241,20 @@ func (c *HttpHelper) ExtractInto(to any) error {
 }
 
 func (c *HttpHelper) requestWithPage() {
-	allPage, err := pagination.NewPager(c.client, c.url, c.pager).AllPages()
+	body := make(map[string]any)
+	err := pagination.NewPager(c.client, c.url, c.pager).
+		EachPage(func(page pagination.Page) (bool, error) {
+			b := page.GetBody().(map[string]interface{})
+			mergeMaps(body, b)
+			return true, nil
+		})
+
 	if err != nil {
 		c.result.Err = err
 		return
 	}
-	c.result.Body = allPage.GetBody()
+
+	c.result.Body = body
 	c.parseRspBody()
 }
 
@@ -322,30 +331,23 @@ func marshalQueryParams(params map[string]any) string {
 
 	for key, val := range params {
 		v := reflect.ValueOf(val)
-		if !v.IsValid() || v.IsZero() {
+		if !v.IsValid() {
 			continue
 		}
 
 		switch v.Kind() {
 		case reflect.String:
-			query.Add(key, v.String())
-		case reflect.Int:
-			query.Add(key, strconv.FormatInt(v.Int(), 10))
+			if !v.IsZero() {
+				query.Add(key, v.String())
+			}
 		case reflect.Bool:
 			query.Add(key, strconv.FormatBool(v.Bool()))
 		case reflect.Slice:
-			switch v.Type().Elem() {
-			case reflect.TypeOf(0):
-				for i := 0; i < v.Len(); i++ {
-					query.Add(key, fmt.Sprintf("%v", v.Index(i).Interface()))
+			for i := 0; i < v.Len(); i++ {
+				if v.Index(i).Type().Kind() == reflect.String && v.Index(i).IsZero() {
+					continue
 				}
-			default:
-				for i := 0; i < v.Len(); i++ {
-					if v.Index(i).IsZero() {
-						continue
-					}
-					query.Add(key, fmt.Sprintf("%v", v.Index(i).Interface()))
-				}
+				query.Add(key, fmt.Sprintf("%v", v.Index(i).Interface()))
 			}
 		case reflect.Map:
 			if v.Type().Key().Kind() == reflect.String && v.Type().Elem().Kind() == reflect.String {
@@ -356,6 +358,8 @@ func marshalQueryParams(params map[string]any) string {
 				}
 				query.Add(key, fmt.Sprintf("{%s}", strings.Join(s, ", ")))
 			}
+		default:
+			query.Add(key, fmt.Sprintf("%v", v.Interface()))
 		}
 	}
 
@@ -386,4 +390,28 @@ func bodyToBytes(body any) ([]byte, error) {
 	enc.SetEscapeHTML(false)
 	err := enc.Encode(body)
 	return buffer.Bytes(), err
+}
+
+func mergeMaps(target, source map[string]any) map[string]any {
+	for key, sv := range source {
+		tagVal, ok := target[key]
+		if !ok {
+			target[key] = sv
+			continue
+		}
+
+		switch tv := tagVal.(type) {
+		case map[string]any:
+			if v, ok := sv.(map[string]any); ok {
+				target[key] = mergeMaps(tv, v)
+			}
+		case []any:
+			if v, ok := sv.([]any); ok {
+				target[key] = append(tv, v...)
+			}
+		default:
+			target[key] = sv
+		}
+	}
+	return target
 }
