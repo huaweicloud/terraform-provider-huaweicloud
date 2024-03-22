@@ -80,10 +80,6 @@ The `global_eips` block supports:
 
 * `enterprise_project_id` - The enterprise project ID of GEIP.
 
-* `status` - The status of GEIP.
-
-* `polluted` - The global EIP is polluted or not.
-
 * `description` - The description of GEIP.
 
 * `tags` - The tags of GEIP.
