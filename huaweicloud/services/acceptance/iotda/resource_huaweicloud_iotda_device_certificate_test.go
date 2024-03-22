@@ -37,7 +37,7 @@ func TestAccDeviceCertificate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDeviceCertificate_basic,
+				Config: testDeviceCertificate_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "cn", "huaweiIoT"),
@@ -58,7 +58,49 @@ func TestAccDeviceCertificate_basic(t *testing.T) {
 	})
 }
 
-const testDeviceCertificate_basic = `
+func TestAccDeviceCertificate_derived(t *testing.T) {
+	var obj model.CertificatesRspDto
+	rName := "huaweicloud_iotda_device_certificate.test"
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getDeviceCertificateResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDeviceCertificate_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "cn", "huaweiIoT"),
+					resource.TestCheckResourceAttr(rName, "status", "Unverified"),
+					resource.TestCheckResourceAttrSet(rName, "verify_code"),
+					resource.TestCheckResourceAttrSet(rName, "effective_date"),
+					resource.TestCheckResourceAttrSet(rName, "expiry_date"),
+					resource.TestCheckResourceAttrSet(rName, "owner"),
+				),
+			},
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"content"},
+			},
+		},
+	})
+}
+
+func testDeviceCertificate_basic() string {
+	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_iotda_device_certificate" "test" {
   content  = <<EOT
 -----BEGIN CERTIFICATE-----
@@ -85,4 +127,5 @@ RQocSUkUw0EW
 -----END CERTIFICATE-----
 EOT
 }
-`
+`, buildIoTDAEndpoint())
+}
