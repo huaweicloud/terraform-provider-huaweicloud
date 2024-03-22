@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -15,12 +16,16 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API DLI POST /v2.0/{project_id}/resources
 // @API DLI GET /v2.0/{project_id}/resources/{resource_name}
 // @API DLI PUT /v2.0/{project_id}/resources/owner
 // @API DLI DELETE /v2.0/{project_id}/resources/{resource_name}
+// @API DLI GET /v3/{project_id}/dli_package_resource/{resource_id}/tags
+// @API DLI POST /v3/{project_id}/dli_package_resource/{resource_id}/tags/create
+// @API DLI POST /v3/{project_id}/dli_package_resource/{resource_id}/tags/delete
 func ResourceDliPackageV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDliDependentPackageV2Create,
@@ -61,6 +66,7 @@ func ResourceDliPackageV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": common.TagsSchema(),
 			"object_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -87,13 +93,15 @@ func buildDliDependentPackageCreateOpts(d *schema.ResourceData) resources.Create
 		Kind:    d.Get("type").(string),
 		Group:   d.Get("group_name").(string),
 		IsAsync: d.Get("is_async").(bool),
+		Tags:    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return result
 }
 
 func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	c, err := cfg.DliV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
@@ -164,12 +172,14 @@ func GetDliDependentPackageInfo(c *golangsdk.ServiceClient, id string) (*resourc
 
 func ResourceDliDependentPackageV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	c, err := cfg.DliV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
-	resp, err := GetDliDependentPackageInfo(c, d.Id())
+	id := d.Id()
+	resp, err := GetDliDependentPackageInfo(c, id)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DLI package")
 	}
@@ -182,6 +192,16 @@ func ResourceDliDependentPackageV2Read(_ context.Context, d *schema.ResourceData
 		d.Set("updated_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
 		d.Set("owner", resp.Owner),
 	)
+
+	v3Client, err := cfg.DliV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating DLI v3 client: %s", err)
+	}
+
+	err = utils.SetResourceTagsToState(d, v3Client, "dli_package_resource", getASCIIFormationId(id))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -204,16 +224,36 @@ func updateOwner(c *golangsdk.ServiceClient, groupName, owner, resourceName stri
 	return nil
 }
 
+func getASCIIFormationId(id string) string {
+	// The url.QueryEscape function is used to convert special characters in the URL to corresponding hexadecimal format.
+	return url.QueryEscape(id)
+}
+
 func ResourceDliDependentPackageV2Update(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	c, err := cfg.DliV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	c, err := cfg.DliV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v2 client: %s", err)
 	}
 
 	if err = updateOwner(c, d.Get("group_name").(string), d.Get("owner").(string), d.Get("object_name").(string)); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if d.HasChange("tags") {
+		v3Client, err := cfg.DliV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating DLI v3 client: %s", err)
+		}
+
+		resourceId := getASCIIFormationId(d.Id())
+		oldTags, newTags := d.GetChange("tags")
+		err = updateResourceTags(v3Client, resourceId, "dli_package_resource", oldTags, newTags)
+		if err != nil {
+			return diag.Errorf("error updating tags of the package (%s): %s", resourceId, err)
+		}
 	}
 
 	return ResourceDliDependentPackageV2Read(ctx, d, meta)

@@ -49,6 +49,8 @@ The following arguments are supported:
 
 * `owner` - (Optional, String) Specifies the name of the package owner. The owner must be IAM user.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the package.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
