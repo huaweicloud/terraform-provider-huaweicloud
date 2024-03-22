@@ -232,6 +232,12 @@ The `configs` block support:
   -> Restricting the IP access frequency can effectively defend against CC attacks, but it may affect normal access.
   Please set access thresholds carefully.
 
+* `websocket` - (Optional, List) Specifies the websocket settings. This field can only be configured if `type` is
+  set to **wholeSite**. The [websocket](#websocket_object) structure is documented below.
+
+  -> Websocket and HTTP/2 are incompatible and cannot be both enabled. Websocket will not take effect when
+  origin cache control is enabled in the cache configuration.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -339,6 +345,14 @@ The `ip_frequency_limit` block support:
 
 * `qps` - (Optional, Int) Specifies the access threshold, in times/second. The value ranges from **1** to **100,000**.
   This field is required when enable IP access frequency.
+
+<a name="websocket_object"></a>
+The `websocket` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable websocket settings.
+
+* `timeout` - (Optional, Int) Specifies the duration for keeping a connection open, in seconds. The value ranges
+  from **1** to **300**. This field is required when enable websocket settings.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

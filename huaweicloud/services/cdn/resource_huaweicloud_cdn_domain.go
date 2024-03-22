@@ -217,6 +217,26 @@ var ipFrequencyLimit = schema.Schema{
 	},
 }
 
+var websocket = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -341,6 +361,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"compress":                   &forceRedirectAndCompress,
 						"cache_url_parameter_filter": &cacheUrlParameterFilter,
 						"ip_frequency_limit":         &ipFrequencyLimit,
+						"websocket":                  &websocket,
 					},
 				},
 			},
@@ -578,6 +599,20 @@ func buildIpFrequencyLimitOpts(newIpFrequencyLimit []interface{}) *model.IpFrequ
 	return &ipFrequencyLimitOpts
 }
 
+func buildWebsocketOpts(newWebsocket []interface{}) *model.WebSocketSeek {
+	if len(newWebsocket) != 1 {
+		return nil
+	}
+
+	websocket := newWebsocket[0].(map[string]interface{})
+	websocketOpts := model.WebSocketSeek{
+		Status:  parseFunctionEnabledStatus(websocket["enabled"].(bool)),
+		Timeout: int32(websocket["timeout"].(int)),
+	}
+
+	return &websocketOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -689,6 +724,9 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 	}
 	if d.HasChange("configs.0.ip_frequency_limit") {
 		configsOpts.IpFrequencyLimit = buildIpFrequencyLimitOpts(configs["ip_frequency_limit"].([]interface{}))
+	}
+	if d.HasChange("configs.0.websocket") {
+		configsOpts.Websocket = buildWebsocketOpts(configs["websocket"].([]interface{}))
 	}
 
 	if d.HasChange("cache_settings") {
@@ -950,6 +988,19 @@ func flattenIpFrequencyLimitAttrs(ipFrequencyLimit *model.IpFrequencyLimitQuery)
 	return []map[string]interface{}{ipFrequencyLimitAttrs}
 }
 
+func flattenWebsocketAttrs(websocket *model.WebSocketSeek) []map[string]interface{} {
+	if websocket == nil {
+		return nil
+	}
+
+	websocketAttrs := map[string]interface{}{
+		"enabled": analyseFunctionEnabledStatus(websocket.Status),
+		"timeout": websocket.Timeout,
+	}
+
+	return []map[string]interface{}{websocketAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1014,6 +1065,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"compress":                      flattenCompressAttrs(configsResp.Compress),
 		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configsResp.CacheUrlParameterFilter),
 		"ip_frequency_limit":            flattenIpFrequencyLimitAttrs(configsResp.IpFrequencyLimit),
+		"websocket":                     flattenWebsocketAttrs(configsResp.Websocket),
 		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
 		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
 	}
