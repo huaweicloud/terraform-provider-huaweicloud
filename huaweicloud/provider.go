@@ -470,6 +470,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_templates":       dcs.DataSourceTemplates(),
 			"huaweicloud_dcs_template_detail": dcs.DataSourceTemplateDetail(),
 			"huaweicloud_dcs_backups":         dcs.DataSourceBackups(),
+			"huaweicloud_dcs_hotkey_analyses": dcs.DataSourceDcsHotkeyAnalyses(),
 
 			"huaweicloud_dds_flavors":       dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_instances":     dds.DataSourceDdsInstance(),
