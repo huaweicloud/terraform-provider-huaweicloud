@@ -108,11 +108,28 @@ func (f *JsonFilter) filterJson() (any, error) {
 
 	switch mp := f.jsonData.(type) {
 	case map[string]interface{}:
-		mp[f.node] = query.Get()
+		mp = putMap(f.node, mp, query.Get())
 		return mp, nil
 	default:
 		return nil, fmt.Errorf("failed to parse object")
 	}
+}
+
+func putMap(keyPath string, mp map[string]any, val any) map[string]any {
+	keys := strings.Split(keyPath, ".")
+
+	node := mp
+	for i := 0; i < len(keys)-1; i++ {
+		v, ok := node[keys[i]].(map[string]any)
+		if !ok {
+			return mp
+		}
+		node = v
+	}
+
+	key := keys[len(keys)-1]
+	node[key] = val
+	return mp
 }
 
 func toStrSlice(in any) []string {
