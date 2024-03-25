@@ -181,13 +181,11 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			"security_protocol": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
 			},
 			"enabled_mechanisms": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -233,6 +231,12 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"ssl_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"tags": common.TagsSchema(),
 			"engine": {
 				Type:     schema.TypeString,
@@ -243,10 +247,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Computed: true,
 			},
 			"enable_public_ip": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"ssl_enable": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
@@ -517,25 +517,28 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	createOpts := &instances.CreateOps{
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		Engine:              engineKafka,
-		EngineVersion:       d.Get("engine_version").(string),
-		AccessUser:          d.Get("access_user").(string),
-		VPCID:               d.Get("vpc_id").(string),
-		SecurityGroupID:     d.Get("security_group_id").(string),
-		SubnetID:            d.Get("network_id").(string),
-		ProductID:           d.Get("flavor_id").(string),
-		KafkaManagerUser:    d.Get("manager_user").(string),
-		MaintainBegin:       d.Get("maintain_begin").(string),
-		MaintainEnd:         d.Get("maintain_end").(string),
-		RetentionPolicy:     d.Get("retention_policy").(string),
-		ConnectorEnalbe:     d.Get("dumping").(bool),
-		EnableAutoTopic:     d.Get("enable_auto_topic").(bool),
-		StorageSpecCode:     d.Get("storage_spec_code").(string),
-		StorageSpace:        d.Get("storage_space").(int),
-		BrokerNum:           d.Get("broker_num").(int),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
+		Name:                  d.Get("name").(string),
+		Description:           d.Get("description").(string),
+		Engine:                engineKafka,
+		EngineVersion:         d.Get("engine_version").(string),
+		AccessUser:            d.Get("access_user").(string),
+		VPCID:                 d.Get("vpc_id").(string),
+		SecurityGroupID:       d.Get("security_group_id").(string),
+		SubnetID:              d.Get("network_id").(string),
+		ProductID:             d.Get("flavor_id").(string),
+		KafkaManagerUser:      d.Get("manager_user").(string),
+		MaintainBegin:         d.Get("maintain_begin").(string),
+		MaintainEnd:           d.Get("maintain_end").(string),
+		RetentionPolicy:       d.Get("retention_policy").(string),
+		ConnectorEnalbe:       d.Get("dumping").(bool),
+		EnableAutoTopic:       d.Get("enable_auto_topic").(bool),
+		StorageSpecCode:       d.Get("storage_spec_code").(string),
+		StorageSpace:          d.Get("storage_space").(int),
+		BrokerNum:             d.Get("broker_num").(int),
+		EnterpriseProjectID:   common.GetEnterpriseProjectID(d, conf),
+		SslEnable:             d.Get("ssl_enable").(bool),
+		KafkaSecurityProtocol: d.Get("security_protocol").(string),
+		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -556,12 +559,6 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	if ids, ok := d.GetOk("public_ip_ids"); ok {
 		createOpts.EnablePublicIP = true
 		createOpts.PublicIpID = strings.Join(utils.ExpandToStringList(ids.([]interface{})), ",")
-	}
-
-	if d.Get("access_user").(string) != "" && d.Get("password").(string) != "" {
-		createOpts.SslEnable = true
-		createOpts.KafkaSecurityProtocol = d.Get("security_protocol").(string)
-		createOpts.SaslEnabledMechanisms = utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List())
 	}
 
 	var availableZones []string
@@ -656,27 +653,30 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	}
 
 	createOpts := &instances.CreateOps{
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		Engine:              engineKafka,
-		EngineVersion:       d.Get("engine_version").(string),
-		Specification:       bandwidth,
-		StorageSpace:        int(defaultStorageSpace),
-		PartitionNum:        int(defaultPartitionNum),
-		AccessUser:          d.Get("access_user").(string),
-		VPCID:               d.Get("vpc_id").(string),
-		SecurityGroupID:     d.Get("security_group_id").(string),
-		SubnetID:            d.Get("network_id").(string),
-		AvailableZones:      availableZones,
-		ProductID:           d.Get("product_id").(string),
-		KafkaManagerUser:    d.Get("manager_user").(string),
-		MaintainBegin:       d.Get("maintain_begin").(string),
-		MaintainEnd:         d.Get("maintain_end").(string),
-		RetentionPolicy:     d.Get("retention_policy").(string),
-		ConnectorEnalbe:     d.Get("dumping").(bool),
-		EnableAutoTopic:     d.Get("enable_auto_topic").(bool),
-		StorageSpecCode:     d.Get("storage_spec_code").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		Name:                  d.Get("name").(string),
+		Description:           d.Get("description").(string),
+		Engine:                engineKafka,
+		EngineVersion:         d.Get("engine_version").(string),
+		Specification:         bandwidth,
+		StorageSpace:          int(defaultStorageSpace),
+		PartitionNum:          int(defaultPartitionNum),
+		AccessUser:            d.Get("access_user").(string),
+		VPCID:                 d.Get("vpc_id").(string),
+		SecurityGroupID:       d.Get("security_group_id").(string),
+		SubnetID:              d.Get("network_id").(string),
+		AvailableZones:        availableZones,
+		ProductID:             d.Get("product_id").(string),
+		KafkaManagerUser:      d.Get("manager_user").(string),
+		MaintainBegin:         d.Get("maintain_begin").(string),
+		MaintainEnd:           d.Get("maintain_end").(string),
+		RetentionPolicy:       d.Get("retention_policy").(string),
+		ConnectorEnalbe:       d.Get("dumping").(bool),
+		EnableAutoTopic:       d.Get("enable_auto_topic").(bool),
+		StorageSpecCode:       d.Get("storage_spec_code").(string),
+		EnterpriseProjectID:   common.GetEnterpriseProjectID(d, cfg),
+		SslEnable:             d.Get("ssl_enable").(bool),
+		KafkaSecurityProtocol: d.Get("security_protocol").(string),
+		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -701,12 +701,6 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		}
 		createOpts.EnablePublicIP = true
 		createOpts.PublicIpID = publicIpIDs
-	}
-
-	if d.Get("access_user").(string) != "" && d.Get("password").(string) != "" {
-		createOpts.SslEnable = true
-		createOpts.KafkaSecurityProtocol = d.Get("security_protocol").(string)
-		createOpts.SaslEnabledMechanisms = utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List())
 	}
 
 	// set tags
@@ -935,8 +929,6 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("maintain_end", v.MaintainEnd),
 		d.Set("enable_public_ip", v.EnablePublicIP),
 		d.Set("ssl_enable", v.SslEnable),
-		d.Set("security_protocol", v.KafkaSecurityProtocol),
-		d.Set("enabled_mechanisms", v.SaslEnabledMechanisms),
 		d.Set("retention_policy", v.RetentionPolicy),
 		d.Set("dumping", v.ConnectorEnalbe),
 		d.Set("enable_auto_topic", v.EnableAutoTopic),
