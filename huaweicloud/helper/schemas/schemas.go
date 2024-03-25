@@ -1,6 +1,8 @@
 package schemas
 
 import (
+	"time"
+
 	"github.com/tidwall/gjson"
 )
 
@@ -14,6 +16,19 @@ func SliceToList(arr gjson.Result, convFun func(val gjson.Result) any) any {
 		rst = append(rst, convFun(v))
 	}
 	return rst
+}
+
+func PrimSliceConverter(input gjson.Result) any {
+	if !input.Exists() {
+		return nil
+	}
+
+	arr := make([]any, 0)
+	for _, v := range input.Array() {
+		arr = append(arr, v.Value())
+	}
+
+	return convArrayType(arr)
 }
 
 func SliceToStrList(input gjson.Result) any {
@@ -72,7 +87,7 @@ func ObjectToList(input gjson.Result, convFun func(val gjson.Result) any) any {
 	return []any{convFun(input)}
 }
 
-func MapToTypeMap(input gjson.Result, convFun func(val gjson.Result) any) any {
+func MapConverter(input gjson.Result, convFun func(val gjson.Result) any) any {
 	if !input.Exists() {
 		return nil
 	}
@@ -84,7 +99,7 @@ func MapToTypeMap(input gjson.Result, convFun func(val gjson.Result) any) any {
 	return rst
 }
 
-func MapToStrTypeMap(input gjson.Result) any {
+func MapToStrMap(input gjson.Result) any {
 	if !input.Exists() {
 		return nil
 	}
@@ -96,7 +111,7 @@ func MapToStrTypeMap(input gjson.Result) any {
 	return rst
 }
 
-func MapToFloatTypeMap(input gjson.Result) any {
+func MapToFloatMap(input gjson.Result) any {
 	if !input.Exists() {
 		return nil
 	}
@@ -108,7 +123,7 @@ func MapToFloatTypeMap(input gjson.Result) any {
 	return rst
 }
 
-func MapToIntTypeMap(input gjson.Result) any {
+func MapToIntMap(input gjson.Result) any {
 	if !input.Exists() {
 		return nil
 	}
@@ -118,4 +133,24 @@ func MapToIntTypeMap(input gjson.Result) any {
 		rst[k] = v.Int()
 	}
 	return rst
+}
+
+func MapToBoolMap(input gjson.Result) any {
+	if !input.Exists() {
+		return nil
+	}
+
+	rst := make(map[string]bool)
+	for k, v := range input.Map() {
+		rst[k] = v.Bool()
+	}
+	return rst
+}
+
+func DateFormat(date gjson.Result, source, target string) string {
+	t, err := time.Parse(source, date.String())
+	if err != nil {
+		return ""
+	}
+	return t.Format(target)
 }

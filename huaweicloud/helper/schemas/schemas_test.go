@@ -420,7 +420,7 @@ func TestObjectToList(t *testing.T) {
 	}
 }
 
-func TestMapToTypeMap(t *testing.T) {
+func TestMapConverter(t *testing.T) {
 	strMap := map[string]any{
 		"a": "abc",
 		"b": "true",
@@ -538,7 +538,7 @@ func TestMapToTypeMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
-			act := MapToTypeMap(jsonObj.Get(tc.key), tc.convFunc)
+			act := MapConverter(jsonObj.Get(tc.key), tc.convFunc)
 			expVal := fmt.Sprintf("%#v", tc.expected)
 			actVal := fmt.Sprintf("%#v", act)
 			fmt.Println("expected:", expVal)
@@ -548,7 +548,7 @@ func TestMapToTypeMap(t *testing.T) {
 	}
 }
 
-func TestMapToStrTypeMap(t *testing.T) {
+func TestMapToStrMapSchema(t *testing.T) {
 	strMap := map[string]any{
 		"a": "abc",
 		"b": "true",
@@ -590,7 +590,7 @@ func TestMapToStrTypeMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
-			act := MapToStrTypeMap(jsonObj.Get(tc.key))
+			act := MapToStrMap(jsonObj.Get(tc.key))
 			expVal := fmt.Sprintf("%#v", tc.expected)
 			actVal := fmt.Sprintf("%#v", act)
 			fmt.Println("expected:", expVal)
@@ -600,7 +600,7 @@ func TestMapToStrTypeMap(t *testing.T) {
 	}
 }
 
-func TestMapToFloatTypeMap(t *testing.T) {
+func TestMapToFloatMap(t *testing.T) {
 	floatMap := map[string]any{
 		"a": 3.141592653589793,
 		"b": "3.141592653589793",
@@ -646,7 +646,7 @@ func TestMapToFloatTypeMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
-			act := MapToFloatTypeMap(jsonObj.Get(tc.key))
+			act := MapToFloatMap(jsonObj.Get(tc.key))
 			expVal := fmt.Sprintf("%#v", tc.expected)
 			actVal := fmt.Sprintf("%#v", act)
 			fmt.Println("expected:", expVal)
@@ -656,7 +656,7 @@ func TestMapToFloatTypeMap(t *testing.T) {
 	}
 }
 
-func TestMapToIntTypeMap(t *testing.T) {
+func TestMapToIntMap(t *testing.T) {
 	intMap := map[string]any{
 		"a": 1,
 		"b": "1",
@@ -702,7 +702,7 @@ func TestMapToIntTypeMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
-			act := MapToIntTypeMap(jsonObj.Get(tc.key))
+			act := MapToIntMap(jsonObj.Get(tc.key))
 			expVal := fmt.Sprintf("%#v", tc.expected)
 			actVal := fmt.Sprintf("%#v", act)
 			fmt.Println("expected:", expVal)
