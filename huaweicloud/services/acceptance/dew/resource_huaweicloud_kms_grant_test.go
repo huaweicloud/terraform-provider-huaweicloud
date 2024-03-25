@@ -88,6 +88,7 @@ func TestAccKmsGrant_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "key_id", "huaweicloud_kms_key.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "grantee_principal", "huaweicloud_identity_user.test", "id"),
 					resource.TestCheckResourceAttrSet(rName, "creator"),
+					resource.TestCheckResourceAttrPair(rName, "retiring_principal", "huaweicloud_identity_user.test", "id"),
 				),
 			},
 			{
@@ -116,11 +117,11 @@ resource "huaweicloud_identity_user" "test" {
 }
 
 resource "huaweicloud_kms_grant" "test" {
-  key_id            = huaweicloud_kms_key.test.id
-  grantee_principal = huaweicloud_identity_user.test.id
-  operations        = ["create-datakey", "encrypt-datakey"]
+  key_id             = huaweicloud_kms_key.test.id
+  grantee_principal  = huaweicloud_identity_user.test.id
+  operations         = ["create-datakey", "encrypt-datakey"]
+  retiring_principal = huaweicloud_identity_user.test.id
 }
-
 `, name, name)
 }
 

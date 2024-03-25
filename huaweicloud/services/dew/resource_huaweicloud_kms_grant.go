@@ -85,6 +85,13 @@ func ResourceKmsGrant() *schema.Resource {
 					"user", "domain",
 				}, false),
 			},
+			"retiring_principal": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The ID of the retiring user.`,
+			},
 			"creator": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -144,6 +151,7 @@ func buildCreateGrantBodyParams(d *schema.ResourceData, _ *config.Config) map[st
 		"grantee_principal_type": utils.ValueIngoreEmpty(d.Get("type")),
 		"grantee_principal":      utils.ValueIngoreEmpty(d.Get("grantee_principal")),
 		"operations":             utils.ValueIngoreEmpty(d.Get("operations")),
+		"retiring_principal":     utils.ValueIngoreEmpty(d.Get("retiring_principal")),
 	}
 	return bodyParams
 }
@@ -213,6 +221,7 @@ func resourceKmsGrantRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("grantee_principal", utils.PathSearch("grantee_principal", grantDetail, nil)),
 		d.Set("operations", utils.PathSearch("operations", grantDetail, nil)),
 		d.Set("creator", utils.PathSearch("issuing_principal", grantDetail, nil)),
+		d.Set("retiring_principal", utils.PathSearch("retiring_principal", grantDetail, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
