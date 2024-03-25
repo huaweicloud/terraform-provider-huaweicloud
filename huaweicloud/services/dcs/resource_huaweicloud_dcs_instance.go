@@ -352,6 +352,10 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"subnet_cidr": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"used_memory": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -374,6 +378,39 @@ func ResourceDcsInstance() *schema.Resource {
 			},
 			"launched_at": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"bandwidth_info": {
+				Type:     schema.TypeList,
+				Elem:     bandwidthSchema(),
+				Computed: true,
+			},
+			"cache_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cpu_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"replica_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"readonly_domain_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"transparent_client_ip_enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"product_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"sharding_count": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
@@ -457,6 +494,54 @@ func ResourceDcsInstance() *schema.Resource {
 			},
 		},
 	}
+}
+
+func bandwidthSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bandwidth": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"begin_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"current_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"end_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expand_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"expand_effect_time": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"expand_interval_time": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"max_expand_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"next_expand_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"task_running": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
 }
 
 func buildBackupPolicyParams(d *schema.ResourceData) *instances.InstanceBackupPolicyOpts {
@@ -954,6 +1039,7 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("vpc_name", r.VpcName),
 		d.Set("subnet_id", r.SubnetId),
 		d.Set("subnet_name", r.SubnetName),
+		d.Set("subnet_cidr", r.SubnetCidr),
 		d.Set("security_group_id", securityGroupID),
 		d.Set("security_group_name", r.SecurityGroupName),
 		d.Set("enterprise_project_id", r.EnterpriseProjectId),
@@ -974,6 +1060,14 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("ssl_enable", r.EnableSsl),
 		d.Set("created_at", r.CreatedAt),
 		d.Set("launched_at", r.LaunchedAt),
+		d.Set("cache_mode", r.CacheMode),
+		d.Set("cpu_type", r.CpuType),
+		d.Set("readonly_domain_name", r.ReadOnlyDomainName),
+		d.Set("replica_count", r.ReplicaCount),
+		d.Set("transparent_client_ip_enable", r.TransparentClientIpEnable),
+		d.Set("bandwidth_info", setBandWidthInfo(&r.BandWidthDetail)),
+		d.Set("product_type", r.ProductType),
+		d.Set("sharding_count", r.ShardingCount),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -1536,5 +1630,22 @@ func updateSslStatusRefreshFunc(c *golangsdk.ServiceClient, id string) resource.
 			return nil, "Error", err
 		}
 		return r, strconv.FormatBool(r.Enable), nil
+	}
+}
+
+func setBandWidthInfo(bandWidthInfo *instances.BandWidthInfo) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"bandwidth":            bandWidthInfo.BandWidth,
+			"begin_time":           utils.FormatTimeStampRFC3339(int64(bandWidthInfo.BeginTime)/1000, false),
+			"current_time":         utils.FormatTimeStampRFC3339(int64(bandWidthInfo.CurrentTime)/1000, false),
+			"end_time":             utils.FormatTimeStampRFC3339(int64(bandWidthInfo.EndTime)/1000, false),
+			"expand_count":         bandWidthInfo.ExpandCount,
+			"expand_effect_time":   bandWidthInfo.ExpandEffectTime,
+			"expand_interval_time": bandWidthInfo.ExpandIntervalTime,
+			"max_expand_count":     bandWidthInfo.MaxExpandCount,
+			"next_expand_time":     utils.FormatTimeStampRFC3339(int64(bandWidthInfo.NextExpandTime)/1000, false),
+			"task_running":         bandWidthInfo.TaskRunning,
+		},
 	}
 }

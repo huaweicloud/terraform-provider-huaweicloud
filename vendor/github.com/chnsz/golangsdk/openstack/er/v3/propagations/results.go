@@ -75,9 +75,7 @@ func (r PropagationPage) LastMarker() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if resp.NextMarker != "" {
-		return "", nil
-	}
+
 	return resp.NextMarker, nil
 }
 

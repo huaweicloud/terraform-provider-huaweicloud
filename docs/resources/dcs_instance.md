@@ -295,6 +295,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `subnet_name` - The name of subnet which the instance belongs to.
 
+* `subnet_cidr` - Indicates the subnet segment.
+
 * `security_group_name` - The name of security group which the instance belongs to.
 
 * `order_id` - The ID of the order that created the instance.
@@ -302,6 +304,47 @@ In addition to all arguments above, the following attributes are exported:
 * `created_at` - Indicates the time when the instance is created, in RFC3339 format.
 
 * `launched_at` - Indicates the time when the instance is started, in RFC3339 format.
+
+* `bandwidth_info` - Indicates the bandwidth information of the instance.
+  The [bandwidth_info](#dcs_bandwidth_info) structure is documented below.
+
+* `cache_mode` - Indicates the instance type. The value can be **single**, **ha**, **cluster** or **proxy**.
+
+* `cpu_type` - Indicates the CPU type of the instance. The value can be **x86_64** or **aarch64**.
+
+* `readonly_domain_name` - Indicates the read-only domain name of the instance. This parameter is available
+  only for master/standby instances.
+
+* `replica_count` - Indicates the number of replicas in the instance.
+
+* `transparent_client_ip_enable` - Indicates whether client IP pass-through is enabled.
+
+* `product_type` - Indicates the product type of the instance. The value can be: **generic** or **enterprise**.
+
+* `sharding_count` - Indicates the number of shards in a cluster instance.
+
+<a name="dcs_bandwidth_info"></a>
+The `bandwidth_info` block supports:
+
+* `bandwidth` - Indicates the bandwidth size, the unit is **GB**.
+
+* `begin_time` - Indicates the begin time of temporary increase.
+
+* `current_time` - Indicates the current time.
+
+* `end_time` - Indicates the end time of temporary increase.
+
+* `expand_count` - Indicates the number of increases.
+
+* `expand_effect_time` - Indicates the interval between temporary increases, the unit is **ms**.
+
+* `expand_interval_time` - Indicates the time interval to the next increase, the unit is **ms**.
+
+* `max_expand_count` - Indicates the maximum number of increases.
+
+* `next_expand_time` - Indicates the next increase time.
+
+* `task_running` - Indicates whether the increase task is running.
 
 ## Timeouts
 
