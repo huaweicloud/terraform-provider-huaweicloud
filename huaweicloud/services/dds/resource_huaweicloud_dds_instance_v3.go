@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -30,7 +33,6 @@ import (
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/modify-name
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/reset-password
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/modify-security-group
-// @API DDS PUT /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/switch-ssl
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/modify-port
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/enlarge-volume
@@ -40,6 +42,10 @@ import (
 // @API DDS DELETE /v3/{project_id}/instances/{serverID}
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/remark
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/migrate
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -199,6 +205,11 @@ func ResourceDdsInstanceV3() *schema.Resource {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
+						"period": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -206,6 +217,11 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+			"second_level_monitoring_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -321,16 +337,17 @@ func resourceDdsFlavors(d *schema.ResourceData) []instances.Flavor {
 func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy {
 	var backupStrategy instances.BackupStrategy
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
-	log.Printf("[DEBUG] backupStrategyRaw: %+v", backupStrategyRaw)
 	startTime := "00:00-01:00"
 	keepDays := 7
+	period := "1,2,3,4,5,6,7"
 	if len(backupStrategyRaw) == 1 {
 		startTime = backupStrategyRaw[0].(map[string]interface{})["start_time"].(string)
 		keepDays = backupStrategyRaw[0].(map[string]interface{})["keep_days"].(int)
+		period = backupStrategyRaw[0].(map[string]interface{})["period"].(string)
 	}
-	backupStrategy.StartTime = startTime
 	backupStrategy.KeepDays = &keepDays
-	log.Printf("[DEBUG] backupStrategy: %+v", backupStrategy)
+	backupStrategy.StartTime = startTime
+	backupStrategy.Period = period
 	return backupStrategy
 }
 
@@ -478,7 +495,37 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
+	if len(backupStrategyRaw) == 1 {
+		period := backupStrategyRaw[0].(map[string]interface{})["period"].(string)
+		if !isEqualPeriod(period, "1,2,3,4,5,6,7") {
+			_, err = instances.CreateBackupPolicy(client, instance.Id, resourceDdsBackupStrategy(d))
+			if err != nil {
+				return diag.Errorf("error creating backup strategy of the DDS instance %s: %s", instance.Id, err)
+			}
+		}
+	}
+
+	if secondLevelMonitoringEnabled := d.Get("second_level_monitoring_enabled").(bool); secondLevelMonitoringEnabled {
+		_, err = instances.UpdateSecondsLevelMonitoring(client, instance.Id, secondLevelMonitoringEnabled)
+		if err != nil {
+			return diag.Errorf("error setting second level monitoring of the DDS instance %s: %s", instance.Id, err)
+		}
+	}
+
 	return resourceDdsInstanceV3Read(ctx, d, meta)
+}
+
+func isEqualPeriod(old, new string) bool {
+	if len(old) != len(new) {
+		return false
+	}
+	oldArray := strings.Split(old, ",")
+	newArray := strings.Split(new, ",")
+	sort.Strings(oldArray)
+	sort.Strings(newArray)
+
+	return reflect.DeepEqual(oldArray, newArray)
 }
 
 func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -546,10 +593,17 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 	datastoreList = append(datastoreList, datastore)
 	mErr = multierror.Append(mErr, d.Set("datastore", datastoreList))
 
+	// set backup strategy
+	backupStrategyResp, err := instances.GetBackupPolicy(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
-		"start_time": instanceObj.BackupStrategy.StartTime,
-		"keep_days":  instanceObj.BackupStrategy.KeepDays,
+		"start_time": backupStrategyResp.BackupPolicy.StartTime,
+		"keep_days":  backupStrategyResp.BackupPolicy.KeepDays,
+		"period":     backupStrategyResp.BackupPolicy.Period,
 	}
 	backupStrategyList = append(backupStrategyList, backupStrategy)
 	mErr = multierror.Append(mErr, d.Set("backup_strategy", backupStrategyList))
@@ -561,6 +615,14 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 	} else {
 		log.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
 	}
+
+	// get second level monitoring
+	secondsLevelMonitoring, err := instances.GetSecondsLevelMonitoring(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(mErr, d.Set("second_level_monitoring_enabled", secondsLevelMonitoring.Enabled))
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("Error setting dds instance fields: %s", err)
@@ -652,7 +714,6 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 	if d.HasChange("backup_strategy") {
 		backupStrategy := resourceDdsBackupStrategy(d)
-		backupStrategy.Period = "1,2,3,4,5,6,7"
 		opt := instances.UpdateOpt{
 			Param:  "backup_policy",
 			Value:  backupStrategy,
@@ -745,6 +806,26 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceId)
 		if tagErr != nil {
 			return diag.Errorf("Error updating tags of DDS instance:%s, err:%s", instanceId, tagErr)
+		}
+	}
+
+	if d.HasChange("second_level_monitoring_enabled") {
+		retryFunc := func() (interface{}, bool, error) {
+			_, err = instances.UpdateSecondsLevelMonitoring(client, instanceId, d.Get("second_level_monitoring_enabled").(bool))
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error updating second level monitoring of the DDS instance %s: %s ", instanceId, err)
 		}
 	}
 
