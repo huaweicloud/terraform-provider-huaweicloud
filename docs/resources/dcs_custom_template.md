@@ -77,6 +77,8 @@ In addition to all arguments above, the following attributes are exported:
 * `params` - Indicates the list of the template params.
   The [params](#CustomTemplate_Param) structure is documented below.
 
+* `created_at` - Indicates the time when the custom template is created.
+
 <a name="CustomTemplate_Param"></a>
 The `params` block supports:
 

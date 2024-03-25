@@ -81,6 +81,7 @@ func TestAccCustomTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "cache_mode"),
 					resource.TestCheckResourceAttrSet(rName, "product_type"),
 					resource.TestCheckResourceAttrSet(rName, "storage_type"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
 			{
@@ -91,6 +92,7 @@ func TestAccCustomTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "params.#", "1"),
 					resource.TestCheckResourceAttr(rName, "params.0.param_name", "maxmemory-policy"),
 					resource.TestCheckResourceAttr(rName, "params.0.param_value", "allkeys-lru"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
 			{

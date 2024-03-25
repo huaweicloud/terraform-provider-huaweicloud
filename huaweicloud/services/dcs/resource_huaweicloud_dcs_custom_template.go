@@ -101,6 +101,11 @@ func ResourceCustomTemplate() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the storage type.`,
 			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the time when the custom template is created.`,
+			},
 		},
 	}
 }
@@ -273,6 +278,7 @@ func resourceCustomTemplateRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("storage_type", utils.PathSearch("storage_type", getCustomTemplateRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getCustomTemplateRespBody, nil)),
 		d.Set("params", flattenGetCustomTemplateResponseBodyParam(d, getCustomTemplateRespBody)),
+		d.Set("created_at", utils.PathSearch("created_at", getCustomTemplateRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
