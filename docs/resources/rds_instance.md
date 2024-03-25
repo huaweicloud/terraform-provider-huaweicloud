@@ -270,6 +270,11 @@ The following arguments are supported:
 * `binlog_retention_hours` - (Optional, Int) Specify the binlog retention period in hours. This parameter applies only to
   MySQL Server databases. Value range: **0** to **168 (7x24)**.
 
+* `msdtc_hosts` - (Optional, List) Specify the host information for MSDTC.
+  The [msdtc_hosts](#RdsInstance_MsdtcHosts) structure is documented below.
+
+  -> **NOTE:** Only adding MSDTC hosts is supported, deletion is not allowed.
+
 The `db` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the DB engine. Available value are **MySQL**, **PostgreSQL**,
@@ -356,6 +361,13 @@ The `parameters` block supports:
 
 * `value` - (Required, String) Specifies the parameter value.
 
+<a name="RdsInstance_MsdtcHosts"></a>
+The `msdtc_hosts` block supports:
+
+* `ip` - (Required, String) Specifies the host IP address.
+
+* `host_name` - (Required, String) Specifies the host name.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -374,6 +386,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `public_ips` - Indicates the public IP address list.
 
+* `msdtc_hosts` - Indicates the host information for MSDTC.
+  The [msdtc_hosts](#RdsInstance_MsdtcHostsResp) structure is documented below.
+
 The `nodes` block contains:
 
 * `availability_zone` - Indicates the AZ.
@@ -386,6 +401,11 @@ The `nodes` block contains:
   respectively.
 
 * `status` - Indicates the node status.
+
+<a name="RdsInstance_MsdtcHostsResp"></a>
+The `msdtc_hosts` block supports:
+
+* `id` - Indicates the host ID.
 
 ## Timeouts
 

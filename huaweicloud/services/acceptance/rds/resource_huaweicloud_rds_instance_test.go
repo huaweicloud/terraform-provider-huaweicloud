@@ -222,6 +222,41 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_sqlserver_msdtc_hosts(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_sqlserver_msdtcHosts(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "msdtc_hosts.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "msdtc_hosts.0.ip",
+						"huaweicloud_compute_instance.ecs_1", "access_ip_v4"),
+					resource.TestCheckResourceAttr(resourceName, "msdtc_hosts.0.host_name", "msdtc-host-name-1"),
+					resource.TestCheckResourceAttrSet(resourceName, "msdtc_hosts.0.id"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_sqlserver_msdtcHosts_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "msdtc_hosts.#", "2"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccRdsInstance_mariadb(t *testing.T) {
 	var instance instances.RdsInstanceResponse
 	name := acceptance.RandomAccResourceName()
@@ -814,6 +849,155 @@ resource "huaweicloud_rds_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
+func testAccRdsInstance_sqlserver_msdtcHosts_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 8634
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "SQLServer"
+  db_version    = "2019_SE"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 4
+}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+`, common.TestBaseNetwork(name), name)
+}
+
+func testAccRdsInstance_sqlserver_msdtcHosts(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_instance" "ecs_1" {
+  name               = "%[2]s_ecs_1"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  collation         = "Chinese_PRC_CI_AS"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "SQLServer"
+    version  = "2019_SE"
+    port     = 8634
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+
+  msdtc_hosts {
+    ip        = huaweicloud_compute_instance.ecs_1.access_ip_v4
+    host_name = "msdtc-host-name-1"
+  }
+}
+`, testAccRdsInstance_sqlserver_msdtcHosts_base(name), name)
+}
+
+func testAccRdsInstance_sqlserver_msdtcHosts_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_instance" "ecs_1" {
+  name               = "%[2]s_ecs_1"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_compute_instance" "ecs_2" {
+  name               = "%[2]s_ecs_2"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  collation         = "Chinese_PRC_CI_AS"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "SQLServer"
+    version  = "2019_SE"
+    port     = 8634
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+
+  msdtc_hosts {
+    ip        = huaweicloud_compute_instance.ecs_1.access_ip_v4
+    host_name = "msdtc-host-name-1"
+  }
+  msdtc_hosts {
+    ip        = huaweicloud_compute_instance.ecs_2.access_ip_v4
+    host_name = "msdtc-host-name-2"
+  }
+}
+`, testAccRdsInstance_sqlserver_msdtcHosts_base(name), name)
+}
+
 func testAccRdsInstance_mariadb(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -936,166 +1120,6 @@ resource "huaweicloud_rds_instance" "test" {
   auto_renew    = "%[3]v"
 }
 `, testAccRdsInstance_base(), name, isAutoRenew)
-}
-
-func testAccRdsInstance_configuration(name string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_rds_flavors" "test" {
-  db_type       = "MySQL"
-  db_version    = "5.7"
-  instance_mode = "single"
-  group_type    = "dedicated"
-}
-
-resource "huaweicloud_rds_instance" "test" {
-  name              = "%s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
-
-  db {
-    password = "Huangwei!120521"
-    type     = "MySQL"
-    version  = "5.7"
-  }
-
-  volume {
-    type = "CLOUDSSD"
-    size = 40
-  }
-
-  parameters {
-    name  = "div_precision_increment"
-    value = "12"
-  }
-}
-`, testAccRdsInstance_base(), name)
-}
-
-func testAccRdsInstance_configuration_update(name string) string {
-	return fmt.Sprintf(`
-%s
-
-%s
-
-data "huaweicloud_rds_flavors" "test" {
-  db_type       = "MySQL"
-  db_version    = "5.7"
-  instance_mode = "single"
-  group_type    = "dedicated"
-}
-
-resource "huaweicloud_rds_instance" "test" {
-  name              = "%s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-  param_group_id    = huaweicloud_rds_parametergroup.pg_1.id
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
-
-  db {
-    password = "Huangwei!120521"
-    type     = "MySQL"
-    version  = "5.7"
-    port     = 3306
-  }
-
-  volume {
-    type = "CLOUDSSD"
-    size = 40
-  }
-
-  parameters {
-    name  = "div_precision_increment"
-    value = "12"
-  }
-}
-`, testAccRdsInstance_base(), testAccRdsConfig_basic(name), name)
-}
-
-func testAccRdsInstance_parameters(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
-  flavor              = "rds.mysql.sld4.large.ha"
-  security_group_id   = data.huaweicloud_networking_secgroup.test.id
-  subnet_id           = data.huaweicloud_vpc_subnet.test.id
-  vpc_id              = data.huaweicloud_vpc.test.id
-  ha_replication_mode = "semisync"
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-    data.huaweicloud_availability_zones.test.names[3],
-  ]
-
-  db {
-    password = "Huangwei!120521"
-    type     = "MySQL"
-    version  = "5.7"
-    port     = 3306
-  }
-
-  volume {
-    type = "LOCALSSD"
-    size = 40
-  }
-
-  parameters {
-    name  = "div_precision_increment"
-    value = "12"
-  }
-}
-`, testAccRdsInstance_base(), name)
-}
-
-func testAccRdsInstance_newParameters(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_rds_instance" "test" {
-  name                = "%s"
-  flavor              = "rds.mysql.sld4.large.ha"
-  security_group_id   = data.huaweicloud_networking_secgroup.test.id
-  subnet_id           = data.huaweicloud_vpc_subnet.test.id
-  vpc_id              = data.huaweicloud_vpc.test.id
-  ha_replication_mode = "semisync"
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0],
-    data.huaweicloud_availability_zones.test.names[3],
-  ]
-
-  db {
-    password = "Huangwei!120521"
-    type     = "MySQL"
-    version  = "5.7"
-    port     = 3306
-  }
-
-  volume {
-    type = "LOCALSSD"
-    size = 40
-  }
-
-  parameters {
-    name  = "connect_timeout"
-    value = "14"
-  }
-}
-`, testAccRdsInstance_base(), name)
 }
 
 func testAccRdsInstance_restore_mysql(name string) string {
