@@ -77,8 +77,69 @@ func ResourcePgAccount() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the remarks of the DB account.`,
 			},
+			"attributes": {
+				Type:        schema.TypeList,
+				Elem:        pgAccountAttributesSchema(),
+				Computed:    true,
+				Description: `Indicates the permission attributes of the account.`,
+			},
+			"memberof": {
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: `Indicates the default rights of the account.`,
+			},
 		},
 	}
+}
+
+func pgAccountAttributesSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"rol_super": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether a user has the super-user permission.`,
+			},
+			"rol_inherit": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: `Indicates whether a user automatically inherits the permissions of the role to which the
+user belongs.`,
+			},
+			"rol_create_role": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether a user can create other sub-users.`,
+			},
+			"rol_create_db": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether a user can create a database.`,
+			},
+			"rol_can_login": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether a user can log in to the database.`,
+			},
+			"rol_conn_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the maximum number of concurrent connections to a DB instance.`,
+			},
+			"rol_replication": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the user is a replication role.`,
+			},
+			"rol_bypass_rls": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether a user bypasses each row-level security policy.`,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourcePgAccountCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -201,9 +262,30 @@ func resourcePgAccountRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("instance_id", instanceId),
 		d.Set("name", utils.PathSearch("name", account, nil)),
 		d.Set("description", utils.PathSearch("comment", account, nil)),
+		d.Set("attributes", flattenPgAccountAttributesBody(account)),
+		d.Set("memberof", utils.PathSearch("memberof", account, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenPgAccountAttributesBody(account interface{}) []interface{} {
+	attributes := utils.PathSearch("attributes", account, nil)
+	if attributes == nil {
+		return nil
+	}
+	rst := make([]interface{}, 0, 1)
+	rst = append(rst, map[string]interface{}{
+		"rol_super":       utils.PathSearch("rolsuper", attributes, nil),
+		"rol_inherit":     utils.PathSearch("rolinherit", attributes, nil),
+		"rol_create_role": utils.PathSearch("rolcreaterole", attributes, nil),
+		"rol_create_db":   utils.PathSearch("rolcreatedb", attributes, nil),
+		"rol_can_login":   utils.PathSearch("rolcanlogin", attributes, nil),
+		"rol_conn_limit":  utils.PathSearch("rolconnlimit", attributes, nil),
+		"rol_replication": utils.PathSearch("rolreplication", attributes, nil),
+		"rol_bypass_rls":  utils.PathSearch("rolbypassrls", attributes, nil),
+	})
+	return rst
 }
 
 func resourcePgAccountUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
