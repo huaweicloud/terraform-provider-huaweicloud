@@ -228,7 +228,31 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-
+			"deletion_protection_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"waf_failure_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"charge_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"guaranteed": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"ipv4_port_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -248,7 +272,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"ipv6_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -285,20 +308,23 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
+	deleteProtectionEnable := d.Get("deletion_protection_enable").(bool)
 	createOpts := loadbalancers.CreateOpts{
-		AvailabilityZoneList: utils.ExpandToStringListBySet(d.Get("availability_zone").(*schema.Set)),
-		IPTargetEnable:       &iPTargetEnable,
-		VpcID:                d.Get("vpc_id").(string),
-		VipSubnetID:          d.Get("ipv4_subnet_id").(string),
-		IpV6VipSubnetID:      d.Get("ipv6_network_id").(string),
-		VipAddress:           d.Get("ipv4_address").(string),
-		L4Flavor:             d.Get("l4_flavor_id").(string),
-		L7Flavor:             d.Get("l7_flavor_id").(string),
-		ProtectionStatus:     d.Get("protection_status").(string),
-		ProtectionReason:     d.Get("protection_reason").(string),
-		Name:                 d.Get("name").(string),
-		Description:          d.Get("description").(string),
-		EnterpriseProjectID:  common.GetEnterpriseProjectID(d, cfg),
+		AvailabilityZoneList:     utils.ExpandToStringListBySet(d.Get("availability_zone").(*schema.Set)),
+		IPTargetEnable:           &iPTargetEnable,
+		VpcID:                    d.Get("vpc_id").(string),
+		VipSubnetID:              d.Get("ipv4_subnet_id").(string),
+		IpV6VipSubnetID:          d.Get("ipv6_network_id").(string),
+		VipAddress:               d.Get("ipv4_address").(string),
+		L4Flavor:                 d.Get("l4_flavor_id").(string),
+		L7Flavor:                 d.Get("l7_flavor_id").(string),
+		ProtectionStatus:         d.Get("protection_status").(string),
+		ProtectionReason:         d.Get("protection_reason").(string),
+		Name:                     d.Get("name").(string),
+		Description:              d.Get("description").(string),
+		EnterpriseProjectID:      common.GetEnterpriseProjectID(d, cfg),
+		DeletionProtectionEnable: &deleteProtectionEnable,
+		WafFailureAction:         d.Get("waf_failure_action").(string),
 	}
 
 	if v, ok := d.GetOk("backend_subnets"); ok {
@@ -444,6 +470,11 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("backend_subnets", lb.ElbVirsubnetIDs),
 		d.Set("protection_status", lb.ProtectionStatus),
 		d.Set("protection_reason", lb.ProtectionReason),
+		d.Set("charge_mode", lb.ChargeMode),
+		d.Set("guaranteed", lb.Guaranteed),
+		d.Set("created_at", lb.CreatedAt),
+		d.Set("updated_at", lb.UpdatedAt),
+		d.Set("waf_failure_action", lb.WafFailureAction),
 	)
 
 	for _, eip := range lb.Eips {
@@ -495,7 +526,7 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 
 	updateLoadBalancerChanges := []string{"name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
 		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id",
-		"protection_status", "protection_reason",
+		"protection_status", "protection_reason", "deletion_protection_enable", "waf_failure_action",
 	}
 
 	if d.HasChanges(updateLoadBalancerChanges...) {
@@ -700,6 +731,15 @@ func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.Upd
 		}
 	} else if d.HasChange("min_l7_flavor_id") && d.Get("autoscaling_enabled").(bool) {
 		updateOpts.AutoScaling.MinL7Flavor = d.Get("min_l7_flavor_id").(string)
+	}
+
+	if d.HasChange("waf_failure_action") {
+		updateOpts.WafFailureAction = d.Get("waf_failure_action").(string)
+	}
+
+	if d.HasChange("deletion_protection_enable") {
+		deletionProtectionEnable := d.Get("deletion_protection_enable").(bool)
+		updateOpts.DeletionProtectionEnable = &deletionProtectionEnable
 	}
 
 	log.Printf("[DEBUG] Updating LoadBalancer %s with options: %#v", d.Id(), updateOpts)
