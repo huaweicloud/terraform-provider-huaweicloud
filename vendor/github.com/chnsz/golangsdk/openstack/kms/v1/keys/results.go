@@ -41,6 +41,8 @@ type Key struct {
 	EnterpriseProjectID string `json:"sys_enterprise_project_id"`
 	// Key usage
 	KeyUsage string `json:"key_usage"`
+	// Keystore ID
+	KeyStoreID string `json:"keystore_id"`
 }
 
 type ListKey struct {

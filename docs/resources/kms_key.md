@@ -58,6 +58,9 @@ The following arguments are supported:
   For key_usage selection, see the [documentation](https://support.huaweicloud.com/intl/en-us/productdesc-ram/ram_01_0007.html).
   Changing this creates a new key.
 
+* `keystore_id` - (Optional, String, ForceNew) Specifies the keystore ID of the kms key.
+  Default value is the KMS default keystore ID. Changing this creates a new key.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

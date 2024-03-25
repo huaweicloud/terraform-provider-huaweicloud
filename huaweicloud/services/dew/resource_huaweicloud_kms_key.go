@@ -118,6 +118,12 @@ func ResourceKmsKey() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"keystore_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 
 			"key_id": {
 				Type:     schema.TypeString,
@@ -183,6 +189,7 @@ func ResourceKmsKeyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		KeySpec:             d.Get("key_algorithm").(string),
 		KeyUsage:            d.Get("key_usage").(string),
 		Origin:              d.Get("origin").(string),
+		KeyStoreID:          d.Get("keystore_id").(string),
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
 	}
 
@@ -293,6 +300,7 @@ func ResourceKmsKeyRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("origin", v.Origin),
 		d.Set("key_usage", v.KeyUsage),
 		d.Set("key_state", v.KeyState),
+		d.Set("keystore_id", v.KeyStoreID),
 		utils.SetResourceTagsToState(d, kmsKeyV1Client, "kms", d.Id()),
 	)
 

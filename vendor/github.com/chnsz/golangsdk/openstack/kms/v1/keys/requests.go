@@ -20,6 +20,8 @@ type CreateOpts struct {
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 	// Key source, the value can be kms or external, the default value is kms.
 	Origin string `json:"origin,omitempty"`
+	// Keystore id, default value is the KMS default keystore id
+	KeyStoreID string `json:"keystore_id,omitempty"`
 }
 
 type ImportMaterialOpts struct {
