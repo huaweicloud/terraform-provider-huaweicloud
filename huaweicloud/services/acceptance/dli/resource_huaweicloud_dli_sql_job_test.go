@@ -45,6 +45,7 @@ func TestAccResourceDliSqlJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sql", fmt.Sprint("DESC ", name)),
 					resource.TestCheckResourceAttr(resourceName, "database_name", name),
 					resource.TestCheckResourceAttr(resourceName, "job_type", "DDL"),
+					resource.TestCheckResourceAttr(resourceName, "queue_name", name),
 				),
 			},
 			{
@@ -133,11 +134,17 @@ func testAccSqlJobBaseResource_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
+resource "huaweicloud_dli_queue" "test" {
+  name     = "%s"
+  cu_count = 16
+}
+
 resource "huaweicloud_dli_sql_job" "test" {
   sql           = "DESC ${huaweicloud_dli_table.test.name}"
   database_name = huaweicloud_dli_database.test.name
+  queue_name    = huaweicloud_dli_queue.test.name
 }
-`, testAccSQLJobBaseResource(name))
+`, testAccSQLJobBaseResource(name), name)
 }
 
 func testAccSQLJobBaseResource(name string) string {
@@ -151,7 +158,6 @@ resource "huaweicloud_dli_table" "test" {
   database_name = huaweicloud_dli_database.test.name
   name          = "%s"
   data_location = "DLI"
-  description   = "dli table test"
 
   columns {
     name        = "name"
