@@ -33,6 +33,11 @@ The following arguments are supported:
 
 * `status` - (Optional, String) Specifies the status of the node.
 
+* `ignore_details` - (Optional, String) Specifies which detail information of the nodes to ignore.
+  You can use this parameter to ignore some information you don't care about and make the query faster.
+  The value can be:
+  + **tags**: ignore the tags of the nodes.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
