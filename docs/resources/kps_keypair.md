@@ -43,12 +43,27 @@ resource "huaweicloud_kps_keypair" "test-keypair" {
 ### Import an existing keypair
 
 ```hcl
+variable "public_key" {}
+variable "kms_key_name" {}
 variable "private_key" {}
 
 resource "huaweicloud_kps_keypair" "test-keypair" {
-  name        = "my-keypair"
-  public_key  = "ssh-rsa AAAAB3NzaC1yc2EAAAlJq5Pu+eizhou7nFFDxXofr2ySF8k/yuA9OnJdVF9Fbf85Z59CWNZBvcAT... root@terra-dev"
-  private_key = var.private_key
+  name            = "my-keypair"
+  public_key      = var.public_key
+  encryption_type = "kms"
+  kms_key_name    = var.kms_key_name
+  private_key     = var.private_key
+}
+```
+
+### Import a keypair without a platform-managed private key
+
+```hcl
+variable "public_key" {}
+
+resource "huaweicloud_kps_keypair" "test-keypair" {
+  name       = "my-keypair"
+  public_key = var.public_key
 }
 ```
 
@@ -69,22 +84,20 @@ The following arguments are supported:
   The default value is `user`.
   Changing this parameter will create a new resource.
 
-* `encryption_type` - (Optional, String, ForceNew) Specifies encryption mode if manages the private key by HuaweiCloud.
+* `encryption_type` - (Optional, String) Specifies encryption mode if manages the private key by HuaweiCloud.
   The options are as follows:
   - **default**: The default encryption mode. Applicable to sites where KMS is not deployed.
   - **kms**: KMS encryption mode.
-  Changing this parameter will create a new resource.
 
-* `kms_key_name` - (Optional, String, ForceNew) Specifies the KMS key name to encrypt private keys.
-  It's mandatory when the `encryption_type` is `kms`. Changing this parameter will create a new resource.
+* `kms_key_name` - (Optional, String) Specifies the KMS key name to encrypt private keys.
+  It's mandatory when the `encryption_type` is `kms`.
 
 * `description` - (Optional, String) Specifies the description of key pair.
 
 * `public_key` - (Optional, String, ForceNew) Specifies the imported OpenSSH-formatted public key.
-  Changing this parameter will create a new resource.
+  It is required when import keypair. Changing this parameter will create a new resource.
 
-* `private_key` - (Optional, String, ForceNew) Specifies the imported OpenSSH-formatted private key.
-  Changing this parameter will create a new resource.
+* `private_key` - (Optional, String) Specifies the imported OpenSSH-formatted private key.
 
 * `key_file` - (Optional, String, ForceNew) Specifies the path of the created private key.
   The private key file (**.pem**) is created only after the resource is created.

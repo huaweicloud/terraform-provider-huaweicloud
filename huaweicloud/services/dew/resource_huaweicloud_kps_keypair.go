@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"regexp"
 	"time"
 
@@ -55,7 +54,6 @@ func ResourceKeypair() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -67,7 +65,6 @@ func ResourceKeypair() *schema.Resource {
 							" and hyphens (-)."),
 				),
 			},
-
 			"scope": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -75,26 +72,20 @@ func ResourceKeypair() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{scopeUser, scopeDomainLabel}, false),
 			},
-
 			"encryption_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"default", "kms"}, false),
 			},
-
 			"kms_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"public_key": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -106,7 +97,6 @@ func ResourceKeypair() *schema.Resource {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
-				ForceNew:  true,
 			},
 			"key_file": {
 				Type:     schema.TypeString,
@@ -145,8 +135,6 @@ func resourceKeypairCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	log.Printf("[DEBUG] Create KeyPair : %#v", createOpts)
 
 	response, err := client.CreateKeypair(createOpts)
 	if err != nil {
@@ -227,6 +215,13 @@ func resourceKeypairUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	updateErr := updateDesc(client, d.Id(), desc)
 	if updateErr != nil {
 		return updateErr
+	}
+
+	if d.HasChanges("encryption_type", "kms_key_name", "private_key") {
+		diagErr := updatePrivateKey(client, d)
+		if err != nil {
+			return diagErr
+		}
 	}
 
 	return resourceKeypairRead(ctx, d, meta)
@@ -342,4 +337,64 @@ func updateDesc(client *kps.KpsClient, id, desc string) diag.Diagnostics {
 	}
 
 	return nil
+}
+
+func updatePrivateKey(client *kps.KpsClient, d *schema.ResourceData) diag.Diagnostics {
+	privateKey := d.Get("private_key").(string)
+	// clear kps keypair privateKey
+	if privateKey == "" {
+		clearOps := &model.ClearPrivateKeyRequest{
+			KeypairName: d.Get("name").(string),
+		}
+		_, err := client.ClearPrivateKey(clearOps)
+		if err != nil {
+			return diag.Errorf("error deleting KPS keypair privateKey: %s", err)
+		}
+	}
+
+	// import kps keypair privateKey
+	if privateKey != "" {
+		importOps, err := buildImportPrivateKeyParams(d)
+		if err != nil {
+			diag.Errorf("error building KPS keypair import privateKey params: %s", err)
+		}
+		_, importError := client.ImportPrivateKey(importOps)
+		if importError != nil {
+			return diag.Errorf("error importing KPS keypair privateKey: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func buildImportPrivateKeyParams(d *schema.ResourceData) (*model.ImportPrivateKeyRequest, error) {
+	importOps := &model.ImportPrivateKeyRequest{
+		Body: &model.ImportPrivateKeyRequestBody{
+			Keypair: &model.ImportPrivateKeyKeypairBean{
+				Name: d.Get("name").(string),
+			},
+		},
+	}
+
+	t := d.Get("encryption_type").(string)
+	if t == "" {
+		return nil, fmt.Errorf("field encryption_type is required when import a private key")
+	}
+	var encryptionType model.EncryptionType
+	err := encryptionType.UnmarshalJSON([]byte(t))
+	if err != nil {
+		return nil, fmt.Errorf("error parsing the argument %q: %s", "encryption_type", err)
+	}
+
+	importPrivateKeyProtection := model.ImportPrivateKeyProtection{
+		Encryption: &model.Encryption{
+			Type: encryptionType,
+		},
+		PrivateKey: d.Get("private_key").(string),
+	}
+
+	importPrivateKeyProtection.Encryption.KmsKeyName = d.Get("kms_key_name").(string)
+	importOps.Body.Keypair.KeyProtection = &importPrivateKeyProtection
+
+	return importOps, nil
 }
