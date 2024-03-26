@@ -75,10 +75,68 @@ func TestAccDataForwardingRule_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataForwardingRule_derived(t *testing.T) {
+	var obj model.ShowRoutingRuleResponse
+
+	name := acceptance.RandomAccResourceNameWithDash()
+	updateName := acceptance.RandomAccResourceNameWithDash()
+	rName := "huaweicloud_iotda_dataforwarding_rule.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getDataForwardingRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDataForwardingRule_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "trigger", "product:delete"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
+					resource.TestCheckResourceAttr(rName, "targets.#", "1"),
+					resource.TestCheckResourceAttr(rName, "targets.0.type", "HTTP_FORWARDING"),
+					resource.TestCheckResourceAttr(rName, "targets.0.http_forwarding.0.url", "http://www.exampletest.com"),
+					resource.TestCheckResourceAttrSet(rName, "targets.0.id"),
+				),
+			},
+			{
+				Config: testDataForwardingRule_dis(updateName, acceptance.HW_REGION_NAME),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "trigger", "product:delete"),
+					resource.TestCheckResourceAttr(rName, "enabled", "false"),
+					resource.TestCheckResourceAttr(rName, "targets.#", "1"),
+					resource.TestCheckResourceAttr(rName, "targets.0.type", "DIS_FORWARDING"),
+					resource.TestCheckResourceAttrSet(rName, "targets.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "targets.0.dis_forwarding.0.stream_id",
+						"huaweicloud_dis_stream.test", "id"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testDataForwardingRule_basic(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_iotda_dataforwarding_rule" "test" {
-  name    = "%s"
+  name    = "%[2]s"
   trigger = "product:delete"
   enabled = true
   
@@ -91,28 +149,30 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
 
 
 }
-`, name)
+`, buildIoTDAEndpoint(), name)
 }
 
 func testDataForwardingRule_dis(name, region string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_dis_stream" "test" {
-  stream_name     = "%s"
+  stream_name     = "%[2]s"
   partition_count = 1
 }
 
 resource "huaweicloud_iotda_dataforwarding_rule" "test" {
-  name    = "%s"
+  name    = "%[3]s"
   trigger = "product:delete"
   enabled = false
 
   targets {
     type = "DIS_FORWARDING"
     dis_forwarding {
-      region    = "%s"
+      region    = "%[4]s"
       stream_id = huaweicloud_dis_stream.test.id
     }
   }
 }
-`, name, name, region)
+`, buildIoTDAEndpoint(), name, name, region)
 }

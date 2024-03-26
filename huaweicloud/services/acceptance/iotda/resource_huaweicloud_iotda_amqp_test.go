@@ -61,10 +61,48 @@ func TestAccAmqp_basic(t *testing.T) {
 	})
 }
 
+func TestAccAmqp_derived(t *testing.T) {
+	var obj model.ShowQueueResponse
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_iotda_amqp.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getAmqpResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAmqp_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAmqp_basic(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_iotda_amqp" "test" {
-  name = "%s"
+  name = "%[2]s"
 }
-`, name)
+`, buildIoTDAEndpoint(), name)
 }
