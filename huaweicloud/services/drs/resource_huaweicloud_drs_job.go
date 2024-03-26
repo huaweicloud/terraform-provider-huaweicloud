@@ -773,6 +773,14 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 				return diag.FromErr(err)
 			}
 
+			// preCheck job before reset
+			if action.(string) == "reset" {
+				err = preCheck(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate), "forRetryJob")
+				if err != nil {
+					return diag.FromErr(err)
+				}
+			}
+
 			// execute action
 			err = executeJobAction(clientV5, buildExecuteJobActionBodyParams(d), action.(string), d.Id())
 			if err != nil {
