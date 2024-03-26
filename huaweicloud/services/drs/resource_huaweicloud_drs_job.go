@@ -338,6 +338,13 @@ func dbInfoSchemaResource() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1151,6 +1158,7 @@ func buildDbConfigParamter(d *schema.ResourceData, dbType, projectId string) (*j
 		DbPort:          golangsdk.IntToPointer(configRaw["port"].(int)),
 		InstanceId:      configRaw["instance_id"].(string),
 		Region:          configRaw["region"].(string),
+		VpcId:           configRaw["vpc_id"].(string),
 		SubnetId:        configRaw["subnet_id"].(string),
 		ProjectId:       projectId,
 		SslCertPassword: configRaw["ssl_cert_password"].(string),
@@ -1186,6 +1194,7 @@ func setDbInfoToState(d *schema.ResourceData, endpoint jobs.Endpoint, fieldName 
 		"instance_id":        endpoint.InstanceId,
 		"name":               endpoint.InstanceName,
 		"region":             endpoint.Region,
+		"vpc_id":             endpoint.VpcId,
 		"subnet_id":          endpoint.SubnetId,
 		"ssl_cert_password":  endpoint.SslCertPassword,
 		"ssl_cert_check_sum": endpoint.SslCertCheckSum,

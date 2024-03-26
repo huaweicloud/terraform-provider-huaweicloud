@@ -270,7 +270,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "sync"),
 					resource.TestCheckResourceAttr(resourceName, "direction", "up"),
-					resource.TestCheckResourceAttr(resourceName, "net_type", "eip"),
+					resource.TestCheckResourceAttr(resourceName, "net_type", "vpc"),
 					resource.TestCheckResourceAttr(resourceName, "destination_db_readnoly", "true"),
 					resource.TestCheckResourceAttr(resourceName, "migration_type", "FULL_INCR_TRANS"),
 					resource.TestCheckResourceAttr(resourceName, "description", name),
@@ -278,6 +278,10 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "source_db.0.ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "source_db.0.port", "3306"),
 					resource.TestCheckResourceAttr(resourceName, "source_db.0.user", "root"),
+					resource.TestCheckResourceAttrPair(resourceName, "source_db.0.vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "source_db.0.subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "destination_db.0.engine_type", "mysql"),
 					resource.TestCheckResourceAttr(resourceName, "destination_db.0.ip", "192.168.0.59"),
 					resource.TestCheckResourceAttr(resourceName, "destination_db.0.port", "3306"),
@@ -289,7 +293,6 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.region",
 						"huaweicloud_rds_instance.test2", "region"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
-					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
@@ -348,7 +351,7 @@ resource "huaweicloud_drs_job" "test" {
   type           = "sync"
   engine_type    = "mysql"
   direction      = "up"
-  net_type       = "eip"
+  net_type       = "vpc"
   migration_type = "FULL_INCR_TRANS"
   description    = "%s"
   force_destroy  = true
@@ -359,6 +362,8 @@ resource "huaweicloud_drs_job" "test" {
     port        = 3306
     user        = "root"
     password    = "%s"
+    vpc_id      = huaweicloud_rds_instance.test1.vpc_id
+    subnet_id   = huaweicloud_rds_instance.test1.subnet_id
   }
 
   destination_db {
