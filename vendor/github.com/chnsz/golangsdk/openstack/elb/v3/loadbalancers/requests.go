@@ -82,6 +82,12 @@ type CreateOpts struct {
 
 	// Protection reason
 	ProtectionReason string `json:"protection_reason,omitempty"`
+
+	// Waf failure action
+	WafFailureAction string `json:"waf_failure_action,omitempty"`
+
+	// IpV6 Vip Address
+	Ipv6VipAddress string `json:"ipv6_vip_address,omitempty"`
 }
 
 // BandwidthRef
@@ -239,6 +245,12 @@ type UpdateOpts struct {
 
 	// Update protection reason
 	ProtectionReason *string `json:"protection_reason,omitempty"`
+
+	// Waf failure action
+	WafFailureAction string `json:"waf_failure_action,omitempty"`
+
+	// IpV6 Vip Address
+	Ipv6VipAddress string `json:"ipv6_vip_address,omitempty"`
 }
 
 // ToLoadBalancerUpdateMap builds a request body from UpdateOpts.

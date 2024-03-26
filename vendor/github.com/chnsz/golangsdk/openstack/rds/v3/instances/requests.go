@@ -744,3 +744,44 @@ func GetBinlogRetentionHours(c *golangsdk.ServiceClient, instanceId string) (r G
 	})
 	return
 }
+
+type ModifyMsdtcHostsOpts struct {
+	Hosts []Host `json:"hosts" required:"true"`
+}
+
+type Host struct {
+	HostName string `json:"host_name" required:"true"`
+	Ip       string `json:"ip" required:"true"`
+}
+
+func (opts ModifyMsdtcHostsOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifyMsdtcHosts is a method used to modify msdtc hosts.
+func ModifyMsdtcHosts(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r ModifyMsdtcHostsResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(updateURL(c, instanceId, "msdtc/host"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
+
+// GetMsdtcHosts is a method used to obtain the msdtc hosts.
+func GetMsdtcHosts(c *golangsdk.ServiceClient, instanceId string) ([]RdsMsdtcHosts, error) {
+	url := msdtcHostsURL(c, instanceId)
+
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		return MsdtcHostsPage{pagination.OffsetPageBase{PageResult: r}}
+	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
+	res, err := ExtractRdsMsdtcHosts(pages)
+	if err != nil {
+		return nil, err
+	}
+	return res.Hosts, err
+}

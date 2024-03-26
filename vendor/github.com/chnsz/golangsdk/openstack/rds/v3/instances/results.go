@@ -42,6 +42,10 @@ type ModifyCollationResult struct {
 	commonResult
 }
 
+type ModifyMsdtcHostsResult struct {
+	commonResult
+}
+
 type ModifyBinlogRetentionHoursResult struct {
 	commonResult
 }
@@ -238,6 +242,36 @@ func (r GetBinlogRetentionHoursResult) Extract() (*GetBinlogRetentionHoursResp, 
 	return &response, err
 }
 
+type ListMsdtcHostsResponse struct {
+	Hosts      []RdsMsdtcHosts `json:"hosts"`
+	TotalCount int             `json:"total_count"`
+}
+
+type RdsMsdtcHosts struct {
+	Id       string `json:"id"`
+	Host     string `json:"host"`
+	HostName string `json:"host_name"`
+}
+
+type MsdtcHostsPage struct {
+	pagination.OffsetPageBase
+}
+
+func (r MsdtcHostsPage) IsEmpty() (bool, error) {
+	data, err := ExtractRdsMsdtcHosts(r)
+	if err != nil {
+		return false, err
+	}
+	return len(data.Hosts) == 0, err
+}
+
+// ExtractRdsMsdtcHosts is a function that takes a ListResult and returns the msdct hosts' information.
+func ExtractRdsMsdtcHosts(r pagination.Page) (ListMsdtcHostsResponse, error) {
+	var s ListMsdtcHostsResponse
+	err := (r.(MsdtcHostsPage)).ExtractInto(&s)
+	return s, err
+}
+
 type ReplicationMode struct {
 	WorkflowId      string `json:"workflowId"`
 	InstanceId      string `json:"instanceId"`
@@ -256,6 +290,16 @@ type Collation struct {
 
 func (r ModifyCollationResult) Extract() (*Collation, error) {
 	var response Collation
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type MsdtcHosts struct {
+	JobId string `json:"job_id"`
+}
+
+func (r ModifyMsdtcHostsResult) Extract() (*MsdtcHosts, error) {
+	var response MsdtcHosts
 	err := r.ExtractInto(&response)
 	return &response, err
 }
