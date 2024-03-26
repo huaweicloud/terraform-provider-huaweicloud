@@ -307,6 +307,9 @@ var (
 	HW_LTS_AGENCY_NAME        = os.Getenv("HW_LTS_AGENCY_NAME")
 
 	HW_VPCEP_SERVICE_ID = os.Getenv("HW_VPCEP_SERVICE_ID")
+
+	HW_HSS_HOST_PROTECTION_HOST_ID  = os.Getenv("HW_HSS_HOST_PROTECTION_HOST_ID")
+	HW_HSS_HOST_PROTECTION_QUOTA_ID = os.Getenv("HW_HSS_HOST_PROTECTION_QUOTA_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1446,5 +1449,19 @@ func TestAccPreCheckCCMPushWAFInstance(t *testing.T) {
 func TestAccPreCheckVPCEPServiceId(t *testing.T) {
 	if HW_VPCEP_SERVICE_ID == "" {
 		t.Skip("HW_VPCEP_SERVICE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSHostProtectionHostId(t *testing.T) {
+	if HW_HSS_HOST_PROTECTION_HOST_ID == "" {
+		t.Skip("HW_HSS_HOST_PROTECTION_HOST_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSHostProtectionQuotaId(t *testing.T) {
+	if HW_HSS_HOST_PROTECTION_QUOTA_ID == "" {
+		t.Skip("HW_HSS_HOST_PROTECTION_QUOTA_ID must be set for the acceptance test")
 	}
 }
