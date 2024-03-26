@@ -46,6 +46,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies job description. Length range: 1 to 512 characters.
 
 * `queue_name` - (Optional, String) Specifies name of a queue.
+  If you want to use the parameters, the `run_mode` parameter must be set to `exclusive_cluster`.
 
 * `sql` - (Optional, String) Specifies stream SQL statement, which includes at least the following
  three parts: source, query, and sink. Length range: 1024x1024 characters.

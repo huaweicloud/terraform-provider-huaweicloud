@@ -46,6 +46,7 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "status", "job_running"),
 					resource.TestCheckResourceAttr(resourceName, "type", "flink_sql_job"),
+					resource.TestCheckResourceAttr(resourceName, "queue_name", name),
 				),
 			},
 			{
@@ -71,8 +72,8 @@ CREATE SOURCE STREAM car_infos (
 )
 WITH (
   type = "dis",
-  region = "%s",
-  channel = "%s_input",
+  region = "%[1]s",
+  channel = "%[2]s_input",
   partition_count = "1",
   encode = "csv",
   field_delimiter = ","
@@ -86,8 +87,8 @@ CREATE SINK STREAM audi_cheaper_than_30w (
 )
 WITH (
   type = "dis",
-  region = "%s",
-  channel = "%s_output",
+  region = "%[1]s",
+  channel = "%[2]s_output",
   partition_key = "car_owner",
   encode = "csv",
   field_delimiter = ","
@@ -107,8 +108,8 @@ CREATE SINK STREAM car_info_data (
 )
 WITH (
   type ="dis",
-  region = "%s",
-  channel = "%s_input",
+  region = "%[1]s",
+  channel = "%[2]s_input",
   partition_key = "car_owner",
   encode = "csv",
   field_delimiter = ","
@@ -123,28 +124,37 @@ EOF
 }
 
 resource "huaweicloud_dis_stream" "stream_input" {
-  stream_name     = "%s_input"
+  stream_name     = "%[2]s_input"
   partition_count = 1
   data_type       = "CSV"
   csv_delimiter   = ","
 }
 
 resource "huaweicloud_dis_stream" "stream_output" {
-  stream_name     = "%s_output"
+  stream_name     = "%[2]s_output"
   partition_count = 1
   data_type       = "CSV"
   csv_delimiter   = ","
 
 }
 
+resource "huaweicloud_dli_queue" "test" {
+  name       = "%[2]s"
+  cu_count   = 16
+  queue_type = "general"
+}
+
 resource "huaweicloud_dli_flinksql_job" "test" {
-  name = "%s"
-  type = "flink_sql_job"
-  sql  = var.sql
+  name       = "%[2]s"
+  type       = "flink_sql_job"
+  sql        = var.sql
+  run_mode   = "exclusive_cluster"
+  queue_name = huaweicloud_dli_queue.test.name
+
   depends_on = [
     huaweicloud_dis_stream.stream_input,
     huaweicloud_dis_stream.stream_output,
   ]
 }
-`, region, name, region, name, region, name, name, name, name)
+`, region, name)
 }
