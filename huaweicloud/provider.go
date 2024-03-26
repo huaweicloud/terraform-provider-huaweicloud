@@ -573,8 +573,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_data_key": dew.DataSourceKmsDataKeyV1(),
 			"huaweicloud_kps_keypairs": dew.DataSourceKeypairs(),
 
-			"huaweicloud_iotda_spaces":   iotda.DataSourceSpaces(),
-			"huaweicloud_iotda_products": iotda.DataSourceProducts(),
+			"huaweicloud_iotda_dataforwarding_rules": iotda.DataSourceDataForwardingRules(),
+			"huaweicloud_iotda_spaces":               iotda.DataSourceSpaces(),
+			"huaweicloud_iotda_products":             iotda.DataSourceProducts(),
 
 			"huaweicloud_koogallery_assets": koogallery.DataSourceKooGalleryAssets(),
 
