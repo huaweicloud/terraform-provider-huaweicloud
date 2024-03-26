@@ -73,7 +73,7 @@ The following arguments are supported:
   + **GLOBAL**: The validity scope is tenant level.
   + **APP**: The validity scope is resource space level.
 
-  -> If the `app_type` value is **APP**, this parameter can be used together with the `space_id` to query 
+  -> If the `app_type` value is **APP**, this parameter can be used together with the `space_id` to query
     the dataforwarding rules in the corresponding resource space, if not associated with the `space_id`,
     will be query the dataforwarding rules in the default resource space.
 
