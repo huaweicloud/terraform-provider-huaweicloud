@@ -76,7 +76,6 @@ func TestAccDataSourceAMQPQueues_derived(t *testing.T) {
 func testAccDataSourceAMQPQueues_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
-%[2]s
 
 data "huaweicloud_iotda_amqps" "test" {
   depends_on = [
@@ -119,5 +118,5 @@ data "huaweicloud_iotda_amqps" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_amqps.not_found.queues) == 0
 }
-`, testAmqp_basic(name), buildIoTDAEndpoint())
+`, testAmqp_basic(name))
 }

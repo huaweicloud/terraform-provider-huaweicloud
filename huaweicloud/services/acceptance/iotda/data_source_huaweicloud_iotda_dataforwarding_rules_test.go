@@ -85,7 +85,6 @@ func TestAccDataSourceDataForwardingRules_derived(t *testing.T) {
 func testAccDataSourceDataForwardingRules_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
-%[2]s
 
 data "huaweicloud_iotda_dataforwarding_rules" "test" {
   depends_on = [
@@ -177,5 +176,5 @@ data "huaweicloud_iotda_dataforwarding_rules" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_dataforwarding_rules.not_found.rules) == 0
 }
-`, testDataForwardingRule_basic(name), buildIoTDAEndpoint())
+`, testDataForwardingRule_basic(name))
 }
