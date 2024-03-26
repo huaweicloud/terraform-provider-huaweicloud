@@ -376,8 +376,7 @@ func resourceHostGroupImportState(_ context.Context, d *schema.ResourceData, _ i
 		return nil, fmt.Errorf("invalid format of import ID, must be <enterprise_project_id>/<id>")
 	}
 
-	d.Set("enterprise_project_id", parts[0])
 	d.SetId(parts[1])
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, d.Set("enterprise_project_id", parts[0])
 }

@@ -62,6 +62,14 @@ This resource provides the following timeouts configuration options:
 
 The host group resource can be imported using `enterprise_project_id` and `id`, separated by a slash, e.g.
 
+### Import resource under the default enterprise project
+
+```bash
+$ terraform import huaweicloud_hss_host_group.test 0/<id>
+```
+
+### Import resource from non default enterprise project
+
 ```bash
 $ terraform import huaweicloud_hss_host_group.test <enterprise_project_id>/<id>
 ```
