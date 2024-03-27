@@ -230,13 +230,20 @@ The `configs` block support:
   The [ip_frequency_limit](#ip_frequency_limit_object) structure is documented below.
 
   -> Restricting the IP access frequency can effectively defend against CC attacks, but it may affect normal access.
-  Please set access thresholds carefully.
+  Please set access thresholds carefully. After creating the domain name, please wait a few minutes before configuring
+  this field, otherwise the configuration may fail.
 
 * `websocket` - (Optional, List) Specifies the websocket settings. This field can only be configured if `type` is
   set to **wholeSite**. The [websocket](#websocket_object) structure is documented below.
 
   -> Websocket and HTTP/2 are incompatible and cannot be both enabled. Websocket will not take effect when
   origin cache control is enabled in the cache configuration.
+
+* `flexible_origin` - (Optional, List) Specifies the advanced origin rules.
+  The [flexible_origin](#flexible_origin_object) structure is documented below.
+
+  -> Up to 20 advanced origin rules can be configured. When `type` is configured as **wholeSite**, configuring this
+  field is not supported.
 
 <a name="https_settings_object"></a>
 The `https_settings` block support:
@@ -353,6 +360,50 @@ The `websocket` block support:
 
 * `timeout` - (Optional, Int) Specifies the duration for keeping a connection open, in seconds. The value ranges
   from **1** to **300**. This field is required when enable websocket settings.
+
+<a name="flexible_origin_object"></a>
+The `flexible_origin` block support:
+
+* `match_type` - (Required, String) Specifies the URI match mode. Valid values are as follows:
+  + **all**: All files.
+  + **file_extension**: File name extension.
+  + **file_path**: Directory.
+
+* `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from **1**
+  to **100**. A greater number indicates a higher priority.
+
+* `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot exceed 1.
+  The [back_sources](#flexible_origin_back_sources_object) structure is documented below.
+
+* `match_pattern` - (Optional, String) Specifies the URI match rule. The usage rules are as follows:
+  + When `match_type` is set to **all**, set this field to empty.
+  + When `match_type` is set to **file_extension**, the value of this field should start with a period (.).
+    Enter up to 20 file name extensions and use semicolons (;) to separate them. Example: **.jpg;.zip;.exe**.
+  + When `match_type` is set to **file_path**, the value of this field should start with a slash (/).
+    Enter up to 20 paths and use semicolons (;) to separate them. Example: **/test/folder01;/test/folder02**.
+
+<a name="flexible_origin_back_sources_object"></a>
+The `back_sources` block support:
+
+* `sources_type` - (Required, String) Specifies the origin server type. Valid values are as follows:
+  + **ipaddr**: IP address.
+  + **domain**: Domain name.
+  + **obs_bucket**: OBS bucket.
+
+* `ip_or_domain` - (Required, String) Specifies the IP address or domain name of the origin server.
+  + When `sources_type` is set to **ipaddr**, the value of this field can only be set to a valid IPv4 or Ipv6 address.
+  + When `sources_type` is set to **domain**, the value of this field can only be set to a domain name.
+  + When `sources_type` is set to **obs_bucket**, the value of this field can only be set to an OBS bucket access
+    domain name.
+
+* `obs_bucket_type` - (Optional, String) Specifies the OBS bucket type. Valid values are **private** and **public**.
+  This field is required when `sources_type` is set to **obs_bucket**.
+
+* `http_port` - (Optional, Int) Specifies the HTTP port, ranging from **1** to **65535**. Defaults to **80**.
+
+* `https_port` - (Optional, Int) Specifies the HTTPS port, ranging from **1** to **65535**. Defaults to **443**.
+
+-> Fields `http_port` and `https_port` do not support editing when `sources_type` is set to **obs_bucket**.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

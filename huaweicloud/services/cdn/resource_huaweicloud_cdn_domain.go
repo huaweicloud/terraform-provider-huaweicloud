@@ -237,6 +237,60 @@ var websocket = schema.Schema{
 	},
 }
 
+var flexibleOrigin = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"match_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"priority": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"back_sources": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sources_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"ip_or_domain": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"obs_bucket_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"http_port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"https_port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"match_pattern": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -362,6 +416,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"cache_url_parameter_filter": &cacheUrlParameterFilter,
 						"ip_frequency_limit":         &ipFrequencyLimit,
 						"websocket":                  &websocket,
+						"flexible_origin":            &flexibleOrigin,
 					},
 				},
 			},
@@ -613,6 +668,43 @@ func buildWebsocketOpts(newWebsocket []interface{}) *model.WebSocketSeek {
 	return &websocketOpts
 }
 
+func buildFlexibleOriginOpts(rawFlexibleOrigins []interface{}) *[]model.FlexibleOrigins {
+	if len(rawFlexibleOrigins) < 1 {
+		// Define an empty array to clear all flexible origins
+		rst := make([]model.FlexibleOrigins, 0)
+		return &rst
+	}
+
+	flexibleOriginOpts := make([]model.FlexibleOrigins, len(rawFlexibleOrigins))
+	for i, v := range rawFlexibleOrigins {
+		originMap := v.(map[string]interface{})
+		flexibleOriginOpt := model.FlexibleOrigins{
+			MatchType:    originMap["match_type"].(string),
+			MatchPattern: originMap["match_pattern"].(string),
+			Priority:     int32(originMap["priority"].(int)),
+			BackSources:  buildFlexibleOriginBackSourceOpts(originMap["back_sources"].([]interface{})),
+		}
+		flexibleOriginOpts[i] = flexibleOriginOpt
+	}
+	return &flexibleOriginOpts
+}
+
+func buildFlexibleOriginBackSourceOpts(rawBackSources []interface{}) []model.BackSources {
+	if len(rawBackSources) != 1 {
+		return nil
+	}
+
+	backSource := rawBackSources[0].(map[string]interface{})
+	backSourceOpts := model.BackSources{
+		SourcesType:   backSource["sources_type"].(string),
+		IpOrDomain:    backSource["ip_or_domain"].(string),
+		ObsBucketType: utils.StringIgnoreEmpty(backSource["obs_bucket_type"].(string)),
+		HttpPort:      utils.Int32IgnoreEmpty(int32(backSource["http_port"].(int))),
+		HttpsPort:     utils.Int32IgnoreEmpty(int32(backSource["https_port"].(int))),
+	}
+	return []model.BackSources{backSourceOpts}
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -727,6 +819,9 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 	}
 	if d.HasChange("configs.0.websocket") {
 		configsOpts.Websocket = buildWebsocketOpts(configs["websocket"].([]interface{}))
+	}
+	if d.HasChange("configs.0.flexible_origin") {
+		configsOpts.FlexibleOrigin = buildFlexibleOriginOpts(configs["flexible_origin"].([]interface{}))
 	}
 
 	if d.HasChange("cache_settings") {
@@ -1001,6 +1096,41 @@ func flattenWebsocketAttrs(websocket *model.WebSocketSeek) []map[string]interfac
 	return []map[string]interface{}{websocketAttrs}
 }
 
+func flattenFlexibleOriginAttrs(flexibleOrigins *[]model.FlexibleOrigins) []map[string]interface{} {
+	if flexibleOrigins == nil || len(*flexibleOrigins) == 0 {
+		return nil
+	}
+
+	flexibleOriginsAttrs := make([]map[string]interface{}, len(*flexibleOrigins))
+	for i, v := range *flexibleOrigins {
+		flexibleOriginsAttrs[i] = map[string]interface{}{
+			"match_type":    v.MatchType,
+			"match_pattern": v.MatchPattern,
+			"priority":      v.Priority,
+			"back_sources":  flattenFlexibleOriginBackSourceAttrs(v.BackSources),
+		}
+	}
+	return flexibleOriginsAttrs
+}
+
+func flattenFlexibleOriginBackSourceAttrs(backSources []model.BackSources) []map[string]interface{} {
+	if len(backSources) == 0 {
+		return nil
+	}
+
+	backSourcesAttrs := make([]map[string]interface{}, len(backSources))
+	for i, v := range backSources {
+		backSourcesAttrs[i] = map[string]interface{}{
+			"sources_type":    v.SourcesType,
+			"ip_or_domain":    v.IpOrDomain,
+			"obs_bucket_type": v.ObsBucketType,
+			"http_port":       v.HttpPort,
+			"https_port":      v.HttpsPort,
+		}
+	}
+	return backSourcesAttrs
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1066,6 +1196,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configsResp.CacheUrlParameterFilter),
 		"ip_frequency_limit":            flattenIpFrequencyLimitAttrs(configsResp.IpFrequencyLimit),
 		"websocket":                     flattenWebsocketAttrs(configsResp.Websocket),
+		"flexible_origin":               flattenFlexibleOriginAttrs(configsResp.FlexibleOrigin),
 		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
 		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
 	}
