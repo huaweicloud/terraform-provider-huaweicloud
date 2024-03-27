@@ -97,9 +97,9 @@ which is a 40-digit or 64-digit hexadecimal string. For more detail, please see
   fields and `fingerprint`, `secondary_fingerprint` fields cannot be set simultaneously.
 
 * `secure_access` - (Optional, Bool) Specifies whether the device is connected through a secure protocol.
-  The default value is **true**. If specified as **false**, this means accessing via an insecure protocol, and the
-  device accessed through insecure methods are susceptible to security risks such as counterfeiting.
-  Please use with caution.
+  This parameter is only valid when `secret` or `fingerprint` is specified, and suggest setting it to **true**.
+  If ignored, it means accessing through insecure protocols, and the device is susceptible to security risks such as
+  counterfeiting, please be cautious with this configuration.
 
 * `force_disconnect` - (Optional, Bool) Specifies whether to force device disconnection when resetting secrets or
   fingerprints, currently, only long connections are allowed. The default value is **false**.

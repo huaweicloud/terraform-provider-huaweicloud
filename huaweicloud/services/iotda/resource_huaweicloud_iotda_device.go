@@ -124,7 +124,7 @@ func ResourceDevice() *schema.Resource {
 			"secure_access": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Computed: true,
 			},
 			"force_disconnect": {
 				Type:     schema.TypeBool,
