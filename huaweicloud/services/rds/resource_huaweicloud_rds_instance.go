@@ -46,9 +46,11 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/configurations
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/msdtc/hosts
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/collations
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/msdtc/host
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/port
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
@@ -290,6 +292,28 @@ func ResourceRdsInstance() *schema.Resource {
 				Optional: true,
 			},
 
+			"msdtc_hosts": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ip": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"host_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -424,6 +448,12 @@ func isMySQLDatabase(d *schema.ResourceData) bool {
 	return strings.ToLower(dbType) == "mysql"
 }
 
+func isSQLServerDatabase(d *schema.ResourceData) bool {
+	dbType := d.Get("db.0.type").(string)
+	// Database type is not case sensitive.
+	return strings.ToLower(dbType) == "sqlserver"
+}
+
 func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -537,6 +567,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateBinlogRetentionHours(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateMsdtcHosts(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -697,6 +731,22 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error getting RDS binlog retention hours: %s", err)
 		}
 		d.Set("binlog_retention_hours", binlogRetentionHours.BinlogRetentionHours)
+	}
+
+	if isSQLServerDatabase(d) {
+		msdtcHosts, err := instances.GetMsdtcHosts(client, instanceID)
+		if err != nil {
+			return diag.Errorf("error getting RDS msdtc hosts: %s", err)
+		}
+		hosts := make([]map[string]interface{}, 0, len(msdtcHosts))
+		for _, msdtcHost := range msdtcHosts {
+			hosts = append(hosts, map[string]interface{}{
+				"id":        msdtcHost.Id,
+				"ip":        msdtcHost.Host,
+				"host_name": msdtcHost.HostName,
+			})
+		}
+		d.Set("msdtc_hosts", hosts)
 	}
 
 	return setRdsInstanceParameters(ctx, d, client, instanceID)
@@ -873,6 +923,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateBinlogRetentionHours(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateMsdtcHosts(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1628,8 +1682,7 @@ func updateVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client 
 	return nil
 }
 
-func updateBinlogRetentionHours(d *schema.ResourceData, client *golangsdk.ServiceClient,
-	instanceID string) error {
+func updateBinlogRetentionHours(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
 	if !d.HasChanges("binlog_retention_hours") {
 		return nil
 	}
@@ -1643,6 +1696,61 @@ func updateBinlogRetentionHours(d *schema.ResourceData, client *golangsdk.Servic
 	}
 
 	return nil
+}
+
+func updateMsdtcHosts(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChanges("msdtc_hosts") {
+		return nil
+	}
+	oldRaws, newRaws := d.GetChange("msdtc_hosts")
+	addHosts := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+	deleteHosts := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+
+	if deleteHosts.Len() > 0 {
+		return fmt.Errorf("the RDS instance dose not support delete MSDTC hosts")
+	}
+	if addHosts.Len() > 0 {
+		hosts := buildRdsInstanceMsdtcHosts(addHosts.List())
+		msdtcHostsOpts := instances.ModifyMsdtcHostsOpts{
+			Hosts: *hosts,
+		}
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := instances.ModifyMsdtcHosts(client, msdtcHostsOpts, instanceID).Extract()
+			retry, err := handleMultiOperationsError(err)
+			return res, retry, err
+		}
+		res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return fmt.Errorf("error modify RDS instance (%s) MSDTC hosts: %s", instanceID, err)
+		}
+		job := res.(*instances.MsdtcHosts)
+
+		if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("error waiting for RDS instance (%s) update msdtc hosts completed: %s", instanceID, err)
+		}
+	}
+
+	return nil
+}
+
+func buildRdsInstanceMsdtcHosts(hostsRaw []interface{}) *[]instances.Host {
+	hosts := make([]instances.Host, 0, len(hostsRaw))
+	for _, hostRaw := range hostsRaw {
+		host := hostRaw.(map[string]interface{})
+		hosts = append(hosts, instances.Host{
+			Ip:       host["ip"].(string),
+			HostName: host["host_name"].(string),
+		})
+	}
+	return &hosts
 }
 
 func enableVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
@@ -1732,7 +1840,7 @@ func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, ti
 		PollInterval: 10 * time.Second,
 	}
 	if _, err := stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("error waiting for RDS instance (%s) job to be completed: %s ", jobID, err)
+		return fmt.Errorf("error waiting for RDS instance job (%s) to be completed: %s ", jobID, err)
 	}
 	return nil
 }
