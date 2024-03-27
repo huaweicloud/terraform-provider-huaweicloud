@@ -1,5 +1,5 @@
 ---
-subcategory: "huaweicloud_dcs_isntance_restore"
+subcategory: "Distributed Cache Service (DCS)"
 ---
 
 # huaweicloud_dcs_isntance_restore
