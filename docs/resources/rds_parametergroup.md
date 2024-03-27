@@ -70,6 +70,10 @@ In addition to all arguments above, the following attributes are exported:
   + `type` - Indicates the parameter type.
   + `description` - Indicates the parameter description.
 
+* `created_at` - The creation time, in UTC format.
+
+* `updated_at` - The last update time, in UTC format.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

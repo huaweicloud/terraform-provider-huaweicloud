@@ -30,6 +30,10 @@ type Configuration struct {
 	Description string `json:"description"`
 	//Configuration Parameters
 	Parameters []Parameter `json:"configuration_parameters"`
+	//Create time
+	Created string `json:"created"`
+	//Last update time
+	Updated string `json:"updated"`
 }
 
 type Parameter struct {

@@ -121,6 +121,18 @@ type LoadBalancer struct {
 
 	// Autoscaling configuration
 	AutoScaling AutoScaling `json:"autoscaling"`
+
+	// Waf failure action
+	WafFailureAction string `json:"waf_failure_action"`
+
+	// Charge Mode
+	ChargeMode string `json:"charge_mode"`
+
+	// Creation time
+	CreatedAt string `json:"created_at"`
+
+	// Update time
+	UpdatedAt string `json:"updated_at"`
 }
 
 // EipInfo

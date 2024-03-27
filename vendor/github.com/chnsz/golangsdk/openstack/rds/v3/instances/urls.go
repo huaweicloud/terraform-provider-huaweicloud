@@ -49,3 +49,7 @@ func autoExpandURL(c *golangsdk.ServiceClient, instancesId string) string {
 func binlogRetentionHoursURL(c *golangsdk.ServiceClient, instancesId string) string {
 	return c.ServiceURL("instances", instancesId, "binlog/clear-policy")
 }
+
+func msdtcHostsURL(c *golangsdk.ServiceClient, instancesId string) string {
+	return c.ServiceURL("instances", instancesId, "msdtc/hosts")
+}

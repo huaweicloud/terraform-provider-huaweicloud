@@ -109,6 +109,14 @@ func ResourceRdsConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -175,6 +183,8 @@ func resourceRdsConfigurationRead(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(n.Id)
 	d.Set("name", n.Name)
 	d.Set("description", n.Description)
+	d.Set("created_at", n.Created)
+	d.Set("updated_at", n.Updated)
 
 	datastore := []map[string]string{
 		{
