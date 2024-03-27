@@ -2,14 +2,14 @@
 subcategory: "Data Lake Insight (DLI)"
 ---
 
-# huaweicloud_dli_template_spark
+# huaweicloud_dli_spark_template
 
 Manages a DLI Spark template resource within HuaweiCloud.  
 
 ## Example Usage
 
 ```hcl
-  resource "huaweicloud_dli_template_spark" "test" {
+  resource "huaweicloud_dli_spark_template" "test" {
     name        = "demo"
     description = "This is a demo"
     group       = "demo"
@@ -144,5 +144,5 @@ In addition to all arguments above, the following attributes are exported:
 The spark template can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dli_template_spark.test 9680ed93-fa3f-47e5-8471-ff6e7e1a6499
+$ terraform import huaweicloud_dli_spark_template.test 9680ed93-fa3f-47e5-8471-ff6e7e1a6499
 ```

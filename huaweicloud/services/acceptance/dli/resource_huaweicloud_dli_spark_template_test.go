@@ -48,7 +48,7 @@ func TestAccSparkTemplate_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dli_template_spark.test"
+	rName := "huaweicloud_dli_spark_template.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -135,7 +135,7 @@ func TestAccSparkTemplate_basic(t *testing.T) {
 
 func testSparkTemplate_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_template_spark" "test" {
+resource "huaweicloud_dli_spark_template" "test" {
   name        = "%s"
   description = "This is a demo"
   group       = "demo"
@@ -191,7 +191,7 @@ resource "huaweicloud_dli_template_spark" "test" {
 
 func testSparkTemplate_basic_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_template_spark" "test" {
+resource "huaweicloud_dli_spark_template" "test" {
   name        = "%s"
   description = "This is a demo2"
   group       = "demo2"

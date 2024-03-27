@@ -1006,7 +1006,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_template_sql":                    dli.ResourceSQLTemplate(),
 			"huaweicloud_dli_template_flink":                  dli.ResourceFlinkTemplate(),
 			"huaweicloud_dli_global_variable":                 dli.ResourceGlobalVariable(),
-			"huaweicloud_dli_template_spark":                  dli.ResourceSparkTemplate(),
+			"huaweicloud_dli_spark_template":                  dli.ResourceSparkTemplate(),
 			"huaweicloud_dli_agency":                          dli.ResourceDliAgency(),
 
 			"huaweicloud_dms_kafka_user":               dms.ResourceDmsKafkaUser(),
@@ -1611,6 +1611,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_group_v1":    deprecated.ResourceDmsGroups(),
 			"huaweicloud_dms_queue":       deprecated.ResourceDmsQueues(),
 			"huaweicloud_dms_queue_v1":    deprecated.ResourceDmsQueues(),
+
+			"huaweicloud_dli_template_spark": dli.ResourceSparkTemplate(),
 
 			"huaweicloud_cs_cluster":            deprecated.ResourceCsClusterV1(),
 			"huaweicloud_cs_cluster_v1":         deprecated.ResourceCsClusterV1(),
