@@ -71,11 +71,8 @@ func TestAccAssignmentPackage_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "vars_structure.#", "2"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.0.var_key", "test_name_1"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.0.var_value", "test_value_1"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.1.var_key", "test_name_2"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.1.var_value", "test_value_2"),
+					resource.TestCheckResourceAttrPair(rName, "vars_structure",
+						"data.huaweicloud_rms_assignment_package_templates.test", "templates.0.parameters"),
 					resource.TestCheckResourceAttrSet(rName, "stack_id"),
 					resource.TestCheckResourceAttrSet(rName, "stack_name"),
 					resource.TestCheckResourceAttrSet(rName, "deployment_id"),
@@ -100,13 +97,12 @@ resource "huaweicloud_rms_assignment_package" "test" {
   name         = "%s"
   template_key = data.huaweicloud_rms_assignment_package_templates.test.templates.0.template_key
 
-  vars_structure {
-    var_key   = "test_name_1"
-    var_value = "test_value_1"
-  }
-  vars_structure {
-    var_key   = "test_name_2"
-    var_value = "test_value_2"
+  dynamic "vars_structure" {
+    for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
+    content {
+      var_key = vars_structure.value["name"]
+      var_value = jsondecode(vars_structure.value["default_value"])
+    }
   }
 }
 `, name)
