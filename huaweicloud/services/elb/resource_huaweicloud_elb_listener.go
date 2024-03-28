@@ -143,6 +143,29 @@ func ResourceListenerV3() *schema.Resource {
 				Default:  true,
 			},
 
+			"forward-proto": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"real-ip": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward-elb-id": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"transparent_client_ip_enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
 			"access_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -213,6 +236,7 @@ func ResourceListenerV3() *schema.Resource {
 			"protection_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"force_delete": {
@@ -227,6 +251,20 @@ func ResourceListenerV3() *schema.Resource {
 			},
 
 			"tags": common.TagsSchema(),
+
+			"enable_member_retry": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -267,6 +305,10 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		gzipEnable := v.(bool)
 		createOpts.GzipEnable = &gzipEnable
 	}
+	if v, ok := d.GetOk("enable_member_retry"); ok {
+		enableMemberRetry := v.(bool)
+		createOpts.EnableMemberRetry = &enableMemberRetry
+	}
 	if v, ok := d.GetOk("idle_timeout"); ok {
 		idleTimeout := v.(int)
 		createOpts.KeepaliveTimeout = &idleTimeout
@@ -290,11 +332,17 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	forwardPort := d.Get("forward_port").(bool)
 	forwardRequestPort := d.Get("forward_request_port").(bool)
 	forwardHost := d.Get("forward_host").(bool)
+	forwardProto := d.Get("forward-proto").(bool)
+	realIP := d.Get("real_ip").(bool)
+	forwardELBID := d.Get("forward-elb-id").(bool)
 	createOpts.InsertHeaders = &listeners.InsertHeaders{
 		ForwardedELBIP:   &forwardEip,
 		ForwardedPort:    &forwardPort,
 		ForwardedForPort: &forwardRequestPort,
 		ForwardedHost:    &forwardHost,
+		ForwardedProto:   &forwardProto,
+		RealIP:           &realIP,
+		ForwardedELBID:   &forwardELBID,
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -369,6 +417,9 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("forward_port", listener.InsertHeaders.ForwardedPort),
 		d.Set("forward_request_port", listener.InsertHeaders.ForwardedForPort),
 		d.Set("forward_host", listener.InsertHeaders.ForwardedHost),
+		d.Set("forward_proto", listener.InsertHeaders.ForwardedProto),
+		d.Set("real_ip", listener.InsertHeaders.RealIP),
+		d.Set("forward_elb_id", listener.InsertHeaders.ForwardedELBID),
 		d.Set("sni_certificate", listener.SniContainerRefs),
 		d.Set("server_certificate", listener.DefaultTlsContainerRef),
 		d.Set("ca_certificate", listener.CAContainerRef),
@@ -381,6 +432,10 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("protection_status", listener.ProtectionStatus),
 		d.Set("protection_reason", listener.ProtectionReason),
 		d.Set("gzip_enable", listener.GzipEnable),
+		d.Set("enable_member_retry", listener.EnableMemberRetry),
+		d.Set("transparent_client_ip_enable", listener.TransparentClientIP),
+		d.Set("created_at", listener.CreatedAt),
+		d.Set("updated_at", listener.UpdatedAt),
 	)
 
 	var portRanges []map[string]interface{}
@@ -429,7 +484,8 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	updateListenerChanges := []string{"name", "description", "ca_certificate", "default_pool_id", "idle_timeout",
 		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "forward_eip",
 		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
-		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason"}
+		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason",
+		"enable_member_retry", "forward-proto", "real_ip", "forward-elb-id"}
 	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
 		if err != nil {
@@ -482,16 +538,22 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 			IpGroupId: d.Get("ip_group").(string),
 		}
 	}
-	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host") {
+	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host", "forward-proto", "real_ip", "forward-elb-id") {
 		forwardEip := d.Get("forward_eip").(bool)
 		forwardPort := d.Get("forward_port").(bool)
 		forwardRequestPort := d.Get("forward_request_port").(bool)
 		forwardHost := d.Get("forward_host").(bool)
+		forwardProto := d.Get("forward-proto").(bool)
+		realIP := d.Get("real_ip").(bool)
+		forwardELBID := d.Get("forward-elb-id").(bool)
 		updateOpts.InsertHeaders = &listeners.InsertHeaders{
 			ForwardedELBIP:   &forwardEip,
 			ForwardedPort:    &forwardPort,
 			ForwardedForPort: &forwardRequestPort,
 			ForwardedHost:    &forwardHost,
+			ForwardedProto:   &forwardProto,
+			RealIP:           &realIP,
+			ForwardedELBID:   &forwardELBID,
 		}
 	}
 	if d.HasChange("ca_certificate") {
@@ -522,6 +584,10 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("gzip_enable") {
 		gzipEnable := d.Get("gzip_enable").(bool)
 		updateOpts.GzipEnable = &gzipEnable
+	}
+	if d.HasChanges("enable_member_retry") {
+		enableMemberRetry := d.Get("enable_member_retry").(bool)
+		updateOpts.EnableMemberRetry = &enableMemberRetry
 	}
 	if d.HasChange("advanced_forwarding_enabled") {
 		enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)

@@ -131,6 +131,9 @@ type InsertHeaders struct {
 	ForwardedPort    *bool `json:"X-Forwarded-Port,omitempty"`
 	ForwardedForPort *bool `json:"X-Forwarded-For-Port,omitempty"`
 	ForwardedHost    *bool `json:"X-Forwarded-Host,omitempty"`
+	ForwardedProto   *bool `json:"X-Forwarded-Proto,omitempty"`
+	RealIP           *bool `json:"X-Real-IP,omitempty"`
+	ForwardedELBID   *bool `json:"X-Forwarded-ELB-ID,omitempty"`
 }
 
 // ToListenerCreateMap builds a request body from CreateOpts.

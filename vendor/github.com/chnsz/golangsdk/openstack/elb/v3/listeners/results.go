@@ -80,6 +80,9 @@ type Listener struct {
 	// The creation time of the current listener
 	CreatedAt string `json:"created_at"`
 
+	// The update time of the current listener
+	UpdatedAt string `json:"updated_at"`
+
 	// The port range of the current listener
 	PortRanges []PortRange `json:"port_ranges"`
 
