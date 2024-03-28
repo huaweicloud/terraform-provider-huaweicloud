@@ -61,7 +61,7 @@ func TestAccSQLTemplate_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dli_template_sql.test"
+	rName := "huaweicloud_dli_sql_template.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -107,7 +107,7 @@ func TestAccSQLTemplate_basic(t *testing.T) {
 
 func testSQLTemplate_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_template_sql" "test" {
+resource "huaweicloud_dli_sql_template" "test" {
   name        = "%s"
   sql         = "select * from t1"
   group       = "demo"
@@ -118,7 +118,7 @@ resource "huaweicloud_dli_template_sql" "test" {
 
 func testSQLTemplate_basic_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_template_sql" "test" {
+resource "huaweicloud_dli_sql_template" "test" {
   name        = "%s"
   sql         = "select * from t2"
   group       = "demo_2"
