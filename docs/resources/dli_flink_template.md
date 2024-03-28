@@ -2,7 +2,7 @@
 subcategory: "Data Lake Insight (DLI)"
 ---
 
-# huaweicloud_dli_template_flink
+# huaweicloud_dli_flink_template
 
 Manages a DLI Flink template resource within HuaweiCloud.  
 
@@ -11,7 +11,7 @@ Manages a DLI Flink template resource within HuaweiCloud.
 ```hcl
   variable "sql" {}
   
-  resource "huaweicloud_dli_template_flink" "test" {
+  resource "huaweicloud_dli_flink_template" "test" {
     name        = "demo"
     type        = "flink_sql_job"
     sql         = var.sql
@@ -58,7 +58,7 @@ In addition to all arguments above, the following attributes are exported:
 The flink template can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dli_template_flink.test 1231
+$ terraform import huaweicloud_dli_flink_template.test 1231
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -69,7 +69,7 @@ You can then decide if changes should be applied to the resource, or the resourc
 with the resource. Also you can ignore changes as below.
 
 ```bash
-resource "huaweicloud_dli_template_flink" "test" {
+resource "huaweicloud_dli_flink_template" "test" {
     ...
 
   lifecycle {
