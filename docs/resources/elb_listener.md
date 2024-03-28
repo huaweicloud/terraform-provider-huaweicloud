@@ -60,15 +60,15 @@ The following arguments are supported:
 * `http2_enable` - (Optional, Bool) Specifies whether to use HTTP/2. The default value is false. This parameter is valid
   only when the protocol is set to *HTTPS*.
 
-* `forward_eip` - (Optional, Bool) Specifies whether transfer the load balancer EIP in the X-Forward-EIP header to
+* `forward_eip` - (Optional, Bool) Specifies whether to transfer the load balancer EIP in the X-Forward-EIP header to
   backend servers. The default value is false. This parameter is valid only when the protocol is set to *HTTP* or
   *HTTPS*.
 
-* `forward_port` - (Optional, Bool) Specifies whether transfer the listening port of the load balancer in the
+* `forward_port` - (Optional, Bool) Specifies whether to transfer the listening port of the load balancer in the
   X-Forwarded-Port header to backend servers. The default value is false. This parameter is valid only when the
   protocol is set to *HTTP* or *HTTPS*.
 
-* `forward_request_port` - (Optional, Bool) Specifies whether transfer the source port of the client in the
+* `forward_request_port` - (Optional, Bool) Specifies whether to transfer the source port of the client in the
   X-Forwarded-For-Port header to backend servers. The default value is false. This parameter is valid only when the
   protocol is set to *HTTP* or *HTTPS*.
 
@@ -76,6 +76,24 @@ The following arguments are supported:
   set to true, X-Forwarded-Host in the request header from the clients can be set to Host in the request header sent
   from the load balancer to backend servers. The default value is true. This parameter is valid only when the protocol
   is set to *HTTP* or *HTTPS*.
+
+* `forward_proto` - (Optional, Bool) Specifies whether to transfer the listener protocol of the load balancer to
+  backend servers through the HTTP header of the packet.
+
+* `real_ip` - (Optional, Bool) Specifies whether to transfer the source IP address of the client to backend
+  servers through the HTTP header of the packet.
+
+* `forward_elb_id` - (Optional, Bool) Specifies whether to transfer the load balancer ID to backend servers
+  through the HTTP header of the packet.
+
+* `sni_match_algo` - (Optional, String) Specifies how wildcard domain name matches with the SNI certificates used
+  by the listener. Value options: **longest_suffix**, **wildcard**.
+
+* `security_policy_id` - (Optional, String) Specifies the ID of the custom security policy. The parameter is available
+  only for HTTPS listeners added to a dedicated load balancer. If both `security_policy_id` and `tls_ciphers_policy`
+  are specified, only `security_policy_id` will take effect.
+
+* `enable_member_retry` - (Optional, Bool) Specifies whether to enable health check retries for backend servers.
 
 * `access_policy` - (Optional, String) Specifies the access policy for the listener. Valid options are *white* and
   *black*.
@@ -135,6 +153,12 @@ The `port_ranges` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID for the listener.
+
+* `transparent_client_ip_enable` - Indicates whether to pass source IP addresses of the clients to backend servers.
+
+* `created_at` - Indicates the time when the listener was created, in RFC-3339 format.
+
+* `updated_at` - Indicates the time when the listener was updated, in RFC-3339 format.
 
 ## Timeouts
 

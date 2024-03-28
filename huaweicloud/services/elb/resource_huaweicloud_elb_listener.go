@@ -143,6 +143,35 @@ func ResourceListenerV3() *schema.Resource {
 				Default:  true,
 			},
 
+			"forward_proto": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"real_ip": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_elb_id": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"transparent_client_ip_enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
+			"sni_match_algo": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"access_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -175,6 +204,12 @@ func ResourceListenerV3() *schema.Resource {
 			},
 
 			"tls_ciphers_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"security_policy_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -213,6 +248,7 @@ func ResourceListenerV3() *schema.Resource {
 			"protection_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"force_delete": {
@@ -227,6 +263,20 @@ func ResourceListenerV3() *schema.Resource {
 			},
 
 			"tags": common.TagsSchema(),
+
+			"enable_member_retry": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -256,16 +306,22 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		DefaultTlsContainerRef: d.Get("server_certificate").(string),
 		CAContainerRef:         d.Get("ca_certificate").(string),
 		TlsCiphersPolicy:       d.Get("tls_ciphers_policy").(string),
+		SecurityPolicyId:       d.Get("security_policy_id").(string),
 		PortRanges:             buildPortRanges(d.Get("port_ranges").(*schema.Set).List()),
 		SniContainerRefs:       sniContainerRefs,
 		Http2Enable:            &http2Enable,
 		EnhanceL7policy:        &enhanceL7policy,
 		ProtectionStatus:       d.Get("protection_status").(string),
 		ProtectionReason:       d.Get("protection_reason").(string),
+		SniMatchAlgo:           d.Get("sni_match_algo").(string),
 	}
 	if v, ok := d.GetOk("gzip_enable"); ok {
 		gzipEnable := v.(bool)
 		createOpts.GzipEnable = &gzipEnable
+	}
+	if v, ok := d.GetOk("enable_member_retry"); ok {
+		enableMemberRetry := v.(bool)
+		createOpts.EnableMemberRetry = &enableMemberRetry
 	}
 	if v, ok := d.GetOk("idle_timeout"); ok {
 		idleTimeout := v.(int)
@@ -290,11 +346,17 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	forwardPort := d.Get("forward_port").(bool)
 	forwardRequestPort := d.Get("forward_request_port").(bool)
 	forwardHost := d.Get("forward_host").(bool)
+	forwardProto := d.Get("forward_proto").(bool)
+	realIP := d.Get("real_ip").(bool)
+	forwardELBID := d.Get("forward_elb_id").(bool)
 	createOpts.InsertHeaders = &listeners.InsertHeaders{
 		ForwardedELBIP:   &forwardEip,
 		ForwardedPort:    &forwardPort,
 		ForwardedForPort: &forwardRequestPort,
 		ForwardedHost:    &forwardHost,
+		ForwardedProto:   &forwardProto,
+		RealIP:           &realIP,
+		ForwardedELBID:   &forwardELBID,
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -369,10 +431,14 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("forward_port", listener.InsertHeaders.ForwardedPort),
 		d.Set("forward_request_port", listener.InsertHeaders.ForwardedForPort),
 		d.Set("forward_host", listener.InsertHeaders.ForwardedHost),
+		d.Set("forward_proto", listener.InsertHeaders.ForwardedProto),
+		d.Set("real_ip", listener.InsertHeaders.RealIP),
+		d.Set("forward_elb_id", listener.InsertHeaders.ForwardedELBID),
 		d.Set("sni_certificate", listener.SniContainerRefs),
 		d.Set("server_certificate", listener.DefaultTlsContainerRef),
 		d.Set("ca_certificate", listener.CAContainerRef),
 		d.Set("tls_ciphers_policy", listener.TlsCiphersPolicy),
+		d.Set("security_policy_id", listener.SecurityPolicyId),
 		d.Set("idle_timeout", listener.KeepaliveTimeout),
 		d.Set("request_timeout", listener.ClientTimeout),
 		d.Set("response_timeout", listener.MemberTimeout),
@@ -381,6 +447,11 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("protection_status", listener.ProtectionStatus),
 		d.Set("protection_reason", listener.ProtectionReason),
 		d.Set("gzip_enable", listener.GzipEnable),
+		d.Set("enable_member_retry", listener.EnableMemberRetry),
+		d.Set("transparent_client_ip_enable", listener.TransparentClientIP),
+		d.Set("created_at", listener.CreatedAt),
+		d.Set("updated_at", listener.UpdatedAt),
+		d.Set("sni_match_algo", listener.SniMatchAlgo),
 	)
 
 	var portRanges []map[string]interface{}
@@ -428,8 +499,9 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 
 	updateListenerChanges := []string{"name", "description", "ca_certificate", "default_pool_id", "idle_timeout",
 		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "forward_eip",
-		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
-		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason"}
+		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "security_policy_id", "sni_certificate",
+		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason",
+		"enable_member_retry", "forward_proto", "real_ip", "forward_elb_id", "sni_match_algo"}
 	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
 		if err != nil {
@@ -482,16 +554,22 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 			IpGroupId: d.Get("ip_group").(string),
 		}
 	}
-	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host") {
+	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host", "forward_proto", "real_ip", "forward_elb_id") {
 		forwardEip := d.Get("forward_eip").(bool)
 		forwardPort := d.Get("forward_port").(bool)
 		forwardRequestPort := d.Get("forward_request_port").(bool)
 		forwardHost := d.Get("forward_host").(bool)
+		forwardProto := d.Get("forward_proto").(bool)
+		realIP := d.Get("real_ip").(bool)
+		forwardELBID := d.Get("forward_elb_id").(bool)
 		updateOpts.InsertHeaders = &listeners.InsertHeaders{
 			ForwardedELBIP:   &forwardEip,
 			ForwardedPort:    &forwardPort,
 			ForwardedForPort: &forwardRequestPort,
 			ForwardedHost:    &forwardHost,
+			ForwardedProto:   &forwardProto,
+			RealIP:           &realIP,
+			ForwardedELBID:   &forwardELBID,
 		}
 	}
 	if d.HasChange("ca_certificate") {
@@ -501,6 +579,9 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("tls_ciphers_policy") {
 		tlsCiphersPolicy := d.Get("tls_ciphers_policy").(string)
 		updateOpts.TlsCiphersPolicy = &tlsCiphersPolicy
+	}
+	if d.HasChange("security_policy_id") {
+		updateOpts.SecurityPolicyId = d.Get("security_policy_id").(string)
 	}
 	if d.HasChange("server_certificate") {
 		serverCert := d.Get("server_certificate").(string)
@@ -523,6 +604,10 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 		gzipEnable := d.Get("gzip_enable").(bool)
 		updateOpts.GzipEnable = &gzipEnable
 	}
+	if d.HasChanges("enable_member_retry") {
+		enableMemberRetry := d.Get("enable_member_retry").(bool)
+		updateOpts.EnableMemberRetry = &enableMemberRetry
+	}
 	if d.HasChange("advanced_forwarding_enabled") {
 		enhanceL7policy := d.Get("advanced_forwarding_enabled").(bool)
 		updateOpts.EnhanceL7policy = &enhanceL7policy
@@ -533,6 +618,9 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("protection_reason") {
 		protectionReason := d.Get("protection_reason").(string)
 		updateOpts.ProtectionReason = &protectionReason
+	}
+	if d.HasChange("sni_match_algo") {
+		updateOpts.SniMatchAlgo = d.Get("sni_match_algo").(string)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
