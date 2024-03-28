@@ -2,30 +2,32 @@ package lts
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API LTS POST /v2/{project_id}/groups/{log_group_id}
-// @API LTS DELETE /v2/{project_id}/groups/{log_group_id}
 // @API LTS POST /v2/{project_id}/groups
 // @API LTS GET /v2/{project_id}/groups
+// @API LTS POST /v2/{project_id}/groups/{log_group_id}
+// @API LTS DELETE /v2/{project_id}/groups/{log_group_id}
 func ResourceLTSGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,
 		ReadContext:   resourceGroupRead,
 		UpdateContext: resourceGroupUpdate,
 		DeleteContext: resourceGroupDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -58,98 +60,167 @@ func ResourceLTSGroup() *schema.Resource {
 }
 
 func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.LtsV2Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/groups"
+	)
+
+	client, err := cfg.NewServiceClient("lts", region)
 	if err != nil {
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	createOpts := &loggroups.CreateOpts{
-		LogGroupName: d.Get("group_name").(string),
-		TTL:          d.Get("ttl_in_days").(int),
-		Tags:         utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildCreateGroupBodyParams(d)),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	groupCreate, err := loggroups.Create(client, createOpts).Extract()
+	requestResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
 		return diag.Errorf("error creating log group: %s", err)
 	}
 
-	d.SetId(groupCreate.ID)
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id, err := jmespath.Search("log_group_id", respBody)
+	if err != nil {
+		return diag.Errorf("error creating log group: ID is not found in API response")
+	}
+
+	d.SetId(id.(string))
+
 	return resourceGroupRead(ctx, d, meta)
+}
+
+func buildCreateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"log_group_name": d.Get("group_name"),
+		"ttl_in_days":    utils.ValueIngoreEmpty(d.Get("ttl_in_days")),
+		"tags":           utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+	}
+	return bodyParams
+}
+
+func ignoreSysEpsTag(tags map[string]interface{}) map[string]interface{} {
+	delete(tags, "_sys_enterprise_project_id")
+	return tags
 }
 
 func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.LtsV2Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/groups"
+		groupId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("lts", region)
 	if err != nil {
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 
-	groups, err := loggroups.List(client).Extract()
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error getting log group")
+		return common.CheckDeletedDiag(d, err, "error retrieving log group")
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.Errorf("error parsing the log group: %s", err)
 	}
 
-	groupID := d.Id()
-	for _, group := range groups.LogGroups {
-		if group.ID == groupID {
-			log.Printf("[DEBUG] Retrieved log group %s: %#v", groupID, group)
-			mErr := multierror.Append(nil,
-				d.Set("region", region),
-				d.Set("group_name", group.Name),
-				d.Set("ttl_in_days", group.TTLinDays),
-				d.Set("tags", group.Tags),
-				d.Set("created_at", utils.FormatTimeStampRFC3339(group.CreationTime/1000, false)),
-			)
-			return diag.FromErr(mErr.ErrorOrNil())
-		}
+	groupResult := utils.PathSearch(fmt.Sprintf("log_groups|[?log_group_id=='%s']|[0]", groupId), respBody, nil)
+	if groupResult == nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find log group by its ID (%s)", groupId))
 	}
 
-	// can not find the log group by ID
-	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("group_name", utils.PathSearch("log_group_name", groupResult, nil)),
+		d.Set("tags", ignoreSysEpsTag(utils.PathSearch("tag", groupResult, make(map[string]interface{})).(map[string]interface{}))),
+		d.Set("ttl_in_days", utils.PathSearch("ttl_in_days", groupResult, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", groupResult, 0).(float64))/1000, false)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.LtsV2Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/groups/{log_group_id}"
+		groupId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("lts", region)
 	if err != nil {
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{log_group_id}", groupId)
 
-	updateOpts := &loggroups.UpdateOpts{
-		TTL: d.Get("ttl_in_days").(int),
+	updateOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildUpdateGroupBodyParams(d)),
 	}
 
-	if d.HasChanges("tags") {
-		// NOTE: the key in tags can not be removed due to the API restrictions.
-		tagRaw := d.Get("tags").(map[string]interface{})
-		taglist := utils.ExpandResourceTags(tagRaw)
-		updateOpts.Tags = taglist
-	}
-
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
-	_, err = loggroups.Update(client, updateOpts, d.Id()).Extract()
+	_, err = client.Request("POST", updatePath, &updateOpts)
 	if err != nil {
-		return diag.Errorf("error updating log group: %s", err)
+		return diag.Errorf("error updating log group (%s): %s", groupId, err)
 	}
 
 	return resourceGroupRead(ctx, d, meta)
 }
 
+func buildUpdateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	result := make(map[string]interface{})
+	if d.HasChange("tags") {
+		result["tags"] = utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))
+	}
+	if d.HasChange("ttl_in_days") {
+		result["ttl_in_days"] = d.Get("ttl_in_days")
+	}
+	return result
+}
+
 func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.LtsV2Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/groups/{log_group_id}"
+		groupId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("lts", region)
 	if err != nil {
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{log_group_id}", groupId)
 
-	err = loggroups.Delete(client, d.Id()).ExtractErr()
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting log group")
 	}
-
 	return nil
 }
