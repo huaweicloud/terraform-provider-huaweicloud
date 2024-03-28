@@ -291,6 +291,105 @@ var flexibleOrigin = schema.Schema{
 	},
 }
 
+var remoteAuth = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"remote_auth_rules": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auth_server": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"request_method": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"file_type_setting": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"reserve_args_setting": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"reserve_headers_setting": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"auth_success_status": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"auth_failed_status": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"response_status": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"timeout": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"timeout_action": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"specified_file_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"reserve_args": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"reserve_headers": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"add_custom_args_rules":    &customArgs,
+						"add_custom_headers_rules": &customArgs,
+					},
+				},
+			},
+		},
+	},
+}
+
+var customArgs = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -417,6 +516,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"ip_frequency_limit":         &ipFrequencyLimit,
 						"websocket":                  &websocket,
 						"flexible_origin":            &flexibleOrigin,
+						"remote_auth":                &remoteAuth,
 					},
 				},
 			},
@@ -640,12 +740,12 @@ func buildCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) 
 	return &cacheUrlParameterFilterOpts
 }
 
-func buildIpFrequencyLimitOpts(newIpFrequencyLimit []interface{}) *model.IpFrequencyLimit {
-	if len(newIpFrequencyLimit) != 1 {
+func buildIpFrequencyLimitOpts(rawIpFrequencyLimit []interface{}) *model.IpFrequencyLimit {
+	if len(rawIpFrequencyLimit) != 1 {
 		return nil
 	}
 
-	ipFrequencyLimit := newIpFrequencyLimit[0].(map[string]interface{})
+	ipFrequencyLimit := rawIpFrequencyLimit[0].(map[string]interface{})
 	ipFrequencyLimitOpts := model.IpFrequencyLimit{
 		Status: parseFunctionEnabledStatus(ipFrequencyLimit["enabled"].(bool)),
 		Qps:    utils.Int32IgnoreEmpty(int32(ipFrequencyLimit["qps"].(int))),
@@ -654,12 +754,12 @@ func buildIpFrequencyLimitOpts(newIpFrequencyLimit []interface{}) *model.IpFrequ
 	return &ipFrequencyLimitOpts
 }
 
-func buildWebsocketOpts(newWebsocket []interface{}) *model.WebSocketSeek {
-	if len(newWebsocket) != 1 {
+func buildWebsocketOpts(rawWebsocket []interface{}) *model.WebSocketSeek {
+	if len(rawWebsocket) != 1 {
 		return nil
 	}
 
-	websocket := newWebsocket[0].(map[string]interface{})
+	websocket := rawWebsocket[0].(map[string]interface{})
 	websocketOpts := model.WebSocketSeek{
 		Status:  parseFunctionEnabledStatus(websocket["enabled"].(bool)),
 		Timeout: int32(websocket["timeout"].(int)),
@@ -703,6 +803,65 @@ func buildFlexibleOriginBackSourceOpts(rawBackSources []interface{}) []model.Bac
 		HttpsPort:     utils.Int32IgnoreEmpty(int32(backSource["https_port"].(int))),
 	}
 	return []model.BackSources{backSourceOpts}
+}
+
+func buildRemoteAuthOpts(rawRemoteAuth []interface{}) *model.CommonRemoteAuth {
+	if len(rawRemoteAuth) != 1 {
+		return nil
+	}
+
+	remoteAuth := rawRemoteAuth[0].(map[string]interface{})
+	remoteAuthOpts := model.CommonRemoteAuth{
+		RemoteAuthentication: parseFunctionEnabledStatus(remoteAuth["enabled"].(bool)),
+		RemoteAuthRules:      buildRemoteAuthRulesOpts(remoteAuth["remote_auth_rules"].([]interface{})),
+	}
+	return &remoteAuthOpts
+}
+
+func buildRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) *model.RemoteAuthRuleVo {
+	if len(rawRemoteAuthRules) != 1 {
+		return nil
+	}
+
+	remoteAuthRule := rawRemoteAuthRules[0].(map[string]interface{})
+	remoteAuthRuleOpts := model.RemoteAuthRuleVo{
+		AuthServer:            remoteAuthRule["auth_server"].(string),
+		RequestMethod:         remoteAuthRule["request_method"].(string),
+		FileTypeSetting:       remoteAuthRule["file_type_setting"].(string),
+		SpecifiedFileType:     utils.StringIgnoreEmpty(remoteAuthRule["specified_file_type"].(string)),
+		ReserveArgsSetting:    remoteAuthRule["reserve_args_setting"].(string),
+		ReserveArgs:           utils.StringIgnoreEmpty(remoteAuthRule["reserve_args"].(string)),
+		AddCustomArgsRules:    buildCustomArgsOpts(remoteAuthRule["add_custom_args_rules"].(*schema.Set).List()),
+		ReserveHeadersSetting: remoteAuthRule["reserve_headers_setting"].(string),
+		AddCustomHeadersRules: buildCustomArgsOpts(remoteAuthRule["add_custom_headers_rules"].(*schema.Set).List()),
+		AuthSuccessStatus:     remoteAuthRule["auth_success_status"].(string),
+		AuthFailedStatus:      remoteAuthRule["auth_failed_status"].(string),
+		ResponseStatus:        remoteAuthRule["response_status"].(string),
+		Timeout:               int32(remoteAuthRule["timeout"].(int)),
+		TimeoutAction:         remoteAuthRule["timeout_action"].(string),
+		ReserveHeaders:        utils.StringIgnoreEmpty(remoteAuthRule["reserve_headers"].(string)),
+	}
+	return &remoteAuthRuleOpts
+}
+
+func buildCustomArgsOpts(rawCustomArgs []interface{}) *[]model.CustomArgs {
+	if len(rawCustomArgs) < 1 {
+		// Define an empty array to clear all custom args
+		rst := make([]model.CustomArgs, 0)
+		return &rst
+	}
+
+	customArgsOpts := make([]model.CustomArgs, len(rawCustomArgs))
+	for i, v := range rawCustomArgs {
+		argMap := v.(map[string]interface{})
+		customArgsOpt := model.CustomArgs{
+			Type:  argMap["type"].(string),
+			Key:   argMap["key"].(string),
+			Value: argMap["value"].(string),
+		}
+		customArgsOpts[i] = customArgsOpt
+	}
+	return &customArgsOpts
 }
 
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
@@ -822,6 +981,9 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 	}
 	if d.HasChange("configs.0.flexible_origin") {
 		configsOpts.FlexibleOrigin = buildFlexibleOriginOpts(configs["flexible_origin"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.remote_auth") {
+		configsOpts.RemoteAuth = buildRemoteAuthOpts(configs["remote_auth"].([]interface{}))
 	}
 
 	if d.HasChange("cache_settings") {
@@ -1131,6 +1293,59 @@ func flattenFlexibleOriginBackSourceAttrs(backSources []model.BackSources) []map
 	return backSourcesAttrs
 }
 
+func flattenRemoteAuthAttrs(remoteAuth *model.CommonRemoteAuth) []map[string]interface{} {
+	if remoteAuth == nil {
+		return nil
+	}
+
+	remoteAuthAttrs := map[string]interface{}{
+		"enabled":           analyseFunctionEnabledStatus(remoteAuth.RemoteAuthentication),
+		"remote_auth_rules": flattenRemoteAuthRulesAttrs(remoteAuth.RemoteAuthRules),
+	}
+	return []map[string]interface{}{remoteAuthAttrs}
+}
+
+func flattenRemoteAuthRulesAttrs(remoteAuthRule *model.RemoteAuthRuleVo) []map[string]interface{} {
+	if remoteAuthRule == nil {
+		return nil
+	}
+
+	remoteAuthRuleAttrs := map[string]interface{}{
+		"auth_server":              remoteAuthRule.AuthServer,
+		"request_method":           remoteAuthRule.RequestMethod,
+		"file_type_setting":        remoteAuthRule.FileTypeSetting,
+		"specified_file_type":      remoteAuthRule.SpecifiedFileType,
+		"reserve_args_setting":     remoteAuthRule.ReserveArgsSetting,
+		"reserve_args":             remoteAuthRule.ReserveArgs,
+		"add_custom_args_rules":    flattenCustomArgsAttrs(remoteAuthRule.AddCustomArgsRules),
+		"reserve_headers_setting":  remoteAuthRule.ReserveHeadersSetting,
+		"add_custom_headers_rules": flattenCustomArgsAttrs(remoteAuthRule.AddCustomHeadersRules),
+		"auth_success_status":      remoteAuthRule.AuthSuccessStatus,
+		"auth_failed_status":       remoteAuthRule.AuthFailedStatus,
+		"response_status":          remoteAuthRule.ResponseStatus,
+		"timeout":                  remoteAuthRule.Timeout,
+		"timeout_action":           remoteAuthRule.TimeoutAction,
+		"reserve_headers":          remoteAuthRule.ReserveHeaders,
+	}
+	return []map[string]interface{}{remoteAuthRuleAttrs}
+}
+
+func flattenCustomArgsAttrs(customArgs *[]model.CustomArgs) []map[string]interface{} {
+	if customArgs == nil || len(*customArgs) == 0 {
+		return nil
+	}
+
+	customArgsAttrs := make([]map[string]interface{}, len(*customArgs))
+	for i, v := range *customArgs {
+		customArgsAttrs[i] = map[string]interface{}{
+			"type":  v.Type,
+			"key":   v.Key,
+			"value": v.Value,
+		}
+	}
+	return customArgsAttrs
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1197,6 +1412,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"ip_frequency_limit":            flattenIpFrequencyLimitAttrs(configsResp.IpFrequencyLimit),
 		"websocket":                     flattenWebsocketAttrs(configsResp.Websocket),
 		"flexible_origin":               flattenFlexibleOriginAttrs(configsResp.FlexibleOrigin),
+		"remote_auth":                   flattenRemoteAuthAttrs(configsResp.RemoteAuth),
 		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
 		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
 	}

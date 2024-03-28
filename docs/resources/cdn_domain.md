@@ -245,6 +245,12 @@ The `configs` block support:
   -> Up to 20 advanced origin rules can be configured. When `type` is configured as **wholeSite**, configuring this
   field is not supported.
 
+* `remote_auth` - (Optional, List) Specifies the remote authentication settings.
+  The [remote_auth](#remote_auth_object) structure is documented below.
+
+  -> Configure remote authentication to allow CDN to forward user requests to an authentication server and process the
+  requests based on results returned by the authentication server.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -372,7 +378,7 @@ The `flexible_origin` block support:
 * `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from **1**
   to **100**. A greater number indicates a higher priority.
 
-* `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot exceed 1.
+* `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot exceed `1`.
   The [back_sources](#flexible_origin_back_sources_object) structure is documented below.
 
 * `match_pattern` - (Optional, String) Specifies the URI match rule. The usage rules are as follows:
@@ -404,6 +410,95 @@ The `back_sources` block support:
 * `https_port` - (Optional, Int) Specifies the HTTPS port, ranging from **1** to **65535**. Defaults to **443**.
 
 -> Fields `http_port` and `https_port` do not support editing when `sources_type` is set to **obs_bucket**.
+
+<a name="remote_auth_object"></a>
+The `remote_auth` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable remote authentication.
+
+* `remote_auth_rules` - (Optional, List) Specifies the remote authentication settings. The length of this array field
+  cannot exceed `1`. The [remote_auth_rules](#remote_auth_rules_object) structure is documented below.
+
+<a name="remote_auth_rules_object"></a>
+The `remote_auth_rules` block support:
+
+* `auth_server` - (Required, String) Specifies the address of a reachable server. The address must include **http://** or
+  **https://**. The address cannot be a local address such as **localhost** or **127.0.0.1**. The address cannot be an
+  acceleration domain name added on CDN.
+
+* `request_method` - (Required, String) Specifies the request method supported by the authentication server. Valid values
+  are **GET**, **POST**, and **HEAD**.
+
+* `file_type_setting` - (Required, String) Specifies the authentication file type settings. Valid values are:
+  + **all**: Requests for all files are authenticated.
+  + **specific_file**: Requests for files of specific types are authenticated.
+
+* `reserve_args_setting` - (Required, String) Specifies the parameters that need to be authenticated in user requests.
+  Valid values are as follows:
+  + **reserve_all_args**: Retain all URL parameters.
+  + **reserve_specific_args**: Retain specified URL parameters.
+  + **ignore_all_args**: Ignore all URL parameters.
+
+* `reserve_headers_setting` - (Required, String) Specifies the headers to be authenticated in user requests.
+  Valid values are as follows:
+  + **reserve_all_headers**: Retain all request headers.
+  + **reserve_specific_headers**: Retain specified request headers.
+  + **ignore_all_headers**: Ignore all request headers.
+
+* `auth_success_status` - (Required, String) Specifies the status code returned by the remote authentication server
+  to CDN nodes when authentication is successful. Value range: **2xx** and **3xx**.
+
+* `auth_failed_status` - (Required, String) Specifies the status code returned by the remote authentication server
+  to CDN nodes when authentication is failed. Value range: **4xx** and **5xx**.
+
+* `response_status` - (Required, String) Specifies the status code returned by CDN nodes to users when authentication
+  is failed. Value range: **2xx**, **3xx**, **4xx**, and **5xx**.
+
+* `timeout` - (Required, Int) Specifies the duration from the time when a CDN node forwards an authentication request
+  to the time when the CDN node receives the result returned by the remote authentication server. Enter **0** or a value
+  ranging from **50** to **3000**. The unit is millisecond.
+
+* `timeout_action` - (Required, String) Specifies the action of the CDN nodes to process user requests after the
+  authentication timeout. Valid values are as follows:
+  + **pass**: The user request is allowed and the corresponding resource is returned after the authentication times out.
+  + **forbid**: The user request is rejected after the authentication times out and the configured status code is
+    returned to the user.
+
+* `specified_file_type` - (Optional, String) Specifies the specific file types. The value contains letters and digits.
+  The value contains up to `512` characters. File types are not case-sensitive, and multiple file types are separated
+  by vertical bars (|). For example: **jpg|MP4**. This parameter is mandatory when `file_type_setting` is set to
+  **specific_file**. In other cases, this parameter is left blank.
+
+* `reserve_args` - (Optional, String) Specifies the reserve args. Multiple args are separated by vertical bars (|).
+  For example: **key1|key2**. This parameter is mandatory when `reserve_args_setting` is set to **reserve_specific_args**.
+  In other cases, this parameter is left blank.
+
+* `reserve_headers` - (Optional, String) Specifies the reserve headers. Multiple headers are separated by vertical bars (|).
+  For example: **key1|key2**. This parameter is mandatory when `reserve_headers_setting` is set to **reserve_specific_headers**.
+  In other cases, this parameter is left blank.
+
+* `add_custom_args_rules` - (Optional, List) Specifies the URL validation parameters.
+  The [add_custom_args_rules](#add_custom_rules_object) structure is documented below.
+
+* `add_custom_headers_rules` - (Optional, List) Specifies the request header authentication parameters.
+  The [add_custom_headers_rules](#add_custom_rules_object) structure is documented below.
+
+<a name="add_custom_rules_object"></a>
+The `add_custom_args_rules` and `add_custom_headers_rules` block support:
+
+* `type` - (Required, String) Specifies the parameter type. Valid values are:
+  + **custom_var**: Custom parameter type.
+  + **nginx_preset_var**: Preset variable type.
+
+* `key` - (Required, String) Specifies the parameter key. The value contains up to `256` characters. The value can be
+  composed of digits, uppercase letters, lowercase letters, and special characters (._-*#%|+^@?=).
+
+* `value` - (Required, String) Specifies the parameter value. The usage restrictions of this field are as follows:
+  + When `type` is set to **custom_var**, the value contains up to `256` characters. The value can be composed of digits,
+    uppercase letters, lowercase letters, and special characters (._-*#%|+^@?=).
+  + When `type` is set to **nginx_preset_var**, the value can only be **$http_host**, **$http_user_agent**,
+    **$http_referer**, **$http_x_forwarded_for**, **$http_content_type**, **$remote_addr**, **$scheme**,
+    **$server_protocol**, **$request_uri**, **$uri**, **$args**, or **$request_method**.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
