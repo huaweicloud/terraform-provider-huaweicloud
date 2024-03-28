@@ -2,7 +2,7 @@
 subcategory: "Data Lake Insight (DLI)"
 ---
 
-# huaweicloud_dli_template_sql
+# huaweicloud_dli_sql_template
 
 Manages a DLI SQL template resource within HuaweiCloud.  
 
@@ -11,7 +11,7 @@ Manages a DLI SQL template resource within HuaweiCloud.
 ```hcl
   variable "sql" {}
   
-  resource "huaweicloud_dli_template_sql" "test" {
+  resource "huaweicloud_dli_sql_template" "test" {
     name        = "demo"
     sql         = var.sql
     group       = "test"
@@ -47,5 +47,5 @@ In addition to all arguments above, the following attributes are exported:
 The SQL template can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dli_template_sql.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_dli_sql_template.test 0ce123456a00f2591fabc00385ff1234
 ```
