@@ -110,23 +110,23 @@ func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 		AddResponseHandler(logResponseHandler)
 	httpConfig = httpConfig.WithHttpHandler(httpHandler)
 
-	if proxyURL := getProxyFromEnv(); proxyURL != "" {
-		if parsed, err := url.Parse(proxyURL); err == nil {
-			logp.Printf("[DEBUG] using https proxy: %s://%s", parsed.Scheme, parsed.Host)
+	if proxyURL, err := parseProxyFromEnv(); err == nil {
+		if proxyURL != nil {
+			logp.Printf("[DEBUG] using https proxy: %s://%s", proxyURL.Scheme, proxyURL.Host)
 
 			httpProxy := hcconfig.Proxy{
-				Schema:   parsed.Scheme,
-				Host:     parsed.Host,
-				Username: parsed.User.Username(),
+				Schema:   proxyURL.Scheme,
+				Host:     proxyURL.Host,
+				Username: proxyURL.User.Username(),
 			}
-			if pwd, ok := parsed.User.Password(); ok {
+			if pwd, ok := proxyURL.User.Password(); ok {
 				httpProxy.Password = pwd
 			}
 
 			httpConfig = httpConfig.WithProxy(&httpProxy)
-		} else {
-			logp.Printf("[WARN] parsing https proxy failed: %s", err)
 		}
+	} else {
+		logp.Printf("[WARN] parsing https proxy failed: %s", err)
 	}
 
 	return httpConfig
@@ -358,18 +358,37 @@ func implNewHcClient(c *Config, region, product string, isGlobal, isDerived bool
 	return builder.Build().PreInvoke(headers), nil
 }
 
-func getProxyFromEnv() string {
-	var url string
+func parseProxyFromEnv() (*url.URL, error) {
+	var proxy string
 
 	envNames := []string{"HTTPS_PROXY", "https_proxy"}
 	for _, n := range envNames {
 		if val := os.Getenv(n); val != "" {
-			url = val
+			proxy = val
 			break
 		}
 	}
 
-	return url
+	if proxy == "" {
+		return nil, nil
+	}
+
+	proxyURL, err := url.Parse(proxy)
+	if err != nil ||
+		(proxyURL.Scheme != "http" &&
+			proxyURL.Scheme != "https" &&
+			proxyURL.Scheme != "socks5") {
+		// proxy was bogus. Try prepending "http://" to it and
+		// see if that parses correctly. If not, we fall
+		// through and complain about the original one.
+		if proxyURL, err := url.Parse("http://" + proxy); err == nil {
+			return proxyURL, nil
+		}
+	}
+	if err != nil {
+		return nil, fmt.Errorf("invalid https proxy address %q: %v", proxy, err)
+	}
+	return proxyURL, nil
 }
 
 func logRequestHandler(request http.Request) {
