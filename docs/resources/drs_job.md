@@ -401,6 +401,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Status.
 
+* `progress` - Progress.
+
 * `public_ip` - Public IP.
 
 * `private_ip` - Private IP.
