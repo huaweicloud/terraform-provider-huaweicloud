@@ -49,6 +49,30 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID of account which is formatted `<instance_id>/<name>`.
 
+* `attributes` - Indicates the permission attributes of a user.
+  The [attributes](#PgAccount_Attributes) structure is documented below.
+
+* `memberof` - Indicates the default rights of a user.
+
+<a name="PgAccount_Attributes"></a>
+The `attributes` block supports:
+
+* `rol_super` - Indicates whether a user has the super-user permission.
+
+* `rol_inherit` - Indicates whether a user automatically inherits the permissions of the role to which the user belongs.
+
+* `rol_create_role` - Indicates whether a user can create other sub-users.
+
+* `rol_create_db` - Indicates whether a user can create a database.
+
+* `rol_can_login` - Indicates whether a user can log in to the database.
+
+* `rol_conn_limit` - Indicates the maximum number of concurrent connections to a DB instance.
+
+* `rol_replication` - Indicates whether the user is a replication role.
+
+* `rol_bypass_rls` - Indicates whether a user bypasses each row-level security policy.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
