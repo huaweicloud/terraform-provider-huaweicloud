@@ -370,3 +370,17 @@ func Status(c *golangsdk.ServiceClient, opts QueryJobReq) (*StatusResp, error) {
 
 	return &rst, err
 }
+
+func Progress(c *golangsdk.ServiceClient, opts QueryJobReq) (*ProgressResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst ProgressResp
+	_, err = c.Post(progressURL(c), b, &rst, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+
+	return &rst, err
+}

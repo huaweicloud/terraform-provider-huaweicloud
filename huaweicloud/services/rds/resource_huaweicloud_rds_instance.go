@@ -1731,7 +1731,7 @@ func updateMsdtcHosts(ctx context.Context, d *schema.ResourceData, client *golan
 		if err != nil {
 			return fmt.Errorf("error modify RDS instance (%s) MSDTC hosts: %s", instanceID, err)
 		}
-		job := res.(*instances.MsdtcHosts)
+		job := res.(*instances.JobResponse)
 
 		if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return fmt.Errorf("error waiting for RDS instance (%s) update msdtc hosts completed: %s", instanceID, err)
@@ -2018,7 +2018,7 @@ func updateRdsInstanceCollation(ctx context.Context, d *schema.ResourceData, cli
 	if err != nil {
 		return fmt.Errorf("error modify RDS instance (%s) collation: %s", instanceID, err)
 	}
-	job := res.(*instances.Collation)
+	job := res.(*instances.JobResponse)
 
 	if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return fmt.Errorf("error waiting for RDS instance (%s) update collation completed: %s", instanceID, err)
