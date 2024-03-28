@@ -30,6 +30,9 @@ import (
 // @API DLI PUT /v1.0/{project_id}/streaming/sql-jobs/{job_id}
 // @API DLI POST /v1.0/{project_id}/streaming/jobs/stop
 // @API DLI DELETE /v1.0/{project_id}/streaming/jobs/{job_id}
+// @API DLI GET /v3/{project_id}/dli_flink_job/{resource_id}/tags
+// @API DLI POST /v3/{project_id}/dli_flink_job/{resource_id}/tags/create
+// @API DLI POST /v3/{project_id}/dli_flink_job/{resource_id}/tags/delete
 func ResourceFlinkSqlJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFlinkSqlJobCreate,
@@ -195,7 +198,7 @@ func ResourceFlinkSqlJob() *schema.Resource {
 
 			"runtime_config": common.TagsSchema(),
 
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 
 			"status": {
 				Type:     schema.TypeString,
@@ -246,7 +249,6 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		TmSlotNum:            golangsdk.IntToPointer(d.Get("tm_slot_num").(int)),
 		ResumeCheckpoint:     utils.Bool(d.Get("resume_checkpoint").(bool)),
 		ResumeMaxNum:         golangsdk.IntToPointer(d.Get("resume_max_num").(int)),
-		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 
 	if mode := d.Get("checkpoint_mode").(string); mode == flinkjob.CheckpointModeAtLeastOnce {
@@ -282,6 +284,9 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(strconv.Itoa(rst.Job.JobId))
 
+	if err = addTagsToResource(config, region, d); err != nil {
+		return diag.FromErr(err)
+	}
 	// run the flink job
 	_, err = flinkjob.Run(client, flinkjob.RunJobOpts{
 		JobIds:          []int{rst.Job.JobId},
@@ -298,6 +303,22 @@ func resourceFlinkSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceFlinkSqlJobRead(ctx, d, meta)
 }
 
+func addTagsToResource(cfg *config.Config, region string, d *schema.ResourceData) error {
+	if raw, ok := d.GetOk("tags"); ok {
+		v3Client, err := cfg.DliV3Client(region)
+		if err != nil {
+			return fmt.Errorf("error creating DLI v3 client: %s", err)
+		}
+
+		id := d.Id()
+		if err := addTags(v3Client, id, "dli_flink_job", raw.(map[string]interface{})); err != nil {
+			return fmt.Errorf("error setting tags of the flink job (%s): %s", id, err)
+		}
+	}
+
+	return nil
+}
+
 func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
@@ -307,7 +328,7 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	id, aErr := strconv.Atoi(d.Id())
 	if aErr != nil {
-		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
 	}
 
 	detailRsp, err := flinkjob.Get(client, id)
@@ -348,7 +369,20 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("status", detail.Status),
 	)
 
+	if err = setTagsToResource(config, region, d); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func setTagsToResource(cfg *config.Config, region string, d *schema.ResourceData) error {
+	v3Client, err := cfg.DliV3Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating DLI v3 client: %s", err)
+	}
+
+	return utils.SetResourceTagsToState(d, v3Client, "dli_flink_job", d.Id())
 }
 
 // This API is used to cancel a submitted job. If execution of a job completes or fails, this job cannot be canceled.
@@ -362,7 +396,7 @@ func resourceFlinkSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	jobId, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
 	}
 
 	deleteRst, err := flinkjob.Delete(client, jobId)
@@ -376,38 +410,62 @@ func resourceFlinkSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
+func updateTagsToResource(cfg *config.Config, region string, d *schema.ResourceData) error {
+	if d.HasChange("tags") {
+		v3Client, err := cfg.DliV3Client(region)
+		if err != nil {
+			return fmt.Errorf("error creating DLI v3 client: %s", err)
+		}
+
+		id := d.Id()
+		oldTags, newTags := d.GetChange("tags")
+		err = updateResourceTags(v3Client, id, "dli_flink_job", oldTags, newTags)
+		if err != nil {
+			return fmt.Errorf("error updating tags of the flink job (%s): %s", id, err)
+		}
+	}
+	return nil
+}
+
 func resourceFlinkSqlJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating DLI v1 client, err=%s", err)
-	}
-
-	jobId, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
-	}
-
-	diagErr := authorizeObsBucket(client, d)
-	if diagErr != nil {
-		return diagErr
-	}
-
-	diagErr = updateFlinkSqlJobInRunning(client, jobId, d)
-	if diagErr != nil {
-		return diagErr
-	}
-
-	diagErr = updateFlinkSqlJobWithStop(ctx, client, jobId, d)
-	if diagErr != nil {
-		return diagErr
-	}
-
-	err = checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
+	if err := updateTagsToResource(config, region, d); err != nil {
 		return diag.FromErr(err)
 	}
+
+	if d.HasChangesExcept("tags") {
+		client, err := config.DliV1Client(region)
+		if err != nil {
+			return diag.Errorf("error creating DLI v1 client, err=%s", err)
+		}
+
+		jobId, err := strconv.Atoi(d.Id())
+		if err != nil {
+			return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
+		}
+
+		diagErr := authorizeObsBucket(client, d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		diagErr = updateFlinkSqlJobInRunning(client, jobId, d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		diagErr = updateFlinkSqlJobWithStop(ctx, client, jobId, d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		err = checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceFlinkSqlJobRead(ctx, d, meta)
 }
 

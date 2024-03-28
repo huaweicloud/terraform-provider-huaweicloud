@@ -47,6 +47,16 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "job_running"),
 					resource.TestCheckResourceAttr(resourceName, "type", "flink_sql_job"),
 					resource.TestCheckResourceAttr(resourceName, "queue_name", name),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+				),
+			},
+			{
+				Config: testAccFlinkJobResource_update(name, acceptance.HW_REGION_NAME),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -59,7 +69,7 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 	})
 }
 
-func testAccFlinkJobResource_basic(name string, region string) string {
+func testAccFlinkJobResource_base(name, region string) string {
 	return fmt.Sprintf(`
 variable "sql" {
   type    = string
@@ -135,7 +145,6 @@ resource "huaweicloud_dis_stream" "stream_output" {
   partition_count = 1
   data_type       = "CSV"
   csv_delimiter   = ","
-
 }
 
 resource "huaweicloud_dli_queue" "test" {
@@ -143,18 +152,51 @@ resource "huaweicloud_dli_queue" "test" {
   cu_count   = 16
   queue_type = "general"
 }
+`, region, name)
+}
+
+func testAccFlinkJobResource_basic(name string, region string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_dli_flinksql_job" "test" {
+  depends_on = [
+    huaweicloud_dis_stream.stream_input,
+    huaweicloud_dis_stream.stream_output,
+  ]
+
   name       = "%[2]s"
   type       = "flink_sql_job"
   sql        = var.sql
   run_mode   = "exclusive_cluster"
   queue_name = huaweicloud_dli_queue.test.name
 
+  tags = {
+    foo = "bar"
+  }
+}
+`, testAccFlinkJobResource_base(name, region), name)
+}
+
+func testAccFlinkJobResource_update(name, region string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dli_flinksql_job" "test" {
   depends_on = [
     huaweicloud_dis_stream.stream_input,
     huaweicloud_dis_stream.stream_output,
   ]
+
+  name       = "%[2]s"
+  type       = "flink_sql_job"
+  sql        = var.sql
+  run_mode   = "exclusive_cluster"
+  queue_name = huaweicloud_dli_queue.test.name
+
+  tags = {
+    owner = "terraform"
+  }
 }
-`, region, name)
+`, testAccFlinkJobResource_base(name, region), name)
 }

@@ -27,6 +27,9 @@ import (
 // @API DLI PUT /v1.0/{project_id}/streaming/flink-jobs/{job_id}
 // @API DLI POST /v1.0/{project_id}/streaming/jobs/stop
 // @API DLI DELETE /v1.0/{project_id}/streaming/jobs/{job_id}
+// @API DLI GET /v3/{project_id}/dli_flink_job/{resource_id}/tags
+// @API DLI POST /v3/{project_id}/dli_flink_job/{resource_id}/tags/create
+// @API DLI POST /v3/{project_id}/dli_flink_job/{resource_id}/tags/delete
 func ResourceFlinkJarJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceFlinkJarJobCreate,
@@ -184,7 +187,7 @@ func ResourceFlinkJarJob() *schema.Resource {
 				Optional: true,
 			},
 
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 
 			"status": {
 				Type:     schema.TypeString,
@@ -234,7 +237,6 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 		ResumeCheckpoint:     utils.Bool(d.Get("resume_checkpoint").(bool)),
 		ResumeMaxNum:         golangsdk.IntToPointer(d.Get("resume_max_num").(int)),
 		CheckpointPath:       d.Get("checkpoint_path").(string),
-		Tags:                 utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 
 	if runtimConfig, ok := d.GetOk("runtime_config"); ok {
@@ -272,6 +274,9 @@ func resourceFlinkJarJobCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(strconv.Itoa(rst.Job.JobId))
 
+	if err = addTagsToResource(config, region, d); err != nil {
+		return diag.FromErr(err)
+	}
 	// run the flink jar job
 	_, runErr := flinkjob.Run(client, flinkjob.RunJobOpts{
 		JobIds:          []int{rst.Job.JobId},
@@ -297,7 +302,7 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 	id, aErr := strconv.Atoi(d.Id())
 	if aErr != nil {
-		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
 	}
 
 	detailRsp, err := flinkjob.Get(client, id)
@@ -336,6 +341,11 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
 		d.Set("status", detail.Status),
 	)
+
+	if err = setTagsToResource(config, region, d); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -349,7 +359,7 @@ func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	jobId, aErr := strconv.Atoi(d.Id())
 	if aErr != nil {
-		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
+		return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
 	}
 
 	deleteRst, dErr := flinkjob.Delete(client, jobId)
@@ -366,34 +376,40 @@ func resourceFlinkJarJobDelete(_ context.Context, d *schema.ResourceData, meta i
 func resourceFlinkJarJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
-	client, err := config.DliV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating DLI v1 client, err=%s", err)
-	}
-
-	jobId, iErr := strconv.Atoi(d.Id())
-	if iErr != nil {
-		return diag.Errorf("the DLI flink job_id must be number. actual id=%s", d.Id())
-	}
-
-	diagErr := authorizeObsBucket(client, d)
-	if diagErr != nil {
-		return diagErr
-	}
-
-	diagErr = updateFlinkJarJobInRunning(client, jobId, d)
-	if diagErr != nil {
-		return diagErr
-	}
-
-	diagErr = updateFlinkJarJobWithStop(ctx, client, jobId, d)
-	if diagErr != nil {
-		return diagErr
-	}
-
-	err = checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
+	if err := updateTagsToResource(config, region, d); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if d.HasChangesExcept("tags") {
+		client, err := config.DliV1Client(region)
+		if err != nil {
+			return diag.Errorf("error creating DLI v1 client, err=%s", err)
+		}
+
+		jobId, iErr := strconv.Atoi(d.Id())
+		if iErr != nil {
+			return diag.Errorf("the DLI flink job_id must be number, but the actual ID is '%s'", d.Id())
+		}
+
+		diagErr := authorizeObsBucket(client, d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		diagErr = updateFlinkJarJobInRunning(client, jobId, d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		diagErr = updateFlinkJarJobWithStop(ctx, client, jobId, d)
+		if diagErr != nil {
+			return diagErr
+		}
+
+		err = checkFlinkJobRunResult(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 	return resourceFlinkJarJobRead(ctx, d, meta)
 }
