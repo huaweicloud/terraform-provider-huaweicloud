@@ -62,7 +62,7 @@ func TestAccFlinkTemplate_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dli_template_flink.test"
+	rName := "huaweicloud_dli_flink_template.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -111,7 +111,7 @@ func TestAccFlinkTemplate_basic(t *testing.T) {
 
 func testFlinkTemplate_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_template_flink" "test" {
+resource "huaweicloud_dli_flink_template" "test" {
   name        = "%s"
   type        = "flink_sql_job"
   sql         = "select * from source_table"
@@ -127,7 +127,7 @@ resource "huaweicloud_dli_template_flink" "test" {
 
 func testFlinkTemplate_basic_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_template_flink" "test" {
+resource "huaweicloud_dli_flink_template" "test" {
   name        = "%s"
   type        = "flink_sql_job"
   sql         = "select * from source_table2"
