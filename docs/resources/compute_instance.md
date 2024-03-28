@@ -67,10 +67,13 @@ resource "huaweicloud_vpc_eip" "myeip" {
     type = "5_bgp"
   }
   bandwidth {
-    name        = "test"
-    size        = 8
-    share_type  = "PER"
-    charge_mode = "traffic"
+    name         = "test"
+    size         = 8
+    share_type   = "PER"
+    charge_mode  = "traffic"
+    extend_param = {
+      charging_mode = "postPaid"
+    }
   }
 }
 
@@ -459,6 +462,9 @@ The `bandwidth` block supports:
 
 * `charge_mode` - (Optional, String, ForceNew) Specifies the bandwidth billing mode. The value can be *traffic* or *bandwidth*.
   Changing this creates a new instance.
+
+* `extend_param` - (Optional, Map, ForceNew) Specifies the bandwidth the billing model for public IP.
+  The value can be *prePaid* or *postPaid*. Changing this creates a new instance.
 
 The `scheduler_hints` block supports:
 
