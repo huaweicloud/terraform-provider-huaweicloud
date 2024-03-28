@@ -272,6 +272,11 @@ func ResourceDrsJob() *schema.Resource {
 				Computed: true,
 			},
 
+			"progress": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"public_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -607,6 +612,11 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		return diag.Errorf("query the job list by jobId: %s, error: %s", d.Id(), err)
 	}
 
+	progressResp, err := jobs.Progress(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
+	if err != nil {
+		return diag.Errorf("error getting job progress: %s", err)
+	}
+
 	createdAt, _ := strconv.ParseInt(detail.CreateTime, 10, 64)
 	mErr := multierror.Append(
 		d.Set("region", region),
@@ -623,6 +633,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("multi_write", detail.MultiWrite),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(createdAt/1000, false)),
 		d.Set("status", detail.Status),
+		d.Set("progress", progressResp.Results[0].Progress),
 		d.Set("tags", utils.TagsToMap(detail.Tags)),
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),

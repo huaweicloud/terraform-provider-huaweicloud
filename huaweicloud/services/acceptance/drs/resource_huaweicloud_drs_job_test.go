@@ -293,6 +293,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.region",
 						"huaweicloud_rds_instance.test2", "region"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "progress"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
