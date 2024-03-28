@@ -219,3 +219,27 @@ type ChildrenJobInfo struct {
 	Status           string `json:"status"`
 	TaskType         string `json:"task_type"`
 }
+
+type ProgressResp struct {
+	Count   int      `json:"count"`
+	Results []Result `json:"results"`
+}
+
+type Result struct {
+	JobId                 string                  `json:"job_id"`
+	Progress              string                  `json:"progress"`
+	IncreTransDelay       string                  `json:"incre_trans_delay"`
+	IncreTransDelayMillis string                  `json:"incre_trans_delay_millis"`
+	TaskMode              string                  `json:"task_mode"`
+	TransferStatus        string                  `json:"transfer_status"`
+	ProcessTime           string                  `json:"process_time"`
+	RemainingTime         string                  `json:"remaining_time"`
+	ProgressMap           map[string]ProgressInfo `json:"progress_map"`
+	ErrorCode             string                  `json:"error_code"`
+	ErrorMsg              string                  `json:"error_msg"`
+}
+
+type ProgressInfo struct {
+	Completed     string `json:"completed"`
+	RemainingTime string `json:"remaining_time"`
+}

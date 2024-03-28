@@ -56,3 +56,8 @@ func batchCheckResultsURL(c *golangsdk.ServiceClient) string {
 func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("jobs")
 }
+
+// POST /v3/{project_id}/jobs/batch-progress
+func progressURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("jobs", "batch-progress")
+}
