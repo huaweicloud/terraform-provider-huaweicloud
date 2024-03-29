@@ -14,14 +14,6 @@ type CreateResult struct {
 	commonResult
 }
 
-type DeleteResult struct {
-	commonResult
-}
-
-type RestartResult struct {
-	commonResult
-}
-
 type RenameResult struct {
 	commonResult
 }
@@ -38,23 +30,11 @@ type ModifyReplicationModeResult struct {
 	commonResult
 }
 
-type ModifyCollationResult struct {
-	commonResult
-}
-
-type ModifyMsdtcHostsResult struct {
-	commonResult
-}
-
 type ModifyBinlogRetentionHoursResult struct {
 	commonResult
 }
 
 type ModifySwitchStrategyResult struct {
-	commonResult
-}
-
-type SingleToHaResult struct {
 	commonResult
 }
 
@@ -82,7 +62,7 @@ type GetBinlogRetentionHoursResult struct {
 	commonResult
 }
 
-type RebootResult struct {
+type JobResult struct {
 	commonResult
 }
 
@@ -123,32 +103,12 @@ func (r CreateResult) Extract() (*CreateResponse, error) {
 	return &response, err
 }
 
-type DeleteResponse struct {
+type JobResponse struct {
 	JobId string `json:"job_id"`
 }
 
-func (r DeleteResult) Extract() (*DeleteResponse, error) {
-	var response DeleteResponse
-	err := r.ExtractInto(&response)
-	return &response, err
-}
-
-type RestartResponse struct {
-	JobId string `json:"job_id"`
-}
-
-func (r RestartResult) Extract() (*RestartResponse, error) {
-	var response RestartResponse
-	err := r.ExtractInto(&response)
-	return &response, err
-}
-
-type SingleToHaResponse struct {
-	JobId string `json:"job_id"`
-}
-
-func (r SingleToHaResult) Extract() (*SingleToHaResponse, error) {
-	var response SingleToHaResponse
+func (r JobResult) Extract() (*JobResponse, error) {
+	var response JobResponse
 	err := r.ExtractInto(&response)
 	return &response, err
 }
@@ -195,16 +155,6 @@ type ModifyConfigurationResp struct {
 
 func (r ModifyConfigurationResult) Extract() (*ModifyConfigurationResp, error) {
 	var response ModifyConfigurationResp
-	err := r.ExtractInto(&response)
-	return &response, err
-}
-
-type RebootResp struct {
-	JobId string `json:"job_id"`
-}
-
-func (r RebootResult) Extract() (*RebootResp, error) {
-	var response RebootResp
 	err := r.ExtractInto(&response)
 	return &response, err
 }
@@ -280,26 +230,6 @@ type ReplicationMode struct {
 
 func (r ModifyReplicationModeResult) Extract() (*ReplicationMode, error) {
 	var response ReplicationMode
-	err := r.ExtractInto(&response)
-	return &response, err
-}
-
-type Collation struct {
-	JobId string `json:"job_id"`
-}
-
-func (r ModifyCollationResult) Extract() (*Collation, error) {
-	var response Collation
-	err := r.ExtractInto(&response)
-	return &response, err
-}
-
-type MsdtcHosts struct {
-	JobId string `json:"job_id"`
-}
-
-func (r ModifyMsdtcHostsResult) Extract() (*MsdtcHosts, error) {
-	var response MsdtcHosts
 	err := r.ExtractInto(&response)
 	return &response, err
 }
