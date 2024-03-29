@@ -242,7 +242,6 @@ github.com/chnsz/golangsdk/openstack/kms/v1/keys
 github.com/chnsz/golangsdk/openstack/kms/v1/rotation
 github.com/chnsz/golangsdk/openstack/kms/v3/keypairs
 github.com/chnsz/golangsdk/openstack/koogallery/v1/assets
-github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups
 github.com/chnsz/golangsdk/openstack/lts/huawei/logstreams
 github.com/chnsz/golangsdk/openstack/maas/v1/task
 github.com/chnsz/golangsdk/openstack/meeting/v1/assignments

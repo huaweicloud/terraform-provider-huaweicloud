@@ -2,47 +2,56 @@ package lts
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/lts/huawei/loggroups"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getLtsGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.LtsV2Client(acceptance.HW_REGION_NAME)
+	httpUrl := "v2/{project_id}/groups"
+	client, err := cfg.NewServiceClient("lts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating LTS client: %s", err)
 	}
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 
-	resourceID := state.Primary.ID
-	groups, err := loggroups.List(client).Extract()
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
 		return nil, err
 	}
-
-	for _, item := range groups.LogGroups {
-		if item.ID == resourceID {
-			return &item, nil
-		}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing the log group: %s", err)
 	}
 
-	return nil, fmt.Errorf("the log group %s does not exist", resourceID)
+	groupId := state.Primary.ID
+	groupResult := utils.PathSearch(fmt.Sprintf("log_groups|[?log_group_id=='%s']|[0]", groupId), respBody, nil)
+	if groupResult == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+	return groupResult, nil
 }
 
 func TestAccLtsGroup_basic(t *testing.T) {
-	var group loggroups.LogGroup
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_lts_group.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&group,
-		getLtsGroupResourceFunc,
+	var (
+		group        interface{}
+		resourceName = "huaweicloud_lts_group.test"
+		rName        = acceptance.RandomAccResourceName()
+		rc           = acceptance.InitResourceCheck(resourceName, &group, getLtsGroupResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
