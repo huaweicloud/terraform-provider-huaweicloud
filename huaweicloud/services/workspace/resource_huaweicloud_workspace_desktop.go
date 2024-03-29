@@ -587,22 +587,22 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 			}
 			log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 		}
+	}
 
-		if len(expandSlice) > 1 {
-			expandOpts := desktops.VolumeExpandOpts{
-				VolumeConfigs: expandSlice,
-			}
-			log.Printf("[DEBUG] The new expandOpts is: %#v", expandOpts)
-			resp, err := desktops.ExpandVolumes(client, expandOpts)
-			if err != nil {
-				return fmt.Errorf("failed to expand volume size: %s", err)
-			}
-			_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
-			}
-			log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+	if len(expandSlice) > 0 {
+		expandOpts := desktops.VolumeExpandOpts{
+			VolumeConfigs: expandSlice,
 		}
+		log.Printf("[DEBUG] The new expandOpts is: %#v", expandOpts)
+		resp, err := desktops.ExpandVolumes(client, expandOpts)
+		if err != nil {
+			return fmt.Errorf("failed to expand volume size: %s", err)
+		}
+		_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+		}
+		log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 	}
 	return nil
 }
