@@ -116,7 +116,7 @@ The following arguments are supported:
 * `runtime_config` - (Optional, Map) Specifies customizes optimization parameters when a Flink job is
  running.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the resource.
 
 ## Attribute Reference
 
