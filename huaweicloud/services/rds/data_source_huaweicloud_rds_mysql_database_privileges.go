@@ -47,7 +47,6 @@ func DataSourceRdsMysqlDatabasePrivileges() *schema.Resource {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     usersSchema(),
-				Set:      resourceRdsMysqlDbPrivilegeHash,
 			},
 		},
 	}
