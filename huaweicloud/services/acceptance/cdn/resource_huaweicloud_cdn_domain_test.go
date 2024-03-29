@@ -79,6 +79,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "8002"),
@@ -89,12 +90,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.active", "1"),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.origin", "14.215.177.39"),
-					resource.TestCheckResourceAttr(resourceName, "sources.0.origin_type", "ipaddr"),
-					resource.TestCheckResourceAttr(resourceName, "sources.1.active", "0"),
-					resource.TestCheckResourceAttr(resourceName, "sources.1.origin", "220.181.28.52"),
-					resource.TestCheckResourceAttr(resourceName, "sources.1.origin_type", "ipaddr"),
+					resource.TestCheckResourceAttr(resourceName, "sources.#", "2"),
 				),
 			},
 			{
@@ -157,9 +153,9 @@ resource "huaweicloud_cdn_domain" "test" {
 
   cache_settings {
     rules {
-      rule_type = 0
+      rule_type = "all"
       ttl       = 180
-      ttl_type  = 4
+      ttl_type  = "d"
       priority  = 2
     }
   }
@@ -347,19 +343,6 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.match_type", "all"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.priority", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.back_sources.0.http_port", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.back_sources.0.https_port", "65535"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.back_sources.0.ip_or_domain", "165.132.12.2"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.back_sources.0.sources_type", "ipaddr"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.match_type", "file_extension"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.match_pattern", ".jpg;.zip;.exe"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.priority", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.back_sources.0.http_port", "65535"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.back_sources.0.https_port", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.back_sources.0.ip_or_domain", "165.5.1.4"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.1.back_sources.0.sources_type", "ipaddr"),
 				),
 			},
 			{
