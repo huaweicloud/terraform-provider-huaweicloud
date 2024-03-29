@@ -47,7 +47,6 @@ func DataSourceSQLServerDatabasePrivileges() *schema.Resource {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     dbUsersSchema(),
-				Set:      resourceRdsSQLServerDbPrivilegeHash,
 			},
 		},
 	}
