@@ -66,6 +66,10 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "charge_mode", "flavor"),
+					resource.TestCheckResourceAttr(resourceName, "guaranteed", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttr(resourceName, "waf_failure_action", "discard"),
 				),
 			},
 			{
@@ -78,12 +82,16 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttr(resourceName, "guaranteed", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "waf_failure_action", "forward"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection_enable"},
 			},
 		},
 	})
@@ -292,10 +300,12 @@ resource "huaweicloud_vpc_subnet" "test_1" {
 }
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name           = "%[2]s"
-  vpc_id         = huaweicloud_vpc.test.id
-  ipv4_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-	
+  name                       = "%[2]s"
+  vpc_id                     = huaweicloud_vpc.test.id
+  ipv4_subnet_id             = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  waf_failure_action         = "discard"
+  deletion_protection_enable = true
+
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
@@ -328,10 +338,12 @@ resource "huaweicloud_vpc_subnet" "test_1" {
 }
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name              = "%[3]s"
-  cross_vpc_backend = true
-  vpc_id            = huaweicloud_vpc.test.id
-  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  name                       = "%[3]s"
+  cross_vpc_backend          = true
+  vpc_id                     = huaweicloud_vpc.test.id
+  ipv4_subnet_id             = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  waf_failure_action         = "forward"
+  deletion_protection_enable = false
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -441,7 +453,6 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
   ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
 
   charging_mode = "prePaid"
   period_unit   = "month"
@@ -485,7 +496,6 @@ data "huaweicloud_elb_flavors" "l7flavors" {
 resource "huaweicloud_elb_loadbalancer" "test" {
   name            = "%s"
   ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
   description     = "update flavors"
   l4_flavor_id    = data.huaweicloud_elb_flavors.l4flavors.ids[0]
   l7_flavor_id    = data.huaweicloud_elb_flavors.l7flavors.ids[0]

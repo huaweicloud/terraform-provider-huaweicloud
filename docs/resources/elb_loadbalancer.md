@@ -195,6 +195,16 @@ The following arguments are supported:
 * `force_delete` - (Optional, Bool) Specifies whether to forcibly delete the LoadBalancer, remove the LoadBalancer,
   listeners, unbind associated pools. Defaults to **false**.
 
+* `deletion_protection_enable` - (Optional, Bool) Specifies whether to enable deletion protection
+  for the load balancer. Value options:
+  + **true**: Enable deletion protection.
+  + **false**: Disable deletion protection.
+
+* `waf_failure_action` - (Optional, String) Specifies traffic distributing policies when the WAF is faulty.
+  Value options:
+  + **discard**: Traffic will not be distributed.
+  + **forward**: Traffic will be distributed to the default backend servers.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -204,6 +214,19 @@ In addition to all arguments above, the following attributes are exported:
 * `ipv6_eip` - The ipv6 eip address of the Load Balancer.
 * `ipv6_eip_id` - The ipv6 eip id of the Load Balancer.
 * `ipv6_address` - The ipv6 address of the Load Balancer.
+
+* `charge_mode` - Indicates the billing mode. The value can be one of the following:
+  + **flavor**: Billed by the specifications you will select.
+  + **lcu**: Billed by LCU usage.
+
+* `guaranteed` - Indicates whether the load balancer is a dedicated load balancer.
+  The value can be one of the following:
+  + **false**: The load balancer is a shared load balancer.
+  + **true**: The load balancer is a dedicated load balancer.
+
+* `created_at` - Indicates the time when the load balancer was created, in RFC3339 format.
+
+* `updated_at` - Indicates the time when the load balancer was updated, in RFC3339 format.
 
 ## Timeouts
 
@@ -223,8 +246,8 @@ $ terraform import huaweicloud_elb_loadbalancer.loadbalancer_1 5c20fdad-7288-11e
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `ipv6_bandwidth_id`, `iptype`,
-`bandwidth_charge_mode`, `sharetype`,  `bandwidth_size`, `bandwidth_id` and `force_delete`.
-It is generally recommended running `terraform plan` after importing a loadbalancer.
+`bandwidth_charge_mode`, `sharetype`,  `bandwidth_size`, `bandwidth_id`, `force_delete`
+and `deletion_protection_enable`. It is generally recommended running `terraform plan` after importing a loadbalancer.
 You can then decide if changes should be applied to the loadbalancer, or the resource
 definition should be updated to align with the loadbalancer. Also you can ignore changes as below.
 
@@ -234,6 +257,7 @@ resource "huaweicloud_elb_loadbalancer" "loadbalancer_1" {
   lifecycle {
     ignore_changes = [
       ipv6_bandwidth_id, iptype, bandwidth_charge_mode, sharetype, bandwidth_size, bandwidth_id, force_delete,
+      deletion_protection_enable,
     ]
   }
 }
