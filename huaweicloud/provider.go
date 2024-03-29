@@ -663,6 +663,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_assignment_package_templates": rms.DataSourceTemplates(),
 			"huaweicloud_rms_regions":                      rms.DataSourceRmsRegions(),
 			"huaweicloud_rms_policy_assignments":           rms.DataSourceRmsPolicyAssignments(),
+			"huaweicloud_rms_stored_query_schemas":         rms.DataSourceRmsStoredQuerySchemas(),
 
 			"huaweicloud_sdrs_domain": sdrs.DataSourceSDRSDomain(),
 
