@@ -2,14 +2,14 @@
 subcategory: "Config"
 ---
 
-# huaweicloud_rms_stored_query_schemas
+# huaweicloud_rms_advanced_query_schemas
 
-Use this data source to get the list of RMS stored query schemas.
+Use this data source to get the list of RMS advanced query schemas.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_rms_stored_query_schemas" "test" {
+data "huaweicloud_rms_advanced_query_schemas" "test" {
   type = "aad.instances"
 }
 ```

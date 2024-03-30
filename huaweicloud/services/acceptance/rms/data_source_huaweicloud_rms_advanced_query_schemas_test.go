@@ -8,9 +8,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceRmsStoredQuerySchemas_basic(t *testing.T) {
-	dataSource1 := "data.huaweicloud_rms_stored_query_schemas.basic"
-	dataSource2 := "data.huaweicloud_rms_stored_query_schemas.filter_by_type"
+func TestAccDataSourceRmsAdvancedQuerySchemas_basic(t *testing.T) {
+	dataSource1 := "data.huaweicloud_rms_advanced_query_schemas.basic"
+	dataSource2 := "data.huaweicloud_rms_advanced_query_schemas.filter_by_type"
 	dc1 := acceptance.InitDataSourceCheck(dataSource1)
 	dc2 := acceptance.InitDataSourceCheck(dataSource2)
 
@@ -21,7 +21,7 @@ func TestAccDataSourceRmsStoredQuerySchemas_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceRmsStoredQuerySchemas_basic,
+				Config: testDataSourceDataSourceRmsAdvancedQuerySchemas_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc1.CheckResourceExists(),
 					dc2.CheckResourceExists(),
@@ -33,19 +33,19 @@ func TestAccDataSourceRmsStoredQuerySchemas_basic(t *testing.T) {
 	})
 }
 
-const testDataSourceDataSourceRmsStoredQuerySchemas_basic = `
-data "huaweicloud_rms_stored_query_schemas" "basic" {}
+const testDataSourceDataSourceRmsAdvancedQuerySchemas_basic = `
+data "huaweicloud_rms_advanced_query_schemas" "basic" {}
 
-data "huaweicloud_rms_stored_query_schemas" "filter_by_type" {
+data "huaweicloud_rms_advanced_query_schemas" "filter_by_type" {
   type = "ecs.cloudservers"
 }
 
 locals {
-  type_filter_result = [for v in data.huaweicloud_rms_stored_query_schemas.filter_by_type.schemas[*].type : v == "ecs.cloudservers"]
+  type_filter_result = [for v in data.huaweicloud_rms_advanced_query_schemas.filter_by_type.schemas[*].type : v == "ecs.cloudservers"]
 }
 
 output "is_results_not_empty" {
-  value = length(data.huaweicloud_rms_stored_query_schemas.basic.schemas) > 0
+  value = length(data.huaweicloud_rms_advanced_query_schemas.basic.schemas) > 0
 }
 
 output "is_type_filter_useful" {
