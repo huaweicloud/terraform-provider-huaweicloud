@@ -84,7 +84,7 @@ var httpsConfig = schema.Schema{
 }
 
 var requestAndResponseHeader = schema.Schema{
-	Type:     schema.TypeList,
+	Type:     schema.TypeSet,
 	Optional: true,
 	Computed: true,
 	Elem: &schema.Resource{
@@ -238,7 +238,7 @@ var websocket = schema.Schema{
 }
 
 var flexibleOrigin = schema.Schema{
-	Type:     schema.TypeList,
+	Type:     schema.TypeSet,
 	Optional: true,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -330,7 +330,7 @@ func ResourceCdnDomain() *schema.Resource {
 				}, true),
 			},
 			"sources": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -433,7 +433,7 @@ func ResourceCdnDomain() *schema.Resource {
 							Optional: true,
 						},
 						"rules": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -497,7 +497,7 @@ func ResourceCdnDomain() *schema.Resource {
 func buildCreateDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 	var sourceRequests []domains.SourcesOpts
 
-	sources := d.Get("sources").([]interface{})
+	sources := d.Get("sources").(*schema.Set).List()
 	for i := range sources {
 		source := sources[i].(map[string]interface{})
 		sourceRequest := domains.SourcesOpts{
@@ -786,7 +786,7 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 		ipv6Accelerate = 1
 	}
 	configsOpts := model.Configs{
-		Sources:           buildSourcesOpts(d.Get("sources").([]interface{})),
+		Sources:           buildSourcesOpts(d.Get("sources").(*schema.Set).List()),
 		Ipv6Accelerate:    utils.Int32(int32(ipv6Accelerate)),
 		OriginRangeStatus: utils.String(parseFunctionEnabledStatus(configs["range_based_retrieval_enabled"].(bool))),
 	}
@@ -794,10 +794,10 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
 	}
 	if d.HasChange("configs.0.retrieval_request_header") {
-		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].([]interface{}))
+		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].(*schema.Set).List())
 	}
 	if d.HasChange("configs.0.http_response_header") {
-		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].([]interface{}))
+		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].(*schema.Set).List())
 	}
 	if d.HasChange("configs.0.url_signing") {
 		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
@@ -821,14 +821,14 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 		configsOpts.Websocket = buildWebsocketOpts(configs["websocket"].([]interface{}))
 	}
 	if d.HasChange("configs.0.flexible_origin") {
-		configsOpts.FlexibleOrigin = buildFlexibleOriginOpts(configs["flexible_origin"].([]interface{}))
+		configsOpts.FlexibleOrigin = buildFlexibleOriginOpts(configs["flexible_origin"].(*schema.Set).List())
 	}
 
 	if d.HasChange("cache_settings") {
 		cacheSettings := d.Get("cache_settings").([]interface{})
 		if len(cacheSettings) > 0 {
 			cacheSetting := cacheSettings[0].(map[string]interface{})
-			configsOpts.CacheRules = buildCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].([]interface{}))
+			configsOpts.CacheRules = buildCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].(*schema.Set).List())
 		}
 	}
 
