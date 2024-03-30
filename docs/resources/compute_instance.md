@@ -460,6 +460,13 @@ The `bandwidth` block supports:
 * `charge_mode` - (Optional, String, ForceNew) Specifies the bandwidth billing mode. The value can be *traffic* or *bandwidth*.
   Changing this creates a new instance.
 
+* `extend_param` - (Optional, Map, ForceNew) Specifies the additional EIP information.
+  Changing this creates a new instance.
+
+  -> Currently, only the `charging_mode` key is supported and the value can be *prePaid* or *postPaid*.
+  This parameter is **mandatory** when the created ECS is billed in yearly/monthly payments and
+  bound with a pay-per-use EIP. In such a case, `charging_mode` must be set to *postPaid*.
+
 The `scheduler_hints` block supports:
 
 * `group` - (Optional, String, ForceNew) Specifies a UUID of a Server Group.
