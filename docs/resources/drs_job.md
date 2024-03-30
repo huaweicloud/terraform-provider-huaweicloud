@@ -111,6 +111,12 @@ resource "huaweicloud_drs_job" "test" {
 
   databases = [var.database_name]
 
+  policy_config {
+    filter_ddl_policy = "drop_database"
+    conflict_policy   = "overwrite"
+    index_trans       = true
+  }
+
   lifecycle {
     ignore_changes = [
       source_db.0.password, destination_db.0.password,
@@ -243,6 +249,10 @@ The following arguments are supported:
 
 * `limit_speed` - (Optional, List, ForceNew) Specifies the migration speed by setting a time period.
  The default is no speed limit. The maximum length is 3. The [limit_speed](#block--limit_speed) structure is documented below.
+ Changing this parameter will create a new resource.
+
+* `policy_config` - (Optional, List, ForceNew) Specifies the policy information used to configure migration and
+ synchronization policies. The [policy_config](#block--policy_config) structure is documented below.
  Changing this parameter will create a new resource.
 
 * `multi_write` - (Optional, Bool, ForceNew) Specifies whether to enable multi write. It is mandatory when `type`
@@ -381,6 +391,28 @@ is two digits, for example: 01:00. Changing this parameter will create a new res
 
 * `end_time` - (Required, String, ForceNew) Specifies the time to end speed limit, this time is UTC time. The input must
  end at 59 minutes, the format is **hh:mm**, for example: 15:59. Changing this parameter will create a new resource.
+
+<a name="block--policy_config"></a>
+The `policy_config` block supports:
+
+* `filter_ddl_policy` - (Optional, String, ForceNew) Specifies the DDL filtering policy. Valid value is **drop_database**.
+  For MySQL synchronization, this parameter can only be set to **drop_database**.
+  Changing this parameter will create a new resource.
+
+* `conflict_policy` - (Optional, String, ForceNew) Specifies the incremental conflict policy.
+
+  Valid values are as fallows:
+  + **ignore**: Ignore the conflict. The system will ignore the conflicting data and continue the subsequent
+    synchronization process.
+  + **stop**: Report an error. The synchronization task will be stopped and fail. You can view the details in
+    synchronization logs.
+  + **overwrite**: Overwrite the existing data with the synchronized data. Conflicting data will be overwritten.
+
+  Changing this parameter will create a new resource.
+
+* `index_trans` - (Optional, Bool, ForceNew) Specifies the object synchronization scope, indicating whether to
+  synchronize normal indexes. If it's **true**, all indexes will be synchronized, otherwise, only primary key or unique
+  indexes are synchronized. Changing this parameter will create a new resource.
 
 <a name="block--tables"></a>
 The `tables` block supports:
