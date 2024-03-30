@@ -8,12 +8,16 @@ import (
 	"math"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
+
 	"github.com/stretchr/testify/assert"
 
-	"github.com/chnsz/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
 )
 
 var testCaseMapper = make(map[string]*HttpTestCase)
@@ -624,4 +628,355 @@ func (tc *HttpTestCase) newClient(server *httptest.Server) *HttpHelper {
 		Headers(map[string]string{
 			"input-key": tc.saveMapper(),
 		})
+}
+
+func TestHttpHelperURI(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	url1 := "https://github.com/"
+	url2 := "http://fadsdfsaefs132.com"
+	url3 := "github.com"
+	url4 := "fads#!$_@dfsaefs132asdkml"
+	url5 := ""
+
+	helper.URI(url1)
+	assert.Equal(t, url1, helper.url)
+
+	helper.URI(url2)
+	assert.Equal(t, url2, helper.url)
+
+	helper.URI(url3)
+	assert.Equal(t, url3, helper.url)
+
+	helper.URI(url4)
+	assert.Equal(t, url4, helper.url)
+
+	helper.URI(url5)
+	assert.Equal(t, url5, helper.url)
+}
+
+func TestHttpHelperMethod(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	method1 := "GET"
+	method2 := "POST"
+	method3 := "UPDATE"
+	method4 := "DELETE"
+	method5 := "get"
+	method6 := "foo"
+	method7 := ""
+
+	helper.Method(method1)
+	assert.Equal(t, method1, helper.method)
+
+	helper.Method(method2)
+	assert.Equal(t, method2, helper.method)
+
+	helper.Method(method3)
+	assert.Equal(t, method3, helper.method)
+
+	helper.Method(method4)
+	assert.Equal(t, method4, helper.method)
+
+	helper.Method(method5)
+	assert.Equal(t, method5, helper.method)
+
+	helper.Method(method6)
+	assert.Equal(t, method6, helper.method)
+
+	helper.Method(method7)
+	assert.Equal(t, method7, helper.method)
+}
+
+func TestHttpHelperBody(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	body1 := map[string]any{"foo1": "bar1"}
+	body2 := map[string]any{"foo1": "bar1", "foo2": "bar2"}
+	body3 := map[string]any{}
+	body4 := map[string]any{"foo1": 123}
+	body5 := map[string]any{"foo1": 123, "foo2": 456}
+	body6 := map[string]any{"foo1": map[string]int{"foo111": 123}}
+
+	helper.Body(body1)
+	assert.Equal(t, body1, helper.body)
+
+	helper.Body(body2)
+	assert.Equal(t, body2, helper.body)
+
+	helper.Body(body3)
+	assert.Equal(t, body3, helper.body)
+
+	helper.Body(body4)
+	assert.Equal(t, body4, helper.body)
+
+	helper.Body(body5)
+	assert.Equal(t, body5, helper.body)
+
+	helper.Body(body6)
+	assert.Equal(t, body6, helper.body)
+}
+
+func TestHttpHelperQuery(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	query1 := map[string]any{"foo1": "bar1"}
+	query2 := map[string]any{"foo1": "bar1", "foo2": "bar2"}
+	query3 := map[string]any{}
+	query4 := map[string]any{"foo1": 123}
+	query5 := map[string]any{"foo1": 123, "foo2": 456}
+	query6 := map[string]any{"foo1": map[string]int{"foo111": 123}}
+
+	helper.Query(query1)
+	assert.Equal(t, query1, helper.query)
+
+	helper.Query(query2)
+	assert.Equal(t, query2, helper.query)
+
+	helper.Query(query3)
+	assert.Equal(t, query3, helper.query)
+
+	helper.Query(query4)
+	assert.Equal(t, query4, helper.query)
+
+	helper.Query(query5)
+	assert.Equal(t, query5, helper.query)
+
+	helper.Query(query6)
+	assert.Equal(t, query6, helper.query)
+}
+
+func TestHttpHelperHeaders(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	header1 := map[string]string{"foo1": "bar1"}
+	header2 := map[string]string{"foo1": "bar1", "foo2": "bar2"}
+	header3 := map[string]string{}
+
+	helper.Headers(header1)
+	assert.Equal(t, "bar1", helper.requestOpts.MoreHeaders["foo1"])
+
+	helper.Headers(header2)
+	assert.Equal(t, "bar1", helper.requestOpts.MoreHeaders["foo1"])
+	assert.Equal(t, "bar2", helper.requestOpts.MoreHeaders["foo2"])
+
+	helper.Headers(header3)
+	assert.Equal(t, "", helper.requestOpts.MoreHeaders["foo3"])
+}
+
+func TestHttpHelperOkCode(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	code1 := 200
+	code2 := 404
+	code3 := 502
+	code4 := 10086123
+	code5 := 0
+	code6 := -10
+
+	helper.OkCode(code1)
+	assert.Equal(t, []int{code1}, helper.requestOpts.OkCodes)
+
+	helper.OkCode(code2)
+	assert.Equal(t, []int{code2}, helper.requestOpts.OkCodes)
+
+	helper.OkCode(code3)
+	assert.Equal(t, []int{code3}, helper.requestOpts.OkCodes)
+
+	helper.OkCode(code4)
+	assert.Equal(t, []int{code4}, helper.requestOpts.OkCodes)
+
+	helper.OkCode(code5)
+	assert.Equal(t, []int{code5}, helper.requestOpts.OkCodes)
+
+	helper.OkCode(code6)
+	assert.Equal(t, []int{code6}, helper.requestOpts.OkCodes)
+}
+
+func TestMarkerPager(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	// test empty
+	dataPath1 := ""
+	markerKey1 := ""
+	nexExp1 := ""
+
+	helper.MarkerPager(dataPath1, nexExp1, markerKey1)
+	page := helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath1, page.(MarkerPager).DataPath)
+	assert.Equal(t, markerKey1, page.(MarkerPager).MarkerKey)
+	assert.Equal(t, nexExp1, page.(MarkerPager).NextExp)
+
+	// test normal
+	dataPath2 := "vpcs"
+	markerKey2 := "marker"
+	nexExp2 := "page_info.next_marker"
+
+	helper.MarkerPager(dataPath2, nexExp2, markerKey2)
+	page = helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath2, page.(MarkerPager).DataPath)
+	assert.Equal(t, markerKey2, page.(MarkerPager).MarkerKey)
+	assert.Equal(t, nexExp2, page.(MarkerPager).NextExp)
+}
+
+func TestSizePager(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	// test empty
+	dataPath1 := ""
+	pageNumKey1 := ""
+	perPageKey1 := ""
+	perPage1 := 0
+
+	helper.PageSizePager(dataPath1, pageNumKey1, perPageKey1, perPage1)
+	page := helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath1, page.(PageSizePager).DataPath)
+	assert.Equal(t, pageNumKey1, page.(PageSizePager).PageNumKey)
+	assert.Equal(t, perPageKey1, page.(PageSizePager).PerPageKey)
+
+	// test normal
+	dataPath2 := "vpcs"
+	pageNumKey2 := "page"
+	perPageKey2 := "page_info"
+	perPage2 := 5
+
+	helper.PageSizePager(dataPath2, pageNumKey2, perPageKey2, perPage2)
+	page = helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath2, page.(PageSizePager).DataPath)
+	assert.Equal(t, pageNumKey2, page.(PageSizePager).PageNumKey)
+	assert.Equal(t, perPageKey2, page.(PageSizePager).PerPageKey)
+}
+
+func TestLinkPager(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	// test empty
+	dataPath1 := ""
+	linkExp1 := ""
+
+	helper.LinkPager(dataPath1, linkExp1)
+	page := helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath1, page.(LinkPager).DataPath)
+	assert.Equal(t, linkExp1, page.(LinkPager).LinkExp)
+
+	// test normal
+	dataPath2 := "vpcs"
+	linkExp2 := "cdssd"
+
+	helper.LinkPager(dataPath2, linkExp2)
+	page = helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath2, page.(LinkPager).DataPath)
+	assert.Equal(t, linkExp2, page.(LinkPager).LinkExp)
+}
+
+func TestOffsetPager(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	// test empty
+	dataPath1 := ""
+	offsetKey1 := ""
+	limitKey1 := ""
+	defaultLimit1 := 0
+
+	helper.OffsetPager(dataPath1, offsetKey1, limitKey1, defaultLimit1)
+	page := helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath1, page.(OffsetPager).DataPath)
+	assert.Equal(t, offsetKey1, page.(OffsetPager).OffsetKey)
+	assert.Equal(t, limitKey1, page.(OffsetPager).LimitKey)
+	assert.Equal(t, defaultLimit1, page.(OffsetPager).DefaultLimit)
+
+	// test normal
+	dataPath2 := "vpcs"
+	offsetKey2 := "limit"
+	limitKey2 := "limit_info"
+	defaultLimit2 := 5
+
+	helper.OffsetPager(dataPath2, offsetKey2, limitKey2, defaultLimit2)
+	page = helper.pager(pagination.PageResult{})
+
+	assert.NotNil(t, helper.pager)
+	assert.Equal(t, dataPath2, page.(OffsetPager).DataPath)
+	assert.Equal(t, offsetKey2, page.(OffsetPager).OffsetKey)
+	assert.Equal(t, limitKey2, page.(OffsetPager).LimitKey)
+	assert.Equal(t, defaultLimit2, page.(OffsetPager).DefaultLimit)
+}
+
+func TestFilter(t *testing.T) {
+	// create helper
+	client := &golangsdk.ServiceClient{}
+	helper := New(client)
+
+	// test empty
+	filter1 := &filters.JsonFilter{}
+	helper.Filter(filter1)
+	assert.NotNil(t, helper.filters)
+	assert.Equal(t, filter1, helper.filters[0])
+
+	// test normal
+	filter2 := filters.New()
+	helper.Filter(filter2)
+	assert.NotNil(t, helper.filters)
+	assert.Equal(t, filter2, helper.filters[1])
+}
+
+func TestBodyToGJson(t *testing.T) {
+	body0 := ""
+	body1 := "foo111"
+	body2 := 1234567
+	body3 := []string{"aaa", "bbb"}
+	body4 := map[string]string{"foo1": "bar1", "foo2": "bar2"}
+
+	result0, err := bodyToGJson(body0)
+	assert.Equal(t, body0, result0.Str)
+	assert.Nil(t, err)
+
+	result1, err := bodyToGJson(body1)
+	assert.Equal(t, body1, result1.Str)
+	assert.Nil(t, err)
+
+	result2, err := bodyToGJson(body2)
+	assert.Equal(t, strconv.Itoa(body2), result2.Raw)
+	assert.Nil(t, err)
+
+	result3, err := bodyToGJson(body3)
+	assert.Equal(t, "[\"aaa\",\"bbb\"]\n", result3.String())
+	assert.Nil(t, err)
+
+	result4, err := bodyToGJson(body4)
+	assert.Equal(t, "{\"foo1\":\"bar1\",\"foo2\":\"bar2\"}\n", result4.String())
+	assert.Nil(t, err)
 }
