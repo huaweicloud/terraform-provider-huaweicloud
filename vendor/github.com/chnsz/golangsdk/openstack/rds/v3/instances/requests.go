@@ -787,11 +787,15 @@ func GetMsdtcHosts(c *golangsdk.ServiceClient, instanceId string) ([]RdsMsdtcHos
 }
 
 func Startup(client *golangsdk.ServiceClient, instanceId string) (r JobResult) {
-	_, r.Err = client.Post(updateURL(client, instanceId, "action/startup"), nil, &r.Body, &golangsdk.RequestOpts{})
+	_, r.Err = client.Post(updateURL(client, instanceId, "action/startup"), nil, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	})
 	return
 }
 
 func Shutdown(client *golangsdk.ServiceClient, instanceId string) (r JobResult) {
-	_, r.Err = client.Post(updateURL(client, instanceId, "action/shutdown"), nil, &r.Body, &golangsdk.RequestOpts{})
+	_, r.Err = client.Post(updateURL(client, instanceId, "action/shutdown"), nil, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	})
 	return
 }

@@ -104,13 +104,21 @@ func (r CreateResult) Extract() (*CreateResponse, error) {
 }
 
 type JobResponse struct {
-	JobId string `json:"job_id"`
+	JobId     string `json:"job_id"`
+	HumpJobId string `json:"jobId"`
 }
 
 func (r JobResult) Extract() (*JobResponse, error) {
 	var response JobResponse
 	err := r.ExtractInto(&response)
 	return &response, err
+}
+
+func (job JobResponse) GetJobId() string {
+	if job.JobId != "" {
+		return job.JobId
+	}
+	return job.HumpJobId
 }
 
 type ResizeFlavor struct {

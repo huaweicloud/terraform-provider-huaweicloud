@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
@@ -263,6 +264,15 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+
+			"power_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"ON", "OFF", "REBOOT",
+				}, false),
 			},
 
 			"param_group_id": {
@@ -603,6 +613,13 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if action, ok := d.GetOk("power_action"); ok && action == "OFF" {
+		err = updatePowerAction(ctx, d, client, action.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceRdsInstanceRead(ctx, d, meta)
 }
 
@@ -696,19 +713,22 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error saving data base to RDS instance (%s): %s", instanceID, err)
 	}
 
-	backupStrategy, err := backups.Get(client, instanceID).Extract()
-	if err != nil {
-		return diag.Errorf("error getting RDS backup strategy: %s", err)
-	}
+	// if the instance is stopped, then the backup strategy can not be acquired
+	if instance.Status != "SHUTDOWN" {
+		backupStrategy, err := backups.Get(client, instanceID).Extract()
+		if err != nil {
+			return diag.Errorf("error getting RDS backup strategy: %s", err)
+		}
 
-	backup := make([]map[string]interface{}, 1)
-	backup[0] = map[string]interface{}{
-		"start_time": instance.BackupStrategy.StartTime,
-		"keep_days":  instance.BackupStrategy.KeepDays,
-		"period":     backupStrategy.Period,
-	}
-	if err := d.Set("backup_strategy", backup); err != nil {
-		return diag.Errorf("error saving backup strategy to RDS instance (%s): %s", instanceID, err)
+		backup := make([]map[string]interface{}, 1)
+		backup[0] = map[string]interface{}{
+			"start_time": instance.BackupStrategy.StartTime,
+			"keep_days":  instance.BackupStrategy.KeepDays,
+			"period":     backupStrategy.Period,
+		}
+		if err := d.Set("backup_strategy", backup); err != nil {
+			return diag.Errorf("error saving backup strategy to RDS instance (%s): %s", instanceID, err)
+		}
 	}
 
 	nodes := make([]map[string]interface{}, len(instance.Nodes))
@@ -733,7 +753,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("binlog_retention_hours", binlogRetentionHours.BinlogRetentionHours)
 	}
 
-	if isSQLServerDatabase(d) {
+	if isSQLServerDatabase(d) && instance.Status != "SHUTDOWN" {
 		msdtcHosts, err := instances.GetMsdtcHosts(client, instanceID)
 		if err != nil {
 			return diag.Errorf("error getting RDS msdtc hosts: %s", err)
@@ -824,6 +844,14 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	instanceID := d.Id()
+
+	// if power_action is changed from OFF to ON, the instance should be start first
+	powerAction := d.Get("power_action").(string)
+	if d.HasChanges("power_action") && powerAction == "ON" {
+		if err = updatePowerAction(ctx, d, client, powerAction); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
 	if err := updateRdsInstanceName(d, client, instanceID); err != nil {
 		return diag.FromErr(err)
@@ -928,6 +956,13 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	if err = updateMsdtcHosts(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
+	}
+
+	// if power_action is changed from ON to OFF/REBOOT, the instance should be close/restart at the end
+	if d.HasChanges("power_action") && powerAction == "OFF" || powerAction == "REBOOT" {
+		if err = updatePowerAction(ctx, d, client, powerAction); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceRdsInstanceRead(ctx, d, meta)
@@ -1738,6 +1773,66 @@ func updateMsdtcHosts(ctx context.Context, d *schema.ResourceData, client *golan
 		}
 	}
 
+	return nil
+}
+
+func updatePowerAction(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, powerAction string) error {
+	var job *instances.JobResponse
+	var err error
+	var action string
+	switch powerAction {
+	case "ON":
+		job, err = instances.Startup(client, d.Id()).Extract()
+		if err != nil {
+			return fmt.Errorf("error starting instance (%s): %s", d.Id(), err)
+		}
+		action = "start"
+	case "OFF":
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := instances.Shutdown(client, d.Id()).Extract()
+			retry, err := handleMultiOperationsError(err)
+			return res, retry, err
+		}
+		res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return fmt.Errorf("error stopping instance (%s): %s", d.Id(), err)
+		}
+		job = res.(*instances.JobResponse)
+		action = "stop"
+	case "REBOOT":
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := instances.RebootInstance(client, d.Id()).Extract()
+			retry, err := handleMultiOperationsError(err)
+			return res, retry, err
+		}
+		res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return fmt.Errorf("error stopping instance (%s): %s", d.Id(), err)
+		}
+		job = res.(*instances.JobResponse)
+		action = "reboot"
+	default:
+		return fmt.Errorf("the value of power_action(%s) is error, it should be in [ON, OFF, BEBOOT]", powerAction)
+	}
+	if err = checkRDSInstanceJobFinish(client, job.GetJobId(), d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) to %s: %s", d.Id(), action, err)
+	}
 	return nil
 }
 

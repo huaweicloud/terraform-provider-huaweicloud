@@ -297,6 +297,11 @@ The `db` block supports:
   + The MariaDB database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are occupied by the RDS system
       and cannot be used). The default value is 3306.
 
+* `power_action` - (Optional, String) Specifies the power action to be done for the instance.
+  Value options: **ON**, **OFF** and **REBOOT**.
+
+  -> **NOTE:** The `power_action` is a one-time action.
+
 The `volume` block supports:
 
 * `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000 GB. The value must be a
