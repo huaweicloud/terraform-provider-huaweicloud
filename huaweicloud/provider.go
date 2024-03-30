@@ -582,6 +582,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_dataforwarding_rules": iotda.DataSourceDataForwardingRules(),
 			"huaweicloud_iotda_spaces":               iotda.DataSourceSpaces(),
 			"huaweicloud_iotda_products":             iotda.DataSourceProducts(),
+			"huaweicloud_iotda_devices":              iotda.DataSourceDevices(),
 
 			"huaweicloud_koogallery_assets": koogallery.DataSourceKooGalleryAssets(),
 
