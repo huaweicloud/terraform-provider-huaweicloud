@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 1.63.0 (March 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_cfw_dns_resolution` [GH-4485]
+  + `huaweicloud_identity_service_agency` [GH-4497]
+  + `huaweicloud_lts_cce_access` [GH-4481]
+  + `huaweicloud_ddm_instance_read_strategy` [GH-4450]
+  + `huaweicloud_hss_host_protection` [GH-4474]
+  + `huaweicloud_cc_global_connection_bandwidth_associate` [GH-4438]
+  + `huaweicloud_css_logstash_custom_certificate` [GH-4416]
+  + `huaweicloud_lts_cross_account_access` [GH-4423]
+  + `huaweicloud_css_logstash_pipeline` [GH-4409]
+  + `huaweicloud_dli_datasource_connection_privilege` [GH-4397]
+  + `huaweicloud_workspace_desktop_name_rule` [GH-4381]
+  + `huaweicloud_dcs_diagnosis_task` [GH-4385]
+
+* **New Data Source:**
+  + `huaweicloud_cfw_address_groups` [GH-4476]
+  + `huaweicloud_iotda_device_certificates` [GH-4523]
+  + `huaweicloud_iotda_devices` [GH-4526]
+  + `huaweicloud_rms_services` [GH-4517]
+  + `huaweicloud_dli_quotas` [GH-4521]
+  + `huaweicloud_rms_advanced_query_schemas` [GH-4520]
+  + `huaweicloud_rms_assignment_packages` [GH-4509]
+  + `huaweicloud_er_propagations` [GH-4483]
+  + `huaweicloud_huaweicloud_er_associations` [GH-4483]
+  + `huaweicloud_rms_policy_assignments` [GH-4479]
+  + `huaweicloud_iotda_amqps` [GH-4464]
+  + `huaweicloud_dcs_bigkey_analyses` [GH-4454]
+  + `huaweicloud_iotda_dataforwarding_rules` [GH-4480]
+  + `huaweicloud_rms_regions` [GH-4473]
+  + `huaweicloud_iotda_spaces` [GH-4436]
+  + `huaweicloud_iotda_products` [GH-4433]
+  + `huaweicloud_dws_workload_queues` [GH-4353]
+  + `huaweicloud_dc_virtual_interfaces` [GH-4390]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: add extend_param parameter to bandwidth [GH-4534]
+* resource/huaweicloud_drs_job: support policy config in job [GH-4530]
+* resource/huaweicloud_drs_job: support charging mode in job [GH-4458]
+* resource/huaweicloud_workspace_desktop: allow independent system disk updates [GH-4522]
+* resource/huaweicloud_rds_instance: rds instance support msdtc hosts [GH-4494]
+* resource/huaweicloud_cce_node: add new param details in the data_source of cce nodes [GH-4451]
+* resource/huaweicloud_cfw_protection_rule: add explanation for protection rule type [GH-4440]
+* resource/huaweicloud_mrs_cluster: cluster support prepaid charge mode [GH-4383]
+
+BUG FIXES:
+
+* resource/huaweicloud_lts_stream: solve the problem that eps cannot be set [GH-4527]
+
 ## 1.62.1 (March 6, 2024)
 
 * **New Resource:**
