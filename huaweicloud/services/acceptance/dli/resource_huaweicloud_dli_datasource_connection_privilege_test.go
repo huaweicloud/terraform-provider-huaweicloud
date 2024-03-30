@@ -39,7 +39,7 @@ func getDatasourceConnectionPrivilegeResourceFunc(cfg *config.Config, state *ter
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, dli.ParsePrivilegesQueryError(err)
+		return nil, dli.ParsePrivilegesQueryError(err, dli.ErrCodeConnNotFound)
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
