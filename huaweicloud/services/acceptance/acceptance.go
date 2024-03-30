@@ -249,7 +249,9 @@ var (
 	HW_CODEARTS_ENABLE_FLAG       = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
 	HW_CODEARTS_PUBLIC_IP_ADDRESS = os.Getenv("HW_CODEARTS_PUBLIC_IP_ADDRESS")
 
-	HW_EG_CHANNEL_ID = os.Getenv("HW_EG_CHANNEL_ID")
+	HW_EG_TEST_ON     = os.Getenv("HW_EG_TEST_ON") // Whether to run the EG related tests.
+	HW_EG_CHANNEL_ID  = os.Getenv("HW_EG_CHANNEL_ID")
+	HW_EG_AGENCY_NAME = os.Getenv("HW_EG_AGENCY_NAME")
 
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
@@ -1188,9 +1190,23 @@ func TestAccPreCheckModelartsUserLoginPassword(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckEG(t *testing.T) {
+	if HW_EG_TEST_ON == "" {
+		t.Skip("Skip all sub tests of the EG service.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckEgChannelId(t *testing.T) {
 	if HW_EG_CHANNEL_ID == "" {
 		t.Skip("The sub-resource acceptance test of the EG channel must set 'HW_EG_CHANNEL_ID'")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEgAgencyName(t *testing.T) {
+	if HW_EG_AGENCY_NAME == "" {
+		t.Skip("HW_EG_AGENCY_NAME must be set for resource creation of the EG connection")
 	}
 }
 

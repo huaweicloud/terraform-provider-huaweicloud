@@ -204,6 +204,9 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 
+* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the Kafka SASL_SSL is enabled.  
+  Changing this creates a new resource.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS Kafka instance.
 
 * `cross_vpc_accesses` - (Optional, List) Specifies the cross-VPC access information.
@@ -244,7 +247,6 @@ In addition to all arguments above, the following attributes are exported:
 * `used_storage_space` - Indicates the used message storage space. Unit: GB
 * `port` - Indicates the port number of the DMS Kafka instance.
 * `status` - Indicates the status of the DMS Kafka instance.
-* `ssl_enable` - Indicates whether the Kafka SASL_SSL is enabled.
 * `enable_public_ip` - Indicates whether public access to the DMS Kafka instance is enabled.
 * `resource_spec_code` - Indicates a resource specifications identifier.
 * `type` - Indicates the DMS Kafka instance type.
@@ -279,7 +281,8 @@ DMS Kafka instance can be imported using the instance id, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `manager_password` and `public_ip_ids`. It is generally recommended running `terraform plan` after importing
+`password`, `manager_password`, `public_ip_ids`, `security_protocol` and `enabled_mechanisms`.
+It is generally recommended running `terraform plan` after importing
 a DMS Kafka instance. You can then decide if changes should be applied to the instance, or the resource definition
 should be updated to align with the instance. Also you can ignore changes as below.
 
