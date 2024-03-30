@@ -18,9 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceRmsStoredQuerySchemas() *schema.Resource {
+func DataSourceRmsAdvancedQuerySchemas() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRmsStoredQuerySchemasRead,
+		ReadContext: dataSourceRmsAdvancedQuerySchemasRead,
 
 		Schema: map[string]*schema.Schema{
 			"type": {
@@ -52,20 +52,20 @@ func DataSourceRmsStoredQuerySchemas() *schema.Resource {
 	}
 }
 
-type StoredQuerySchemasDSWrapper struct {
+type AdvancedQuerySchemasDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
 }
 
-func newStoredQuerySchemasDSWrapper(d *schema.ResourceData, meta interface{}) *StoredQuerySchemasDSWrapper {
-	return &StoredQuerySchemasDSWrapper{
+func newAdvancedQuerySchemasDSWrapper(d *schema.ResourceData, meta interface{}) *AdvancedQuerySchemasDSWrapper {
+	return &AdvancedQuerySchemasDSWrapper{
 		ResourceDataWrapper: schemas.NewSchemaWrapper(d),
 		Config:              meta.(*config.Config),
 	}
 }
 
-func dataSourceRmsStoredQuerySchemasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newStoredQuerySchemasDSWrapper(d, meta)
+func dataSourceRmsAdvancedQuerySchemasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	wrapper := newAdvancedQuerySchemasDSWrapper(d, meta)
 	listSchemasRst, err := wrapper.ListSchemas()
 	if err != nil {
 		return diag.FromErr(err)
@@ -82,7 +82,7 @@ func dataSourceRmsStoredQuerySchemasRead(_ context.Context, d *schema.ResourceDa
 }
 
 // @API CONFIG GET /v1/resource-manager/domains/{domain_id}/schemas
-func (w *StoredQuerySchemasDSWrapper) ListSchemas() (*gjson.Result, error) {
+func (w *AdvancedQuerySchemasDSWrapper) ListSchemas() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "rms")
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (w *StoredQuerySchemasDSWrapper) ListSchemas() (*gjson.Result, error) {
 		Result()
 }
 
-func (w *StoredQuerySchemasDSWrapper) listSchemasToSchema(body *gjson.Result) error {
+func (w *AdvancedQuerySchemasDSWrapper) listSchemasToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("schemas", schemas.SliceToList(body.Get("value"),
@@ -117,7 +117,7 @@ func (w *StoredQuerySchemasDSWrapper) listSchemasToSchema(body *gjson.Result) er
 	return mErr.ErrorOrNil()
 }
 
-func (*StoredQuerySchemasDSWrapper) setValueSchema(_, data *gjson.Result) map[string]interface{} {
+func (*AdvancedQuerySchemasDSWrapper) setValueSchema(_, data *gjson.Result) map[string]interface{} {
 	schemaToSet := data.Get("schema")
 	result := make(map[string]interface{})
 	for k, v := range schemaToSet.Map() {
