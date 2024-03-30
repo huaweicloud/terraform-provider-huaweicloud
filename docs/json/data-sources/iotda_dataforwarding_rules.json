@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_dataforwarding_rules": {
+          "block": {
+            "attributes": {
+              "app_type": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource": {
+                "type": "string",
+                "optional": true
+              },
+              "rule_id": {
+                "type": "string",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_type": "string",
+                      "description": "string",
+                      "enabled": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "resource": "string",
+                      "select": "string",
+                      "space_id": "string",
+                      "trigger": "string",
+                      "where": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "optional": true
+              },
+              "trigger": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

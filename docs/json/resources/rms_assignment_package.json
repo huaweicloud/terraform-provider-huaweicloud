@@ -83,7 +83,7 @@
                   },
                   "description": "Specifies the parameters of an assignment package."
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "forcenew": true
               }
             }

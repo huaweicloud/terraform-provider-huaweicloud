@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the service name.",
+                "optional": true
+              },
+              "services": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "category_display_name": "string",
+                      "display_name": "string",
+                      "name": "string",
+                      "resource_types": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "console_detail_url": "string",
+                            "console_endpoint_id": "string",
+                            "console_list_url": "string",
+                            "display_name": "string",
+                            "global": "bool",
+                            "name": "string",
+                            "regions": [
+                              "set",
+                              "string"
+                            ],
+                            "track": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The service details list.",
+                "computed": true
+              },
+              "track": {
+                "type": "string",
+                "description": "Specifies whether resources are collected by default.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

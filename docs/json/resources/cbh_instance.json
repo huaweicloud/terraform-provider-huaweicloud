@@ -18,7 +18,7 @@
               },
               "charging_mode": {
                 "type": "string",
-                "description": "Specifies the charging mode of the read replica instance.",
+                "description": "Specifies the charging mode of the CBH instance.",
                 "required": true,
                 "forcenew": true
               },
@@ -36,7 +36,6 @@
                 "type": "bool",
                 "description": "Specifies whether the IPv6 network is enabled.",
                 "optional": true,
-                "computed": true,
                 "forcenew": true
               },
               "name": {
@@ -53,7 +52,7 @@
               },
               "period": {
                 "type": "number",
-                "description": "Specifies the charging period of the read replica instance.",
+                "description": "Specifies the charging period of the CBH instance.",
                 "required": true,
                 "forcenew": true
               },
@@ -65,13 +64,12 @@
               },
               "private_ip": {
                 "type": "string",
-                "description": "Indicates the private ip of the instance.",
+                "description": "Indicates the private IP of the instance.",
                 "computed": true
               },
               "public_ip": {
                 "type": "string",
-                "description": "Specifies the elastic IP address.",
-                "optional": true,
+                "description": "The elastic IP address.",
                 "computed": true
               },
               "public_ip_id": {

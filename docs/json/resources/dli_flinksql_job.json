@@ -125,8 +125,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "tm_cus": {
                 "type": "number",

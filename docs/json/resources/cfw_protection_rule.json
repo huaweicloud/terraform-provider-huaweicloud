@@ -70,14 +70,23 @@
                 "computed": true
               },
               "rule_hit_count": {
-                "type": "number",
-                "description": "The number of times the protection rule is hit",
+                "type": "string",
+                "description": "The number of times the protection rule is hit.",
+                "optional": true,
                 "computed": true
               },
               "status": {
                 "type": "number",
                 "description": "The rule status.",
                 "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the protection rule.",
+                "optional": true
               },
               "type": {
                 "type": "number",
@@ -92,6 +101,14 @@
                     "address": {
                       "type": "string",
                       "description": "The IP address.",
+                      "optional": true
+                    },
+                    "address_group": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The address group list.",
                       "optional": true
                     },
                     "address_set_id": {
@@ -112,6 +129,24 @@
                     "domain_address_name": {
                       "type": "string",
                       "description": "The name of the domain name address.",
+                      "optional": true
+                    },
+                    "domain_set_id": {
+                      "type": "string",
+                      "description": "The ID of the domain group.",
+                      "optional": true
+                    },
+                    "domain_set_name": {
+                      "type": "string",
+                      "description": "The name of domain group.",
+                      "optional": true
+                    },
+                    "ip_address": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The IP address list.",
                       "optional": true
                     },
                     "type": {
@@ -184,37 +219,65 @@
                     "dest_port": {
                       "type": "string",
                       "description": "The destination port.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "protocol": {
                       "type": "number",
                       "description": "The protocol type.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
+                    },
+                    "service_group": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The service group list.",
+                      "optional": true
                     },
                     "service_set_id": {
                       "type": "string",
                       "description": "The service group ID.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "service_set_name": {
                       "type": "string",
                       "description": "The service group name.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "source_port": {
                       "type": "string",
                       "description": "The source port.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "type": {
                       "type": "number",
                       "description": "The service input type.",
                       "required": true
+                    }
+                  },
+                  "block_types": {
+                    "custom_service": {
+                      "block": {
+                        "attributes": {
+                          "dest_port": {
+                            "type": "string",
+                            "description": "The destination port.",
+                            "required": true
+                          },
+                          "protocol": {
+                            "type": "number",
+                            "description": "The protocol type.",
+                            "required": true
+                          },
+                          "source_port": {
+                            "type": "string",
+                            "description": "The source port.",
+                            "required": true
+                          }
+                        },
+                        "description": "The custom service."
+                      },
+                      "nesting_mode": "list"
                     }
                   },
                   "description": "The service configuration."
@@ -229,6 +292,14 @@
                     "address": {
                       "type": "string",
                       "description": "The IP address.",
+                      "optional": true
+                    },
+                    "address_group": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The address group list.",
                       "optional": true
                     },
                     "address_set_id": {
@@ -249,6 +320,24 @@
                     "domain_address_name": {
                       "type": "string",
                       "description": "The name of the domain name address.",
+                      "optional": true
+                    },
+                    "domain_set_id": {
+                      "type": "string",
+                      "description": "The ID of the domain group.",
+                      "optional": true
+                    },
+                    "domain_set_name": {
+                      "type": "string",
+                      "description": "The name of domain group.",
+                      "optional": true
+                    },
+                    "ip_address": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The IP address list.",
                       "optional": true
                     },
                     "type": {

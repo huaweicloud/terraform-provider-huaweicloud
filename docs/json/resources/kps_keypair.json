@@ -16,8 +16,7 @@
               "encryption_type": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "fingerprint": {
                 "type": "string",
@@ -39,13 +38,17 @@
               },
               "kms_key_name": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "name": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "private_key": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
               },
               "public_key": {
                 "type": "string",

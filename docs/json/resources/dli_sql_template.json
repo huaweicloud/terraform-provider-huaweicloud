@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_sql_template": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the SQL template.",
+                "optional": true,
+                "computed": true
+              },
+              "group": {
+                "type": "string",
+                "description": "The group of the SQL template.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the SQL template.",
+                "required": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "The user ID of owner.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sql": {
+                "type": "string",
+                "description": "The statement of the SQL template.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

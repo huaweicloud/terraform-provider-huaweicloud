@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_desktop_name_rule": {
+          "block": {
+            "attributes": {
+              "digit_number": {
+                "type": "number",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_contain_user": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_default_policy": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "name_prefix": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "single_domain_user_increment": {
+                "type": "number",
+                "required": true
+              },
+              "start_number": {
+                "type": "number",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,301 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_cce_access": {
+          "block": {
+            "attributes": {
+              "access_type": {
+                "type": "string",
+                "description": "The log access type.",
+                "computed": true
+              },
+              "binary_collect": {
+                "type": "bool",
+                "description": "Whether collect in binary format. Default is false.",
+                "optional": true,
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "The CCE cluster ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the CCE access, in RFC3339 format.",
+                "computed": true
+              },
+              "host_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The log access host group ID list.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "The log group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "description": "The log group name.",
+                "computed": true
+              },
+              "log_split": {
+                "type": "bool",
+                "description": "Whether to split log. Default is false.",
+                "optional": true,
+                "computed": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "The log stream ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "log_stream_name": {
+                "type": "string",
+                "description": "The log stream name.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the CCE access.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            },
+            "block_types": {
+              "access_config": {
+                "block": {
+                  "attributes": {
+                    "black_paths": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The collection path blacklist.",
+                      "optional": true
+                    },
+                    "container_name_regex": {
+                      "type": "string",
+                      "description": "The regular expression matching of kubernetes container names.",
+                      "optional": true
+                    },
+                    "exclude_envs": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The environment variable blacklist.",
+                      "optional": true
+                    },
+                    "exclude_k8s_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The kubernetes label blacklist.",
+                      "optional": true
+                    },
+                    "exclude_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The container label blacklist.",
+                      "optional": true
+                    },
+                    "include_envs": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The environment variable whitelist.",
+                      "optional": true
+                    },
+                    "include_k8s_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The kubernetes label whitelist.",
+                      "optional": true
+                    },
+                    "include_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The container label whitelist.",
+                      "optional": true
+                    },
+                    "log_envs": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The environment variable tag.",
+                      "optional": true
+                    },
+                    "log_k8s": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The kubernetes label log tag.",
+                      "optional": true
+                    },
+                    "log_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The container label log tag.",
+                      "optional": true
+                    },
+                    "name_space_regex": {
+                      "type": "string",
+                      "description": "The regular expression matching of kubernetes namespaces.",
+                      "optional": true
+                    },
+                    "path_type": {
+                      "type": "string",
+                      "description": "The type of the CCE access.",
+                      "required": true
+                    },
+                    "paths": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The collection paths.",
+                      "optional": true
+                    },
+                    "pod_name_regex": {
+                      "type": "string",
+                      "description": "The regular expression matching of kubernetes pods.",
+                      "optional": true
+                    },
+                    "stderr": {
+                      "type": "bool",
+                      "description": "Whether error output is standard. Default is false.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "stdout": {
+                      "type": "bool",
+                      "description": "Whether output is standard. Default is false.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "multi_log_format": {
+                      "block": {
+                        "attributes": {
+                          "mode": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "description": "The configuration multi-line logs."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "single_log_format": {
+                      "block": {
+                        "attributes": {
+                          "mode": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The configuration single-line logs."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "windows_log_info": {
+                      "block": {
+                        "attributes": {
+                          "categorys": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          },
+                          "event_level": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          },
+                          "time_offset": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "time_offset_unit": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "description": "The configuration of Windows event logs."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The configurations of CCE access."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

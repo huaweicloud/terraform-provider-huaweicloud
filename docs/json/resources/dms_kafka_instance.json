@@ -62,7 +62,6 @@
                   "string"
                 ],
                 "optional": true,
-                "computed": true,
                 "forcenew": true
               },
               "engine": {
@@ -177,12 +176,13 @@
               "security_protocol": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
                 "forcenew": true
               },
               "ssl_enable": {
                 "type": "bool",
-                "computed": true
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",

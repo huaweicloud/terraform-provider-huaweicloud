@@ -179,8 +179,7 @@
                   "attributes": {
                     "flavor": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "instance_number": {
                       "type": "number",
@@ -218,8 +217,7 @@
                   "attributes": {
                     "flavor": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "instance_number": {
                       "type": "number",
@@ -255,8 +253,7 @@
                   "attributes": {
                     "flavor": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "instance_number": {
                       "type": "number",
@@ -317,8 +314,7 @@
                   "attributes": {
                     "flavor": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "instance_number": {
                       "type": "number",

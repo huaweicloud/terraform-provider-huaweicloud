@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_flink_template": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the flink template.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the flink template.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sql": {
+                "type": "string",
+                "description": "The statement of the flink template.",
+                "optional": true,
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the flink template.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the flink template.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_global_connection_bandwidth_associate": {
+          "block": {
+            "attributes": {
+              "gcb_id": {
+                "type": "string",
+                "description": "The global connection bandwidth ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "gcb_binding_resources": {
+                "block": {
+                  "attributes": {
+                    "project_id": {
+                      "type": "string",
+                      "description": "The project ID of the resource to associate with the global connection bandwidth.",
+                      "optional": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "description": "The region ID of the resource to associate with the global connection bandwidth.",
+                      "optional": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "description": "The ID of the resource to associate with the global connection bandwidth.",
+                      "required": true
+                    },
+                    "resource_type": {
+                      "type": "string",
+                      "description": "The type of the resource to associate with the global connection bandwidth.",
+                      "required": true
+                    }
+                  },
+                  "description": "The resources to associate with the global connection bandwidth."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -46,6 +46,13 @@
                 "type": "string",
                 "computed": true
               },
+              "retiring_principal": {
+                "type": "string",
+                "description": "The ID of the retiring user.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "type": {
                 "type": "string",
                 "description": "Authorization type. The options are: **user**, **domain**. The default value is **user**.",

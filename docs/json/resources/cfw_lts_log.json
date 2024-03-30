@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_lts_log": {
+          "block": {
+            "attributes": {
+              "fw_instance_id": {
+                "type": "string",
+                "description": "The ID of the firewall.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lts_access_log_stream_enable": {
+                "type": "number",
+                "description": "LTS access log stream switch.",
+                "required": true
+              },
+              "lts_access_log_stream_id": {
+                "type": "string",
+                "description": "LTS access log stream ID.",
+                "optional": true
+              },
+              "lts_attack_log_stream_enable": {
+                "type": "number",
+                "description": "LTS attack log stream switch.",
+                "required": true
+              },
+              "lts_attack_log_stream_id": {
+                "type": "string",
+                "description": "LTS attack log stream ID.",
+                "optional": true
+              },
+              "lts_flow_log_stream_enable": {
+                "type": "number",
+                "description": "LTS flow log stream switch.",
+                "required": true
+              },
+              "lts_flow_log_stream_id": {
+                "type": "string",
+                "description": "LTS flow log stream ID.",
+                "optional": true
+              },
+              "lts_log_group_id": {
+                "type": "string",
+                "description": "LTS log group ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

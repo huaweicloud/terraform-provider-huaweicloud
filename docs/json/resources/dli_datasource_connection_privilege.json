@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_datasource_connection_privilege": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "The ID of the connection to be granted.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "privileges": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of permissions granted to the connection.",
+                "optional": true,
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The ID of the granted project.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

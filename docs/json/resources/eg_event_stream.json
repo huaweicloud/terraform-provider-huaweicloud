@@ -1,0 +1,213 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_event_stream": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The desired running status of the event stream.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The (UTC) creation time of the event stream, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the event stream.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event stream.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event stream is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the event stream.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The (UTC) update time of the event stream, in RFC3339 format.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "option": {
+                "block": {
+                  "attributes": {
+                    "thread_num": {
+                      "type": "number",
+                      "description": "The number of concurrent threads.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "batch_window": {
+                      "block": {
+                        "attributes": {
+                          "count": {
+                            "type": "number",
+                            "description": "The number of items pushed in batches.",
+                            "required": true
+                          },
+                          "interval": {
+                            "type": "number",
+                            "description": "The interval of the batch push.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "time": {
+                            "type": "number",
+                            "description": "The number of retries.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The configuration of the batch push."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The runtime configuration of the event stream."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "rule_config": {
+                "block": {
+                  "attributes": {
+                    "filter": {
+                      "type": "string",
+                      "description": "The configuration detail of the filter rule.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "transform": {
+                      "block": {
+                        "attributes": {
+                          "template": {
+                            "type": "string",
+                            "description": "The template definition of the rule content.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of transform rule.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The rule content definition.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The configuration detail of the transform rule."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The rule configuration of the event stream."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "sink": {
+                "block": {
+                  "attributes": {
+                    "functiongraph": {
+                      "type": "string",
+                      "description": "The event target configuration detail for FunctionGraph type.",
+                      "optional": true
+                    },
+                    "kafka": {
+                      "type": "string",
+                      "description": "The event target configuration detail for DMS Kafka type.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the event target type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The target configuration of the event stream."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "source": {
+                "block": {
+                  "attributes": {
+                    "community_rocketmq": {
+                      "type": "string",
+                      "description": "The event source configuration detail for community RocketMQ type.",
+                      "optional": true
+                    },
+                    "dms_rocketmq": {
+                      "type": "string",
+                      "description": "The event source configuration detail for DMS RocketMQ type.",
+                      "optional": true
+                    },
+                    "kafka": {
+                      "type": "string",
+                      "description": "The event source configuration detail for DMS Kafka type.",
+                      "optional": true
+                    },
+                    "mobile_rocketmq": {
+                      "type": "string",
+                      "description": "The event source configuration detail for mobile RocketMQ type.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the event source type.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The source configuration of the event stream."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

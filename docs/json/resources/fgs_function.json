@@ -75,6 +75,14 @@
                 "computed": true,
                 "forcenew": true
               },
+              "gpu_memory": {
+                "type": "number",
+                "optional": true
+              },
+              "gpu_type": {
+                "type": "string",
+                "optional": true
+              },
               "handler": {
                 "type": "string",
                 "description": "The entry point of the function.",

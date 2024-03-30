@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_advanced_query_schemas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "schemas": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "schema": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of schema.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the schema.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

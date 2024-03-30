@@ -33,7 +33,17 @@
               "floating_ip_id": {
                 "type": "string",
                 "description": "The ID of the floating IP address.",
-                "required": true
+                "optional": true
+              },
+              "global_eip_address": {
+                "type": "string",
+                "description": "The global EIP address connected by the DNAT rule.",
+                "computed": true
+              },
+              "global_eip_id": {
+                "type": "string",
+                "description": "The ID of the global EIP connected by the DNAT rule.",
+                "optional": true
               },
               "id": {
                 "type": "string",

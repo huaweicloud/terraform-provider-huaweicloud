@@ -24,14 +24,12 @@
               "lts_group_id": {
                 "type": "string",
                 "description": "Specifies the ID of the LTS log group.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "lts_stream_id": {
                 "type": "string",
                 "description": "Specifies the ID of the LTS log stream.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

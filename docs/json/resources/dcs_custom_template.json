@@ -10,6 +10,11 @@
                 "description": "Indicates the DCS instance type.",
                 "computed": true
               },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the time when the custom template is created.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the description of the template.",

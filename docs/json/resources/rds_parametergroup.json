@@ -23,6 +23,10 @@
                 ],
                 "computed": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -36,6 +40,10 @@
                 "required": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
                 "type": "string",
                 "computed": true
               },

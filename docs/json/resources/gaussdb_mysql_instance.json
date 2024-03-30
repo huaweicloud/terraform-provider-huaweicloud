@@ -54,8 +54,7 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "flavor": {
                 "type": "string",

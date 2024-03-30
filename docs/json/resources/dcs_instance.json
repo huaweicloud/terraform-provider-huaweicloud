@@ -23,6 +23,31 @@
                 "required": true,
                 "forcenew": true
               },
+              "bandwidth_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": "number",
+                      "begin_time": "string",
+                      "current_time": "string",
+                      "end_time": "string",
+                      "expand_count": "number",
+                      "expand_effect_time": "number",
+                      "expand_interval_time": "number",
+                      "max_expand_count": "number",
+                      "next_expand_time": "string",
+                      "task_running": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cache_mode": {
+                "type": "string",
+                "computed": true
+              },
               "capacity": {
                 "type": "number",
                 "required": true
@@ -32,6 +57,14 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "cpu_type": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
               },
               "deleted_nodes": {
                 "type": [
@@ -69,6 +102,10 @@
                 "required": true
               },
               "id": {
+                "type": "string",
+                "computed": true
+              },
+              "launched_at": {
                 "type": "string",
                 "computed": true
               },
@@ -120,6 +157,14 @@
                 "computed": true,
                 "forcenew": true
               },
+              "product_type": {
+                "type": "string",
+                "computed": true
+              },
+              "readonly_domain_name": {
+                "type": "string",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -130,6 +175,10 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "replica_count": {
+                "type": "number",
+                "computed": true
               },
               "reserved_ips": {
                 "type": [
@@ -146,12 +195,20 @@
                 "type": "string",
                 "computed": true
               },
+              "sharding_count": {
+                "type": "number",
+                "computed": true
+              },
               "ssl_enable": {
                 "type": "bool",
                 "optional": true,
                 "computed": true
               },
               "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_cidr": {
                 "type": "string",
                 "computed": true
               },
@@ -175,6 +232,10 @@
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "transparent_client_ip_enable": {
+                "type": "bool",
+                "computed": true
               },
               "used_memory": {
                 "type": "number",

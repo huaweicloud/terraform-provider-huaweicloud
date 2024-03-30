@@ -12,8 +12,7 @@
               },
               "availability_zone": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "charging_mode": {
                 "type": "string",
@@ -24,6 +23,10 @@
               "db_username": {
                 "type": "string",
                 "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
               },
               "disk_encryption_id": {
                 "type": "string",
@@ -90,6 +93,11 @@
                 "type": "string",
                 "computed": true
               },
+              "second_level_monitoring_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "security_group_id": {
                 "type": "string",
                 "required": true
@@ -128,6 +136,11 @@
                     "keep_days": {
                       "type": "number",
                       "required": true
+                    },
+                    "period": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
                     },
                     "start_time": {
                       "type": "string",

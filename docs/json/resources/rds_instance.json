@@ -17,6 +17,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "binlog_retention_hours": {
+                "type": "number",
+                "optional": true
+              },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
@@ -226,6 +230,25 @@
                 "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
+              },
+              "msdtc_hosts": {
+                "block": {
+                  "attributes": {
+                    "host_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               },
               "parameters": {
                 "block": {

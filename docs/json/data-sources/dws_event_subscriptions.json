@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_event_subscriptions": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "The category of source event.",
+                "optional": true
+              },
+              "enable": {
+                "type": "string",
+                "description": "Whether the event subscription is enabled.",
+                "optional": true
+              },
+              "event_subscriptions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "enable": "string",
+                      "id": "string",
+                      "language": "string",
+                      "name": "string",
+                      "name_space": "string",
+                      "notification_target": "string",
+                      "notification_target_name": "string",
+                      "notification_target_type": "string",
+                      "project_id": "string",
+                      "severity": "string",
+                      "source_id": "string",
+                      "source_type": "string",
+                      "time_zone": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of event subscriptions.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of event subscription.",
+                "optional": true
+              },
+              "notification_target_name": {
+                "type": "string",
+                "description": "The name of notification target.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "description": "The severity of source event.",
+                "optional": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "The type of source event.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_logstash_pipeline": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keep_alive": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "pipelines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "events": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "filtered": "number",
+                            "in": "number",
+                            "out": "number"
+                          }
+                        ]
+                      ],
+                      "keep_alive": "bool",
+                      "name": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

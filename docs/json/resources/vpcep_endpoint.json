@@ -33,7 +33,8 @@
               },
               "network_id": {
                 "type": "string",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "packet_id": {
@@ -47,6 +48,15 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "routetables": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "service_id": {
                 "type": "string",

@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_assignment_packages": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the assignment package name. It contains 1 to 64 characters.",
+                "optional": true
+              },
+              "package_id": {
+                "type": "string",
+                "description": "Specifies the assignment package ID.",
+                "optional": true
+              },
+              "packages": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "created_by": "string",
+                      "deployment_id": "string",
+                      "error_message": "string",
+                      "id": "string",
+                      "name": "string",
+                      "stack_id": "string",
+                      "stack_name": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "vars_structure": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "var_key": "string",
+                            "var_value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The assignment package list.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the assignment package status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

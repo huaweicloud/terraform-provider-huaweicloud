@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_hotkey_analyses": {
+          "block": {
+            "attributes": {
+              "analysis_id": {
+                "type": "string",
+                "description": "Specifies the ID of the hot key analysis.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "finished_at": "string",
+                      "id": "string",
+                      "scan_type": "string",
+                      "started_at": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of hot key analysis records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scan_type": {
+                "type": "string",
+                "description": "Specifies the mode of the hot key analysis.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the hot key analysis.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

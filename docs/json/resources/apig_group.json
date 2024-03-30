@@ -80,6 +80,28 @@
                   "description": "The array of one or more environments of the associated group."
                 },
                 "nesting_mode": "set"
+              },
+              "url_domains": {
+                "block": {
+                  "attributes": {
+                    "is_http_redirect_to_https": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "min_ssl_version": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "max_items": 5
               }
             }
           },

@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_propagations": {
+          "block": {
+            "attributes": {
+              "attachment_id": {
+                "type": "string",
+                "optional": true
+              },
+              "attachment_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "propagations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachment_id": "string",
+                      "attachment_type": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "resource_id": "string",
+                      "route_policy_id": "string",
+                      "route_table_id": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "route_table_id": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -24,6 +24,10 @@
                 "optional": true,
                 "computed": true
               },
+              "force_disconnect": {
+                "type": "bool",
+                "optional": true
+              },
               "frozen": {
                 "type": "bool",
                 "optional": true,
@@ -60,11 +64,27 @@
                 "type": "string",
                 "computed": true
               },
+              "secondary_fingerprint": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "secondary_secret": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
               "secret": {
                 "type": "string",
                 "optional": true,
                 "computed": true,
                 "sensitive": true
+              },
+              "secure_access": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "space_id": {
                 "type": "string",

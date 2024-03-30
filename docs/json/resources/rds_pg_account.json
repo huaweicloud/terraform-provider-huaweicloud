@@ -5,6 +5,26 @@
         "huaweicloud_rds_pg_account": {
           "block": {
             "attributes": {
+              "attributes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "rol_bypass_rls": "bool",
+                      "rol_can_login": "bool",
+                      "rol_conn_limit": "number",
+                      "rol_create_db": "bool",
+                      "rol_create_role": "bool",
+                      "rol_inherit": "bool",
+                      "rol_replication": "bool",
+                      "rol_super": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the permission attributes of the account.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the remarks of the DB account.",
@@ -19,6 +39,14 @@
                 "description": "Specifies the ID of the RDS PostgreSQL instance.",
                 "required": true,
                 "forcenew": true
+              },
+              "memberof": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the default rights of the account.",
+                "computed": true
               },
               "name": {
                 "type": "string",

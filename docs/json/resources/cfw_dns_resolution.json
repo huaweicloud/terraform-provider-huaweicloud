@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_dns_resolution": {
+          "block": {
+            "attributes": {
+              "custom_dns_servers": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The custom DNS servers.",
+                "optional": true
+              },
+              "default_dns_servers": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The default DNS servers.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "The ID of the firewall.",
+                "required": true,
+                "forcenew": true
+              },
+              "health_check_domain_name": {
+                "type": "string",
+                "description": "The health check domain name.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_service_groups": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_word": {
+                "type": "string",
+                "description": "Specifies the keyword of the service group description.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the service group.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "service_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "protocols": [
+                        "set",
+                        "number"
+                      ],
+                      "ref_count": "number",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "Service group list",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,9 +5,30 @@
         "huaweicloud_drs_job": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
+              },
+              "databases": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
               },
               "description": {
                 "type": "string",
@@ -49,6 +70,10 @@
                 "type": "string",
                 "computed": true
               },
+              "is_sync_re_edit": {
+                "type": "bool",
+                "optional": true
+              },
               "migrate_definer": {
                 "type": "bool",
                 "optional": true,
@@ -77,7 +102,29 @@
                 "forcenew": true,
                 "default": "eip"
               },
+              "order_id": {
+                "type": "string",
+                "computed": true
+              },
+              "pause_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "progress": {
                 "type": "string",
                 "computed": true
               },
@@ -188,6 +235,12 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
                     }
                   }
                 },
@@ -219,6 +272,33 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "max_items": 3
+              },
+              "policy_config": {
+                "block": {
+                  "attributes": {
+                    "conflict_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "filter_ddl_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "index_trans": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
               },
               "source_db": {
                 "block": {
@@ -296,6 +376,12 @@
                       "type": "string",
                       "required": true,
                       "forcenew": true
+                    },
+                    "vpc_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
                     }
                   }
                 },
@@ -303,6 +389,24 @@
                 "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
+              },
+              "tables": {
+                "block": {
+                  "attributes": {
+                    "database": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "table_names": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

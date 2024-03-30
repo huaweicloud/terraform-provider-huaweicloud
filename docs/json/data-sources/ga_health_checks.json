@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_health_checks": {
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "string",
+                "description": "Whether health check is enabled.",
+                "optional": true
+              },
+              "endpoint_group_id": {
+                "type": "string",
+                "description": "The ID of the endpoint group to which the health check belongs.",
+                "optional": true
+              },
+              "health_check_id": {
+                "type": "string",
+                "description": "The ID of the health check.",
+                "optional": true
+              },
+              "health_checks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "enabled": "bool",
+                      "endpoint_group_id": "string",
+                      "id": "string",
+                      "interval": "number",
+                      "max_retries": "number",
+                      "port": "number",
+                      "protocol": "string",
+                      "status": "string",
+                      "timeout": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the health checks.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The front end protocol of the health check used.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the health check.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

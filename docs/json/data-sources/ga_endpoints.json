@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_endpoints": {
+          "block": {
+            "attributes": {
+              "endpoint_group_id": {
+                "type": "string",
+                "description": "The ID of the endpoint group to which the endpoint belongs.",
+                "required": true
+              },
+              "endpoint_id": {
+                "type": "string",
+                "description": "The ID of the endpoint.",
+                "optional": true
+              },
+              "endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "endpoint_group_id": "string",
+                      "health_state": "string",
+                      "id": "string",
+                      "ip_address": "string",
+                      "resource_id": "string",
+                      "resource_type": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "weight": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the endpoints.",
+                "computed": true
+              },
+              "health_state": {
+                "type": "string",
+                "description": "The health status of the endpoint.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "The IP address of the backend resource corresponding to the endpoint.",
+                "optional": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "The ID of the backend resource corresponding to the endpoint.",
+                "optional": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The type of the backend resource corresponding to the endpoint.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the endpoint.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

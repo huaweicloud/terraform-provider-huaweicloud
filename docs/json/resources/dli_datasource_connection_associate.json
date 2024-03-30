@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_datasource_connection_associate": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "The ID of the datasource enhanced connection to be associated.",
+                "required": true,
+                "forcenew": true
+              },
+              "elastic_resource_pools": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of the elastic resource pool names.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the datasource enhanced connection and elastic resource pools are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

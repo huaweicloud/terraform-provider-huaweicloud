@@ -1,25 +1,35 @@
 {
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
-      "resource_schemas": {
-        "huaweicloud_iotda_batchtask_file": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_amqps": {
           "block": {
             "attributes": {
-              "content": {
-                "type": "string",
-                "required": true,
-                "forcenew": true
-              },
-              "created_at": {
-                "type": "string",
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "optional": true
+              },
+              "queue_id": {
+                "type": "string",
+                "optional": true
+              },
+              "queues": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "region": {

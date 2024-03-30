@@ -40,12 +40,6 @@
                 "description": "The egress (NAT) public IP address.",
                 "computed": true
               },
-              "eip_id": {
-                "type": "string",
-                "description": "The EIP ID associated with the dedicated instance.",
-                "optional": true,
-                "computed": true
-              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The enterprise project ID to which the dedicated instance belongs.",
@@ -79,9 +73,7 @@
               "loadbalancer_provider": {
                 "type": "string",
                 "description": "The type of loadbalancer provider used by the instance.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "maintain_begin": {
                 "type": "string",

@@ -20,6 +20,10 @@
                 ],
                 "computed": true
               },
+              "ignore_details": {
+                "type": "string",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "optional": true

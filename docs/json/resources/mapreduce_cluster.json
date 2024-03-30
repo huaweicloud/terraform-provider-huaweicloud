@@ -10,6 +10,12 @@
                 "required": true,
                 "forcenew": true
               },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "charging_start_time": {
                 "type": "string",
                 "computed": true
@@ -68,6 +74,16 @@
                 "sensitive": true
               },
               "node_key_pair": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true

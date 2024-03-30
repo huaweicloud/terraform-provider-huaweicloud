@@ -54,6 +54,28 @@
                 "type": "string",
                 "computed": true
               },
+              "key_state": {
+                "type": "string",
+                "computed": true
+              },
+              "key_usage": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "keystore_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "origin": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "pending_days": {
                 "type": "string",
                 "optional": true

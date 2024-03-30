@@ -1,0 +1,248 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dli_spark_template": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the spark template.",
+                "optional": true,
+                "computed": true
+              },
+              "group": {
+                "type": "string",
+                "description": "The group of the spark template.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the spark template.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "body": {
+                "block": {
+                  "attributes": {
+                    "app_name": {
+                      "type": "string",
+                      "description": "Name of the package that is of the JAR or pyFile type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "app_parameters": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Input parameters of the main class, that is application parameters.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "auto_recovery": {
+                      "type": "bool",
+                      "description": "Whether to enable the retry function.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "configurations": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The configuration items of the DLI spark.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "driver_cores": {
+                      "type": "number",
+                      "description": "Number of CPU cores of the Spark application driver.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "driver_memory": {
+                      "type": "string",
+                      "description": "Driver memory of the Spark application, for example, 2 GB and 2048 MB.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "executor_cores": {
+                      "type": "number",
+                      "description": "Number of CPU cores of each Executor in the Spark application.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "executor_memory": {
+                      "type": "string",
+                      "description": "Executor memory of the Spark application, for example, 2 GB and 2048 MB.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "files": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Name of the package that is of the file type and has been uploaded to the DLI resource management system.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "jars": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Name of the package that is of the JAR type and has been uploaded to the DLI resource management system.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "main_class": {
+                      "type": "string",
+                      "description": "Java/Spark main class of the template.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_retry_times": {
+                      "type": "number",
+                      "description": "Maximum retry times.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "modules": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Name of the dependent system resource module.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The spark job name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "num_executors": {
+                      "type": "number",
+                      "description": "Number of Executors in a Spark application.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "obs_bucket": {
+                      "type": "string",
+                      "description": "OBS bucket for storing the Spark jobs.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "python_files": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Name of the package that is of the PyFile type and has been uploaded to the DLI resource management system.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "queue_name": {
+                      "type": "string",
+                      "description": "The DLI queue name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "specification": {
+                      "type": "string",
+                      "description": "Compute resource type. Currently, resource types A, B, and C are available.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "dependent_packages": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "User group name.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "resources": {
+                            "block": {
+                              "attributes": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "Resource name.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "Resource type.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "User group resource."
+                            },
+                            "nesting_mode": "list"
+                          }
+                        },
+                        "description": "The list of package resource objects."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "resources": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Resource name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Resource type.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The list of resource objects."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The content of the spark template."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

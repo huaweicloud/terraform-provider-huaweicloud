@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_address_groups": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "Specifies IP address of the IP address group.",
+                "optional": true
+              },
+              "address_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address_type": "number",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "object_id": "string",
+                      "ref_count": "number",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "The IP address group list.",
+                "computed": true
+              },
+              "address_type": {
+                "type": "number",
+                "description": "Specifies the IP address type.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id to which the IP address group belongs.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_word": {
+                "type": "string",
+                "description": "Specifies the keyword of the address group description.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the address group.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "query_address_set_type": {
+                "type": "number",
+                "description": "Specifies the address group type of the query.",
+                "optional": true,
+                "default": 0
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

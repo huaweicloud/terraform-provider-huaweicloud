@@ -81,7 +81,7 @@
                           }
                         }
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     }
                   }
                 },
@@ -144,6 +144,60 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "flexible_origin": {
+                      "block": {
+                        "attributes": {
+                          "match_pattern": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "match_type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "priority": {
+                            "type": "number",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "back_sources": {
+                            "block": {
+                              "attributes": {
+                                "http_port": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "https_port": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "ip_or_domain": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "obs_bucket_type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "sources_type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
                     "force_redirect": {
                       "block": {
                         "attributes": {
@@ -182,7 +236,7 @@
                           }
                         }
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     },
                     "https_settings": {
                       "block": {
@@ -236,6 +290,23 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "ip_frequency_limit": {
+                      "block": {
+                        "attributes": {
+                          "enabled": {
+                            "type": "bool",
+                            "required": true
+                          },
+                          "qps": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
                     "retrieval_request_header": {
                       "block": {
                         "attributes": {
@@ -253,7 +324,7 @@
                           }
                         }
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     },
                     "url_signing": {
                       "block": {
@@ -283,6 +354,23 @@
                           },
                           "type": {
                             "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "websocket": {
+                      "block": {
+                        "attributes": {
+                          "enabled": {
+                            "type": "bool",
+                            "required": true
+                          },
+                          "timeout": {
+                            "type": "number",
                             "optional": true,
                             "computed": true
                           }
@@ -334,8 +422,7 @@
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true,
+                "nesting_mode": "set",
                 "min_items": 1
               }
             }

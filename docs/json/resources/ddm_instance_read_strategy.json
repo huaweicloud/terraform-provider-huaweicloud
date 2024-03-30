@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ddm_instance_read_strategy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DDM instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "read_weights": {
+                "block": {
+                  "attributes": {
+                    "db_id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the DB instance associated with the DDM schema.",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "Specifies read weight of the DB instance associated with the DDM schema.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the list of read weights of the primary DB instance and its read replicas."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

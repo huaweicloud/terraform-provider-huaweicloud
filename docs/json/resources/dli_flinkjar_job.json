@@ -128,8 +128,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "tm_cu_num": {
                 "type": "number",

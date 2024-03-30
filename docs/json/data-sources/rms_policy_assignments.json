@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_policy_assignments": {
+          "block": {
+            "attributes": {
+              "assignment_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy assignment.",
+                "optional": true
+              },
+              "assignments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "created_by": "string",
+                      "custom_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auth_type": "string",
+                            "auth_value": [
+                              "map",
+                              "string"
+                            ],
+                            "function_urn": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "parameters": [
+                        "map",
+                        "string"
+                      ],
+                      "period": "string",
+                      "policy_assignment_type": "string",
+                      "policy_definition_id": "string",
+                      "policy_filter": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "region": "string",
+                            "resource_id": "string",
+                            "resource_provider": "string",
+                            "resource_type": "string",
+                            "tag_key": "string",
+                            "tag_value": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "description": "The policy assignment list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the assignment name.",
+                "optional": true
+              },
+              "policy_definition_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy definition.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the expect status of the policy.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

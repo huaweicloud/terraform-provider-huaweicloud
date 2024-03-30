@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identity_service_agency": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "delegated_service_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "duration": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "path": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "policy_names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "trust_policy": {
+                "type": "string",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,7 +11,7 @@
               },
               "group_name": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               },
               "id": {
@@ -45,6 +45,13 @@
               "status": {
                 "type": "string",
                 "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               },
               "type": {
                 "type": "string",

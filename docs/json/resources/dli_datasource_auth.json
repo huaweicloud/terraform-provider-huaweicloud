@@ -89,7 +89,7 @@
                 "required": true,
                 "forcenew": true
               },
-              "username": {
+              "user_name": {
                 "type": "string",
                 "description": "Username for accessing the security cluster or datasource.",
                 "optional": true,

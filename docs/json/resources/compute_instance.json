@@ -278,6 +278,14 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "extend_param": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "id": {
                       "type": "string",
                       "optional": true,
