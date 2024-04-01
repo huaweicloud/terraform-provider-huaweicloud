@@ -876,7 +876,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
 
-			"huaweicloud_cae_component": cae.ResourceComponent(),
+			"huaweicloud_cae_component":                cae.ResourceComponent(),
+			"huaweicloud_cae_component_configurations": cae.ResourceComponentConfigurations(),
 
 			"huaweicloud_cbr_backup_share_accepter": cbr.ResourceBackupShareAccepter(),
 			"huaweicloud_cbr_backup_share":          cbr.ResourceBackupShare(),
