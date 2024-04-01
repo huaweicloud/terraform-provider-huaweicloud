@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -47,7 +48,8 @@ func TestAccResourceDliTable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "database_name", name),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "data_location", tables.TableTypeDLI),
-					resource.TestCheckResourceAttr(resourceName, "description", "dli table test"),
+					// The description returned by the API may contain extra characters "}" at the end.
+					resource.TestMatchResourceAttr(resourceName, "description", regexp.MustCompile(`^dli table test?}$`)),
 				),
 			},
 			{
@@ -115,7 +117,8 @@ func TestAccResourceDliTable_OBS(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "database_name", name),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "data_location", tables.TableTypeOBS),
-					resource.TestCheckResourceAttr(resourceName, "description", "dli table test"),
+					// The description returned by the API may contain extra characters "}" at the end.
+					resource.TestMatchResourceAttr(resourceName, "description", regexp.MustCompile(`^dli table test?}$`)),
 				),
 			},
 			{

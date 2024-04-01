@@ -87,6 +87,20 @@ func ResourceDliTable() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				// Note: Due to service issues, the API interface will add a "}" to the end of the string when returning
+				// the content of the description field. We need to manually ignore the impact of this character to
+				// avoid "force replacement".
+				// Warning: When the problem is fixed on the server side, we need to remove this method. Otherwise once
+				// the resource supports change descriptions, this will no longer allow clients to enter a string ending
+				// with "}".
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					// If the length of the old string is greater than the new string and its last character is "}", we
+					// think this is an extra character returned by the server and needs to be ignored.
+					if len(o) > len(n) && strings.HasSuffix(o, "}") {
+						return o[:len(o)-1] == n
+					}
+					return o == n
+				},
 			},
 			"data_format": {
 				Type:     schema.TypeString,
