@@ -471,15 +471,16 @@ func ResourceCdnDomain() *schema.Resource {
 					},
 				},
 			},
+			"service_area": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Required",
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-			"service_area": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
 			},
 			"configs": {
 				Type:     schema.TypeList,

@@ -15,8 +15,9 @@ variable "domain_name" {}
 variable "origin_server" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = var.domain_name
-  type = "web"
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     origin      = var.origin_server
@@ -38,8 +39,9 @@ variable "domain_name" {}
 variable "origin_server" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = var.domain_name
-  type = "web"
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     origin      = var.origin_server
@@ -49,9 +51,9 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
   cache_settings {
     rules {
-      rule_type = 0
+      rule_type = "all"
       ttl       = 180
-      ttl_type  = 4
+      ttl_type  = "d"
       priority  = 2
     }
   }
@@ -65,8 +67,9 @@ variable "domain_name" {}
 variable "origin_server" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = var.domain_name
-  type = "web"
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     origin      = var.origin_server
@@ -139,7 +142,7 @@ The following arguments are supported:
   A maximum of `50` origin site configurations can be configured.
   The [sources](#sources_cdn_domain) structure is documented below.
 
-* `service_area` - (Optional, String) Specifies the area covered by the acceleration service.
+* `service_area` - (Required, String) Specifies the area covered by the acceleration service.
   Valid values are as follows:
   + **mainland_china**: Indicates that the service scope is mainland China.
   + **outside_mainland_china**: Indicates that the service scope is outside mainland China.
