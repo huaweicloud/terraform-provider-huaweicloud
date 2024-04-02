@@ -79,7 +79,7 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"ssl_enable", "parameters",
+					"parameters",
 				},
 			},
 		},
