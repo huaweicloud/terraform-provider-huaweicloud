@@ -64,9 +64,12 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCdnDomain_cache,
+				Config: testAccCdnDomain_update1,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "type", "download"),
+					resource.TestCheckResourceAttr(resourceName, "service_area", "global"),
 					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.rule_type", "all"),
 					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.ttl", "180"),
 					resource.TestCheckResourceAttr(resourceName, "cache_settings.0.rules.0.ttl_type", "d"),
@@ -75,10 +78,12 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCdnDomain_retrievalHost,
+				Config: testAccCdnDomain_update2,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "type", "web"),
+					resource.TestCheckResourceAttr(resourceName, "service_area", "mainland_china"),
 					resource.TestCheckResourceAttr(resourceName, "sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
@@ -86,7 +91,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCdnDomain_standby,
+				Config: testAccCdnDomain_update3,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
@@ -132,11 +137,11 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-var testAccCdnDomain_cache = fmt.Sprintf(`
+var testAccCdnDomain_update1 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
-  type                  = "web"
-  service_area          = "outside_mainland_china"
+  type                  = "download"
+  service_area          = "global"
   enterprise_project_id = "0"
 
   configs {
@@ -162,11 +167,11 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-var testAccCdnDomain_retrievalHost = fmt.Sprintf(`
+var testAccCdnDomain_update2 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
-  service_area          = "outside_mainland_china"
+  service_area          = "mainland_china"
   enterprise_project_id = "0"
 
   configs {
@@ -184,11 +189,11 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
-var testAccCdnDomain_standby = fmt.Sprintf(`
+var testAccCdnDomain_update3 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
-  service_area          = "outside_mainland_china"
+  service_area          = "mainland_china"
   enterprise_project_id = "0"
 
   sources {
