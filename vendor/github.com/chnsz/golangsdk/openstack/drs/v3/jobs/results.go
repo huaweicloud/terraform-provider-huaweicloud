@@ -60,10 +60,12 @@ type JobDetail struct {
 	FilterDdlPolicy          string             `json:"filter_ddl_policy"`
 	SpeedLimit               []SpeedLimitInfo   `json:"speed_limit"`
 	SchemaType               string             `json:"schema_type"`
-	NodeNum                  string             `json:"node_num"`
+	NodeNum                  int                `json:"node_num"`
 	ObjectSwitch             bool               `json:"object_switch"`
 	ObjectInfos              []ObjectInfo       `json:"object_infos"`
+	MasterAz                 string             `json:"master_az"`
 	MasterJobId              string             `json:"master_job_id"`
+	SlaveAz                  string             `json:"slave_az"`
 	FullMode                 string             `json:"full_mode"`
 	StructTrans              bool               `json:"struct_trans"`
 	IndexTrans               bool               `json:"index_trans"`

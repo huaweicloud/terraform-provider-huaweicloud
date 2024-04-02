@@ -35,6 +35,8 @@ type CreateJobReq struct {
 	MultiWrite       *bool              `json:"multi_write,omitempty"`
 	Tags             []tags.ResourceTag `json:"tags,omitempty"`
 	SysTags          []tags.ResourceTag `json:"sys_tags,omitempty"`
+	MasterAz         string             `json:"master_az,omitempty"`
+	SlaveAz          string             `json:"slave_az,omitempty"`
 	ChargingMode     string             `json:"charging_mode,omitempty"`
 	PeriodOrder      *PeriodOrder       `json:"period_order,omitempty"`
 }
@@ -122,6 +124,36 @@ type TestEndPoint struct {
 	SslCertName     string `json:"ssl_cert_name,omitempty"`
 	SslCertCheckSum string `json:"ssl_cert_check_sum,omitempty"`
 	SslCertPassword string `json:"ssl_cert_password,omitempty"`
+}
+
+type TestClusterConnectionsReq struct {
+	Jobs []TestJob `json:"jobs" required:"true"`
+}
+
+type TestJob struct {
+	Action   string `json:"action" required:"true"`
+	JobId    string `json:"job_id" required:"true"`
+	Property string `json:"property" required:"true"`
+}
+
+type PropertyParam struct {
+	NetType         string `json:"nettype" required:"true"`
+	EndPointType    string `json:"endpointtype" required:"true"`
+	DbType          string `json:"dbtype" required:"true"`
+	Ip              string `json:"ip" required:"true"`
+	DbUser          string `json:"dbuser" required:"true"`
+	DbPassword      string `json:"dbpassword" required:"true"`
+	DbPort          *int   `json:"dbport,omitempty"`
+	DbName          string `json:"dbName,omitempty"`
+	Region          string `json:"region,omitempty"`
+	ProjectId       string `json:"projectId,omitempty"`
+	InstId          string `json:"instid,omitempty"`
+	VpcId           string `json:"vpcId,omitempty"`
+	SubnetId        string `json:"subnetId,omitempty"`
+	SslLink         *bool  `json:"ssllink,omitempty"`
+	SslCertKey      string `json:"sslcertkey,omitempty"`
+	SslCertName     string `json:"sslcertname,omitempty"`
+	SslCertCheckSum string `json:"sslcertchecksum,omitempty"`
 }
 
 type BatchDeleteJobReq struct {
@@ -271,6 +303,19 @@ func TestConnections(c *golangsdk.ServiceClient, opts TestConnectionsReq) (*Acti
 
 	var rst ActionResp
 	_, err = c.Post(testConnectionsURL(c), b, &rst, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return &rst, err
+}
+
+func TestClusterConnections(c *golangsdk.ServiceClient, opts TestClusterConnectionsReq) (*ActionResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var rst ActionResp
+	_, err = c.Post(testClusterConnectionsURL(c), b, &rst, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	return &rst, err

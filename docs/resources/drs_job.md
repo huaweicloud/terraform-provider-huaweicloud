@@ -313,6 +313,13 @@ The following arguments are supported:
   <br/>4. It's only for synchronization from **MySQL** to **MySQL**, migration from **Redis** to **GeminiDB Redis**,
        migration from cluster **Redis** to **GeminiDB Redis**, and synchronization from **Oracle** to **GaussDB Distributed**.
 
+* `master_az` - (Optional, String, ForceNew) Specifies the AZ where the primary task is located.
+
+* `slave_az` - (Optional, String, ForceNew) Specifies the AZ where the standby task is located.
+  
+  -> It takes effect when both `master_az` and `slave_az` are specified. Only MySQL and gaussdbv5ha-to-kafka scenarios
+  are supported.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the billing mode of the job.
   The valid values are **prePaid** and **postPaid**. Defaults to **postPaid**.
   When `type` is **sync** or **cloudDataGuard**, **prePaid** is valid.
@@ -428,6 +435,10 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID in UUID format.
 
 * `order_id` - The order ID which will return if `charging_mode` is **prePaid**.
+
+* `master_job_id` - The master job ID which will return if job is dual-AZ.
+
+* `slave_job_id` - The slave job ID which will return if job is dual-AZ.
 
 * `created_at` - Create time. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ
 
