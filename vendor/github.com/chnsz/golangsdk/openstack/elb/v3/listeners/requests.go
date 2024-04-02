@@ -98,10 +98,10 @@ type CreateOpts struct {
 	QuicConfig *QuicConfig `json:"quic_config,omitempty"`
 
 	// Security Policy ID
-	SecurityPolicyId *string `json:"security_policy_id,omitempty"`
+	SecurityPolicyId string `json:"security_policy_id,omitempty"`
 
 	// The SNI certificates used by the listener.
-	SniMatchAlgo *string `json:"sni_match_algo,omitempty"`
+	SniMatchAlgo string `json:"sni_match_algo,omitempty"`
 
 	// Protection status
 	ProtectionStatus string `json:"protection_status,omitempty"`
@@ -131,6 +131,9 @@ type InsertHeaders struct {
 	ForwardedPort    *bool `json:"X-Forwarded-Port,omitempty"`
 	ForwardedForPort *bool `json:"X-Forwarded-For-Port,omitempty"`
 	ForwardedHost    *bool `json:"X-Forwarded-Host,omitempty"`
+	ForwardedProto   *bool `json:"X-Forwarded-Proto,omitempty"`
+	RealIP           *bool `json:"X-Real-IP,omitempty"`
+	ForwardedELBID   *bool `json:"X-Forwarded-ELB-ID,omitempty"`
 }
 
 // ToListenerCreateMap builds a request body from CreateOpts.
@@ -233,10 +236,10 @@ type UpdateOpts struct {
 	QuicConfig *QuicConfig `json:"quic_config,omitempty"`
 
 	// Security Policy ID
-	SecurityPolicyId *string `json:"security_policy_id,omitempty"`
+	SecurityPolicyId string `json:"security_policy_id,omitempty"`
 
 	// The SNI certificates used by the listener.
-	SniMatchAlgo *string `json:"sni_match_algo,omitempty"`
+	SniMatchAlgo string `json:"sni_match_algo,omitempty"`
 
 	// Update protection status
 	ProtectionStatus string `json:"protection_status,omitempty"`

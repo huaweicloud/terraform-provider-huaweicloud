@@ -2,6 +2,7 @@ package rds
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -181,6 +182,57 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "0"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "0"),
 					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "6"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccRdsInstance_mysql_power_action(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_mysql_power_action(name, "OFF", []string{"SHUTDOWN"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckOutput("instance_status_contains", "true"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_mysql_power_action(name, "ON", []string{"ACTIVE", "BACKING UP"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+				),
+			},
+			{
+				Config: testAccRdsInstance_mysql_power_action(name, "ON", []string{"ACTIVE", "BACKING UP"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckOutput("instance_status_contains", "true"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_mysql_power_action(name, "REBOOT", []string{"ACTIVE", "BACKING UP"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+				),
+			},
+			{
+				Config: testAccRdsInstance_mysql_power_action(name, "REBOOT", []string{"ACTIVE", "BACKING UP"}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckOutput("instance_status_contains", "true"),
 				),
 			},
 		},
@@ -747,6 +799,43 @@ resource "huaweicloud_rds_instance" "test" {
   }
 }
 `, testAccRdsInstance_base(), testAccRdsConfig_basic(name), name)
+}
+
+func testAccRdsInstance_mysql_power_action(name, action string, status []string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "single"
+  group_type    = "dedicated"
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  power_action      = "%[3]s"
+
+  db {
+    type    = "MySQL"
+    version = "8.0"
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+}
+
+output "instance_status_contains" {
+  value = contains(split(",", "%[4]s"), huaweicloud_rds_instance.test.status)
+}
+`, testAccRdsInstance_base(), name, action, strings.Join(status, ","))
 }
 
 func testAccRdsInstance_sqlserver(name string) string {
