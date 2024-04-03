@@ -2,9 +2,9 @@ package cdn
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,11 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 
@@ -1507,10 +1507,19 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 // When the domain name does not exist, the response body example of the details interface is as follows:
 // {"error": {"error_code": "CDN.0170","error_msg": "domain not exist!"}}
 func parseDetailResponseError(err error) error {
-	var responseErr *sdkerr.ServiceResponseError
-	if errors.As(err, &responseErr) {
-		if responseErr.StatusCode == http.StatusBadRequest && responseErr.ErrorCode == "CDN.0170" {
-			return golangsdk.ErrDefault404{}
+	var errCode golangsdk.ErrDefault400
+	if errors.As(err, &errCode) {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return err
+		}
+		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
+		if errorCodeErr != nil || errorCode == nil {
+			return err
+		}
+
+		if errorCode.(string) == "CDN.0170" {
+			return golangsdk.ErrDefault404(errCode)
 		}
 	}
 	return err
