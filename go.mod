@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/chnsz/golangsdk v0.0.0-20240330094231-c23394e5a4a4
+	github.com/chnsz/golangsdk v0.0.0-20240402090547-876f50091629
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-uuid v1.0.3

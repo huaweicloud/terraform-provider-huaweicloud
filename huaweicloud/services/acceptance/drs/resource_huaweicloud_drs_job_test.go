@@ -402,3 +402,138 @@ resource "huaweicloud_drs_job" "test" {
 }
 `, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, name, pwd, pwd, autoRenew)
 }
+
+func TestAccResourceDrsJob_dualAZ(t *testing.T) {
+	var obj jobs.BatchCreateJobReq
+	resourceName := "huaweicloud_drs_job.test"
+	name := acceptance.RandomAccResourceName()
+	dbName := acceptance.RandomAccResourceName()
+	pwd := "TestDrs@123"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDrsJobResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDrsJob_dualAZ(name, dbName, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "sync"),
+					resource.TestCheckResourceAttr(resourceName, "direction", "up"),
+					resource.TestCheckResourceAttr(resourceName, "net_type", "vpc"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db_readnoly", "true"),
+					resource.TestCheckResourceAttr(resourceName, "migration_type", "FULL_INCR_TRANS"),
+					resource.TestCheckResourceAttr(resourceName, "description", name),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.engine_type", "mysql"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.port", "3306"),
+					resource.TestCheckResourceAttr(resourceName, "source_db.0.user", "root"),
+					resource.TestCheckResourceAttrPair(resourceName, "source_db.0.vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "source_db.0.subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db.0.engine_type", "mysql"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db.0.ip", "192.168.0.59"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db.0.port", "3306"),
+					resource.TestCheckResourceAttr(resourceName, "destination_db.0.user", "root"),
+					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.instance_id",
+						"huaweicloud_rds_instance.test2", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "destination_db.0.region",
+						"huaweicloud_rds_instance.test2", "region"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "progress"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+					resource.TestCheckResourceAttrSet(resourceName, "master_job_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "slave_job_id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
+					"expired_days", "migrate_definer", "force_destroy", "status"},
+			},
+		},
+	})
+}
+
+func testAccDrsJob_dualAZ(name, dbName, pwd string) string {
+	netConfig := common.TestBaseNetwork(name)
+	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
+	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
+
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+%[3]s
+
+%[4]s
+
+%[5]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_drs_availability_zones" "test" {
+  engine_type = "mysql"
+  type        = "sync"
+  direction   = "up"
+  node_type   = "high"
+}
+
+resource "huaweicloud_drs_job" "test" {
+  name           = "%[6]s"
+  type           = "sync"
+  engine_type    = "mysql"
+  direction      = "up"
+  net_type       = "vpc"
+  migration_type = "FULL_INCR_TRANS"
+  description    = "%[6]s"
+  force_destroy  = true
+  master_az      = data.huaweicloud_drs_availability_zones.test.names[0]
+  slave_az       = data.huaweicloud_drs_availability_zones.test.names[1]
+
+  source_db {
+    engine_type = "mysql"
+    ip          = huaweicloud_rds_instance.test1.fixed_ip
+    port        = 3306
+    user        = "root"
+    password    = "%[7]s"
+    vpc_id      = huaweicloud_rds_instance.test1.vpc_id
+    subnet_id   = huaweicloud_rds_instance.test1.subnet_id
+  }
+
+  destination_db {
+    region      = huaweicloud_rds_instance.test2.region
+    ip          = huaweicloud_rds_instance.test2.fixed_ip
+    port        = 3306
+    engine_type = "mysql"
+    user        = "root"
+    password    = "%[7]s"
+    instance_id = huaweicloud_rds_instance.test2.id
+    subnet_id   = huaweicloud_rds_instance.test2.subnet_id
+  }
+
+  databases = [huaweicloud_rds_mysql_database.test.name]
+
+  lifecycle {
+    ignore_changes = [
+      source_db.0.password, destination_db.0.password, force_destroy,
+    ]
+  }
+}
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, pwd)
+}

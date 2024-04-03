@@ -32,6 +32,11 @@ func testConnectionsURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("jobs", "batch-connection")
 }
 
+// POST /v3/{project_id}/jobs/cluster/batch-connection
+func testClusterConnectionsURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("jobs", "cluster/batch-connection")
+}
+
 // PUT /v3/{project_id}/jobs/batch-modification
 func updateJobURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("jobs", "batch-modification")

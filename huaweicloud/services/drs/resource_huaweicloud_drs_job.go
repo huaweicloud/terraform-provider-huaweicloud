@@ -28,6 +28,7 @@ import (
 // @API DRS POST /v3/{project_id}/jobs/batch-status
 // @API DRS POST /v3/{project_id}/jobs
 // @API DRS POST /v3/{project_id}/jobs/batch-connection
+// @API DRS POST /v3/{project_id}/jobs/cluster/batch-connection
 // @API DRS DELETE /v3/{project_id}/jobs/batch-jobs
 // @API DRS PUT /v3/{project_id}/jobs/batch-limit-speed
 // @API DRS POST /v3/{project_id}/jobs/batch-precheck-result
@@ -282,6 +283,20 @@ func ResourceDrsJob() *schema.Resource {
 				},
 			},
 
+			"master_az": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"slave_az"},
+			},
+
+			"slave_az": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"master_az"},
+			},
+
 			// charge info: charging_mode, period_unit, period, auto_renew
 			// once start the job, the bill will be auto paid
 			"charging_mode": common.SchemaChargingMode(nil),
@@ -290,6 +305,16 @@ func ResourceDrsJob() *schema.Resource {
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 
 			"order_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"master_job_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"slave_job_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -461,9 +486,16 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
-	valid := testConnections(client, jobId, opts.Jobs[0])
-	if !valid {
-		return diag.Errorf("test db connection of job: %s failed", jobId)
+	if _, ok := d.GetOk("master_az"); ok {
+		valid := testConnectionsForDualAZ(client, jobId, opts.Jobs[0])
+		if !valid {
+			return diag.Errorf("test db connection of job: %s failed", jobId)
+		}
+	} else {
+		valid := testConnections(client, jobId, opts.Jobs[0])
+		if !valid {
+			return diag.Errorf("test db connection of job: %s failed", jobId)
+		}
 	}
 
 	err = reUpdateJob(client, jobId, opts.Jobs[0], d.Get("migrate_definer").(bool))
@@ -692,6 +724,10 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("progress", progressResp.Results[0].Progress),
 		d.Set("tags", utils.TagsToMap(detail.Tags)),
 		d.Set("policy_config", flattenPolicyConfig(detail)),
+		d.Set("master_az", detail.MasterAz),
+		d.Set("master_job_id", detail.MasterJobId),
+		d.Set("slave_az", detail.SlaveAz),
+		d.Set("slave_job_id", getSlaveJobID(listResp.Jobs[0].Children, detail.MasterJobId)),
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),
 	)
@@ -777,6 +813,16 @@ func flattenPolicyConfig(detail jobs.JobDetail) []interface{} {
 	}
 	rst = append(rst, v)
 	return rst
+}
+
+func getSlaveJobID(children []jobs.ChildrenJobInfo, masterJobId string) string {
+	if len(children) != 2 {
+		return ""
+	}
+	if children[0].Id == masterJobId {
+		return children[1].Id
+	}
+	return children[0].Id
 }
 
 func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1102,7 +1148,7 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 		pending = []string{"CREATING"}
 		target = []string{"CONFIGURATION"}
 	case "start":
-		pending = []string{"STARTJOBING", "WAITING_FOR_START"}
+		pending = []string{"STARTJOBING", "WAITING_FOR_START", "CONFIGURATION"}
 		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
 	case "terminate":
 		pending = []string{"PENDING"}
@@ -1204,6 +1250,8 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 		SubnetId:         subnetId,
 		Tags:             utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		SysTags:          utils.BuildSysTags(enterpriseProjectID),
+		MasterAz:         d.Get("master_az").(string),
+		SlaveAz:          d.Get("slave_az").(string),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode.(string) == "prePaid" {
@@ -1332,6 +1380,72 @@ func testConnections(client *golangsdk.ServiceClient, jobId string, opts jobs.Cr
 		},
 	}
 	rsp, err := jobs.TestConnections(client, reqParams)
+	if err != nil || rsp.Count != 2 {
+		log.Printf("[ERROR] test connections of job: %s failed,error: %s", jobId, err)
+		return false
+	}
+
+	valid = rsp.Results[0].Success && rsp.Results[1].Success
+	return
+}
+
+func testConnectionsForDualAZ(client *golangsdk.ServiceClient, jobId string, opts jobs.CreateJobReq) (valid bool) {
+	sourceEndpoint := []jobs.PropertyParam{
+		{
+			DbType:          opts.SourceEndpoint.DbType,
+			NetType:         opts.NetType,
+			EndPointType:    "so",
+			Ip:              opts.SourceEndpoint.Ip + ":" + strconv.Itoa(*opts.SourceEndpoint.DbPort),
+			DbUser:          opts.SourceEndpoint.DbUser,
+			DbPassword:      opts.SourceEndpoint.DbPassword,
+			ProjectId:       client.ProjectID,
+			Region:          opts.SourceEndpoint.Region,
+			VpcId:           opts.SourceEndpoint.VpcId,
+			SubnetId:        opts.SourceEndpoint.SubnetId,
+			InstId:          opts.SourceEndpoint.InstanceId,
+			SslLink:         opts.SourceEndpoint.SslLink,
+			SslCertKey:      opts.SourceEndpoint.SslCertKey,
+			SslCertName:     opts.SourceEndpoint.SslCertName,
+			SslCertCheckSum: opts.SourceEndpoint.SslCertCheckSum,
+		},
+	}
+	targetEndpoint := []jobs.PropertyParam{
+		{
+			DbType:          opts.TargetEndpoint.DbType,
+			NetType:         opts.NetType,
+			EndPointType:    "ta",
+			Ip:              opts.TargetEndpoint.Ip + ":" + strconv.Itoa(*opts.TargetEndpoint.DbPort),
+			DbUser:          opts.TargetEndpoint.DbUser,
+			DbPassword:      opts.TargetEndpoint.DbPassword,
+			ProjectId:       client.ProjectID,
+			Region:          opts.TargetEndpoint.Region,
+			VpcId:           opts.TargetEndpoint.VpcId,
+			SubnetId:        opts.TargetEndpoint.SubnetId,
+			InstId:          opts.TargetEndpoint.InstanceId,
+			SslLink:         opts.TargetEndpoint.SslLink,
+			SslCertKey:      opts.TargetEndpoint.SslCertKey,
+			SslCertName:     opts.TargetEndpoint.SslCertName,
+			SslCertCheckSum: opts.TargetEndpoint.SslCertCheckSum,
+		},
+	}
+
+	sourceEndpointJson, _ := json.Marshal(sourceEndpoint)
+	targetEndpointJson, _ := json.Marshal(targetEndpoint)
+	reqParams := jobs.TestClusterConnectionsReq{
+		Jobs: []jobs.TestJob{
+			{
+				Action:   "testConnection",
+				JobId:    jobId,
+				Property: string(sourceEndpointJson),
+			},
+			{
+				Action:   "testConnection",
+				JobId:    jobId,
+				Property: string(targetEndpointJson),
+			},
+		},
+	}
+	rsp, err := jobs.TestClusterConnections(client, reqParams)
 	if err != nil || rsp.Count != 2 {
 		log.Printf("[ERROR] test connections of job: %s failed,error: %s", jobId, err)
 		return false
