@@ -1035,34 +1035,31 @@ func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	d.SetId(v.ID)
 
-	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
-	}
-	requestOpts := buildDomainDetailRequestOpts(d, cfg)
-	if err := waitingForStatusOnline(ctx, hcCdnClient, d.Timeout(schema.TimeoutCreate), requestOpts); err != nil {
+	opts := buildResourceExtensionOpts(d, cfg)
+	if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutCreate), opts); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
 	return resourceCdnDomainUpdate(ctx, d, meta)
 }
 
-func waitingForStatusOnline(ctx context.Context, hcCdnClient *cdnv2.CdnClient, timeout time.Duration,
-	opts *model.ShowDomainDetailByNameRequest) error {
+func waitingForStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	domainName := d.Get("name").(string)
 	unexpectedStatus := []string{"offline", "configure_failed", "check_failed", "deleting"}
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			domain, err := hcCdnClient.ShowDomainDetailByName(opts)
+			domain, err := domains.GetByName(client, domainName, opts).Extract()
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			if domain == nil || domain.Domain == nil {
+			if domain == nil {
 				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
 			}
 
-			status := utils.StringValue(domain.Domain.DomainStatus)
+			status := domain.DomainStatus
 			if status == "online" {
 				return domain, "COMPLETED", nil
 			}
@@ -1080,23 +1077,24 @@ func waitingForStatusOnline(ctx context.Context, hcCdnClient *cdnv2.CdnClient, t
 	return err
 }
 
-func waitingForStatusOffline(ctx context.Context, hcCdnClient *cdnv2.CdnClient, timeout time.Duration,
-	opts *model.ShowDomainDetailByNameRequest) error {
+func waitingForStatusOffline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	domainName := d.Get("name").(string)
 	unexpectedStatus := []string{"online", "configure_failed", "check_failed", "deleting"}
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			domain, err := hcCdnClient.ShowDomainDetailByName(opts)
+			domain, err := domains.GetByName(client, domainName, opts).Extract()
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			if domain == nil || domain.Domain == nil {
+			if domain == nil {
 				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
 			}
 
-			status := utils.StringValue(domain.Domain.DomainStatus)
+			status := domain.DomainStatus
 			if status == "offline" {
 				return domain, "COMPLETED", nil
 			}
@@ -1459,35 +1457,30 @@ func queryAndFlattenDomainTags(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceD
 	return tagMap, nil
 }
 
-func flattenServiceArea(serviceArea *model.DomainsDetailServiceArea) interface{} {
-	if serviceArea == nil {
-		return nil
-	}
-	return serviceArea.Value()
-}
-
 func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
+	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating CDN v1 client: %s", err)
+	}
+
 	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CDN v2 client: %s", err)
 	}
 
-	requestOpts := buildDomainDetailRequestOpts(d, cfg)
-	v, err := hcCdnClient.ShowDomainDetailByName(requestOpts)
+	v, err := domains.GetByName(cdnClient, d.Get("name").(string), buildResourceExtensionOpts(d, cfg)).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseDetailResponseError(err), "error retrieving CDN domain")
 	}
 
-	if v == nil || v.Domain == nil {
+	if v == nil {
 		return diag.Errorf("error retrieving CDN domain: Domain is not found in API response")
 	}
 
-	domain := *v.Domain
-	// Backfield the id when executing the import operation
-	d.SetId(*domain.Id)
-
-	configsResp, err := queryDomainFullConfig(hcCdnClient, cfg, d, *domain.DomainName)
+	// Backfield the ID when executing the import operation
+	d.SetId(v.ID)
+	configsResp, err := queryDomainFullConfig(hcCdnClient, cfg, d, v.DomainName)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -1498,11 +1491,11 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("name", domain.DomainName),
-		d.Set("type", domain.BusinessType),
-		d.Set("cname", domain.Cname),
-		d.Set("domain_status", domain.DomainStatus),
-		d.Set("service_area", flattenServiceArea(domain.ServiceArea)),
+		d.Set("name", v.DomainName),
+		d.Set("type", v.BusinessType),
+		d.Set("cname", v.CName),
+		d.Set("domain_status", v.DomainStatus),
+		d.Set("service_area", v.ServiceArea),
 		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
 		d.Set("configs", flattenConfigAttrs(configsResp, d)),
 		d.Set("cache_settings", flattenCacheRulesAttrs(configsResp.CacheRules)),
@@ -1536,8 +1529,12 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		requestOpts := buildDomainDetailRequestOpts(d, cfg)
-		if err := waitingForStatusOnline(ctx, hcCdnClient, d.Timeout(schema.TimeoutUpdate), requestOpts); err != nil {
+		cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating CDN v1 client: %s", err)
+		}
+		opts := buildResourceExtensionOpts(d, cfg)
+		if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutUpdate), opts); err != nil {
 			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
 		}
 	}
@@ -1610,12 +1607,7 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error disable CDN domain %s: %s", d.Id(), err)
 		}
 
-		hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating CDN v2 client: %s", err)
-		}
-		requestOpts := buildDomainDetailRequestOpts(d, cfg)
-		if err := waitingForStatusOffline(ctx, hcCdnClient, d.Timeout(schema.TimeoutDelete), requestOpts); err != nil {
+		if err := waitingForStatusOffline(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts); err != nil {
 			return diag.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
 		}
 	}
@@ -1638,13 +1630,6 @@ func buildResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *dom
 	}
 
 	return nil
-}
-
-func buildDomainDetailRequestOpts(d *schema.ResourceData, cfg *config.Config) *model.ShowDomainDetailByNameRequest {
-	return &model.ShowDomainDetailByNameRequest{
-		DomainName:          d.Get("name").(string),
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-	}
 }
 
 func resourceCDNDomainImportState(_ context.Context, d *schema.ResourceData,

@@ -7,24 +7,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
+	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+func getResourceExtensionOpts(epsId string) *domains.ExtensionOpts {
+	if epsId != "" {
+		return &domains.ExtensionOpts{
+			EnterpriseProjectId: epsId,
+		}
+	}
+	return nil
+}
+
 func getCdnDomainFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	hcCdnClient, err := cfg.HcCdnV2Client(acceptance.HW_REGION_NAME)
+	client, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v2 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
 	}
 
-	requestOpts := &model.ShowDomainDetailByNameRequest{
-		DomainName:          state.Primary.Attributes["name"],
-		EnterpriseProjectId: utils.StringIgnoreEmpty(state.Primary.Attributes["enterprise_project_id"]),
-	}
-	return hcCdnClient.ShowDomainDetailByName(requestOpts)
+	opts := getResourceExtensionOpts(state.Primary.Attributes["enterprise_project_id"])
+	return domains.GetByName(client, state.Primary.Attributes["name"], opts).Extract()
 }
 
 func TestAccCdnDomain_basic(t *testing.T) {
