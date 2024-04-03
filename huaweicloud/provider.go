@@ -415,8 +415,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbh_instances": cbh.DataSourceCbhInstances(),
 			"huaweicloud_cbh_flavors":   cbh.DataSourceCbhFlavors(),
 
-			"huaweicloud_cc_central_networks":            cc.DataSourceCcCentralNetworks(),
-			"huaweicloud_cc_central_network_connections": cc.DataSourceCcCentralNetworkConnections(),
+			"huaweicloud_cc_central_networks":             cc.DataSourceCcCentralNetworks(),
+			"huaweicloud_cc_central_network_connections":  cc.DataSourceCcCentralNetworkConnections(),
+			"huaweicloud_cc_global_connection_bandwidths": cc.DataSourceCcGlobalConnectionBandwidths(),
 
 			"huaweicloud_cce_addon_template":      cce.DataSourceAddonTemplate(),
 			"huaweicloud_cce_cluster":             cce.DataSourceCCEClusterV3(),
