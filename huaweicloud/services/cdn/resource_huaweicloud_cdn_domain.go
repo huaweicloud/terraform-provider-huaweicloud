@@ -1070,8 +1070,8 @@ func waitingForStatusOnline(ctx context.Context, client *golangsdk.ServiceClient
 			return domain, "PENDING", nil
 		},
 		Timeout:      timeout,
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
@@ -1105,8 +1105,8 @@ func waitingForStatusOffline(ctx context.Context, client *golangsdk.ServiceClien
 			return domain, "PENDING", nil
 		},
 		Timeout:      timeout,
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
