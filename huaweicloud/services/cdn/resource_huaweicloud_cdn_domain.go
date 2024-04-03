@@ -1436,25 +1436,12 @@ func queryDomainFullConfig(hcCdnClient *cdnv2.CdnClient, cfg *config.Config, d *
 	return resp.Configs, nil
 }
 
-func queryAndFlattenDomainTags(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceData) (map[string]string, error) {
-	tags, err := hcCdnClient.ShowTags(&model.ShowTagsRequest{ResourceId: d.Id()})
+func queryAndFlattenDomainTags(cdnClient *golangsdk.ServiceClient, d *schema.ResourceData) (map[string]string, error) {
+	tags, err := domains.GetTags(cdnClient, d.Id())
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving CDN domain tags: %s", err)
 	}
-
-	if tags.Tags == nil || len(*tags.Tags) == 0 {
-		return nil, nil
-	}
-
-	tagMap := make(map[string]string, len(*tags.Tags))
-	for _, tag := range *tags.Tags {
-		if tag.Value != nil {
-			tagMap[tag.Key] = *tag.Value
-		} else {
-			tagMap[tag.Key] = ""
-		}
-	}
-	return tagMap, nil
+	return utils.TagsToMap(tags), nil
 }
 
 func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1485,7 +1472,7 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	tags, err := queryAndFlattenDomainTags(hcCdnClient, d)
+	tags, err := queryAndFlattenDomainTags(cdnClient, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
