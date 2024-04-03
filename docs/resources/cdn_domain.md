@@ -15,8 +15,9 @@ variable "domain_name" {}
 variable "origin_server" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = var.domain_name
-  type = "web"
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     origin      = var.origin_server
@@ -38,8 +39,9 @@ variable "domain_name" {}
 variable "origin_server" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = var.domain_name
-  type = "web"
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     origin      = var.origin_server
@@ -49,9 +51,9 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
   cache_settings {
     rules {
-      rule_type = 0
+      rule_type = "all"
       ttl       = 180
-      ttl_type  = 4
+      ttl_type  = "d"
       priority  = 2
     }
   }
@@ -65,8 +67,9 @@ variable "domain_name" {}
 variable "origin_server" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = var.domain_name
-  type = "web"
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     origin      = var.origin_server
@@ -126,23 +129,26 @@ The following arguments are supported:
   Domain names at all levels can only be composed of letters, digits, and hyphens (-), and the letters are equivalent in
   upper and lower case. Domain names at all levels are connected with (.). The domain name can contain up to `75` characters.
 
-* `type` - (Required, String, ForceNew) Specifies the service type of the domain name. Changing this parameter will
-  create a new resource. The valid values are as follows:
+* `type` - (Required, String) Specifies the service type of the domain name. The valid values are as follows:
   + **web**: Static acceleration. For websites with many images and small files, such as portals and e-commerce websites.
   + **download**: Download acceleration. For large files, such as apps in app stores and game clients.
   + **video**: Streaming media acceleration. For video on demand (VOD) websites and online education websites.
   + **wholeSite**: Whole site acceleration. For websites with both dynamic and static content, such as online exam
     platforms, forums, and blogs.
 
+  -> Currently, **wholeSite** acceleration cannot be changed to other service types.
+
 * `sources` - (Required, List) Specifies an array of one or more objects specifying origin server settings.
   A maximum of `50` origin site configurations can be configured.
   The [sources](#sources_cdn_domain) structure is documented below.
 
-* `service_area` - (Optional, String, ForceNew) Specifies the area covered by the acceleration service.
-  Changing this parameter will create a new resource. Valid values are as follows:
+* `service_area` - (Required, String) Specifies the area covered by the acceleration service.
+  Valid values are as follows:
   + **mainland_china**: Indicates that the service scope is mainland China.
   + **outside_mainland_china**: Indicates that the service scope is outside mainland China.
   + **global**: Indicates that the service scope is global.
+
+  -> The service area cannot be changed between Chinese mainland and outside Chinese mainland.
 
 * `configs` - (Optional, List) Specifies the domain configuration items. The [configs](#configs_object) structure is
   documented below.
@@ -593,4 +599,4 @@ resource "huaweicloud_cdn_domain" "test" {
     ]
   }
 }
-```
+```**

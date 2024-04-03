@@ -423,7 +423,6 @@ func ResourceCdnDomain() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"web", "download", "video", "wholeSite",
 				}, true),
@@ -472,15 +471,15 @@ func ResourceCdnDomain() *schema.Resource {
 					},
 				},
 			},
+			"service_area": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Required",
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
-			},
-			"service_area": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
 				ForceNew: true,
 			},
 			"configs": {
@@ -945,6 +944,8 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 		ipv6Accelerate = 1
 	}
 	configsOpts := model.Configs{
+		BusinessType:      utils.StringIgnoreEmpty(d.Get("type").(string)),
+		ServiceArea:       utils.StringIgnoreEmpty(d.Get("service_area").(string)),
 		Sources:           buildSourcesOpts(d.Get("sources").(*schema.Set).List()),
 		Ipv6Accelerate:    utils.Int32(int32(ipv6Accelerate)),
 		OriginRangeStatus: utils.String(parseFunctionEnabledStatus(configs["range_based_retrieval_enabled"].(bool))),
@@ -1529,7 +1530,7 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating CDN v2 client: %s", err)
 	}
 
-	if d.HasChanges("sources", "configs", "cache_settings") || d.IsNewResource() {
+	if d.HasChanges("sources", "configs", "cache_settings", "type", "service_area") || d.IsNewResource() {
 		err = updateDomainFullConfigs(hcCdnClient, cfg, d)
 		if err != nil {
 			return diag.Errorf("error updating CDN domain configs settings: %s", err)
