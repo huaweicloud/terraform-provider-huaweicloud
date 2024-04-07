@@ -932,23 +932,22 @@ func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules
 	return &result
 }
 
-func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
-	rawConfigs := d.Get("configs").([]interface{})
-	if len(rawConfigs) < 1 || rawConfigs[0] == nil {
-		return nil
-	}
-	configs := rawConfigs[0].(map[string]interface{})
-
+func buildIpv6AccelerateOpts(ipv6Enable bool) *int32 {
 	ipv6Accelerate := 0
-	if configs["ipv6_enable"].(bool) {
+	if ipv6Enable {
 		ipv6Accelerate = 1
 	}
-	configsOpts := model.Configs{
-		BusinessType:      utils.StringIgnoreEmpty(d.Get("type").(string)),
-		ServiceArea:       utils.StringIgnoreEmpty(d.Get("service_area").(string)),
-		Sources:           buildSourcesOpts(d.Get("sources").(*schema.Set).List()),
-		Ipv6Accelerate:    utils.Int32(int32(ipv6Accelerate)),
-		OriginRangeStatus: utils.String(parseFunctionEnabledStatus(configs["range_based_retrieval_enabled"].(bool))),
+	return utils.Int32(int32(ipv6Accelerate))
+}
+
+// buildUpdateDomainFullConfigsOpts Build CDN domain config opts from field `configs`
+func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[string]interface{}, d *schema.ResourceData) {
+	if d.HasChange("configs.0.ipv6_enable") {
+		configsOpts.Ipv6Accelerate = buildIpv6AccelerateOpts(configs["ipv6_enable"].(bool))
+	}
+	if d.HasChange("configs.0.range_based_retrieval_enabled") {
+		retrievalEnabled := configs["range_based_retrieval_enabled"].(bool)
+		configsOpts.OriginRangeStatus = utils.String(parseFunctionEnabledStatus(retrievalEnabled))
 	}
 	if d.HasChange("configs.0.https_settings") {
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
@@ -985,6 +984,25 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 	}
 	if d.HasChange("configs.0.remote_auth") {
 		configsOpts.RemoteAuth = buildRemoteAuthOpts(configs["remote_auth"].([]interface{}))
+	}
+}
+
+func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
+	// When the configs configuration is empty, the interface will report an error.
+	// Make fields `business_type` and `service_area` are configured by default.
+	configsOpts := model.Configs{
+		BusinessType: utils.StringIgnoreEmpty(d.Get("type").(string)),
+		ServiceArea:  utils.StringIgnoreEmpty(d.Get("service_area").(string)),
+	}
+	if d.HasChange("sources") {
+		configsOpts.Sources = buildSourcesOpts(d.Get("sources").(*schema.Set).List())
+	}
+
+	if d.HasChange("configs") {
+		rawConfigs := d.Get("configs").([]interface{})
+		if len(rawConfigs) > 0 && rawConfigs[0] != nil {
+			buildUpdateDomainFullConfigsOpts(&configsOpts, rawConfigs[0].(map[string]interface{}), d)
+		}
 	}
 
 	if d.HasChange("cache_settings") {
