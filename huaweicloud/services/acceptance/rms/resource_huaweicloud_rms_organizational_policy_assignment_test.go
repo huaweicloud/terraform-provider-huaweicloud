@@ -77,12 +77,12 @@ func TestAccOrganizationalPolicyAssignment_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "organization_id",
 						"data.huaweicloud_organizations_organization.test", "id"),
-					resource.TestCheckResourceAttr(rName, "description", "The maximum number of days without rotation, 90"),
+					resource.TestCheckResourceAttr(rName, "description", "The maximum number of days without rotation. Default 90."),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "policy_definition_id",
 						"data.huaweicloud_rms_policy_definitions.test", "definitions.0.id"),
 					resource.TestCheckResourceAttr(rName, "period", "TwentyFour_Hours"),
-					resource.TestCheckResourceAttr(rName, "parameters.maxAccessKeyAge", "90"),
+					resource.TestCheckResourceAttr(rName, "parameters.maxAccessKeyAge", "\"90\""),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
@@ -93,12 +93,12 @@ func TestAccOrganizationalPolicyAssignment_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "organization_id",
 						"data.huaweicloud_organizations_organization.test", "id"),
-					resource.TestCheckResourceAttr(rName, "description", "The maximum number of days without rotation, 60"),
+					resource.TestCheckResourceAttr(rName, "description", "The maximum number of days without rotation. Default 60."),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "policy_definition_id",
 						"data.huaweicloud_rms_policy_definitions.test", "definitions.0.id"),
 					resource.TestCheckResourceAttr(rName, "period", "Twelve_Hours"),
-					resource.TestCheckResourceAttr(rName, "parameters.maxAccessKeyAge", "60"),
+					resource.TestCheckResourceAttr(rName, "parameters.maxAccessKeyAge", "\"60\""),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
@@ -132,7 +132,7 @@ resource "huaweicloud_rms_organizational_policy_assignment" "test" {
     maxAccessKeyAge = "\"90\""
   }
 }
-`, name, acceptance.HW_REGION_NAME)
+`, name)
 }
 
 func testAccOrganizationalPolicyAssignment_basicUpdate(name string) string {
@@ -146,7 +146,7 @@ data "huaweicloud_rms_policy_definitions" "test" {
 resource "huaweicloud_rms_organizational_policy_assignment" "test" {
   organization_id      = data.huaweicloud_organizations_organization.test.id
   name                 = "%[1]s"
-  description          = "The maximum number of days without rotation."
+  description          = "The maximum number of days without rotation. Default 60."
   policy_definition_id = try(data.huaweicloud_rms_policy_definitions.test.definitions[0].id, "")
   period               = "Twelve_Hours"
 
@@ -154,7 +154,7 @@ resource "huaweicloud_rms_organizational_policy_assignment" "test" {
     maxAccessKeyAge = "\"60\""
   }
 }
-`, name, acceptance.HW_REGION_NAME)
+`, name)
 }
 
 // Test the custom policy assignment.
@@ -277,7 +277,7 @@ resource "huaweicloud_rms_organizational_policy_assignment" "test" {
   parameters = {
     string_test       = "\"update_string_value\""
     update_array_test = "[\"array_element\"]"
-    object_test       = jsonencode({"terraform_version": "1.xx.x"})
+    object_test       = jsonencode({"update_terraform_version": "1.xx.xx"})
   }
 }
 `, customConfig, name)
