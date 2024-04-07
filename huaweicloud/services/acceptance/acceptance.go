@@ -43,6 +43,16 @@ var (
 	HW_ENTERPRISE_PROJECT_ID = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_ADMIN                 = os.Getenv("HW_ADMIN")
 
+	HW_CAE_ENVIRONMENT_ID     = os.Getenv("HW_CAE_ENVIRONMENT_ID")
+	HW_CAE_APPLICATION_ID     = os.Getenv("HW_CAE_APPLICATION_ID")
+	HW_CAE_CODE_URL           = os.Getenv("HW_CAE_CODE_URL")
+	HW_CAE_CODE_BRANCH        = os.Getenv("HW_CAE_CODE_BRANCH")
+	HW_CAE_CODE_AUTH_NAME     = os.Getenv("HW_CAE_CODE_AUTH_NAME")
+	HW_CAE_CODE_NAMESPACE     = os.Getenv("HW_CAE_CODE_NAMESPACE")
+	HW_CAE_ARTIFACT_NAMESPACE = os.Getenv("HW_CAE_ARTIFACT_NAMESPACE")
+	HW_CAE_BUILD_BASE_IMAGE   = os.Getenv("HW_CAE_BUILD_BASE_IMAGE")
+	HW_CAE_IMAGE_URL          = os.Getenv("HW_CAE_IMAGE_URL")
+
 	HW_MAPREDUCE_CUSTOM           = os.Getenv("HW_MAPREDUCE_CUSTOM")
 	HW_MAPREDUCE_BOOTSTRAP_SCRIPT = os.Getenv("HW_MAPREDUCE_BOOTSTRAP_SCRIPT")
 
@@ -351,6 +361,30 @@ func preCheckRequiredEnvVars(t *testing.T) {
 func TestAccPreCheckMultiAccount(t *testing.T) {
 	if HW_MULTI_ACCOUNT_ENVIRONMENT == "" {
 		t.Skip("This environment does not support multi-account tests")
+	}
+}
+
+// Before the CAE environment resource is released, temporarily use this environment variable for acceptance tests.
+// lintignore:AT003
+func TestAccPreCheckCaeEnvironment(t *testing.T) {
+	if HW_CAE_ENVIRONMENT_ID == "" {
+		t.Skip("HW_CAE_ENVIRONMENT_ID must be set for the CAE acceptance test")
+	}
+}
+
+// Before the CAE application resource is released, temporarily use this environment variable for acceptance tests.
+// lintignore:AT003
+func TestAccPreCheckCaeApplication(t *testing.T) {
+	if HW_CAE_APPLICATION_ID == "" {
+		t.Skip("HW_CAE_APPLICATION_ID must be set for the CAE acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCAEComponent(t *testing.T) {
+	if HW_CAE_CODE_URL == "" || HW_CAE_CODE_AUTH_NAME == "" || HW_CAE_CODE_BRANCH == "" || HW_CAE_CODE_NAMESPACE == "" ||
+		HW_CAE_ARTIFACT_NAMESPACE == "" || HW_CAE_BUILD_BASE_IMAGE == "" || HW_CAE_IMAGE_URL == "" {
+		t.Skip("Skip the CAE acceptance tests.")
 	}
 }
 

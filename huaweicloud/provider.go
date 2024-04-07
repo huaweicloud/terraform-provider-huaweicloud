@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cae"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cc"
@@ -859,6 +860,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
+
+			"huaweicloud_cae_component": cae.ResourceComponent(),
 
 			"huaweicloud_cbr_backup_share_accepter": cbr.ResourceBackupShareAccepter(),
 			"huaweicloud_cbr_backup_share":          cbr.ResourceBackupShare(),
