@@ -1,6 +1,9 @@
 package domains
 
-import "github.com/chnsz/golangsdk"
+import (
+	"fmt"
+	"github.com/chnsz/golangsdk"
+)
 
 const (
 	rootPath = "cdn/domains"
@@ -24,6 +27,10 @@ func getURL(sc *golangsdk.ServiceClient, domainId string) string {
 
 func getDetailURL(sc *golangsdk.ServiceClient, domainName string) string {
 	return sc.ServiceURL("cdn/configuration/domains", domainName)
+}
+
+func getTagsURL(sc *golangsdk.ServiceClient, domainId string) string {
+	return sc.ServiceURL(fmt.Sprintf("cdn/configuration/tags?resource_id=%s", domainId))
 }
 
 func enableURL(sc *golangsdk.ServiceClient, domainId string) string {

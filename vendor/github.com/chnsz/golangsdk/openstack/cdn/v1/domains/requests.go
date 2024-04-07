@@ -2,6 +2,7 @@ package domains
 
 import (
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 // ExtensionOpts allows extensions to add parameters to some requests
@@ -130,6 +131,14 @@ func GetByName(client *golangsdk.ServiceClient, domainName string, opts *Extensi
 	}
 	_, r.Err = client.Get(url, &r.Body, nil)
 	return
+}
+
+func GetTags(client *golangsdk.ServiceClient, domainId string) ([]tags.ResourceTag, error) {
+	var r struct {
+		Tags []tags.ResourceTag `json:"tags"`
+	}
+	_, err := client.Get(getTagsURL(client, domainId), &r, nil)
+	return r.Tags, err
 }
 
 // Delete requests a CDN domain to be deleted to the user in the current tenant.
