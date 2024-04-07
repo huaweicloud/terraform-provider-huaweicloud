@@ -127,6 +127,7 @@ resource "huaweicloud_secmaster_indicator" "test" {
   type {
     category       = "Domain"
     indicator_type = "Domain"
+    id             = "%s"
   }
 
   data_source {
@@ -143,7 +144,7 @@ resource "huaweicloud_secmaster_indicator" "test" {
   granularity           = "1"
   value                 = "test.terraform.com"
 }
-`, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
+`, acceptance.HW_SECMASTER_WORKSPACE_ID, name, acceptance.HW_SECMASTER_INDICATOR_TYPE_ID)
 }
 
 func testIndicator_basic_update(name string) string {
@@ -155,6 +156,7 @@ resource "huaweicloud_secmaster_indicator" "test" {
   type {
     category       = "URL"
     indicator_type = "URL"
+    id             = "%s"
   }
 
   data_source {
@@ -171,7 +173,7 @@ resource "huaweicloud_secmaster_indicator" "test" {
   granularity           = "1"
   value                 = "/v1/test"
 }
-`, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
+`, acceptance.HW_SECMASTER_WORKSPACE_ID, name, acceptance.HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE)
 }
 
 func testIndicatorImportState(name string) resource.ImportStateIdFunc {

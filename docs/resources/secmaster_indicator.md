@@ -12,6 +12,7 @@ Manages a SecMaster indicator resource within HuaweiCloud.
 
 ```hcl
 variable "workspace_id" {}
+variable "type_id" {}
 
 resource "huaweicloud_secmaster_indicator" "test" {
   workspace_id = var.workspace_id
@@ -20,6 +21,7 @@ resource "huaweicloud_secmaster_indicator" "test" {
   type {
     category       = "Domain"
     indicator_type = "Domain"
+    id             = var.type_id
   }
 
   data_source {
@@ -93,6 +95,8 @@ The `type` block supports:
 * `category` - (Required, String) Specifies the category.
 
 * `indicator_type` - (Required, String) Specifies the indicator type.
+
+* `id` - (Required, String) Specifies the indicator type ID.
 
 <a name="Indicator_DataSource"></a>
 The `data_source` block supports:
