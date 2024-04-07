@@ -1864,6 +1864,11 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		}
 	}
 
+	if conf.Cloud == defaultEuropeCloud {
+		cdnEndpoint := fmt.Sprintf("https://cdn.%s/", conf.Cloud)
+		conf.SetServiceEndpoint("cdn", cdnEndpoint)
+	}
+
 	return &conf, nil
 }
 
