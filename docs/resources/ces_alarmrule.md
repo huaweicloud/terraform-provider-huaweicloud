@@ -72,7 +72,52 @@ resource "huaweicloud_ces_alarmrule" "test" {
 }
 ```
 
-## Alarm rule for event monitoring
+### Alarm rule for All instance
+
+```hcl
+variable "topic_urn" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
+  alarm_action_enabled = true
+  alarm_enabled        = true
+  alarm_type           = "ALL_INSTANCE"
+
+  metric {
+    namespace = "AGT.ECS"
+  }
+
+  resources {
+    dimensions {
+      name = "instance_id"
+    }
+
+    dimensions {
+      name = "mount_point"
+    }
+  }
+
+  condition  {
+    alarm_level         = 2
+    suppress_duration   = 0
+    period              = 1
+    filter              = "average"
+    comparison_operator = ">"
+    value               = 80
+    count               = 1
+    metric_name         = "disk_usedPercent"
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      var.topic_urn
+    ]
+  }
+}
+```
+
+### Alarm rule for event monitoring
 
 ```hcl
 variable "topic_urn" {}
