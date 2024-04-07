@@ -148,6 +148,11 @@ func indicatorIndicatorTypeSchema() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the indicator type.`,
 			},
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the indicator type ID.`,
+			},
 		},
 	}
 	return &sc
@@ -278,6 +283,7 @@ func buildIndicatorTypeOpts(rawParams interface{}) map[string]interface{} {
 		params := map[string]interface{}{
 			"category":       utils.ValueIngoreEmpty(raw["category"]),
 			"indicator_type": utils.ValueIngoreEmpty(raw["indicator_type"]),
+			"id":             utils.ValueIngoreEmpty(raw["id"]),
 		}
 		return params
 	}
@@ -404,6 +410,7 @@ func flattenGetIndicatorResponseBodyIndicatorType(resp interface{}) []interface{
 		map[string]interface{}{
 			"category":       utils.PathSearch("category", curJson, nil),
 			"indicator_type": utils.PathSearch("indicator_type", curJson, nil),
+			"id":             utils.PathSearch("id", curJson, nil),
 		},
 	}
 	return rst
