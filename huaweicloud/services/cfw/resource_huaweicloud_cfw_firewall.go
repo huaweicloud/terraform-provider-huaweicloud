@@ -173,6 +173,11 @@ func ResourceFirewall() *schema.Resource {
 				Computed:    true,
 				Description: `The east-west firewall inspection VPC ID.`,
 			},
+			"east_west_firewall_er_attachment_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Enterprise Router and Firewall Connection ID`,
+			},
 		},
 	}
 }
@@ -203,6 +208,61 @@ func firewallFlavorSchema() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Specifies the extend VPC number of the firewall.`,
+			},
+			"eip_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the EIP number of the firewall.`,
+			},
+			"vpc_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the VPC number of the firewall.`,
+			},
+			"bandwidth": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the bandwidth of the firewall.`,
+			},
+			"log_storage": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the log storage of the firewall.`,
+			},
+			"default_eip_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the default EIP number of the firewall.`,
+			},
+			"default_vpc_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the default VPC number of the firewall.`,
+			},
+			"default_bandwidth": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the default bandwidth of the firewall.`,
+			},
+			"default_log_storage": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the default log storage of the firewall.`,
+			},
+			"vpc_bandwidth": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the VPC bandwidth of the firewall.`,
+			},
+			"used_rule_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the used rule count of the firewall.`,
+			},
+			"total_rule_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Specifies the total rule count of the firewall.`,
 			},
 		},
 	}
@@ -284,7 +344,7 @@ func resourceFirewallCreate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 
 		createEastWestFirewallOpt.JSONBody = utils.RemoveNil(buildCreateEastWestFirewallBodyParams(d))
-		_, err := createFirewallClient.Request("POST", createEastWestFirewallPath, &createEastWestFirewallOpt)
+		createEastWestFirewallResp, err := createFirewallClient.Request("POST", createEastWestFirewallPath, &createEastWestFirewallOpt)
 		if err != nil {
 			return diag.Errorf("error creating east-west firewall: %s", err)
 		}
@@ -293,6 +353,13 @@ func resourceFirewallCreate(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return diag.Errorf("error waiting for the east-west firewall (%s) creation to complete: %s", d.Id(), err)
 		}
+
+		createEastWestFirewallRespBody, err := utils.FlattenResponse(createEastWestFirewallResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.Set("east_west_firewall_er_attachment_id", utils.PathSearch("data.er.er_attach_id", createEastWestFirewallRespBody, nil))
 	}
 
 	return resourceFirewallUpdate(ctx, d, meta)
@@ -548,12 +615,16 @@ func resourceFirewallRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error retrieving IPS patch switch status: %s", err)
 	}
 
+	tags := utils.PathSearch("tags", getFirewallRespBody, "")
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("fw_instance_name", getFirewallRespBody, nil)),
 		d.Set("charging_mode", chargingMode),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getFirewallRespBody, nil)),
+		d.Set("flavor", flattenGetFirewallResponseBodyFlavor(getFirewallRespBody, chargingMode)),
+		setTagsToState(d, tags.(string)),
 		d.Set("engine_type", utils.PathSearch("engine_type", getFirewallRespBody, nil)),
 		d.Set("ha_type", utils.PathSearch("ha_type", getFirewallRespBody, nil)),
 		d.Set("protect_objects", flattenGetFirewallResponseBodyProtectObject(getFirewallRespBody)),
@@ -614,6 +685,69 @@ func hasErrorCode(err error, expectCode string) bool {
 	}
 
 	return false
+}
+
+func flattenGetFirewallResponseBodyFlavor(resp interface{}, chargingMode string) []interface{} {
+	curJson := utils.PathSearch("flavor", resp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	v := int(utils.PathSearch("version", curJson, float64(-1)).(float64))
+	version := ""
+	if v == 0 {
+		version = "Standard"
+	} else if v == 1 {
+		version = "Professional"
+	}
+
+	eipCount := utils.PathSearch("eip_count", curJson, float64(0)).(float64)
+	vpcCount := utils.PathSearch("vpc_count", curJson, float64(0)).(float64)
+	bandwidth := utils.PathSearch("bandwidth", curJson, float64(0)).(float64)
+	defaultEipCount := utils.PathSearch("default_eip_count", curJson, float64(0)).(float64)
+	defaultVpcCount := utils.PathSearch("default_vpc_count", curJson, float64(0)).(float64)
+	defaultBandwidth := utils.PathSearch("default_bandwidth", curJson, float64(0)).(float64)
+	extendEipCount, extendVpcCount, extendBandwidth := 0, 0, 0
+
+	if chargingMode == "prePaid" {
+		extendEipCount = int(eipCount) - int(defaultEipCount)
+		extendVpcCount = int(vpcCount) - int(defaultVpcCount)
+		extendBandwidth = int(bandwidth) - int(defaultBandwidth)
+	}
+
+	rst := make([]interface{}, 0, 1)
+	rst = append(rst, map[string]interface{}{
+		"version":             version,
+		"extend_eip_count":    extendEipCount,
+		"extend_bandwidth":    extendBandwidth,
+		"extend_vpc_count":    extendVpcCount,
+		"eip_count":           eipCount,
+		"vpc_count":           vpcCount,
+		"bandwidth":           bandwidth,
+		"log_storage":         utils.PathSearch("log_storage", curJson, 0),
+		"default_eip_count":   defaultEipCount,
+		"default_vpc_count":   defaultVpcCount,
+		"default_bandwidth":   defaultBandwidth,
+		"default_log_storage": utils.PathSearch("default_log_storage", curJson, 0),
+		"vpc_bandwidth":       utils.PathSearch("vpc_bandwidth", curJson, 0),
+		"used_rule_count":     utils.PathSearch("used_rule_count", curJson, 0),
+		"total_rule_count":    utils.PathSearch("total_rule_count", curJson, 0),
+	})
+	return rst
+}
+
+func setTagsToState(d *schema.ResourceData, tags string) error {
+	if tags == "" {
+		return nil
+	}
+
+	var rst map[string]string
+	err := json.Unmarshal([]byte(tags), &rst)
+	if err != nil {
+		return fmt.Errorf("error parsing tags from API response: %s", err)
+	}
+
+	return d.Set("tags", rst)
 }
 
 func flattenGetFirewallResponseBodyProtectObject(resp interface{}) []interface{} {
@@ -950,7 +1084,7 @@ func deleteFirewallWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 
 			statusRaw, err := jmespath.Search(`status`, deleteFirewallWaitingRespBody)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `data.status`)
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `data.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)

@@ -78,6 +78,8 @@ func TestAccFirewall_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "engine_type"),
 					resource.TestCheckResourceAttrSet(rName, "ha_type"),
 					resource.TestCheckResourceAttrSet(rName, "protect_objects.#"),
@@ -90,9 +92,6 @@ func TestAccFirewall_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"flavor", "tags",
-				},
 			},
 		},
 	})
@@ -138,7 +137,7 @@ func TestAccFirewall_prePaid(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"flavor", "tags", "period_unit", "period", "auto_renew",
+					"period_unit", "period", "auto_renew",
 				},
 			},
 		},
@@ -182,6 +181,7 @@ func TestAccFirewall_eastWest(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "service_type"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "support_ipv6"),
+					resource.TestCheckResourceAttrSet(rName, "east_west_firewall_er_attachment_id"),
 				),
 			},
 			{
@@ -207,7 +207,112 @@ func TestAccFirewall_eastWest(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"flavor", "tags",
+					"east_west_firewall_er_attachment_id",
+				},
+			},
+		},
+	})
+}
+
+func TestAccFirewall_ips(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_cfw_firewall.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getFirewallResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testFirewall_ips_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(rName, "ips_switch_status", "1"),
+					resource.TestCheckResourceAttr(rName, "ips_protection_mode", "1"),
+					resource.TestCheckResourceAttrSet(rName, "engine_type"),
+					resource.TestCheckResourceAttrSet(rName, "ha_type"),
+					resource.TestCheckResourceAttrSet(rName, "protect_objects.#"),
+					resource.TestCheckResourceAttrSet(rName, "service_type"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "support_ipv6"),
+				),
+			},
+			{
+				Config: testFirewall_ips_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ips_switch_status", "0"),
+					resource.TestCheckResourceAttr(rName, "ips_protection_mode", "2"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"period_unit", "period", "auto_renew",
+				},
+			},
+		},
+	})
+}
+
+func TestAccFirewall_flavor(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_cfw_firewall.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getFirewallResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testFirewall_flavor(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "flavor.0.version", "Professional"),
+					resource.TestCheckResourceAttr(rName, "flavor.0.extend_eip_count", "2"),
+					resource.TestCheckResourceAttr(rName, "flavor.0.extend_bandwidth", "5"),
+					resource.TestCheckResourceAttr(rName, "flavor.0.extend_vpc_count", "1"),
+					resource.TestCheckResourceAttrSet(rName, "engine_type"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.eip_count"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.bandwidth"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.vpc_count"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.default_eip_count"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.default_bandwidth"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.default_vpc_count"),
+					resource.TestCheckResourceAttrSet(rName, "flavor.0.total_rule_count"),
+					resource.TestCheckResourceAttrSet(rName, "ha_type"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"period_unit", "period", "auto_renew",
 				},
 			},
 		},
@@ -318,60 +423,6 @@ resource "huaweicloud_cfw_firewall" "test" {
 `, testFirewall_eastWestBase(name, bgpAsNum), name)
 }
 
-func TestAccFirewall_ips(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_cfw_firewall.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getFirewallResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testFirewall_ips_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
-					resource.TestCheckResourceAttr(rName, "ips_switch_status", "1"),
-					resource.TestCheckResourceAttr(rName, "ips_protection_mode", "1"),
-					resource.TestCheckResourceAttrSet(rName, "engine_type"),
-					resource.TestCheckResourceAttrSet(rName, "ha_type"),
-					resource.TestCheckResourceAttrSet(rName, "protect_objects.#"),
-					resource.TestCheckResourceAttrSet(rName, "service_type"),
-					resource.TestCheckResourceAttrSet(rName, "status"),
-					resource.TestCheckResourceAttrSet(rName, "support_ipv6"),
-				),
-			},
-			{
-				Config: testFirewall_ips_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "ips_switch_status", "0"),
-					resource.TestCheckResourceAttr(rName, "ips_protection_mode", "2"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"flavor", "tags", "period_unit", "period", "auto_renew",
-				},
-			},
-		},
-	})
-}
-
 func testFirewall_ips_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cfw_firewall" "test" {
@@ -416,6 +467,26 @@ resource "huaweicloud_cfw_firewall" "test" {
   auto_renew           = false
   ips_switch_status    = 0
   ips_protection_mode  = 2
+}
+`, name)
+}
+
+func testFirewall_flavor(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cfw_firewall" "test" {
+  name = "%s"
+
+  flavor {
+    version          = "Professional"
+    extend_eip_count = 2
+    extend_bandwidth = 5
+    extend_vpc_count = 1
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
 }
 `, name)
 }
