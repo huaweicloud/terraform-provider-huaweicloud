@@ -271,11 +271,8 @@ The `https_settings` block support:
 * `private_key` - (Optional, String) Specifies the private key used by the HTTPS protocol. This parameter is mandatory
   when a certificate is configured. The value is in PEM format.
 
-* `certificate_source` - (Optional, Int) Specifies the certificate type. Possible values are:
-  + **1**: Huawei-managed certificate.
-  + **0**: Your own certificate.
-  
-  Defaults to **0**.
+* `certificate_source` - (Optional, Int) Specifies the certificate type. Currently, only **0** is supported, which means
+  your own certificate. Defaults to **0**.
 
 * `http2_enabled` - (Optional, Bool) Specifies whether HTTP/2 is used. Defaults to **false**.
   When `https_enabled` is set to **false**, this parameter does not take effect.
