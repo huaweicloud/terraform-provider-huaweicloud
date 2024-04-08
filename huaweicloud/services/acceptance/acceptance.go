@@ -53,6 +53,7 @@ var (
 	HW_OBS_DESTINATION_BUCKET = os.Getenv("HW_OBS_DESTINATION_BUCKET")
 	HW_OBS_USER_DOMAIN_NAME1  = os.Getenv("HW_OBS_USER_DOMAIN_NAME1")
 	HW_OBS_USER_DOMAIN_NAME2  = os.Getenv("HW_OBS_USER_DOMAIN_NAME2")
+	HW_OBS_ENDPOINT           = os.Getenv("HW_OBS_ENDPOINT")
 
 	HW_OMS_ENABLE_FLAG = os.Getenv("HW_OMS_ENABLE_FLAG")
 
@@ -651,6 +652,13 @@ func TestAccPreCheckOBSDestinationBucket(t *testing.T) {
 func TestAccPreCheckOBSUserDomainNames(t *testing.T) {
 	if HW_OBS_USER_DOMAIN_NAME1 == "" || HW_OBS_USER_DOMAIN_NAME2 == "" {
 		t.Skip("HW_OBS_USER_DOMAIN_NAME1 and HW_OBS_USER_DOMAIN_NAME2 must be set for OBS user domain name tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckOBSEndpoint(t *testing.T) {
+	if HW_OBS_ENDPOINT == "" {
+		t.Skip("HW_OBS_ENDPOINT must be set for the acceptance test")
 	}
 }
 
