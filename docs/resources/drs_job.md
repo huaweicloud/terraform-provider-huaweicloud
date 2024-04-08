@@ -337,6 +337,9 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
 
+* `alarm_notify` - (Optional, List, ForceNew)  Specifies the information body for setting task exception notification.
+  The [alarm_notify](#block--alarm_notify) structure is documented below.
+
 <a name="block--db_info"></a>
 The `db_info` block supports:
 
@@ -428,6 +431,24 @@ The `tables` block supports:
 
 * `table_names` - (Required, List) Specifies the names of table which belong to a same datebase.
 
+<a name="block--alarm_notify"></a>
+The `alarm_notify` block supports:
+
+* `topic_urn` - (Required, String, ForceNew) Specifies the SMN topic URN which is subscribed.
+
+* `delay_time` - (Optional, Int, ForceNew) Specifies the Delay threshold between the source and destination database,
+  in seconds. Value ranges from **1** to **3600**. Default is **0** and no notifications will be sent to recipient. If
+  the delay exceeds a specified value and lasts for 6 minutes, DRS will notify specified recipients. This option is
+  available only for **full+incremental** tasks.
+
+* `rpo_delay` - (Optional, Int, ForceNew) Specifies the RPO delay threshold, in seconds. Value ranges from **1** to **3600**.
+  Default is **0** and no notifications will be sent to recipient. If the RPO delay between the service database and
+  the DRS instance exceeds a specified value and lasts for 6 minutes, DRS will notify specified recipients.
+
+* `rto_delay` - (Optional, Int, ForceNew) Specifies the RTO delay threshold, in seconds. Value ranges from **1** to **3600**.
+  Default is **0** and no notifications will be sent to recipient. If the RTO delay between the DRS instance and the
+  DR database exceeds a specified value and lasts for 6 minutes, DRS will notify specified recipients.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -470,10 +491,10 @@ $ terraform import huaweicloud_drs_job.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
-`source_db.0.password` and `destination_db.0.password`, `action`, `is_sync_re_edit`, `pause_mode`, `auto_renew`.
-It is generally recommended running **terraform plan** after importing a job. You can then decide if changes should be
-applied to the job, or the resource definition should be updated to align with the job. Also you can ignore changes as
-below.
+`source_db.0.password` and `destination_db.0.password`, `action`, `is_sync_re_edit`, `pause_mode`, `auto_renew`,
+`alarm_notify.0.topic_urn`. It is generally recommended running **terraform plan** after importing a job. You can then
+decide if changes should be applied to the job, or the resource definition should be updated to align with the job. Also
+you can ignore changes as below.
 
 ```
 resource "huaweicloud_drs_job" "test" {

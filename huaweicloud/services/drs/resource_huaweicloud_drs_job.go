@@ -304,6 +304,44 @@ func ResourceDrsJob() *schema.Resource {
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 
+			"alarm_notify": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"topic_urn": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"delay_time": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+
+						"rpo_delay": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+
+						"rto_delay": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -551,6 +589,13 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
+	if _, ok := d.GetOk("alarm_notify"); ok {
+		err = updateJobConfig(clientV5, buildUpdateJobConfigBodyParams(d, "notify"), "notify", d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	startReq := jobs.StartJobReq{
 		Jobs: []jobs.StartInfo{
 			{
@@ -592,6 +637,10 @@ func buildUpdateJobConfigBodyParams(d *schema.ResourceData, updateType string) m
 	case "policy":
 		return map[string]interface{}{
 			"policy_config": buildPolicyConfig(d.Get("policy_config").([]interface{})),
+		}
+	case "notify":
+		return map[string]interface{}{
+			"alarm_notify": buildAlarmNotify(d.Get("alarm_notify").([]interface{})),
 		}
 	}
 	return nil
@@ -653,6 +702,21 @@ func buildPolicyConfig(rawArray []interface{}) map[string]interface{} {
 	return rst
 }
 
+func buildAlarmNotify(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+	raw := rawArray[0].(map[string]interface{})
+	rst := map[string]interface{}{
+		"alarm_to_user": true,
+		"topic_urn":     raw["topic_urn"],
+		"delay_time":    utils.ValueIngoreEmpty(raw["delay_time"]),
+		"rpo_delay":     utils.ValueIngoreEmpty(raw["rpo_delay"]),
+		"rto_delay":     utils.ValueIngoreEmpty(raw["rto_delay"]),
+	}
+	return rst
+}
+
 func updateJobConfig(client *golangsdk.ServiceClient, jsonBody map[string]interface{}, updateType, id string) error {
 	updateJobConfigHttpUrl := "v5/{project_id}/jobs/{job_id}"
 	updateJobConfigPath := client.Endpoint + updateJobConfigHttpUrl
@@ -705,6 +769,13 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		return diag.Errorf("error getting job progress: %s", err)
 	}
 
+	// get topicUrn, it's not in api response
+	topicUrn := ""
+	if v, ok := d.GetOk("alarm_notify"); ok {
+		alarmNotify := v.([]interface{})[0].(map[string]interface{})
+		topicUrn = alarmNotify["topic_urn"].(string)
+	}
+
 	createdAt, _ := strconv.ParseInt(detail.CreateTime, 10, 64)
 	mErr := multierror.Append(
 		d.Set("region", region),
@@ -724,6 +795,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("progress", progressResp.Results[0].Progress),
 		d.Set("tags", utils.TagsToMap(detail.Tags)),
 		d.Set("policy_config", flattenPolicyConfig(detail)),
+		d.Set("alarm_notify", flattenAlarmNotify(detail.AlarmNotify, topicUrn)),
 		d.Set("master_az", detail.MasterAz),
 		d.Set("master_job_id", detail.MasterJobId),
 		d.Set("slave_az", detail.SlaveAz),
@@ -810,6 +882,18 @@ func flattenPolicyConfig(detail jobs.JobDetail) []interface{} {
 		"filter_ddl_policy": detail.FilterDdlPolicy,
 		"conflict_policy":   detail.ConflictPolicy,
 		"index_trans":       detail.IndexTrans,
+	}
+	rst = append(rst, v)
+	return rst
+}
+
+func flattenAlarmNotify(alarmNotify jobs.AlarmNotifyInfo, topicUrn string) []interface{} {
+	rst := make([]interface{}, 0)
+	v := map[string]interface{}{
+		"topic_urn":  topicUrn,
+		"delay_time": alarmNotify.DelayTime,
+		"rpo_delay":  alarmNotify.RpoDelay,
+		"rto_delay":  alarmNotify.RtoDelay,
 	}
 	rst = append(rst, v)
 	return rst
