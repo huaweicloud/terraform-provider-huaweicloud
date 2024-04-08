@@ -277,10 +277,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "SFSTurbo",
 	},
-	"cae": {
-		Name:    "cae",
-		Product: "CAE",
-	},
 	"cbh": {
 		Name:    "cbh",
 		Version: "v1",
@@ -627,6 +623,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// catalog for Enterprise Intelligence
+	"cae": {
+		Name:    "cae",
+		Product: "CAE",
+	},
 	"mrs": {
 		Name:    "mrs",
 		Version: "v1.1",

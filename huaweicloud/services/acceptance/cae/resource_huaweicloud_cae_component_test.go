@@ -1,4 +1,4 @@
-package cbh
+package cae
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ import (
 
 func getComponentFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	environmentId := state.Primary.Attributes["environment_id"]
-	resp, err := cae.GetComponentById(cfg, acceptance.HW_REGION_NAME, environmentId, state.Primary.Attributes["application_id"], state.Primary.ID)
-	return resp, err
+	applicationId := state.Primary.Attributes["application_id"]
+	return cae.GetComponentById(cfg, acceptance.HW_REGION_NAME, environmentId, applicationId, state.Primary.ID)
 }
 
 func TestAccComponent_basic(t *testing.T) {
@@ -36,7 +36,7 @@ func TestAccComponent_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckCaeEnvironment(t)
 			acceptance.TestAccPreCheckCaeApplication(t)
-			acceptance.TestAccPreCheckCAEComponent(t)
+			acceptance.TestAccPreCheckCaeComponent(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -63,7 +63,6 @@ func TestAccComponent_basic(t *testing.T) {
 				Config: testAccComponent_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-
 					resource.TestCheckResourceAttr(rName, "metadata.0.name", updateName),
 					resource.TestCheckResourceAttr(rName, "spec.0.replica", "1"),
 					resource.TestCheckResourceAttr(rName, "spec.0.%", "5"),

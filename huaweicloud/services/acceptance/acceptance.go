@@ -389,7 +389,7 @@ func TestAccPreCheckCaeApplication(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCAEComponent(t *testing.T) {
+func TestAccPreCheckCaeComponent(t *testing.T) {
 	if HW_CAE_CODE_URL == "" || HW_CAE_CODE_AUTH_NAME == "" || HW_CAE_CODE_BRANCH == "" || HW_CAE_CODE_NAMESPACE == "" ||
 		HW_CAE_ARTIFACT_NAMESPACE == "" || HW_CAE_BUILD_BASE_IMAGE == "" || HW_CAE_IMAGE_URL == "" {
 		t.Skip("Skip the CAE acceptance tests.")
