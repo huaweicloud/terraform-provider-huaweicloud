@@ -57,9 +57,6 @@ var httpsConfig = schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.IntInSlice([]int{
-					0, 1,
-				}),
 			},
 			"http2_enabled": {
 				Type:     schema.TypeBool,
@@ -67,9 +64,10 @@ var httpsConfig = schema.Schema{
 				Computed: true,
 			},
 			"tls_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+				Computed:         true,
 			},
 			"https_status": {
 				Type:     schema.TypeString,
@@ -609,28 +607,26 @@ func buildCreateDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 	return sourceRequests
 }
 
+func buildHttpStatusOpts(enable bool) string {
+	if enable {
+		return "on"
+	}
+	return "off"
+}
+
 func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
 	if len(rawHTTPS) != 1 {
 		return nil
 	}
 
 	https := rawHTTPS[0].(map[string]interface{})
-	httpsStatus := ""
-	if https["https_enabled"].(bool) {
-		httpsStatus = "on"
-	}
-	http2Status := ""
-	if https["http2_enabled"].(bool) {
-		http2Status = "on"
-	}
-
 	httpsOpts := model.HttpPutBody{
-		HttpsStatus:       utils.StringIgnoreEmpty(httpsStatus),
+		HttpsStatus:       utils.String(buildHttpStatusOpts(https["https_enabled"].(bool))),
 		CertificateName:   utils.StringIgnoreEmpty(https["certificate_name"].(string)),
 		CertificateValue:  utils.StringIgnoreEmpty(https["certificate_body"].(string)),
 		PrivateKey:        utils.StringIgnoreEmpty(https["private_key"].(string)),
-		CertificateSource: utils.Int32IgnoreEmpty(int32(https["certificate_source"].(int))),
-		Http2Status:       utils.StringIgnoreEmpty(http2Status),
+		CertificateSource: utils.Int32(int32(https["certificate_source"].(int))),
+		Http2Status:       utils.String(buildHttpStatusOpts(https["http2_enabled"].(bool))),
 		TlsVersion:        utils.StringIgnoreEmpty(https["tls_version"].(string)),
 	}
 
@@ -1138,14 +1134,16 @@ func analyseFunctionEnabledStatusPtr(enabledStatus *string) bool {
 	return enabledStatus != nil && *enabledStatus == "on"
 }
 
-func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey string) []map[string]interface{} {
+// flattenHTTPSAttrs Field `privateKey` is not returned in the details interface.
+// The value of the field `certificateBody` will be modified by the cloud, resulting in inconsistency with the local value.
+func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey, certificateBody string) []map[string]interface{} {
 	if https == nil {
 		return nil
 	}
 	httpsAttrs := map[string]interface{}{
 		"https_status":       https.HttpsStatus,
 		"certificate_name":   https.CertificateName,
-		"certificate_body":   https.CertificateValue,
+		"certificate_body":   certificateBody,
 		"private_key":        privateKey,
 		"certificate_source": https.CertificateSource,
 		"http2_status":       https.Http2Status,
@@ -1415,10 +1413,11 @@ func flattenCacheRulesAttrs(cacheRulesPtr *[]model.CacheRules) []map[string]inte
 
 func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceData) []map[string]interface{} {
 	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
+	certificateBody := d.Get("configs.0.https_settings.0.certificate_body").(string)
 	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
 
 	configsAttrs := map[string]interface{}{
-		"https_settings":                flattenHTTPSAttrs(configsResp.Https, privateKey),
+		"https_settings":                flattenHTTPSAttrs(configsResp.Https, privateKey, certificateBody),
 		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configsResp.OriginRequestHeader),
 		"http_response_header":          flattenHttpResponseHeaderAttrs(configsResp.HttpResponseHeader),
 		"url_signing":                   flattenUrlAuthAttrs(configsResp.UrlAuth, urlAuthKey),

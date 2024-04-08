@@ -271,17 +271,14 @@ The `https_settings` block support:
 * `private_key` - (Optional, String) Specifies the private key used by the HTTPS protocol. This parameter is mandatory
   when a certificate is configured. The value is in PEM format.
 
-* `certificate_source` - (Optional, Int) Specifies the certificate type. Possible values are:
-  + **1**: Huawei-managed certificate.
-  + **0**: Your own certificate.
-  
-  Defaults to **0**.
+* `certificate_source` - (Optional, Int) Specifies the certificate type. Currently, only **0** is supported, which means
+  your own certificate. Defaults to **0**.
 
 * `http2_enabled` - (Optional, Bool) Specifies whether HTTP/2 is used. Defaults to **false**.
   When `https_enabled` is set to **false**, this parameter does not take effect.
 
 * `tls_version` - (Optional, String) Specifies the transport Layer Security (TLS). Currently, **TLSv1.0**,
-  **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are supported. By default, **TLS 1.1**, **TLS 1.2**, and **TLS 1.3** are
+  **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are supported. By default, **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are
   enabled. You can enable a single version or consecutive versions. To enable multiple versions, use commas (,) to
   separate versions, for example, **TLSv1.1,TLSv1.2**.
 
