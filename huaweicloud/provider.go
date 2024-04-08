@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cae"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cc"
@@ -407,6 +408,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_bms_flavors":   bms.DataSourceBmsFlavors(),
 			"huaweicloud_bms_instances": bms.DataSourceBmsInstances(),
+
+			"huaweicloud_cae_environments": cae.DataSourceEnvironments(),
 
 			"huaweicloud_cbr_backup":   cbr.DataSourceBackup(),
 			"huaweicloud_cbr_vaults":   cbr.DataSourceVaults(),
