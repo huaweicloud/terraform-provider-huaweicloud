@@ -175,12 +175,12 @@ func buildOrganizationalPolicyFilter(filters []interface{}) map[string]interface
 	}
 	filter := filters[0].(map[string]interface{})
 	return map[string]interface{}{
-		"region_id":         filter["region"],
-		"resource_provider": filter["resource_provider"],
-		"resource_type":     filter["resource_type"],
-		"resource_id":       filter["resource_id"],
-		"tag_key":           filter["tag_key"],
-		"tag_value":         filter["tag_value"],
+		"region_id":         utils.ValueIngoreEmpty(filter["region"]),
+		"resource_provider": utils.ValueIngoreEmpty(filter["resource_provider"]),
+		"resource_type":     utils.ValueIngoreEmpty(filter["resource_type"]),
+		"resource_id":       utils.ValueIngoreEmpty(filter["resource_id"]),
+		"tag_key":           utils.ValueIngoreEmpty(filter["tag_key"]),
+		"tag_value":         utils.ValueIngoreEmpty(filter["tag_value"]),
 	}
 }
 
