@@ -614,9 +614,11 @@ func resourceNetworkAclDelete(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	// the associated subnets need to be removed before deleting the ACL
-	err = networkAclDisassociatSubnets(client, d.Get("associated_subnets").(*schema.Set).List(), id)
-	if err != nil {
-		return diag.FromErr(err)
+	if d.Get("associated_subnets").(*schema.Set).Len() > 0 {
+		err = networkAclDisassociatSubnets(client, d.Get("associated_subnets").(*schema.Set).List(), id)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	deleteNetworkAclHttpUrl := "v3/{project_id}/vpc/firewalls/" + id
