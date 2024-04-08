@@ -2,6 +2,9 @@ package cdn
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -246,17 +249,61 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ipv6_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.range_based_retrieval_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_name", "terraform-test"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "ignore_url_params"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+					testAccCheckTlsVersion(resourceName, "TLSv1.1,TLSv1.2"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "configs.0.https_settings.0.certificate_body"),
+					resource.TestCheckResourceAttrSet(resourceName, "configs.0.https_settings.0.private_key"),
+				),
+			},
+			{
+				Config: testAccCdnDomain_configHttpSettings_update1,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_name", "terraform-update"),
+					testAccCheckTlsVersion(resourceName, "TLSv1.1,TLSv1.2,TLSv1.3"),
+				),
+			},
+			{
+				Config: testAccCdnDomain_configHttpSettings_update2,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.tls_version", "TLSv1.2"),
 				),
 			},
 		},
 	})
+}
+
+// The response value order of field `tls_version` will be modified.
+// For example `TLSv1.1,TLSv1.2` will be modified to `TLSv1.2,TLSv1.1`.
+func testAccCheckTlsVersion(n string, tlsVersion string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("resource (%s) not found: %s", n, rs)
+		}
+
+		tlsVersionAttr := rs.Primary.Attributes["configs.0.https_settings.0.tls_version"]
+		if tlsVersionAttr == "" {
+			return fmt.Errorf("attribute `configs.0.https_settings.0.tls_version` is not found from state")
+		}
+
+		tlsVersionArray := strings.Split(tlsVersion, ",")
+		tlsVersionAttrArray := strings.Split(tlsVersionAttr, ",")
+		sort.Strings(tlsVersionArray)
+		sort.Strings(tlsVersionAttrArray)
+		if reflect.DeepEqual(tlsVersionArray, tlsVersionAttrArray) {
+			return nil
+		}
+		return fmt.Errorf("attribute 'configs.0.https_settings.0.tls_version' expected (%s), got (%s)",
+			tlsVersion, tlsVersionAttr)
+	}
 }
 
 var testAccCdnDomain_configHttpSettings = fmt.Sprintf(`
@@ -283,35 +330,67 @@ resource "huaweicloud_cdn_domain" "test" {
       http2_enabled    = true
       https_enabled    = true
       private_key      = file("%s")
+      tls_version      = "TLSv1.1,TLSv1.2"
     }
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
 
-    cache_url_parameter_filter {
-      type = "ignore_url_params"
+var testAccCdnDomain_configHttpSettings_update1 = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = 0
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    origin_protocol               = "http"
+    ipv6_enable                   = true
+    range_based_retrieval_enabled = "true"
+
+    https_settings {
+      certificate_name = "terraform-update"
+      certificate_body = file("%s")
+      http2_enabled    = true
+      https_enabled    = true
+      private_key      = file("%s")
+      tls_version      = "TLSv1.1,TLSv1.2,TLSv1.3"
     }
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
 
-    retrieval_request_header {
-      name   = "test-name"
-      value  = "test-val"
-      action = "set"
-    }
+var testAccCdnDomain_configHttpSettings_update2 = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "web"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = 0
 
-    http_response_header {
-      name   = "test-name"
-      value  = "test-val"
-      action = "set"
-    }
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
 
-    url_signing {
-      enabled = false
-    }
+  configs {
+    origin_protocol               = "http"
+    ipv6_enable                   = true
+    range_based_retrieval_enabled = "true"
 
-    compress {
-      enabled = false
-    }
-
-    force_redirect {
-      enabled = true
-      type    = "http"
+    https_settings {
+      certificate_name = "terraform-update"
+      certificate_body = file("%s")
+      http2_enabled    = true
+      https_enabled    = true
+      private_key      = file("%s")
+      tls_version      = "TLSv1.2"
     }
   }
 }

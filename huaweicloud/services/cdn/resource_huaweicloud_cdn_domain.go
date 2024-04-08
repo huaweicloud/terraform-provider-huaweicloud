@@ -67,9 +67,10 @@ var httpsConfig = schema.Schema{
 				Computed: true,
 			},
 			"tls_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+				Computed:         true,
 			},
 			"https_status": {
 				Type:     schema.TypeString,
