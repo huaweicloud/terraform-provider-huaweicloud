@@ -83,7 +83,7 @@ type JobDetail struct {
 	SupportIpV6              bool               `json:"support_ip_v6"`
 	InheritId                string             `json:"inherit_id"`
 	Gtid                     string             `json:"gtid"`
-	AlarmNotify              string             `json:"alarm_notify"`
+	AlarmNotify              AlarmNotifyInfo    `json:"alarm_notify"`
 	IncreStartPosition       string             `json:"incre_start_position"`
 	Tags                     []tags.ResourceTag `json:"tags"`
 	PeriodOrder              OrderInfo          `json:"period_order"`

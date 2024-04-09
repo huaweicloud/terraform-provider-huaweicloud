@@ -1,0 +1,20 @@
+# List of usernames who may use /lgtm
+reviewers:
+- chengxiangdong
+- deer-hang
+- hmbig2
+- houpeng80
+- jason-zhang9309
+- lance52259
+- niuzhenguo
+- zippo-wang
+- jinyangyang222
+
+# List of usernames who may use /approve
+approvers:
+- chengxiangdong
+- deer-hang
+- houpeng80
+- jason-zhang9309
+- lance52259
+- niuzhenguo
