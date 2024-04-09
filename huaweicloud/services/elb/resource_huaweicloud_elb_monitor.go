@@ -56,6 +56,15 @@ func ResourceMonitorV3() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"max_retries_down": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"domain_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -76,6 +85,14 @@ func ResourceMonitorV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -88,15 +105,17 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	createOpts := monitors.CreateOpts{
-		PoolID:        d.Get("pool_id").(string),
-		Type:          d.Get("protocol").(string),
-		Delay:         d.Get("interval").(int),
-		Timeout:       d.Get("timeout").(int),
-		MaxRetries:    d.Get("max_retries").(int),
-		URLPath:       d.Get("url_path").(string),
-		DomainName:    d.Get("domain_name").(string),
-		MonitorPort:   d.Get("port").(int),
-		ExpectedCodes: d.Get("status_code").(string),
+		PoolID:         d.Get("pool_id").(string),
+		Type:           d.Get("protocol").(string),
+		Delay:          d.Get("interval").(int),
+		Timeout:        d.Get("timeout").(int),
+		MaxRetries:     d.Get("max_retries").(int),
+		MaxRetriesDown: d.Get("max_retries_down").(int),
+		Name:           d.Get("name").(string),
+		URLPath:        d.Get("url_path").(string),
+		DomainName:     d.Get("domain_name").(string),
+		MonitorPort:    d.Get("port").(int),
+		ExpectedCodes:  d.Get("status_code").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -133,6 +152,10 @@ func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("url_path", monitor.URLPath),
 		d.Set("domain_name", monitor.DomainName),
 		d.Set("status_code", monitor.ExpectedCodes),
+		d.Set("name", monitor.Name),
+		d.Set("max_retries_down", monitor.MaxRetriesDown),
+		d.Set("created_at", monitor.CreatedAt),
+		d.Set("updated_at", monitor.UpdatedAt),
 	)
 
 	if len(monitor.Pools) != 0 {
@@ -181,6 +204,12 @@ func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	if d.HasChange("protocol") {
 		updateOpts.Type = d.Get("protocol").(string)
+	}
+	if d.HasChange("name") {
+		updateOpts.Name = d.Get("name").(string)
+	}
+	if d.HasChange("max_retries_down") {
+		updateOpts.MaxRetriesDown = d.Get("max_retries_down").(int)
 	}
 
 	log.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
