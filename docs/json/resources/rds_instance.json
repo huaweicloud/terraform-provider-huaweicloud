@@ -116,6 +116,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "power_action": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "private_ips": {
                 "type": [
                   "list",

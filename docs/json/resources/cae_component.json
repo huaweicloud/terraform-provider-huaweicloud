@@ -1,0 +1,178 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_component": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "environment_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "annotations": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "spec": {
+                "block": {
+                  "attributes": {
+                    "replica": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "runtime": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "build": {
+                      "block": {
+                        "attributes": {
+                          "parameters": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "archive": {
+                            "block": {
+                              "attributes": {
+                                "artifact_namespace": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "resource_limit": {
+                      "block": {
+                        "attributes": {
+                          "cpu": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "memory": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "source": {
+                      "block": {
+                        "attributes": {
+                          "sub_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "code": {
+                            "block": {
+                              "attributes": {
+                                "auth_name": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "branch": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "namespace": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

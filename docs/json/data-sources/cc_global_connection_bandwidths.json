@@ -1,0 +1,136 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_global_connection_bandwidths": {
+          "block": {
+            "attributes": {
+              "admin_state": {
+                "type": "string",
+                "description": "Status of the global connection bandwidth.",
+                "optional": true
+              },
+              "binding_service": {
+                "type": "string",
+                "description": "Binding service.",
+                "optional": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "description": "Billing option.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Enterprise project ID.",
+                "optional": true
+              },
+              "gcb_id": {
+                "type": "string",
+                "description": "Resource ID.",
+                "optional": true
+              },
+              "globalconnection_bandwidths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "admin_state": "string",
+                      "binding_service": "string",
+                      "bordercross": "bool",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "enable_share": "bool",
+                      "enterprise_project_id": "string",
+                      "frozen": "bool",
+                      "id": "string",
+                      "instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "local_area": "string",
+                      "local_site_code": "string",
+                      "name": "string",
+                      "remote_area": "string",
+                      "remote_site_code": "string",
+                      "size": "number",
+                      "sla_level": "string",
+                      "spec_code_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Response body for querying the global connection bandwidth list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Bound instance ID.",
+                "optional": true
+              },
+              "instance_type": {
+                "type": "string",
+                "description": "Instance type.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Resource name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Range of a global connection bandwidth, in Mbit/s.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Type of a global connection bandwidth.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -74,6 +74,15 @@
                 "type": "bool",
                 "optional": true
               },
+              "master_az": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "master_job_id": {
+                "type": "string",
+                "computed": true
+              },
               "migrate_definer": {
                 "type": "bool",
                 "optional": true,
@@ -133,6 +142,15 @@
                 "computed": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "slave_az": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "slave_job_id": {
                 "type": "string",
                 "computed": true
               },

@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_component_configurations": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application where the component is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "The ID of the component to which the configurations belong.",
+                "required": true,
+                "forcenew": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the environment where the application is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "items": {
+                "block": {
+                  "attributes": {
+                    "data": {
+                      "type": "string",
+                      "description": "The configuration detail.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the configuration.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The list of configurations for component."
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

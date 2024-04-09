@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_elastic_resource_pools": {
+          "block": {
+            "attributes": {
+              "elastic_resource_pools": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "actual_cu": "number",
+                      "cidr": "string",
+                      "created_at": "string",
+                      "current_cu": "number",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "fail_reason": "string",
+                      "id": "number",
+                      "manager": "string",
+                      "max_cu": "number",
+                      "min_cu": "number",
+                      "name": "string",
+                      "owner": "string",
+                      "queues": [
+                        "set",
+                        "string"
+                      ],
+                      "resource_id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "All elastic resource pools that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the elastic resource pool.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the elastic resource pool.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the elastic resource pool.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

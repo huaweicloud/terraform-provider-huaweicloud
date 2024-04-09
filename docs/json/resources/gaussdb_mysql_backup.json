@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_mysql_backup": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "Indicates the backup start time in the \"yyyy-mm-ddThh:mm:ssZ\" format.",
+                "computed": true
+              },
+              "datastore": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the database information.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the backup.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Indicates the backup end time in the \"yyyy-mm-ddThh:mm:ssZ\" format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the backup.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Indicates the backup size in MB.",
+                "computed": true
+              },
+              "take_up_time": {
+                "type": "number",
+                "description": "Indicates the backup duration in minutes.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

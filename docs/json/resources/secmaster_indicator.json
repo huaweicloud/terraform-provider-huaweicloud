@@ -119,6 +119,11 @@
                       "description": "Specifies the category.",
                       "required": true
                     },
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the indicator type ID.",
+                      "required": true
+                    },
                     "indicator_type": {
                       "type": "string",
                       "description": "Specifies the indicator type.",

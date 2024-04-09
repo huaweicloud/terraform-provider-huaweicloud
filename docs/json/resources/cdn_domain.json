@@ -29,9 +29,7 @@
               },
               "service_area": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "required": true
               },
               "tags": {
                 "type": [
@@ -42,8 +40,7 @@
               },
               "type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             },
             "block_types": {
@@ -301,6 +298,120 @@
                             "type": "number",
                             "optional": true,
                             "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "remote_auth": {
+                      "block": {
+                        "attributes": {
+                          "enabled": {
+                            "type": "bool",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "remote_auth_rules": {
+                            "block": {
+                              "attributes": {
+                                "auth_failed_status": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "auth_server": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "auth_success_status": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "file_type_setting": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "request_method": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "reserve_args": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "reserve_args_setting": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "reserve_headers": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "reserve_headers_setting": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "response_status": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "specified_file_type": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "timeout": {
+                                  "type": "number",
+                                  "required": true
+                                },
+                                "timeout_action": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "add_custom_args_rules": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "set"
+                                },
+                                "add_custom_headers_rules": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "set"
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
                           }
                         }
                       },

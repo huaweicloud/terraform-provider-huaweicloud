@@ -1,0 +1,186 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_device_linkage_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device_alarm": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description": "string",
+                                  "name": "string",
+                                  "severity": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "device_command": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "command_body": "string",
+                                  "command_name": "string",
+                                  "device_id": "string",
+                                  "service_id": "string"
+                                }
+                              ]
+                            ],
+                            "smn_forwarding": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "message_content": "string",
+                                  "message_title": "string",
+                                  "project_id": "string",
+                                  "region": "string",
+                                  "topic_name": "string",
+                                  "topic_urn": "string"
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "effective_period": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "days_of_week": "string",
+                            "end_time": "string",
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "space_id": "string",
+                      "status": "string",
+                      "trigger_logic": "string",
+                      "triggers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "daily_timer_condition": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "days_of_week": "string",
+                                  "start_time": "string"
+                                }
+                              ]
+                            ],
+                            "device_data_condition": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "data_validatiy_period": "number",
+                                  "device_id": "string",
+                                  "operator": "string",
+                                  "path": "string",
+                                  "product_id": "string",
+                                  "trigger_strategy": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "device_linkage_status_condition": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "device_id": "string",
+                                  "duration": "number",
+                                  "product_id": "string",
+                                  "status_list": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "simple_timer_condition": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "repeat_count": "number",
+                                  "repeat_interval": "number",
+                                  "start_time": "string"
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

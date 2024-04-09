@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cc_central_network_connection_bandwidth_associate": {
+          "block": {
+            "attributes": {
+              "bandwidth_size": {
+                "type": "number",
+                "description": "The bandwidth size of the connection.",
+                "required": true
+              },
+              "central_network_id": {
+                "type": "string",
+                "description": "The ID of the central network to which the connection belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "connection_id": {
+                "type": "string",
+                "description": "The ID of the connection.",
+                "required": true,
+                "forcenew": true
+              },
+              "global_connection_bandwidth_id": {
+                "type": "string",
+                "description": "The ID of the global connection bandwidth.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

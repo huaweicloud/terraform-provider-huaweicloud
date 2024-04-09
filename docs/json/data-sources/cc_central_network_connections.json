@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_central_network_connections": {
+          "block": {
+            "attributes": {
+              "bandwidth_type": {
+                "type": "string",
+                "description": "Specifies the bandwidth type of the central network connection.",
+                "optional": true
+              },
+              "central_network_connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_size": "number",
+                      "bandwidth_type": "string",
+                      "central_network_id": "string",
+                      "central_network_plane_id": "string",
+                      "connection_point_pair": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "instance_id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "site_code": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "global_connection_bandwidth_id": "string",
+                      "id": "string",
+                      "is_frozen": "bool",
+                      "name": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the central network connections.",
+                "computed": true
+              },
+              "central_network_id": {
+                "type": "string",
+                "description": "Specifies the central network ID.",
+                "required": true
+              },
+              "connection_id": {
+                "type": "string",
+                "description": "Specifies the central network connection ID.",
+                "optional": true
+              },
+              "global_connection_bandwidth_id": {
+                "type": "string",
+                "description": "Specifies the bandwidth package ID of the central network connection.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_cross_region": {
+                "type": "string",
+                "description": "Specifies whether there are different regions.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the central network connection status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the central network connection type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
