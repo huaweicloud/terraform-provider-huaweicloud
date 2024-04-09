@@ -693,8 +693,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
 
-			"huaweicloud_sfs_file_system": sfs.DataSourceSFSFileSystemV2(),
-			"huaweicloud_sfs_turbos":      sfs.DataSourceTurbos(),
+			"huaweicloud_sfs_file_system":       sfs.DataSourceSFSFileSystemV2(),
+			"huaweicloud_sfs_turbos":            sfs.DataSourceTurbos(),
+			"huaweicloud_sfs_turbo_obs_targets": sfs.DataSourceSfsTurboObsTargets(),
 
 			"huaweicloud_swr_organizations":  swr.DataSourceOrganizations(),
 			"huaweicloud_swr_repositories":   swr.DataSourceRepositories(),
