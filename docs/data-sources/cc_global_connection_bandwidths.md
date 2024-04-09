@@ -1,5 +1,5 @@
 ---
-subcategory: Cloud Connect (CC)
+subcategory: "Cloud Connect (CC)"
 ---
 
 # huaweicloud_cc_global_connection_bandwidths
