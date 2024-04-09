@@ -147,63 +147,71 @@ func resourceAddressGroupMemberRead(_ context.Context, d *schema.ResourceData, m
 	var mErr *multierror.Error
 
 	// getAddressGroupMember: Query the CFW IP address group member detail
-	var (
-		getAddressGroupMemberHttpUrl = "v1/{project_id}/address-items"
-		getAddressGroupMemberProduct = "cfw"
-	)
+	getAddressGroupMemberProduct := "cfw"
 	getAddressGroupMemberClient, err := cfg.NewServiceClient(getAddressGroupMemberProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
-	getAddressGroupMemberPath := getAddressGroupMemberClient.Endpoint + getAddressGroupMemberHttpUrl
-	getAddressGroupMemberPath = strings.ReplaceAll(getAddressGroupMemberPath, "{project_id}",
-		getAddressGroupMemberClient.ProjectID)
-
-	getAddressGroupMemberqueryParams := buildGetAddressGroupMemberQueryParams(d)
-	getAddressGroupMemberPath += getAddressGroupMemberqueryParams
-
-	getAddressGroupMemberOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getAddressGroupMemberResp, err := getAddressGroupMemberClient.Request("GET", getAddressGroupMemberPath,
-		&getAddressGroupMemberOpt)
-
+	addressGroupMembers, respBody, err := ReadAddressGroupMembers(d.Get("group_id").(string), getAddressGroupMemberClient)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AddressGroupMember")
+		return common.CheckDeletedDiag(d, err, "error retrieving address group member")
 	}
 
-	getAddressGroupMemberRespBody, err := utils.FlattenResponse(getAddressGroupMemberResp)
-	if err != nil {
-		return diag.FromErr(err)
+	findAddressGroupMemberExpr := fmt.Sprintf("[?item_id == '%s']|[0]", d.Id())
+	addressGroupMember := utils.PathSearch(findAddressGroupMemberExpr, addressGroupMembers, nil)
+	if addressGroupMember == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving address group member")
 	}
-
-	d.SetId(utils.PathSearch("data.records[0].item_id", getAddressGroupMemberRespBody, "").(string))
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("group_id", utils.PathSearch("data.set_id", getAddressGroupMemberRespBody, nil)),
-		d.Set("name", utils.PathSearch("data.records[0].name", getAddressGroupMemberRespBody, nil)),
-		d.Set("address", utils.PathSearch("data.records[0].address", getAddressGroupMemberRespBody, nil)),
-		d.Set("address_type", utils.PathSearch("data.records[0].address_type", getAddressGroupMemberRespBody, nil)),
-		d.Set("description", utils.PathSearch("data.records[0].description", getAddressGroupMemberRespBody, nil)),
+		d.Set("group_id", utils.PathSearch("data.set_id", respBody, nil)),
+		d.Set("name", utils.PathSearch("name", addressGroupMember, nil)),
+		d.Set("address", utils.PathSearch("address", addressGroupMember, nil)),
+		d.Set("address_type", utils.PathSearch("address_type", addressGroupMember, nil)),
+		d.Set("description", utils.PathSearch("description", addressGroupMember, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildGetAddressGroupMemberQueryParams(d *schema.ResourceData) string {
-	res := "?offset=0&limit=10"
+func ReadAddressGroupMembers(setID string, client *golangsdk.ServiceClient) ([]interface{}, interface{}, error) {
+	httpUrl := "v1/{project_id}/address-items"
+	basePath := client.Endpoint + httpUrl
+	basePath = strings.ReplaceAll(basePath, "{project_id}", client.ProjectID)
+	var result []interface{}
+	var respBody interface{}
 
-	res = fmt.Sprintf("%s&set_id=%v", res, d.Get("group_id"))
+	offset := 0
+	for {
+		path := fmt.Sprintf("%s?limit=10&offset=%d&set_id=%s", basePath, offset, setID)
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		resp, err := client.Request("GET", path, &opt)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	res = fmt.Sprintf("%s&address=%v", res, d.Get("address"))
+		respBody, err = utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	return res
+		curJson := utils.PathSearch("data.records[*]", respBody, make([]interface{}, 0))
+		curArray := curJson.([]interface{})
+
+		if len(curArray) == 0 {
+			break
+		}
+
+		result = append(result, curArray...)
+
+		offset += 10
+	}
+	return result, respBody, nil
 }
 
 func resourceAddressGroupMemberDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -240,13 +248,13 @@ func resourceAddressGroupMemberDelete(_ context.Context, d *schema.ResourceData,
 }
 
 func resourceAddressGroupMemberImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <group_id>/<address>")
+		return nil, fmt.Errorf("invalid format specified for import id, must be <group_id>/<id>")
 	}
 
 	d.Set("group_id", parts[0])
-	d.Set("address", parts[1])
+	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
 }
