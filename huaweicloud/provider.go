@@ -1139,8 +1139,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
 			"huaweicloud_ges_backup":   ges.ResourceGesBackup(),
 
-			"huaweicloud_hss_host_group":      hss.ResourceHostGroup(),
-			"huaweicloud_hss_host_protection": hss.ResourceHostProtection(),
+			"huaweicloud_hss_host_group":           hss.ResourceHostGroup(),
+			"huaweicloud_hss_host_protection":      hss.ResourceHostProtection(),
+			"huaweicloud_hss_webtamper_protection": hss.ResourceWebTamperProtection(),
 
 			"huaweicloud_identity_access_key":            iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":                   iam.ResourceIdentityACL(),
