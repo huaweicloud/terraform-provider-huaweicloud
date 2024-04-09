@@ -161,6 +161,7 @@ func ResourceDrsJob() *schema.Resource {
 			"start_time": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -172,7 +173,7 @@ func ResourceDrsJob() *schema.Resource {
 			},
 
 			"limit_speed": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 3,
@@ -362,6 +363,11 @@ func ResourceDrsJob() *schema.Resource {
 				Computed: true,
 			},
 
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -378,6 +384,21 @@ func ResourceDrsJob() *schema.Resource {
 			},
 
 			"private_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"security_group_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -488,6 +509,11 @@ func dbInfoSchemaResource() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 
@@ -543,13 +569,13 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 
 	// Configure the transmission speed for the job.
 	if v, ok := d.GetOk("limit_speed"); ok {
-		configRaw := v.([]interface{})
+		configRaw := v.(*schema.Set).List()
 		speedLimits := make([]jobs.SpeedLimitInfo, len(configRaw))
 		for i, v := range configRaw {
 			tmp := v.(map[string]interface{})
 			speedLimits[i] = jobs.SpeedLimitInfo{
 				Speed: tmp["speed"].(string),
-				Begin: tmp["begin_time"].(string),
+				Begin: tmp["start_time"].(string),
 				End:   tmp["end_time"].(string),
 			}
 		}
@@ -777,6 +803,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 	}
 
 	createdAt, _ := strconv.ParseInt(detail.CreateTime, 10, 64)
+	updatedAt, _ := strconv.ParseInt(detail.UpdateTime, 10, 64)
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", detail.Name),
@@ -791,15 +818,21 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("description", detail.Description),
 		d.Set("multi_write", detail.MultiWrite),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(createdAt/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(updatedAt/1000, false)),
 		d.Set("status", detail.Status),
 		d.Set("progress", progressResp.Results[0].Progress),
 		d.Set("tags", utils.TagsToMap(detail.Tags)),
 		d.Set("policy_config", flattenPolicyConfig(detail)),
 		d.Set("alarm_notify", flattenAlarmNotify(detail.AlarmNotify, topicUrn)),
+		d.Set("limit_speed", flattenLimitSpeed(detail.SpeedLimit)),
 		d.Set("master_az", detail.MasterAz),
 		d.Set("master_job_id", detail.MasterJobId),
 		d.Set("slave_az", detail.SlaveAz),
 		d.Set("slave_job_id", getSlaveJobID(listResp.Jobs[0].Children, detail.MasterJobId)),
+		d.Set("vpc_id", detail.VpcId),
+		d.Set("subnet_id", detail.SubnetId),
+		d.Set("security_group_id", detail.SecurityGroupId),
+		d.Set("start_time", detail.InstInfo.StartTime),
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),
 	)
@@ -896,6 +929,19 @@ func flattenAlarmNotify(alarmNotify jobs.AlarmNotifyInfo, topicUrn string) []int
 		"rto_delay":  alarmNotify.RtoDelay,
 	}
 	rst = append(rst, v)
+	return rst
+}
+
+func flattenLimitSpeed(speedLimit []jobs.SpeedLimitInfo) []interface{} {
+	rst := make([]interface{}, 0)
+	for _, limit := range speedLimit {
+		v := map[string]interface{}{
+			"speed":      limit.Speed,
+			"start_time": limit.Begin,
+			"end_time":   limit.End,
+		}
+		rst = append(rst, v)
+	}
 	return rst
 }
 
@@ -1420,6 +1466,7 @@ func setDbInfoToState(d *schema.ResourceData, endpoint jobs.Endpoint, fieldName 
 		"ssl_cert_key":       endpoint.SslCertKey,
 		"ssl_cert_name":      endpoint.SslCertName,
 		"ssl_enabled":        endpoint.SslLink,
+		"security_group_id":  endpoint.SecurityGroupId,
 	}
 	result[0] = item
 	// lintignore:R001
@@ -1430,36 +1477,44 @@ func testConnections(client *golangsdk.ServiceClient, jobId string, opts jobs.Cr
 	reqParams := jobs.TestConnectionsReq{
 		Jobs: []jobs.TestEndPoint{
 			{
-				JobId:        jobId,
-				NetType:      opts.NetType,
-				EndPointType: "so",
-				ProjectId:    client.ProjectID,
-				Region:       opts.SourceEndpoint.Region,
-				VpcId:        opts.SourceEndpoint.VpcId,
-				SubnetId:     opts.SourceEndpoint.SubnetId,
-				DbType:       opts.SourceEndpoint.DbType,
-				Ip:           opts.SourceEndpoint.Ip,
-				DbUser:       opts.SourceEndpoint.DbUser,
-				DbPassword:   opts.SourceEndpoint.DbPassword,
-				DbPort:       opts.SourceEndpoint.DbPort,
-				SslLink:      opts.SourceEndpoint.SslLink,
-				InstId:       opts.SourceEndpoint.InstanceId,
+				JobId:           jobId,
+				NetType:         opts.NetType,
+				EndPointType:    "so",
+				ProjectId:       client.ProjectID,
+				Region:          opts.SourceEndpoint.Region,
+				VpcId:           opts.SourceEndpoint.VpcId,
+				SubnetId:        opts.SourceEndpoint.SubnetId,
+				DbType:          opts.SourceEndpoint.DbType,
+				Ip:              opts.SourceEndpoint.Ip,
+				DbUser:          opts.SourceEndpoint.DbUser,
+				DbPassword:      opts.SourceEndpoint.DbPassword,
+				DbPort:          opts.SourceEndpoint.DbPort,
+				SslLink:         opts.SourceEndpoint.SslLink,
+				SslCertKey:      opts.SourceEndpoint.SslCertKey,
+				SslCertName:     opts.SourceEndpoint.SslCertName,
+				SslCertCheckSum: opts.SourceEndpoint.SslCertCheckSum,
+				SslCertPassword: opts.SourceEndpoint.SslCertPassword,
+				InstId:          opts.SourceEndpoint.InstanceId,
 			},
 			{
-				JobId:        jobId,
-				NetType:      opts.NetType,
-				EndPointType: "ta",
-				ProjectId:    client.ProjectID,
-				Region:       opts.TargetEndpoint.Region,
-				VpcId:        opts.TargetEndpoint.VpcId,
-				SubnetId:     opts.TargetEndpoint.SubnetId,
-				DbType:       opts.TargetEndpoint.DbType,
-				Ip:           opts.TargetEndpoint.Ip,
-				DbUser:       opts.TargetEndpoint.DbUser,
-				DbPassword:   opts.TargetEndpoint.DbPassword,
-				DbPort:       opts.TargetEndpoint.DbPort,
-				SslLink:      opts.TargetEndpoint.SslLink,
-				InstId:       opts.TargetEndpoint.InstanceId,
+				JobId:           jobId,
+				NetType:         opts.NetType,
+				EndPointType:    "ta",
+				ProjectId:       client.ProjectID,
+				Region:          opts.TargetEndpoint.Region,
+				VpcId:           opts.TargetEndpoint.VpcId,
+				SubnetId:        opts.TargetEndpoint.SubnetId,
+				DbType:          opts.TargetEndpoint.DbType,
+				Ip:              opts.TargetEndpoint.Ip,
+				DbUser:          opts.TargetEndpoint.DbUser,
+				DbPassword:      opts.TargetEndpoint.DbPassword,
+				DbPort:          opts.TargetEndpoint.DbPort,
+				SslLink:         opts.TargetEndpoint.SslLink,
+				SslCertKey:      opts.SourceEndpoint.SslCertKey,
+				SslCertName:     opts.SourceEndpoint.SslCertName,
+				SslCertCheckSum: opts.SourceEndpoint.SslCertCheckSum,
+				SslCertPassword: opts.SourceEndpoint.SslCertPassword,
+				InstId:          opts.TargetEndpoint.InstanceId,
 			},
 		},
 	}
