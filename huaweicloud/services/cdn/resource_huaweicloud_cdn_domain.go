@@ -518,6 +518,7 @@ func ResourceCdnDomain() *schema.Resource {
 				},
 			},
 
+			// The cloud will create a rule for `cache_settings` by default, so its value will not be set when querying.
 			"cache_settings": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -687,7 +688,7 @@ func buildUrlAuthOpts(rawUrlAuth []interface{}) *model.UrlAuth {
 		Type:       utils.StringIgnoreEmpty(urlAuth["type"].(string)),
 		Key:        utils.StringIgnoreEmpty(urlAuth["key"].(string)),
 		TimeFormat: utils.StringIgnoreEmpty(urlAuth["time_format"].(string)),
-		ExpireTime: utils.Int32IgnoreEmpty(int32(urlAuth["expire_time"].(int))),
+		ExpireTime: utils.Int32(int32(urlAuth["expire_time"].(int))),
 	}
 
 	return &urlAuthOpts
@@ -920,7 +921,7 @@ func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules
 			FollowOrigin: utils.StringIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
 			MatchType:    utils.StringIgnoreEmpty(parseCacheRuleType(rule["rule_type"].(string))),
 			MatchValue:   utils.StringIgnoreEmpty(rule["content"].(string)),
-			Ttl:          utils.Int32IgnoreEmpty(int32(rule["ttl"].(int))),
+			Ttl:          utils.Int32(int32(rule["ttl"].(int))),
 			TtlUnit:      parseCacheTTLUnits(rule["ttl_type"].(string)),
 			Priority:     int32(rule["priority"].(int)),
 		}
@@ -1386,31 +1387,6 @@ func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{
 	return sourcesAttrs
 }
 
-func flattenCacheRulesAttrs(cacheRulesPtr *[]model.CacheRules) []map[string]interface{} {
-	if cacheRulesPtr == nil || len(*cacheRulesPtr) == 0 {
-		return nil
-	}
-
-	cacheRules := *cacheRulesPtr
-	sourcesAttrs := make([]map[string]interface{}, len(cacheRules))
-	for i, v := range cacheRules {
-		sourcesAttrs[i] = map[string]interface{}{
-			"rule_type": v.MatchType,
-			"content":   v.MatchValue,
-			"ttl":       v.Ttl,
-			"ttl_type":  v.TtlUnit,
-			"priority":  v.Priority,
-		}
-	}
-
-	return []map[string]interface{}{
-		{
-			"follow_origin": analyseFunctionEnabledStatus(utils.StringValue(cacheRules[0].FollowOrigin)),
-			"rules":         sourcesAttrs,
-		},
-	}
-}
-
 func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceData) []map[string]interface{} {
 	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
 	certificateBody := d.Get("configs.0.https_settings.0.certificate_body").(string)
@@ -1502,7 +1478,6 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("service_area", v.ServiceArea),
 		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
 		d.Set("configs", flattenConfigAttrs(configsResp, d)),
-		d.Set("cache_settings", flattenCacheRulesAttrs(configsResp.CacheRules)),
 		d.Set("tags", tags),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
