@@ -97,6 +97,39 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 	})
 }
 
+func TestAccElbV3LoadBalancer_with_deletion_protection(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_with_deletion_protection(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_with_deletion_protection(rName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 	rName := acceptance.RandomAccResourceNameWithDash()
@@ -300,11 +333,10 @@ resource "huaweicloud_vpc_subnet" "test_1" {
 }
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name                       = "%[2]s"
-  vpc_id                     = huaweicloud_vpc.test.id
-  ipv4_subnet_id             = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  waf_failure_action         = "discard"
-  deletion_protection_enable = true
+  name               = "%[2]s"
+  vpc_id             = huaweicloud_vpc.test.id
+  ipv4_subnet_id     = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  waf_failure_action = "discard"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -338,12 +370,11 @@ resource "huaweicloud_vpc_subnet" "test_1" {
 }
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name                       = "%[3]s"
-  cross_vpc_backend          = true
-  vpc_id                     = huaweicloud_vpc.test.id
-  ipv4_subnet_id             = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  waf_failure_action         = "forward"
-  deletion_protection_enable = false
+  name               = "%[3]s"
+  cross_vpc_backend  = true
+  vpc_id             = huaweicloud_vpc.test.id
+  ipv4_subnet_id     = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  waf_failure_action = "forward"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -363,6 +394,32 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   }
 }
 `, common.TestVpc(rName), rName, rNameUpdate)
+}
+
+func testAccElbV3LoadBalancerConfig_with_deletion_protection(rName string, deletionProtection bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc_subnet" "test_1" {
+  name       = "%[2]s_1"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name                       = "%[2]s"
+  vpc_id                     = huaweicloud_vpc.test.id
+  ipv4_subnet_id             = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  deletion_protection_enable = %[3]v
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+`, common.TestVpc(rName), rName, deletionProtection)
 }
 
 func testAccElbV3LoadBalancerConfig_withEpsId(rName string) string {
