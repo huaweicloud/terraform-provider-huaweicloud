@@ -58,6 +58,11 @@ var httpsConfig = schema.Schema{
 				Optional: true,
 				Computed: true,
 			},
+			"certificate_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"http2_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -68,6 +73,11 @@ var httpsConfig = schema.Schema{
 				Optional:         true,
 				DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
 				Computed:         true,
+			},
+			"ocsp_stapling_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"https_status": {
 				Type:     schema.TypeString,
@@ -622,13 +632,15 @@ func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
 
 	https := rawHTTPS[0].(map[string]interface{})
 	httpsOpts := model.HttpPutBody{
-		HttpsStatus:       utils.String(buildHttpStatusOpts(https["https_enabled"].(bool))),
-		CertificateName:   utils.StringIgnoreEmpty(https["certificate_name"].(string)),
-		CertificateValue:  utils.StringIgnoreEmpty(https["certificate_body"].(string)),
-		PrivateKey:        utils.StringIgnoreEmpty(https["private_key"].(string)),
-		CertificateSource: utils.Int32(int32(https["certificate_source"].(int))),
-		Http2Status:       utils.String(buildHttpStatusOpts(https["http2_enabled"].(bool))),
-		TlsVersion:        utils.StringIgnoreEmpty(https["tls_version"].(string)),
+		HttpsStatus:        utils.String(buildHttpStatusOpts(https["https_enabled"].(bool))),
+		CertificateName:    utils.StringIgnoreEmpty(https["certificate_name"].(string)),
+		CertificateValue:   utils.StringIgnoreEmpty(https["certificate_body"].(string)),
+		PrivateKey:         utils.StringIgnoreEmpty(https["private_key"].(string)),
+		CertificateSource:  utils.Int32(int32(https["certificate_source"].(int))),
+		CertificateType:    utils.StringIgnoreEmpty(https["certificate_type"].(string)),
+		Http2Status:        utils.String(buildHttpStatusOpts(https["http2_enabled"].(bool))),
+		TlsVersion:         utils.StringIgnoreEmpty(https["tls_version"].(string)),
+		OcspStaplingStatus: utils.StringIgnoreEmpty(https["ocsp_stapling_status"].(string)),
 	}
 
 	return &httpsOpts
@@ -1142,15 +1154,17 @@ func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey, certificateBody str
 		return nil
 	}
 	httpsAttrs := map[string]interface{}{
-		"https_status":       https.HttpsStatus,
-		"certificate_name":   https.CertificateName,
-		"certificate_body":   certificateBody,
-		"private_key":        privateKey,
-		"certificate_source": https.CertificateSource,
-		"http2_status":       https.Http2Status,
-		"tls_version":        https.TlsVersion,
-		"https_enabled":      analyseFunctionEnabledStatusPtr(https.HttpsStatus),
-		"http2_enabled":      analyseFunctionEnabledStatusPtr(https.Http2Status),
+		"https_status":         https.HttpsStatus,
+		"certificate_name":     https.CertificateName,
+		"certificate_body":     certificateBody,
+		"private_key":          privateKey,
+		"certificate_source":   https.CertificateSource,
+		"certificate_type":     https.CertificateType,
+		"http2_status":         https.Http2Status,
+		"tls_version":          https.TlsVersion,
+		"ocsp_stapling_status": https.OcspStaplingStatus,
+		"https_enabled":        analyseFunctionEnabledStatusPtr(https.HttpsStatus),
+		"http2_enabled":        analyseFunctionEnabledStatusPtr(https.Http2Status),
 	}
 
 	return []map[string]interface{}{httpsAttrs}
