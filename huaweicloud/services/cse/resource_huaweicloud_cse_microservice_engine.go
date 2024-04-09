@@ -72,7 +72,8 @@ func ResourceMicroserviceEngine() *schema.Resource {
 			},
 			"availability_zones": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -104,6 +105,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"description": {

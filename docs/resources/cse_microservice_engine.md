@@ -8,20 +8,40 @@ Manages a dedicated microservice engine (2.0+) resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create an engine for the default type CSE
+
 ```hcl
 variable "engine_name" {}
 variable "network_id" {}
-variable "az1" {}
+variable "floating_ip_id" {}
+variable "availability_zones" {
+  type = list(string)
+}
+variable "manager_password" {}
+
+resource "huaweicloud_cse_microservice_engine" "test" {
+  name               = var.engine_name
+  flavor             = "cse.s1.small2"
+  network_id         = var.network_id
+  eip_id             = var.floating_ip_id
+  availability_zones = var.availability_zones
+  auth_type          = "RBAC"
+  admin_pass         = var.manager_password
+}
+```
+
+### Create an engine for the type Nacos
+
+```hcl
+variable "engine_name" {}
+variable "network_id" {}
 
 resource "huaweicloud_cse_microservice_engine" "test" {
   name       = var.engine_name
-  flavor     = "cse.s1.small2"
+  flavor     = "cse.nacos2.c1.large.10"
   network_id = var.network_id
   auth_type  = "NONE"
-
-  availability_zones = [
-    var.az1,
-  ]
+  version    = "Nacos2"
 }
 ```
 
@@ -40,7 +60,8 @@ The following arguments are supported:
 * `flavor` - (Required, String, ForceNew) Specifies the flavor of the dedicated microservice engine.
   Changing this will create a new engine.
 
-* `availability_zones` - (Required, List, ForceNew) Specifies the list of availability zone.
+* `availability_zones` - (Optional, List, ForceNew) Specifies the list of availability zones.  
+  Required if the `version` is **CSE2**.  
   Changing this will create a new engine.
 
 * `network_id` - (Required, String, ForceNew) Specifies the network ID of the subnet to which the dedicated microservice
@@ -56,8 +77,14 @@ The following arguments are supported:
     After security authentication is disabled, all users who use the engine can use the engine without using the account
     and password, and have the same operation permissions on all services.
 
-* `version` - (Optional, String, ForceNew) Specifies the version of the dedicated microservice engine. The value can be:
-  **CSE2**. Defaults to: **CSE2**. Changing this will create a new engine.
+  -> **NONE** is required for the nacos engine.
+
+* `version` - (Optional, String, ForceNew) Specifies the version of the dedicated microservice engine.  
+  The valid values are as follows:
+  + **CSE2**
+  + **Nacos2**
+
+  Defaults to **CSE2**. Changing this will create a new engine.
 
 * `admin_pass` - (Optional, String, ForceNew) Specifies the account password. The corresponding account name is **root**.
   Required if `auth_type` is **RBAC**. Changing this will create a new engine.
@@ -68,8 +95,9 @@ The following arguments are supported:
   + Cannot be the account name or account name spelled backwards.
   + The password can only start with a letter.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Changing this will create
-  a new engine.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.  
+  If omitted and the version is **Nacos2**, the default enterprise project will be used.  
+  Changing this will create a new engine.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the dedicated microservice engine.
   The description can contain a maximum of `255` characters.

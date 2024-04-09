@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getEngineFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -210,4 +211,57 @@ resource "huaweicloud_cse_microservice_engine" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
 }`, testAccMicroserviceEngine_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func TestAccMicroserviceEngine_nacos(t *testing.T) {
+	var (
+		engine       engines.Engine
+		randName     = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_cse_microservice_engine.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&engine,
+		getEngineFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMicroserviceEngine_nacos_step1(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "cse.nacos2.c1.large.10"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "auth_type", "NONE"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMicroserviceEngine_nacos_step1(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cse_microservice_engine" "test" {
+  name       = "%[2]s"
+  flavor     = "cse.nacos2.c1.large.10"
+  network_id = huaweicloud_vpc_subnet.test.id
+  auth_type  = "NONE"
+  version    = "Nacos2"
+}`, common.TestVpc(rName), rName)
 }
