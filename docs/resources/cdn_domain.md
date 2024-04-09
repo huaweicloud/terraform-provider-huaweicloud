@@ -515,7 +515,8 @@ The `cache_settings` block support:
 The `rules` block support:
 
 * `rule_type` - (Required, String) Specifies the rule type. Possible value are:
-  + **all**: All types of files are matched. It is the default value.
+  + **all**: All types of files are matched. It is the default value. The cloud will create a cache rule with **all**
+    rule type by default.
   + **file_extension**: Files are matched based on their suffixes.
   + **catalog**: Files are matched based on their directories.
   + **full_path**: Files are matched based on their full paths.
@@ -581,7 +582,9 @@ $ terraform import huaweicloud_cdn_domain.test <name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `enterprise_project_id`.
+API response, security or some other reason. The missing attributes include: `enterprise_project_id`,
+`configs.0.url_signing.0.key`, `configs.0.https_settings.0.certificate_body`, `configs.0.https_settings.0.private_key`,
+and `cache_settings`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
 with the resource. Also, you can ignore changes as below.
@@ -592,8 +595,9 @@ resource "huaweicloud_cdn_domain" "test" {
   
   lifecycle {
     ignore_changes = [
-      enterprise_project_id,
+      enterprise_project_id, configs.0.url_signing.0.key, configs.0.https_settings.0.certificate_body,
+      configs.0.https_settings.0.private_key, cache_settings,
     ]
   }
 }
-```**
+```
