@@ -46,6 +46,8 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "interval", "20"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
 					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries_down", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "url_path", "/aa"),
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8000"),
@@ -60,6 +62,8 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "interval", "30"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "20"),
 					resource.TestCheckResourceAttr(resourceName, "max_retries", "8"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries_down", "8"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "url_path", "/bb"),
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.bb.com"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
@@ -80,17 +84,19 @@ func testAccElbV3MonitorConfig_basic(rName string) string {
 %s
 
 resource "huaweicloud_elb_monitor" "monitor_1" {
-  pool_id     = huaweicloud_elb_pool.test.id
-  protocol    = "HTTP"
-  interval    = 20
-  timeout     = 10
-  max_retries = 5
-  url_path    = "/aa"
-  domain_name = "www.aa.com"
-  port        = "8000"
-  status_code = "200,401-500,502"
+  pool_id          = huaweicloud_elb_pool.test.id
+  name             = "%s"
+  protocol         = "HTTP"
+  interval         = 20
+  timeout          = 10
+  max_retries      = 5
+  max_retries_down = 5
+  url_path         = "/aa"
+  domain_name      = "www.aa.com"
+  port             = "8000"
+  status_code      = "200,401-500,502"
 }
-`, testAccElbV3PoolConfig_basic(rName))
+`, testAccElbV3PoolConfig_basic(rName), rName)
 }
 
 func testAccElbV3MonitorConfig_update(rName string) string {
@@ -98,15 +104,17 @@ func testAccElbV3MonitorConfig_update(rName string) string {
 %s
 
 resource "huaweicloud_elb_monitor" "monitor_1" {
-  pool_id     = huaweicloud_elb_pool.test.id
-  protocol    = "HTTPS"
-  interval    = 30
-  timeout     = 20
-  max_retries = 8
-  url_path    = "/bb"
-  domain_name = "www.bb.com"
-  port        = 8888
-  status_code = "200,301,404-500,504"
+  pool_id          = huaweicloud_elb_pool.test.id
+  name             = "%s-update"
+  protocol         = "HTTPS"
+  interval         = 30
+  timeout          = 20
+  max_retries      = 8
+  max_retries_down = 8
+  url_path         = "/bb"
+  domain_name      = "www.bb.com"
+  port             = 8888
+  status_code      = "200,301,404-500,504"
 }
-`, testAccElbV3PoolConfig_basic(rName))
+`, testAccElbV3PoolConfig_basic(rName), rName)
 }

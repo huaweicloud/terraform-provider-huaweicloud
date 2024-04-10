@@ -50,7 +50,12 @@ The following arguments are supported:
   parameter `interval`.
 
 * `max_retries` - (Required, Int) Specifies the number of consecutive health checks when the health check result of
-  a backend server changes from OFFLINE to ONLINE. Value ranges from **1** to **50**.
+  a backend server changes from OFFLINE to ONLINE. Value ranges from **1** to **10**.
+
+* `max_retries_down` - (Optional, Int) Specifies the number of consecutive health checks when the health check result of
+  a backend server changes from ONLINE to OFFLINE. The value ranges from **1** to **10**, and the default value is **3**.
+
+* `name` - (Optional, String) Specifies the health check name.
 
 * `domain_name` - (Optional, String) Specifies the domain name that HTTP requests are sent to during the health check.
   The domain name consists of 1 to 100 characters, can contain only digits, letters, hyphens (-), and periods (.) and
@@ -78,7 +83,11 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The unique ID for the monitor.
+* `id` - The unique ID of the monitor.
+
+* `created_at` - The create time of the monitor.
+
+* `updated_at` - The update time of the monitor.
 
 ## Import
 
