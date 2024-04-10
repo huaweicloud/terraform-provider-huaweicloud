@@ -86,7 +86,7 @@ func ResourceOrgAssignmentPackage() *schema.Resource {
 				Description: `Specifies the OBS address of a conformance package.`,
 			},
 			"vars_structure": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        orgAssignmentPackageVarStructureSchema(),
 				Optional:    true,
 				Computed:    true,
@@ -207,22 +207,20 @@ func buildCreateOrgAssignmentPackageBodyParams(d *schema.ResourceData) map[strin
 }
 
 func buildCreateOrgAssignmentPackageRequestBodyVarStructure(rawParams interface{}) []map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-
-		rst := make([]map[string]interface{}, len(rawArray))
-		for i, v := range rawArray {
-			raw := v.(map[string]interface{})
-			rst[i] = map[string]interface{}{
-				"var_key":   utils.ValueIngoreEmpty(raw["var_key"]),
-				"var_value": utils.ValueIngoreEmpty(raw["var_value"]),
-			}
-		}
-		return rst
+	rawArray := rawParams.(*schema.Set).List()
+	if len(rawArray) == 0 {
+		return nil
 	}
-	return nil
+
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		raw := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"var_key":   utils.ValueIngoreEmpty(raw["var_key"]),
+			"var_value": utils.ValueIngoreEmpty(raw["var_value"]),
+		}
+	}
+	return rst
 }
 
 func resourceOrgAssignmentPackageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -244,7 +242,7 @@ func resourceOrgAssignmentPackageRead(_ context.Context, d *schema.ResourceData,
 	getOrgAssignmentPackagePath := getOrgAssignmentPackageClient.Endpoint + getOrgAssignmentPackageHttpUrl
 	getOrgAssignmentPackagePath = strings.ReplaceAll(getOrgAssignmentPackagePath, "{organization_id}",
 		d.Get("organization_id").(string))
-	getOrgAssignmentPackagePath = strings.ReplaceAll(getOrgAssignmentPackagePath, "{id}", d.Id())
+	getOrgAssignmentPackagePath = strings.ReplaceAll(getOrgAssignmentPackagePath, "{conformance_pack_id}", d.Id())
 
 	getOrgAssignmentPackageOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -324,7 +322,7 @@ func resourceOrgAssignmentPackageDelete(ctx context.Context, d *schema.ResourceD
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Target:       []string{"DELETED"},
+		Target:       []string{""},
 		Pending:      []string{"DELETE_IN_PROGRESS"},
 		Refresh:      refreshDeployStatus(d, deleteOrgAssignmentPackageClient),
 		Timeout:      d.Timeout(schema.TimeoutDelete),

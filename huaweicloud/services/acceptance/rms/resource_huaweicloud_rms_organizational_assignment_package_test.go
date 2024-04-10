@@ -20,7 +20,7 @@ func getOrgAssignmentPackageResourceFunc(cfg *config.Config, state *terraform.Re
 	// getOrgAssignmentPackage: Query the RMS organizational assignment package
 	var (
 		getOrgAssignmentPackageHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}"
-		getOrgAssignmentPackageProduct = "config"
+		getOrgAssignmentPackageProduct = "rms"
 	)
 	getOrgAssignmentPackageClient, err := cfg.NewServiceClient(getOrgAssignmentPackageProduct, region)
 	if err != nil {
@@ -30,7 +30,7 @@ func getOrgAssignmentPackageResourceFunc(cfg *config.Config, state *terraform.Re
 	getOrgAssignmentPackagePath := getOrgAssignmentPackageClient.Endpoint + getOrgAssignmentPackageHttpUrl
 	getOrgAssignmentPackagePath = strings.ReplaceAll(getOrgAssignmentPackagePath, "{organization_id}",
 		state.Primary.Attributes["organization_id"])
-	getOrgAssignmentPackagePath = strings.ReplaceAll(getOrgAssignmentPackagePath, "{id}", state.Primary.ID)
+	getOrgAssignmentPackagePath = strings.ReplaceAll(getOrgAssignmentPackagePath, "{conformance_pack_id}", state.Primary.ID)
 
 	getOrgAssignmentPackageOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -78,11 +78,8 @@ func TestAccOrgAssignmentPackage_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "organization_id",
 						"data.huaweicloud_organizations_organization.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "vars_structure.#", "2"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.0.var_key", "test_name_1"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.0.var_value", "test_value_1"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.1.var_key", "test_name_2"),
-					resource.TestCheckResourceAttr(rName, "vars_structure.1.var_value", "test_value_2"),
+					resource.TestCheckResourceAttrPair(rName, "vars_structure",
+						"data.huaweicloud_rms_assignment_package_templates.test", "templates.0.parameters"),
 					resource.TestCheckResourceAttrSet(rName, "owner_id"),
 					resource.TestCheckResourceAttrSet(rName, "org_conformance_pack_urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -111,13 +108,12 @@ resource "huaweicloud_rms_organizational_assignment_package" "test" {
   name            = "%s"
   template_key    = data.huaweicloud_rms_assignment_package_templates.test.templates.0.template_key
 
-  vars_structure {
-    var_key   = "test_name_1"
-    var_value = "test_value_1"
-  }
-  vars_structure {
-    var_key   = "test_name_2"
-    var_value = "test_value_2"
+  dynamic "vars_structure" {
+    for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
+    content {
+      var_key   = vars_structure.value["name"]
+      var_value = jsondecode(vars_structure.value["default_value"])
+    }
   }
 }
 `, name)
