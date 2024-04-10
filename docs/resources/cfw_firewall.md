@@ -194,6 +194,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `ha_type` - The HA type.
 
+* `flavor` - The firewall flavor.
+  The [flavor](#Firewall_Flavor_Attribute) structure is documented below.
+
 * `protect_objects` - The protect objects list.
   The [protect_objects](#Firewall_ProtectObject) structure is documented below.
 
@@ -204,6 +207,33 @@ In addition to all arguments above, the following attributes are exported:
 * `support_ipv6` - Whether IPv6 is supported.
 
 * `east_west_firewall_inspection_vpc_id` - The east-west firewall inspection VPC ID.
+
+* `east_west_firewall_er_attachment_id` - Enterprise Router and Firewall Connection ID.
+
+<a name="Firewall_Flavor_Attribute"></a>
+The `flavor` block supports:
+
+* `eip_count` - The EIP number of the firewall.
+
+* `vpc_count` - The VPC number of the firewall.
+
+* `bandwidth` - The bandwidth of the firewall.
+
+* `log_storage` - The log storage of the firewall.
+
+* `default_eip_count` - The default EIP number of the firewall.
+
+* `default_vpc_count` - The default VPC number of the firewall.
+
+* `default_bandwidth` - The default bandwidth of the firewall.
+
+* `default_log_storage` - The default log storage of the firewall.
+
+* `vpc_bandwidth` - The VPC bandwidth of the firewall.
+
+* `used_rule_count` - The used rule count of the firewall.
+
+* `total_rule_count` - The total rule count of the firewall.
 
 <a name="Firewall_ProtectObject"></a>
 The `protect_objects` block supports:
@@ -232,7 +262,7 @@ $ terraform import huaweicloud_cfw_firewall.test 6cb1ce47-9990-447e-b071-d167c53
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`flavor`, `tags`, `period_unit`, `period` and `auto_renew`. It is generally
+`period_unit`, `period`, `auto_renew` and `east_west_firewall_er_attachment_id`. It is generally
 recommended running `terraform plan` after importing an CFW firewall. You can then decide if changes should be applied to
 the firewall, or the resource definition should be updated to align with the firewall. Also you can ignore changes as
 below.
@@ -243,7 +273,7 @@ resource "huaweicloud_cfw_firewall" "test" {
 
   lifecycle {
     ignore_changes = [
-      flavor, tags,
+      period_unit, period, auto_renew, east_west_firewall_er_attachment_id
     ]
   }
 }
