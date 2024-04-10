@@ -329,6 +329,8 @@ var (
 
 	HW_HSS_HOST_PROTECTION_HOST_ID  = os.Getenv("HW_HSS_HOST_PROTECTION_HOST_ID")
 	HW_HSS_HOST_PROTECTION_QUOTA_ID = os.Getenv("HW_HSS_HOST_PROTECTION_QUOTA_ID")
+
+	HW_DDS_SECOND_LEVEL_MONITORING_ENABLED = os.Getenv("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1538,5 +1540,12 @@ func TestAccPreCheckHSSHostProtectionHostId(t *testing.T) {
 func TestAccPreCheckHSSHostProtectionQuotaId(t *testing.T) {
 	if HW_HSS_HOST_PROTECTION_QUOTA_ID == "" {
 		t.Skip("HW_HSS_HOST_PROTECTION_QUOTA_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDDSSecondLevelMonitoringEnabled(t *testing.T) {
+	if HW_DDS_SECOND_LEVEL_MONITORING_ENABLED == "" {
+		t.Skip("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED must be set for the acceptance test")
 	}
 }

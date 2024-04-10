@@ -343,7 +343,9 @@ func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy 
 	if len(backupStrategyRaw) == 1 {
 		startTime = backupStrategyRaw[0].(map[string]interface{})["start_time"].(string)
 		keepDays = backupStrategyRaw[0].(map[string]interface{})["keep_days"].(int)
-		period = backupStrategyRaw[0].(map[string]interface{})["period"].(string)
+		if periodRaw := backupStrategyRaw[0].(map[string]interface{})["period"].(string); periodRaw != "" {
+			period = periodRaw
+		}
 	}
 	backupStrategy.KeepDays = &keepDays
 	backupStrategy.StartTime = startTime
@@ -498,7 +500,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
 	if len(backupStrategyRaw) == 1 {
 		period := backupStrategyRaw[0].(map[string]interface{})["period"].(string)
-		if !isEqualPeriod(period, "1,2,3,4,5,6,7") {
+		if period != "" && !isEqualPeriod(period, "1,2,3,4,5,6,7") {
 			_, err = instances.CreateBackupPolicy(client, instance.Id, resourceDdsBackupStrategy(d))
 			if err != nil {
 				return diag.Errorf("error creating backup strategy of the DDS instance %s: %s", instance.Id, err)
