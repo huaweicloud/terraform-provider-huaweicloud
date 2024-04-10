@@ -675,13 +675,14 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_binlog":                  rds.DataSourceRdsMysqlBinlog(),
 			"huaweicloud_rds_parametergroups":               rds.DataSourceParametergroups(),
 
-			"huaweicloud_rms_policy_definitions":           rms.DataSourcePolicyDefinitions(),
-			"huaweicloud_rms_assignment_package_templates": rms.DataSourceTemplates(),
-			"huaweicloud_rms_regions":                      rms.DataSourceRmsRegions(),
-			"huaweicloud_rms_services":                     rms.DataSourceRmsServices(),
-			"huaweicloud_rms_policy_assignments":           rms.DataSourceRmsPolicyAssignments(),
-			"huaweicloud_rms_advanced_query_schemas":       rms.DataSourceRmsAdvancedQuerySchemas(),
-			"huaweicloud_rms_assignment_packages":          rms.DataSourceRmsAssignmentPackages(),
+			"huaweicloud_rms_policy_definitions":                rms.DataSourcePolicyDefinitions(),
+			"huaweicloud_rms_assignment_package_templates":      rms.DataSourceTemplates(),
+			"huaweicloud_rms_regions":                           rms.DataSourceRmsRegions(),
+			"huaweicloud_rms_services":                          rms.DataSourceRmsServices(),
+			"huaweicloud_rms_policy_assignments":                rms.DataSourceRmsPolicyAssignments(),
+			"huaweicloud_rms_advanced_query_schemas":            rms.DataSourceRmsAdvancedQuerySchemas(),
+			"huaweicloud_rms_assignment_packages":               rms.DataSourceRmsAssignmentPackages(),
+			"huaweicloud_rms_organizational_policy_assignments": rms.DataSourceRmsOrganizationalPolicyAssignments(),
 
 			"huaweicloud_sdrs_domain": sdrs.DataSourceSDRSDomain(),
 
