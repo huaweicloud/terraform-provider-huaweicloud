@@ -82,6 +82,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     origin_protocol               = "http"
     ipv6_enable                   = true
     range_based_retrieval_enabled = true
+    description                   = "test description"
 
     https_settings {
       certificate_name     = "terraform-test"
@@ -252,6 +253,8 @@ The `configs` block support:
 
   -> The prerequisite for enabling range-based retrieval is that your origin site supports Range requests, that is, the
   HTTP request header contains the Range field. Otherwise, the back-to-origin may fail.
+
+* `description` - (Optional, String) Specifies the description of the domain. The value contains up to `200` characters.
 
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [https_settings](#https_settings_object)
   structure is documented below.

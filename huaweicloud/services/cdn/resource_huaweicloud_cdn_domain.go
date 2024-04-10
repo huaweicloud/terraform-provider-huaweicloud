@@ -513,6 +513,10 @@ func ResourceCdnDomain() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"https_settings":             &httpsConfig,
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
@@ -970,6 +974,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	if d.HasChange("configs.0.range_based_retrieval_enabled") {
 		retrievalEnabled := configs["range_based_retrieval_enabled"].(bool)
 		configsOpts.OriginRangeStatus = utils.String(parseFunctionEnabledStatus(retrievalEnabled))
+	}
+	if d.HasChange("configs.0.description") {
+		configsOpts.Remark = utils.String(configs["description"].(string))
 	}
 	if d.HasChange("configs.0.https_settings") {
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
@@ -1434,6 +1441,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"remote_auth":                   flattenRemoteAuthAttrs(configsResp.RemoteAuth),
 		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
 		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
+		"description":                   configsResp.Remark,
 	}
 	return []map[string]interface{}{configsAttrs}
 }
