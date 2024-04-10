@@ -1619,9 +1619,68 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting CDN domain (%s): %s", d.Id(), err)
 	}
 
-	// an API issue will be raised in ForceNew scene, so wait for a while
-	time.Sleep(3 * time.Second) // lintignore:R018
+	if err := waitingForDomainDeleted(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts); err != nil {
+		return diag.Errorf("error waiting for CDN domain (%s) deletion to complete: %s", d.Id(), err)
+	}
 	return nil
+}
+
+func waitingForDomainDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	domainName := d.Get("name").(string)
+	unexpectedStatus := []string{"online", "offline", "configuring", "configure_failed", "checking", "check_failed"}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			domain, err := domains.GetByName(client, domainName, opts).Extract()
+			if err != nil {
+				parseErr := parseDeleteDetailResponseError(err)
+				if _, ok := parseErr.(golangsdk.ErrDefault404); ok {
+					return "success", "COMPLETED", nil
+				}
+				return nil, "ERROR", err
+			}
+
+			if domain == nil {
+				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
+			}
+
+			status := domain.DomainStatus
+			if utils.StrSliceContains(unexpectedStatus, status) {
+				return domain, status, nil
+			}
+			return domain, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+// When the deletion interface is successfully called, in the error information responded by the query details interface,
+// the following two situations need to be processed as 404:
+// {"error": {"error_code": "CDN.0170","error_msg": "domain not exist!"}}
+// {"error": {"error_code": "CDN.00010182","error_msg": "The resource is not belong to the enterprise project."}}
+func parseDeleteDetailResponseError(err error) error {
+	var errCode golangsdk.ErrDefault400
+	if errors.As(err, &errCode) {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return err
+		}
+		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
+		if errorCodeErr != nil || errorCode == nil {
+			return err
+		}
+
+		if errorCode.(string) == "CDN.0170" || errorCode.(string) == "CDN.00010182" {
+			return golangsdk.ErrDefault404(errCode)
+		}
+	}
+	return err
 }
 
 func buildResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {

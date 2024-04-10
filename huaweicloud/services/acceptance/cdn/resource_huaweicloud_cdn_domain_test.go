@@ -59,7 +59,6 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "type", "web"),
 					resource.TestCheckResourceAttr(resourceName, "service_area", "outside_mainland_china"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "http"),
 					resource.TestCheckResourceAttr(resourceName, "sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.active", "1"),
@@ -121,7 +120,6 @@ resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
   service_area          = "outside_mainland_china"
-  enterprise_project_id = "0"
 
   configs {
     origin_protocol = "http"
@@ -156,7 +154,6 @@ resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "download"
   service_area          = "global"
-  enterprise_project_id = "0"
 
   configs {
     origin_protocol = "http"
@@ -188,7 +185,6 @@ resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
   service_area          = "mainland_china"
-  enterprise_project_id = "0"
 
   configs {
     origin_protocol = "http"
@@ -212,7 +208,6 @@ resource "huaweicloud_cdn_domain" "test" {
   name                  = "%s"
   type                  = "web"
   service_area          = "mainland_china"
-  enterprise_project_id = "0"
 
   sources {
     active      = 1
