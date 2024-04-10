@@ -256,6 +256,13 @@ The `configs` block support:
 
 * `description` - (Optional, String) Specifies the description of the domain. The value contains up to `200` characters.
 
+* `slice_etag_status` - (Optional, String) Specifies whether ETag is verified during origin pull.
+  Valid values are as follows:
+  + **on**: Enable.
+  + **off**: Disable.
+
+  Defaults to **on**.
+
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [https_settings](#https_settings_object)
   structure is documented below.
 
