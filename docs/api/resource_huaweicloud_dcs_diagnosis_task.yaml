@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_diagnosis_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/diagnosis/{report_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/diagnosis:
+        DELETE:
+            tag: DCS
+        GET:
+            tag: DCS
+        POST:
+            tag: DCS

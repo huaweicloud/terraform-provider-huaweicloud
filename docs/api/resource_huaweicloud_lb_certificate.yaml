@@ -11,7 +11,7 @@ paths:
     /v2/{project_id}/elb/certificates:
         POST:
             tag: ELB
-    /v2/{project_id}/elb/certificates/{id}:
+    /v2/{project_id}/elb/certificates/{certificate_id}:
         DELETE:
             tag: ELB
         GET:

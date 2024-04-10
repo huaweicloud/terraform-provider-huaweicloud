@@ -8,25 +8,25 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
-    /v2.0/{project_id}/listeners/{id}/tags:
+    /v2.0/{project_id}/listeners/{listener_id}/tags:
         GET:
             tag: ELB
-    /v2.0/{project_id}/listeners/{id}/tags/action:
+    /v2.0/{project_id}/listeners/{listener_id}/tags/action:
         POST:
             tag: ELB
     /v3/{project_id}/elb/listeners:
         POST:
             tag: ELB
-    /v3/{project_id}/elb/listeners/{id}:
+    /v3/{project_id}/elb/listeners/{listener_id}:
         DELETE:
             tag: ELB
         GET:
             tag: ELB
         PUT:
             tag: ELB
-    /v3/{project_id}/elb/listeners/{id}/force:
+    /v3/{project_id}/elb/listeners/{listener_id}/force:
         DELETE:
             tag: ELB
-    /v3/{project_id}/elb/loadbalancers/{id}:
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}:
         GET:
             tag: ELB

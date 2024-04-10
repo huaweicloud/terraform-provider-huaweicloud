@@ -21,6 +21,15 @@ paths:
     /v2/{project_id}/elb/listeners/{listener_id}:
         GET:
             tag: ELB
+    /v2/{project_id}/elb/loadbalancers:
+        GET:
+            tag: ELB
+    /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}:
+        GET:
+            tag: ELB
+    /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}/statuses:
+        GET:
+            tag: ELB
     /v2/{project_id}/elb/pools/{pool_id}:
         GET:
             tag: ELB

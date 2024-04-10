@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_component
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CMDB
+paths:
+    /v1/components:
+        POST:
+            tag: CMDB
+    /v1/components/{component_id}:
+        DELETE:
+            tag: CMDB
+        GET:
+            tag: CMDB
+        PUT:
+            tag: CMDB
+    /v1/components/application/{application_id}/name/{component_name}:
+        GET:
+            tag: CMDB

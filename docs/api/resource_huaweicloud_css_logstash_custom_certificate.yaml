@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_logstash_custom_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/certs:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/certs/{cert_id}:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/certs/{cert_id}/delete:
+        DELETE:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/certs/upload:
+        POST:
+            tag: CSS

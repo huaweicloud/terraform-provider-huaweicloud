@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_dns_resolution
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/dns/servers:
+        GET:
+            tag: CFW
+        PUT:
+            tag: CFW

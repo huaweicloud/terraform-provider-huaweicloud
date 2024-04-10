@@ -11,10 +11,15 @@ paths:
     /:
         DELETE:
             tag: OBS
+        GET:
+            tag: OBS
         HEAD:
             tag: OBS
         PUT:
             tag: OBS
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
     ?acl:
         PUT:
             tag: OBS
@@ -70,6 +75,9 @@ paths:
         GET:
             tag: OBS
         PUT:
+            tag: OBS
+    ?storageinfo:
+        GET:
             tag: OBS
     ?tagging:
         GET:

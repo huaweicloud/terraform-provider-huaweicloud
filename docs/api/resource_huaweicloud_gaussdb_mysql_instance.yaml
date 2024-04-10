@@ -33,7 +33,7 @@ paths:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances:
         GET:
-            tag: GaussDBforNoSQL
+            tag: GaussDBforMySQL
         POST:
             tag: GaussDBforNoSQL
     /v3/{project_id}/instances/{instance_id}:

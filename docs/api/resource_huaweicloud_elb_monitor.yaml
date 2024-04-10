@@ -11,7 +11,7 @@ paths:
     /v3/{project_id}/elb/healthmonitors:
         POST:
             tag: ELB
-    /v3/{project_id}/elb/healthmonitors/{id}:
+    /v3/{project_id}/elb/healthmonitors/{healthmonitor_id}:
         DELETE:
             tag: ELB
         GET:

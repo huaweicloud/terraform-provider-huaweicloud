@@ -9,8 +9,6 @@ tags:
     - name: DLI
 paths:
     /v2.0/{project_id}/resources:
-        GET:
-            tag: DLI
         POST:
             tag: DLI
     /v2.0/{project_id}/resources/{resource_name}:
@@ -18,15 +16,15 @@ paths:
             tag: DLI
         GET:
             tag: DLI
-    /v2.0/{project_id}/resources/files:
-        POST:
-            tag: DLI
-    /v2.0/{project_id}/resources/jars:
-        POST:
-            tag: DLI
     /v2.0/{project_id}/resources/owner:
         PUT:
             tag: DLI
-    /v2.0/{project_id}/resources/pyfiles:
+    /v3/{project_id}/dli_package_resource/{resource_id}/tags:
+        GET:
+            tag: DLI
+    /v3/{project_id}/dli_package_resource/{resource_id}/tags/create:
+        POST:
+            tag: DLI
+    /v3/{project_id}/dli_package_resource/{resource_id}/tags/delete:
         POST:
             tag: DLI

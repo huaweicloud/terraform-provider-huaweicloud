@@ -29,12 +29,17 @@ paths:
         POST:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/backups/policy:
+        GET:
+            tag: DDS
         PUT:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/enlarge:
         POST:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/enlarge-volume:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/migrate:
         POST:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/modify-name:
@@ -44,6 +49,14 @@ paths:
         PUT:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/modify-security-group:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch:
+        GET:
+            tag: DDS
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/remark:
         PUT:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/reset-password:

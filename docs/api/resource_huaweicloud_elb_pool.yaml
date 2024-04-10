@@ -11,7 +11,7 @@ paths:
     /v3/{project_id}/elb/pools:
         POST:
             tag: ELB
-    /v3/{project_id}/elb/pools/{id}:
+    /v3/{project_id}/elb/pools/{pool_id}:
         DELETE:
             tag: ELB
         GET:

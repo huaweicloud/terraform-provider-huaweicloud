@@ -36,3 +36,6 @@ paths:
     /v3/{project_id}/vpc/vpcs/{id}/add-extend-cidr:
         PUT:
             tag: VPC
+    /v3/{project_id}/vpc/vpcs/{id}/remove-extend-cidr:
+        PUT:
+            tag: VPC

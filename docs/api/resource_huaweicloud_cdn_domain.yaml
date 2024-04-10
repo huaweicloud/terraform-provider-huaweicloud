@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: CDN
 paths:
+    /v1.0/cdn/configuration/domains/{domain_name}:
+        GET:
+            tag: CDN
     /v1.0/cdn/configuration/tags:
         POST:
             tag: CDN
@@ -16,9 +19,6 @@ paths:
             tag: CDN
     /v1.0/cdn/domains:
         POST:
-            tag: CDN
-    /v1.0/cdn/domains/{domain_id}/detail:
-        GET:
             tag: CDN
     /v1.0/cdn/domains/{domainId}:
         DELETE:

@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_lts_log
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/cfw/logs/configuration:
+        GET:
+            tag: CFW
+        POST:
+            tag: CFW
+        PUT:
+            tag: CFW

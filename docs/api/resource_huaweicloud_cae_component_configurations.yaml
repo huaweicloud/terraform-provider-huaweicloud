@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cae_component_configurations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CAE
+paths:
+    /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/configurations:
+        DELETE:
+            tag: CAE
+        GET:
+            tag: CAE
+        POST:
+            tag: CAE

@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lts_struct_template
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v2/{project_id}/lts/struct/template:
+        DELETE:
+            tag: LTS
+        GET:
+            tag: LTS
+        POST:
+            tag: LTS
+    /v3/{project_id}/lts/struct/template:
+        POST:
+            tag: LTS
+        PUT:
+            tag: LTS

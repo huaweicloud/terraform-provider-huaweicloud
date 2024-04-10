@@ -8,26 +8,20 @@ host: huaweicloud.com
 tags:
     - name: CBH
 paths:
-    /v1/{project_id}/cbs/{server_id}/network/change:
+    /v2/{project_id}/cbs/instance:
         POST:
             tag: CBH
-    /v1/{project_id}/cbs/instance/{server_id}/eip/bind:
+    /v2/{project_id}/cbs/instance/{server_id}/eip/bind:
         POST:
             tag: CBH
-    /v1/{project_id}/cbs/instance/{server_id}/eip/unbind:
+    /v2/{project_id}/cbs/instance/{server_id}/eip/unbind:
         POST:
             tag: CBH
-    /v1/{project_id}/cbs/instance/create:
-        POST:
-            tag: CBH
-    /v1/{project_id}/cbs/instance/list:
+    /v2/{project_id}/cbs/instance/list:
         GET:
             tag: CBH
-    /v1/{project_id}/cbs/instance/password:
+    /v2/{project_id}/cbs/instance/password:
         PUT:
-            tag: CBH
-    /v1/{project_id}/cbs/period/order:
-        POST:
             tag: CBH
     /v2/orders/customer-orders/details/{order_id}:
         GET:
@@ -41,8 +35,5 @@ paths:
         POST:
             tag: BSS
     /v2/orders/suscriptions/resources/query:
-        POST:
-            tag: BSS
-    /v3/orders/customer-orders/pay:
         POST:
             tag: BSS

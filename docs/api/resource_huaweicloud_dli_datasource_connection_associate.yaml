@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dli_datasource_connection_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DLI
+paths:
+    /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}:
+        GET:
+            tag: DLI
+    /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/associate-queue:
+        POST:
+            tag: DLI
+    /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/disassociate-queue:
+        POST:
+            tag: DLI

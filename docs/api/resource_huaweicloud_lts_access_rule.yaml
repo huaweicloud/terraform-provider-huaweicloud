@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lts_access_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v2/{project_id}/lts/aom-mapping:
+        DELETE:
+            tag: LTS
+        POST:
+            tag: LTS
+        PUT:
+            tag: LTS
+    /v2/{project_id}/lts/aom-mapping/{rule_id}:
+        GET:
+            tag: LTS
