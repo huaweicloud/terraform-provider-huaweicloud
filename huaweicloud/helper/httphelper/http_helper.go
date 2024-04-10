@@ -242,12 +242,14 @@ func (c *HttpHelper) ExtractInto(to any) error {
 
 func (c *HttpHelper) requestWithPage() {
 	body := make(map[string]any)
-	err := pagination.NewPager(c.client, c.url, c.pager).
-		EachPage(func(page pagination.Page) (bool, error) {
-			b := page.GetBody().(map[string]interface{})
-			mergeMaps(body, b)
-			return true, nil
-		})
+	pager := pagination.NewPager(c.client, c.url, c.pager)
+	pager.Headers = c.requestOpts.MoreHeaders
+
+	err := pager.EachPage(func(page pagination.Page) (bool, error) {
+		b := page.GetBody().(map[string]interface{})
+		mergeMaps(body, b)
+		return true, nil
+	})
 
 	if err != nil {
 		c.result.Err = err
