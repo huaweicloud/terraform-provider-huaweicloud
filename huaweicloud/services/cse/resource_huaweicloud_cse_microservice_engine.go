@@ -72,7 +72,8 @@ func ResourceMicroserviceEngine() *schema.Resource {
 			},
 			"availability_zones": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -104,6 +105,7 @@ func ResourceMicroserviceEngine() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"description": {
@@ -219,9 +221,9 @@ func resourceMicroserviceEngineCreate(ctx context.Context, d *schema.ResourceDat
 
 	log.Printf("[DEBUG] Waiting for the Microservice engine to become running, the engine ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Init", "Executing"},
-		Target:       []string{"Finished"},
-		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId), epsId),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId), epsId, []string{"Finished"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        180 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -346,9 +348,9 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 
 	log.Printf("[DEBUG] Waiting for the Microservice engine delete complete, the engine ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Init", "Executing"},
-		Target:       []string{"Deleted"},
-		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId), epsId),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      MicroserviceJobRefreshFunc(client, d.Id(), strconv.Itoa(resp.JobId), epsId, nil),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        120 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -388,16 +390,25 @@ func parseEngineJobError(respErr error) error {
 	return respErr
 }
 
-func MicroserviceJobRefreshFunc(c *golangsdk.ServiceClient, engineId, jobId, epsId string) resource.StateRefreshFunc {
+func MicroserviceJobRefreshFunc(client *golangsdk.ServiceClient, engineId, jobId, epsId string,
+	targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := engines.GetJob(c, engineId, jobId, epsId)
+		resp, err := engines.GetJob(client, engineId, jobId, epsId)
 		if newErr := parseEngineJobError(err); newErr != nil {
-			if _, ok := newErr.(golangsdk.ErrDefault404); ok {
-				return resp, "Deleted", nil
+			if _, ok := newErr.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
+				return resp, "COMPLETED", nil
 			}
-			return resp, "ERROR", newErr
+			return resp, "ERROR", err
 		}
-		return resp, resp.Status, nil
+
+		if utils.StrSliceContains([]string{"CreateFail", "DeleteFailed", "UpgradeFailed", "ModifyFailed"}, resp.Status) {
+			return resp, "ERROR", fmt.Errorf("unexpect status (%s)", resp.Status)
+		}
+
+		if utils.StrSliceContains(targets, resp.Status) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
 	}
 }
 
@@ -413,6 +424,6 @@ func resourceEngineImportState(_ context.Context, d *schema.ResourceData,
 		d.SetId(parts[0])
 		return []*schema.ResourceData{d}, d.Set("enterprise_project_id", parts[1])
 	}
-	return nil, fmt.Errorf("The imported ID specifies an invalid format: want '<id>' or "+
+	return nil, fmt.Errorf("the imported ID specifies an invalid format: want '<id>' or "+
 		"'<id>/<enterprise_project_id>', but '%s'", importedId)
 }
