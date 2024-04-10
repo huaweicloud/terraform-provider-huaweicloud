@@ -34,7 +34,7 @@ The following arguments are supported:
   The value consists of `1` to `64` characters including chinese and english letters, digits, hyphens (-), underscores (_),
   and periods (.). The name of each resource set by one account must be unique.
 
-* `lines` - (Required, List) Specifies the lines. You should specify at least `2` different lines.
+* `lines` - (Required, List) Specifies the list of the resolution line IDs. You should specify at least `2` different lines.
 
 * `description` - (Optional, String) Specifies the line group description. A maximum of `255` characters are allowed.
 
