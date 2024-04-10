@@ -57,9 +57,6 @@ func ResourceListenerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"TCP", "UDP", "HTTP", "HTTPS",
-				}, false),
 			},
 
 			"protocol_port": {
@@ -116,7 +113,7 @@ func ResourceListenerV3() *schema.Resource {
 			"http2_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Computed: true,
 			},
 
 			"forward_eip": {
@@ -141,6 +138,42 @@ func ResourceListenerV3() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+
+			"forward_elb": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_proto": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"real_ip": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_tls_certificate": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_tls_cipher": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"forward_tls_protocol": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 
 			"access_policy": {
@@ -178,6 +211,11 @@ func ResourceListenerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+
+			"security_policy_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"idle_timeout": {
@@ -226,7 +264,45 @@ func ResourceListenerV3() *schema.Resource {
 				Computed: true,
 			},
 
+			"enable_member_retry": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"proxy_protocol_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
+			"sni_match_algo": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"ssl_early_data_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"quic_listener_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"tags": common.TagsSchema(),
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -238,7 +314,6 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	http2Enable := d.Get("http2_enable").(bool)
 	var sniContainerRefs []string
 	if raw, ok := d.GetOk("sni_certificate"); ok {
 		for _, v := range raw.([]interface{}) {
@@ -256,12 +331,13 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		DefaultTlsContainerRef: d.Get("server_certificate").(string),
 		CAContainerRef:         d.Get("ca_certificate").(string),
 		TlsCiphersPolicy:       d.Get("tls_ciphers_policy").(string),
+		SecurityPolicyId:       d.Get("security_policy_id").(string),
 		PortRanges:             buildPortRanges(d.Get("port_ranges").(*schema.Set).List()),
 		SniContainerRefs:       sniContainerRefs,
-		Http2Enable:            &http2Enable,
 		EnhanceL7policy:        &enhanceL7policy,
 		ProtectionStatus:       d.Get("protection_status").(string),
 		ProtectionReason:       d.Get("protection_reason").(string),
+		SniMatchAlgo:           d.Get("sni_match_algo").(string),
 	}
 	if v, ok := d.GetOk("gzip_enable"); ok {
 		gzipEnable := v.(bool)
@@ -286,15 +362,63 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 			IpGroupId: d.Get("ip_group").(string),
 		}
 	}
-	forwardEip := d.Get("forward_eip").(bool)
-	forwardPort := d.Get("forward_port").(bool)
-	forwardRequestPort := d.Get("forward_request_port").(bool)
-	forwardHost := d.Get("forward_host").(bool)
-	createOpts.InsertHeaders = &listeners.InsertHeaders{
-		ForwardedELBIP:   &forwardEip,
-		ForwardedPort:    &forwardPort,
-		ForwardedForPort: &forwardRequestPort,
-		ForwardedHost:    &forwardHost,
+
+	protocol := d.Get("protocol").(string)
+
+	// only for HTTP and HTTPS listener
+	if utils.StrSliceContains([]string{"HTTP", "HTTPS"}, protocol) {
+		forwardEip := d.Get("forward_eip").(bool)
+		forwardPort := d.Get("forward_port").(bool)
+		forwardRequestPort := d.Get("forward_request_port").(bool)
+		forwardHost := d.Get("forward_host").(bool)
+		forwardElb := d.Get("forward_elb").(bool)
+		forwardProto := d.Get("forward_proto").(bool)
+		realIp := d.Get("real_ip").(bool)
+		createOpts.InsertHeaders = &listeners.InsertHeaders{
+			ForwardedELBIP:   &forwardEip,
+			ForwardedPort:    &forwardPort,
+			ForwardedForPort: &forwardRequestPort,
+			ForwardedHost:    &forwardHost,
+			ForwardedELBID:   &forwardElb,
+			ForwardedProto:   &forwardProto,
+			RealIP:           &realIp,
+		}
+
+		// Only for HTTPS listener
+		if protocol == "HTTPS" {
+			forwardTLSCertificate := d.Get("forward_tls_certificate").(bool)
+			forwardTLSCipher := d.Get("forward_tls_cipher").(bool)
+			forwardTLSProtocol := d.Get("forward_tls_protocol").(bool)
+			createOpts.InsertHeaders.ForwardedTLSCertificateID = &forwardTLSCertificate
+			createOpts.InsertHeaders.ForwardedTLSCipher = &forwardTLSCipher
+			createOpts.InsertHeaders.ForwardedTLSProtocol = &forwardTLSProtocol
+		}
+	}
+
+	// enable_member_retry defaults to true and only for HTTP, HTTPS or QUIC listener
+	if utils.StrSliceContains([]string{"HTTP", "HTTPS", "QUIC"}, protocol) {
+		enableMemberRetry := d.Get("enable_member_retry").(bool)
+		createOpts.EnableMemberRetry = &enableMemberRetry
+	}
+
+	// http2_enable can not be set and defaults to true in return when protocol is QUIC
+	if v, ok := d.GetOk("http2_enable"); ok {
+		http2Enable := v.(bool)
+		createOpts.Http2Enable = &http2Enable
+	}
+	if v, ok := d.GetOk("proxy_protocol_enable"); ok {
+		proxyProtocolEnable := v.(bool)
+		createOpts.ProxyProtocolEnable = &proxyProtocolEnable
+	}
+	if v, ok := d.GetOk("ssl_early_data_enable"); ok {
+		sslEarlyDataEnable := v.(bool)
+		createOpts.SslEarlyDataEnable = &sslEarlyDataEnable
+	}
+	if v, ok := d.GetOk("quic_listener_id"); ok {
+		createOpts.QuicConfig = &listeners.QuicConfig{
+			QuicListenerId:    v.(string),
+			EnableQuicUpgrade: true,
+		}
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -369,10 +493,17 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("forward_port", listener.InsertHeaders.ForwardedPort),
 		d.Set("forward_request_port", listener.InsertHeaders.ForwardedForPort),
 		d.Set("forward_host", listener.InsertHeaders.ForwardedHost),
+		d.Set("forward_elb", listener.InsertHeaders.ForwardedELBID),
+		d.Set("forward_proto", listener.InsertHeaders.ForwardedProto),
+		d.Set("real_ip", listener.InsertHeaders.RealIP),
+		d.Set("forward_tls_certificate", listener.InsertHeaders.ForwardedTLSCertificateID),
+		d.Set("forward_tls_cipher", listener.InsertHeaders.ForwardedTLSCipher),
+		d.Set("forward_tls_protocol", listener.InsertHeaders.ForwardedTLSProtocol),
 		d.Set("sni_certificate", listener.SniContainerRefs),
 		d.Set("server_certificate", listener.DefaultTlsContainerRef),
 		d.Set("ca_certificate", listener.CAContainerRef),
 		d.Set("tls_ciphers_policy", listener.TlsCiphersPolicy),
+		d.Set("security_policy_id", listener.SecurityPolicyId),
 		d.Set("idle_timeout", listener.KeepaliveTimeout),
 		d.Set("request_timeout", listener.ClientTimeout),
 		d.Set("response_timeout", listener.MemberTimeout),
@@ -381,6 +512,13 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("protection_status", listener.ProtectionStatus),
 		d.Set("protection_reason", listener.ProtectionReason),
 		d.Set("gzip_enable", listener.GzipEnable),
+		d.Set("enable_member_retry", listener.EnableMemberRetry),
+		d.Set("proxy_protocol_enable", listener.ProxyProtocolEnable),
+		d.Set("sni_match_algo", listener.SniMatchAlgo),
+		d.Set("ssl_early_data_enable", listener.SslEarlyDataEnable),
+		d.Set("quic_listener_id", listener.QuicConfig.QuicListenerId),
+		d.Set("created_at", listener.CreatedAt),
+		d.Set("updated_at", listener.UpdatedAt),
 	)
 
 	var portRanges []map[string]interface{}
@@ -429,7 +567,11 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	updateListenerChanges := []string{"name", "description", "ca_certificate", "default_pool_id", "idle_timeout",
 		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "forward_eip",
 		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
-		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason"}
+		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason",
+		"forward_elb", "forward_proto", "real_ip", "forward_tls_certificate", "forward_tls_cipher", "forward_tls_protocol",
+		"enable_member_retry", "proxy_protocol_enable", "sni_match_algo", "security_policy_id", "ssl_early_data_enable",
+		"quic_listener_id",
+	}
 	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
 		if err != nil {
@@ -482,16 +624,38 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 			IpGroupId: d.Get("ip_group").(string),
 		}
 	}
-	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host") {
+
+	// only availbale for HTTPS/HTTP listener
+	if d.HasChanges("forward_eip", "forward_port", "forward_request_port", "forward_host", "forward_elb",
+		"forward_proto", "real_ip", "forward_tls_certificate", "forward_tls_cipher", "forward_tls_protocol") {
 		forwardEip := d.Get("forward_eip").(bool)
 		forwardPort := d.Get("forward_port").(bool)
 		forwardRequestPort := d.Get("forward_request_port").(bool)
 		forwardHost := d.Get("forward_host").(bool)
+		forwardElb := d.Get("forward_elb").(bool)
+		forwardProto := d.Get("forward_proto").(bool)
+		realIp := d.Get("real_ip").(bool)
 		updateOpts.InsertHeaders = &listeners.InsertHeaders{
 			ForwardedELBIP:   &forwardEip,
 			ForwardedPort:    &forwardPort,
 			ForwardedForPort: &forwardRequestPort,
 			ForwardedHost:    &forwardHost,
+			ForwardedELBID:   &forwardElb,
+			ForwardedProto:   &forwardProto,
+			RealIP:           &realIp,
+		}
+		// tls header is only for HTTPS listener and defaults to false
+		if d.HasChange("forward_tls_certificate") {
+			forwardTLSCertificate := d.Get("forward_tls_certificate").(bool)
+			updateOpts.InsertHeaders.ForwardedTLSCertificateID = &forwardTLSCertificate
+		}
+		if d.HasChange("forward_tls_cipher") {
+			forwardTLSCipher := d.Get("forward_tls_cipher").(bool)
+			updateOpts.InsertHeaders.ForwardedTLSCipher = &forwardTLSCipher
+		}
+		if d.HasChange("forward_tls_protocol") {
+			forwardTLSProtocol := d.Get("forward_tls_protocol").(bool)
+			updateOpts.InsertHeaders.ForwardedTLSProtocol = &forwardTLSProtocol
 		}
 	}
 	if d.HasChange("ca_certificate") {
@@ -533,6 +697,35 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	if d.HasChange("protection_reason") {
 		protectionReason := d.Get("protection_reason").(string)
 		updateOpts.ProtectionReason = &protectionReason
+	}
+	if d.HasChange("enable_member_retry") {
+		enableMemberRetry := d.Get("enable_member_retry").(bool)
+		updateOpts.EnableMemberRetry = &enableMemberRetry
+	}
+	if d.HasChange("proxy_protocol_enable") {
+		proxyProtocolEnable := d.Get("proxy_protocol_enable").(bool)
+		updateOpts.ProxyProtocolEnable = &proxyProtocolEnable
+	}
+	if d.HasChange("sni_match_algo") {
+		updateOpts.SniMatchAlgo = d.Get("sni_match_algo").(string)
+	}
+	if d.HasChange("ssl_early_data_enable") {
+		sslEarlyDataEnable := d.Get("ssl_early_data_enable").(bool)
+		updateOpts.SslEarlyDataEnable = &sslEarlyDataEnable
+	}
+
+	// if changing custom security policy to default security policy, the security_policy_id must be null
+	if v, ok := d.GetOk("security_policy_id"); ok {
+		securityPolicyId := v.(string)
+		updateOpts.SecurityPolicyId = &securityPolicyId
+	}
+
+	// if disable upgrading to QUIC listener, the quic_config must be null
+	var quicConfig listeners.QuicConfig
+	if v, ok := d.GetOk("quic_listener_id"); ok {
+		quicConfig.QuicListenerId = v.(string)
+		quicConfig.EnableQuicUpgrade = true
+		updateOpts.QuicConfig = &quicConfig
 	}
 
 	// Wait for LoadBalancer to become active before continuing

@@ -59,6 +59,9 @@ type Listener struct {
 	// Whether enable member retry
 	EnableMemberRetry bool `json:"enable_member_retry"`
 
+	// Whether enable proxy protocol
+	ProxyProtocolEnable bool `json:"proxy_protocol_enable"`
+
 	// The keepalive timeout of the Listener.
 	KeepaliveTimeout int `json:"keepalive_timeout"`
 
@@ -97,6 +100,9 @@ type Listener struct {
 
 	// The SNI certificates used by the listener.
 	SniMatchAlgo string `json:"sni_match_algo"`
+
+	// Whether enable ssl early data
+	SslEarlyDataEnable bool `json:"ssl_early_data_enable"`
 
 	// Enhance L7policy enable
 	EnhanceL7policy bool `json:"enhance_l7policy_enable"`
