@@ -262,8 +262,9 @@ The following arguments are supported:
 * `expired_days` - (Optional, Int, ForceNew) Specifies how many days after the task is abnormal, it will automatically
  end. The value ranges from 14 to 100. the default value is **14**. Changing this parameter will create a new resource.
 
-* `start_time` - (Optional, String, ForceNew) Specifies the time to start the job. The time format
- is **yyyy-MM-dd HH:mm:ss**. Start immediately by default. Changing this parameter will create a new resource.
+* `start_time` - (Optional, String, ForceNew) Specifies the time to start the job. The time format is a time stamp
+  accurating to milliseconds, e.g. **1684466549755**, which indicates **2023-05-19 11:22:29.755**.
+  Start immediately by default. Changing this parameter will create a new resource.
 
 * `destination_db_readnoly` - (Optional, Bool, ForceNew) Specifies the destination DB instance as read-only helps
   ensure the migration is successful. Once the migration is complete, the DB instance automatically changes to
@@ -461,7 +462,21 @@ In addition to all arguments above, the following attributes are exported:
 
 * `slave_job_id` - The slave job ID which will return if job is dual-AZ.
 
-* `created_at` - Create time. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ
+* `created_at` - Create time. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ.
+
+* `updated_at` - Update time. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ.
+
+* `vpc_id` - The VPC ID to which the DRS instance belongs.
+
+* `subnet_id` - The subnet ID to which the DRS instance belongs.
+
+* `security_group_id` - The security group ID to which the DRS instance belongs.
+
+* `source_db` - The source database configuration.
+  The [db_info](#attrblock--db_info) structure of the `source_db` is documented below.
+
+* `destination_db` - The destination database configuration.
+  The [db_info](#attrblock--db_info) structure of the `destination_db` is documented below.
 
 * `status` - Status.
 
@@ -470,6 +485,11 @@ In addition to all arguments above, the following attributes are exported:
 * `public_ip` - Public IP.
 
 * `private_ip` - Private IP.
+
+<a name="attrblock--db_info"></a>
+The `db_info` block supports:
+
+* `security_group_id` - The security group ID to which the databese instance belongs.
 
 ## Timeouts
 
