@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_ext_data_source
 
-Manages a DWS external data source resource within HuaweiCloud.  
+Manages a GaussDB(DWS) external data source resource within HuaweiCloud.  
 
 ## Example Usage
 

@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_logical_cluster
 
-Manages a DWS logical cluster resource within HuaweiCloud.
+Manages a GaussDB(DWS) logical cluster resource within HuaweiCloud.
 
 -> **NOTE:** The first DWS logical cluster can't be deleted. When performing a delete operation, the resource will only
 be removed from the state, but it remains in the cloud.

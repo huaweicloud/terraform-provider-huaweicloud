@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_event_subscription
 
-Manages a DWS event subscription resource within HuaweiCloud.  
+Manages a GaussDB(DWS) event subscription resource within HuaweiCloud.  
 
 ## Example Usage
 

@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_alarm_subscription
 
-Manages a DWS alarm subscription resource within HuaweiCloud.  
+Manages a GaussDB(DWS) alarm subscription resource within HuaweiCloud.  
 
 ## Example Usage
 

@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_workload_queue
 
-Manages a DWS workload queue resource within HuaweiCloud.
+Manages a GaussDB(DWS) workload queue resource within HuaweiCloud.
 
 ## Example Usage
 
