@@ -1,0 +1,24 @@
+info:
+    version: ""
+    title: resource_huaweicloud_iotda_batchtask
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IoTDA
+paths:
+    /v5/iot/{project_id}/batchtask-files:
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/batchtask-files/{file_id}:
+        DELETE:
+            tag: IoTDA
+    /v5/iot/{project_id}/batchtasks:
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/batchtasks/{task_id}:
+        DELETE:
+            tag: IoTDA
+        GET:
+            tag: IoTDA

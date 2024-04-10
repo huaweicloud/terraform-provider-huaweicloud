@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
-    /v3/{project_id}/elb/l7policies/{policyID}/rules:
+    /v3/{project_id}/elb/l7policies/{l7policy_id}/rules:
         POST:
             tag: ELB
-    /v3/{project_id}/elb/l7policies/{policyID}/rules/{ruleID}:
+    /v3/{project_id}/elb/l7policies/{l7policy_id}/rules/{l7rule_id}:
         DELETE:
             tag: ELB
         GET:

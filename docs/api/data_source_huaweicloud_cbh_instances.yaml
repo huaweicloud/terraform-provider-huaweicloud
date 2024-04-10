@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: CBH
 paths:
-    /v1/{project_id}/cbs/instance/list:
+    /v2/{project_id}/cbs/instance/list:
         GET:
             tag: CBH

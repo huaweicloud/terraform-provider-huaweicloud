@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_iotda_device_linkage_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IoTDA
+paths:
+    /v5/iot/{project_id}/rules:
+        GET:
+            tag: IoTDA

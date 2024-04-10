@@ -18,6 +18,12 @@ paths:
             tag: APIG
         PUT:
             tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/domains:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/domains/{domain_id}:
+        DELETE:
+            tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/env-variables:
         GET:
             tag: APIG

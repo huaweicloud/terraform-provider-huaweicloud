@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: DDM
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
+        POST:
+            tag: EPS
     /v1/{project_id}/instances:
         POST:
             tag: DDM
@@ -22,12 +25,29 @@ paths:
     /v1/{project_id}/instances/{instance_id}/modify-security-group:
         PUT:
             tag: DDM
+    /v2/{project_id}/flavors:
+        GET:
+            tag: DDM
     /v2/{project_id}/instances/{instance_id}/action/enlarge:
         POST:
             tag: DDM
     /v2/{project_id}/instances/{instance_id}/action/reduce:
         POST:
             tag: DDM
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
     /v3/{project_id}/instances/{instance_id}/admin-user:
         PUT:
             tag: DDM

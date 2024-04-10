@@ -11,7 +11,7 @@ paths:
     /v3/{project_id}/elb/ipgroups:
         POST:
             tag: ELB
-    /v3/{project_id}/elb/ipgroups/{id}:
+    /v3/{project_id}/elb/ipgroups/{ipgroup_id}:
         DELETE:
             tag: ELB
         GET:

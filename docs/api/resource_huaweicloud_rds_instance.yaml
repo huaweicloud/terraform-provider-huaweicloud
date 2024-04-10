@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: RDS
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
+        POST:
+            tag: EPS
     /v2/orders/customer-orders/details/{order_id}:
         GET:
             tag: BSS
@@ -44,6 +47,11 @@ paths:
             tag: RDS
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/binlog/clear-policy:
+        GET:
+            tag: RDS
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/collations:
         PUT:
             tag: RDS
@@ -65,6 +73,12 @@ paths:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/ip:
         PUT:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/msdtc/host:
+        POST:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/msdtc/hosts:
+        GET:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/name:
         PUT:

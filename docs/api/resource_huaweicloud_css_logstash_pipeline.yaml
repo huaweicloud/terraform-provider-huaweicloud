@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_logstash_pipeline
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/hot-start:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/listpipelines:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/start:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/lgsconf/stop:
+        POST:
+            tag: CSS

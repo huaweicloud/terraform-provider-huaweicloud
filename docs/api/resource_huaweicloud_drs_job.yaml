@@ -8,6 +8,17 @@ host: huaweicloud.com
 tags:
     - name: DRS
 paths:
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
     /v3/{project_id}/jobs:
         POST:
             tag: DRS
@@ -39,6 +50,15 @@ paths:
         POST:
             tag: DRS
     /v3/{project_id}/jobs/batch-status:
+        POST:
+            tag: DRS
+    /v3/{project_id}/jobs/cluster/batch-connection:
+        POST:
+            tag: DRS
+    /v5/{project_id}/jobs/{job_id}:
+        PUT:
+            tag: DRS
+    /v5/{project_id}/jobs/{job_id}/action:
         POST:
             tag: DRS
     /v5/{project_id}/jobs/{resource_type}/{job_id}/tags/action:

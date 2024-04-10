@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_eg_event_stream
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EG
+paths:
+    /v1/{project_id}/eventstreamings:
+        POST:
+            tag: EG
+    /v1/{project_id}/eventstreamings/{eventstreaming_id}:
+        DELETE:
+            tag: EG
+        GET:
+            tag: EG
+        PUT:
+            tag: EG
+    /v1/{project_id}/eventstreamings/operate/{eventstreaming_id}:
+        POST:
+            tag: EG

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cc_central_network_connection_bandwidth_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CC
+paths:
+    /v3/{domain_id}/gcn/central-network/{central_network_id}/connections:
+        GET:
+            tag: CC
+    /v3/{domain_id}/gcn/central-network/{central_network_id}/connections/{connection_id}:
+        PUT:
+            tag: CC

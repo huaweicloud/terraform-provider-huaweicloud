@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cc_global_connection_bandwidths
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CC
+paths:
+    /v3/{domain_id}/gcb/gcbandwidths:
+        GET:
+            tag: CC
+    /v3/gcb/resource-instances/filter:
+        POST:
+            tag: CC

@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_environment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CMDB
+paths:
+    /v1/environments:
+        POST:
+            tag: CMDB
+    /v1/environments/{environment_id}:
+        DELETE:
+            tag: CMDB
+        GET:
+            tag: CMDB
+        PUT:
+            tag: CMDB
+    /v1/environments/name/{environment_name}:
+        GET:
+            tag: CMDB

@@ -22,6 +22,9 @@ paths:
             tag: CSS
         GET:
             tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/{types}/flavor:
+        POST:
+            tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/auto_setting:
         POST:
             tag: CSS
@@ -77,6 +80,9 @@ paths:
             tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/permissions:
         POST:
+            tag: CSS
+    /v1.0/{project_id}/es-flavors:
+        GET:
             tag: CSS
     /v2.0/{project_id}/clusters:
         POST:

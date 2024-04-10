@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_obs_target
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/targets:
+        POST:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/targets/{target_id}:
+        DELETE:
+            tag: SFSTurbo
+        GET:
+            tag: SFSTurbo

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ddm_instance_read_strategy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDM
+paths:
+    /v2/{project_id}/instances/{instance_id}/action/read-write-strategy:
+        PUT:
+            tag: DDM
