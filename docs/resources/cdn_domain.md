@@ -65,6 +65,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 ```hcl
 variable "domain_name" {}
 variable "origin_server" {}
+variable "ip_or_domain" {}
 
 resource "huaweicloud_cdn_domain" "domain_1" {
   name         = var.domain_name
@@ -78,14 +79,17 @@ resource "huaweicloud_cdn_domain" "domain_1" {
   }
 
   configs {
-    origin_protocol = "http"
+    origin_protocol               = "http"
+    ipv6_enable                   = true
+    range_based_retrieval_enabled = true
 
     https_settings {
-      certificate_name = "terraform-test"
-      certificate_body = file("your_directory/chain.cer")
-      http2_enabled    = true
-      https_enabled    = true
-      private_key      = file("your_directory/server_private.key")
+      certificate_name     = "terraform-test"
+      certificate_body     = file("your_directory/chain.cer")
+      http2_enabled        = true
+      https_enabled        = true
+      private_key          = file("your_directory/server_private.key")
+      ocsp_stapling_status = "on"
     }
 
     cache_url_parameter_filter {
@@ -105,7 +109,46 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     }
 
     url_signing {
-      enabled = false
+      enabled     = true
+      type        = "type_a"
+      key         = "A27jtfSTy13q7A0UnTA9vpxYXEb"
+      time_format = "dec"
+      expire_time = 30
+    }
+
+    flexible_origin {
+      match_type = "all"
+      priority   = 1
+
+      back_sources {
+        http_port    = 80
+        https_port   = 443
+        ip_or_domain = var.ip_or_domain
+        sources_type = "ipaddr"
+      }
+    }
+
+    remote_auth {
+      enabled = true
+
+      remote_auth_rules {
+        auth_failed_status      = "503"
+        auth_server             = "https://testdomain-update.com"
+        auth_success_status     = "302"
+        file_type_setting       = "all"
+        request_method          = "POST"
+        reserve_args_setting    = "reserve_all_args"
+        reserve_headers_setting = "reserve_all_headers"
+        response_status         = "206"
+        timeout                 = 3000
+        timeout_action          = "forbid"
+
+        add_custom_args_rules {
+          key   = "http_user_agent"
+          type  = "nginx_preset_var"
+          value = "$server_protocol"
+        }
+      }
     }
 
     compress {
@@ -271,8 +314,11 @@ The `https_settings` block support:
 * `private_key` - (Optional, String) Specifies the private key used by the HTTPS protocol. This parameter is mandatory
   when a certificate is configured. The value is in PEM format.
 
-* `certificate_source` - (Optional, Int) Specifies the certificate type. Currently, only **0** is supported, which means
+* `certificate_source` - (Optional, Int) Specifies the certificate source. Currently, only **0** is supported, which means
   your own certificate. Defaults to **0**.
+
+* `certificate_type` - (Optional, String) Specifies the certificate type. Currently, only **server** is supported, which
+  means international certificate. Defaults to **server**.
 
 * `http2_enabled` - (Optional, Bool) Specifies whether HTTP/2 is used. Defaults to **false**.
   When `https_enabled` is set to **false**, this parameter does not take effect.
@@ -281,6 +327,13 @@ The `https_settings` block support:
   **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are supported. By default, **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are
   enabled. You can enable a single version or consecutive versions. To enable multiple versions, use commas (,) to
   separate versions, for example, **TLSv1.1,TLSv1.2**.
+
+* `ocsp_stapling_status` - (Optional, String) Specifies whether online certificate status protocol (OCSP) stapling is enabled.
+  Valid values are as follows:
+  + **on**: Enable.
+  + **off**: Disable.
+
+  Defaults to **off**.
 
 <a name="retrieval_request_header_object"></a>
 The `retrieval_request_header` block support:
