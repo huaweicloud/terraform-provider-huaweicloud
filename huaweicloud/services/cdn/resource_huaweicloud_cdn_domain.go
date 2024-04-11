@@ -16,6 +16,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
@@ -488,7 +489,6 @@ func ResourceCdnDomain() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"configs": {
 				Type:     schema.TypeList,
@@ -1528,7 +1528,8 @@ func parseDetailResponseError(err error) error {
 
 func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	hcCdnClient, err := cfg.HcCdnV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CDN v2 client: %s", err)
 	}
@@ -1539,7 +1540,7 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+		cdnClient, err := cfg.CdnV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating CDN v1 client: %s", err)
 		}
@@ -1551,6 +1552,18 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.HasChange("tags") {
 		if err := updateDomainTags(hcCdnClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "cdn",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
