@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_workload_plan_execution
 
-Manages a DWS workload plan execution resource within HuaweiCloud.
+Manages a GaussDB(DWS) workload plan execution resource within HuaweiCloud.
 
 -> 1. Only one workload plan can be started for each cluster.
   <br/> 2. A workload plan must have at least two plan stages before it can be started.

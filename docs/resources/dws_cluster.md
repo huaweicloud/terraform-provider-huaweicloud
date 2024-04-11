@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_cluster
 
-Manages a DWS cluster resource within HuaweiCloud.  
+Manages a GaussDB(DWS) cluster resource within HuaweiCloud.  
 
 ## Example Usage
 

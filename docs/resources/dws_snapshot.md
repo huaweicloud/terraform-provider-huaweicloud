@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_snapshot
 
-Manages a DWS snapshot resource within HuaweiCloud.  
+Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.  
 
 ## Example Usage
 

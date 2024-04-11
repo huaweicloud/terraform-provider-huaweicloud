@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_disaster_recovery_task
 
-Manages a DWS disaster recovery task resource within HuaweiCloud.
+Manages a GaussDB(DWS) disaster recovery task resource within HuaweiCloud.
 
 ## Example Usage
 

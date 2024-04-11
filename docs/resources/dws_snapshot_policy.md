@@ -1,10 +1,10 @@
 ---
-subcategory: "Data Warehouse Service (DWS)"
+subcategory: "GaussDB(DWS)"
 ---
 
 # huaweicloud_dws_snapshot_policy
 
-Manages a DWS automated snapshot policy resource within HuaweiCloud.  
+Manages a GaussDB(DWS) automated snapshot policy resource within HuaweiCloud.  
 
 ## Example Usage
 
