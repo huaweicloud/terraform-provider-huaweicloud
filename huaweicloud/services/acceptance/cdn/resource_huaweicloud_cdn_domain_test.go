@@ -971,6 +971,109 @@ resource "huaweicloud_cdn_domain" "test" {
 }
 `, acceptance.HW_CDN_DOMAIN_NAME)
 
+func TestAccCdnDomain_epsID_migrate(t *testing.T) {
+	var (
+		obj          interface{}
+		resourceName = "huaweicloud_cdn_domain.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCdnDomainFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheckCDN(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: TestAccCdnDomain_epsID_basic,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: TestAccCdnDomain_epsID_update1,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: TestAccCdnDomain_epsID_update2,
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testCDNDomainImportState(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"enterprise_project_id", "configs.0.url_signing.0.key", "configs.0.https_settings.0.certificate_body",
+					"configs.0.https_settings.0.private_key", "cache_settings",
+				},
+			},
+		},
+	})
+}
+
+var TestAccCdnDomain_epsID_basic = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "wholeSite"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
+
+var TestAccCdnDomain_epsID_update1 = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "wholeSite"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "%s"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+
+var TestAccCdnDomain_epsID_update2 = fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name                  = "%s"
+  type                  = "wholeSite"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+}
+`, acceptance.HW_CDN_DOMAIN_NAME)
+
 // testCDNDomainImportState use to return an ID using `name`
 func testCDNDomainImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {

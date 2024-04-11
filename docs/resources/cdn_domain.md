@@ -199,8 +199,7 @@ The following arguments are supported:
 * `cache_settings` - (Optional, List) Specifies the cache configuration. The [cache_settings](#cache_settings_object) structure
   is documented below.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. Changing this parameter
-  will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the domain.
 
