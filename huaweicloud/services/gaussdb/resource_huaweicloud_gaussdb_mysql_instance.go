@@ -1223,6 +1223,21 @@ func switchSQLFilter(client *golangsdk.ServiceClient, instanceId string, isSQLFi
 	return nil
 }
 
+func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending", "Running"},
+		Target:       []string{"Completed"},
+		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, jobID),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for GaussDB MySQL instance job (%s) to be completed: %s ", jobID, err)
+	}
+	return nil
+}
+
 func gaussDBMysqlDatabaseStatusRefreshFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (

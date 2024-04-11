@@ -39,7 +39,7 @@ func DataSourceGaussdbMysqlRestoreTimeRanges() *schema.Resource {
 				Description: `Specifies the date to be queried.`,
 			},
 			"restore_times": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Indicates the list of restoration time ranges.`,
 				Elem: &schema.Resource{
