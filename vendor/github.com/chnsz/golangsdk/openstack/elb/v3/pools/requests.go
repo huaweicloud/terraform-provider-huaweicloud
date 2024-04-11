@@ -117,6 +117,12 @@ type CreateOpts struct {
 
 	// The ID of the VPC where the backend server group works
 	VpcId string `json:"vpc_id,omitempty"`
+
+	// The IP version
+	IpVersion string `json:"ip_version,omitempty"`
+
+	// Whether to enable deletion protection for the load balancer.
+	DeletionProtectionEnable *bool `json:"member_deletion_protection_enable,omitempty"`
 }
 
 type SlowStart struct {
@@ -192,6 +198,9 @@ type UpdateOpts struct {
 
 	// The ID of the VPC where the backend server group works
 	VpcId string `json:"vpc_id,omitempty"`
+
+	// Whether to enable deletion protection for the load balancer.
+	DeletionProtectionEnable *bool `json:"member_deletion_protection_enable,omitempty"`
 }
 
 // ToPoolUpdateMap builds a request body from UpdateOpts.

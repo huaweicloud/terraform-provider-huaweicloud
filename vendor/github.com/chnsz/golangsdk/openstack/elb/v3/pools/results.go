@@ -10,19 +10,21 @@ import (
 // session to be processed by the same member as long as it is ative. Three
 // types of persistence are supported:
 //
-// SOURCE_IP:   With this mode, all connections originating from the same source
-//              IP address, will be handled by the same Member of the Pool.
+// SOURCE_IP: With this mode, all connections originating from the same source
+// IP address, will be handled by the same Member of the Pool.
+//
 // HTTP_COOKIE: With this persistence mode, the load balancing function will
-//              create a cookie on the first request from a client. Subsequent
-//              requests containing the same cookie value will be handled by
-//              the same Member of the Pool.
-// APP_COOKIE:  With this persistence mode, the load balancing function will
-//              rely on a cookie established by the backend application. All
-//              requests carrying the same cookie value will be handled by the
-//              same Member of the Pool.
+// create a cookie on the first request from a client. Subsequent
+// requests containing the same cookie value will be handled by
+// the same Member of the Pool.
+//
+// APP_COOKIE: With this persistence mode, the load balancing function will
+// rely on a cookie established by the backend application. All
+// requests carrying the same cookie value will be handled by the
+// same Member of the Pool.
 type SessionPersistence struct {
 	// The type of persistence mode.
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 
 	// Name of cookie if persistence mode is set appropriately.
 	CookieName string `json:"cookie_name,omitempty"`
@@ -105,6 +107,9 @@ type Pool struct {
 
 	// Slow start.
 	SlowStart SlowStart `json:"slow_start"`
+
+	// Whether to enable deletion protection for the load balancer.
+	DeletionProtectionEnable bool `json:"member_deletion_protection_enable"`
 
 	// The type of the backend server group.
 	Type string `json:"type"`
