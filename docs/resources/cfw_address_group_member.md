@@ -54,8 +54,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The CFW IP address group member can be imported using `group_id`, `address`, separated by a slash, e.g.
+The CFW IP address group member can be imported using `group_id`, `id`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_cfw_address_group_member.test <group_id>/<address>
+$ terraform import huaweicloud_cfw_address_group_member.test <group_id>/<id>
 ```
