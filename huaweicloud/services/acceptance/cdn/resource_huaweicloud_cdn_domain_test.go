@@ -274,12 +274,12 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_name", "terraform-update"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_source", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_type", "server"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.ocsp_stapling_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2,TLSv1.3"),
 				),
 			},
@@ -388,7 +388,7 @@ resource "huaweicloud_cdn_domain" "test" {
     https_settings {
       certificate_name     = "terraform-update"
       certificate_body     = file("%s")
-      http2_enabled        = false
+      http2_enabled        = true
       https_enabled        = true
       private_key          = file("%s")
       tls_version          = "TLSv1.1,TLSv1.2,TLSv1.3"

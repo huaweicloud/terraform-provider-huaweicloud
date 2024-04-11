@@ -323,6 +323,8 @@ The `https_settings` block support:
 * `http2_enabled` - (Optional, Bool) Specifies whether HTTP/2 is used. Defaults to **false**.
   When `https_enabled` is set to **false**, this parameter does not take effect.
 
+  -> Currently, this field does not support closing after it is enabled.
+
 * `tls_version` - (Optional, String) Specifies the transport Layer Security (TLS). Currently, **TLSv1.0**,
   **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are supported. By default, **TLSv1.1**, **TLSv1.2**, and **TLSv1.3** are
   enabled. You can enable a single version or consecutive versions. To enable multiple versions, use commas (,) to

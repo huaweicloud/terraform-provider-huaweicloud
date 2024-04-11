@@ -618,11 +618,19 @@ func buildCreateDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 	return sourceRequests
 }
 
-func buildHttpStatusOpts(enable bool) string {
+func buildHTTPSStatusOpts(enable bool) string {
 	if enable {
 		return "on"
 	}
 	return "off"
+}
+
+func buildHTTP2StatusOpts(enable bool) string {
+	if enable {
+		return "on"
+	}
+	// Currently, European sites do not support this parameter, so we will handle it this way for the time being.
+	return ""
 }
 
 func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
@@ -632,13 +640,13 @@ func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
 
 	https := rawHTTPS[0].(map[string]interface{})
 	httpsOpts := model.HttpPutBody{
-		HttpsStatus:        utils.String(buildHttpStatusOpts(https["https_enabled"].(bool))),
+		HttpsStatus:        utils.String(buildHTTPSStatusOpts(https["https_enabled"].(bool))),
 		CertificateName:    utils.StringIgnoreEmpty(https["certificate_name"].(string)),
 		CertificateValue:   utils.StringIgnoreEmpty(https["certificate_body"].(string)),
 		PrivateKey:         utils.StringIgnoreEmpty(https["private_key"].(string)),
 		CertificateSource:  utils.Int32(int32(https["certificate_source"].(int))),
 		CertificateType:    utils.StringIgnoreEmpty(https["certificate_type"].(string)),
-		Http2Status:        utils.String(buildHttpStatusOpts(https["http2_enabled"].(bool))),
+		Http2Status:        utils.StringIgnoreEmpty(buildHTTP2StatusOpts(https["http2_enabled"].(bool))),
 		TlsVersion:         utils.StringIgnoreEmpty(https["tls_version"].(string)),
 		OcspStaplingStatus: utils.StringIgnoreEmpty(https["ocsp_stapling_status"].(string)),
 	}
