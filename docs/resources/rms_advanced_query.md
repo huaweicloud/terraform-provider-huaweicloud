@@ -19,13 +19,13 @@ resource "huaweicloud_rms_advanced_query" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, ForceNew) Specifies the ResourceQL name. It contains 1 to 64 characters.
+* `name` - (Required, String, ForceNew) Specifies the advanced query name. It contains 1 to 64 characters.
 
   Changing this parameter will create a new resource.
 
-* `expression` - (Required, String) Specifies the ResourceQL expression. It contains 1 to 4096 characters.
+* `expression` - (Required, String) Specifies the advanced query expression. It contains 1 to 4096 characters.
 
-* `description` - (Optional, String) Specifies the ResourceQL description. It contains 1 to 512 characters.
+* `description` - (Optional, String) Specifies the advanced query description. It contains 1 to 512 characters.
 
 ## Attribute Reference
 
