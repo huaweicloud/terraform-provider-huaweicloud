@@ -18,7 +18,8 @@ import (
 func TestAccGaussDBInstance_basic(t *testing.T) {
 	var instance instances.TaurusDBInstance
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
+	updateName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_gaussdb_mysql_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -27,10 +28,14 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckGaussDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGaussDBInstanceConfig_basic(rName),
+				Config: testAccGaussDBInstanceConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "09:00-10:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
+					resource.TestCheckResourceAttr(resourceName, "read_replicas", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -38,10 +43,13 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGaussDBInstanceConfig_basicUpdate(rName),
+				Config: testAccGaussDBInstanceConfig_basicUpdate(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "12:00-13:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "10"),
+					resource.TestCheckResourceAttr(resourceName, "read_replicas", "4"),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
@@ -180,15 +188,28 @@ func testAccGaussDBInstanceConfig_basic(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_gaussdb_mysql_flavors" "test" {
+  engine = "gaussdb-mysql"
+  version = "8.0"
+}
+
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name                  = "%s"
-  password              = "Test@12345678"
-  flavor                = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-  sql_filter_enabled    = true
+  name                     = "%s"
+  password                 = "Test@12345678"
+  flavor                   = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[0].name
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  availability_zone_mode   = "multi"
+  master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  read_replicas            = 2
+  enterprise_project_id    = "0"
+  sql_filter_enabled       = true
+
+  backup_strategy {
+    start_time = "09:00-10:00"
+    keep_days  = "7"
+  }
 
   tags = {
     foo = "bar"
@@ -204,16 +225,29 @@ func testAccGaussDBInstanceConfig_basicUpdate(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_gaussdb_mysql_flavors" "test" {
+  engine = "gaussdb-mysql"
+  version = "8.0"
+}
+
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name                  = "%s"
-  password              = "Test@12345678"
-  flavor                = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-  audit_log_enabled     = true
-  sql_filter_enabled    = false
+  name                     = "%s"
+  password                 = "Test@123456789"
+  flavor                   = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[1].name
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  availability_zone_mode   = "multi"
+  master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  read_replicas            = 4
+  enterprise_project_id    = "0"
+  audit_log_enabled        = true
+  sql_filter_enabled       = false
+
+  backup_strategy {
+    start_time = "12:00-13:00"
+    keep_days  = "10"
+  }
 
   tags = {
     foo_update = "bar"
