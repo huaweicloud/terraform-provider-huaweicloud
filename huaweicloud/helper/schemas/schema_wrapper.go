@@ -2,6 +2,7 @@ package schemas
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -42,6 +43,48 @@ func (s *ResourceDataWrapper) Get(key string, keepZero ...bool) any {
 	}
 
 	return val
+}
+
+func (s *ResourceDataWrapper) GetToInt(key string, keepZero ...bool) any {
+	val, ok := s.ResourceData.GetOk(key)
+	if !ok && s.keepZero(keepZero) {
+		return 0
+	}
+
+	if !ok {
+		return nil
+	}
+
+	str, _ := val.(string)
+	intVal, err := strconv.ParseInt(str, 10, 64)
+
+	if err != nil {
+		// lintignore:R009
+		panic(fmt.Sprintf(`* "%s": "%v", value is incorrect, it should be a numeric string, for example: "12"`, key, val))
+	}
+
+	return intVal
+}
+
+func (s *ResourceDataWrapper) GetToBool(key string, keepZero ...bool) any {
+	val, ok := s.ResourceData.GetOk(key)
+	if !ok && s.keepZero(keepZero) {
+		return 0
+	}
+
+	if !ok {
+		return nil
+	}
+
+	str, _ := val.(string)
+	boolVal, err := strconv.ParseBool(str)
+
+	if err != nil {
+		// lintignore:R009
+		panic(fmt.Sprintf(`* "%s": "%v", value is incorrect, it should be bool type string, for example: "false"`, key, val))
+	}
+
+	return boolVal
 }
 
 // PrimToArray primitive data type to Array
