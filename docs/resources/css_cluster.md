@@ -139,10 +139,10 @@ The following arguments are supported:
   The [ess_node_config](#Css_ess_node_config) structure is documented below.
 
 * `master_node_config` - (Optional, List) Specifies the config of master node.
-  The [master_node_config](#Css_ess_node_config_volume_forceNew) structure is documented below.
+  The [master_node_config](#Css_ess_master_or_client_node_config) structure is documented below.
 
 * `client_node_config` - (Optional, List) Specifies the config of client node.
-  The [client_node_config](#Css_ess_node_config_volume_forceNew) structure is documented below.
+  The [client_node_config](#Css_ess_master_or_client_node_config) structure is documented below.
 
 * `cold_node_config` - (Optional, List) Specifies the config of cold data node.
   The [cold_node_config](#Css_ess_node_config) structure is documented below.
@@ -227,7 +227,7 @@ The `volume` block supports:
 
   Changing this parameter will create a new resource.
 
-<a name="Css_ess_node_config_volume_forceNew"></a>
+<a name="Css_ess_master_or_client_node_config"></a>
 The `master_node_config` and `client_node_config` block supports:
 
 * `flavor` - (Required, String) Specifies the flavor name.
@@ -236,21 +236,18 @@ The `master_node_config` and `client_node_config` block supports:
   + When it is `master_node_config`, The value range is 3 to 10.
   + When it is `client_node_config`, The value range is 1 to 32.
 
-* `volume` - (Required, List, ForceNew) Specifies the information about the volume.
-  The [volume](#Css_volume_forceNew) structure is documented below.
+* `volume` - (Required, List) Specifies the information about the volume.
+  The [volume](#Css_master_or_client_volume) structure is documented below.
 
-<a name="Css_volume_forceNew"></a>
+<a name="Css_master_or_client_volume"></a>
 The `volume` block supports:
 
-* `size` - (Required, Int, ForceNew) Specifies the volume size in GB, which must be a multiple of 10.
-  Changing this parameter will create a new resource.
+* `size` - (Required, Int) Specifies the volume size in GB, which must be a multiple of 10.
 
-* `volume_type` - (Required, String, ForceNew) Specifies the volume type. Value options are as follows:
+* `volume_type` - (Required, String) Specifies the volume type. Value options are as follows:
   + **COMMON**: Common I/O. The SATA disk is used.
   + **HIGH**: High I/O. The SAS disk is used.
   + **ULTRAHIGH**: Ultra-high I/O. The solid-state drive (SSD) is used.
-
-  Changing this parameter will create a new resource.
 
 <a name="Css_public_access"></a>
 The `public_access` block supports:
