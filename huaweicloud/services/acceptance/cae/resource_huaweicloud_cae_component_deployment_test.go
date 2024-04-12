@@ -65,8 +65,8 @@ resource "huaweicloud_cae_component_configurations" "test" {
 }
 
 resource "huaweicloud_cae_component_deployment" "test" {
-  environment_id = "ae22f51f-39fa-4252-beb5-fb3e508c78b7"
-  application_id = "9db0d7ad-e9a5-4447-b351-04a7a9d7af02"
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
 
   metadata {
@@ -123,8 +123,8 @@ resource "huaweicloud_cae_component_configurations" "test" {
 }
 
 resource "huaweicloud_cae_component_deployment" "test" {
-  environment_id = "ae22f51f-39fa-4252-beb5-fb3e508c78b7"
-  application_id = "9db0d7ad-e9a5-4447-b351-04a7a9d7af02"
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
 
   metadata {
@@ -181,8 +181,8 @@ resource "huaweicloud_cae_component_configurations" "test" {
 }
 
 resource "huaweicloud_cae_component_deployment" "test" {
-  environment_id = "ae22f51f-39fa-4252-beb5-fb3e508c78b7"
-  application_id = "9db0d7ad-e9a5-4447-b351-04a7a9d7af02"
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
 
   metadata {
@@ -239,8 +239,8 @@ resource "huaweicloud_cae_component_configurations" "test" {
 }
 
 resource "huaweicloud_cae_component_deployment" "test" {
-  environment_id = "ae22f51f-39fa-4252-beb5-fb3e508c78b7"
-  application_id = "9db0d7ad-e9a5-4447-b351-04a7a9d7af02"
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
 
   metadata {
