@@ -36,7 +36,7 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 						"data.huaweicloud_rds_flavors.replica", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
-						"data.huaweicloud_networking_secgroup.test", "id"),
+						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -61,7 +61,7 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 						"data.huaweicloud_rds_flavors.replica", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
-						"data.huaweicloud_networking_secgroup.test", "id"),
+						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8889"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -139,7 +139,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  security_group_id   = huaweicloud_networking_secgroup.test.id
   ssl_enable          = true
 
   db {
@@ -185,7 +185,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  security_group_id   = huaweicloud_networking_secgroup.test.id
   ssl_enable          = false
 
   db {

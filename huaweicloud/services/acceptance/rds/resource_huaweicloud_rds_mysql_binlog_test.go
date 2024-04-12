@@ -99,7 +99,7 @@ func TestAccMysqlBinlog_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsInstance_mysql(name, pwd string) string {
+func testAccRdsInstance_mysql(name, pwd string, binlogRetentionHours int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -111,13 +111,14 @@ data "huaweicloud_rds_flavors" "test" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[2]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  vpc_id            = data.huaweicloud_vpc.test.id
-  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
-  ssl_enable        = true
+  name                   = "%[2]s"
+  flavor                 = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+  ssl_enable             = true
+  binlog_retention_hours = %[4]v
 
   db {
     password = "%[3]s"
@@ -131,7 +132,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 }
-`, testAccRdsInstance_base(), name, pwd)
+`, testAccRdsInstance_base(name), name, pwd, binlogRetentionHours)
 }
 
 func testMysqlBinlog_basic(name, dbPwd string) string {
@@ -142,7 +143,7 @@ resource "huaweicloud_rds_mysql_binlog" "test" {
   instance_id            = huaweicloud_rds_instance.test.id
   binlog_retention_hours = 6
 }
-`, testAccRdsInstance_mysql(name, dbPwd))
+`, testAccRdsInstance_mysql(name, dbPwd, 6))
 }
 
 func testMysqlBinlog_basic_update(name, dbPwd string) string {
@@ -154,5 +155,5 @@ resource "huaweicloud_rds_mysql_binlog" "test" {
   binlog_retention_hours = 8
 }
 
-`, testAccRdsInstance_mysql(name, dbPwd))
+`, testAccRdsInstance_mysql(name, dbPwd, 8))
 }
