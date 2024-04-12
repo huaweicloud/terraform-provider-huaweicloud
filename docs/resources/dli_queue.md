@@ -91,6 +91,44 @@ The following arguments are supported:
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
 
 * `elastic_resource_pool_name` - (Optional, String) The name of the elastic resource pool.
+  This parameter is only available if `resource_mode` is set to `1`.
+
+* `scaling_policies` - (Optional, List) Specifies the list of scaling policies of the queue associated with
+  an elastic resource pool.
+  This parameter is only available if `resource_mode` is set to `1`.
+  If you want to use this parameter, you must ensure that there is a scaling policy with a time period from `00:00` to `24:00`.
+  The [scaling_policies](#queue_scaling_policies) structure is documented below.
+  
+  -> After binding an elastic resource pool to a queue, the system will automatically generate a default scaling policy,
+     in which the `priority` value is `1`, the `impact_start_time` value is `00:00`, the `impact_stop_time` value is `24:00`,
+     and the values of `min_cu` and `max_cu` are equal to the number of CUs of the queue.
+     For the default scaling policy, except for the `impact_start_time` and `impact_stop_time`, which are not allowed to
+     be modified, other values can be modified according to the actual situation.
+
+<a name="queue_scaling_policies"></a>
+The `scaling_policies` block supports:
+
+* `priority` - (Required, Int) Specifies the priority of the queue scaling policy.
+  The valid value ranges from `1` to `100`. The larger value means the higher priority.
+
+* `impact_start_time` - (Required, String) Specifies the effective time of the queue scaling policy.
+  The value can be set only by hour.
+
+* `impact_stop_time` - (Required, String) Specifies the expiration time of the queue scaling policy.
+  The value can be set only by hour.
+
+  -> The time ranges of different scaling policies in the same queue cannot overlap.
+     The time range includes the start time but not the end time, e.g. `[00:00, 24:00)`.
+
+* `min_cu` - (Required, Int) Specifies the minimum number of CUs allowed by the scaling policy.
+  The number must be a multiple of `4`.
+
+  -> The total minimum CUs of all queues in an elastic resource pool cannot be more than the minimum CUs of the pool.
+
+* `max_cu` - (Required, Int) Specifies the maximum number of CUs allowed by the scaling policy.
+  The number must be a multiple of `4`.
+  
+  -> The maximum CUs of any queue in an elastic resource pool cannot be more than the maximum CUs of the pool.
 
 ## Attribute Reference
 

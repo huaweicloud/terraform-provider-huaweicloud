@@ -52,6 +52,8 @@ const (
 // @API DLI PUT /v1.0/{project_id}/queues/{queue_name}
 // @API DLI DELETE /v1.0/{project_id}/queues/{queue_name}
 // @API DLI POST /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues
+// @API DLI GET /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues
+// @API DLI PUT /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues/{queue_name}
 func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliQueueCreate,
@@ -146,7 +148,36 @@ func ResourceDliQueue() *schema.Resource {
 			"elastic_resource_pool_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+			},
+			"scaling_policies": {
+				Type:         schema.TypeSet,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"elastic_resource_pool_name"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"priority": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"impact_start_time": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"impact_stop_time": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"min_cu": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"max_cu": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
 			},
 			"create_time": {
 				Type:     schema.TypeInt,
@@ -185,6 +216,7 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 	queueName := d.Get("name").(string)
 
 	log.Printf("[DEBUG] create dli queues queueName: %s", queueName)
+	elasticResourcePoolName := d.Get("elastic_resource_pool_name").(string)
 	createOpts := queues.CreateOpts{
 		QueueName:               queueName,
 		QueueType:               d.Get("queue_type").(string),
@@ -195,7 +227,7 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 		ResourceMode:            d.Get("resource_mode").(int),
 		Feature:                 d.Get("feature").(string),
 		Tags:                    assembleTagsFromRecource("tags", d),
-		ElasticResourcePoolName: d.Get("elastic_resource_pool_name").(string),
+		ElasticResourcePoolName: elasticResourcePoolName,
 	}
 
 	log.Printf("[DEBUG] create dli queues using parameters: %+v", createOpts)
@@ -215,6 +247,17 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 		err = updateVpcCidrOfQueue(dliClient, queueName, v.(string))
 		if err != nil {
 			return diag.Errorf("update cidr failed when creating dli queues: %s", err)
+		}
+	}
+
+	if v, ok := d.GetOk("scaling_policies"); ok {
+		v3Client, err := cfg.DliV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating DLI V3 client: %s", err)
+		}
+		err = updateQueueScalePolicies(v3Client, elasticResourcePoolName, queueName, v.(*schema.Set))
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -275,6 +318,20 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("elastic_resource_pool_name", queueDetail.ElasticResourcePoolName),
 	)
 
+	if elasticResourcePoolName, ok := d.GetOk("elastic_resource_pool_name"); ok {
+		v3Client, err := cfg.DliV3Client(region)
+		if err != nil {
+			return diag.Errorf("error creating DLI V3 client: %s", err)
+		}
+
+		policies, err := getQueueScalingPolicies(v3Client, elasticResourcePoolName.(string), queueName)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		mErr = multierror.Append(mErr, d.Set("scaling_policies", policies))
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -295,6 +352,49 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 
 	return nil, fmt.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
 		body)
+}
+
+func getQueueScalingPoliciesByName(client *golangsdk.ServiceClient, poolName, queueName string) ([]elasticresourcepool.QueueScalingPolicy, error) {
+	opts := elasticresourcepool.ListElasticResourcePoolQueuesOpts{
+		ElasticResourcePoolName: poolName,
+		QueueName:               queueName,
+		// The API document states that the default value of limit is 100, but if offset is specified without limit, paging will not take effect.
+		Limit: 100,
+	}
+	queueList, err := elasticresourcepool.ListElasticResourcePoolQueues(client, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	// The `queue_name` parameter supports fuzzy search.
+	for _, queue := range queueList {
+		if queue.QueueName == queueName {
+			return queue.QueueScalingPolicies, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unable to find the queue (%s) under the elastic resource pool (%s)",
+		queueName, poolName)
+}
+
+func getQueueScalingPolicies(client *golangsdk.ServiceClient, elasticResourcePoolName, queueName string) ([]interface{}, error) {
+	policies, err := getQueueScalingPoliciesByName(client, elasticResourcePoolName, queueName)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]interface{}, len(policies))
+	for i, policy := range policies {
+		result[i] = map[string]interface{}{
+			"priority":          policy.Priority,
+			"impact_start_time": policy.ImpactStartTime,
+			"impact_stop_time":  policy.ImpactStopTime,
+			"min_cu":            policy.MinCu,
+			"max_cu":            policy.MaxCu,
+		}
+	}
+
+	return result, nil
 }
 
 func resourceDliQueueDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -368,6 +468,10 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	v3Client, err := cfg.DliV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating DLI V3 client: %s", err)
+	}
 	if d.HasChange("elastic_resource_pool_name") {
 		oldVal, newVal := d.GetChange("elastic_resource_pool_name")
 		if oldVal != "" {
@@ -378,9 +482,17 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			ElasticResourcePoolName: newVal.(string),
 			QueueName:               queueName,
 		}
-		err = associateQueueToElasticResourcePool(cfg, region, associateQueueToElasticResourcePoolOpts)
+		err = associateQueueToElasticResourcePool(v3Client, associateQueueToElasticResourcePoolOpts)
 		if err != nil {
 			return diag.Errorf("error associate queue to elastic resopurce pool: %s", err)
+		}
+	}
+
+	if d.HasChange("scaling_policies") {
+		elasticResourcePoolName := d.Get("elastic_resource_pool_name").(string)
+		queuePolicies := d.Get("scaling_policies").(*schema.Set)
+		if err := updateQueueScalePolicies(v3Client, elasticResourcePoolName, queueName, queuePolicies); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -414,11 +526,44 @@ func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr strin
 	return err
 }
 
-func associateQueueToElasticResourcePool(cfg *config.Config, region string, opts elasticresourcepool.AssociateQueueOpts) error {
-	client, err := cfg.DliV3Client(region)
-	if err != nil {
-		return fmt.Errorf("error creating DLI V3 client: %s", err)
+func buildQueueScalingPolicies(policies *schema.Set) []elasticresourcepool.QueueScalingPolicy {
+	if policies.Len() == 0 {
+		return nil
 	}
+
+	result := make([]elasticresourcepool.QueueScalingPolicy, policies.Len())
+	for i, val := range policies.List() {
+		policy := val.(map[string]interface{})
+		result[i] = elasticresourcepool.QueueScalingPolicy{
+			Priority:        policy["priority"].(int),
+			ImpactStartTime: policy["impact_start_time"].(string),
+			ImpactStopTime:  policy["impact_stop_time"].(string),
+			MinCu:           policy["min_cu"].(int),
+			MaxCu:           policy["max_cu"].(int),
+		}
+	}
+	return result
+}
+
+func updateQueueScalePolicies(client *golangsdk.ServiceClient, elasticResourcePoolName, queueName string, policys *schema.Set) error {
+	opts := elasticresourcepool.UpdateQueuePolicyOpts{
+		ElasticResourcePoolName: elasticResourcePoolName,
+		QueueName:               queueName,
+		QueueScalingPolicies:    buildQueueScalingPolicies(policys),
+	}
+	resp, err := elasticresourcepool.UpdateElasticResourcePoolQueuePolicy(client, opts)
+	if err != nil {
+		return fmt.Errorf("error updating scaling policies of the queue (%s) associated with the elastic resource pool (%s): %s",
+			elasticResourcePoolName, queueName, err)
+	}
+
+	if !resp.IsSuccess {
+		return fmt.Errorf("unable to update scaling policies to the queue (%s): %s", queueName, resp.Message)
+	}
+	return err
+}
+
+func associateQueueToElasticResourcePool(client *golangsdk.ServiceClient, opts elasticresourcepool.AssociateQueueOpts) error {
 	resp, err := elasticresourcepool.AssociateQueue(client, opts)
 	if err != nil {
 		return err
