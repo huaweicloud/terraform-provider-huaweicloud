@@ -523,6 +523,12 @@ func ResourceCdnDomain() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						// Cloud will configure this field to `30` by default
+						"origin_receive_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
 						"https_settings":             &httpsConfig,
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
@@ -986,6 +992,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.slice_etag_status") {
 		configsOpts.SliceEtagStatus = utils.StringIgnoreEmpty(configs["slice_etag_status"].(string))
+	}
+	if d.HasChange("configs.0.origin_receive_timeout") {
+		configsOpts.OriginReceiveTimeout = utils.Int32IgnoreEmpty(int32(configs["origin_receive_timeout"].(int)))
 	}
 	if d.HasChange("configs.0.https_settings") {
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
@@ -1452,6 +1461,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
 		"description":                   configsResp.Remark,
 		"slice_etag_status":             configsResp.SliceEtagStatus,
+		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
 	}
 	return []map[string]interface{}{configsAttrs}
 }

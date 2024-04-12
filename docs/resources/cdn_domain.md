@@ -263,6 +263,9 @@ The `configs` block support:
 
   Defaults to **on**.
 
+* `origin_receive_timeout` - (Optional, Int) Specifies the origin response timeout.
+  The value ranges from **5** to **60**, in seconds. Defaults to **30**.
+
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [https_settings](#https_settings_object)
   structure is documented below.
 
