@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_webtamper_protection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/host-management/hosts:
+        GET:
+            tag: HSS
+    /v5/{project_id}/webtamper/hosts:
+        GET:
+            tag: HSS
+    /v5/{project_id}/webtamper/rasp/status:
+        POST:
+            tag: HSS
+    /v5/{project_id}/webtamper/static/status:
+        POST:
+            tag: HSS
