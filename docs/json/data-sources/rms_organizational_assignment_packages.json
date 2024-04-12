@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_organizational_assignment_packages": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the organizational assignment package name.",
+                "optional": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Specifies the ID of the organization.",
+                "required": true
+              },
+              "package_id": {
+                "type": "string",
+                "description": "Specifies the organizational assignment package ID.",
+                "optional": true
+              },
+              "packages": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "org_conformance_pack_urn": "string",
+                      "organization_id": "string",
+                      "owner_id": "string",
+                      "updated_at": "string",
+                      "vars_structure": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "var_key": "string",
+                            "var_value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of organizational assignment packages.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

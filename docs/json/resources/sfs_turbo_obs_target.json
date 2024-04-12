@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_obs_target": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "delete_data_in_file_system": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "file_system_path": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "obs": {
+                "block": {
+                  "attributes": {
+                    "bucket": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "endpoint": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SFS",
+            "name": "Scalable File Service(General Purpose File System)",
+            "catalog": "Storage",
+            "name_cn": "弹性文件服务(通用文件系统)",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

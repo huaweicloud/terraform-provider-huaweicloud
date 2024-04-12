@@ -17,6 +17,11 @@
                 "forcenew": true,
                 "default": "postPaid"
               },
+              "east_west_firewall_er_attachment_id": {
+                "type": "string",
+                "description": "Enterprise Router and Firewall Connection ID",
+                "computed": true
+              },
               "east_west_firewall_er_id": {
                 "type": "string",
                 "description": "Specifies the ER ID of the east-west firewall.",
@@ -143,6 +148,36 @@
               "flavor": {
                 "block": {
                   "attributes": {
+                    "bandwidth": {
+                      "type": "number",
+                      "description": "Specifies the bandwidth of the firewall.",
+                      "computed": true
+                    },
+                    "default_bandwidth": {
+                      "type": "number",
+                      "description": "Specifies the default bandwidth of the firewall.",
+                      "computed": true
+                    },
+                    "default_eip_count": {
+                      "type": "number",
+                      "description": "Specifies the default EIP number of the firewall.",
+                      "computed": true
+                    },
+                    "default_log_storage": {
+                      "type": "number",
+                      "description": "Specifies the default log storage of the firewall.",
+                      "computed": true
+                    },
+                    "default_vpc_count": {
+                      "type": "number",
+                      "description": "Specifies the default VPC number of the firewall.",
+                      "computed": true
+                    },
+                    "eip_count": {
+                      "type": "number",
+                      "description": "Specifies the EIP number of the firewall.",
+                      "computed": true
+                    },
                     "extend_bandwidth": {
                       "type": "number",
                       "description": "Specifies the extend bandwidth of the firewall.",
@@ -161,11 +196,36 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "log_storage": {
+                      "type": "number",
+                      "description": "Specifies the log storage of the firewall.",
+                      "computed": true
+                    },
+                    "total_rule_count": {
+                      "type": "number",
+                      "description": "Specifies the total rule count of the firewall.",
+                      "computed": true
+                    },
+                    "used_rule_count": {
+                      "type": "number",
+                      "description": "Specifies the used rule count of the firewall.",
+                      "computed": true
+                    },
                     "version": {
                       "type": "string",
                       "description": "Specifies the version of the firewall.",
                       "required": true,
                       "forcenew": true
+                    },
+                    "vpc_bandwidth": {
+                      "type": "number",
+                      "description": "Specifies the VPC bandwidth of the firewall.",
+                      "computed": true
+                    },
+                    "vpc_count": {
+                      "type": "number",
+                      "description": "Specifies the VPC number of the firewall.",
+                      "computed": true
                     }
                   },
                   "description": "Specifies the flavor of the firewall."

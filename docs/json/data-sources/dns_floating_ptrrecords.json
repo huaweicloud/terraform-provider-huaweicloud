@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_floating_ptrrecords": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name of the PTR record.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID corresponding to the PTR record.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ptrrecords": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "domain_name": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "public_ip": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "ttl": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the PTR records.",
+                "computed": true
+              },
+              "public_ip": {
+                "type": "string",
+                "description": "Specifies the EIP address of the PTR record.",
+                "optional": true
+              },
+              "record_id": {
+                "type": "string",
+                "description": "Specifies the ID of the PTR record.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the PTR record.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the PTR record.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

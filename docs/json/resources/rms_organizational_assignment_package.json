@@ -92,7 +92,7 @@
                   },
                   "description": "Specifies the parameters of a conformance package."
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "forcenew": true
               }
             }

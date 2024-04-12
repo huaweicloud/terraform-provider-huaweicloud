@@ -145,6 +145,10 @@
                 "type": "string",
                 "computed": true
               },
+              "security_group_id": {
+                "type": "string",
+                "computed": true
+              },
               "slave_az": {
                 "type": "string",
                 "optional": true,
@@ -157,9 +161,14 @@
               "start_time": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
                 "type": "string",
                 "computed": true
               },
@@ -174,9 +183,49 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "computed": true
               }
             },
             "block_types": {
+              "alarm_notify": {
+                "block": {
+                  "attributes": {
+                    "delay_time": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "rpo_delay": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "rto_delay": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "topic_urn": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "destination_db": {
                 "block": {
                   "attributes": {
@@ -217,6 +266,10 @@
                       "optional": true,
                       "computed": true,
                       "forcenew": true
+                    },
+                    "security_group_id": {
+                      "type": "string",
+                      "computed": true
                     },
                     "ssl_cert_check_sum": {
                       "type": "string",
@@ -287,7 +340,7 @@
                     }
                   }
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "forcenew": true,
                 "max_items": 3
               },
@@ -358,6 +411,10 @@
                       "optional": true,
                       "computed": true,
                       "forcenew": true
+                    },
+                    "security_group_id": {
+                      "type": "string",
+                      "computed": true
                     },
                     "ssl_cert_check_sum": {
                       "type": "string",

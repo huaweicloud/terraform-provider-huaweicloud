@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_backups": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the ID of the backup.",
+                "optional": true
+              },
+              "backup_type": {
+                "type": "string",
+                "description": "Specifies the backup type.",
+                "optional": true
+              },
+              "backups": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "begin_time": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "end_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "name": "string",
+                      "size": "number",
+                      "status": "string",
+                      "take_up_time": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of backups.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the backup start time. The format is **yyyy-mm-ddThh:mm:ssZ**.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the backup end time.The format is **yyyy-mm-ddThh:mm:ssZ**.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "optional": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "Specifies the instance name.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the backup name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the backup type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_advanced_queries": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the advanced query name.",
+                "optional": true
+              },
+              "queries": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "expression": "string",
+                      "id": "string",
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of advanced queries.",
+                "computed": true
+              },
+              "query_id": {
+                "type": "string",
+                "description": "Specifies the advanced query ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

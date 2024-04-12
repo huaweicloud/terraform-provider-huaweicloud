@@ -21,7 +21,8 @@
                   "set",
                   "string"
                 ],
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "config_center_addresses": {
@@ -50,6 +51,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "extend_params": {

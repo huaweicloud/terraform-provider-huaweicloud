@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_organizational_policy_assignments": {
+          "block": {
+            "attributes": {
+              "assignment_id": {
+                "type": "string",
+                "description": "Specifies the ID of the organizational policy assignment.",
+                "optional": true
+              },
+              "assignments": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "organization_id": "string",
+                      "organization_policy_assignment_urn": "string",
+                      "owner_id": "string",
+                      "parameters": [
+                        "map",
+                        "string"
+                      ],
+                      "period": "string",
+                      "policy_definition_id": "string",
+                      "policy_filter": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "region_id": "string",
+                            "resource_id": "string",
+                            "resource_provider": "string",
+                            "resource_type": "string",
+                            "tag_key": "string",
+                            "tag_value": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The organization assignments.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the organizational policy assignment.",
+                "optional": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Specifies the ID of the organization.",
+                "required": true
+              },
+              "policy_definition_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy definition.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

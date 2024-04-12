@@ -15,8 +15,7 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -24,8 +23,7 @@
               },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "service_area": {
                 "type": "string",
@@ -253,6 +251,11 @@
                             "optional": true,
                             "computed": true
                           },
+                          "certificate_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
                           "http2_enabled": {
                             "type": "bool",
                             "optional": true,
@@ -269,6 +272,11 @@
                           },
                           "https_status": {
                             "type": "string",
+                            "computed": true
+                          },
+                          "ocsp_stapling_status": {
+                            "type": "string",
+                            "optional": true,
                             "computed": true
                           },
                           "private_key": {

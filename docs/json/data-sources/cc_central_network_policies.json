@@ -1,0 +1,129 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_central_network_policies": {
+          "block": {
+            "attributes": {
+              "central_network_id": {
+                "type": "string",
+                "description": "Specifies the ID of central network.",
+                "required": true
+              },
+              "central_network_policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "central_network_id": "string",
+                      "created_at": "string",
+                      "document": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "default_plane": "string",
+                            "er_instances": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enterprise_router_id": "string",
+                                  "project_id": "string",
+                                  "region_id": "string"
+                                }
+                              ]
+                            ],
+                            "planes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "associate_er_tables": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "enterprise_router_id": "string",
+                                        "enterprise_router_table_id": "string",
+                                        "project_id": "string",
+                                        "region_id": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "exclude_er_connections": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "exclude_er_instances": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "enterprise_router_id": "string",
+                                              "project_id": "string",
+                                              "region_id": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "document_template_version": "string",
+                      "id": "string",
+                      "is_applied": "bool",
+                      "status": "string",
+                      "version": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the central network policies.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_applied": {
+                "type": "string",
+                "description": "Specifies whether the central network policy is applied or not.",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of central network policy.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of central network policy.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

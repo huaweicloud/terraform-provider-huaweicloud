@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_connections": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "Cloud connection ID.",
+                "optional": true
+              },
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_package_number": "number",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "inter_region_bandwidth_number": "number",
+                      "name": "string",
+                      "network_instance_number": "number",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "used_scene": "string"
+                    }
+                  ]
+                ],
+                "description": "Cloud connection list.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Cloud connection description.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Cloud connection name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Cloud connection status.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Cloud connection tags.",
+                "optional": true
+              },
+              "used_scene": {
+                "type": "string",
+                "description": "Application scenario.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,6 +5,10 @@
         "huaweicloud_elb_monitor": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "domain_name": {
                 "type": "string",
                 "optional": true,
@@ -21,6 +25,15 @@
               "max_retries": {
                 "type": "number",
                 "required": true
+              },
+              "max_retries_down": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
               },
               "pool_id": {
                 "type": "string",
@@ -48,6 +61,10 @@
               "timeout": {
                 "type": "number",
                 "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "url_path": {
                 "type": "string",
