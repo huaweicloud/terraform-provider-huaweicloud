@@ -888,6 +888,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cae_component":                cae.ResourceComponent(),
 			"huaweicloud_cae_component_configurations": cae.ResourceComponentConfigurations(),
+			"huaweicloud_cae_component_deployment":     cae.ResourceComponentDeployment(),
 
 			"huaweicloud_cbr_backup_share_accepter": cbr.ResourceBackupShareAccepter(),
 			"huaweicloud_cbr_backup_share":          cbr.ResourceBackupShare(),
