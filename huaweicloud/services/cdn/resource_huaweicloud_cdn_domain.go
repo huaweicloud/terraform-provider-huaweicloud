@@ -598,6 +598,11 @@ func ResourceCdnDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"domain_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "schema: Internal",
+			},
 		},
 	}
 }
@@ -1471,7 +1476,12 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CDN v2 client: %s", err)
 	}
 
-	v, err := domains.GetByName(cdnClient, d.Get("name").(string), buildResourceExtensionOpts(d, cfg)).Extract()
+	domainName := d.Get("domain_name").(string)
+	if domainName == "" {
+		domainName = d.Get("name").(string)
+	}
+
+	v, err := domains.GetByName(cdnClient, domainName, buildResourceExtensionOpts(d, cfg)).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseDetailResponseError(err), "error retrieving CDN domain")
 	}
@@ -1501,6 +1511,7 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
 		d.Set("configs", flattenConfigAttrs(configsResp, d)),
 		d.Set("tags", tags),
+		d.Set("domain_name", v.DomainName),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -1716,5 +1727,5 @@ func buildResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *dom
 
 func resourceCDNDomainImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
-	return []*schema.ResourceData{d}, d.Set("name", d.Id())
+	return []*schema.ResourceData{d}, d.Set("domain_name", d.Id())
 }
