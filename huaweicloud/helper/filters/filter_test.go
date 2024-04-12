@@ -447,4 +447,6 @@ func TestHasContain(t *testing.T) {
 	result6, err := hasContain(x2, y6)
 	assert.NoError(t, err)
 	assert.Equal(t, false, result6)
+
+	fmt.Println("xxx")
 }
