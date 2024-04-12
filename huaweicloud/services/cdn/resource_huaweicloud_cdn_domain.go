@@ -427,7 +427,7 @@ func ResourceCdnDomain() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: utils.GetForceNew(),
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -1538,6 +1538,10 @@ func parseDetailResponseError(err error) error {
 }
 
 func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if d.HasChange("name") && !d.IsNewResource() {
+		return diag.Errorf("error updating CDN domain name: not supported!")
+	}
+
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	hcCdnClient, err := cfg.HcCdnV2Client(region)

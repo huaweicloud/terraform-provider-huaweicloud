@@ -541,3 +541,11 @@ func IsUUID(uuid string) bool {
 	match, _ := regexp.MatchString(pattern, uuid)
 	return match
 }
+
+func GetForceNew() bool {
+	forceNew, err := strconv.ParseBool(os.Getenv("HW_ENABLE_FORCE_NEW"))
+	if err != nil {
+		return false
+	}
+	return forceNew
+}

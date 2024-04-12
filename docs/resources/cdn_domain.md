@@ -167,10 +167,10 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, ForceNew) Specifies acceleration domain name. Changing this parameter will create a new
-  resource. The domain name consists of one or more parts, representing domains at different levels.
-  Domain names at all levels can only be composed of letters, digits, and hyphens (-), and the letters are equivalent in
-  upper and lower case. Domain names at all levels are connected with (.). The domain name can contain up to `75` characters.
+* `name` - (Required, String) Specifies acceleration domain name. The domain name consists of one or more parts,
+  representing domains at different levels. Domain names at all levels can only be composed of letters, digits,
+  and hyphens (-), and the letters are equivalent in upper and lower case. Domain names at all levels are connected
+  with (.). The domain name can contain up to `75` characters.
 
 * `type` - (Required, String) Specifies the service type of the domain name. The valid values are as follows:
   + **web**: Static acceleration. For websites with many images and small files, such as portals and e-commerce websites.
