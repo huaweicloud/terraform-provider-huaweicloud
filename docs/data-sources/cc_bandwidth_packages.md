@@ -27,7 +27,11 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the bandwidth package name.
 
+<<<<<<< HEAD
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project that the bandwidth package
+=======
+* `enterprise_project_id` - (Optional, String) Specifies ID of the enterprise project that the bandwidth package
+>>>>>>> 6335788d1 (feat(CC): add a datasource to get the list of CC bandwidth packages)
   belongs to.
 
 * `status` - (Optional, String) Specifies the bandwidth package status.
@@ -43,7 +47,11 @@ The following arguments are supported:
   + **5**: 95th percentile bandwidth billing for the Chinese Mainland website.
   + **6**: 95th percentile bandwidth billing for the International website.
 
+<<<<<<< HEAD
 * `resource_id` - (Optional, String) Specifies the ID of the resource that the bandwidth package is bound to.
+=======
+* `resource_id` - (Optional, String) Specifies ID of the resource that the bandwidth package is bound to.
+>>>>>>> 6335788d1 (feat(CC): add a datasource to get the list of CC bandwidth packages)
 
 * `bandwidth` - (Optional, Int) Specifies the bandwidth range specified for the bandwidth package.
 
@@ -68,9 +76,15 @@ The `bandwidth_packages` block supports:
 
 * `description` - The bandwidth package description.
 
+<<<<<<< HEAD
 * `domain_id` - The ID of the account that the bandwidth package belongs to.
 
 * `enterprise_project_id` - The ID of the enterprise project that the bandwidth package belongs to.
+=======
+* `domain_id` - ID of the account that the bandwidth package belongs to.
+
+* `enterprise_project_id` - ID of the enterprise project that the bandwidth package belongs to.
+>>>>>>> 6335788d1 (feat(CC): add a datasource to get the list of CC bandwidth packages)
 
 * `project_id` - Project ID of the bandwidth package.
 
@@ -78,6 +92,7 @@ The `bandwidth_packages` block supports:
 
 * `updated_at` - Time when the resource was updated.
 
+<<<<<<< HEAD
 * `resource_id` - The ID of the resource that the bandwidth package is bound to.
 
 * `resource_type` - Type of the resource that the bandwidth package is bound to.
@@ -85,6 +100,15 @@ The `bandwidth_packages` block supports:
 * `local_area_id` - The ID of a local access point.
 
 * `remote_area_id` - The ID of a remote access point.
+=======
+* `resource_id` - ID of the resource that the bandwidth package is bound to.
+
+* `resource_type` - Type of the resource that the bandwidth package is bound to.
+
+* `local_area_id` - ID of a local access point.
+
+* `remote_area_id` - ID of a remote access point.
+>>>>>>> 6335788d1 (feat(CC): add a datasource to get the list of CC bandwidth packages)
 
 * `spec_code` - Specification code of the bandwidth package.
 
