@@ -987,6 +987,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
 			"huaweicloud_css_configuration":               css.ResourceCssConfiguration(),
 			"huaweicloud_css_scan_task":                   css.ResourceScanTask(),
+			"huaweicloud_css_log_setting":                 css.ResourceLogSetting(),
 			"huaweicloud_css_logstash_cluster":            css.ResourceLogstashCluster(),
 			"huaweicloud_css_logstash_configuration":      css.ResourceLogstashConfiguration(),
 			"huaweicloud_css_logstash_pipeline":           css.ResourceLogstashPipeline(),
