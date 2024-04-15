@@ -453,6 +453,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "http"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ipv6_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.range_based_retrieval_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.description", "test description"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "60"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "ignore_url_params"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.enabled", "true"),
@@ -507,6 +510,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "follow"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ipv6_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.range_based_retrieval_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.description", "update description"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "30"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "del_params"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.value", "test_value"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name-update"),
@@ -568,6 +574,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "5"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
@@ -607,6 +616,8 @@ resource "huaweicloud_cdn_domain" "test" {
     origin_protocol               = "http"
     ipv6_enable                   = true
     range_based_retrieval_enabled = true
+    description                   = "test description"
+    origin_receive_timeout        = "60"
 
     cache_url_parameter_filter {
       type = "ignore_url_params"
@@ -730,6 +741,9 @@ resource "huaweicloud_cdn_domain" "test" {
     origin_protocol               = "follow"
     ipv6_enable                   = false
     range_based_retrieval_enabled = false
+    description                   = "update description"
+    slice_etag_status             = "off"
+    origin_receive_timeout        = "30"
 
     cache_url_parameter_filter {
       type  = "del_params"
@@ -821,6 +835,8 @@ resource "huaweicloud_cdn_domain" "test" {
     origin_protocol               = "follow"
     ipv6_enable                   = false
     range_based_retrieval_enabled = false
+    slice_etag_status             = "on"
+    origin_receive_timeout        = "5"
 
     remote_auth {
       enabled = false
