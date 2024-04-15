@@ -312,6 +312,10 @@ The `configs` block support:
   -> Configure remote authentication to allow CDN to forward user requests to an authentication server and process the
   requests based on results returned by the authentication server.
 
+* `quic` - (Optional, List) Specifies the QUIC protocol. The [quic](#quic_object) structure is documented below.
+
+  -> This field can only be used when the HTTPS certificate is enabled. Disabling the HTTPS certificate will disable QUIC.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -569,6 +573,11 @@ The `add_custom_args_rules` and `add_custom_headers_rules` block support:
   + When `type` is set to **nginx_preset_var**, the value can only be **$http_host**, **$http_user_agent**,
     **$http_referer**, **$http_x_forwarded_for**, **$http_content_type**, **$remote_addr**, **$scheme**,
     **$server_protocol**, **$request_uri**, **$uri**, **$args**, or **$request_method**.
+
+<a name="quic_object"></a>
+The `quic` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable QUIC.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

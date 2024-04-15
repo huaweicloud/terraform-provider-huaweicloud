@@ -399,6 +399,21 @@ var customArgs = schema.Schema{
 	},
 }
 
+var quic = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -540,6 +555,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"websocket":                  &websocket,
 						"flexible_origin":            &flexibleOrigin,
 						"remote_auth":                &remoteAuth,
+						"quic":                       &quic,
 					},
 				},
 			},
@@ -901,6 +917,19 @@ func buildCustomArgsOpts(rawCustomArgs []interface{}) *[]model.CustomArgs {
 	return &customArgsOpts
 }
 
+func buildQUICOpts(rawQuic []interface{}) *model.Quic {
+	if len(rawQuic) != 1 {
+		return nil
+	}
+
+	quic := rawQuic[0].(map[string]interface{})
+	quicOpts := model.Quic{
+		Status: parseFunctionEnabledStatus(quic["enabled"].(bool)),
+	}
+
+	return &quicOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1031,6 +1060,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.remote_auth") {
 		configsOpts.RemoteAuth = buildRemoteAuthOpts(configs["remote_auth"].([]interface{}))
+	}
+	if d.HasChange("configs.0.quic") {
+		configsOpts.Quic = buildQUICOpts(configs["quic"].([]interface{}))
 	}
 }
 
@@ -1414,6 +1446,18 @@ func flattenCustomArgsAttrs(customArgs *[]model.CustomArgs) []map[string]interfa
 	return customArgsAttrs
 }
 
+func flattenQUICAttrs(quic *model.Quic) []map[string]interface{} {
+	if quic == nil {
+		return nil
+	}
+
+	quicAttrs := map[string]interface{}{
+		"enabled": analyseFunctionEnabledStatus(quic.Status),
+	}
+
+	return []map[string]interface{}{quicAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1462,6 +1506,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"description":                   configsResp.Remark,
 		"slice_etag_status":             configsResp.SliceEtagStatus,
 		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
+		"quic":                          flattenQUICAttrs(configsResp.Quic),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
