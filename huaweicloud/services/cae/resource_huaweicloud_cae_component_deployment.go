@@ -19,6 +19,7 @@ import (
 
 // @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action
 // @API CAE GET /v1/{project_id}/cae/jobs/{job_id}
+// ResourceComponentDeployment is a definition of the one-time action resource that used to manage component deployment.
 func ResourceComponentDeployment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComponentDeploymentCreate,
@@ -204,6 +205,7 @@ func resourceComponentDeploymentCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceComponentDeploymentRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	// No processing is performed in the 'Read()' method because the resource is a one-time action resource.
 	return nil
 }
 
@@ -226,5 +228,6 @@ func resourceComponentDeploymentUpdate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceComponentDeploymentDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	// No processing is performed in the 'Delete()' method because the resource is a one-time action resource.
 	return nil
 }

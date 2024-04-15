@@ -11,6 +11,9 @@ import (
 
 func TestAccComponentDeployment_basic(t *testing.T) {
 	baseConfig := testAccComponentConfiguration_base()
+	// Avoid CheckDestroy because this resource is a one-time action resource and there is nothing in the destroy
+	// method.
+	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -20,6 +23,7 @@ func TestAccComponentDeployment_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
+				// One-time action resource do not need to be checked and no processing is performed in the Read method.
 				Config: testAccComponentDeployment_basic_step1(baseConfig),
 			},
 			{
