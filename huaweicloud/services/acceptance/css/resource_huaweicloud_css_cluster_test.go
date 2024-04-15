@@ -231,7 +231,18 @@ func TestAccCssCluster_extend(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCssCluster_extend(rName, flavor, 3, 3, 40),
+				Config: testAccCssCluster_extend_basic(rName, flavor, 3, 40),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "40"),
+				),
+			},
+			{ // test add master and client node.
+				Config: testAccCssCluster_extend(rName, flavor, 3, 3, 1, 40),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -242,10 +253,13 @@ func TestAccCssCluster_extend(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", flavor),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.volume.0.size", "40"),
 				),
 			},
-			{
-				Config: testAccCssCluster_extend(rName, updateFlavor, 4, 5, 60),
+			{ // test extend node flavor, number and volume size.
+				Config: testAccCssCluster_extend(rName, updateFlavor, 4, 5, 3, 60),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -256,6 +270,9 @@ func TestAccCssCluster_extend(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", updateFlavor),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "5"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.volume.0.size", "40"),
 				),
 			},
 		},
@@ -464,7 +481,7 @@ resource "huaweicloud_css_cluster" "test" {
 `, testAccCssBase(rName), rName, epsId)
 }
 
-func testAccCssCluster_extend(rName, flavorNmae string, essNodeNum, masterNodeNum, size int) string {
+func testAccCssCluster_extend_basic(rName, flavorNmae string, essNodeNum, size int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -482,7 +499,32 @@ resource "huaweicloud_css_cluster" "test" {
     instance_number = %[4]d
     volume {
       volume_type = "HIGH"
-      size        = %[6]d
+      size        = %[5]d
+    }
+  }
+}
+`, testAccCssBase(rName), rName, flavorNmae, essNodeNum, size)
+}
+
+func testAccCssCluster_extend(rName, flavorNmae string, essNodeNum, masterNodeNum, clientNodeNum, size int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  ess_node_config {
+    flavor          = "%[3]s"
+    instance_number = %[4]d
+    volume {
+      volume_type = "HIGH"
+      size        = %[7]d
     }
   }
 
@@ -494,8 +536,17 @@ resource "huaweicloud_css_cluster" "test" {
       size        = 40
     }
   }
+
+  client_node_config {
+    flavor          = "%[3]s"
+    instance_number = %[6]d
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
 }
-`, testAccCssBase(rName), rName, flavorNmae, essNodeNum, masterNodeNum, size)
+`, testAccCssBase(rName), rName, flavorNmae, essNodeNum, masterNodeNum, clientNodeNum, size)
 }
 
 func testAccCssCluster_extend_prePaid(rName, flavorNmae string, essNodeNum, masterNodeNum, size int) string {

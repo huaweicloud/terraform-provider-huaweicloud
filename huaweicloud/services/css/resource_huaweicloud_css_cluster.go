@@ -67,6 +67,7 @@ const (
 // @API CSS PUT /v1.0/{project_id}/clusters/{cluster_id}/publickibana/close
 // @API CSS GET /v1.0/{project_id}/es-flavors
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/{types}/flavor
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -541,20 +542,17 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 			"volume": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
 							Type:         schema.TypeInt,
 							Required:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.IntDivisibleBy(10),
 						},
 						"volume_type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -1064,48 +1062,15 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	// update flavor
-	flavorChanges := []string{
-		"ess_node_config.0.flavor",
-		"master_node_config.0.flavor",
-		"client_node_config.0.flavor",
-		"cold_node_config.0.flavor",
-	}
-	if d.HasChanges(flavorChanges...) {
-		flavorList, err := getFlavorList(cssV1Client)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		err = updateFlavor(ctx, d, flavorList, conf)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	nodeConfigChanges := []string{
+		"ess_node_config",
+		"master_node_config",
+		"client_node_config",
+		"cold_node_config",
 	}
 
-	// extend instance number
-	instanceNumChanges := []string{
-		"ess_node_config.0.instance_number",
-		"master_node_config.0.instance_number",
-		"client_node_config.0.instance_number",
-		"cold_node_config.0.instance_number",
-		"expect_node_num",
-	}
-	if d.HasChanges(instanceNumChanges...) {
-		err = extendInstanceNumber(ctx, d, conf)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	// extend volume size
-	instanceVolumeSizeChanges := []string{
-		"ess_node_config.0.volume.0.size",
-		"cold_node_config.0.volume.0.size",
-		"node_config.0.volume.0.size",
-	}
-	if d.HasChanges(instanceVolumeSizeChanges...) {
-		err = extendVolumeSize(ctx, d, conf)
+	if d.HasChanges(nodeConfigChanges...) {
+		err := updateNodeConfig(ctx, d, cssV1Client, conf)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1174,6 +1139,96 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceCssClusterRead(ctx, d, meta)
+}
+
+func updateNodeConfig(ctx context.Context, d *schema.ResourceData,
+	cssV1Client *cssv1.CssClient, conf *config.Config) error {
+	addMasterNode := isAddNode(d, "master_node_config")
+	addClientNode := isAddNode(d, "client_node_config")
+
+	flavorList, err := getFlavorList(cssV1Client)
+	if err != nil {
+		return err
+	}
+
+	if addMasterNode {
+		flavorId, err := flattenFlavorId(InstanceTypeEssMaster, d, flavorList)
+		if err != nil {
+			return err
+		}
+
+		bodyParams := buildAddMasterNodeParams(d, flavorId)
+		err = addMastersOrClients(ctx, d, conf, InstanceTypeEssMaster, bodyParams)
+		if err != nil {
+			return err
+		}
+	} else if d.HasChange("master_node_config.0.volume") {
+		return fmt.Errorf("ess-master node volume not supports to be updated")
+	}
+
+	if addClientNode {
+		flavorId, err := flattenFlavorId(InstanceTypeEssClient, d, flavorList)
+		if err != nil {
+			return err
+		}
+
+		bodyParams := buildAddClientNodeParams(d, flavorId)
+		err = addMastersOrClients(ctx, d, conf, InstanceTypeEssClient, bodyParams)
+		if err != nil {
+			return err
+		}
+	} else if d.HasChange("client_node_config.0.volume") {
+		return fmt.Errorf("ess-client node volume not supports to be updated")
+	}
+
+	// update flavor
+	flavorChanges := []string{
+		"ess_node_config.0.flavor",
+		"master_node_config.0.flavor",
+		"client_node_config.0.flavor",
+		"cold_node_config.0.flavor",
+	}
+	if d.HasChanges(flavorChanges...) {
+		err = updateFlavor(ctx, d, flavorList, conf, addMasterNode, addClientNode)
+		if err != nil {
+			return err
+		}
+	}
+
+	// extend instance number
+	instanceNumChanges := []string{
+		"ess_node_config.0.instance_number",
+		"master_node_config.0.instance_number",
+		"client_node_config.0.instance_number",
+		"cold_node_config.0.instance_number",
+		"expect_node_num",
+	}
+	if d.HasChanges(instanceNumChanges...) {
+		err = extendInstanceNumber(ctx, d, conf, addMasterNode, addClientNode)
+		if err != nil {
+			return err
+		}
+	}
+
+	// extend volume size
+	instanceVolumeSizeChanges := []string{
+		"ess_node_config.0.volume.0.size",
+		"cold_node_config.0.volume.0.size",
+		"node_config.0.volume.0.size",
+	}
+	if d.HasChanges(instanceVolumeSizeChanges...) {
+		err = extendVolumeSize(ctx, d, conf)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func isAddNode(d *schema.ResourceData, node string) bool {
+	oldRaws, newRaws := d.GetChange(node)
+	return len(oldRaws.([]interface{})) == 0 && len(newRaws.([]interface{})) == 1
 }
 
 func updateBackupStrategy(d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
@@ -1616,7 +1671,7 @@ func updateCssTags(cssV1Client *cssv1.CssClient, id string, old, new map[string]
 }
 
 func updateFlavor(ctx context.Context, d *schema.ResourceData,
-	flavorsResp map[string]interface{}, conf *config.Config) error {
+	flavorsResp map[string]interface{}, conf *config.Config, addMasterNode, addClientNode bool) error {
 	if d.HasChange("ess_node_config.0.flavor") {
 		err := updateFlavorByType(ctx, InstanceTypeEss, d, flavorsResp, conf)
 		if err != nil {
@@ -1624,15 +1679,19 @@ func updateFlavor(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 	if d.HasChange("master_node_config.0.flavor") {
-		err := updateFlavorByType(ctx, InstanceTypeEssMaster, d, flavorsResp, conf)
-		if err != nil {
-			return err
+		if !addMasterNode {
+			err := updateFlavorByType(ctx, InstanceTypeEssMaster, d, flavorsResp, conf)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange("client_node_config.0.flavor") {
-		err := updateFlavorByType(ctx, InstanceTypeEssClient, d, flavorsResp, conf)
-		if err != nil {
-			return err
+		if !addClientNode {
+			err := updateFlavorByType(ctx, InstanceTypeEssClient, d, flavorsResp, conf)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange("cold_node_config.0.flavor") {
@@ -1750,7 +1809,8 @@ func getFlavorList(cssV1Client *cssv1.CssClient) (map[string]interface{}, error)
 	return data, nil
 }
 
-func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *config.Config) error {
+func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+	addMasterNode, addClientNode bool) error {
 	if d.HasChange("ess_node_config.0.instance_number") {
 		oldv, newv := d.GetChange("ess_node_config.0.instance_number")
 		nodesize := newv.(int) - oldv.(int)
@@ -1766,29 +1826,33 @@ func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *con
 		}
 	}
 	if d.HasChange("master_node_config.0.instance_number") {
-		oldv, newv := d.GetChange("master_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return fmt.Errorf("instance_number only supports to be extended")
-		}
-		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssMaster, nodesize, 0)
+		if !addMasterNode {
+			oldv, newv := d.GetChange("master_node_config.0.instance_number")
+			nodesize := newv.(int) - oldv.(int)
+			if nodesize < 0 {
+				return fmt.Errorf("instance_number only supports to be extended")
+			}
+			bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssMaster, nodesize, 0)
 
-		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
-		if err != nil {
-			return err
+			err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange("client_node_config.0.instance_number") {
-		oldv, newv := d.GetChange("client_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return fmt.Errorf("instance_number only supports to be extended")
-		}
-		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssClient, nodesize, 0)
+		if !addClientNode {
+			oldv, newv := d.GetChange("client_node_config.0.instance_number")
+			nodesize := newv.(int) - oldv.(int)
+			if nodesize < 0 {
+				return fmt.Errorf("instance_number only supports to be extended")
+			}
+			bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssClient, nodesize, 0)
 
-		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
-		if err != nil {
-			return err
+			err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange("cold_node_config.0.instance_number") {
@@ -1930,6 +1994,86 @@ func extendVolumeSize(ctx context.Context, d *schema.ResourceData, conf *config.
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func buildAddMasterNodeParams(d *schema.ResourceData, flavorId string) map[string]interface{} {
+	// to do: is_auto_pay param need to add after api bug fixed
+	bodyParams := map[string]interface{}{
+		"type": map[string]interface{}{
+			"flavor_ref":  flavorId,
+			"node_size":   d.Get("master_node_config.0.instance_number"),
+			"volume_type": d.Get("master_node_config.0.volume.0.volume_type"),
+		},
+	}
+
+	return bodyParams
+}
+
+func buildAddClientNodeParams(d *schema.ResourceData, flavorId string) map[string]interface{} {
+	// to do: is_auto_pay param need to add after api bug fixed
+	bodyParams := map[string]interface{}{
+		"type": map[string]interface{}{
+			"flavor_ref":  flavorId,
+			"node_size":   d.Get("client_node_config.0.instance_number"),
+			"volume_type": d.Get("client_node_config.0.volume.0.volume_type"),
+		},
+	}
+	return bodyParams
+}
+
+func addMastersOrClients(ctx context.Context, d *schema.ResourceData,
+	conf *config.Config, nodeType string, bodyParams map[string]interface{}) error {
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.CssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+	hcCssV1Client, err := conf.HcCssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+
+	addNodeHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent"
+	addNodePath := cssV1Client.Endpoint + addNodeHttpUrl
+	addNodePath = strings.ReplaceAll(addNodePath, "{project_id}", cssV1Client.ProjectID)
+	addNodePath = strings.ReplaceAll(addNodePath, "{cluster_id}", d.Id())
+	addNodePath = strings.ReplaceAll(addNodePath, "{type}", nodeType)
+
+	addNodeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	addNodeOpt.JSONBody = bodyParams
+	addNodeResp, err := cssV1Client.Request("POST", addNodePath, &addNodeOpt)
+	if err != nil {
+		return fmt.Errorf("error add CSS cluster %s node, cluster_id: %s, error: %s", nodeType, d.Id(), err)
+	}
+
+	addNodeRespBody, err := utils.FlattenResponse(addNodeResp)
+	if err != nil {
+		return fmt.Errorf("error retrieving CSS cluster updating extend response: %s", err)
+	}
+
+	orderId := utils.PathSearch("orderId", addNodeRespBody, "").(string)
+	if orderId != "" {
+		bssClient, err := conf.BssV2Client(region)
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+
+		// If charging mode is PrePaid, wait for the order to be completed.
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = checkClusterOperationCompleted(ctx, hcCssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
 	}
 	return nil
 }
