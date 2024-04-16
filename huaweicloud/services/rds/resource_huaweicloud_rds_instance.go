@@ -959,7 +959,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// if power_action is changed from ON to OFF/REBOOT, the instance should be close/restart at the end
-	if d.HasChanges("power_action") && powerAction == "OFF" || powerAction == "REBOOT" {
+	if d.HasChanges("power_action") && (powerAction == "OFF" || powerAction == "REBOOT") {
 		if err = updatePowerAction(ctx, d, client, powerAction); err != nil {
 			return diag.FromErr(err)
 		}
