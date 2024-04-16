@@ -1311,7 +1311,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_security_permission_set":        dataarts.ResourceSecurityPermissionSet(),
 			"huaweicloud_dataarts_security_data_recognition_rule": dataarts.ResourceSecurityRule(),
 			// DataArts DataService
-			"huaweicloud_dataarts_dataservice_app": dataarts.ResourceDataServiceApp(),
+			"huaweicloud_dataarts_dataservice_app":     dataarts.ResourceDataServiceApp(),
+			"huaweicloud_dataarts_dataservice_catalog": dataarts.ResourceDatatServiceCatalog(),
 
 			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
 			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
