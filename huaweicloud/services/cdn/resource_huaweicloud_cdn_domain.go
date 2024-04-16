@@ -26,6 +26,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var nonUpdatableParams = []string{"name"}
+
 var httpsConfig = schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
@@ -779,11 +781,12 @@ func ResourceCdnDomain() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: utils.GetForceNew(),
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -997,6 +1000,12 @@ func ResourceCdnDomain() *schema.Resource {
 				},
 			},
 			"tags": common.TagsSchema(),
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"cname": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -2420,10 +2429,6 @@ func parseDetailResponseError(err error) error {
 }
 
 func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if d.HasChange("name") && !d.IsNewResource() {
-		return diag.Errorf("error updating CDN domain name: not supported!")
-	}
-
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	hcCdnClient, err := cfg.HcCdnV2Client(region)

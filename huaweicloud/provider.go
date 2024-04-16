@@ -400,6 +400,13 @@ func Provider() *schema.Provider {
 				Description: descriptions["max_retries"],
 				DefaultFunc: schema.EnvDefaultFunc("HW_MAX_RETRIES", 5),
 			},
+
+			"enable_force_new": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: descriptions["enable_force_new"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_ENABLE_FORCE_NEW", false),
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -1955,6 +1962,8 @@ func init() {
 		"max_retries": "How many times HTTP connection should be retried until giving up.",
 
 		"enterprise_project_id": "enterprise project id",
+
+		"enable_force_new": "Whether to enable ForceNew",
 	}
 }
 
@@ -1986,6 +1995,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		RegionProjectIDMap:  make(map[string]string),
 		RPLock:              new(sync.Mutex),
 		SecurityKeyLock:     new(sync.Mutex),
+		EnableForceNew:      d.Get("enable_force_new").(bool),
 	}
 
 	// get assume role
