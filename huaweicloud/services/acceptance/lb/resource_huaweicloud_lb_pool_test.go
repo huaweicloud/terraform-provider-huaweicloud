@@ -48,6 +48,8 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 				),
 			},
 			{
@@ -55,6 +57,8 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
+					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 				),
 			},
 			{
@@ -90,6 +94,11 @@ resource "huaweicloud_lb_pool" "pool_1" {
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
 
+  persistence {
+    type        = "APP_COOKIE"
+    cookie_name = "testCookie"
+  }
+
   timeouts {
     create = "5m"
     update = "5m"
@@ -118,11 +127,12 @@ resource "huaweicloud_lb_listener" "listener_1" {
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name           = "%s"
-  protocol       = "HTTP"
-  lb_method      = "LEAST_CONNECTIONS"
-  admin_state_up = "true"
-  listener_id    = huaweicloud_lb_listener.listener_1.id
+  name              = "%s"
+  protocol          = "HTTP"
+  lb_method         = "LEAST_CONNECTIONS"
+  listener_id       = huaweicloud_lb_listener.listener_1.id
+  protection_status = "consoleProtection"
+  protection_reason = "test protection reason"
 
   timeouts {
     create = "5m"

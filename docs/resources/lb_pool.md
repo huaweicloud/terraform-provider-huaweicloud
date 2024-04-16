@@ -48,18 +48,27 @@ The following arguments are supported:
 * `lb_method` - (Required, String) The load balancing algorithm to distribute traffic to the pool's members. Must be one
   of ROUND_ROBIN, LEAST_CONNECTIONS, or SOURCE_IP.
 
-* `persistence` - (Optional, List, ForceNew) Omit this field to prevent session persistence. Indicates whether
-  connections in the same session will be processed by the same Pool member or not. Changing this creates a new pool.
+* `protection_status` - (Optional, String) The protection status for update. Value options:
+  + **nonProtection**: No protection.
+  + **consoleProtection**: Console modification protection.
+
+  Defaults to **nonProtection**.
+
+* `protection_reason` - (Optional, String) The reason for update protection. Only valid when `protection_status` is
+  **consoleProtection**.
+
+* `persistence` - (Optional, List) Omit this field to prevent session persistence. Indicates whether
+  connections in the same session will be processed by the same Pool member or not.
 
 The `persistence` argument supports:
 
-* `type` - (Required, String, ForceNew) The type of persistence mode. The current specification supports SOURCE_IP,
+* `type` - (Required, String) The type of persistence mode. The current specification supports SOURCE_IP,
   HTTP_COOKIE, and APP_COOKIE.
 
-* `cookie_name` - (Optional, String, ForceNew) The name of the cookie if persistence mode is set appropriately. Required
+* `cookie_name` - (Optional, String) The name of the cookie if persistence mode is set appropriately. Required
   if `type = APP_COOKIE`.
 
-* `timeout` - (Optional, Int, ForceNew) Specifies the sticky session timeout duration in minutes. This parameter is
+* `timeout` - (Optional, Int) Specifies the sticky session timeout duration in minutes. This parameter is
   invalid when type is set to APP_COOKIE. The value range varies depending on the protocol of the backend server group:
   + When the protocol of the backend server group is TCP or UDP, the value ranges from 1 to 60.
   + When the protocol of the backend server group is HTTP or HTTPS, the value ranges from 1 to 1440.
@@ -69,6 +78,8 @@ The `persistence` argument supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID for the pool.
+
+* `monitor_id` - The ID of the health check configured for the backend server group.
 
 ## Timeouts
 

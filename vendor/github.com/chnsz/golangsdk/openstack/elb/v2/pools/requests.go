@@ -122,6 +122,12 @@ type CreateOpts struct {
 	// Omit this field to prevent session persistence.
 	Persistence *SessionPersistence `json:"session_persistence,omitempty"`
 
+	// Protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Protection reason
+	ProtectionReason string `json:"protection_reason,omitempty"`
+
 	// The administrative state of the Pool. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
@@ -177,6 +183,12 @@ type UpdateOpts struct {
 	// Persistence is the session persistence of the pool.
 	// Omit this field to prevent session persistence.
 	Persistence *SessionPersistence `json:"session_persistence,omitempty"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
 }
 
 // ToPoolUpdateMap builds a request body from UpdateOpts.
