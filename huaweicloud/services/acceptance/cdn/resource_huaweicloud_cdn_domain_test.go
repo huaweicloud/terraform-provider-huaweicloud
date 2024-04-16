@@ -480,6 +480,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "301"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "white"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.include_empty", "false"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "2"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
@@ -539,9 +542,12 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "https"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "http"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "302"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "black"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.include_empty", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.match_type", "file_path"),
@@ -602,6 +608,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "off"),
 				),
 			},
 			{
@@ -670,6 +678,12 @@ resource "huaweicloud_cdn_domain" "test" {
       enabled       = true
       type          = "http"
       redirect_code = 301
+    }
+
+    referer {
+      type          = "white"
+      value         = "*.common.com,192.187.2.43,www.test.top:4990"
+      include_empty = false
     }
 
     flexible_origin {
@@ -796,8 +810,14 @@ resource "huaweicloud_cdn_domain" "test" {
 
     force_redirect {
       enabled       = true
-      type          = "https"
+      type          = "http"
       redirect_code = 302
+    }
+
+    referer {
+      type          = "black"
+      value         = "*.common.com,192.187.2.43"
+      include_empty = true
     }
 
     flexible_origin {
@@ -869,6 +889,10 @@ resource "huaweicloud_cdn_domain" "test" {
 
     force_redirect {
       enabled = false
+    }
+
+    referer {
+      type = "off"
     }
   }
 }

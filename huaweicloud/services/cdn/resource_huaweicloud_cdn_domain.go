@@ -444,6 +444,32 @@ var quic = schema.Schema{
 	},
 }
 
+var referer = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+				Computed:         true,
+			},
+			"include_empty": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -586,6 +612,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"flexible_origin":            &flexibleOrigin,
 						"remote_auth":                &remoteAuth,
 						"quic":                       &quic,
+						"referer":                    &referer,
 					},
 				},
 			},
@@ -961,6 +988,21 @@ func buildQUICOpts(rawQuic []interface{}) *model.Quic {
 	return &quicOpts
 }
 
+func buildRefererOpts(rawReferer []interface{}) *model.RefererConfig {
+	if len(rawReferer) != 1 {
+		return nil
+	}
+
+	referer := rawReferer[0].(map[string]interface{})
+	refererOpts := model.RefererConfig{
+		Type:         referer["type"].(string),
+		Value:        utils.String(referer["value"].(string)),
+		IncludeEmpty: utils.Bool(referer["include_empty"].(bool)),
+	}
+
+	return &refererOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1094,6 +1136,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.quic") {
 		configsOpts.Quic = buildQUICOpts(configs["quic"].([]interface{}))
+	}
+	if d.HasChange("configs.0.referer") {
+		configsOpts.Referer = buildRefererOpts(configs["referer"].([]interface{}))
 	}
 }
 
@@ -1490,6 +1535,20 @@ func flattenQUICAttrs(quic *model.Quic) []map[string]interface{} {
 	return []map[string]interface{}{quicAttrs}
 }
 
+func flattenRefererAttrs(referer *model.RefererConfig) []map[string]interface{} {
+	if referer == nil {
+		return nil
+	}
+
+	refererAttrs := map[string]interface{}{
+		"type":          referer.Type,
+		"value":         referer.Value,
+		"include_empty": referer.IncludeEmpty,
+	}
+
+	return []map[string]interface{}{refererAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1539,6 +1598,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"slice_etag_status":             configsResp.SliceEtagStatus,
 		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
 		"quic":                          flattenQUICAttrs(configsResp.Quic),
+		"referer":                       flattenRefererAttrs(configsResp.Referer),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
