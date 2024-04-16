@@ -97,6 +97,8 @@ type CreateSqlJobOpts struct {
 	RuntimeConfig string `json:"runtime_config,omitempty"`
 	// Label of a Flink SQL job. For details, see Table 3.
 	Tags []tags.ResourceTag `json:"tags"`
+	// Flink version. The valid value is `1.1`0 or `1.12`.
+	FlinkVersion string `json:"flink_version,omitempty"`
 }
 
 type UpdateSqlJobOpts struct {
@@ -162,16 +164,18 @@ type UpdateSqlJobOpts struct {
 	// Number of slots in each TaskManager. The default value is (parallel_number*tm_cus)/(cu_number-manager_cu_number).
 	TmSlotNum *int `json:"tm_slot_num,omitempty"`
 	// Degree of parallelism (DOP) of an operator.
-	OperatorConfig string `json:"operator_config,omitempty"`
+	OperatorConfig string `json:"operator_config"`
 	// Whether the abnormal restart is recovered from the checkpoint.
 	ResumeCheckpoint *bool `json:"resume_checkpoint,omitempty"`
 	// Maximum number of retry times upon exceptions. The unit is times/hour. Value range: -1 or greater than 0.
 	// The default value is -1, indicating that the number of times is unlimited.
 	ResumeMaxNum *int `json:"resume_max_num,omitempty"`
 	// Traffic or hit ratio of each operator, which is a character string in JSON format.
-	StaticEstimatorConfig string `json:"static_estimator_config,omitempty"`
+	StaticEstimatorConfig string `json:"static_estimator_config"`
 	// Customizes optimization parameters when a Flink job is running.
 	RuntimeConfig string `json:"runtime_config,omitempty"`
+	// Flink version. The valid value is `1.1`0 or `1.12`.
+	FlinkVersion string `json:"flink_version,omitempty"`
 }
 
 type ListOpts struct {
