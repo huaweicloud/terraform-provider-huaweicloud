@@ -20,17 +20,11 @@ jobs:
           prow-commands: |
             /assign
             /unassign
-            /approve
             /retitle
-            /area
-            /kind
-            /priority
             /remove
-            /lgtm
             /close
             /reopen
             /lock
-            /milestone
             /hold
             /cc
             /uncc
