@@ -162,7 +162,37 @@ var authOpts = schema.Schema{
 	},
 }
 
-var forceRedirectAndCompress = schema.Schema{
+var forceRedirect = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			// Cloud will configure this field to `302` by default
+			"redirect_code": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	},
+}
+
+var compress = schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
 	Computed: true,
@@ -548,8 +578,8 @@ func ResourceCdnDomain() *schema.Resource {
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
 						"url_signing":                &authOpts,
-						"force_redirect":             &forceRedirectAndCompress,
-						"compress":                   &forceRedirectAndCompress,
+						"force_redirect":             &forceRedirect,
+						"compress":                   &compress,
 						"cache_url_parameter_filter": &cacheUrlParameterFilter,
 						"ip_frequency_limit":         &ipFrequencyLimit,
 						"websocket":                  &websocket,
@@ -758,8 +788,9 @@ func buildForceRedirectOpts(rawForceRedirect []interface{}) *model.ForceRedirect
 
 	forceRedirect := rawForceRedirect[0].(map[string]interface{})
 	forceRedirectOpts := model.ForceRedirectConfig{
-		Status: parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
-		Type:   utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
+		Status:       parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
+		Type:         utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
+		RedirectCode: utils.Int32IgnoreEmpty(int32(forceRedirect["redirect_code"].(int))),
 	}
 
 	return &forceRedirectOpts
@@ -1297,9 +1328,10 @@ func flattenForceRedirectAttrs(forceRedirect *model.ForceRedirectConfig) []map[s
 	}
 
 	forceRedirectAttrs := map[string]interface{}{
-		"status":  forceRedirect.Status,
-		"type":    forceRedirect.Type,
-		"enabled": analyseFunctionEnabledStatus(forceRedirect.Status),
+		"status":        forceRedirect.Status,
+		"type":          forceRedirect.Type,
+		"enabled":       analyseFunctionEnabledStatus(forceRedirect.Status),
+		"redirect_code": forceRedirect.RedirectCode,
 	}
 
 	return []map[string]interface{}{forceRedirectAttrs}

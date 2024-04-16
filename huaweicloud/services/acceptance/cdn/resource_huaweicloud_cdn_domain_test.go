@@ -475,6 +475,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.expire_time", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "http"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "301"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "2"),
@@ -535,6 +538,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.expire_time", "31536000"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "https"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "302"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "1"),
@@ -593,6 +599,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "off"),
 				),
 			},
 			{
@@ -658,8 +667,9 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     force_redirect {
-      enabled = true
-      type    = "http"
+      enabled       = true
+      type          = "http"
+      redirect_code = 301
     }
 
     flexible_origin {
@@ -785,8 +795,9 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     force_redirect {
-      enabled = true
-      type    = "http"
+      enabled       = true
+      type          = "https"
+      redirect_code = 302
     }
 
     flexible_origin {
@@ -853,6 +864,10 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     url_signing {
+      enabled = false
+    }
+
+    force_redirect {
       enabled = false
     }
   }

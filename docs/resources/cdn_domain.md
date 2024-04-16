@@ -406,6 +406,9 @@ The `force_redirect` blocks support:
 * `type` - (Optional, String) Specifies the force redirect type.
   Possible values are: **http** (force redirect to HTTP) and **https** (force redirect to HTTPS).
 
+* `redirect_code` - (Optional, Int) Specifies the force redirect status code. Valid values are: **301** and **302**.
+  Defaults to **302**.
+
 <a name="compress_object"></a>
 The `compress` blocks support:
 
