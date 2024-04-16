@@ -84,13 +84,12 @@ func ResourcePoolV3() *schema.Resource {
 			"persistence": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"SOURCE_IP", "HTTP_COOKIE", "APP_COOKIE",
 							}, false),
@@ -98,12 +97,10 @@ func ResourcePoolV3() *schema.Resource {
 						"cookie_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 							Computed: true,
 						},
 					},
@@ -144,6 +141,30 @@ func ResourcePoolV3() *schema.Resource {
 			},
 			"ip_version": {
 				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"any_port_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"deletion_protection_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"monitor_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -165,17 +186,22 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	anyPortEnable := d.Get("any_port_enable").(bool)
+	deletionProtectionEnable := d.Get("deletion_protection_enable").(bool)
 	createOpts := pools.CreateOpts{
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Protocol:         d.Get("protocol").(string),
-		LoadbalancerID:   d.Get("loadbalancer_id").(string),
-		ListenerID:       d.Get("listener_id").(string),
-		LBMethod:         d.Get("lb_method").(string),
-		ProtectionStatus: d.Get("protection_status").(string),
-		ProtectionReason: d.Get("protection_reason").(string),
-		Type:             d.Get("type").(string),
-		VpcId:            d.Get("vpc_id").(string),
+		Name:                     d.Get("name").(string),
+		Description:              d.Get("description").(string),
+		Protocol:                 d.Get("protocol").(string),
+		LoadbalancerID:           d.Get("loadbalancer_id").(string),
+		ListenerID:               d.Get("listener_id").(string),
+		LBMethod:                 d.Get("lb_method").(string),
+		ProtectionStatus:         d.Get("protection_status").(string),
+		ProtectionReason:         d.Get("protection_reason").(string),
+		Type:                     d.Get("type").(string),
+		VpcId:                    d.Get("vpc_id").(string),
+		IpVersion:                d.Get("ip_version").(string),
+		AnyPortEnable:            &anyPortEnable,
+		DeletionProtectionEnable: &deletionProtectionEnable,
 	}
 
 	if v, ok := d.GetOk("slow_start_enabled"); ok {
@@ -235,6 +261,11 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("slow_start_enabled", pool.SlowStart.Enable),
 		d.Set("slow_start_duration", pool.SlowStart.Duration),
 		d.Set("ip_version", pool.IpVersion),
+		d.Set("any_port_enable", pool.AnyPortEnable),
+		d.Set("deletion_protection_enable", d.Get("deletion_protection_enable").(bool)),
+		d.Set("monitor_id", pool.MonitorID),
+		d.Set("created_at", pool.CreatedAt),
+		d.Set("updated_at", pool.UpdatedAt),
 	)
 
 	if len(pool.Loadbalancers) != 0 {
@@ -282,9 +313,12 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 		updateOpts.Description = &description
 	}
 	if d.HasChange("persistence") {
-		persistence, err := buildPersistence(d.Get("persistence"))
-		if err != nil {
-			return diag.FromErr(err)
+		var persistence pools.SessionPersistence
+		if p, ok := d.GetOk("persistence"); ok {
+			persistence, err = buildPersistence(p)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 		updateOpts.Persistence = &persistence
 	}
@@ -306,6 +340,10 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 			Enable:   d.Get("slow_start_enabled").(bool),
 			Duration: d.Get("slow_start_duration").(int),
 		}
+	}
+	if d.HasChange("deletion_protection_enable") {
+		deletionProtectionEnable := d.Get("deletion_protection_enable").(bool)
+		updateOpts.DeletionProtectionEnable = &deletionProtectionEnable
 	}
 
 	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)

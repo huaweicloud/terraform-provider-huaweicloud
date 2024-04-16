@@ -246,6 +246,63 @@ func TestAccElbV3Pool_basic_with_type_ip(t *testing.T) {
 	})
 }
 
+func TestAccElbV3Pool_basic_with_protocol_tcp(t *testing.T) {
+	var pool pools.Pool
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_pool.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3PoolConfig_basic_with_protocol_tcp(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "TCP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttr(resourceName, "type", "ip"),
+					resource.TestCheckResourceAttr(resourceName, "ip_version", "dualstack"),
+					resource.TestCheckResourceAttr(resourceName, "any_port_enable", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+				),
+			},
+			{
+				Config: testAccElbV3PoolConfig_update_with_protocol_tcp(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "TCP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttr(resourceName, "type", "ip"),
+					resource.TestCheckResourceAttr(resourceName, "ip_version", "dualstack"),
+					resource.TestCheckResourceAttr(resourceName, "any_port_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "deletion_protection_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "SOURCE_IP"),
+					resource.TestCheckResourceAttr(resourceName, "persistence.0.timeout", "10"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection_enable"},
+			},
+		},
+	})
+}
+
 func testAccElbV3PoolConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -358,21 +415,17 @@ resource "huaweicloud_elb_pool" "test" {
 
 func testAccElbV3PoolConfig_basic_with_type_ip(rName string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_elb_pool" "test" {
   name      = "%s"
   protocol  = "HTTP"
   lb_method = "ROUND_ROBIN"
   type      = "ip"
 }
-`, common.TestVpc(rName), rName)
+`, rName)
 }
 
 func testAccElbV3PoolConfig_update_with_type_ip(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_elb_pool" "test" {
   name      = "%s"
   protocol  = "HTTP"
@@ -385,5 +438,37 @@ resource "huaweicloud_elb_pool" "test" {
   protection_status = "consoleProtection"
   protection_reason = "test protection reason"
 }
-`, common.TestVpc(rName), rNameUpdate)
+`, rNameUpdate)
+}
+
+func testAccElbV3PoolConfig_basic_with_protocol_tcp(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%s"
+  protocol        = "TCP"
+  lb_method       = "ROUND_ROBIN"
+  type            = "ip"
+  ip_version      = "dualstack"
+  any_port_enable = true
+}
+`, rName)
+}
+
+func testAccElbV3PoolConfig_update_with_protocol_tcp(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_elb_pool" "test" {
+  name                       = "%s"
+  protocol                   = "TCP"
+  lb_method                  = "ROUND_ROBIN"
+  type                       = "ip"
+  ip_version                 = "dualstack"
+  any_port_enable            = true
+  deletion_protection_enable = true
+
+  persistence {
+    type    = "SOURCE_IP"
+    timeout = 10
+  }
+}
+`, rName)
 }
