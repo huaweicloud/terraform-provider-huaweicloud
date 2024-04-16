@@ -770,8 +770,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_key_v1":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key_v1": dew.DataSourceKmsDataKeyV1(),
 
-			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
-			"huaweicloud_sfs_file_system_v2": sfs.DataSourceSFSFileSystemV2(),
+			"huaweicloud_rds_flavors_v3":           rds.DataSourceRdsFlavor(),
+			"huaweicloud_sfs_file_system_v2":       sfs.DataSourceSFSFileSystemV2(),
+			"huaweicloud_rds_sql_audit_operations": rds.DataSourceRdsSqlAuditTypes(),
 
 			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
 			"huaweicloud_vpc_ids_v1":                vpc.DataSourceVpcIdsV1(),
