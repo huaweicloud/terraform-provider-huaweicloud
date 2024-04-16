@@ -553,6 +553,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_instances":              gaussdb.DataSourceGaussDBMysqlInstances(),
 			"huaweicloud_gaussdb_redis_instance":               gaussdb.DataSourceGaussRedisInstance(),
 
+			"huaweicloud_hss_host_groups": hss.DataSourceHostGroups(),
+
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
 			"huaweicloud_identity_custom_role": iam.DataSourceIdentityCustomRole(),
