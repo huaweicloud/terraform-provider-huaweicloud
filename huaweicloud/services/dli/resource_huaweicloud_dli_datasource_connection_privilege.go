@@ -19,6 +19,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// The error code corresponding to ErrCodeConnNotFound is an important sign that the related resource does not exist.
+// When the object is enhanced connection and the connection not exist, the API return this error:
+// + {"error_code": "DLI.0001", "error_msg": "Connection xxx is not exist"}
+const ErrCodeConnNotFound string = "DLI.0001"
+
 // @API DLI PUT /v1.0/{project_id}/authorization
 // @API DLI GET /v2.0/{project_id}/datasource/enhanced-connections/{connection_id}/privileges
 func ResourceDatasourceConnectionPrivilege() *schema.Resource {
@@ -138,7 +143,11 @@ func resourceDatasourceConnectionPrivilegeCreate(ctx context.Context, d *schema.
 	return resourceDatasourceConnectionPrivilegeRead(ctx, d, meta)
 }
 
-func ParsePrivilegesQueryError(err error) error {
+// ParsePrivilegesQueryError is a method that used to parse the special error returned by the permission query request
+// of the DLI object (enhanced connection, database or table).
+// + DLI.0001: enhanced connection has been deleted.
+// + DLI.0002: database or table has been deleted.
+func ParsePrivilegesQueryError(err error, special404ErrCode string) error {
 	var errCode golangsdk.ErrDefault400
 	if errors.As(err, &errCode) {
 		var apiError interface{}
@@ -151,8 +160,9 @@ func ParsePrivilegesQueryError(err error) error {
 			return err
 		}
 
-		// Error code DLI.0001 indicates that the connection has been deleted.
-		if errorCode == "DLI.0001" {
+		// If the error code is consistent with the expected 404 error code, it means that the resource has been
+		// deleted.
+		if errorCode == special404ErrCode {
 			return golangsdk.ErrDefault404(errCode)
 		}
 	}
@@ -182,7 +192,7 @@ func resourceDatasourceConnectionPrivilegeRead(_ context.Context, d *schema.Reso
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParsePrivilegesQueryError(err), "error retrieving privileges")
+		return common.CheckDeletedDiag(d, ParsePrivilegesQueryError(err, ErrCodeConnNotFound), "error retrieving privileges")
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {

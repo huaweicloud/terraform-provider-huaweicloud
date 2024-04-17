@@ -99,6 +99,7 @@ var (
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
 
+	HW_DLI_AUTHORIZED_USER_NAME         = os.Getenv("HW_DLI_AUTHORIZED_USER_NAME")
 	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 	HW_DLI_DS_AUTH_CSS_OBS_PATH         = os.Getenv("HW_DLI_DS_AUTH_CSS_OBS_PATH")
 	HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH = os.Getenv("HW_DLI_DS_AUTH_KAFKA_TRUST_OBS_PATH")
@@ -780,6 +781,15 @@ func TestAccPreCheckRAMSharedPrincipalsQueryFields(t *testing.T) {
 func TestAccPreCheckDms(t *testing.T) {
 	if HW_DMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DMS tests")
+	}
+}
+
+// DLI authorization operations require that the object has administrative rights to the DLI service and has logged in
+// to the DLI console.
+// lintignore:AT003
+func TestAccPreCheckDliAuthorizedUserConfigured(t *testing.T) {
+	if HW_DLI_AUTHORIZED_USER_NAME == "" {
+		t.Skip("HW_DLI_AUTHORIZED_USER_NAME must be set for DLI privilege acceptance tests.")
 	}
 }
 
