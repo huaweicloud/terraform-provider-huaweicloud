@@ -176,6 +176,10 @@ type JobConfBase struct {
 	Feature          string `json:"feature"`
 	FlinkVersion     string `json:"flink_version"`
 	Image            string `json:"image"`
+	// Degree of parallelism (DOP) of an operator.
+	OperatorConfig string `json:"operator_config"`
+	// The traffic or hit rate configuration of each operator.
+	StaticEstimatorConfig string `json:"static_estimator_config"`
 }
 
 type ListResp struct {
