@@ -261,6 +261,7 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.ocsp_stapling_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.quic.0.enabled", "true"),
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2"),
 
 					resource.TestCheckResourceAttrSet(resourceName, "configs.0.https_settings.0.certificate_body"),
@@ -280,6 +281,7 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.ocsp_stapling_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.quic.0.enabled", "false"),
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2,TLSv1.3"),
 				),
 			},
@@ -363,6 +365,10 @@ resource "huaweicloud_cdn_domain" "test" {
       certificate_type     = "server"
       ocsp_stapling_status = "on"
     }
+
+    quic {
+      enabled = true
+    }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
@@ -394,6 +400,10 @@ resource "huaweicloud_cdn_domain" "test" {
       tls_version          = "TLSv1.1,TLSv1.2,TLSv1.3"
       certificate_source   = 0
       ocsp_stapling_status = "off"
+    }
+
+    quic {
+      enabled = false
     }
   }
 }
@@ -465,7 +475,13 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.expire_time", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "http"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "301"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "white"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.include_empty", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "2"),
 
@@ -525,7 +541,13 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.expire_time", "31536000"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "http"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "302"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "on"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "black"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.include_empty", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.match_type", "file_path"),
@@ -583,6 +605,11 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.status", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "off"),
 				),
 			},
 			{
@@ -648,8 +675,15 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     force_redirect {
-      enabled = true
-      type    = "http"
+      enabled       = true
+      type          = "http"
+      redirect_code = 301
+    }
+
+    referer {
+      type          = "white"
+      value         = "*.common.com,192.187.2.43,www.test.top:4990"
+      include_empty = false
     }
 
     flexible_origin {
@@ -775,8 +809,15 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     force_redirect {
-      enabled = true
-      type    = "http"
+      enabled       = true
+      type          = "http"
+      redirect_code = 302
+    }
+
+    referer {
+      type          = "black"
+      value         = "*.common.com,192.187.2.43"
+      include_empty = true
     }
 
     flexible_origin {
@@ -844,6 +885,14 @@ resource "huaweicloud_cdn_domain" "test" {
 
     url_signing {
       enabled = false
+    }
+
+    force_redirect {
+      enabled = false
+    }
+
+    referer {
+      type = "off"
     }
   }
 }

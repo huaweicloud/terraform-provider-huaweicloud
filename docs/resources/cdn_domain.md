@@ -160,6 +160,12 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       enabled = true
       type    = "http"
     }
+
+    referer {
+      type          = "white"
+      value         = "*.common.com,192.187.2.43,www.test.top:4990"
+      include_empty = false
+    }
   }
 }
 ```
@@ -312,6 +318,14 @@ The `configs` block support:
   -> Configure remote authentication to allow CDN to forward user requests to an authentication server and process the
   requests based on results returned by the authentication server.
 
+* `quic` - (Optional, List) Specifies the QUIC protocol. The [quic](#quic_object) structure is documented below.
+
+  -> This field can only be used when the HTTPS certificate is enabled. Disabling the HTTPS certificate will disable QUIC.
+
+* `referer` - (Optional, List) Specifies the referer validation. The [referer](#referer_object) structure is documented below.
+
+  -> You can define referer whitelists and blacklists to control who can access specific domain names.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -401,6 +415,11 @@ The `force_redirect` blocks support:
 
 * `type` - (Optional, String) Specifies the force redirect type.
   Possible values are: **http** (force redirect to HTTP) and **https** (force redirect to HTTPS).
+
+  -> Force redirect **https** type can be set only if https is enabled.
+
+* `redirect_code` - (Optional, Int) Specifies the force redirect status code. Valid values are: **301** and **302**.
+  Defaults to **302**.
 
 <a name="compress_object"></a>
 The `compress` blocks support:
@@ -569,6 +588,29 @@ The `add_custom_args_rules` and `add_custom_headers_rules` block support:
   + When `type` is set to **nginx_preset_var**, the value can only be **$http_host**, **$http_user_agent**,
     **$http_referer**, **$http_x_forwarded_for**, **$http_content_type**, **$remote_addr**, **$scheme**,
     **$server_protocol**, **$request_uri**, **$uri**, **$args**, or **$request_method**.
+
+<a name="quic_object"></a>
+The `quic` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable QUIC.
+
+<a name="referer_object"></a>
+The `referer` block support:
+
+* `type` - (Required, String) Specifies the referer validation type. Valid values are as follows:
+  + **off**: Disable referer validation.
+  + **black**: Referer blacklist.
+  + **white**: Referer whitelist.
+
+* `value` - (Optional, String) Specifies the domain names or IP addresses, which are separated by commas (,).
+  Wildcard domain names and domain names with port numbers are supported. Enter up to `400` domain names and IP addresses.
+  The port number ranges from `1` to `65535`. This field is required when `type` is set to **black** or **white**.
+
+* `include_empty` - (Optional, Bool) Specifies whether blank `referers` are included.
+  A referer blacklist including blank `referers` indicates that requests without any `referers` are not allowed to access.
+  A referer whitelist including blank `referers` indicates that requests without any `referers` are allowed to access.
+
+  Defaults to **false**.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

@@ -162,7 +162,37 @@ var authOpts = schema.Schema{
 	},
 }
 
-var forceRedirectAndCompress = schema.Schema{
+var forceRedirect = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			// Cloud will configure this field to `302` by default
+			"redirect_code": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	},
+}
+
+var compress = schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
 	Computed: true,
@@ -399,6 +429,47 @@ var customArgs = schema.Schema{
 	},
 }
 
+var quic = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+		},
+	},
+}
+
+var referer = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+				Computed:         true,
+			},
+			"include_empty": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -533,13 +604,15 @@ func ResourceCdnDomain() *schema.Resource {
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
 						"url_signing":                &authOpts,
-						"force_redirect":             &forceRedirectAndCompress,
-						"compress":                   &forceRedirectAndCompress,
+						"force_redirect":             &forceRedirect,
+						"compress":                   &compress,
 						"cache_url_parameter_filter": &cacheUrlParameterFilter,
 						"ip_frequency_limit":         &ipFrequencyLimit,
 						"websocket":                  &websocket,
 						"flexible_origin":            &flexibleOrigin,
 						"remote_auth":                &remoteAuth,
+						"quic":                       &quic,
+						"referer":                    &referer,
 					},
 				},
 			},
@@ -742,8 +815,9 @@ func buildForceRedirectOpts(rawForceRedirect []interface{}) *model.ForceRedirect
 
 	forceRedirect := rawForceRedirect[0].(map[string]interface{})
 	forceRedirectOpts := model.ForceRedirectConfig{
-		Status: parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
-		Type:   utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
+		Status:       parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
+		Type:         utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
+		RedirectCode: utils.Int32IgnoreEmpty(int32(forceRedirect["redirect_code"].(int))),
 	}
 
 	return &forceRedirectOpts
@@ -901,6 +975,34 @@ func buildCustomArgsOpts(rawCustomArgs []interface{}) *[]model.CustomArgs {
 	return &customArgsOpts
 }
 
+func buildQUICOpts(rawQuic []interface{}) *model.Quic {
+	if len(rawQuic) != 1 {
+		return nil
+	}
+
+	quic := rawQuic[0].(map[string]interface{})
+	quicOpts := model.Quic{
+		Status: parseFunctionEnabledStatus(quic["enabled"].(bool)),
+	}
+
+	return &quicOpts
+}
+
+func buildRefererOpts(rawReferer []interface{}) *model.RefererConfig {
+	if len(rawReferer) != 1 {
+		return nil
+	}
+
+	referer := rawReferer[0].(map[string]interface{})
+	refererOpts := model.RefererConfig{
+		Type:         referer["type"].(string),
+		Value:        utils.String(referer["value"].(string)),
+		IncludeEmpty: utils.Bool(referer["include_empty"].(bool)),
+	}
+
+	return &refererOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1031,6 +1133,12 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.remote_auth") {
 		configsOpts.RemoteAuth = buildRemoteAuthOpts(configs["remote_auth"].([]interface{}))
+	}
+	if d.HasChange("configs.0.quic") {
+		configsOpts.Quic = buildQUICOpts(configs["quic"].([]interface{}))
+	}
+	if d.HasChange("configs.0.referer") {
+		configsOpts.Referer = buildRefererOpts(configs["referer"].([]interface{}))
 	}
 }
 
@@ -1265,9 +1373,10 @@ func flattenForceRedirectAttrs(forceRedirect *model.ForceRedirectConfig) []map[s
 	}
 
 	forceRedirectAttrs := map[string]interface{}{
-		"status":  forceRedirect.Status,
-		"type":    forceRedirect.Type,
-		"enabled": analyseFunctionEnabledStatus(forceRedirect.Status),
+		"status":        forceRedirect.Status,
+		"type":          forceRedirect.Type,
+		"enabled":       analyseFunctionEnabledStatus(forceRedirect.Status),
+		"redirect_code": forceRedirect.RedirectCode,
 	}
 
 	return []map[string]interface{}{forceRedirectAttrs}
@@ -1414,6 +1523,32 @@ func flattenCustomArgsAttrs(customArgs *[]model.CustomArgs) []map[string]interfa
 	return customArgsAttrs
 }
 
+func flattenQUICAttrs(quic *model.Quic) []map[string]interface{} {
+	if quic == nil {
+		return nil
+	}
+
+	quicAttrs := map[string]interface{}{
+		"enabled": analyseFunctionEnabledStatus(quic.Status),
+	}
+
+	return []map[string]interface{}{quicAttrs}
+}
+
+func flattenRefererAttrs(referer *model.RefererConfig) []map[string]interface{} {
+	if referer == nil {
+		return nil
+	}
+
+	refererAttrs := map[string]interface{}{
+		"type":          referer.Type,
+		"value":         referer.Value,
+		"include_empty": referer.IncludeEmpty,
+	}
+
+	return []map[string]interface{}{refererAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1462,6 +1597,8 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"description":                   configsResp.Remark,
 		"slice_etag_status":             configsResp.SliceEtagStatus,
 		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
+		"quic":                          flattenQUICAttrs(configsResp.Quic),
+		"referer":                       flattenRefererAttrs(configsResp.Referer),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
