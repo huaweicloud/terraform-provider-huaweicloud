@@ -258,6 +258,7 @@ func TestAccRdsInstance_sqlserver(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "collation", "Chinese_PRC_CI_AS"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8634"),
+					resource.TestCheckResourceAttr(resourceName, "tde_enabled", "true"),
 				),
 			},
 			{
@@ -866,6 +867,7 @@ resource "huaweicloud_rds_instance" "test" {
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   collation         = "Chinese_PRC_CI_AS"
+  tde_enabled       = true
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
