@@ -174,9 +174,10 @@ var forceRedirect = schema.Schema{
 				Required: true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Required",
 			},
 			// Cloud will configure this field to `302` by default
 			"redirect_code": {
